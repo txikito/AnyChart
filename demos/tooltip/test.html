@@ -44,7 +44,7 @@
       chart.tooltip().selectable(true);
 
       // second series
-      series0 = chart.line(data0);
+      series0 = chart.bar(data0);
       series1 = chart.line(data1);
       series2 = chart.line(data2);
 
@@ -54,7 +54,7 @@
         return this.x + ': ' + this.value + ' wtf!!' + '\n' + this.seriesName + ': awesome!';
       });
 
-      chart.crosshair(true);
+      //chart.crosshair(true);
       //chart.crosshair().displayMode('s');
 
       chart.interactivity('s');
