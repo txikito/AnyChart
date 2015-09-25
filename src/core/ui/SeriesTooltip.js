@@ -1,5 +1,9 @@
 goog.provide('anychart.core.ui.SeriesTooltip');
 goog.require('anychart.core.VisualBase');
+goog.require('anychart.core.ui.BackgroundWithCallout');
+goog.require('anychart.core.ui.Label');
+goog.require('anychart.core.ui.Separator');
+goog.require('anychart.core.ui.Title');
 goog.require('anychart.core.utils.TooltipsContainer');
 
 
@@ -218,7 +222,7 @@ anychart.core.ui.SeriesTooltip.prototype.getFormattedContent = function(contextP
  */
 anychart.core.ui.SeriesTooltip.prototype.background = function(opt_value) {
   if (!this.background_) {
-    this.background_ = new anychart.core.ui.Background();
+    this.background_ = new anychart.core.ui.BackgroundWithCallout();
     this.background_.listenSignals(this.backgroundInvalidated_, this);
     this.registerDisposable(this.background_);
   }
