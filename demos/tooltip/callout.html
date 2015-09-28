@@ -22,10 +22,17 @@
       //b.width(300);
       //b.height(200);
       b.fill('#FFC9C9');
-      b.stroke('5 #DC0202');
+      b.stroke('2 #DC0202');
       b.container(stage);
 
       b.draw();
+
+      title = new anychart.core.ui.Title();
+      title.text('At vero eos et accusamus et iusto odio dignissimos ducimus qui blanditiis praesentium voluptatum deleniti atque corrupti quos dolores et qua');
+      title.textWrap(true);
+      title.parentBounds(b.getRemainingBounds());
+      title.container(stage);
+      title.draw();
 
 
       stage2 = acgraph.create('container2');
@@ -46,6 +53,7 @@
       /*border: 1px solid #000000;*/
     }
     #container2 {
+      margin-top: 20px;
       width: 300px;
       height: 200px;
       /*border: 1px solid #000000;*/
