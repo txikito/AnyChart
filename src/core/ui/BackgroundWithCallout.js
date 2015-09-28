@@ -34,12 +34,9 @@ anychart.core.ui.BackgroundWithCallout = function() {
    */
   this.calloutHeight_ = 20;//null; todo: to defaults 0
 
-  this.calloutOrientation_ = anychart.enums.Orientation.LEFT;//null;
+  this.calloutOrientation_ = anychart.enums.Orientation.TOP;//null;
 
-  this.callout_ = {
-    side: 'top',
-    offset: 125
-  };
+  this.calloutShift_ = '50%';//null; todo: to defaults '50%'
 
   this.resumeSignalsDispatching(false);
 };
@@ -229,8 +226,8 @@ anychart.core.ui.BackgroundWithCallout.prototype.calloutHeight = function(opt_va
 
 /**
  * Getter/setter for the callout orientation.
- * @param {(number|string)=} opt_value .
- * @return {number|string|!anychart.core.ui.BackgroundWithCallout} .
+ * @param {string=} opt_value .
+ * @return {string|!anychart.core.ui.BackgroundWithCallout} .
  */
 anychart.core.ui.BackgroundWithCallout.prototype.calloutOrientation = function(opt_value) {
   if (goog.isDef(opt_value)) {
@@ -242,6 +239,24 @@ anychart.core.ui.BackgroundWithCallout.prototype.calloutOrientation = function(o
     return this;
   }
   return this.calloutOrientation_;
+};
+
+
+/**
+ * Getter/setter for the callout height.
+ * @param {(number|string)=} opt_value .
+ * @return {number|string|!anychart.core.ui.BackgroundWithCallout} .
+ */
+anychart.core.ui.BackgroundWithCallout.prototype.calloutShift = function(opt_value) {
+  if (goog.isDef(opt_value)) {
+    if (this.calloutShift_ != opt_value) {
+      this.calloutShift_ = opt_value;
+      this.invalidate(anychart.ConsistencyState.BOUNDS,
+          anychart.Signal.NEEDS_REDRAW | anychart.Signal.BOUNDS_CHANGED);
+    }
+    return this;
+  }
+  return this.calloutShift_;
 };
 
 
@@ -330,9 +345,9 @@ anychart.core.ui.BackgroundWithCallout.prototype.draw = function() {
   this.path_.clearInternal();
   this.path_.moveToInternal(bounds.left, bounds.top + this.calloutHeightValue_);
 
-  this.path_.lineToInternal(bounds.left + this.callout_.offset, bounds.top + this.calloutHeightValue_);
-  this.path_.lineToInternal(bounds.left + this.callout_.offset + calloutHalfWidth, bounds.top);
-  this.path_.lineToInternal(bounds.left + this.callout_.offset + this.calloutWidthValue_, bounds.top + this.calloutHeightValue_);
+  this.path_.lineToInternal(bounds.left + this.calloutShiftValue_ - calloutHalfWidth, bounds.top + this.calloutHeightValue_);
+  this.path_.lineToInternal(bounds.left + this.calloutShiftValue_, bounds.top);
+  this.path_.lineToInternal(bounds.left + this.calloutShiftValue_ + calloutHalfWidth, bounds.top + this.calloutHeightValue_);
   this.path_.lineToInternal(bounds.left + bounds.width, bounds.top + this.calloutHeightValue_);
 
   this.path_.lineToInternal(bounds.left + bounds.width, bounds.top + bounds.height);
@@ -385,6 +400,11 @@ anychart.core.ui.BackgroundWithCallout.prototype.draw = function() {
 anychart.core.ui.BackgroundWithCallout.prototype.calculate_ = function(bounds) {
   this.calloutWidthValue_ = anychart.utils.normalizeSize(this.calloutWidth_, bounds.width);
   this.calloutHeightValue_ = anychart.utils.normalizeSize(this.calloutHeight_, bounds.height);
+
+
+  this.calloutShiftValue_ = anychart.utils.isHorizontal(this.calloutOrientation_) ?
+      anychart.utils.normalizeSize(this.calloutShift_, bounds.width) :
+      anychart.utils.normalizeSize(this.calloutShift_, bounds.height);
 };
 
 
