@@ -1,0 +1,61 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Tooltip Demo</title>
+  <!--<script src="../../out/anychart-bundle.min.js"></script>-->
+  <script src="../../contrib/closure-library/closure/goog/base.js"></script>
+  <script src="../../src/deps.js"></script>
+  <script>
+    goog.require('anychart.modules.anychart_bundle');
+    goog.require('anychart.themes.defaultTheme');
+    goog.require('anychart.themes.v6');
+  </script>
+  <script>
+    var stage, b;
+
+    function load() {
+      stage = acgraph.create('container');
+      b = new anychart.core.ui.BackgroundWithCallout();
+      //b.parentBounds(this.contentBounds_);
+
+      //b.width(300);
+      //b.height(200);
+      b.fill('#FFC9C9');
+      b.stroke('5 #DC0202');
+      b.container(stage);
+
+      b.draw();
+
+
+      stage2 = acgraph.create('container2');
+      b2 = new anychart.core.ui.Background();
+      //b.width(300);
+      //b.height(200);
+      b2.fill('cyan');
+      b2.container(stage2);
+
+      b2.draw();
+
+    }
+  </script>
+  <style>
+    #container {
+      width: 300px;
+      height: 200px;
+      /*border: 1px solid #000000;*/
+    }
+    #container2 {
+      width: 300px;
+      height: 200px;
+      /*border: 1px solid #000000;*/
+    }
+  </style>
+</head>
+
+
+<body onload="load()">
+<div id="container"></div>
+<div id="container2"></div>
+</body>
+</html>
