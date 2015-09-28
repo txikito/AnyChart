@@ -368,7 +368,7 @@ anychart.core.ui.Background.prototype.setupByJSON = function(config) {
 
 
 //exports
-anychart.core.ui.Background.prototype['fill'] = anychart.core.ui.Background.prototype.fill;//in docs/final
-anychart.core.ui.Background.prototype['stroke'] = anychart.core.ui.Background.prototype.stroke;//in docs/final
-anychart.core.ui.Background.prototype['cornerType'] = anychart.core.ui.Background.prototype.cornerType;//in docs/final
-anychart.core.ui.Background.prototype['corners'] = anychart.core.ui.Background.prototype.corners;//in docs/final
+anychart.core.ui.Background.prototype['fill'] = anychart.core.ui.Background.prototype.fill;
+anychart.core.ui.Background.prototype['stroke'] = anychart.core.ui.Background.prototype.stroke;
+anychart.core.ui.Background.prototype['cornerType'] = anychart.core.ui.Background.prototype.cornerType;
+anychart.core.ui.Background.prototype['corners'] = anychart.core.ui.Background.prototype.corners;
