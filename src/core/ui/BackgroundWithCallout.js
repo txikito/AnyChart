@@ -20,6 +20,13 @@ anychart.core.ui.BackgroundWithCallout = function() {
    */
   this.path_ = null;
 
+  this.callout_ = {
+    side: 'top',
+    offset: 125,
+    width: 50,
+    height: 20
+  };
+
   this.resumeSignalsDispatching(false);
 };
 goog.inherits(anychart.core.ui.BackgroundWithCallout, anychart.core.ui.Background);
@@ -169,6 +176,41 @@ anychart.core.ui.BackgroundWithCallout.prototype.disablePointerEvents = function
   }
 };
 
+//calloutWidth
+//calloutHeight
+
+
+/**
+ * Applies callout size to a rect, creating a new tighten rectangle.
+ * @param {!anychart.math.Rect} boundsRect Rectangle to apply callout size to.
+ * @return {!anychart.math.Rect} New rectangle with applied callout size.
+ */
+anychart.core.ui.BackgroundWithCallout.prototype.widenBounds = function(boundsRect) {
+  //todo: учесть ориентацию каллаута
+
+  return new anychart.math.Rect(
+      boundsRect.left,
+      boundsRect.top,
+      boundsRect.width,
+      boundsRect.height + this.callout_.height
+  );
+};
+
+
+/** @inheritDoc */
+anychart.core.ui.BackgroundWithCallout.prototype.getRemainingBounds = function() {
+  var remainingBounds = goog.base(this, 'getRemainingBounds');
+
+  //todo: учесть ориентацию каллаута
+
+  return new anychart.math.Rect(
+      remainingBounds.left,
+      remainingBounds.top + this.callout_.height,
+      remainingBounds.width,
+      remainingBounds.height - this.callout_.height
+  );
+};
+
 
 /**
  * Render background.
@@ -178,63 +220,82 @@ anychart.core.ui.BackgroundWithCallout.prototype.draw = function() {
   if (!this.checkDrawingNeeded())
     return this;
 
-  if (!this.rect_) {
-    this.rect_ = acgraph.rect();
-    this.registerDisposable(this.rect_);
+  if (!this.path_) {
+    this.path_ = acgraph.path();
+    this.registerDisposable(this.path_);
   }
 
   var stage = this.container() ? this.container().getStage() : null;
   var manualSuspend = stage && !stage.isSuspended();
   if (manualSuspend) stage.suspend();
 
-  if (this.hasInvalidationState(anychart.ConsistencyState.BACKGROUND_POINTER_EVENTS)) {
-    this.rect_.disablePointerEvents(this.disablePointerEvents_);
-    this.markConsistent(anychart.ConsistencyState.BACKGROUND_POINTER_EVENTS);
-  }
+  //if (this.hasInvalidationState(anychart.ConsistencyState.BACKGROUND_POINTER_EVENTS)) {
+  //  this.path_.disablePointerEvents(this.disablePointerEvents_);
+  //  this.markConsistent(anychart.ConsistencyState.BACKGROUND_POINTER_EVENTS);
+  //}
 
   if (this.hasInvalidationState(anychart.ConsistencyState.BOUNDS)) {
     var bounds = this.getPixelBounds();
-    var thicknessHalf = this.rect_.strokeThickness() / 2;
+    var thicknessHalf = this.path_.strokeThickness() / 2;
     //TODO(Anton Saukh): remove this fix when graphics is fixed.
     if (isNaN(thicknessHalf)) thicknessHalf = .5;
     bounds.left += thicknessHalf;
     bounds.top += thicknessHalf;
     bounds.width -= thicknessHalf + thicknessHalf;
     bounds.height -= thicknessHalf + thicknessHalf;
-    this.rect_.setBounds(bounds);
+    //this.path_.setBounds(bounds);
     this.markConsistent(anychart.ConsistencyState.BOUNDS);
 
     if (goog.isObject(this.fill_) && ('keys' in this.fill_ || 'src' in this.fill_))
       this.invalidate(anychart.ConsistencyState.APPEARANCE);
   }
 
+  var calloutHalfWidth = this.callout_.width / 2;
+  var calloutHalfHeight = this.callout_.height / 2;
+  var remainingWidth = bounds.left + bounds.right - this.callout_.width;
+  var remainingHeight = bounds.top + bounds.height - this.callout_.height;
+
+  console.log(bounds);
+  this.path_.moveToInternal(bounds.left, bounds.top + this.callout_.height);
+
+  this.path_.lineToInternal(bounds.left + this.callout_.offset, bounds.top + this.callout_.height);
+  this.path_.lineToInternal(bounds.left + this.callout_.offset + calloutHalfWidth, bounds.top);
+  this.path_.lineToInternal(bounds.left + this.callout_.offset + this.callout_.width, bounds.top + this.callout_.height);
+  this.path_.lineToInternal(bounds.left + bounds.width, bounds.top + this.callout_.height);
+
+  this.path_.lineToInternal(bounds.left + bounds.width, bounds.top + bounds.height);
+  this.path_.lineToInternal(bounds.left, bounds.top + bounds.height);
+  this.path_.lineToInternal(bounds.left, bounds.top + this.callout_.height);
+  this.path_.closeInternal();
+
+
   if (this.hasInvalidationState(anychart.ConsistencyState.APPEARANCE)) {
-    this.rect_.fill(this.fill_);
-    this.rect_.stroke(this.stroke_);
-    switch (this.cornerType_) {
-      case anychart.enums.BackgroundCornersType.ROUND:
-        this.rect_.round.apply(this.rect_, this.corners_);
-        break;
-      case anychart.enums.BackgroundCornersType.CUT:
-        this.rect_.cut.apply(this.rect_, this.corners_);
-        break;
-      case anychart.enums.BackgroundCornersType.ROUND_INNER:
-        this.rect_.roundInner.apply(this.rect_, this.corners_);
-        break;
-      default:
-        this.rect_.cut(0);
-        break;
-    }
+    this.path_.fill(this.fill_);
+    this.path_.stroke(this.stroke_);
+    //switch (this.cornerType_) {
+    //  case anychart.enums.BackgroundCornersType.ROUND:
+    //    this.path_.round.apply(this.path_, this.corners_);
+    //    break;
+    //  case anychart.enums.BackgroundCornersType.CUT:
+    //    this.path_.cut.apply(this.path_, this.corners_);
+    //    break;
+    //  case anychart.enums.BackgroundCornersType.ROUND_INNER:
+    //    this.path_.roundInner.apply(this.path_, this.corners_);
+    //    break;
+    //  default:
+    //    this.path_.cut(0);
+    //    break;
+    //}
     this.markConsistent(anychart.ConsistencyState.APPEARANCE);
   }
 
-  if (this.hasInvalidationState(anychart.ConsistencyState.Z_INDEX)) {
-    this.rect_.zIndex(/** @type {number} */(this.zIndex()));
-    this.markConsistent(anychart.ConsistencyState.Z_INDEX);
-  }
+  //if (this.hasInvalidationState(anychart.ConsistencyState.Z_INDEX)) {
+  //  this.path_.zIndex(/** @type {number} */(this.zIndex()));
+  //  this.markConsistent(anychart.ConsistencyState.Z_INDEX);
+  //}
 
   if (this.hasInvalidationState(anychart.ConsistencyState.CONTAINER)) {
-    this.rect_.parent(/** @type {acgraph.vector.ILayer} */(this.container()));
+    this.path_.parent(/** @type {acgraph.vector.ILayer} */(this.container()));
     this.markConsistent(anychart.ConsistencyState.CONTAINER);
   }
 
@@ -244,34 +305,9 @@ anychart.core.ui.BackgroundWithCallout.prototype.draw = function() {
 };
 
 
-/**
- * Returns the remaining (after background placement) part of the container.
- * @return {!anychart.math.Rect} Parent bounds without the space used by the background thickness.
- */
-anychart.core.ui.BackgroundWithCallout.prototype.getRemainingBounds = function() {
-  var parentBounds = /** @type {anychart.math.Rect} */(this.getPixelBounds());
-  if (parentBounds)
-    parentBounds = parentBounds.clone();
-  else
-    parentBounds = anychart.math.rect(0, 0, 0, 0);
-
-  if (!this.enabled())
-    return parentBounds;
-
-  var thickness = anychart.utils.isNone(this.stroke_) ? 0 : acgraph.vector.getThickness(this.stroke_);
-
-  parentBounds.top += thickness;
-  parentBounds.left += thickness;
-  parentBounds.height -= 2 * thickness;
-  parentBounds.width -= 2 * thickness;
-
-  return parentBounds;
-};
-
-
 /** @inheritDoc */
 anychart.core.ui.BackgroundWithCallout.prototype.remove = function() {
-  if (this.rect_) this.rect_.parent(null);
+  if (this.path_) this.path_.parent(null);
 };
 
 

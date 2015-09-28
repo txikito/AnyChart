@@ -953,7 +953,8 @@ anychart.core.ui.SeriesTooltip.prototype.draw = function() {
 
   if (this.hasInvalidationState(anychart.ConsistencyState.BOUNDS)) {
     this.calculateContentBounds_();
-    this.boundsWithoutPadding_ = this.padding().tightenBounds(/** @type {!anychart.math.Rect} */(this.contentBounds_));
+    this.boundsWithoutPadding_ = null;
+    this.backgroundRemainingBounds_ = null;
     this.titleRemainingBounds_ = null;
     this.separatorRemainingBounds_ = null;
     this.markConsistent(anychart.ConsistencyState.BOUNDS);
@@ -977,8 +978,15 @@ anychart.core.ui.SeriesTooltip.prototype.draw = function() {
     background.resumeSignalsDispatching(false);
     background.draw();
 
+    if (!this.backgroundRemainingBounds_ && background.enabled()) {
+      this.backgroundRemainingBounds_ = background.getRemainingBounds();
+    }
+
     this.markConsistent(anychart.ConsistencyState.TOOLTIP_BACKGROUND);
   }
+
+  this.boundsWithoutPadding_ = this.padding().tightenBounds(this.backgroundRemainingBounds_ ||
+      /** @type {!anychart.math.Rect} */(this.contentBounds_));
 
   if (this.hasInvalidationState(anychart.ConsistencyState.TOOLTIP_TITLE)) {
     var title = this.title();
@@ -989,8 +997,9 @@ anychart.core.ui.SeriesTooltip.prototype.draw = function() {
     title.draw();
 
     // title bounds
-    if (!this.titleRemainingBounds_ && title.enabled())
+    if (!this.titleRemainingBounds_ && title.enabled()) {
       this.titleRemainingBounds_ = title.getRemainingBounds();
+    }
 
     this.markConsistent(anychart.ConsistencyState.TOOLTIP_TITLE);
   }
@@ -1005,9 +1014,9 @@ anychart.core.ui.SeriesTooltip.prototype.draw = function() {
     separator.draw();
 
     //separator bounds
-    if (!this.separatorRemainingBounds_ && separator.enabled())
+    if (!this.separatorRemainingBounds_ && separator.enabled()) {
       this.separatorRemainingBounds_ = separator.getRemainingBounds();
-
+    }
     this.markConsistent(anychart.ConsistencyState.TOOLTIP_SEPARATOR);
   }
 
@@ -1091,7 +1100,10 @@ anychart.core.ui.SeriesTooltip.prototype.calculateContentBounds_ = function() {
       result.height += separatorBounds.height;
     }
 
-    this.contentBounds_ = this.padding().widenBounds(result);
+    var resultWithPadding = this.padding().widenBounds(result);
+    this.contentBounds_ = this.background().enabled() ?
+        this.background().widenBounds(resultWithPadding) :
+        resultWithPadding;
   }
 };
 
