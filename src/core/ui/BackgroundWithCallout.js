@@ -20,11 +20,25 @@ anychart.core.ui.BackgroundWithCallout = function() {
    */
   this.path_ = null;
 
+  /**
+   * Width in pixels or a percentage of the total width of the background.
+   * @type {number|string}
+   * @private
+   */
+  this.calloutWidth_ = 20;//null; todo: to defaults 0
+
+  /**
+   * Height in pixels or a percentage of the total width of the background.
+   * @type {number|string}
+   * @private
+   */
+  this.calloutHeight_ = 20;//null; todo: to defaults 0
+
+  this.calloutOrientation_ = anychart.enums.Orientation.LEFT;//null;
+
   this.callout_ = {
     side: 'top',
-    offset: 125,
-    width: 50,
-    height: 20
+    offset: 125
   };
 
   this.resumeSignalsDispatching(false);
@@ -176,8 +190,59 @@ anychart.core.ui.BackgroundWithCallout.prototype.disablePointerEvents = function
   }
 };
 
-//calloutWidth
-//calloutHeight
+
+/**
+ * Getter/setter for the callout width.
+ * @param {(number|string)=} opt_value .
+ * @return {number|string|!anychart.core.ui.BackgroundWithCallout} .
+ */
+anychart.core.ui.BackgroundWithCallout.prototype.calloutWidth = function(opt_value) {
+  if (goog.isDef(opt_value)) {
+    if (this.calloutWidth_ != opt_value) {
+      this.calloutWidth_ = opt_value;
+      this.invalidate(anychart.ConsistencyState.BOUNDS,
+          anychart.Signal.NEEDS_REDRAW | anychart.Signal.BOUNDS_CHANGED);
+    }
+    return this;
+  }
+  return this.calloutWidth_;
+};
+
+
+/**
+ * Getter/setter for the callout height.
+ * @param {(number|string)=} opt_value .
+ * @return {number|string|!anychart.core.ui.BackgroundWithCallout} .
+ */
+anychart.core.ui.BackgroundWithCallout.prototype.calloutHeight = function(opt_value) {
+  if (goog.isDef(opt_value)) {
+    if (this.calloutHeight_ != opt_value) {
+      this.calloutHeight_ = opt_value;
+      this.invalidate(anychart.ConsistencyState.BOUNDS,
+          anychart.Signal.NEEDS_REDRAW | anychart.Signal.BOUNDS_CHANGED);
+    }
+    return this;
+  }
+  return this.calloutHeight_;
+};
+
+
+/**
+ * Getter/setter for the callout orientation.
+ * @param {(number|string)=} opt_value .
+ * @return {number|string|!anychart.core.ui.BackgroundWithCallout} .
+ */
+anychart.core.ui.BackgroundWithCallout.prototype.calloutOrientation = function(opt_value) {
+  if (goog.isDef(opt_value)) {
+    if (this.calloutOrientation_ != opt_value) {
+      this.calloutOrientation_ = anychart.enums.normalizeOrientation(opt_value);
+      this.invalidate(anychart.ConsistencyState.BOUNDS,
+          anychart.Signal.NEEDS_REDRAW | anychart.Signal.BOUNDS_CHANGED);
+    }
+    return this;
+  }
+  return this.calloutOrientation_;
+};
 
 
 /**
@@ -187,12 +252,13 @@ anychart.core.ui.BackgroundWithCallout.prototype.disablePointerEvents = function
  */
 anychart.core.ui.BackgroundWithCallout.prototype.widenBounds = function(boundsRect) {
   //todo: учесть ориентацию каллаута
+  //anychart.utils.isHorizontal
 
   return new anychart.math.Rect(
       boundsRect.left,
       boundsRect.top,
       boundsRect.width,
-      boundsRect.height + this.callout_.height
+      boundsRect.height + this.calloutHeight_
   );
 };
 
@@ -202,12 +268,13 @@ anychart.core.ui.BackgroundWithCallout.prototype.getRemainingBounds = function()
   var remainingBounds = goog.base(this, 'getRemainingBounds');
 
   //todo: учесть ориентацию каллаута
+  //anychart.utils.isHorizontal
 
   return new anychart.math.Rect(
       remainingBounds.left,
-      remainingBounds.top + this.callout_.height,
+      remainingBounds.top + this.calloutHeight_,
       remainingBounds.width,
-      remainingBounds.height - this.callout_.height
+      remainingBounds.height - this.calloutHeight_
   );
 };
 
@@ -229,10 +296,10 @@ anychart.core.ui.BackgroundWithCallout.prototype.draw = function() {
   var manualSuspend = stage && !stage.isSuspended();
   if (manualSuspend) stage.suspend();
 
-  //if (this.hasInvalidationState(anychart.ConsistencyState.BACKGROUND_POINTER_EVENTS)) {
-  //  this.path_.disablePointerEvents(this.disablePointerEvents_);
-  //  this.markConsistent(anychart.ConsistencyState.BACKGROUND_POINTER_EVENTS);
-  //}
+  if (this.hasInvalidationState(anychart.ConsistencyState.BACKGROUND_POINTER_EVENTS)) {
+    //this.path_.disablePointerEvents(this.disablePointerEvents_);
+    this.markConsistent(anychart.ConsistencyState.BACKGROUND_POINTER_EVENTS);
+  }
 
   if (this.hasInvalidationState(anychart.ConsistencyState.BOUNDS)) {
     var bounds = this.getPixelBounds();
@@ -244,28 +311,33 @@ anychart.core.ui.BackgroundWithCallout.prototype.draw = function() {
     bounds.width -= thicknessHalf + thicknessHalf;
     bounds.height -= thicknessHalf + thicknessHalf;
     //this.path_.setBounds(bounds);
+
+    this.calculate_(bounds);
+
     this.markConsistent(anychart.ConsistencyState.BOUNDS);
 
-    if (goog.isObject(this.fill_) && ('keys' in this.fill_ || 'src' in this.fill_))
+    if (goog.isObject(this.fill_) && ('keys' in this.fill_ || 'src' in this.fill_)) {
       this.invalidate(anychart.ConsistencyState.APPEARANCE);
+    }
   }
 
-  var calloutHalfWidth = this.callout_.width / 2;
-  var calloutHalfHeight = this.callout_.height / 2;
-  var remainingWidth = bounds.left + bounds.right - this.callout_.width;
-  var remainingHeight = bounds.top + bounds.height - this.callout_.height;
+  var calloutHalfWidth = this.calloutWidthValue_ / 2;
+  var calloutHalfHeight = this.calloutHeightValue_ / 2;
+  var remainingWidth = bounds.left + bounds.right - this.calloutWidthValue_;
+  var remainingHeight = bounds.top + bounds.height - this.calloutHeightValue_;
 
   console.log(bounds);
-  this.path_.moveToInternal(bounds.left, bounds.top + this.callout_.height);
+  this.path_.clearInternal();
+  this.path_.moveToInternal(bounds.left, bounds.top + this.calloutHeightValue_);
 
-  this.path_.lineToInternal(bounds.left + this.callout_.offset, bounds.top + this.callout_.height);
+  this.path_.lineToInternal(bounds.left + this.callout_.offset, bounds.top + this.calloutHeightValue_);
   this.path_.lineToInternal(bounds.left + this.callout_.offset + calloutHalfWidth, bounds.top);
-  this.path_.lineToInternal(bounds.left + this.callout_.offset + this.callout_.width, bounds.top + this.callout_.height);
-  this.path_.lineToInternal(bounds.left + bounds.width, bounds.top + this.callout_.height);
+  this.path_.lineToInternal(bounds.left + this.callout_.offset + this.calloutWidthValue_, bounds.top + this.calloutHeightValue_);
+  this.path_.lineToInternal(bounds.left + bounds.width, bounds.top + this.calloutHeightValue_);
 
   this.path_.lineToInternal(bounds.left + bounds.width, bounds.top + bounds.height);
   this.path_.lineToInternal(bounds.left, bounds.top + bounds.height);
-  this.path_.lineToInternal(bounds.left, bounds.top + this.callout_.height);
+  this.path_.lineToInternal(bounds.left, bounds.top + this.calloutHeightValue_);
   this.path_.closeInternal();
 
 
@@ -289,10 +361,10 @@ anychart.core.ui.BackgroundWithCallout.prototype.draw = function() {
     this.markConsistent(anychart.ConsistencyState.APPEARANCE);
   }
 
-  //if (this.hasInvalidationState(anychart.ConsistencyState.Z_INDEX)) {
-  //  this.path_.zIndex(/** @type {number} */(this.zIndex()));
-  //  this.markConsistent(anychart.ConsistencyState.Z_INDEX);
-  //}
+  if (this.hasInvalidationState(anychart.ConsistencyState.Z_INDEX)) {
+    this.path_.zIndex(/** @type {number} */(this.zIndex()));
+    this.markConsistent(anychart.ConsistencyState.Z_INDEX);
+  }
 
   if (this.hasInvalidationState(anychart.ConsistencyState.CONTAINER)) {
     this.path_.parent(/** @type {acgraph.vector.ILayer} */(this.container()));
@@ -302,6 +374,17 @@ anychart.core.ui.BackgroundWithCallout.prototype.draw = function() {
   if (manualSuspend) stage.resume();
 
   return this;
+};
+
+
+/**
+ * Calculating common values for a background element.
+ * @param {anychart.math.Rect} bounds Bounds of the background area.
+ * @private
+ */
+anychart.core.ui.BackgroundWithCallout.prototype.calculate_ = function(bounds) {
+  this.calloutWidthValue_ = anychart.utils.normalizeSize(this.calloutWidth_, bounds.width);
+  this.calloutHeightValue_ = anychart.utils.normalizeSize(this.calloutHeight_, bounds.height);
 };
 
 
@@ -364,7 +447,9 @@ anychart.core.ui.BackgroundWithCallout.prototype.setupByJSON = function(config) 
 
 
 //exports
-anychart.core.ui.BackgroundWithCallout.prototype['fill'] = anychart.core.ui.BackgroundWithCallout.prototype.fill;//in docs/final
-anychart.core.ui.BackgroundWithCallout.prototype['stroke'] = anychart.core.ui.BackgroundWithCallout.prototype.stroke;//in docs/final
-anychart.core.ui.BackgroundWithCallout.prototype['cornerType'] = anychart.core.ui.BackgroundWithCallout.prototype.cornerType;//in docs/final
-anychart.core.ui.BackgroundWithCallout.prototype['corners'] = anychart.core.ui.BackgroundWithCallout.prototype.corners;//in docs/final
+anychart.core.ui.BackgroundWithCallout.prototype['fill'] = anychart.core.ui.BackgroundWithCallout.prototype.fill;
+anychart.core.ui.BackgroundWithCallout.prototype['stroke'] = anychart.core.ui.BackgroundWithCallout.prototype.stroke;
+anychart.core.ui.BackgroundWithCallout.prototype['cornerType'] = anychart.core.ui.BackgroundWithCallout.prototype.cornerType;
+anychart.core.ui.BackgroundWithCallout.prototype['corners'] = anychart.core.ui.BackgroundWithCallout.prototype.corners;
+anychart.core.ui.BackgroundWithCallout.prototype['calloutWidth'] = anychart.core.ui.BackgroundWithCallout.prototype.calloutWidth;
+anychart.core.ui.BackgroundWithCallout.prototype['calloutHeight'] = anychart.core.ui.BackgroundWithCallout.prototype.calloutHeight;
