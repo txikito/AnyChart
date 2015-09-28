@@ -66,8 +66,8 @@ anychart.core.ui.BackgroundWithCallout.prototype.SUPPORTED_CONSISTENCY_STATES =
 //----------------------------------------------------------------------------------------------------------------------
 /**
  * Getter for current corner radius.
- * @param {(number|string|Array.<number|string>)=} opt_value .
- * @return {(Array.<number|string>|!anychart.core.ui.Background)} .
+ * @param {(number|string|Array.<number|string>)=} opt_value
+ * @return {(Array.<number|string>|!anychart.core.ui.Background)}
  */
 anychart.core.ui.BackgroundWithCallout.prototype.corners = function(opt_value) {
   if (goog.isDef(opt_value)) {
@@ -117,14 +117,14 @@ anychart.core.ui.BackgroundWithCallout.prototype.cornerType = function(opt_value
 
 /**
  * Returns current fill.
- * @param {(!acgraph.vector.Fill|!Array.<(acgraph.vector.GradientKey|string)>|null)=} opt_fillOrColorOrKeys .
- * @param {number=} opt_opacityOrAngleOrCx .
- * @param {(number|boolean|!acgraph.math.Rect|!{left:number,top:number,width:number,height:number})=} opt_modeOrCy .
- * @param {(number|!acgraph.math.Rect|!{left:number,top:number,width:number,height:number}|null)=} opt_opacityOrMode .
- * @param {number=} opt_opacity .
- * @param {number=} opt_fx .
- * @param {number=} opt_fy .
- * @return {!(acgraph.vector.Fill|anychart.core.ui.Background)} .
+ * @param {(!acgraph.vector.Fill|!Array.<(acgraph.vector.GradientKey|string)>|null)=} opt_fillOrColorOrKeys
+ * @param {number=} opt_opacityOrAngleOrCx
+ * @param {(number|boolean|!acgraph.math.Rect|!{left:number,top:number,width:number,height:number})=} opt_modeOrCy
+ * @param {(number|!acgraph.math.Rect|!{left:number,top:number,width:number,height:number}|null)=} opt_opacityOrMode
+ * @param {number=} opt_opacity
+ * @param {number=} opt_fx
+ * @param {number=} opt_fy
+ * @return {!(acgraph.vector.Fill|anychart.core.ui.Background)}
  */
 anychart.core.ui.BackgroundWithCallout.prototype.fill = function(opt_fillOrColorOrKeys, opt_opacityOrAngleOrCx, opt_modeOrCy, opt_opacityOrMode, opt_opacity, opt_fx, opt_fy) {
   if (goog.isDef(opt_fillOrColorOrKeys)) {
@@ -142,12 +142,12 @@ anychart.core.ui.BackgroundWithCallout.prototype.fill = function(opt_fillOrColor
 
 /**
  * Returns current stroke.
- * @param {(acgraph.vector.Stroke|acgraph.vector.ColoredFill|string|null)=} opt_strokeOrFill .
- * @param {number=} opt_thickness .
- * @param {string=} opt_dashpattern .
- * @param {acgraph.vector.StrokeLineJoin=} opt_lineJoin .
- * @param {acgraph.vector.StrokeLineCap=} opt_lineCap .
- * @return {(!anychart.core.ui.Background|acgraph.vector.Stroke)} .
+ * @param {(acgraph.vector.Stroke|acgraph.vector.ColoredFill|string|null)=} opt_strokeOrFill
+ * @param {number=} opt_thickness
+ * @param {string=} opt_dashpattern
+ * @param {acgraph.vector.StrokeLineJoin=} opt_lineJoin
+ * @param {acgraph.vector.StrokeLineCap=} opt_lineCap
+ * @return {(!anychart.core.ui.Background|acgraph.vector.Stroke)}
  */
 anychart.core.ui.BackgroundWithCallout.prototype.stroke = function(opt_strokeOrFill, opt_thickness, opt_dashpattern, opt_lineJoin, opt_lineCap) {
   if (goog.isDef(opt_strokeOrFill)) {
@@ -190,8 +190,8 @@ anychart.core.ui.BackgroundWithCallout.prototype.disablePointerEvents = function
 
 /**
  * Getter/setter for the callout width.
- * @param {(number|string)=} opt_value .
- * @return {number|string|!anychart.core.ui.BackgroundWithCallout} .
+ * @param {(number|string)=} opt_value
+ * @return {number|string|!anychart.core.ui.BackgroundWithCallout}
  */
 anychart.core.ui.BackgroundWithCallout.prototype.calloutWidth = function(opt_value) {
   if (goog.isDef(opt_value)) {
@@ -208,8 +208,8 @@ anychart.core.ui.BackgroundWithCallout.prototype.calloutWidth = function(opt_val
 
 /**
  * Getter/setter for the callout height.
- * @param {(number|string)=} opt_value .
- * @return {number|string|!anychart.core.ui.BackgroundWithCallout} .
+ * @param {(number|string)=} opt_value
+ * @return {number|string|!anychart.core.ui.BackgroundWithCallout}
  */
 anychart.core.ui.BackgroundWithCallout.prototype.calloutHeight = function(opt_value) {
   if (goog.isDef(opt_value)) {
@@ -226,8 +226,8 @@ anychart.core.ui.BackgroundWithCallout.prototype.calloutHeight = function(opt_va
 
 /**
  * Getter/setter for the callout orientation.
- * @param {string=} opt_value .
- * @return {string|!anychart.core.ui.BackgroundWithCallout} .
+ * @param {string=} opt_value
+ * @return {string|!anychart.core.ui.BackgroundWithCallout}
  */
 anychart.core.ui.BackgroundWithCallout.prototype.calloutOrientation = function(opt_value) {
   if (goog.isDef(opt_value)) {
@@ -244,8 +244,8 @@ anychart.core.ui.BackgroundWithCallout.prototype.calloutOrientation = function(o
 
 /**
  * Getter/setter for the callout height.
- * @param {(number|string)=} opt_value .
- * @return {number|string|!anychart.core.ui.BackgroundWithCallout} .
+ * @param {(number|string)=} opt_value
+ * @return {number|string|!anychart.core.ui.BackgroundWithCallout}
  */
 anychart.core.ui.BackgroundWithCallout.prototype.calloutShift = function(opt_value) {
   if (goog.isDef(opt_value)) {
