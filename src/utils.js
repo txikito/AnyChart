@@ -588,6 +588,17 @@ anychart.utils.applyOffsetByAnchor = function(position, anchor, offsetX, offsetY
 
 
 /**
+ * Whether orientation is horizontal.
+ * @param {anychart.enums.Orientation} orientation
+ * @return {boolean} If orientation is horizontal.
+ */
+anychart.utils.isHorizontal = function(orientation) {
+  return orientation == anychart.enums.Orientation.TOP ||
+      orientation == anychart.enums.Orientation.BOTTOM;
+};
+
+
+/**
  * Does a recursive clone of an object.
  *
  * @param {*} obj Object to clone.
