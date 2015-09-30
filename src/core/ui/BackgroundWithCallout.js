@@ -39,7 +39,7 @@ anychart.core.ui.BackgroundWithCallout = function() {
    * @type {anychart.enums.Orientation}
    * @private
    */
-  this.calloutOrientation_ = anychart.enums.Orientation.TOP;
+  this.calloutOrientation_ = anychart.enums.Orientation.BOTTOM;//null; todo: to defaults BOTTOM
 
   this.calloutShift_ = '50%';//null; todo: to defaults '50%'
 
@@ -271,16 +271,16 @@ anychart.core.ui.BackgroundWithCallout.prototype.calloutShift = function(opt_val
  * @return {!anychart.math.Rect} New rectangle with applied callout size.
  */
 anychart.core.ui.BackgroundWithCallout.prototype.widenBounds = function(boundsRect) {
-  this.calculate_();
+  if (!this.calloutHeight() && !this.calloutWidth()) return boundsRect;
 
+  this.calculate_();
   switch (this.calloutOrientation_) {
     case anychart.enums.Orientation.LEFT:
-      //todo: доделать
       return new anychart.math.Rect(
           boundsRect.left,
           boundsRect.top,
-          boundsRect.width,
-          boundsRect.height + this.calloutHeightValue_
+          boundsRect.width + this.calloutHeightValue_,
+          boundsRect.height
       );
 
     case anychart.enums.Orientation.TOP:
@@ -292,19 +292,17 @@ anychart.core.ui.BackgroundWithCallout.prototype.widenBounds = function(boundsRe
       );
 
     case anychart.enums.Orientation.RIGHT:
-      //todo: доделать
       return new anychart.math.Rect(
-          boundsRect.left,
+          boundsRect.left - this.calloutHeightValue_,
           boundsRect.top,
-          boundsRect.width,
-          boundsRect.height + this.calloutHeightValue_
+          boundsRect.width + this.calloutHeightValue_,
+          boundsRect.height
       );
 
     case anychart.enums.Orientation.BOTTOM:
-      //todo: доделать
       return new anychart.math.Rect(
           boundsRect.left,
-          boundsRect.top,
+          boundsRect.top - this.calloutHeightValue_,
           boundsRect.width,
           boundsRect.height + this.calloutHeightValue_
       );
@@ -315,8 +313,9 @@ anychart.core.ui.BackgroundWithCallout.prototype.widenBounds = function(boundsRe
 /** @inheritDoc */
 anychart.core.ui.BackgroundWithCallout.prototype.getRemainingBounds = function() {
   var remainingBounds = goog.base(this, 'getRemainingBounds');
-  this.calculate_();
+  if (!this.calloutHeight() && !this.calloutWidth()) return remainingBounds;
 
+  this.calculate_();
   switch (this.calloutOrientation_) {
     case anychart.enums.Orientation.LEFT:
       return new anychart.math.Rect(
@@ -405,8 +404,16 @@ anychart.core.ui.BackgroundWithCallout.prototype.draw = function() {
 
   switch (this.calloutOrientation_) {
     case anychart.enums.Orientation.LEFT:
-      //todo: доделать
       this.path_.moveToInternal(bounds.left + this.calloutHeightValue_, bounds.top);
+
+      this.path_.lineToInternal(bounds.left + bounds.width, bounds.top);
+      this.path_.lineToInternal(bounds.left + bounds.width, bounds.top + bounds.height);
+      this.path_.lineToInternal(bounds.left + this.calloutHeightValue_, bounds.top + bounds.height);
+
+      this.path_.lineToInternal(bounds.left + this.calloutHeightValue_, bounds.top + this.calloutShiftValue_ + calloutHalfWidth);
+      this.path_.lineToInternal(bounds.left, bounds.top + this.calloutShiftValue_);
+      this.path_.lineToInternal(bounds.left + this.calloutHeightValue_, bounds.top + this.calloutShiftValue_ - calloutHalfWidth);
+      this.path_.lineToInternal(bounds.left + this.calloutHeightValue_, bounds.top);
       break;
 
     case anychart.enums.Orientation.TOP:
@@ -423,8 +430,17 @@ anychart.core.ui.BackgroundWithCallout.prototype.draw = function() {
       break;
 
     case anychart.enums.Orientation.RIGHT:
-      //todo: доделать
       this.path_.moveToInternal(bounds.left, bounds.top);
+
+      this.path_.lineToInternal(bounds.left + bounds.width - this.calloutHeightValue_, bounds.top);
+
+      this.path_.lineToInternal(bounds.left + bounds.width - this.calloutHeightValue_, bounds.top + this.calloutShiftValue_ - calloutHalfWidth);
+      this.path_.lineToInternal(bounds.left + bounds.width, bounds.top + this.calloutShiftValue_);
+      this.path_.lineToInternal(bounds.left + bounds.width - this.calloutHeightValue_, bounds.top + this.calloutShiftValue_ + calloutHalfWidth);
+      this.path_.lineToInternal(bounds.left + bounds.width - this.calloutHeightValue_, bounds.top + bounds.height);
+
+      this.path_.lineToInternal(bounds.left, bounds.top + bounds.height);
+      this.path_.lineToInternal(bounds.left, bounds.top);
       break;
 
     case anychart.enums.Orientation.BOTTOM:

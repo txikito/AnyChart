@@ -1101,9 +1101,14 @@ anychart.core.ui.SeriesTooltip.prototype.calculateContentBounds_ = function() {
     }
 
     var resultWithPadding = this.padding().widenBounds(result);
-    this.contentBounds_ = this.background().enabled() ?
-        this.background().widenBounds(resultWithPadding) :
-        resultWithPadding;
+
+    // set callout orientation
+    if (!this.background().enabled()) {
+      this.background().calloutOrientation(anychart.utils.getOrientationByAnchor(this.anchor_));
+      this.contentBounds_ = this.background().widenBounds(resultWithPadding);
+    } else {
+      this.contentBounds_ = resultWithPadding;
+    }
   }
 };
 
@@ -1123,11 +1128,6 @@ anychart.core.ui.SeriesTooltip.prototype.calculatePosition_ = function() {
     position.y -= anchor.y;
     anychart.utils.applyOffsetByAnchor(position, this.anchor_, this.offsetX_, this.offsetY_);
     this.instantPosition_ = position;
-
-    // set callout orientation
-    if (!this.background().enabled()) {
-      this.background().calloutOrientation(anychart.utils.getOrientationByAnchor(this.anchor_));
-    }
   }
 };
 
