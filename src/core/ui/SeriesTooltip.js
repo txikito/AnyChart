@@ -1104,6 +1104,7 @@ anychart.core.ui.SeriesTooltip.prototype.calculateContentBounds_ = function() {
 
     // set callout orientation
     if (this.background().enabled()) {
+      console.log('set calloutOrientation');
       this.background().calloutOrientation(anychart.utils.getOrientationByAnchor(this.anchor_));
       this.contentBounds_ = this.background().widenBounds(resultWithPadding);
     } else {

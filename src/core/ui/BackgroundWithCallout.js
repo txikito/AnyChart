@@ -239,6 +239,7 @@ anychart.core.ui.BackgroundWithCallout.prototype.calloutOrientation = function(o
     if (this.calloutOrientation_ != opt_value) {
       if (goog.isString(opt_value)) opt_value = anychart.enums.normalizeOrientation(opt_value);
       this.calloutOrientation_ = opt_value;
+      console.log('invalidate');
       this.invalidate(anychart.ConsistencyState.BOUNDS,
           anychart.Signal.NEEDS_REDRAW | anychart.Signal.BOUNDS_CHANGED);
     }
@@ -358,6 +359,7 @@ anychart.core.ui.BackgroundWithCallout.prototype.getRemainingBounds = function()
  * @return {!anychart.core.ui.Background} {@link anychart.core.ui.Background} instance for method chaining.
  */
 anychart.core.ui.BackgroundWithCallout.prototype.draw = function() {
+  console.log(this.consistency_);
   if (!this.checkDrawingNeeded())
     return this;
 
@@ -400,7 +402,6 @@ anychart.core.ui.BackgroundWithCallout.prototype.draw = function() {
   var remainingWidth = bounds.left + bounds.right - this.calloutWidthValue_;
   var remainingHeight = bounds.top + bounds.height - this.calloutHeightValue_;
 
-  console.log(bounds);
   this.path_.clearInternal();
 
   switch (this.calloutOrientation_) {
