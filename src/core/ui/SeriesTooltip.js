@@ -1123,6 +1123,11 @@ anychart.core.ui.SeriesTooltip.prototype.calculatePosition_ = function() {
     position.y -= anchor.y;
     anychart.utils.applyOffsetByAnchor(position, this.anchor_, this.offsetX_, this.offsetY_);
     this.instantPosition_ = position;
+
+    // set callout orientation
+    if (!this.background().enabled()) {
+      this.background().calloutOrientation(anychart.utils.getOrientationByAnchor(this.anchor_));
+    }
   }
 };
 
