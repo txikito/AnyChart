@@ -36,7 +36,7 @@ anychart.core.ui.BackgroundWithCallout = function() {
 
   /**
    *
-   * @type {anychart.enums.Orientation}
+   * @type {anychart.enums.Orientation|false}
    * @private
    */
   this.calloutOrientation_ = anychart.enums.Orientation.BOTTOM;//null; todo: to defaults BOTTOM
@@ -231,8 +231,8 @@ anychart.core.ui.BackgroundWithCallout.prototype.calloutHeight = function(opt_va
 
 /**
  * Getter/setter for the callout orientation.
- * @param {string=} opt_value
- * @return {string|!anychart.core.ui.BackgroundWithCallout}
+ * @param {string|false=} opt_value
+ * @return {string|false|!anychart.core.ui.BackgroundWithCallout}
  */
 anychart.core.ui.BackgroundWithCallout.prototype.calloutOrientation = function(opt_value) {
   if (goog.isDef(opt_value)) {
