@@ -237,7 +237,8 @@ anychart.core.ui.BackgroundWithCallout.prototype.calloutHeight = function(opt_va
 anychart.core.ui.BackgroundWithCallout.prototype.calloutOrientation = function(opt_value) {
   if (goog.isDef(opt_value)) {
     if (this.calloutOrientation_ != opt_value) {
-      this.calloutOrientation_ = anychart.enums.normalizeOrientation(opt_value);
+      if (goog.isString(opt_value)) opt_value = anychart.enums.normalizeOrientation(opt_value);
+      this.calloutOrientation_ = opt_value;
       this.invalidate(anychart.ConsistencyState.BOUNDS,
           anychart.Signal.NEEDS_REDRAW | anychart.Signal.BOUNDS_CHANGED);
     }
@@ -271,7 +272,7 @@ anychart.core.ui.BackgroundWithCallout.prototype.calloutShift = function(opt_val
  * @return {!anychart.math.Rect} New rectangle with applied callout size.
  */
 anychart.core.ui.BackgroundWithCallout.prototype.widenBounds = function(boundsRect) {
-  if (!this.calloutHeight() && !this.calloutWidth()) return boundsRect;
+  if ((!this.calloutHeight() && !this.calloutWidth()) || !this.calloutOrientation_) return boundsRect;
 
   this.calculate_();
   switch (this.calloutOrientation_) {
@@ -313,7 +314,7 @@ anychart.core.ui.BackgroundWithCallout.prototype.widenBounds = function(boundsRe
 /** @inheritDoc */
 anychart.core.ui.BackgroundWithCallout.prototype.getRemainingBounds = function() {
   var remainingBounds = goog.base(this, 'getRemainingBounds');
-  if (!this.calloutHeight() && !this.calloutWidth()) return remainingBounds;
+  if ((!this.calloutHeight() && !this.calloutWidth()) || !this.calloutOrientation_) return remainingBounds;
 
   this.calculate_();
   switch (this.calloutOrientation_) {
@@ -403,6 +404,13 @@ anychart.core.ui.BackgroundWithCallout.prototype.draw = function() {
   this.path_.clearInternal();
 
   switch (this.calloutOrientation_) {
+    case false:
+      this.path_.moveToInternal(bounds.left, bounds.top);
+      this.path_.lineToInternal(bounds.left + bounds.width, bounds.top);
+      this.path_.lineToInternal(bounds.left + bounds.width, bounds.top + bounds.height);
+      this.path_.lineToInternal(bounds.left, bounds.top + bounds.height);
+      break;
+
     case anychart.enums.Orientation.LEFT:
       this.path_.moveToInternal(bounds.left + this.calloutHeightValue_, bounds.top);
 
@@ -413,7 +421,7 @@ anychart.core.ui.BackgroundWithCallout.prototype.draw = function() {
       this.path_.lineToInternal(bounds.left + this.calloutHeightValue_, bounds.top + this.calloutShiftValue_ + calloutHalfWidth);
       this.path_.lineToInternal(bounds.left, bounds.top + this.calloutShiftValue_);
       this.path_.lineToInternal(bounds.left + this.calloutHeightValue_, bounds.top + this.calloutShiftValue_ - calloutHalfWidth);
-      this.path_.lineToInternal(bounds.left + this.calloutHeightValue_, bounds.top);
+      //this.path_.lineToInternal(bounds.left + this.calloutHeightValue_, bounds.top);
       break;
 
     case anychart.enums.Orientation.TOP:
@@ -426,7 +434,7 @@ anychart.core.ui.BackgroundWithCallout.prototype.draw = function() {
 
       this.path_.lineToInternal(bounds.left + bounds.width, bounds.top + bounds.height);
       this.path_.lineToInternal(bounds.left, bounds.top + bounds.height);
-      this.path_.lineToInternal(bounds.left, bounds.top + this.calloutHeightValue_);
+      //this.path_.lineToInternal(bounds.left, bounds.top + this.calloutHeightValue_);
       break;
 
     case anychart.enums.Orientation.RIGHT:
@@ -440,7 +448,7 @@ anychart.core.ui.BackgroundWithCallout.prototype.draw = function() {
       this.path_.lineToInternal(bounds.left + bounds.width - this.calloutHeightValue_, bounds.top + bounds.height);
 
       this.path_.lineToInternal(bounds.left, bounds.top + bounds.height);
-      this.path_.lineToInternal(bounds.left, bounds.top);
+      //this.path_.lineToInternal(bounds.left, bounds.top);
       break;
 
     case anychart.enums.Orientation.BOTTOM:
@@ -454,7 +462,7 @@ anychart.core.ui.BackgroundWithCallout.prototype.draw = function() {
       this.path_.lineToInternal(bounds.left + this.calloutShiftValue_ - calloutHalfWidth, bounds.top + bounds.height - this.calloutHeightValue_);
       this.path_.lineToInternal(bounds.left, bounds.top + bounds.height - this.calloutHeightValue_);
 
-      this.path_.lineToInternal(bounds.left, bounds.top);
+      //this.path_.lineToInternal(bounds.left, bounds.top);
       break;
   }
 
