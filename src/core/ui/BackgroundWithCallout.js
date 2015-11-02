@@ -581,24 +581,19 @@ anychart.core.ui.BackgroundWithCallout.prototype.draw = function() {
 
   switch (this.calloutOrientation_) {
     case false:
-      var size = this.cornerSizes_[0];
-      this.path_.moveToInternal(bounds.left + size, bounds.top);
+      this.path_.moveToInternal(bounds.left + this.cornerSizes_[0], bounds.top);
 
-      size = this.cornerSizes_[1];
       this.path_.lineToInternal(bounds.left + bounds.width - this.cornerSizes_[1], bounds.top);
-      this.drawTopRightCorner(bounds, this.cornerTypes_[1], size);
+      this.drawTopRightCorner(bounds, this.cornerTypes_[1], this.cornerSizes_[1]);
 
-      size = this.cornerSizes_[2];
-      this.path_.lineToInternal(bounds.left + bounds.width, bounds.top + bounds.height - size);
-      this.drawBottomLeftCorner(bounds, this.cornerTypes_[2], size);
+      this.path_.lineToInternal(bounds.left + bounds.width, bounds.top + bounds.height - this.cornerSizes_[2]);
+      this.drawBottomLeftCorner(bounds, this.cornerTypes_[2], this.cornerSizes_[2]);
 
-      size = this.cornerSizes_[3];
-      this.path_.lineToInternal(bounds.left + size, bounds.top + bounds.height);
-      this.drawBottomRightCorner(bounds, this.cornerTypes_[3], size);
+      this.path_.lineToInternal(bounds.left + this.cornerSizes_[3], bounds.top + bounds.height);
+      this.drawBottomRightCorner(bounds, this.cornerTypes_[3], this.cornerSizes_[3]);
 
-      size = this.cornerSizes_[0];
-      this.path_.lineToInternal(bounds.left, bounds.top + size);
-      this.drawTopLeftCorner(bounds, this.cornerTypes_[0], size);
+      this.path_.lineToInternal(bounds.left, bounds.top + this.cornerSizes_[0]);
+      this.drawTopLeftCorner(bounds, this.cornerTypes_[0], this.cornerSizes_[0]);
       break;
 
     case anychart.enums.Orientation.LEFT:
