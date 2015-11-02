@@ -7,6 +7,13 @@ goog.require('anychart.data.Table');
 goog.require('goog.object');
 
 
+/**
+ * Namespace anychart.core.stock.series
+ * @namespace
+ * @name anychart.core.stock.series
+ */
+
+
 
 /**
  *
@@ -173,6 +180,15 @@ anychart.core.stock.series.Base.prototype.SUPPORTED_CONSISTENCY_STATES =
 
 
 /**
+ * Supported signals.
+ * @type {number}
+ */
+anychart.core.stock.series.Base.prototype.SUPPORTED_SIGNALS =
+    anychart.core.VisualBaseWithBounds.prototype.SUPPORTED_SIGNALS |
+    anychart.Signal.NEED_UPDATE_LEGEND;
+
+
+/**
  * Map of series constructors by type.
  * @type {Object.<string, Function>}
  */
@@ -182,7 +198,7 @@ anychart.core.stock.series.Base.SeriesTypesMap = {};
 /**
  * Gets and sets data for the series.
  * @param {(anychart.data.TableMapping|anychart.data.Table|Array.<Array.<*>>|string)=} opt_value
- * @param {Object.<({column: number, type: anychart.enums.AggregationType, weights: number}|number)>=} opt_mappingSettings
+ * @param {Object.<({column: (number|string), type: anychart.enums.AggregationType, weights: (number|string)}|number|string)>=} opt_mappingSettings
  *   An object where keys are field names and values are objects with fields:
  *      - 'column': number - Column index, that the field should get values from;
  *      - 'type': anychart.enums.AggregationType - How to group values for the field. Defaults to 'close'.
@@ -258,20 +274,43 @@ anychart.core.stock.series.Base.prototype.getSelectableData = function() {
 
 
 /**
- * Sets series index.
- * @param {number} value
+ * Sets/gets series inner index.
+ * @param {number=} opt_value
+ * @return {anychart.core.stock.series.Base|number}
  */
-anychart.core.stock.series.Base.prototype.setIndex = function(value) {
-  this.index_ = value;
+anychart.core.stock.series.Base.prototype.index = function(opt_value) {
+  if (goog.isDef(opt_value)) {
+    this.index_ = opt_value;
+    return this;
+  } else {
+    return this.index_;
+  }
 };
 
 
 /**
- * Returns series index.
+ * Returns series index in chart.
  * @return {number}
  */
 anychart.core.stock.series.Base.prototype.getIndex = function() {
-  return this.index_;
+  if (this.isDisposed())
+    return -1;
+  return goog.array.indexOf(this.plot.getAllSeries(), this);
+};
+
+
+/**
+ * Getter/setter for series id.
+ * @param {(string|number)=} opt_value Id of the series.
+ * @return {string|number|anychart.core.stock.series.Base} Id or self for chaining.
+ */
+anychart.core.stock.series.Base.prototype.id = function(opt_value) {
+  if (goog.isDef(opt_value)) {
+    this.id_ = opt_value;
+    return this;
+  } else {
+    return this.id_;
+  }
 };
 
 
@@ -444,8 +483,10 @@ anychart.core.stock.series.Base.prototype.drawPoint_ = function(rowInfoExtractor
  * @protected
  */
 anychart.core.stock.series.Base.prototype.ensureVisualIsReady = function(container) {
-  if (!this.rootLayer)
+  if (!this.rootLayer) {
     this.rootLayer = acgraph.layer();
+    this.registerDisposable(this.rootLayer);
+  }
 
   if (this.hasInvalidationState(anychart.ConsistencyState.CONTAINER))
     this.rootLayer.parent(container);
@@ -535,7 +576,7 @@ anychart.core.stock.series.Base.prototype.getScaleReferenceValues = function() {
 /**
  * Retrieves an array of column indexes matching asked column names from the current mapping.
  * @param {Array.<string>} fields
- * @return {?Array.<number>}
+ * @return {?Array.<(number|string)>}
  * @private
  */
 anychart.core.stock.series.Base.prototype.retrieveColumns_ = function(fields) {
@@ -546,7 +587,7 @@ anychart.core.stock.series.Base.prototype.retrieveColumns_ = function(fields) {
   var res = [];
   for (var i = 0; i < fields.length; i++) {
     var column = this.data_.getFieldColumn(fields[i]);
-    if (isNaN(column)) {
+    if (!goog.isString(column) && isNaN(column)) {
       anychart.utils.warning(anychart.enums.WarningCode.STOCK_WRONG_MAPPING, undefined, [this.getType(), fields[i]]);
       return null;
     }
@@ -792,7 +833,7 @@ anychart.core.stock.series.Base.prototype.name = function(opt_value) {
     }
     return this;
   }
-  return this.name_ || ('Series ' + this.getIndex());
+  return this.name_ || ('Series ' + this.index());
 };
 
 
@@ -850,6 +891,19 @@ anychart.core.stock.series.Base.prototype.setupByJSON = function(config) {
   goog.base(this, 'setupByJSON', config);
   this.tooltip(config['tooltip']);
   this.legendItem(config['legendItem']);
+};
+
+
+/** @inheritDoc */
+anychart.core.stock.series.Base.prototype.disposeInternal = function() {
+  if (this.data_) {
+    var data = this.data_;
+    // we need this zeroing to let the chart check if the data source is still relevant
+    this.data_ = null;
+    this.chart.deregisterSource(/** @type {!anychart.data.TableSelectable} */(data));
+  }
+
+  goog.base(this, 'disposeInternal');
 };
 
 

@@ -343,7 +343,7 @@ anychart.utils.defaultDateFormatter = function(timestamp) {
 /**
  * Gets anchor coordinates by bounds.
  * @param {anychart.math.Rect} bounds Bounds rectangle.
- * @param {anychart.enums.Anchor|string} anchor Anchor.
+ * @param {?(anychart.enums.Anchor|string)} anchor Anchor.
  * @return {{x: number, y: number}} Anchor coordinates as {x:number, y:number}.
  */
 anychart.utils.getCoordinateByAnchor = function(bounds, anchor) {
@@ -581,7 +581,7 @@ anychart.utils.applyPixelShift = function(value, thickness) {
 /**
  * Apply offset to the position depending on an anchor.
  * @param {anychart.math.Coordinate} position Position to be modified.
- * @param {anychart.enums.Anchor} anchor Anchor.
+ * @param {?anychart.enums.Anchor} anchor Anchor.
  * @param {number} offsetX X offset.
  * @param {number} offsetY Y offset.
  * @return {anychart.math.Coordinate} Modified position.
@@ -674,7 +674,9 @@ anychart.utils.isNone = function(value) {
  */
 anychart.utils.extractThickness = function(stroke) {
   var normalized = acgraph.vector.normalizeStroke(stroke);
-  return goog.isDef(normalized['thickness']) ? normalized['thickness'] : 1;
+  return anychart.utils.isNone(normalized) ? 0 :
+      goog.isObject(normalized) ?
+          acgraph.vector.getThickness(/** @type {acgraph.vector.Stroke} */ (normalized)) : 1;
 };
 
 
@@ -847,8 +849,12 @@ anychart.utils.xml2json = function(xml) {
           name = anychart.utils.toCamelCase(subNodeName);
           if (names = anychart.utils.getArrayPropName_(name)) {
             var element = subnode[names[1]];
-            if (!goog.isArray(element))
-              element = [element];
+            if (!goog.isArray(element)) {
+              if (goog.isDef(element))
+                element = [element];
+              else
+                element = [];
+            }
             result[names[0]] = element;
           } else if (name in result) {
             if (multiProp[name]) {
@@ -887,7 +893,7 @@ anychart.utils.xml2json = function(xml) {
         }
       }
 
-      return onlyText ? (textValue.length > 0 ? anychart.utils.unescapeString(textValue) : null) : result;
+      return onlyText ? (textValue.length > 0 ? anychart.utils.unescapeString(textValue) : {}) : result;
     case anychart.utils.XmlNodeType_.TEXT_NODE:
       var value = anychart.utils.trim(node.nodeValue);
       return (value == '') ? null : value;
@@ -917,7 +923,7 @@ anychart.utils.json2xml = function(json, opt_rootNodeName, opt_returnAsXmlNode) 
   var root = anychart.utils.json2xml_(json, opt_rootNodeName || 'anychart', result);
   if (root) {
     if (!opt_rootNodeName)
-      root.setAttribute('xmlns', 'http://anychart.com/schemas/7.7.0/xml-schema.xsd');
+      root.setAttribute('xmlns', 'http://anychart.com/schemas/7.8.0/xml-schema.xsd');
     result.appendChild(root);
   }
   return opt_returnAsXmlNode ? result : goog.dom.xml.serialize(result);
@@ -1062,13 +1068,13 @@ anychart.utils.getNodeNames_ = function(arrayPropName) {
     case 'axes':
       return ['axes', 'axis'];
     case 'bars':
-      return ['bars', 'bar'];
+      return ['bar_pointers', 'pointer'];
     case 'markers':
-      return ['markers', 'marker'];
+      return ['marker_pointers', 'pointer'];
     case 'needles':
-      return ['needles', 'needle'];
+      return ['needle_pointers', 'pointer'];
     case 'knobs':
-      return ['knobs', 'knob'];
+      return ['knob_pointers', 'pointer'];
     case 'scales':
       return ['scales', 'scale'];
     case 'explicit':
@@ -1089,6 +1095,8 @@ anychart.utils.getNodeNames_ = function(arrayPropName) {
       return ['children', 'data_item'];
     case 'index':
       return ['index', 'key'];
+    case 'outliers':
+      return ['outliers', 'outlier'];
   }
   return null;
 };
@@ -1124,14 +1132,14 @@ anychart.utils.getArrayPropName_ = function(nodeName) {
       return ['yAxes', 'axis'];
     case 'axes':
       return ['axes', 'axis'];
-    case 'bars':
-      return ['bars', 'bar'];
-    case 'markers':
-      return ['markers', 'marker'];
-    case 'needles':
-      return ['needles', 'needle'];
-    case 'knobs':
-      return ['knobs', 'knob'];
+    case 'barPointers':
+      return ['bars', 'pointer'];
+    case 'markerPointers':
+      return ['markers', 'pointer'];
+    case 'needlePointers':
+      return ['needles', 'pointer'];
+    case 'knobPointers':
+      return ['knobs', 'pointer'];
     case 'scales':
       return ['scales', 'scale'];
     case 'explicit':
@@ -1152,6 +1160,8 @@ anychart.utils.getArrayPropName_ = function(nodeName) {
       return ['children', 'dataItem'];
     case 'index':
       return ['index', 'key'];
+    case 'outliers':
+      return ['outliers', 'outlier'];
   }
   return null;
 };
@@ -1457,11 +1467,20 @@ anychart.utils.getWarningDescription = function(code, opt_arguments) {
     case anychart.enums.WarningCode.DEPRECATED:
       return 'Method ' + opt_arguments[0] + ' is deprecated. Use ' + opt_arguments[1] + ' instead.';
 
+    case anychart.enums.WarningCode.DATA_ITEM_SET_PATH:
+      return 'Incorrect arguments passed to treeDataItem.set() method. You try to set a value by path in complex structure, ' +
+          'but path contains errors (It can be not string and not numeric values, or invalid path in existing structure, ' +
+          'or incorrect number of path\'s elements etc). Please, see the documentation for treeDataItem.set() method and ' +
+          'carefully check your data.';
+
     case anychart.enums.WarningCode.TABLE_ALREADY_IN_TRANSACTION:
       return 'Table is already in transaction mode. Calling startTransaction() multiple times does nothing.';
 
     case anychart.enums.WarningCode.STOCK_WRONG_MAPPING:
       return 'Wrong mapping passed to ' + opt_arguments[0] + ' series - required "' + opt_arguments[1] + "' field is missing.";
+
+    case anychart.enums.WarningCode.SCALE_TYPE_NOT_SUPPORTED:
+      return 'Scale type "' + opt_arguments[0] + '" is not supported - only ' + opt_arguments[1] + ' is.';
 
     default:
       return 'Unknown error. Please, contact support team at http://support.anychart.com/.\n' +

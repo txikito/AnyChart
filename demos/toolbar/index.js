@@ -86,39 +86,39 @@ anychart.onDocumentReady(function() {
   //--------------------------------------------------
   // External events
   //--------------------------------------------------
-  chart.listen(anychart.enums.EventType.ROW_CLICK, function(e) {
-    //e.preventDefault();
-    console.log('Clicked:', e['item'].get('name'));
-    if (e['period']) console.log('Period: ' + e['period']['id']);
-    console.log('');
-  });
-
-  chart.listen(anychart.enums.EventType.ROW_SELECT, function(e) {
-    console.log('Selected:', e['item'].get('name'));
-    if (e['period']) console.log('Period: ' + e['period']['id']);
-    console.log('');
-  });
-
-  chart.listen(anychart.enums.EventType.ROW_DBL_CLICK, function(e) {
-    //e.preventDefault();
-    console.log('Double clicked:', e['item'].get('name'));
-    if (e['period']) console.log('Period: ' + e['period']['id']);
-    console.log('');
-  });
-
-  chart.listen(anychart.enums.EventType.ROW_MOUSE_OVER, function(e) {
-    //e.preventDefault();
-    console.log('Mouse over:', e['item'].get('name'));
-    if (e['period']) console.log('Period: ' + e['period']['id']);
-    console.log('');
-  });
-
-  chart.listen(anychart.enums.EventType.ROW_MOUSE_MOVE, function(e) {
-    //e.preventDefault();
-    console.log('Mouse move:', e['item'].get('name'));
-    if (e['period']) console.log('Period: ' + e['period']['id']);
-    console.log('');
-  });
+  //chart.listen(anychart.enums.EventType.ROW_CLICK, function(e) {
+  //  //e.preventDefault();
+  //  console.log('Clicked:', e['item'].get('name'));
+  //  if (e['period']) console.log('Period: ' + e['period']['id']);
+  //  console.log('');
+  //});
+  //
+  //chart.listen(anychart.enums.EventType.ROW_SELECT, function(e) {
+  //  console.log('Selected:', e['item'].get('name'));
+  //  if (e['period']) console.log('Period: ' + e['period']['id']);
+  //  console.log('');
+  //});
+  //
+  //chart.listen(anychart.enums.EventType.ROW_DBL_CLICK, function(e) {
+  //  //e.preventDefault();
+  //  console.log('Double clicked:', e['item'].get('name'));
+  //  if (e['period']) console.log('Period: ' + e['period']['id']);
+  //  console.log('');
+  //});
+  //
+  //chart.listen(anychart.enums.EventType.ROW_MOUSE_OVER, function(e) {
+  //  //e.preventDefault();
+  //  console.log('Mouse over:', e['item'].get('name'));
+  //  if (e['period']) console.log('Period: ' + e['period']['id']);
+  //  console.log('');
+  //});
+  //
+  //chart.listen(anychart.enums.EventType.ROW_MOUSE_MOVE, function(e) {
+  //  //e.preventDefault();
+  //  console.log('Mouse move:', e['item'].get('name'));
+  //  if (e['period']) console.log('Period: ' + e['period']['id']);
+  //  console.log('');
+  //});
 
   chart.listen(anychart.enums.EventType.ROW_MOUSE_OUT, function(e) {
     //e.preventDefault();
@@ -127,19 +127,19 @@ anychart.onDocumentReady(function() {
     console.log('');
   });
 
-  chart.listen(anychart.enums.EventType.ROW_MOUSE_UP, function(e) {
-    //e.preventDefault();
-    console.log('Mouse up:', e['item'].get('name'));
-    if (e['period']) console.log('Period: ' + e['period']['id']);
-    console.log('');
-  });
-
-  chart.listen(anychart.enums.EventType.ROW_MOUSE_DOWN, function(e) {
-    //e.preventDefault();
-    console.log('Mouse down:', e['item'].get('name'));
-    if (e['period']) console.log('Period: ' + e['period']['id']);
-    console.log('');
-  });
+  //chart.listen(anychart.enums.EventType.ROW_MOUSE_UP, function(e) {
+  //  //e.preventDefault();
+  //  console.log('Mouse up:', e['item'].get('name'));
+  //  if (e['period']) console.log('Period: ' + e['period']['id']);
+  //  console.log('');
+  //});
+  //
+  //chart.listen(anychart.enums.EventType.ROW_MOUSE_DOWN, function(e) {
+  //  //e.preventDefault();
+  //  console.log('Mouse down:', e['item'].get('name'));
+  //  if (e['period']) console.log('Period: ' + e['period']['id']);
+  //  console.log('');
+  //});
 
 });
 
@@ -172,14 +172,14 @@ function getNewData() {
       'periods': [
         {
           'id': '1_1',
-          'stroke': 'none',
+          'stroke': 'red',
           'fill': 'green',
           'start': Date.UTC(2008, 0, 31, 16, 0),
           'end': Date.UTC(2008, 1, 2, 6, 44)
         },
         {
           'id': '1_2',
-          'stroke': 'none',
+          'stroke': 'black',
           'fill': 'orange',
           'start': Date.UTC(2008, 1, 2, 6, 44),
           'end': Date.UTC(2008, 1, 3, 0, 6)

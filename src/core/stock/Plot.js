@@ -12,6 +12,13 @@ goog.require('anychart.enums');
 goog.require('anychart.utils');
 
 
+/**
+ * Namespace anychart.core.stock
+ * @namespace
+ * @name anychart.core.stock
+ */
+
+
 
 /**
  * Stock Plot class.
@@ -93,6 +100,8 @@ anychart.core.stock.Plot = function(chart) {
    * @private
    */
   this.eventsInterceptor_ = null;
+
+  this.defaultSeriesType(anychart.enums.StockSeriesType.LINE);
 };
 goog.inherits(anychart.core.stock.Plot, anychart.core.VisualBaseWithBounds);
 
@@ -160,6 +169,21 @@ anychart.core.stock.Plot.ZINDEX_AXIS = 35;
 anychart.core.stock.Plot.ZINDEX_BACKGROUND = 1;
 
 
+/**
+ * Getter/setter for stock plot defaultSeriesType.
+ * @param {(string|anychart.enums.StockSeriesType)=} opt_value Default series type.
+ * @return {anychart.core.stock.Plot|anychart.enums.StockSeriesType} Default series type or self for chaining.
+ */
+anychart.core.stock.Plot.prototype.defaultSeriesType = function(opt_value) {
+  if (goog.isDef(opt_value)) {
+    opt_value = anychart.enums.normalizeStockSeriesType(opt_value);
+    this.defaultSeriesType_ = opt_value;
+    return this;
+  }
+  return this.defaultSeriesType_;
+};
+
+
 //region Series-related methods
 /**
  * Creates and returns a new column series.
@@ -193,8 +217,7 @@ anychart.core.stock.Plot.prototype.column = function(opt_data, opt_mappingSettin
  * @return {anychart.core.stock.series.Base}
  */
 anychart.core.stock.Plot.prototype.line = function(opt_data, opt_mappingSettings, opt_csvSettings) {
-  return this.createSeriesByType_(anychart.enums.StockSeriesType.LINE, opt_data, opt_mappingSettings, opt_csvSettings,
-      anychart.core.stock.Plot.ZINDEX_LINE_SERIES);
+  return this.createSeriesByType_(anychart.enums.StockSeriesType.LINE, opt_data, opt_mappingSettings, opt_csvSettings);
 };
 
 
@@ -217,12 +240,114 @@ anychart.core.stock.Plot.prototype.ohlc = function(opt_data, opt_mappingSettings
 
 
 /**
- * Gets series by index.
- * @param {number} index
- * @return {anychart.core.stock.series.Base}
+ * Add series to chart.
+ * @param {...anychart.data.TableMapping} var_args Chart series data.
+ * @return {Array.<anychart.core.stock.series.Base>} Array of created series.
  */
-anychart.core.stock.Plot.prototype.getSeries = function(index) {
+anychart.core.stock.Plot.prototype.addSeries = function(var_args) {
+  var rv = [];
+  var type = /** @type {string} */ (this.defaultSeriesType());
+  var count = arguments.length;
+  this.suspendSignalsDispatching();
+  if (!count)
+    rv.push(this.createSeriesByType_(type, null, undefined, undefined));
+  else {
+    for (var i = 0; i < count; i++) {
+      rv.push(this.createSeriesByType_(type, arguments[i], undefined, undefined));
+    }
+  }
+  this.resumeSignalsDispatching(true);
+  return rv;
+};
+
+
+/**
+ * Find series index by its id.
+ * @param {number|string} id Series id.
+ * @return {number} Series index or -1 if didn't find.
+ */
+anychart.core.stock.Plot.prototype.getSeriesIndexBySeriesId = function(id) {
+  return goog.array.findIndex(this.series_, function(item) {
+    return item.id() == id;
+  });
+};
+
+
+/**
+ * Gets series by its id.
+ * @param {number|string} id Id of the series.
+ * @return {anychart.core.stock.series.Base} Series instance.
+ */
+anychart.core.stock.Plot.prototype.getSeries = function(id) {
+  return this.getSeriesAt(this.getSeriesIndexBySeriesId(id));
+};
+
+
+/**
+ * Gets series by its index.
+ * @param {number} index Index of the series.
+ * @return {?anychart.core.stock.series.Base} Series instance.
+ */
+anychart.core.stock.Plot.prototype.getSeriesAt = function(index) {
   return this.series_[index] || null;
+};
+
+
+/**
+ * Returns series count.
+ * @return {number} Number of series.
+ */
+anychart.core.stock.Plot.prototype.getSeriesCount = function() {
+  return this.series_.length;
+};
+
+
+/**
+ * Removes one of series from chart by its id.
+ * @param {number|string} id Series id.
+ * @return {anychart.core.stock.Plot}
+ */
+anychart.core.stock.Plot.prototype.removeSeries = function(id) {
+  return this.removeSeriesAt(this.getSeriesIndexBySeriesId(id));
+};
+
+
+/**
+ * Removes one of series from chart by its index.
+ * @param {number} index Series index.
+ * @return {anychart.core.stock.Plot}
+ */
+anychart.core.stock.Plot.prototype.removeSeriesAt = function(index) {
+  var series = this.series_[index];
+  if (series) {
+    anychart.globalLock.lock();
+    goog.array.splice(this.series_, index, 1);
+    goog.dispose(series);
+    this.invalidate(anychart.ConsistencyState.STOCK_PLOT_SERIES |
+        anychart.ConsistencyState.STOCK_PLOT_LEGEND,
+        anychart.Signal.NEEDS_REDRAW);
+    anychart.globalLock.unlock();
+  }
+  return this;
+};
+
+
+/**
+ * Removes all series from chart.
+ * @return {anychart.core.stock.Plot} Self for method chaining.
+ */
+anychart.core.stock.Plot.prototype.removeAllSeries = function() {
+  if (this.series_.length) {
+    anychart.globalLock.lock();
+    var series = this.series_;
+    this.series_ = [];
+    goog.disposeAll(series);
+    this.invalidate(anychart.ConsistencyState.STOCK_PLOT_SERIES |
+        anychart.ConsistencyState.STOCK_PLOT_LEGEND,
+        anychart.Signal.NEEDS_REDRAW);
+    anychart.globalLock.unlock();
+  }
+  return this;
 };
 
 
@@ -255,35 +380,34 @@ anychart.core.stock.Plot.prototype.setDefaultSeriesSettings = function(value) {
  *          'weightedAverage', but opt_weightsColumn is not passed - uses 'average' grouping instead.
  *   or numbers - just the column index to get values from. In this case the grouping type will be set to 'close'.
  * @param {Object=} opt_csvSettings CSV parser settings if the string is passed.
- * @param {number=} opt_zIndex Optional series zIndex.
  * @private
  * @return {anychart.core.stock.series.Base}
  */
-anychart.core.stock.Plot.prototype.createSeriesByType_ = function(type, opt_data, opt_mappingSettings,
-    opt_csvSettings, opt_zIndex) {
-
-  var ctr;
-  type = ('' + type).toLowerCase();
-  for (var i in anychart.core.stock.series.Base.SeriesTypesMap) {
-    if (i.toLowerCase() == type)
-      ctr = anychart.core.stock.series.Base.SeriesTypesMap[i];
-  }
+anychart.core.stock.Plot.prototype.createSeriesByType_ = function(type, opt_data, opt_mappingSettings, opt_csvSettings) {
+  type = anychart.enums.normalizeStockSeriesType(type);
+  var ctl = anychart.core.stock.series.Base.SeriesTypesMap[type];
   var instance;
 
-  if (ctr) {
-    instance = new ctr(this.chart_, this);
+  if (ctl) {
+    instance = new ctl(this.chart_, this);
     instance.data(opt_data, opt_mappingSettings, opt_csvSettings);
     instance.setParentEventTarget(this);
+    var lastSeries = this.series_[this.series_.length - 1];
+    var index = lastSeries ? /** @type {number} */ (lastSeries.index()) + 1 : 0;
     this.series_.push(instance);
-    var index = this.series_.length - 1;
     var inc = index * anychart.core.stock.Plot.ZINDEX_INCREMENT_MULTIPLIER;
-    instance.setIndex(index);
-    instance.setAutoZIndex((goog.isDef(opt_zIndex) ? opt_zIndex : anychart.core.stock.Plot.ZINDEX_SERIES) + inc);
+    instance.index(index).id(index);
+    var seriesZIndex = ((type == anychart.enums.StockSeriesType.LINE) ?
+            anychart.core.stock.Plot.ZINDEX_LINE_SERIES :
+            anychart.core.stock.Plot.ZINDEX_SERIES) + inc;
+    instance.setAutoZIndex(seriesZIndex);
     instance.clip(true);
     //instance.setAutoColor(this.palette().colorAt(this.series_.length - 1));
     instance.setup(this.defaultSeriesSettings_[type]);
     instance.listenSignals(this.seriesInvalidated_, this);
-    this.invalidate(anychart.ConsistencyState.STOCK_PLOT_SERIES,
+    this.invalidate(
+        anychart.ConsistencyState.STOCK_PLOT_SERIES |
+        anychart.ConsistencyState.STOCK_PLOT_LEGEND,
         anychart.Signal.NEEDS_REDRAW);
   } else {
     anychart.utils.error(anychart.enums.ErrorCode.NO_FEATURE_IN_MODULE, null, [type + ' series']);
@@ -612,8 +736,7 @@ anychart.core.stock.Plot.prototype.draw = function() {
       legendTitleDate = NaN;
     }
     this.updateLegend_(seriesBounds, legendTitleDate);
-    if (this.legend_ && this.legend_.enabled())
-      seriesBounds = this.legend_.getRemainingBounds();
+    seriesBounds = this.legend().getRemainingBounds();
 
     if (this.xAxis_) {
       this.xAxis_.suspendSignalsDispatching();
@@ -629,8 +752,8 @@ anychart.core.stock.Plot.prototype.draw = function() {
     var rightPadding = 0;
     for (i = 0; i < this.yAxes_.length; i++) {
       axis = this.yAxes_[i];
-      axis.suspendSignalsDispatching();
       if (axis) {
+        axis.suspendSignalsDispatching();
         var width = axis.width();
         if (axis.orientation() == anychart.enums.Orientation.LEFT) {
           axis.parentBounds(/** @type {number} */(bounds.left - width - leftPadding),
@@ -641,8 +764,8 @@ anychart.core.stock.Plot.prototype.draw = function() {
               bounds.top, bounds.width - rightPadding, bounds.height);
           rightPadding += width;
         }
+        axis.resumeSignalsDispatching(false);
       }
-      axis.resumeSignalsDispatching(false);
     }
 
     if (this.xAxis_) {
@@ -758,9 +881,7 @@ anychart.core.stock.Plot.prototype.draw = function() {
  * @private
  */
 anychart.core.stock.Plot.prototype.updateLegend_ = function(opt_seriesBounds, opt_titleValue) {
-  var legend = this.legend_;
-  if (!legend || !legend.enabled()) return;
-  legend = /** @type {anychart.core.ui.Legend} */(this.legend());
+  var legend = /** @type {anychart.core.ui.Legend} */(this.legend());
   legend.suspendSignalsDispatching();
   legend.container(this.rootLayer_);
   if (opt_seriesBounds) {
@@ -791,14 +912,16 @@ anychart.core.stock.Plot.prototype.updateLegend_ = function(opt_seriesBounds, op
  */
 anychart.core.stock.Plot.prototype.onLegendSignal_ = function(event) {
   var state = 0;
+  var signal = anychart.Signal.NEEDS_REDRAW;
   if (event.hasSignal(anychart.Signal.NEEDS_REDRAW)) {
     state |= anychart.ConsistencyState.STOCK_PLOT_LEGEND;
   }
   if (event.hasSignal(anychart.Signal.BOUNDS_CHANGED)) {
     state |= anychart.ConsistencyState.BOUNDS;
+    signal |= anychart.Signal.BOUNDS_CHANGED;
   }
   // If there are no signals � state == 0 and nothing will happen.
-  this.invalidate(state, anychart.Signal.NEEDS_REDRAW);
+  this.invalidate(state, signal);
 };
 
 
@@ -819,7 +942,7 @@ anychart.core.stock.Plot.prototype.createLegendItemsProvider = function(sourceMo
     if (series) {
       var itemData = series.getLegendItemData(itemsTextFormatter);
       itemData['sourceUid'] = goog.getUid(this);
-      itemData['sourceKey'] = series.getIndex();
+      itemData['sourceKey'] = series.index();
       data.push(itemData);
     }
   }
@@ -1027,7 +1150,11 @@ anychart.core.stock.Plot.prototype.backgroundInvalidated_ = function(e) {
  * @private
  */
 anychart.core.stock.Plot.prototype.seriesInvalidated_ = function(e) {
-  this.invalidate(anychart.ConsistencyState.STOCK_PLOT_SERIES, anychart.Signal.NEEDS_REDRAW);
+  var signal = anychart.Signal.NEEDS_REDRAW;
+  var state = anychart.ConsistencyState.STOCK_PLOT_SERIES;
+  if (e.hasSignal(anychart.Signal.NEED_UPDATE_LEGEND))
+    state |= anychart.ConsistencyState.STOCK_PLOT_LEGEND;
+  this.invalidate(state, signal);
 };
 
 
@@ -1077,25 +1204,30 @@ anychart.core.stock.Plot.prototype.invalidateRedrawable = function(doInvalidateB
   var state = anychart.ConsistencyState.STOCK_SERIES_POINTS;
   if (doInvalidateBounds) state |= anychart.ConsistencyState.BOUNDS;
   for (i = 0; i < this.series_.length; i++) {
-    this.series_[i].invalidate(state);
+    if (this.series_[i])
+      this.series_[i].invalidate(state);
   }
 
   for (i = 0; i < this.yAxes_.length; i++) {
     var axis = this.yAxes_[i];
-    axis.suspendSignalsDispatching();
-    // effectively invalidates all what's needed
-    axis.invalidateParentBounds();
-    axis.resumeSignalsDispatching(false);
+    if (axis) {
+      axis.suspendSignalsDispatching();
+      // effectively invalidates all what's needed
+      axis.invalidateParentBounds();
+      axis.resumeSignalsDispatching(false);
+    }
   }
 
   var grid;
   for (i = 0; i < this.grids_.length; i++) {
     grid = this.grids_[i];
-    grid.invalidate(anychart.ConsistencyState.GRIDS_POSITION);
+    if (grid)
+      grid.invalidate(anychart.ConsistencyState.GRIDS_POSITION);
   }
   for (i = 0; i < this.minorGrids_.length; i++) {
     grid = this.minorGrids_[i];
-    grid.invalidate(anychart.ConsistencyState.GRIDS_POSITION);
+    if (grid)
+      grid.invalidate(anychart.ConsistencyState.GRIDS_POSITION);
   }
 
   state = anychart.ConsistencyState.APPEARANCE;
@@ -1148,6 +1280,7 @@ anychart.core.stock.Plot.prototype.serialize = function() {
   scales.push(scalesIds[goog.getUid(this.yScale())]);
   json['yScale'] = scales.length - 1;
 
+  json['defaultSeriesType'] = this.defaultSeriesType();
   json['background'] = this.background().serialize();
   json['xAxis'] = this.xAxis().serialize();
   json['dateTimeHighlighter'] = anychart.color.serialize(this.dateTimeHighlighterStroke_);
@@ -1243,6 +1376,7 @@ anychart.core.stock.Plot.prototype.setupByJSON = function(config) {
   goog.base(this, 'setupByJSON', config);
   var i, json, scale;
 
+  this.defaultSeriesType(config['defaultSeriesType']);
   this.background(config['background']);
   this.xAxis(config['xAxis']);
   this.dateTimeHighlighter(config['dateTimeHighlighter']);
@@ -1323,14 +1457,10 @@ anychart.core.stock.Plot.prototype.setupByJSON = function(config) {
   if (goog.isArray(series)) {
     for (i = 0; i < series.length; i++) {
       json = series[i];
-      var seriesType = (json['seriesType'] || 'line').toLowerCase();
+      var seriesType = (json['seriesType'] || this.defaultSeriesType()).toLowerCase();
       var data = json['data'];
       var seriesInst = this.createSeriesByType_(seriesType, data);
       if (seriesInst) {
-        //if (seriesType == anychart.enums.CartesianSeriesType.LINE ||
-        //    seriesType == anychart.enums.CartesianSeriesType.SPLINE ||
-        //    seriesType == anychart.enums.CartesianSeriesType.STEP_LINE.toLowerCase())
-        //  seriesInst.zIndex(anychart.charts.Cartesian.ZINDEX_LINE_SERIES);
         seriesInst.setup(json);
         if (goog.isObject(json)) {
           if ('yScale' in json && json['yScale'] > 1) seriesInst.yScale(scalesInstances[json['yScale']]);
@@ -1434,3 +1564,10 @@ anychart.core.stock.Plot.prototype['xAxis'] = anychart.core.stock.Plot.prototype
 anychart.core.stock.Plot.prototype['grid'] = anychart.core.stock.Plot.prototype.grid;
 anychart.core.stock.Plot.prototype['minorGrid'] = anychart.core.stock.Plot.prototype.minorGrid;
 anychart.core.stock.Plot.prototype['dateTimeHighlighter'] = anychart.core.stock.Plot.prototype.dateTimeHighlighter;
+anychart.core.stock.Plot.prototype['defaultSeriesType'] = anychart.core.stock.Plot.prototype.defaultSeriesType;
+anychart.core.stock.Plot.prototype['addSeries'] = anychart.core.stock.Plot.prototype.addSeries;
+anychart.core.stock.Plot.prototype['getSeriesAt'] = anychart.core.stock.Plot.prototype.getSeriesAt;
+anychart.core.stock.Plot.prototype['getSeriesCount'] = anychart.core.stock.Plot.prototype.getSeriesCount;
+anychart.core.stock.Plot.prototype['removeSeries'] = anychart.core.stock.Plot.prototype.removeSeries;
+anychart.core.stock.Plot.prototype['removeSeriesAt'] = anychart.core.stock.Plot.prototype.removeSeriesAt;
+anychart.core.stock.Plot.prototype['removeAllSeries'] = anychart.core.stock.Plot.prototype.removeAllSeries;

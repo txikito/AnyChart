@@ -5,6 +5,13 @@ goog.require('anychart.core.dataDrawers.Base');
 goog.require('anychart.data.Table');
 
 
+/**
+ * Namespace anychart.core.stock.scrollerSeries
+ * @namespace
+ * @name anychart.core.stock.scrollerSeries
+ */
+
+
 
 /**
  *
@@ -159,7 +166,7 @@ anychart.core.stock.scrollerSeries.Base.SeriesTypesMap = {};
 /**
  * Gets and sets data for the series.
  * @param {(anychart.data.TableMapping|anychart.data.Table|Array.<Array.<*>>|string)=} opt_value
- * @param {Object.<({column: number, type: anychart.enums.AggregationType, weights: number}|number)>=} opt_mappingSettings
+ * @param {Object.<({column: (number|string), type: anychart.enums.AggregationType, weights: (number|string)}|number|string)>=} opt_mappingSettings
  *   An object where keys are field names and values are objects with fields:
  *      - 'column': number - Column index, that the field should get values from;
  *      - 'type': anychart.enums.AggregationType - How to group values for the field. Defaults to 'close'.
@@ -235,11 +242,17 @@ anychart.core.stock.scrollerSeries.Base.prototype.getSelectableData = function()
 
 
 /**
- * Sets series index.
- * @param {number} value
+ * Sets/gets series inner index.
+ * @param {number=} opt_value
+ * @return {anychart.core.stock.scrollerSeries.Base|number}
  */
-anychart.core.stock.scrollerSeries.Base.prototype.setIndex = function(value) {
-  this.index_ = value;
+anychart.core.stock.scrollerSeries.Base.prototype.index = function(opt_value) {
+  if (goog.isDef(opt_value)) {
+    this.index_ = opt_value;
+    return this;
+  } else {
+    return this.index_;
+  }
 };
 
 
@@ -248,7 +261,24 @@ anychart.core.stock.scrollerSeries.Base.prototype.setIndex = function(value) {
  * @return {number}
  */
 anychart.core.stock.scrollerSeries.Base.prototype.getIndex = function() {
-  return this.index_;
+  if (this.isDisposed())
+    return -1;
+  return goog.array.indexOf(this.scroller.getAllSeries(), this);
+};
+
+
+/**
+ * Getter/setter for series id.
+ * @param {(string|number)=} opt_value Id of the series.
+ * @return {string|number|anychart.core.stock.scrollerSeries.Base} Id or self for chaining.
+ */
+anychart.core.stock.scrollerSeries.Base.prototype.id = function(opt_value) {
+  if (goog.isDef(opt_value)) {
+    this.id_ = opt_value;
+    return this;
+  } else {
+    return this.id_;
+  }
 };
 
 
@@ -394,7 +424,9 @@ anychart.core.stock.scrollerSeries.Base.prototype.draw = function() {
 anychart.core.stock.scrollerSeries.Base.prototype.ensureVisualIsReady = function(container, containerSelected) {
   if (!this.rootLayer) {
     this.rootLayer = acgraph.layer();
+    this.registerDisposable(this.rootLayer);
     this.rootLayerSelected = acgraph.layer();
+    this.registerDisposable(this.rootLayerSelected);
   }
 
   if (this.hasInvalidationState(anychart.ConsistencyState.CONTAINER)) {
@@ -577,6 +609,19 @@ anychart.core.stock.scrollerSeries.Base.prototype.scaleInvalidated_ = function(e
   if (event.hasSignal(anychart.Signal.NEEDS_REAPPLICATION))
     signal |= anychart.Signal.NEEDS_REDRAW;
   this.invalidate(anychart.ConsistencyState.STOCK_SERIES_POINTS, signal);
+};
+
+
+/** @inheritDoc */
+anychart.core.stock.scrollerSeries.Base.prototype.disposeInternal = function() {
+  if (this.data_) {
+    var data = this.data_;
+    // we need this zeroing to let the chart check if the data source is still relevant
+    this.data_ = null;
+    this.scroller.getChart().deregisterSource(/** @type {!anychart.data.TableSelectable} */(data));
+  }
+
+  goog.base(this, 'disposeInternal');
 };
 
 

@@ -37,7 +37,8 @@ anychart.enums.ChartTypes = {
   PYRAMID: 'pyramid',
   RADAR: 'radar',
   SCATTER: 'scatter',
-  SPARKLINE: 'sparkline'
+  SPARKLINE: 'sparkline',
+  HEAT_MAP: 'heatmap'
 };
 
 
@@ -379,6 +380,46 @@ anychart.enums.Position = anychart.enums.Anchor;
  */
 anychart.enums.normalizePosition = function(value, opt_default) {
   return /** @type {anychart.enums.Position} */(anychart.enums.normalizeAnchor(value, opt_default));
+};
+
+
+/**
+ * ChartScroller possible positions.
+ * @enum {string}
+ */
+anychart.enums.ChartScrollerPosition = {
+  BEFORE_AXES: 'beforeAxes',
+  AFTER_AXES: 'afterAxes'
+};
+
+
+/**
+ * Normalizes chart scroller position value.
+ * @param {*} value
+ * @param {anychart.enums.ChartScrollerPosition=} opt_default Defaults to AFTER_AXES.
+ * @return {anychart.enums.ChartScrollerPosition}
+ */
+anychart.enums.normalizeChartScrollerPosition = function(value, opt_default) {
+  value = (String(value)).toLowerCase();
+  switch (value) {
+    case 'beforeaxes':
+    case 'before':
+    case 'ba':
+    case 'b':
+    case 'inside':
+    case 'in':
+    case 'i':
+      return anychart.enums.ChartScrollerPosition.BEFORE_AXES;
+    case 'afteraxes':
+    case 'after':
+    case 'aa':
+    case 'a':
+    case 'outside':
+    case 'out':
+    case 'o':
+      return anychart.enums.ChartScrollerPosition.AFTER_AXES;
+  }
+  return opt_default || anychart.enums.ChartScrollerPosition.AFTER_AXES;
 };
 
 
@@ -1705,7 +1746,14 @@ anychart.enums.EventType = {
   ROW_MOUSE_OUT: 'rowMouseOut',
   ROW_MOUSE_MOVE: 'rowMouseMove',
   ROW_MOUSE_DOWN: 'rowMouseDown',
-  ROW_MOUSE_UP: 'rowMouseUp'
+  ROW_MOUSE_UP: 'rowMouseUp',
+  BEFORE_CREATE_CONNECTOR: 'beforeCreateConnector',
+
+  //Data tree CRUD events.
+  TREE_ITEM_MOVE: 'treeItemMove',
+  TREE_ITEM_UPDATE: 'treeItemUpdate',
+  TREE_ITEM_CREATE: 'treeItemCreate',
+  TREE_ITEM_REMOVE: 'treeItemRemove'
 };
 
 
@@ -1785,7 +1833,7 @@ anychart.enums.ScatterTicksMode = {
 
 //----------------------------------------------------------------------------------------------------------------------
 //
-//  CartesianSeriesTypes
+//  MapSeriesTypes
 //
 //----------------------------------------------------------------------------------------------------------------------
 /**
@@ -1795,6 +1843,24 @@ anychart.enums.ScatterTicksMode = {
 anychart.enums.MapSeriesType = {
   CHOROPLETH: 'choropleth',
   BUBBLE: 'bubble'
+};
+
+
+/**
+ * Normalizes map series type.
+ * @param {*} value Series type to normalize.
+ * @param {anychart.enums.MapSeriesType=} opt_default Custom default value (defaults to CHOROPLETH).
+ * @return {anychart.enums.MapSeriesType}
+ */
+anychart.enums.normalizeMapSeriesType = function(value, opt_default) {
+  value = (String(value)).toLowerCase();
+  switch (value) {
+    case 'choropleth':
+      return anychart.enums.MapSeriesType.CHOROPLETH;
+    case 'bubble':
+      return anychart.enums.MapSeriesType.BUBBLE;
+  }
+  return opt_default || anychart.enums.MapSeriesType.CHOROPLETH;
 };
 
 
@@ -1910,6 +1976,26 @@ anychart.enums.StockSeriesType = {
 };
 
 
+/**
+ * Normalizes stock series type.
+ * @param {*} value Series type to normalize.
+ * @param {anychart.enums.StockSeriesType=} opt_default Custom default value (defaults to LINE).
+ * @return {anychart.enums.StockSeriesType}
+ */
+anychart.enums.normalizeStockSeriesType = function(value, opt_default) {
+  value = (String(value)).toLowerCase();
+  switch (value) {
+    case 'column':
+      return anychart.enums.StockSeriesType.COLUMN;
+    case 'line':
+      return anychart.enums.StockSeriesType.LINE;
+    case 'ohlc':
+      return anychart.enums.StockSeriesType.OHLC;
+  }
+  return opt_default || anychart.enums.StockSeriesType.LINE;
+};
+
+
 //----------------------------------------------------------------------------------------------------------------------
 //
 //  SparklineSeriesTypes
@@ -2001,6 +2087,22 @@ anychart.enums.GanttDataFields = {
 };
 
 
+/**
+ * Timeline visual element types.
+ * In current time (21 Jul 2015) doesn't need to be exported.
+ * @enum {number}
+ */
+anychart.enums.TLElementTypes = {
+  PARENT: 0,
+  BASE: 1,
+  PROGRESS: 2,
+  BASELINE: 3,
+  MILESTONE: 4,
+  PERIOD: 5,
+  CONNECTOR: 6
+};
+
+
 //----------------------------------------------------------------------------------------------------------------------
 //
 //  Gantt timeline connector types.
@@ -2056,6 +2158,26 @@ anychart.enums.RadarSeriesType = {
 };
 
 
+/**
+ * Normalizes radar series type.
+ * @param {*} value Series type to normalize.
+ * @param {anychart.enums.RadarSeriesType=} opt_default Custom default value (defaults to LINE).
+ * @return {anychart.enums.RadarSeriesType}
+ */
+anychart.enums.normalizeRadarSeriesType = function(value, opt_default) {
+  value = (String(value)).toLowerCase();
+  switch (value) {
+    case 'area':
+      return anychart.enums.RadarSeriesType.AREA;
+    case 'line':
+      return anychart.enums.RadarSeriesType.LINE;
+    case 'marker':
+      return anychart.enums.RadarSeriesType.MARKER;
+  }
+  return opt_default || anychart.enums.RadarSeriesType.LINE;
+};
+
+
 //----------------------------------------------------------------------------------------------------------------------
 //
 //  PolarSeriesTypes
@@ -2072,19 +2194,59 @@ anychart.enums.PolarSeriesType = {
 };
 
 
+/**
+ * Normalizes polar series type.
+ * @param {*} value Series type to normalize.
+ * @param {anychart.enums.PolarSeriesType=} opt_default Custom default value (defaults to LINE).
+ * @return {anychart.enums.PolarSeriesType}
+ */
+anychart.enums.normalizePolarSeriesType = function(value, opt_default) {
+  value = (String(value)).toLowerCase();
+  switch (value) {
+    case 'area':
+      return anychart.enums.PolarSeriesType.AREA;
+    case 'line':
+      return anychart.enums.PolarSeriesType.LINE;
+    case 'marker':
+      return anychart.enums.PolarSeriesType.MARKER;
+  }
+  return opt_default || anychart.enums.PolarSeriesType.LINE;
+};
+
+
 //----------------------------------------------------------------------------------------------------------------------
 //
-//  ScatterSeriesTypes
+//  ScatterSeriesType
 //
 //----------------------------------------------------------------------------------------------------------------------
 /**
  * List of all series types.
  * @enum {string}
  */
-anychart.enums.ScatterSeriesTypes = {
+anychart.enums.ScatterSeriesType = {
   BUBBLE: 'bubble',
   LINE: 'line',
   MARKER: 'marker'
+};
+
+
+/**
+ * Normalizes scatter series type.
+ * @param {*} value Series type to normalize.
+ * @param {anychart.enums.ScatterSeriesType=} opt_default Custom default value (defaults to LINE).
+ * @return {anychart.enums.ScatterSeriesType}
+ */
+anychart.enums.normalizeScatterSeriesType = function(value, opt_default) {
+  value = (String(value)).toLowerCase();
+  switch (value) {
+    case 'bubble':
+      return anychart.enums.ScatterSeriesType.BUBBLE;
+    case 'line':
+      return anychart.enums.ScatterSeriesType.LINE;
+    case 'marker':
+      return anychart.enums.ScatterSeriesType.MARKER;
+  }
+  return opt_default || anychart.enums.ScatterSeriesType.LINE;
 };
 
 
@@ -2101,7 +2263,9 @@ anychart.enums.ScaleTypes = {
   LINEAR: 'linear',
   LOG: 'log',
   DATE_TIME: 'dateTime',
-  ORDINAL: 'ordinal'
+  ORDINAL: 'ordinal',
+  ORDINAL_COLOR: 'ordinalColor',
+  LINEAR_COLOR: 'linearColor'
 };
 
 
@@ -2146,8 +2310,6 @@ anychart.enums.GaugeScaleTypes = {
  * @enum {string}
  */
 anychart.enums.MapsScaleTypes = {
-  ORDINAL_COLOR: 'ordinalColor',
-  LINEAR_COLOR: 'linearColor',
   GEO: 'geo'
 };
 
@@ -2246,6 +2408,10 @@ anychart.enums.WarningCode = {
   TOOLBAR_CONTAINER: 13,
   TOOLBAR_METHOD_IS_NOT_DEFINED: 14,
   TOOLBAR_CHART_IS_NOT_SET: 15,
+
+  SCALE_TYPE_NOT_SUPPORTED: 16,
+
+  DATA_ITEM_SET_PATH: 17,
 
   TABLE_ALREADY_IN_TRANSACTION: 101,
 
@@ -2932,6 +3098,77 @@ anychart.enums.normalizeCrosshairDisplayMode = function(value) {
 };
 
 
+/**
+ * @enum {string}
+ */
+anychart.enums.LabelsDisplayMode = {
+  ALWAYS_SHOW: 'alwaysShow',
+  CLIP: 'clip',
+  DROP: 'drop'
+};
+
+
+/**
+ * Normalizes labels display mode.
+ * @param {*} value Display mode to normalize.
+ * @param {anychart.enums.LabelsDisplayMode=} opt_default Custom default value (defaults to CLIP).
+ * @return {anychart.enums.LabelsDisplayMode}
+ */
+anychart.enums.normalizeLabelsDisplayMode = function(value, opt_default) {
+  value = (String(value)).toLowerCase();
+  switch (value) {
+    case 'clip':
+    case 'c':
+      return anychart.enums.LabelsDisplayMode.CLIP;
+    case 'drop':
+    case 'd':
+      return anychart.enums.LabelsDisplayMode.DROP;
+    case 'alwaysshow':
+    case 'always':
+    case 'show':
+    case 'none':
+    case 'null':
+    case 'no':
+    case 'false':
+    case 'f':
+    case '0':
+    case 'n':
+      return anychart.enums.LabelsDisplayMode.ALWAYS_SHOW;
+  }
+  return opt_default || anychart.enums.LabelsDisplayMode.CLIP;
+};
+
+
+/**
+ * @enum {string}
+ */
+anychart.enums.AdjustFontSizeMode = {
+  SAME: 'same',
+  DIFFERENT: 'different'
+};
+
+
+/**
+ * Normalizes adjust font size mode.
+ * @param {*} value Mode mode to normalize.
+ * @param {anychart.enums.AdjustFontSizeMode=} opt_default Custom default value (defaults to DIFFERENT).
+ * @return {anychart.enums.AdjustFontSizeMode}
+ */
+anychart.enums.normalizeAdjustFontSizeMode = function(value, opt_default) {
+  value = (String(value)).toLowerCase();
+  switch (value) {
+    case 'same':
+    case 's':
+      return anychart.enums.AdjustFontSizeMode.SAME;
+    case 'different':
+    case 'diff':
+    case 'd':
+      return anychart.enums.AdjustFontSizeMode.DIFFERENT;
+  }
+  return opt_default || anychart.enums.AdjustFontSizeMode.DIFFERENT;
+};
+
+
 //exports
 goog.exportSymbol('anychart.enums.RadialGridLayout.CIRCUIT', anychart.enums.RadialGridLayout.CIRCUIT);
 goog.exportSymbol('anychart.enums.RadialGridLayout.RADIAL', anychart.enums.RadialGridLayout.RADIAL);
@@ -3100,6 +3337,11 @@ goog.exportSymbol('anychart.enums.EventType.ROW_MOUSE_OUT', anychart.enums.Event
 goog.exportSymbol('anychart.enums.EventType.ROW_MOUSE_MOVE', anychart.enums.EventType.ROW_MOUSE_MOVE);
 goog.exportSymbol('anychart.enums.EventType.ROW_MOUSE_DOWN', anychart.enums.EventType.ROW_MOUSE_DOWN);
 goog.exportSymbol('anychart.enums.EventType.ROW_MOUSE_UP', anychart.enums.EventType.ROW_MOUSE_UP);
+goog.exportSymbol('anychart.enums.EventType.BEFORE_CREATE_CONNECTOR', anychart.enums.EventType.BEFORE_CREATE_CONNECTOR);
+goog.exportSymbol('anychart.enums.EventType.TREE_ITEM_CREATE', anychart.enums.EventType.TREE_ITEM_CREATE);
+goog.exportSymbol('anychart.enums.EventType.TREE_ITEM_MOVE', anychart.enums.EventType.TREE_ITEM_MOVE);
+goog.exportSymbol('anychart.enums.EventType.TREE_ITEM_REMOVE', anychart.enums.EventType.TREE_ITEM_REMOVE);
+goog.exportSymbol('anychart.enums.EventType.TREE_ITEM_UPDATE', anychart.enums.EventType.TREE_ITEM_UPDATE);
 
 goog.exportSymbol('anychart.enums.ScaleStackMode.NONE', anychart.enums.ScaleStackMode.NONE);
 goog.exportSymbol('anychart.enums.ScaleStackMode.VALUE', anychart.enums.ScaleStackMode.VALUE);
@@ -3140,6 +3382,11 @@ goog.exportSymbol('anychart.enums.GanttDataFields.CONNECTOR_TYPE', anychart.enum
 goog.exportSymbol('anychart.enums.GanttDataFields.START_MARKER', anychart.enums.GanttDataFields.START_MARKER);
 goog.exportSymbol('anychart.enums.GanttDataFields.END_MARKER', anychart.enums.GanttDataFields.END_MARKER);
 goog.exportSymbol('anychart.enums.GanttDataFields.LABEL', anychart.enums.GanttDataFields.LABEL);
+
+goog.exportSymbol('anychart.enums.ConnectorType.FINISH_START', anychart.enums.ConnectorType.FINISH_START);
+goog.exportSymbol('anychart.enums.ConnectorType.FINISH_FINISH', anychart.enums.ConnectorType.FINISH_FINISH);
+goog.exportSymbol('anychart.enums.ConnectorType.START_FINISH', anychart.enums.ConnectorType.START_FINISH);
+goog.exportSymbol('anychart.enums.ConnectorType.START_START', anychart.enums.ConnectorType.START_START);
 
 goog.exportSymbol('anychart.enums.ColumnFormats.DIRECT_NUMBERING', anychart.enums.ColumnFormats.DIRECT_NUMBERING);
 goog.exportSymbol('anychart.enums.ColumnFormats.TEXT', anychart.enums.ColumnFormats.TEXT);
@@ -3218,3 +3465,10 @@ goog.exportSymbol('anychart.enums.TableSearchMode.EXACT_OR_PREV', anychart.enums
 goog.exportSymbol('anychart.enums.TableSearchMode.EXACT', anychart.enums.TableSearchMode.EXACT);
 goog.exportSymbol('anychart.enums.TableSearchMode.EXACT_OR_NEXT', anychart.enums.TableSearchMode.EXACT_OR_NEXT);
 goog.exportSymbol('anychart.enums.TableSearchMode.NEAREST', anychart.enums.TableSearchMode.NEAREST);
+
+goog.exportSymbol('anychart.enums.ChartScrollerPosition.AFTER_AXES', anychart.enums.ChartScrollerPosition.AFTER_AXES);
+goog.exportSymbol('anychart.enums.ChartScrollerPosition.BEFORE_AXES', anychart.enums.ChartScrollerPosition.BEFORE_AXES);
+
+goog.exportSymbol('anychart.enums.LabelsDisplayMode.ALWAYS_SHOW', anychart.enums.LabelsDisplayMode.ALWAYS_SHOW);
+goog.exportSymbol('anychart.enums.LabelsDisplayMode.DROP', anychart.enums.LabelsDisplayMode.DROP);
+goog.exportSymbol('anychart.enums.LabelsDisplayMode.CLIP', anychart.enums.LabelsDisplayMode.CLIP);

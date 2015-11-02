@@ -1,10 +1,11 @@
 goog.provide('anychart.charts.Pie');
 goog.require('acgraph');
 goog.require('anychart.color');
+goog.require('anychart.core.PiePoint');
 goog.require('anychart.core.SeparateChart');
 goog.require('anychart.core.ui.CircularLabelsFactory');
 goog.require('anychart.core.ui.Tooltip');
-goog.require('anychart.core.utils.InteractivityState');
+goog.require('anychart.core.utils.PieInteractivityState');
 goog.require('anychart.core.utils.PointContextProvider');
 goog.require('anychart.core.utils.TypedLayer');
 goog.require('anychart.enums');
@@ -227,7 +228,7 @@ anychart.charts.Pie = function(opt_data, opt_csvSettings) {
    * Interactivity state.
    * @type {anychart.core.utils.InteractivityState}
    */
-  this.state = new anychart.core.utils.InteractivityState(this);
+  this.state = new anychart.core.utils.PieInteractivityState(this);
 
   this.data(opt_data || null, opt_csvSettings);
 
@@ -1103,6 +1104,8 @@ anychart.charts.Pie.prototype.labels = function(opt_value) {
   }
 
   if (goog.isDef(opt_value)) {
+    if (goog.isObject(opt_value) && !('enabled' in opt_value))
+      opt_value['enabled'] = true;
     this.labels_.setup(opt_value);
     return this;
   }
@@ -1152,6 +1155,8 @@ anychart.charts.Pie.prototype.hoverLabels = function(opt_value) {
   }
 
   if (goog.isDef(opt_value)) {
+    if (goog.isObject(opt_value) && !('enabled' in opt_value))
+      opt_value['enabled'] = true;
     this.hoverLabels_.setup(opt_value);
     return this;
   }
@@ -1538,6 +1543,15 @@ anychart.charts.Pie.prototype.getPixelRadius = function() {
  */
 anychart.charts.Pie.prototype.getPixelInnerRadius = function() {
   return this.innerRadiusValue_;
+};
+
+
+/**
+ * Getter for the current explode value.
+ * @return {number}
+ */
+anychart.charts.Pie.prototype.getPixelExplode = function() {
+  return this.explodeValue_;
 };
 
 
@@ -1940,6 +1954,8 @@ anychart.charts.Pie.prototype.drawContent = function(bounds) {
       if (!goog.isDef(exploded = iterator.meta('exploded'))) {
         exploded = !!iterator.get('exploded');
         iterator.meta('exploded', exploded);
+        if (exploded)
+          this.state.setPointState(anychart.PointState.SELECT, iterator.getIndex());
       }
 
 
@@ -2068,6 +2084,16 @@ anychart.charts.Pie.prototype.drawSlice_ = function(opt_update) {
 
   return true;
 };
+
+
+/**
+ * @param {(anychart.enums.SelectionMode|string|null)=} opt_value Selection mode.
+ * @return {anychart.charts.Pie|anychart.enums.SelectionMode|null} .
+ */
+/*TODO(AntonKagakin): Do not remove. For future interactivity improvement.
+anychart.charts.Pie.prototype.selectionMode = function(opt_value) {
+  return null;
+};*/
 
 
 /**
@@ -3343,18 +3369,6 @@ anychart.charts.Pie.prototype.clickSlice = function(opt_explode) {
 
 
 /**
- * Select a point of the series by its index.
- * @param {number|Array<number>} indexOrIndexes Index of the point to hover.
- * @param {anychart.core.MouseEvent=} opt_event Event that initiate point hovering.<br/>
- *    <b>Note:</b> Used only to display float tooltip.
- * @return {!anychart.charts.Pie}  {@link anychart.charts.Pie} instance for method chaining.
- */
-anychart.charts.Pie.prototype.selectPoint = function(indexOrIndexes, opt_event) {
-  return this;
-};
-
-
-/**
  * @private
  * @return {boolean} Define, is labels have outside position.
  */
@@ -3435,8 +3449,17 @@ anychart.charts.Pie.prototype.makeBrowserEvent = function(e) {
  */
 anychart.charts.Pie.prototype.handleMouseDown = function(event) {
   var evt = this.makePointEvent(event);
-  if (evt && this.dispatchEvent(evt) && this.getIterator().select(anychart.utils.toNumber(evt['pointIndex']))) {
-    this.clickSlice();
+  var index = evt['pointIndex'];
+  if (evt && this.dispatchEvent(evt) && this.getIterator().select(index)) {
+    this.selectPoint(index);
+    var seriesStatus = {
+      series: this,
+      points: [index],
+      nearestPointToCursor: {index: index, distance: 0}
+    };
+    var spe = this.makeInteractivityPointEvent('selected', event, [seriesStatus]);
+    spe['currentPoint']['selected'] = !!this.getIterator().meta('exploded');
+    this.dispatchEvent(spe);
   }
 };
 
@@ -3507,8 +3530,15 @@ anychart.charts.Pie.prototype.makePointEvent = function(event) {
     'sliceIndex': pointIndex,
     'pointIndex': pointIndex,
     'target': this,
-    'originalEvent': event
+    'originalEvent': event,
+    'point': this.getPoint(pointIndex)
   };
+};
+
+
+/** @inheritDoc */
+anychart.charts.Pie.prototype.getPoint = function(index) {
+  return new anychart.core.PiePoint(this, index);
 };
 
 
@@ -3628,13 +3658,18 @@ anychart.charts.Pie.prototype.hover = function(opt_indexOrIndexes) {
 
 
 /** @inheritDoc */
-anychart.charts.Pie.prototype.unhover = function() {
+anychart.charts.Pie.prototype.unhover = function(opt_indexOrIndexes) {
   if (!(this.state.hasPointState(anychart.PointState.HOVER) ||
       this.state.isStateContains(this.state.getSeriesState(), anychart.PointState.HOVER)) ||
       !this.enabled())
     return;
 
-  this.state.removePointState(anychart.PointState.HOVER, this.state.seriesState == anychart.PointState.NORMAL ? NaN : undefined);
+  var index;
+  if (goog.isDef(opt_indexOrIndexes))
+    index = opt_indexOrIndexes;
+  else
+    index = (this.state.seriesState == anychart.PointState.NORMAL ? NaN : undefined);
+  this.state.removePointState(anychart.PointState.HOVER, index);
 
   this.hideTooltip();
 };
@@ -3659,12 +3694,14 @@ anychart.charts.Pie.prototype.hoverPoint = function(index, opt_event) {
       }
     }
     this.state.addPointState(anychart.PointState.HOVER, index);
-    this.showTooltip(opt_event);
+    if (goog.isDef(opt_event))
+      this.showTooltip(opt_event);
 
   } else if (goog.isNumber(index)) {
     this.unhover();
     this.state.addPointState(anychart.PointState.HOVER, index);
-    this.showTooltip(opt_event);
+    if (goog.isDef(opt_event))
+      this.showTooltip(opt_event);
   }
   return this;
 };
@@ -3684,6 +3721,103 @@ anychart.charts.Pie.prototype.hoverSeries = function() {
 };
 
 
+/**
+ * Selects a point of the chart by its index.
+ * @param {(number|Array.<number>)=} opt_indexOrIndexes Index or array of indexes of the point to select.
+ * @return {!anychart.charts.Pie} {@link anychart.charts.Pie} instance for method chaining.
+ */
+/*TODO(AntonKagakin): Do not remove. For future interactivity improvement.
+anychart.charts.Pie.prototype.select = function(opt_indexOrIndexes) {
+  if (!this.enabled())
+    return this;
+
+  if (goog.isDef(opt_indexOrIndexes))
+    this.selectPoint(opt_indexOrIndexes);
+  else
+    this.selectSeries();
+
+  return this;
+};*/
+
+
+/**
+ * Selects all points of the chart. Use <b>unselect</b> method to unselect them.
+ * @return {!anychart.charts.Pie} An instance of the {@link anychart.charts.Pie} class for method chaining.
+ */
+/*TODO(AntonKagakin): Do not remove. For future interactivity improvement.
+anychart.charts.Pie.prototype.selectSeries = function() {
+  if (!this.enabled())
+    return this;
+
+  //hide tooltip in any case
+  this.hideTooltip();
+
+  this.state.setPointState(anychart.PointState.SELECT);
+
+  return this;
+};*/
+
+
+/**
+ * Select a point of the series by its index.
+ * @param {number|Array<number>} indexOrIndexes Index of the point to hover.
+ * @param {anychart.core.MouseEvent=} opt_event Event that initiate point hovering.<br/>
+ *    <b>Note:</b> Used only to display float tooltip.
+ * @return {!anychart.charts.Pie}  {@link anychart.charts.Pie} instance for method chaining.
+ */
+anychart.charts.Pie.prototype.selectPoint = function(indexOrIndexes, opt_event) {
+  if (!this.enabled())
+    return this;
+
+  var unselect = !(opt_event && opt_event.shiftKey);
+
+  if (goog.isArray(indexOrIndexes)) {
+    if (!opt_event)
+      this.unselect();
+
+    this.state.setPointState(anychart.PointState.SELECT, indexOrIndexes, unselect ? anychart.PointState.HOVER : undefined);
+  } else if (goog.isNumber(indexOrIndexes)) {
+    this.state.setPointState(anychart.PointState.SELECT, indexOrIndexes, unselect ? anychart.PointState.HOVER : undefined);
+  }
+
+  var iterator = this.getResetIterator();
+  while (iterator.advance()) {
+    this.drawLabel_(this.state.getPointStateByIndex(iterator.getIndex()));
+  }
+  var index;
+  if (goog.isNumber(indexOrIndexes))
+    index = this.labels().getLabel(indexOrIndexes);
+
+  // for float tooltip
+  this.getIterator().select(indexOrIndexes[0] || indexOrIndexes);
+  this.clickSlice();
+
+  return this;
+};
+
+
+/** @inheritDoc */
+/*TODO(AntonKagakin): Do not remove. For future interactivity improvement.
+anychart.charts.Pie.prototype.unselect = function(opt_indexOrIndexes) {
+  if (!this.enabled())
+    return;
+
+  var index;
+  if (goog.isDef(opt_indexOrIndexes))
+    index = opt_indexOrIndexes;
+  else
+    index = (this.state.seriesState == anychart.PointState.NORMAL ? NaN : undefined);
+  this.state.removePointState(anychart.PointState.SELECT, index);
+
+  //---------------------------------------------------------------------
+  var iterator = this.getIterator();
+  iterator.reset();
+  while (iterator.advance()) {
+    this.drawLabel_(this.state.getPointStateByIndex(iterator.getIndex()));
+  }
+};*/
+
+
 //----------------------------------------------------------------------------------------------------------------------
 //
 //  Apply appearance.
@@ -3697,6 +3831,12 @@ anychart.charts.Pie.prototype.applyAppearanceToPoint = function(pointState) {
   this.colorizeSlice(pointState);
   this.drawLabel_(pointState, true);
 };
+
+
+/**
+ * Finalization point appearance. For drawing labels and markers.
+ */
+anychart.charts.Pie.prototype.finalizePointAppearance = goog.nullFunction;
 
 
 /**
@@ -4572,8 +4712,8 @@ anychart.charts.Pie.prototype.setupByJSON = function(config) {
   goog.base(this, 'setupByJSON', config);
   this.group(config['group']);
   this.data(config['data']);
-  this.labels(config['labels']);
-  this.hoverLabels(config['hoverLabels']);
+  this.labels().setup(config['labels']);
+  this.hoverLabels().setup(config['hoverLabels']);
   this.palette(config['palette']);
   this.hatchFillPalette(config['hatchFillPalette']);
   this.tooltip(config['tooltip']);
@@ -4997,6 +5137,7 @@ anychart.charts.Pie.prototype['sort'] = anychart.charts.Pie.prototype.sort;//doc
 anychart.charts.Pie.prototype['getCenterPoint'] = anychart.charts.Pie.prototype.getCenterPoint;//doc|ex
 anychart.charts.Pie.prototype['getPixelRadius'] = anychart.charts.Pie.prototype.getPixelRadius;//doc|need-ex
 anychart.charts.Pie.prototype['getPixelInnerRadius'] = anychart.charts.Pie.prototype.getPixelInnerRadius;//doc|need-ex
+anychart.charts.Pie.prototype['getPixelExplode'] = anychart.charts.Pie.prototype.getPixelExplode;
 anychart.charts.Pie.prototype['palette'] = anychart.charts.Pie.prototype.palette;//doc|ex
 anychart.charts.Pie.prototype['fill'] = anychart.charts.Pie.prototype.fill;//doc|ex
 anychart.charts.Pie.prototype['stroke'] = anychart.charts.Pie.prototype.stroke;//doc|ex
@@ -5018,3 +5159,4 @@ anychart.charts.Pie.prototype['getType'] = anychart.charts.Pie.prototype.getType
 anychart.charts.Pie.prototype['hover'] = anychart.charts.Pie.prototype.hover;
 anychart.charts.Pie.prototype['unhover'] = anychart.charts.Pie.prototype.unhover;
 anychart.charts.Pie.prototype['forceHoverLabels'] = anychart.charts.Pie.prototype.forceHoverLabels;
+anychart.charts.Pie.prototype['getPoint'] = anychart.charts.Pie.prototype.getPoint;

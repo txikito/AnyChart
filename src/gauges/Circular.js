@@ -15,6 +15,13 @@ goog.require('anychart.core.utils.InteractivityState');
 goog.require('anychart.scales');
 
 
+/**
+ * Namespace anychart.gauges
+ * @namespace
+ * @name anychart.gauges
+ */
+
+
 
 /**
  * Circular gauge class.<br/>
@@ -322,6 +329,22 @@ anychart.gauges.Circular.prototype.getIterator = function() {
  */
 anychart.gauges.Circular.prototype.getResetIterator = function() {
   return this.iterator_ = this.data().getIterator();
+};
+
+
+/** @inheritDoc */
+anychart.gauges.Circular.prototype.makeInteractivityPointEvent = function(type, event, seriesStatus, opt_empty, opt_forbidTooltip) {
+  var res = {
+    'type': (type == 'hovered') ? anychart.enums.EventType.POINTS_HOVER : anychart.enums.EventType.POINTS_SELECT,
+    'seriesStatus': this.createEventSeriesStatus(seriesStatus, opt_empty),
+    'currentPoint': this.makeCurrentPoint(seriesStatus, type, opt_empty),
+    'actualTarget': event['target'],
+    'target': this,
+    'originalEvent': event
+  };
+  if (opt_forbidTooltip)
+    res.forbidTooltip = true;
+  return res;
 };
 
 

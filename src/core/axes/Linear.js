@@ -321,6 +321,8 @@ anychart.core.axes.Linear.prototype.labels = function(opt_value) {
   }
 
   if (goog.isDef(opt_value)) {
+    if (goog.isObject(opt_value) && !('enabled' in opt_value))
+      opt_value['enabled'] = true;
     this.labels_.setup(opt_value);
     return this;
   }
@@ -377,6 +379,8 @@ anychart.core.axes.Linear.prototype.minorLabels = function(opt_value) {
   }
 
   if (goog.isDef(opt_value)) {
+    if (goog.isObject(opt_value) && !('enabled' in opt_value))
+      opt_value['enabled'] = true;
     this.minorLabels_.setup(opt_value);
     return this;
   }
@@ -796,17 +800,17 @@ anychart.core.axes.Linear.prototype.getOverlappedLabels_ = function(opt_bounds) 
               k = i;
               while (nextDrawableLabel == -1 && k < ticksArrLen) {
                 if ((k == 0 && this.drawFirstLabel()) || (k == ticksArrLen - 1 && this.drawLastLabel()) || (k != 0 && k != ticksArrLen - 1))
-                  bounds1 = this.getLabelBounds_(k, true, opt_bounds);
+                  bounds1 = this.getLabelBounds_(k, true, scaleTicksArr, opt_bounds);
                 else
                   bounds1 = null;
 
                 if (prevDrawableLabel != -1)
-                  bounds2 = this.getLabelBounds_(prevDrawableLabel, true, opt_bounds);
+                  bounds2 = this.getLabelBounds_(prevDrawableLabel, true, scaleTicksArr, opt_bounds);
                 else
                   bounds2 = null;
 
                 if (k != ticksArrLen - 1 && this.drawLastLabel())
-                  bounds3 = this.getLabelBounds_(ticksArrLen - 1, true, opt_bounds);
+                  bounds3 = this.getLabelBounds_(ticksArrLen - 1, true, scaleTicksArr, opt_bounds);
                 else
                   bounds3 = null;
 
@@ -837,16 +841,16 @@ anychart.core.axes.Linear.prototype.getOverlappedLabels_ = function(opt_bounds) 
               }
             } else {
               if (isMinorLabels) {
-                bounds1 = this.getLabelBounds_(j, false, opt_bounds);
+                bounds1 = this.getLabelBounds_(j, false, scaleMinorTicksArr, opt_bounds);
 
                 if (prevDrawableLabel != -1)
-                  bounds2 = this.getLabelBounds_(prevDrawableLabel, true, opt_bounds);
+                  bounds2 = this.getLabelBounds_(prevDrawableLabel, true, scaleTicksArr, opt_bounds);
 
                 if (nextDrawableLabel != -1)
-                  bounds3 = this.getLabelBounds_(nextDrawableLabel, true, opt_bounds);
+                  bounds3 = this.getLabelBounds_(nextDrawableLabel, true, scaleTicksArr, opt_bounds);
 
                 if (prevDrawableMinorLabel != -1)
-                  bounds4 = this.getLabelBounds_(prevDrawableMinorLabel, false, opt_bounds);
+                  bounds4 = this.getLabelBounds_(prevDrawableMinorLabel, false, scaleMinorTicksArr, opt_bounds);
 
                 var label = this.minorLabels().getLabel(j);
                 var isLabelEnabled = label ?
@@ -884,17 +888,17 @@ anychart.core.axes.Linear.prototype.getOverlappedLabels_ = function(opt_bounds) 
           for (i = 0; i < ticksArrLen; i++) {
             if (isLabels) {
               if ((i == 0 && this.drawFirstLabel()) || (i == ticksArrLen - 1 && this.drawLastLabel()) || (i != 0 && i != ticksArrLen - 1))
-                bounds1 = this.getLabelBounds_(i, true, opt_bounds);
+                bounds1 = this.getLabelBounds_(i, true, scaleTicksArr, opt_bounds);
               else
                 bounds1 = null;
 
               if (prevDrawableLabel != -1)
-                bounds2 = this.getLabelBounds_(prevDrawableLabel, true, opt_bounds);
+                bounds2 = this.getLabelBounds_(prevDrawableLabel, true, scaleTicksArr, opt_bounds);
               else
                 bounds2 = null;
 
               if (i != ticksArrLen - 1 && this.drawLastLabel())
-                bounds3 = this.getLabelBounds_(ticksArrLen - 1, true, opt_bounds);
+                bounds3 = this.getLabelBounds_(ticksArrLen - 1, true, scaleTicksArr, opt_bounds);
               else
                 bounds3 = null;
 
@@ -972,8 +976,8 @@ anychart.core.axes.Linear.prototype.applyStaggerMode_ = function(opt_bounds) {
 
         for (k = 0; k < i; k++) {
           for (j = k; j < ticksArrLen - i; j = j + i) {
-            bounds1 = this.getLabelBounds_(j, true, opt_bounds);
-            bounds2 = this.getLabelBounds_(j + i, true, opt_bounds);
+            bounds1 = this.getLabelBounds_(j, true, scaleTicksArr, opt_bounds);
+            bounds2 = this.getLabelBounds_(j + i, true, scaleTicksArr, opt_bounds);
 
             if (anychart.math.checkRectIntersection(bounds1, bounds2)) {
               isConvergence = false;
@@ -1001,15 +1005,15 @@ anychart.core.axes.Linear.prototype.applyStaggerMode_ = function(opt_bounds) {
       for (j = 0; j < this.currentStageLines_; j++) {
         var prevDrawableLabel = -1;
         for (i = j; i < ticksArrLen; i = i + this.currentStageLines_) {
-          bounds1 = this.getLabelBounds_(i, true, opt_bounds);
+          bounds1 = this.getLabelBounds_(i, true, scaleTicksArr, opt_bounds);
 
           if (prevDrawableLabel != -1)
-            bounds2 = this.getLabelBounds_(prevDrawableLabel, true, opt_bounds);
+            bounds2 = this.getLabelBounds_(prevDrawableLabel, true, scaleTicksArr, opt_bounds);
           else
             bounds2 = null;
 
           if (i != ticksArrLen - 1 && this.drawLastLabel())
-            bounds3 = this.getLabelBounds_(ticksArrLen - 1, true, opt_bounds);
+            bounds3 = this.getLabelBounds_(ticksArrLen - 1, true, scaleTicksArr, opt_bounds);
           else
             bounds3 = null;
 
@@ -1061,7 +1065,7 @@ anychart.core.axes.Linear.prototype.applyStaggerMode_ = function(opt_bounds) {
         if (this.labelsBoundingRects_[i]) {
           bounds = this.labelsBoundingRects_[i];
         } else {
-          var points = this.getLabelBounds_(i, true, opt_bounds);
+          var points = this.getLabelBounds_(i, true, scaleTicksArr, opt_bounds);
           this.labelsBoundingRects_[i] = bounds = anychart.math.Rect.fromCoordinateBox(points);
         }
 
@@ -1212,7 +1216,7 @@ anychart.core.axes.Linear.prototype.getSize = function(parentBounds, length) {
       for (i = 0, len = ticksArr.length; i < len; i++) {
         var drawLabel = goog.isArray(drawLabels) ? drawLabels[i] : drawLabels;
         if (drawLabel) {
-          bounds = goog.math.Rect.fromCoordinateBox(this.getLabelBounds_(i, true, tempBounds));
+          bounds = goog.math.Rect.fromCoordinateBox(this.getLabelBounds_(i, true, ticksArr, tempBounds));
           size = this.isHorizontal() ? bounds.height : bounds.width;
           if (size > maxLabelSize) maxLabelSize = size;
         }
@@ -1222,10 +1226,11 @@ anychart.core.axes.Linear.prototype.getSize = function(parentBounds, length) {
 
   if (isMinorLabels && !this.staggerMode()) {
     var drawMinorLabels = goog.isObject(overlappedLabels) ? overlappedLabels.minorLabels : !overlappedLabels;
+    ticksArr = scale.minorTicks().get();
     for (i = 0, len = drawMinorLabels.length; i < len; i++) {
       var drawMinorLabel = goog.isArray(drawMinorLabels) ? drawMinorLabels[i] : drawMinorLabels;
       if (drawMinorLabel) {
-        bounds = goog.math.Rect.fromCoordinateBox(this.getLabelBounds_(i, false, tempBounds));
+        bounds = goog.math.Rect.fromCoordinateBox(this.getLabelBounds_(i, false, ticksArr, tempBounds));
         size = this.isHorizontal() ? bounds.height : bounds.width;
         if (size > maxMinorLabelSize) maxMinorLabelSize = size;
       }
@@ -1388,11 +1393,12 @@ anychart.core.axes.Linear.prototype.getPixelBounds = function() {
  * Calculate label bounds.
  * @param {number} index Label index.
  * @param {boolean} isMajor Major labels or minor.
+ * @param {Array} ticksArray Array with ticks.
  * @param {anychart.math.Rect=} opt_parentBounds Parent bounds.
  * @return {Array.<number>} Label bounds.
  * @private
  */
-anychart.core.axes.Linear.prototype.getLabelBounds_ = function(index, isMajor, opt_parentBounds) {
+anychart.core.axes.Linear.prototype.getLabelBounds_ = function(index, isMajor, ticksArray, opt_parentBounds) {
   if (!isMajor && this.scale() && !(this.scale() instanceof anychart.scales.ScatterBase))
     return null;
 
@@ -1411,9 +1417,8 @@ anychart.core.axes.Linear.prototype.getLabelBounds_ = function(index, isMajor, o
 
   var x, y;
   var scale = /** @type {anychart.scales.ScatterBase|anychart.scales.Ordinal} */(this.scale());
-  var scaleTicks = isMajor ? scale.ticks() : scale.minorTicks();
 
-  var value = scaleTicks.get()[index];
+  var value = ticksArray[index];
   var ratio;
   if (goog.isArray(value)) {
     ratio = (scale.transform(value[0], 0) + scale.transform(value[1], 1)) / 2;
@@ -1421,6 +1426,8 @@ anychart.core.axes.Linear.prototype.getLabelBounds_ = function(index, isMajor, o
   } else {
     ratio = scale.transform(value, .5);
   }
+
+  if (ratio < 0 || ratio > 1) return [0, 0];
 
   var isEnabled = ticks.enabled();
   var position = ticks.position();
@@ -1881,9 +1888,10 @@ anychart.core.axes.Linear.prototype.getLabelsFormatProvider = function(index, va
  * @param {number} index Scale label index.
  * @param {number} pixelShift Pixel shift for sharp display.
  * @param {boolean} isMajor Is major label.
+ * @param {Array} ticksArr
  * @private
  */
-anychart.core.axes.Linear.prototype.drawLabel_ = function(value, ratio, index, pixelShift, isMajor) {
+anychart.core.axes.Linear.prototype.drawLabel_ = function(value, ratio, index, pixelShift, isMajor, ticksArr) {
   var bounds = this.getPixelBounds();
   var lineBounds = this.line.getBounds();
 
@@ -1898,7 +1906,7 @@ anychart.core.axes.Linear.prototype.drawLabel_ = function(value, ratio, index, p
 
   var stroke = this.stroke();
   var lineThickness = anychart.utils.isNone(stroke) ? 0 : stroke['thickness'] ? parseFloat(this.stroke()['thickness']) : 1;
-  var labelBounds = anychart.math.Rect.fromCoordinateBox(this.getLabelBounds_(index, isMajor));
+  var labelBounds = anychart.math.Rect.fromCoordinateBox(this.getLabelBounds_(index, isMajor, ticksArr));
   var orientation = this.orientation();
   var staggerSize = 0;
 
@@ -2116,7 +2124,7 @@ anychart.core.axes.Linear.prototype.draw = function() {
                 majorPixelShift);
 
           if (drawLabel)
-            this.drawLabel_(tickVal, scale.transform(tickVal, .5), i, majorPixelShift, true);
+            this.drawLabel_(tickVal, scale.transform(tickVal, .5), i, majorPixelShift, true, scaleTicksArr);
           prevMajorRatio = ratio;
           i++;
         } else {
@@ -2134,7 +2142,7 @@ anychart.core.axes.Linear.prototype.draw = function() {
                 minorPixelShift);
 
           if (drawLabel && prevMajorRatio != minorRatio)
-            this.drawLabel_(minorTickVal, scale.transform(minorTickVal, .5), j, minorPixelShift, false);
+            this.drawLabel_(minorTickVal, scale.transform(minorTickVal, .5), j, minorPixelShift, false, scaleMinorTicksArr);
           j++;
         }
       }
@@ -2159,27 +2167,31 @@ anychart.core.axes.Linear.prototype.draw = function() {
         ratio = scale.transform(leftTick, 0);
 
         if (ticksDrawer) {
-          ticksDrawer.call(
-              ticks,
-              ratio,
-              pixelBounds,
-              lineBounds,
-              lineThickness,
-              pixelShift);
-
-          if (i == ticksArrLen - 1)
+          if (0 <= ratio && ratio <= 1)
             ticksDrawer.call(
                 ticks,
-                scale.transform(rightTick, 1),
+                ratio,
                 pixelBounds,
                 lineBounds,
                 lineThickness,
                 pixelShift);
+
+          if (i == ticksArrLen - 1) {
+            ratio = scale.transform(rightTick, 1);
+            if (0 <= ratio && ratio <= 1)
+              ticksDrawer.call(
+                  ticks,
+                  ratio,
+                  pixelBounds,
+                  lineBounds,
+                  lineThickness,
+                  pixelShift);
+          }
         }
 
         drawLabel = goog.isArray(needDrawLabels) ? needDrawLabels[i] : needDrawLabels;
-        if (drawLabel)
-          this.drawLabel_(leftTick, labelPosition, i, pixelShift, true);
+        if (drawLabel && labelPosition >= 0 && labelPosition <= 1)
+          this.drawLabel_(leftTick, labelPosition, i, pixelShift, true, scaleTicksArr);
       }
     }
 
@@ -2232,8 +2244,8 @@ anychart.core.axes.Linear.prototype.serialize = function() {
 anychart.core.axes.Linear.prototype.setupByJSON = function(config) {
   goog.base(this, 'setupByJSON', config);
   this.title(config['title']);
-  this.labels(config['labels']);
-  this.minorLabels(config['minorLabels']);
+  this.labels().setup(config['labels']);
+  this.minorLabels().setup(config['minorLabels']);
   this.ticks(config['ticks']);
   this.minorTicks(config['minorTicks']);
   this.staggerMode(config['staggerMode']);

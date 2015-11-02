@@ -2,6 +2,7 @@ goog.provide('anychart.core.PyramidFunnelBase');
 
 goog.require('acgraph');
 goog.require('anychart.color');
+goog.require('anychart.core.Point');
 goog.require('anychart.core.SeparateChart');
 goog.require('anychart.core.ui.LabelsFactory');
 goog.require('anychart.core.ui.MarkersFactory');
@@ -1732,8 +1733,15 @@ anychart.core.PyramidFunnelBase.prototype.makePointEvent = function(event) {
     'sliceIndex': pointIndex,
     'pointIndex': pointIndex,
     'target': this,
-    'originalEvent': event
+    'originalEvent': event,
+    'point': this.getPoint(pointIndex)
   };
+};
+
+
+/** @inheritDoc */
+anychart.core.PyramidFunnelBase.prototype.getPoint = function(index) {
+  return new anychart.core.Point(this, index);
 };
 
 
@@ -1794,13 +1802,18 @@ anychart.core.PyramidFunnelBase.prototype.hover = function(opt_indexOrIndexes) {
 
 
 /** @inheritDoc */
-anychart.core.PyramidFunnelBase.prototype.unhover = function() {
+anychart.core.PyramidFunnelBase.prototype.unhover = function(opt_indexOrIndexes) {
   if (!(this.state.hasPointState(anychart.PointState.HOVER) ||
       this.state.isStateContains(this.state.getSeriesState(), anychart.PointState.HOVER)) ||
       !this.enabled())
     return;
 
-  this.state.removePointState(anychart.PointState.HOVER, this.state.seriesState == anychart.PointState.NORMAL ? NaN : undefined);
+  var index;
+  if (goog.isDef(opt_indexOrIndexes))
+    index = opt_indexOrIndexes;
+  else
+    index = (this.state.seriesState == anychart.PointState.NORMAL ? NaN : undefined);
+  this.state.removePointState(anychart.PointState.HOVER, index);
 
   //---------------------------------------------------------------------
   var iterator = this.getIterator();
@@ -1835,7 +1848,8 @@ anychart.core.PyramidFunnelBase.prototype.hoverPoint = function(index, opt_event
       }
     }
     this.state.addPointState(anychart.PointState.HOVER, index);
-    this.showTooltip(opt_event);
+    if (goog.isDef(opt_event))
+      this.showTooltip(opt_event);
 
     iterator = this.getResetIterator();
     while (iterator.advance()) {
@@ -1847,13 +1861,16 @@ anychart.core.PyramidFunnelBase.prototype.hoverPoint = function(index, opt_event
   } else if (goog.isNumber(index)) {
     this.unhover();
     this.state.addPointState(anychart.PointState.HOVER, index);
-    this.showTooltip(opt_event);
+    if (goog.isDef(opt_event))
+      this.showTooltip(opt_event);
 
-    iterator = this.getResetIterator();
-    while (iterator.advance()) {
-      this.drawLabel_(this.state.getPointStateByIndex(iterator.getIndex()));
+    if (this.boundsValue_) {
+      iterator = this.getResetIterator();
+      while (iterator.advance()) {
+        this.drawLabel_(this.state.getPointStateByIndex(iterator.getIndex()));
+      }
+      this.overlapCorrection_(this.labels().getLabel(index));
     }
-    this.overlapCorrection_(this.labels().getLabel(index));
   }
 
   // for float tooltip
@@ -1939,14 +1956,16 @@ anychart.core.PyramidFunnelBase.prototype.selectPoint = function(indexOrIndexes,
     this.state.setPointState(anychart.PointState.SELECT, indexOrIndexes, unselect ? anychart.PointState.HOVER : undefined);
   }
 
-  var iterator = this.getResetIterator();
-  while (iterator.advance()) {
-    this.drawLabel_(this.state.getPointStateByIndex(iterator.getIndex()));
+  if (this.boundsValue_) {
+    var iterator = this.getResetIterator();
+    while (iterator.advance()) {
+      this.drawLabel_(this.state.getPointStateByIndex(iterator.getIndex()));
+    }
+    var index;
+    if (goog.isNumber(indexOrIndexes))
+      index = this.labels().getLabel(indexOrIndexes);
+    this.overlapCorrection_(index);
   }
-  var index;
-  if (goog.isNumber(indexOrIndexes))
-    index = this.labels().getLabel(indexOrIndexes);
-  this.overlapCorrection_(index);
 
   // for float tooltip
   this.getIterator().select(indexOrIndexes[0] || indexOrIndexes);
@@ -1956,11 +1975,16 @@ anychart.core.PyramidFunnelBase.prototype.selectPoint = function(indexOrIndexes,
 
 
 /** @inheritDoc */
-anychart.core.PyramidFunnelBase.prototype.unselect = function() {
+anychart.core.PyramidFunnelBase.prototype.unselect = function(opt_indexOrIndexes) {
   if (!this.enabled())
     return;
 
-  this.state.removePointState(anychart.PointState.SELECT, this.state.seriesState == anychart.PointState.NORMAL ? NaN : undefined);
+  var index;
+  if (goog.isDef(opt_indexOrIndexes))
+    index = opt_indexOrIndexes;
+  else
+    index = (this.state.seriesState == anychart.PointState.NORMAL ? NaN : undefined);
+  this.state.removePointState(anychart.PointState.SELECT, index);
 
   //---------------------------------------------------------------------
   var iterator = this.getIterator();
@@ -1987,6 +2011,12 @@ anychart.core.PyramidFunnelBase.prototype.applyAppearanceToPoint = function(poin
   this.applyHatchFill(pointState);
   this.drawMarker(pointState);
 };
+
+
+/**
+ * Finalization point appearance. For drawing labels and markers.
+ */
+anychart.core.PyramidFunnelBase.prototype.finalizePointAppearance = goog.nullFunction;
 
 
 /**
@@ -2156,6 +2186,8 @@ anychart.core.PyramidFunnelBase.prototype.labels = function(opt_value) {
   }
 
   if (goog.isDef(opt_value)) {
+    if (goog.isObject(opt_value) && !('enabled' in opt_value))
+      opt_value['enabled'] = true;
     this.labels_.setup(opt_value);
     return this;
   }
@@ -2175,6 +2207,8 @@ anychart.core.PyramidFunnelBase.prototype.hoverLabels = function(opt_value) {
   }
 
   if (goog.isDef(opt_value)) {
+    if (goog.isObject(opt_value) && !('enabled' in opt_value))
+      opt_value['enabled'] = true;
     this.hoverLabels_.setup(opt_value);
     return this;
   }
@@ -2194,6 +2228,8 @@ anychart.core.PyramidFunnelBase.prototype.selectLabels = function(opt_value) {
   }
 
   if (goog.isDef(opt_value)) {
+    if (goog.isObject(opt_value) && !('enabled' in opt_value))
+      opt_value['enabled'] = true;
     this.selectLabels_.setup(opt_value);
     return this;
   }
@@ -3225,6 +3261,8 @@ anychart.core.PyramidFunnelBase.prototype.markers = function(opt_value) {
   }
 
   if (goog.isDef(opt_value)) {
+    if (goog.isObject(opt_value) && !('enabled' in opt_value))
+      opt_value['enabled'] = true;
     this.markers_.setup(opt_value);
     return this;
   }
@@ -3260,6 +3298,8 @@ anychart.core.PyramidFunnelBase.prototype.hoverMarkers = function(opt_value) {
   }
 
   if (goog.isDef(opt_value)) {
+    if (goog.isObject(opt_value) && !('enabled' in opt_value))
+      opt_value['enabled'] = true;
     this.hoverMarkers_.setup(opt_value);
     return this;
   }
@@ -3281,6 +3321,8 @@ anychart.core.PyramidFunnelBase.prototype.selectMarkers = function(opt_value) {
   }
 
   if (goog.isDef(opt_value)) {
+    if (goog.isObject(opt_value) && !('enabled' in opt_value))
+      opt_value['enabled'] = true;
     this.selectMarkers_.setup(opt_value);
     return this;
   }
@@ -4005,17 +4047,17 @@ anychart.core.PyramidFunnelBase.prototype.setupByJSON = function(config) {
   this.hoverHatchFill(config['hoverHatchFill']);
   this.selectHatchFill(config['selectHatchFill']);
 
-  this.labels(config['labels']);
-  this.hoverLabels(config['hoverLabels']);
-  this.selectLabels(config['selectLabels']);
+  this.labels().setup(config['labels']);
+  this.hoverLabels().setup(config['hoverLabels']);
+  this.selectLabels().setup(config['selectLabels']);
 
   this.stroke(config['stroke']);
   this.hoverStroke(config['hoverStroke']);
   this.selectStroke(config['selectStroke']);
 
-  this.markers(config['markers']);
-  this.hoverMarkers(config['hoverMarkers']);
-  this.selectMarkers(config['selectMarkers']);
+  this.markers().setup(config['markers']);
+  this.hoverMarkers().setup(config['hoverMarkers']);
+  this.selectMarkers().setup(config['selectMarkers']);
 
   this.overlapMode(config['overlapMode']);
   this.palette(config['palette']);

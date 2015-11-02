@@ -1,7 +1,7 @@
-goog.provide('anychart.core.map.scale.OrdinalColor');
+goog.provide('anychart.scales.OrdinalColor');
 
-goog.require('anychart.core.map.scale.OrdinalColorTicks');
 goog.require('anychart.scales.Base');
+goog.require('anychart.scales.OrdinalColorTicks');
 
 
 
@@ -11,7 +11,7 @@ goog.require('anychart.scales.Base');
  * @constructor
  * @extends {anychart.scales.Base}
  */
-anychart.core.map.scale.OrdinalColor = function() {
+anychart.scales.OrdinalColor = function() {
   goog.base(this);
 
   /**
@@ -47,18 +47,24 @@ anychart.core.map.scale.OrdinalColor = function() {
    * @private
    */
   this.autoColors_ = null;
+
+  /**
+   * @type {Array}
+   * @private
+   */
+  this.data_ = [];
 };
-goog.inherits(anychart.core.map.scale.OrdinalColor, anychart.scales.Base);
+goog.inherits(anychart.scales.OrdinalColor, anychart.scales.Base);
 
 
 /** @inheritDoc */
-anychart.core.map.scale.OrdinalColor.prototype.getType = function() {
-  return anychart.enums.MapsScaleTypes.ORDINAL_COLOR;
+anychart.scales.OrdinalColor.prototype.getType = function() {
+  return anychart.enums.ScaleTypes.ORDINAL_COLOR;
 };
 
 
 /** @inheritDoc */
-anychart.core.map.scale.OrdinalColor.prototype.inverted = function(opt_value) {
+anychart.scales.OrdinalColor.prototype.inverted = function(opt_value) {
   if (goog.isDef(opt_value)) {
     opt_value = !!opt_value;
     if (this.isInverted != opt_value) {
@@ -75,9 +81,9 @@ anychart.core.map.scale.OrdinalColor.prototype.inverted = function(opt_value) {
 /**
  * Sets/gets colors for linear color scale. Can be set as array of colors.
  * @param {Array.<string>=} opt_value Colors set.
- * @return {!(Array.<string>|anychart.core.map.scale.OrdinalColor)}
+ * @return {!(Array.<string>|anychart.scales.OrdinalColor)}
  */
-anychart.core.map.scale.OrdinalColor.prototype.colors = function(opt_value) {
+anychart.scales.OrdinalColor.prototype.colors = function(opt_value) {
   if (goog.isDef(opt_value)) {
     if (goog.isNull(opt_value))
       this.colors_ = [];
@@ -115,16 +121,16 @@ anychart.core.map.scale.OrdinalColor.prototype.colors = function(opt_value) {
  * Set auto colors.
  * @param {Array.<string>} value Auto colors.
  */
-anychart.core.map.scale.OrdinalColor.prototype.setAutoColors = function(value) {
+anychart.scales.OrdinalColor.prototype.setAutoColors = function(value) {
   this.autoColors_ = value;
 };
 
 
 /**
  * @param {(Array.<*>|string)=} opt_value Array of names or attribute name for data set.
- * @return {(Array.<*>|anychart.core.map.scale.OrdinalColor)} Scale names or self for chaining.
+ * @return {(Array.<*>|anychart.scales.OrdinalColor)} Scale names or self for chaining.
  */
-anychart.core.map.scale.OrdinalColor.prototype.names = function(opt_value) {
+anychart.scales.OrdinalColor.prototype.names = function(opt_value) {
   if (goog.isDef(opt_value)) {
     if (goog.isNull(opt_value))
       this.names_ = [];
@@ -164,12 +170,18 @@ anychart.core.map.scale.OrdinalColor.prototype.names = function(opt_value) {
       for (var i = 0, len = this.internalRanges_.length; i < len; i++) {
         var range = this.internalRanges_[i];
         var name;
-        if (isFinite(range.start + range.end)) {
-          name = range.start + ' - ' + range.end;
+        if (goog.isDef(range.equal)) {
+          name = range.equal;
+        } else if (isFinite(range.start + range.end)) {
+          if (range.start === range.end) {
+            name = range.start;
+          } else {
+            name = range.start + ' - ' + range.end;
+          }
         } else if (isFinite(range.start)) {
-          name = 'More ' + range.start;
+          name = '> ' + range.start;
         } else {
-          name = 'Less ' + range.end;
+          name = '< ' + range.end;
         }
 
         if (!range.name) range.name = name;
@@ -184,13 +196,13 @@ anychart.core.map.scale.OrdinalColor.prototype.names = function(opt_value) {
 
 /**
  * @param {Array.<Object>=} opt_value .
- * @return {Array.<Object>|!anychart.core.map.scale.OrdinalColor}
+ * @return {Array.<Object>|!anychart.scales.OrdinalColor}
  */
-anychart.core.map.scale.OrdinalColor.prototype.ranges = function(opt_value) {
+anychart.scales.OrdinalColor.prototype.ranges = function(opt_value) {
   if (goog.isDef(opt_value)) {
     if (this.ranges_ != opt_value) {
       this.ranges_ = opt_value;
-      this.autoColors_ = anychart.getFullTheme()['map']['ordinalColor']['autoColors'](this.ranges_.length);
+      this.autoColors_ = anychart.getFullTheme()['ordinalColor']['autoColors'](this.ranges_.length);
       this.resetDataRange();
       this.ticks().markInvalid();
       this.dispatchSignal(anychart.Signal.NEEDS_RECALCULATION);
@@ -203,10 +215,28 @@ anychart.core.map.scale.OrdinalColor.prototype.ranges = function(opt_value) {
 
 
 /**
+ * Sets/gets data field name for which calculates ranges.
+ * @param {string=} opt_value .
+ * @return {string} .
+ */
+anychart.scales.OrdinalColor.prototype.rangesBy = function(opt_value) {
+  if (goog.isDef(opt_value)) {
+    if (this.rangesBy_ != opt_value) {
+      this.rangesBy_ = opt_value;
+      this.resetDataRange();
+      this.ticks().markInvalid();
+      this.dispatchSignal(anychart.Signal.NEEDS_RECALCULATION);
+    }
+  }
+  return this.rangesBy_;
+};
+
+
+/**
  * Returns processed ranges.
  * @return {Array.<Object>} processed ranges.
  */
-anychart.core.map.scale.OrdinalColor.prototype.getProcessedRanges = function() {
+anychart.scales.OrdinalColor.prototype.getProcessedRanges = function() {
   this.calculate();
   this.names();
 
@@ -219,7 +249,7 @@ anychart.core.map.scale.OrdinalColor.prototype.getProcessedRanges = function() {
  * @param {number} value Value to search its range.
  * @return {Object} Searched range or null.
  */
-anychart.core.map.scale.OrdinalColor.prototype.getRangeByValue = function(value) {
+anychart.scales.OrdinalColor.prototype.getRangeByValue = function(value) {
   this.calculate();
 
   var rangeSourceIndex = -1;
@@ -228,8 +258,9 @@ anychart.core.map.scale.OrdinalColor.prototype.getRangeByValue = function(value)
   if (this.internalRanges_) {
     for (var i = this.internalRanges_.length; i--;) {
       var r = this.internalRanges_[i];
-      if (value >= r.start && value <= r.end && r.sourceIndex > rangeSourceIndex)
+      if ((goog.isDef(r.equal) && r.equal === value) || (value >= r.start && value <= r.end && r.sourceIndex > rangeSourceIndex)) {
         range = r;
+      }
     }
   }
 
@@ -242,7 +273,7 @@ anychart.core.map.scale.OrdinalColor.prototype.getRangeByValue = function(value)
  * @param {number} value .
  * @return {(string|acgraph.vector.Fill|acgraph.vector.Stroke)}
  */
-anychart.core.map.scale.OrdinalColor.prototype.valueToColor = function(value) {
+anychart.scales.OrdinalColor.prototype.valueToColor = function(value) {
   this.calculate();
 
   var color = 'none';
@@ -270,7 +301,7 @@ anychart.core.map.scale.OrdinalColor.prototype.valueToColor = function(value) {
  * @param {string} value Color to search value.
  * @return {number} Middle of searched range.
  */
-anychart.core.map.scale.OrdinalColor.prototype.colorToValue = function(value) {
+anychart.scales.OrdinalColor.prototype.colorToValue = function(value) {
   this.calculate();
 
   var hexValueRepresentation = anychart.color.parseColor(value).hex;
@@ -295,7 +326,7 @@ anychart.core.map.scale.OrdinalColor.prototype.colorToValue = function(value) {
  * @param {number} value Value to search index.
  * @return {number} Range index.
  */
-anychart.core.map.scale.OrdinalColor.prototype.getIndexByValue = function(value) {
+anychart.scales.OrdinalColor.prototype.getIndexByValue = function(value) {
   this.calculate();
 
   var range = this.getRangeByValue(value);
@@ -306,9 +337,9 @@ anychart.core.map.scale.OrdinalColor.prototype.getIndexByValue = function(value)
 /**
  * Gets or sets a set of scale ticks in terms of data values.
  * @param {(Object|Array)=} opt_value An array of ticks to set.
- * @return {!(anychart.core.map.scale.OrdinalColor|anychart.scales.OrdinalTicks)} Ticks or itself for method chaining.
+ * @return {!(anychart.scales.OrdinalColor|anychart.scales.OrdinalTicks)} Ticks or itself for method chaining.
  */
-anychart.core.map.scale.OrdinalColor.prototype.ticks = function(opt_value) {
+anychart.scales.OrdinalColor.prototype.ticks = function(opt_value) {
   if (!this.ticksObj) {
     this.ticksObj = this.createTicks();
   }
@@ -325,7 +356,7 @@ anychart.core.map.scale.OrdinalColor.prototype.ticks = function(opt_value) {
  * @param {anychart.SignalEvent} event Event object.
  * @private
  */
-anychart.core.map.scale.OrdinalColor.prototype.ticksInvalidated_ = function(event) {
+anychart.scales.OrdinalColor.prototype.ticksInvalidated_ = function(event) {
   if (event.hasSignal(anychart.Signal.NEEDS_REAPPLICATION)) {
     this.dispatchSignal(anychart.Signal.NEEDS_REAPPLICATION);
   }
@@ -337,8 +368,8 @@ anychart.core.map.scale.OrdinalColor.prototype.ticksInvalidated_ = function(even
  * @return {!anychart.scales.OrdinalTicks}
  * @protected
  */
-anychart.core.map.scale.OrdinalColor.prototype.createTicks = function() {
-  var ticks = new anychart.core.map.scale.OrdinalColorTicks(this);
+anychart.scales.OrdinalColor.prototype.createTicks = function() {
+  var ticks = new anychart.scales.OrdinalColorTicks(this);
   this.registerDisposable(ticks);
   ticks.listenSignals(this.ticksInvalidated_, this);
   return ticks;
@@ -346,7 +377,7 @@ anychart.core.map.scale.OrdinalColor.prototype.createTicks = function() {
 
 
 /** @inheritDoc */
-anychart.core.map.scale.OrdinalColor.prototype.transform = function(value, opt_subRangeRatio) {
+anychart.scales.OrdinalColor.prototype.transform = function(value, opt_subRangeRatio) {
   this.calculate();
 
   var range = this.getRangeByValue(/** @type {number} */(value));
@@ -363,7 +394,7 @@ anychart.core.map.scale.OrdinalColor.prototype.transform = function(value, opt_s
 
 
 /** @inheritDoc */
-anychart.core.map.scale.OrdinalColor.prototype.inverseTransform = function(ratio) {
+anychart.scales.OrdinalColor.prototype.inverseTransform = function(ratio) {
   this.calculate();
 
   var index = goog.math.clamp(Math.ceil(ratio * this.internalRanges_.length) - 1, 0, this.internalRanges_.length - 1);
@@ -373,14 +404,46 @@ anychart.core.map.scale.OrdinalColor.prototype.inverseTransform = function(ratio
 };
 
 
+/** @inheritDoc */
+anychart.scales.OrdinalColor.prototype.needsAutoCalc = function() {
+  return !!this.ranges.length;
+};
+
+
+/** @inheritDoc */
+anychart.scales.OrdinalColor.prototype.checkScaleChanged = function(silently) {
+  this.consistent = false;
+  if (!silently)
+    this.dispatchSignal(anychart.Signal.NEEDS_REAPPLICATION);
+  return true;
+};
+
+
 /**
- * @return {!anychart.core.map.scale.OrdinalColor} Resets auto values.
+ * @return {!anychart.scales.OrdinalColor} Resets auto values.
  */
-anychart.core.map.scale.OrdinalColor.prototype.resetDataRange = function() {
+anychart.scales.OrdinalColor.prototype.resetDataRange = function() {
   this.internalRanges_ = null;
   this.resultColors_ = null;
   this.autoNames_ = null;
+  this.autoRanges_ = null;
   this.resultNames_ = null;
+  this.data_.length = 0;
+  return this;
+};
+
+
+/**
+ * Extends the current input domain with the passed values (if such don't exist in the domain).<br/>
+ * <b>Note:</b> Attention! {@link anychart.scales.Base#finishAutoCalc} drops all passed values.
+ * @param {...*} var_args Values that are supposed to extend the input domain.
+ * @return {!anychart.scales.OrdinalColor} {@link anychart.scales.ScatterBase} instance for method chaining.
+ */
+anychart.scales.OrdinalColor.prototype.extendDataRange = function(var_args) {
+  for (var i = 0; i < arguments.length; i++) {
+    var value = arguments[i];
+    this.data_.push(value);
+  }
   return this;
 };
 
@@ -388,12 +451,56 @@ anychart.core.map.scale.OrdinalColor.prototype.resetDataRange = function() {
 /**
  * Calculate ranges.
  */
-anychart.core.map.scale.OrdinalColor.prototype.calculate = function() {
+anychart.scales.OrdinalColor.prototype.calculate = function() {
   if (!this.internalRanges_) {
     var i, len, range, name, color;
     var tempArr = [];
-    for (i = 0, len = this.ranges_.length; i < len; i++) {
-      range = this.ranges_[i];
+
+    if (!this.ranges_.length) {
+      this.autoRanges_ = [];
+      goog.array.removeDuplicates(this.data_);
+
+      var eqRanges = [];
+      var numRanges = [];
+      goog.array.forEach(this.data_, function(elem) {
+        var elem_ = anychart.utils.toNumber(elem);
+        if (!isNaN(elem)) {
+          numRanges.push(elem_);
+        } else {
+          eqRanges.push({'equal': elem});
+        }
+      });
+
+      goog.array.sort(numRanges);
+
+      //calculating intervals count by Sturges formula
+      var k = Math.round(1 + 3.32 * Math.log(numRanges.length) / Math.log(10));
+      //min value
+      var maxValue = numRanges[numRanges.length - 1];
+      //max value
+      var minValue = numRanges[0];
+      //intervals width
+      var h = (maxValue - minValue) / k;
+      //left limit of first interval
+      var leftLimit = Math.floor(minValue);
+      //right limit of first interval
+      var rightLimit = Math.ceil(leftLimit + h);
+
+      //calculating intervals
+      for (i = 0; i < k; i++) {
+        this.autoRanges_.push({'from': leftLimit, 'to': rightLimit});
+        leftLimit = rightLimit;
+        rightLimit = Math.ceil(leftLimit + h);
+      }
+
+      this.autoRanges_ = this.autoRanges_.concat(eqRanges);
+      this.autoColors_ = anychart.getFullTheme()['ordinalColor']['autoColors'](this.autoRanges_.length);
+    }
+
+    var ranges = this.ranges_.length ? this.ranges_ : this.autoRanges_;
+
+    for (i = 0, len = ranges.length; i < len; i++) {
+      range = ranges[i];
       name = this.names_ ? this.names_[i] : null;
       var colors = this.colors();
       var colorIndex = this.inverted() ? Math.max(0, colors.length - 1 - i) : i;
@@ -401,13 +508,22 @@ anychart.core.map.scale.OrdinalColor.prototype.calculate = function() {
 
       var enabled = true;
       var sourceIndex = i;
+      var equal = range['equal'];
       var from = anychart.utils.toNumber(range['from']);
       var to = anychart.utils.toNumber(range['to']);
       var less = anychart.utils.toNumber(range['less']);
       var greater = anychart.utils.toNumber(range['greater']);
 
-      var start, end;
-      if (!isNaN(from) && !isNaN(to)) {
+      var start, end, eq = undefined;
+      if (goog.isDef(equal)) {
+        var equal_ = anychart.utils.toNumber(equal);
+        if (!isNaN(equal_)) {
+          start = equal_;
+          end = equal_;
+        } else {
+          eq = equal;
+        }
+      } else if (!isNaN(from) && !isNaN(to)) {
         start = Math.min(from, to);
         end = Math.max(from, to);
       } else if (!isNaN(greater)) {
@@ -420,8 +536,9 @@ anychart.core.map.scale.OrdinalColor.prototype.calculate = function() {
         enabled = false;
       }
 
-      if (enabled)
+      if (enabled) {
         tempArr.push({
+          equal: eq,
           start: start,
           end: end,
           sourceIndex: sourceIndex,
@@ -429,6 +546,7 @@ anychart.core.map.scale.OrdinalColor.prototype.calculate = function() {
           color: range['color'] || color,
           name: range['name'] || name
         });
+      }
     }
 
     goog.array.sort(tempArr, function(a, b) {
@@ -487,20 +605,21 @@ anychart.core.map.scale.OrdinalColor.prototype.calculate = function() {
 /**
  * Constructor function for linear color scale.
  * @param {Array.<Object>=} opt_value Colors set.
- * @return {anychart.core.map.scale.OrdinalColor}
+ * @return {anychart.scales.OrdinalColor}
  */
 anychart.scales.ordinalColor = function(opt_value) {
-  var scale = new anychart.core.map.scale.OrdinalColor();
+  var scale = new anychart.scales.OrdinalColor();
   scale.ranges(opt_value);
   return scale;
 };
 
 
 /** @inheritDoc */
-anychart.core.map.scale.OrdinalColor.prototype.serialize = function() {
+anychart.scales.OrdinalColor.prototype.serialize = function() {
   var json = goog.base(this, 'serialize');
   json['ticks'] = this.ticks().serialize();
-  json['ranges'] = this.ranges();
+  if (this.ranges_ && this.ranges_.length)
+    json['ranges'] = this.ranges_;
   if (this.names_)
     json['names'] = this.names_;
   if (this.colors_)
@@ -510,7 +629,7 @@ anychart.core.map.scale.OrdinalColor.prototype.serialize = function() {
 
 
 /** @inheritDoc */
-anychart.core.map.scale.OrdinalColor.prototype.setupByJSON = function(config) {
+anychart.scales.OrdinalColor.prototype.setupByJSON = function(config) {
   goog.base(this, 'setupByJSON', config);
   this.ticks(config['ticks']);
   this.colors(config['colors']);
@@ -521,15 +640,15 @@ anychart.core.map.scale.OrdinalColor.prototype.setupByJSON = function(config) {
 
 //exports
 goog.exportSymbol('anychart.scales.ordinalColor', anychart.scales.ordinalColor);
-anychart.core.map.scale.OrdinalColor.prototype['colors'] = anychart.core.map.scale.OrdinalColor.prototype.colors;
-anychart.core.map.scale.OrdinalColor.prototype['ranges'] = anychart.core.map.scale.OrdinalColor.prototype.ranges;
-anychart.core.map.scale.OrdinalColor.prototype['names'] = anychart.core.map.scale.OrdinalColor.prototype.names;
-anychart.core.map.scale.OrdinalColor.prototype['ticks'] = anychart.core.map.scale.OrdinalColor.prototype.ticks;
-anychart.core.map.scale.OrdinalColor.prototype['inverted'] = anychart.core.map.scale.OrdinalColor.prototype.inverted;
-anychart.core.map.scale.OrdinalColor.prototype['getRangeByValue'] = anychart.core.map.scale.OrdinalColor.prototype.getRangeByValue;
-anychart.core.map.scale.OrdinalColor.prototype['getProcessedRanges'] = anychart.core.map.scale.OrdinalColor.prototype.getProcessedRanges;
-anychart.core.map.scale.OrdinalColor.prototype['valueToColor'] = anychart.core.map.scale.OrdinalColor.prototype.valueToColor;
-anychart.core.map.scale.OrdinalColor.prototype['colorToValue'] = anychart.core.map.scale.OrdinalColor.prototype.colorToValue;
-anychart.core.map.scale.OrdinalColor.prototype['getIndexByValue'] = anychart.core.map.scale.OrdinalColor.prototype.getIndexByValue;
-anychart.core.map.scale.OrdinalColor.prototype['transform'] = anychart.core.map.scale.OrdinalColor.prototype.transform;
-anychart.core.map.scale.OrdinalColor.prototype['inverseTransform'] = anychart.core.map.scale.OrdinalColor.prototype.inverseTransform;
+anychart.scales.OrdinalColor.prototype['colors'] = anychart.scales.OrdinalColor.prototype.colors;
+anychart.scales.OrdinalColor.prototype['ranges'] = anychart.scales.OrdinalColor.prototype.ranges;
+anychart.scales.OrdinalColor.prototype['names'] = anychart.scales.OrdinalColor.prototype.names;
+anychart.scales.OrdinalColor.prototype['ticks'] = anychart.scales.OrdinalColor.prototype.ticks;
+anychart.scales.OrdinalColor.prototype['inverted'] = anychart.scales.OrdinalColor.prototype.inverted;
+anychart.scales.OrdinalColor.prototype['getRangeByValue'] = anychart.scales.OrdinalColor.prototype.getRangeByValue;
+anychart.scales.OrdinalColor.prototype['getProcessedRanges'] = anychart.scales.OrdinalColor.prototype.getProcessedRanges;
+anychart.scales.OrdinalColor.prototype['valueToColor'] = anychart.scales.OrdinalColor.prototype.valueToColor;
+anychart.scales.OrdinalColor.prototype['colorToValue'] = anychart.scales.OrdinalColor.prototype.colorToValue;
+anychart.scales.OrdinalColor.prototype['getIndexByValue'] = anychart.scales.OrdinalColor.prototype.getIndexByValue;
+anychart.scales.OrdinalColor.prototype['transform'] = anychart.scales.OrdinalColor.prototype.transform;
+anychart.scales.OrdinalColor.prototype['inverseTransform'] = anychart.scales.OrdinalColor.prototype.inverseTransform;

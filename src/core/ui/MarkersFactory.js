@@ -894,10 +894,13 @@ anychart.core.ui.MarkersFactory.prototype.clear = function(opt_index) {
       this.freeToUseMarkersPool_.push(this.markers_[opt_index]);
       delete this.markers_[opt_index];
     } else {
-      goog.array.forEach(this.markers_, function(marker) {
-        marker.clear();
-        this.freeToUseMarkersPool_.push(marker);
-      }, this);
+      for (var i = this.markers_.length; i--;) {
+        var marker = this.markers_[i];
+        if (marker) {
+          marker.clear();
+          this.freeToUseMarkersPool_.push(marker);
+        }
+      }
       this.markers_.length = 0;
     }
     this.invalidate(anychart.ConsistencyState.MARKERS_FACTORY_HANDLERS, anychart.Signal.NEEDS_REDRAW);
@@ -1089,6 +1092,7 @@ anychart.core.ui.MarkersFactory.prototype.setupByJSON = function(config) {
   this.fill(config['fill']);
   this.stroke(config['stroke']);
   this.positionFormatter(config['positionFormatter']);
+  this.enabled('enabled' in config ? config['enabled'] : null);
 };
 
 
@@ -1474,6 +1478,9 @@ anychart.core.ui.MarkersFactory.Marker.prototype.clear = function() {
  * Reset settings.
  */
 anychart.core.ui.MarkersFactory.Marker.prototype.resetSettings = function() {
+  if (this.settingsObj['padding']) {
+    goog.dispose(this.settingsObj['padding']);
+  }
   this.settingsObj = {};
   this.superSettingsObj = {};
 };
@@ -1714,6 +1721,7 @@ anychart.core.ui.MarkersFactory.Marker.prototype.setupByJSON = function(config) 
   this.stroke(config['stroke']);
   this.positionFormatter(config['positionFormatter']);
   if (!goog.isDef(config['enabled'])) delete this.settingsObj['enabled'];
+  this.enabled('enabled' in config ? config['enabled'] : null);
 };
 
 

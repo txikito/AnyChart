@@ -10,6 +10,13 @@ goog.require('anychart.data');
 goog.require('anychart.enums');
 
 
+/**
+ * Namespace anychart.core.radar
+ * @namespace
+ * @name anychart.core.radar
+ */
+
+
 
 /**
  * Base class for all radar series.<br/>
@@ -285,6 +292,29 @@ anychart.core.radar.series.Base.prototype.getValuePointCoords = function() {
   res.push(xPix, yPix);
 
   return fail ? null : res;
+};
+
+
+/**
+ * Transforms values to pix coords.
+ * @param {*} xVal
+ * @param {*} yVal
+ * @param {number=} opt_xSubRangeRatio
+ * @return {Object.<string, number>} Pix values.
+ */
+anychart.core.radar.series.Base.prototype.transformXY = function(xVal, yVal, opt_xSubRangeRatio) {
+  var xScale = /** @type {anychart.scales.Base} */(this.xScale());
+  var yScale = /** @type {anychart.scales.Base} */(this.yScale());
+
+  var xRatio = xScale.transform(xVal, opt_xSubRangeRatio || 0);
+  var yRatio = yScale.transform(yVal, .5);
+  var angleRad = goog.math.toRadians(this.startAngle_ - 90 + 360 * xRatio);
+  var currRadius = this.radius * yRatio;
+  var xPix, yPix;
+
+  xPix = xScale.isMissing(xVal) ? NaN : this.cx + currRadius * Math.cos(angleRad);
+  yPix = this.cy + currRadius * Math.sin(angleRad);
+  return {'x': xPix, 'y': yPix};
 };
 
 
@@ -841,3 +871,4 @@ anychart.core.radar.series.Base.prototype['xScale'] = anychart.core.radar.series
 anychart.core.radar.series.Base.prototype['yScale'] = anychart.core.radar.series.Base.prototype.yScale;//need-ex
 anychart.core.radar.series.Base.prototype['legendItem'] = anychart.core.radar.series.Base.prototype.legendItem;
 anychart.core.radar.series.Base.prototype['hover'] = anychart.core.radar.series.Base.prototype.hover;
+anychart.core.radar.series.Base.prototype['transformXY'] = anychart.core.radar.series.Base.prototype.transformXY;

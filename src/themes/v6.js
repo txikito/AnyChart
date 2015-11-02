@@ -39,6 +39,12 @@ window['anychart']['themes']['v6'] = {
     'items': ['circle', 'square', 'triangleUp', 'diamond', 'triangleDown', 'cross', 'diagonalCross', 'star4', 'star5', 'star6', 'star7', 'star10', 'pentagon', 'trapezium', 'line']
   },
 
+  'ordinalColor': {
+    'autoColors': function(rangesCount) {
+      return window['anychart']['color']['blendedHueProgression']('#ffd54f', '#ef6c00', rangesCount);
+    }
+  },
+
   // global background settings
   'defaultBackground': {
     'enabled': true,
@@ -197,7 +203,7 @@ window['anychart']['themes']['v6'] = {
       'fontColor': '#232323',
       'fontWeight': 'bold',
       'vAlign': 'top',
-      'hAlign': 'center',
+      'hAlign': 'left',
       'textWrap': 'byLetter',
       'text': 'Tooltip Text',
       'background': {
@@ -224,6 +230,23 @@ window['anychart']['themes']['v6'] = {
       'rotation': 0,
       'zIndex': 1
     },
+    'fontSize': 10,
+    'fontFamily': 'Verdana',
+    'fontColor': '#232323',
+    'fontWeight': 'bold',
+    'vAlign': 'top',
+    'hAlign': 'left',
+    'textWrap': 'byLetter',
+    'text': 'Tooltip Text',
+    'width': '100%',
+    'height': null,
+    'minFontSize': 8,
+    'maxFontSize': 72,
+    'adjustFontSize': {
+      'width': false,
+      'height': false
+    },
+    'rotation': 0,
     'background': {
       'enabled': true,
       'fill': [
@@ -640,7 +663,7 @@ window['anychart']['themes']['v6'] = {
   },
 
   // merge with chart
-  'cartesian': {
+  'cartesianBase': {
     'defaultSeriesSettings': {
       'base': {
         /**
@@ -1668,7 +1691,8 @@ window['anychart']['themes']['v6'] = {
         'text': 'Label text',
         'background': {
           'enabled': true,
-          'fill': '#000 .85'
+          'fill': '#000 .85',
+          'stroke': 'none'
         },
         'padding': {
           'top': 6,
@@ -1712,7 +1736,8 @@ window['anychart']['themes']['v6'] = {
         'text': 'Label text',
         'background': {
           'enabled': true,
-          'fill': '#000 .85'
+          'fill': '#000 .85',
+          'stroke': 'none'
         },
         'padding': {
           'top': 6,
@@ -1735,6 +1760,33 @@ window['anychart']['themes']['v6'] = {
         'rotation': 0
       },
       'zIndex': 41
+    },
+    'xZoom': {
+      'continuous': true,
+      'startRatio': 0,
+      'endRatio': 1
+    },
+    'xScroller': {
+      'enabled': false,
+      'fill': '#fff',
+      'selectedFill': '#1976d2 0.2',
+      'outlineStroke': 'none',
+      'height': 10,
+      'minHeight': null,
+      'maxHeight': null,
+      'autoHide': false,
+      'orientation': 'bottom',
+      'position': 'afterAxes',
+      'allowRangeChange': true,
+      'thumbs': {
+        'enabled': true,
+        'autoHide': false,
+        'fill': '#f7f7f7',
+        'stroke': '#7c868e',
+        'hoverFill': '#ffffff',
+        'hoverStroke': '#545f69'
+      },
+      'zIndex': 35
     }
   },
 
@@ -1859,6 +1911,9 @@ window['anychart']['themes']['v6'] = {
       'right': 20,
       'bottom': 10,
       'left': 20
+    },
+    'xScroller': {
+      'orientation': 'left'
     }
   },
   'box': {
@@ -2087,6 +2142,280 @@ window['anychart']['themes']['v6'] = {
     },
     'interactivity': {
       'hoverMode': 'byX'
+    }
+  },
+
+  // merge with chart
+  'heatMap': {
+    'scales': [
+      {
+        'type': 'ordinal',
+        'inverted': false,
+        'names': [],
+        'ticks': {
+          'interval': 1
+        }
+      },
+      {
+        'type': 'ordinal',
+        'inverted': true,
+        'names': [],
+        'ticks': {
+          'interval': 1
+        }
+      },
+      {
+        'type': 'ordinalColor'
+      }
+    ],
+    'xScale': 0,
+    'yScale': 1,
+    'colorScale': 2,
+    'background': {
+      'enabled': true
+    },
+    'xAxes': [{}],
+    'yAxes': [{}],
+    'grids': [],
+    'padding': {
+      'top': 30,
+      'right': 20,
+      'bottom': 20,
+      'left': 20
+    },
+    'tooltip': {
+      'enabled': true,
+      'title': {
+        'enabled': true,
+        'fontSize': 13,
+        'fontWeight': 'normal'
+      },
+      'content': {'fontSize': 11},
+      'separator': {'enabled': true},
+      /**
+       * @this {*}
+       * @return {*}
+       */
+      'titleFormatter': function() {
+        return this['name'] || this['x'];
+      },
+      /**
+       * @this {*}
+       * @return {*}
+       */
+      'textFormatter': function() {
+        if (goog.isDef(this['heat'])) {
+          var value = 'Value: ' + this['valuePrefix'] + this['heat'] + this['valuePostfix'];
+          if (!isNaN(+this['heat']))
+            value += '\n' + 'Percent Value: ' + (this['heat'] * 100 / this['getStat']('sum')).toFixed(1) + '%';
+          return value;
+        } else {
+          return 'x: ' + this['x'] + ' y: ' + this['y'];
+        }
+      }
+    },
+    'legendItem': {
+      'iconStroke': null
+    },
+    'legend': {
+      'itemsSourceMode': 'categories'
+    },
+    'defaultXAxisSettings': {
+      'enabled': true,
+      'orientation': 'bottom',
+      'title': {
+        'text': 'X-Axis'
+      }
+    },
+    'defaultYAxisSettings': {
+      'enabled': true,
+      'orientation': 'left',
+      'title': {
+        'text': 'Y-Axis'
+      }
+    },
+
+    /**
+     * @this {*}
+     * @return {*}
+     */
+    'fill': function() {
+      var color;
+      if (this['colorScale']) {
+        var value = this['iterator']['get']('heat');
+        color = this['colorScale']['valueToColor'](value);
+      } else {
+        color = window['anychart']['color']['setOpacity'](this['sourceColor'], 0.85, true);
+      }
+      return color;
+    },
+    'hoverFill': '#3085be',
+    'selectFill': '#333333',
+    /**
+     * @this {*}
+     * @return {*}
+     */
+    'stroke': function() {
+      var color;
+      if (this['colorScale']) {
+        var value = this['iterator']['get']('heat');
+        color = this['colorScale']['valueToColor'](value);
+      } else {
+        color = this['sourceColor'];
+      }
+      return window['anychart']['color']['setThickness'](color, 1 , .85);
+    },
+    /**
+     * @this {*}
+     * @return {*}
+     */
+    'hoverStroke': function() {
+      return window['anychart']['color']['setThickness'](this['sourceColor'], 1, .85);
+    },
+    'selectStroke': null,
+
+    'labels': {
+      'enabled': false,
+      'fontSize': 11,
+      'adjustFontSize': {
+        'width': true,
+        'height': true
+      },
+      'minFontSize': 7,
+      'maxFontSize': 15,
+      'hAlign': 'center',
+      'vAlign': 'center',
+      'textWrap': 'noWrap',
+      'fontWeight': 'normal',
+      'fontColor': '#333',
+      'selectable': false,
+
+      'background': {
+        'enabled': false
+      },
+      'padding': {
+        'top': 2,
+        'right': 4,
+        'bottom': 2,
+        'left': 4
+      },
+      'position': 'center',
+      'anchor': 'center',
+      'offsetX': 0,
+      'offsetY': 0,
+      'rotation': 0,
+      'width': null,
+      'height': null,
+      /**
+       * @this {*}
+       * @return {*}
+       */
+      'textFormatter': function() {
+        return this['heat'];
+      },
+      /**
+       * @this {*}
+       * @return {*}
+       */
+      'positionFormatter': function() {
+        return this['value'];
+      }
+    },
+    'hoverLabels': {
+      'enabled': null
+    },
+    'selectLabels': {
+      'fontColor': '#f5f500',
+      'enabled': null
+    },
+
+    'markers': {
+      'enabled': false,
+      'disablePointerEvents': false,
+      'position': 'center',
+      'rotation': 0,
+      'anchor': 'center',
+      'offsetX': 0,
+      'offsetY': 0,
+      //'type': null,
+      'size': 4,
+      //'fill': '', // autoFill
+      //'stroke': '', // autoStroke
+      /**
+       * @this {*}
+       * @return {*}
+       */
+      'positionFormatter': function() {
+        return this['value'];
+      }
+    },
+    'hoverMarkers': {
+      'enabled': null,
+      'size': 6
+    },
+    'selectMarkers': {
+      'enabled': null,
+      'fill': '#f5f500'
+    },
+    'labelsDisplayMode': 'drop',
+
+    'hatchFill': false,
+    //'hoverHatchFill': null,
+
+    'clip': true,
+    'xZoom': {
+      'continuous': true,
+      'startRatio': 0,
+      'endRatio': 1
+    },
+    'xScroller': {
+      'enabled': false,
+      'fill': '#fff',
+      'selectedFill': '#1976d2 0.2',
+      'outlineStroke': 'none',
+      'height': 10,
+      'minHeight': null,
+      'maxHeight': null,
+      'autoHide': false,
+      'orientation': 'bottom',
+      'position': 'afterAxes',
+      'allowRangeChange': true,
+      'thumbs': {
+        'enabled': true,
+        'autoHide': false,
+        'fill': '#f7f7f7',
+        'stroke': '#7c868e',
+        'hoverFill': '#ffffff',
+        'hoverStroke': '#545f69'
+      },
+      'zIndex': 35
+    },
+    'yZoom': {
+      'continuous': true,
+      'startRatio': 0,
+      'endRatio': 1
+    },
+    'yScroller': {
+      'enabled': false,
+      'fill': '#fff',
+      'selectedFill': '#1976d2 0.2',
+      'outlineStroke': 'none',
+      'height': 10,
+      'minHeight': null,
+      'maxHeight': null,
+      'autoHide': false,
+      'orientation': 'left',
+      'position': 'afterAxes',
+      'allowRangeChange': true,
+      'thumbs': {
+        'enabled': true,
+        'autoHide': false,
+        'fill': '#f7f7f7',
+        'stroke': '#7c868e',
+        'hoverFill': '#ffffff',
+        'hoverStroke': '#545f69'
+      },
+      'zIndex': 35
     }
   },
 
@@ -2530,7 +2859,8 @@ window['anychart']['themes']['v6'] = {
         'text': 'Label text',
         'background': {
           'enabled': true,
-          'fill': '#000 .85'
+          'fill': '#000 .85',
+          'stroke': 'none'
         },
         'padding': {
           'top': 6,
@@ -2572,7 +2902,8 @@ window['anychart']['themes']['v6'] = {
         'text': 'Label text',
         'background': {
           'enabled': true,
-          'fill': '#000 .85'
+          'fill': '#000 .85',
+          'stroke': 'none'
         },
         'padding': {
           'top': 6,
@@ -2956,6 +3287,10 @@ window['anychart']['themes']['v6'] = {
       'size': 12
     },
     'tooltip': {
+      'content': {
+        'hAlign': 'center'
+      },
+      'hAlign': 'center',
       /**
        * @this {*}
        * @return {*}
@@ -3015,6 +3350,50 @@ window['anychart']['themes']['v6'] = {
       'base': {
         'enabled': true,
         'hatchFill': null,
+        /**
+         * @this {*}
+         * @return {*}
+         */
+        'fill': function() {
+          return this['sourceColor'];
+        },
+        /**
+         * @this {*}
+         * @return {*}
+         */
+        'hoverFill': function() {
+          return window['anychart']['color']['lighten'](this['sourceColor']);
+        },
+        /**
+         * @this {*}
+         * @return {*}
+         */
+        'selectFill': function() {
+          //todo need define cool color.
+          return window['anychart']['color']['darken'](this['sourceColor']);
+        },
+        /**
+         * @this {*}
+         * @return {*}
+         */
+        'stroke': function() {
+          return window['anychart']['color']['darken'](this['sourceColor']);
+        },
+        /**
+         * @this {*}
+         * @return {*}
+         */
+        'hoverStroke': function() {
+          return window['anychart']['color']['darken'](this['sourceColor']);
+        },
+        /**
+         * @this {*}
+         * @return {*}
+         */
+        'selectStroke': function() {
+          //todo need define cool color.
+          return window['anychart']['color']['darken']('red');
+        },
         'labels': {
           'enabled': false,
           'position': 'center',
@@ -3227,6 +3606,50 @@ window['anychart']['themes']['v6'] = {
         'hatchFill': null,
         'labels': {'enabled': false, 'position': 'center', 'anchor': 'bottom'},
         'hoverLabels': {'enabled': null, 'position': 'center'},
+        /**
+         * @this {*}
+         * @return {*}
+         */
+        'fill': function() {
+          return this['sourceColor'];
+        },
+        /**
+         * @this {*}
+         * @return {*}
+         */
+        'hoverFill': function() {
+          return window['anychart']['color']['lighten'](this['sourceColor']);
+        },
+        /**
+         * @this {*}
+         * @return {*}
+         */
+        'selectFill': function() {
+          //todo need define cool color.
+          return window['anychart']['color']['darken'](this['sourceColor']);
+        },
+        /**
+         * @this {*}
+         * @return {*}
+         */
+        'stroke': function() {
+          return window['anychart']['color']['darken'](this['sourceColor']);
+        },
+        /**
+         * @this {*}
+         * @return {*}
+         */
+        'hoverStroke': function() {
+          return window['anychart']['color']['darken'](this['sourceColor']);
+        },
+        /**
+         * @this {*}
+         * @return {*}
+         */
+        'selectStroke': function() {
+          //todo need define cool color.
+          return window['anychart']['color']['darken']('red');
+        },
         'markers': {
           'enabled': false,
           'disablePointerEvents': false,
@@ -3914,9 +4337,102 @@ window['anychart']['themes']['v6'] = {
           }
         },
         'xScale': null,
-        'yScale': null
+        'yScale': null,
+        'geoIdField': null
       },
-      'choropleth': {}
+      'choropleth': {},
+      'bubble': {
+        'displayNegative': false,
+        /**
+         * @this {*}
+         * @return {*}
+         */
+        'fill': function() {
+          return window['anychart']['color']['setOpacity'](this['sourceColor'], 0.7, true);
+        },
+        /**
+         * @this {*}
+         * @return {*}
+         */
+        'hoverFill': function() {
+          return window['anychart']['color']['setOpacity'](this['sourceColor'], 0.7, true);
+        },
+        /**
+         * @this {*}
+         * @return {*}
+         */
+        'stroke': function() {
+          return window['anychart']['color']['setThickness'](this['sourceColor'], 1.5);
+        },
+        /**
+         * @this {*}
+         * @return {*}
+         */
+        'hoverStroke': function() {
+          return window['anychart']['color']['setThickness'](this['sourceColor'], 1.5);
+        },
+        'legendItem': {
+          'iconStroke': null
+        },
+        /**
+         * @this {*}
+         * @return {*}
+         */
+        'negativeFill': function() {
+          return window['anychart']['color']['darken'](
+              window['anychart']['color']['darken'](
+                  window['anychart']['color']['darken'](this['sourceColor'])));
+        },
+        /**
+         * @this {*}
+         * @return {*}
+         */
+        'hoverNegativeFill': function() {
+          return window['anychart']['color']['darken'](
+              window['anychart']['color']['darken'](
+                  window['anychart']['color']['darken'](
+                      window['anychart']['color']['darken'](this['sourceColor']))));
+        },
+        /**
+         * @this {*}
+         * @return {*}
+         */
+        'negativeStroke': function() {
+          return window['anychart']['color']['darken'](
+              window['anychart']['color']['darken'](
+                  window['anychart']['color']['darken'](
+                      window['anychart']['color']['darken'](this['sourceColor']))));
+        },
+        /**
+         * @this {*}
+         * @return {*}
+         */
+        'hoverNegativeStroke': function() {
+          return window['anychart']['color']['darken'](
+              window['anychart']['color']['darken'](
+                  window['anychart']['color']['darken'](
+                      window['anychart']['color']['darken'](
+                          window['anychart']['color']['darken'](this['sourceColor'])))));
+        },
+        'negativeHatchFill': null,
+        'hoverNegativeHatchFill': null,
+        'tooltip': {
+          /**
+           * @this {*}
+           * @return {*}
+           */
+          'titleFormatter': function() {
+            return this['name'] || this['getDataValue']('name');
+          },
+          /**
+           * @this {*}
+           * @return {*}
+           */
+          'textFormatter': function() {
+            return 'Value: ' + this['valuePrefix'] + this['size'] + this['valuePostfix'];
+          }
+        }
+      }
     },
     'colorRange': {
       'enabled': false,
@@ -3960,13 +4476,9 @@ window['anychart']['themes']['v6'] = {
     },
     'unboundRegions': {'enabled': true, 'fill': '#F7F7F7', 'stroke': '#B9B9B9'},
     'linearColor': {'colors': ['#fff', '#ffd54f', '#ef6c00']},
-    'ordinalColor': {
-      'autoColors': function(rangesCount) {
-        return window['anychart']['color']['blendedHueProgression']('#ffd54f', '#ef6c00', rangesCount);
-      }
-    },
     'maxBubbleSize': '20%',
-    'minBubbleSize': '5%'
+    'minBubbleSize': '5%',
+    'geoIdField': 'id'
   },
 
   'defaultDataGrid': {
@@ -3984,6 +4496,18 @@ window['anychart']['themes']['v6'] = {
     'titleFill': {
       'keys': ['#f8f8f8', '#fff'],
       'angle': 90
+    },
+    'editStructurePreviewFill': {
+      'color': '#4285F4',
+      'opacity': 0.2
+    },
+    'editStructurePreviewStroke': {
+      'color': '#4285F4',
+      'thickness': 2
+    },
+    'editStructurePreviewDashStroke': {
+      'color': '#4285F4',
+      'dash': '4 4'
     },
     'tooltip': {
       'anchor': 'leftTop',
@@ -4014,7 +4538,8 @@ window['anychart']['themes']['v6'] = {
         'height': null,
         'fontSize': 11,
         'minFontSize': 8,
-        'maxFontSize': 72
+        'maxFontSize': 72,
+        'disablePointerEvents': true
       },
       'depthPaddingMultiplier': 0,
       'collapseExpandButtons': false,
@@ -4104,6 +4629,23 @@ window['anychart']['themes']['v6'] = {
         'hoverFill': '#edf8ff',
         'rowSelectedFill': '#d2eafa',
         'zIndex': 5,
+        'headerHeight': 70,
+        'editing': false,
+        'connectorPreviewStroke': {
+          'color': '#0000ff',
+          'dash': '3 3',
+          'opacity': .6
+        },
+        'editPreviewFill': {
+          'color': '#fff',
+          'opacity': 0.00001
+        },
+        'editProgressFill': '#fff',
+        'editProgressStroke': '#000',
+        'editIntervalThumbFill': '#fff',
+        'editIntervalThumbStroke': '#000',
+        'editConnectorThumbFill': '#fff',
+        'editConnectorThumbStroke': '#000',
         'baseFill': {
           'keys': ['#3CA0DE', '#3085BC'],
           'angle': -90
@@ -4162,7 +4704,8 @@ window['anychart']['themes']['v6'] = {
           'fontSize': 11,
           'minFontSize': 8,
           'maxFontSize': 72,
-          'zIndex': 40
+          'zIndex': 40,
+          'disablePointerEvents': true
         },
         'markersFactory': {
           'anchor': 'centerTop',
@@ -4173,15 +4716,22 @@ window['anychart']['themes']['v6'] = {
         'header': {
           'labelsFactory': {
             'anchor': 'leftTop',
+            'vAlign': 'middle',
             'padding': {
               'top': 0,
-              'right': 2,
+              'right': 5,
               'bottom': 0,
-              'left': 2
+              'left': 5
             },
-            'vAlign': 'middle',
             'textWrap': 'noWrap',
-            'textOverflow': '...'
+            'background': null,
+            'rotation': 0,
+            'width': null,
+            'height': null,
+            'fontSize': 11,
+            'minFontSize': 8,
+            'maxFontSize': 72,
+            'disablePointerEvents': true
           }
 
         }
@@ -4830,6 +5380,7 @@ window['anychart']['themes']['v6'] = {
   // standalone components
   'standalones': {
     'background': {
+      'enabled': true,
       'zIndex': 0
     }, // default
     'label': {
@@ -4864,6 +5415,7 @@ window['anychart']['themes']['v6'] = {
       'zIndex': 0
     },
     'labelsFactory': {
+      'enabled': true,
       'background': {
         'enabled': false,
         'stroke': '#000'
@@ -4871,6 +5423,7 @@ window['anychart']['themes']['v6'] = {
       'zIndex': 0
     },
     'legend': {
+      'enabled': true,
       'position': 'bottom',
       'align': 'center',
       'itemsSpacing': 15,
@@ -5013,27 +5566,33 @@ window['anychart']['themes']['v6'] = {
       'zIndex': 0
     },
     'markersFactory': {
+      'enabled': true,
       'zIndex': 0
     },
     'title': {
+      'enabled': true,
       'zIndex': 0
     },
     // defaultAxis merges into all these axes
     'linearAxis': {
+      'enabled': true,
       'zIndex': 0,
       'minorTicks': {
         'enabled': true
       }
     },
     'polarAxis': {
+      'enabled': true,
       'stroke': {'color': 'black', 'opacity': .1, 'lineJoin': 'round', 'lineCap': 'square'},
       'zIndex': 0
     },
     'radarAxis': {
+      'enabled': true,
       'stroke': {'color': 'black', 'opacity': .1, 'lineJoin': 'round', 'lineCap': 'square'},
       'zIndex': 0
     },
     'radialAxis': {
+      'enabled': true,
       'minorLabels': {
         'padding': {
           'top': 1,

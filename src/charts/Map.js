@@ -202,12 +202,13 @@ anychart.charts.Map.prototype.allowPointsSelect_;
 
 
 /**
- * Internal map getter/setter.
+ * Getter/setter for map default series type.
  * @param {anychart.enums.MapSeriesType=} opt_value Series type.
  * @return {anychart.charts.Map|anychart.enums.MapSeriesType}
  */
 anychart.charts.Map.prototype.defaultSeriesType = function(opt_value) {
   if (goog.isDef(opt_value)) {
+    opt_value = anychart.enums.normalizeMapSeriesType(opt_value);
     this.defaultSeriesType_ = opt_value;
     return this;
   }
@@ -501,7 +502,7 @@ anychart.charts.Map.prototype.colorRangeInvalidated_ = function(event) {
  * @param {!(anychart.data.View|anychart.data.Set|Array|string)} data SVG|SVGString|GeoJSON|MapNameString.
  * @param {Object.<string, (string|boolean)>=} opt_csvSettings If CSV string is passed, you can pass CSV parser settings
  *    here as a hash map.
- * @return {Node|string|Object} Passed geo data.
+ * @return {anychart.core.map.series.Base} Passed geo data.
  */
 anychart.charts.Map.prototype.choropleth = function(data, opt_csvSettings) {
   return this.createSeriesByType_(anychart.enums.MapSeriesType.CHOROPLETH, data, opt_csvSettings);
@@ -513,7 +514,7 @@ anychart.charts.Map.prototype.choropleth = function(data, opt_csvSettings) {
  * @param {!(anychart.data.View|anychart.data.Set|Array|string)} data SVG|SVGString|GeoJSON|MapNameString.
  * @param {Object.<string, (string|boolean)>=} opt_csvSettings If CSV string is passed, you can pass CSV parser settings
  *    here as a hash map.
- * @return {Node|string|Object} Passed geo data.
+ * @return {anychart.core.map.series.Base} Passed geo data.
  */
 anychart.charts.Map.prototype.bubble = function(data, opt_csvSettings) {
   return this.createSeriesByType_(anychart.enums.MapSeriesType.BUBBLE, data, opt_csvSettings);
@@ -522,14 +523,13 @@ anychart.charts.Map.prototype.bubble = function(data, opt_csvSettings) {
 
 /**
  * @param {string} type Series type.
- * @param {!(anychart.data.View|anychart.data.Set|Array|string)} data Data for the series.
+ * @param {?(anychart.data.View|anychart.data.Set|Array|string)} data Data for the series.
  * @param {Object.<string, (string|boolean)>=} opt_csvSettings If CSV string is passed, you can pass CSV parser settings
  *    here as a hash map.
- * @param {number=} opt_zIndex Optional series zIndex.
  * @private
- * @return {anychart.core.map.series.Choropleth}
+ * @return {anychart.core.map.series.Base}
  */
-anychart.charts.Map.prototype.createSeriesByType_ = function(type, data, opt_csvSettings, opt_zIndex) {
+anychart.charts.Map.prototype.createSeriesByType_ = function(type, data, opt_csvSettings) {
   var ctl;
   type = ('' + type).toLowerCase();
   for (var i in anychart.core.map.series.Base.SeriesTypesMap) {
@@ -540,21 +540,23 @@ anychart.charts.Map.prototype.createSeriesByType_ = function(type, data, opt_csv
 
   if (ctl) {
     instance = new ctl(data, opt_csvSettings);
+    instance.setChart(this);
     instance.setParentEventTarget(this);
+    var lastSeries = this.series_[this.series_.length - 1];
+    var index = lastSeries ? /** @type {number} */ (lastSeries.index()) + 1 : 0;
     this.series_.push(instance);
 
-    var index = this.series_.length - 1;
     var inc = index * anychart.charts.Map.ZINDEX_INCREMENT_MULTIPLIER;
-    instance.index(index);
+    instance.index(index).id(index);
 
-    instance.setAutoZIndex((goog.isDef(opt_zIndex) ? opt_zIndex : anychart.charts.Map.ZINDEX_SERIES) + inc);
+    instance.setAutoZIndex(anychart.charts.Map.ZINDEX_SERIES + inc);
     instance.labels().setAutoZIndex(anychart.charts.Map.ZINDEX_LABEL + inc + anychart.charts.Map.ZINDEX_INCREMENT_MULTIPLIER / 2);
 
     instance.setAutoGeoIdField(this.geoIdField());
     instance.setGeoData(this, this.internalGeoData_);
-    instance.setAutoColor(this.palette().itemAt(this.series_.length - 1));
-    instance.setAutoMarkerType(/** @type {anychart.enums.MarkerType} */(this.markerPalette().itemAt(this.series_.length - 1)));
-    instance.setAutoHatchFill(/** @type {acgraph.vector.HatchFill|acgraph.vector.PatternFill} */(this.hatchFillPalette().itemAt(this.series_.length - 1)));
+    instance.setAutoColor(this.palette().itemAt(index));
+    instance.setAutoMarkerType(/** @type {anychart.enums.MarkerType} */(this.markerPalette().itemAt(index)));
+    instance.setAutoHatchFill(/** @type {acgraph.vector.HatchFill|acgraph.vector.PatternFill} */(this.hatchFillPalette().itemAt(index)));
 
     if (instance.hasMarkers()) {
       instance.markers().setAutoZIndex(anychart.charts.Map.ZINDEX_MARKER + inc);
@@ -627,9 +629,118 @@ anychart.charts.Map.prototype.minBubbleSize = function(opt_value) {
 };
 
 
-/** @inheritDoc */
-anychart.charts.Map.prototype.getSeries = function(index) {
+/**
+ * Add series to chart.
+ * @param {...(anychart.data.View|anychart.data.Set|Array)} var_args Chart series data.
+ * @return {Array.<anychart.core.map.series.Base>} Array of created series.
+ */
+anychart.charts.Map.prototype.addSeries = function(var_args) {
+  var zIndex;
+  var rv = [];
+  var type = /** @type {string} */ (this.defaultSeriesType());
+  var count = arguments.length;
+  this.suspendSignalsDispatching();
+  if (!count)
+    rv.push(this.createSeriesByType_(type, null, undefined));
+  else {
+    for (var i = 0; i < count; i++) {
+      rv.push(this.createSeriesByType_(type, arguments[i], undefined));
+    }
+  }
+  this.resumeSignalsDispatching(true);
+  return rv;
+};
+
+
+/**
+ * Find series index by its id.
+ * @param {number|string} id Series id.
+ * @return {number} Series index or -1 if didn't find.
+ */
+anychart.charts.Map.prototype.getSeriesIndexBySeriesId = function(id) {
+  return goog.array.findIndex(this.series_, function(item) {
+    return item.id() == id;
+  });
+};
+
+
+/**
+ * Gets series by its id.
+ * @param {number|string} id Id of the series.
+ * @return {anychart.core.map.series.Base} Series instance.
+ */
+anychart.charts.Map.prototype.getSeries = function(id) {
+  return this.getSeriesAt(this.getSeriesIndexBySeriesId(id));
+};
+
+
+/**
+ * Gets series by its index.
+ * @param {number} index Index of the series.
+ * @return {?anychart.core.map.series.Base} Series instance.
+ */
+anychart.charts.Map.prototype.getSeriesAt = function(index) {
   return this.series_[index] || null;
+};
+
+
+/**
+ * Returns series count.
+ * @return {number} Number of series.
+ */
+anychart.charts.Map.prototype.getSeriesCount = function() {
+  return this.series_.length;
+};
+
+
+/**
+ * Removes one of series from chart by its id.
+ * @param {number|string} id Series id.
+ * @return {anychart.charts.Map}
+ */
+anychart.charts.Map.prototype.removeSeries = function(id) {
+  return this.removeSeriesAt(this.getSeriesIndexBySeriesId(id));
+};
+
+
+/**
+ * Removes one of series from chart by its index.
+ * @param {number} index Series index.
+ * @return {anychart.charts.Map}
+ */
+anychart.charts.Map.prototype.removeSeriesAt = function(index) {
+  var series = this.series_[index];
+  if (series) {
+    anychart.globalLock.lock();
+    goog.array.splice(this.series_, index, 1);
+    goog.dispose(series);
+    this.invalidate(
+        anychart.ConsistencyState.APPEARANCE |
+        anychart.ConsistencyState.CHART_LEGEND,
+        anychart.Signal.NEEDS_REDRAW);
+    anychart.globalLock.unlock();
+  }
+  return this;
+};
+
+
+/**
+ * Removes all series from chart.
+ * @return {anychart.charts.Map} Self for method chaining.
+ */
+anychart.charts.Map.prototype.removeAllSeries = function() {
+  if (this.series_.length) {
+    anychart.globalLock.lock();
+    var series = this.series_;
+    this.series_ = [];
+    goog.disposeAll(series);
+    this.invalidate(
+        anychart.ConsistencyState.APPEARANCE |
+        anychart.ConsistencyState.CHART_LEGEND,
+        anychart.Signal.NEEDS_REDRAW);
+    anychart.globalLock.unlock();
+  }
+  return this;
 };
 
 
@@ -949,6 +1060,9 @@ anychart.charts.Map.prototype.iterateGeometry_ = function(geom, callBack) {
 /** @inheritDoc */
 anychart.charts.Map.prototype.drawContent = function(bounds) {
   var i, series;
+
+  this.calculate();
+
   if (this.hasInvalidationState(anychart.ConsistencyState.MAP_COLOR_RANGE)) {
     if (this.colorRange_) {
       var targetSeries;
@@ -965,8 +1079,6 @@ anychart.charts.Map.prototype.drawContent = function(bounds) {
       }
     }
   }
-
-  this.calculate();
 
   if (this.hasInvalidationState(anychart.ConsistencyState.BOUNDS)) {
     var scale = this.scale();
@@ -1041,9 +1153,10 @@ anychart.charts.Map.prototype.drawContent = function(bounds) {
       series = this.series_[i];
       series.invalidate(anychart.ConsistencyState.APPEARANCE | anychart.ConsistencyState.SERIES_HATCH_FILL);
       series.setAutoGeoIdField(/** @type {string} */(this.geoIdField()));
-      series.setAutoColor(this.palette().itemAt(i));
-      series.setAutoMarkerType(/** @type {anychart.enums.MarkerType} */(this.markerPalette().itemAt(i)));
-      series.setAutoHatchFill(/** @type {acgraph.vector.HatchFill|acgraph.vector.PatternFill} */(this.hatchFillPalette().itemAt(i)));
+      var seriesIndex = /** @type {number} */ (series.index());
+      series.setAutoColor(this.palette().itemAt(seriesIndex));
+      series.setAutoMarkerType(/** @type {anychart.enums.MarkerType} */(this.markerPalette().itemAt(seriesIndex)));
+      series.setAutoHatchFill(/** @type {acgraph.vector.HatchFill|acgraph.vector.PatternFill} */(this.hatchFillPalette().itemAt(seriesIndex)));
       series.draw();
     }
     this.markConsistent(anychart.ConsistencyState.MAP_PALETTE | anychart.ConsistencyState.MAP_MARKER_PALETTE |
@@ -1053,7 +1166,7 @@ anychart.charts.Map.prototype.drawContent = function(bounds) {
   if (this.hasInvalidationState(anychart.ConsistencyState.MAP_PALETTE)) {
     for (i = this.series_.length; i--;) {
       series = this.series_[i];
-      series.setAutoColor(this.palette().itemAt(i));
+      series.setAutoColor(this.palette().itemAt(/** @type {number} */ (series.index())));
       series.invalidate(anychart.ConsistencyState.APPEARANCE | anychart.ConsistencyState.SERIES_HATCH_FILL);
     }
     this.invalidate(anychart.ConsistencyState.MAP_SERIES);
@@ -1063,7 +1176,7 @@ anychart.charts.Map.prototype.drawContent = function(bounds) {
   if (this.hasInvalidationState(anychart.ConsistencyState.MAP_MARKER_PALETTE)) {
     for (i = this.series_.length; i--;) {
       series = this.series_[i];
-      series.setAutoMarkerType(/** @type {anychart.enums.MarkerType} */(this.markerPalette().itemAt(i)));
+      series.setAutoMarkerType(/** @type {anychart.enums.MarkerType} */(this.markerPalette().itemAt(/** @type {number} */ (series.index()))));
       series.invalidate(anychart.ConsistencyState.APPEARANCE | anychart.ConsistencyState.SERIES_HATCH_FILL);
     }
     this.invalidate(anychart.ConsistencyState.MAP_SERIES);
@@ -1073,7 +1186,7 @@ anychart.charts.Map.prototype.drawContent = function(bounds) {
   if (this.hasInvalidationState(anychart.ConsistencyState.MAP_HATCH_FILL_PALETTE)) {
     for (i = this.series_.length; i--;) {
       series = this.series_[i];
-      series.setAutoHatchFill(/** @type {acgraph.vector.HatchFill|acgraph.vector.PatternFill} */(this.hatchFillPalette().itemAt(i)));
+      series.setAutoHatchFill(/** @type {acgraph.vector.HatchFill|acgraph.vector.PatternFill} */(this.hatchFillPalette().itemAt(/** @type {number} */ (series.index()))));
       series.invalidate(anychart.ConsistencyState.APPEARANCE | anychart.ConsistencyState.SERIES_HATCH_FILL);
     }
     this.invalidate(anychart.ConsistencyState.MAP_SERIES);
@@ -1132,13 +1245,13 @@ anychart.charts.Map.prototype.createLegendItemsProvider = function(sourceMode, i
     }
   } else if (sourceMode == anychart.enums.LegendItemsSourceMode.CATEGORIES) {
     if (this.colorRange_ && this.colorRange_.enabled() && this.colorRange_.target() &&
-        this.colorRange_.scale() instanceof anychart.core.map.scale.OrdinalColor) {
+        this.colorRange_.scale() instanceof anychart.scales.OrdinalColor) {
       scale = this.colorRange_.scale();
       series = this.colorRange_.target();
     } else {
       for (i = 0, count = this.series_.length; i < count; i++) {
         series = this.series_[i];
-        if (series.colorScale() instanceof anychart.core.map.scale.OrdinalColor) {
+        if (series.colorScale() instanceof anychart.scales.OrdinalColor) {
           scale = series.colorScale();
           break;
         }
@@ -1253,8 +1366,10 @@ anychart.charts.Map.prototype.legendItemOver = function(item, event) {
       var tag = anychart.utils.extractTag(event['domTarget']);
       if (tag) {
         if (this.interactivity().hoverMode() == anychart.enums.HoverMode.SINGLE) {
-          tag.series = series;
-          tag.index = points;
+          tag.points = {
+            series: series,
+            points: points
+          };
         } else {
           tag.points = [{
             series: series,
@@ -1296,6 +1411,15 @@ anychart.charts.Map.prototype.legendItemOut = function(item, event) {
       this.colorRange_.hideMarker();
     }
   }
+};
+
+
+/**
+ * Getter for data bounds of the chart.
+ * @return {anychart.math.Rect}
+ */
+anychart.charts.Map.prototype.getPlotBounds = function() {
+  return this.dataBounds_;
 };
 
 
@@ -1472,6 +1596,7 @@ anychart.charts.Map.prototype.setupByJSON = function(config) {
   if ('defaultSeriesSettings' in config)
     this.defaultSeriesSettings(config['defaultSeriesSettings']);
 
+  this.defaultSeriesType(config['defaultSeriesType']);
   this.palette(config['palette']);
   this.markerPalette(config['markerPalette']);
   this.hatchFillPalette(config['hatchFillPalette']);
@@ -1504,13 +1629,13 @@ anychart.charts.Map.prototype.setupByJSON = function(config) {
       type = (type + '').toLowerCase();
       switch (type) {
         case 'ordinalcolor':
-          scale = new anychart.core.map.scale.OrdinalColor();
+          scale = new anychart.scales.OrdinalColor();
           break;
         case 'linearcolor':
-          scale = new anychart.core.map.scale.LinearColor();
+          scale = new anychart.scales.LinearColor();
           break;
         default:
-          scale = new anychart.core.map.scale.LinearColor();
+          scale = new anychart.scales.LinearColor();
       }
       if (goog.isObject(json))
         scale.setup(json);
@@ -1540,6 +1665,7 @@ anychart.charts.Map.prototype.serialize = function() {
   var json = goog.base(this, 'serialize');
 
   json['type'] = this.getType();
+  json['defaultSeriesType'] = this.defaultSeriesType();
   json['palette'] = this.palette().serialize();
   json['markerPalette'] = this.markerPalette().serialize();
   json['hatchFillPalette'] = this.hatchFillPalette().serialize();
@@ -1595,3 +1721,11 @@ anychart.charts.Map.prototype['allowPointsSelect'] = anychart.charts.Map.prototy
 anychart.charts.Map.prototype['minBubbleSize'] = anychart.charts.Map.prototype.minBubbleSize;
 anychart.charts.Map.prototype['maxBubbleSize'] = anychart.charts.Map.prototype.maxBubbleSize;
 anychart.charts.Map.prototype['geoIdField'] = anychart.charts.Map.prototype.geoIdField;
+anychart.charts.Map.prototype['defaultSeriesType'] = anychart.charts.Map.prototype.defaultSeriesType;
+anychart.charts.Map.prototype['addSeries'] = anychart.charts.Map.prototype.addSeries;
+anychart.charts.Map.prototype['getSeriesAt'] = anychart.charts.Map.prototype.getSeriesAt;
+anychart.charts.Map.prototype['getSeriesCount'] = anychart.charts.Map.prototype.getSeriesCount;
+anychart.charts.Map.prototype['removeSeries'] = anychart.charts.Map.prototype.removeSeries;
+anychart.charts.Map.prototype['removeSeriesAt'] = anychart.charts.Map.prototype.removeSeriesAt;
+anychart.charts.Map.prototype['removeAllSeries'] = anychart.charts.Map.prototype.removeAllSeries;
+anychart.charts.Map.prototype['getPlotBounds'] = anychart.charts.Map.prototype.getPlotBounds;

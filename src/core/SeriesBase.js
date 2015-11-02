@@ -1,6 +1,8 @@
 goog.provide('anychart.core.SeriesBase');
 goog.require('acgraph');
 goog.require('anychart.color');
+goog.require('anychart.core.BubblePoint');
+goog.require('anychart.core.SeriesPoint');
 goog.require('anychart.core.VisualBaseWithBounds');
 goog.require('anychart.core.ui.LabelsFactory');
 goog.require('anychart.core.ui.SeriesTooltip');
@@ -283,6 +285,33 @@ anychart.core.SeriesBase.prototype.isChart = function() {
 };
 
 
+/**
+ * Tester if the series is size based (bubble).
+ * @return {boolean}
+ */
+anychart.core.SeriesBase.prototype.isSizeBased = function() {
+  return false;
+};
+
+
+/**
+ * Sets the chart series belongs to.
+ * @param {anychart.core.SeparateChart} chart Chart instance.
+ */
+anychart.core.SeriesBase.prototype.setChart = function(chart) {
+  this.chart_ = chart;
+};
+
+
+/**
+ * Get the chart series belongs to.
+ * @return {anychart.core.SeparateChart}
+ */
+anychart.core.SeriesBase.prototype.getChart = function() {
+  return this.chart_;
+};
+
+
 //----------------------------------------------------------------------------------------------------------------------
 //
 //  Data
@@ -392,6 +421,7 @@ anychart.core.SeriesBase.prototype.name = function(opt_value) {
   if (goog.isDef(opt_value)) {
     if (this.name_ != opt_value) {
       this.name_ = opt_value;
+      this.dispatchSignal(anychart.Signal.NEED_UPDATE_LEGEND);
       //TODO: send signal to redraw name dependent components, series, legend etc
     }
     return this;
@@ -414,6 +444,23 @@ anychart.core.SeriesBase.prototype.index = function(opt_value) {
     return this;
   } else {
     return this.index_;
+  }
+};
+
+
+/**
+ * Getter/setter for series id.
+ * @param {(string|number)=} opt_value Id of the series.
+ * @return {string|number|anychart.core.SeriesBase} Id or self for chaining.
+ */
+anychart.core.SeriesBase.prototype.id = function(opt_value) {
+  if (goog.isDef(opt_value)) {
+    if (this.id_ != opt_value) {
+      this.id_ = opt_value;
+    }
+    return this;
+  } else {
+    return this.id_;
   }
 };
 
@@ -1215,6 +1262,8 @@ anychart.core.SeriesBase.prototype.labels = function(opt_value) {
   }
 
   if (goog.isDef(opt_value)) {
+    if (goog.isObject(opt_value) && !('enabled' in opt_value))
+      opt_value['enabled'] = true;
     this.labels_.setup(opt_value);
     return this;
   }
@@ -1234,6 +1283,8 @@ anychart.core.SeriesBase.prototype.hoverLabels = function(opt_value) {
   }
 
   if (goog.isDef(opt_value)) {
+    if (goog.isObject(opt_value) && !('enabled' in opt_value))
+      opt_value['enabled'] = true;
     this.hoverLabels_.setup(opt_value);
     return this;
   }
@@ -1253,6 +1304,8 @@ anychart.core.SeriesBase.prototype.selectLabels = function(opt_value) {
   }
 
   if (goog.isDef(opt_value)) {
+    if (goog.isObject(opt_value) && !('enabled' in opt_value))
+      opt_value['enabled'] = true;
     this.selectLabels_.setup(opt_value);
     return this;
   }
@@ -1408,6 +1461,12 @@ anychart.core.SeriesBase.prototype.applyAppearanceToPoint = goog.nullFunction;
 
 
 /**
+ * Finalization point appearance. For drawing labels and markers.
+ */
+anychart.core.SeriesBase.prototype.finalizePointAppearance = goog.nullFunction;
+
+
+/**
  * Apply appearance to series.
  * @param {anychart.PointState|number} pointState .
  */
@@ -1484,8 +1543,23 @@ anychart.core.SeriesBase.prototype.makePointEvent = function(event) {
     'iterator': iter,
     'pointIndex': pointIndex,
     'target': this,
-    'originalEvent': event
+    'originalEvent': event,
+    'point': this.getPoint(pointIndex)
   };
+};
+
+
+/**
+ * Gets wrapped point by index.
+ * @param {number} index Point index.
+ * @return {anychart.core.SeriesPoint} Wrapped point.
+ */
+anychart.core.SeriesBase.prototype.getPoint = function(index) {
+  if (this.isSizeBased()) {
+    return new anychart.core.BubblePoint(this, index);
+  } else {
+    return new anychart.core.SeriesPoint(this, index);
+  }
 };
 
 
@@ -1546,16 +1620,22 @@ anychart.core.SeriesBase.prototype.hover = function(opt_indexOrIndexes) {
 
 
 /**
- * Removes hover from the series.
+ * Removes hover from the series or point by index.
+ * @param {(number|Array<number>)=} opt_indexOrIndexes Point index or array of indexes.
  * @return {!anychart.core.SeriesBase} {@link anychart.core.SeriesBase} instance for method chaining.
  */
-anychart.core.SeriesBase.prototype.unhover = function() {
+anychart.core.SeriesBase.prototype.unhover = function(opt_indexOrIndexes) {
   if (!(this.state.hasPointState(anychart.PointState.HOVER) ||
       this.state.isStateContains(this.state.getSeriesState(), anychart.PointState.HOVER)) ||
       !this.enabled())
     return this;
 
-  this.state.removePointState(anychart.PointState.HOVER, this.state.seriesState == anychart.PointState.NORMAL ? NaN : undefined);
+  var index;
+  if (goog.isDef(opt_indexOrIndexes))
+    index = opt_indexOrIndexes;
+  else
+    index = (this.state.seriesState == anychart.PointState.NORMAL ? NaN : undefined);
+  this.state.removePointState(anychart.PointState.HOVER, index);
 
   return this;
 };
@@ -1662,24 +1742,33 @@ anychart.core.SeriesBase.prototype.selectPoint = function(indexOrIndexes, opt_ev
 };
 
 
-/**
- * Deselects all points.
- * @return {!anychart.core.SeriesBase} {@link anychart.core.SeriesBase} instance for method chaining.
- */
-anychart.core.SeriesBase.prototype.unselect = function() {
-  if (!this.enabled())
-    return this;
-
-  this.state.removePointState(anychart.PointState.SELECT, this.state.seriesState == anychart.PointState.NORMAL ? NaN : undefined);
-  return this;
-};
-
-
 //----------------------------------------------------------------------------------------------------------------------
 //
 //  Interactivity modes.
 //
 //----------------------------------------------------------------------------------------------------------------------
+
+
+/**
+ * Deselects all points or points by index.
+ * @param {(number|Array.<number>)=} opt_indexOrIndexes Index or array of indexes of the point to select.
+ * @return {!anychart.core.SeriesBase} {@link anychart.core.SeriesBase} instance for method chaining.
+ */
+anychart.core.SeriesBase.prototype.unselect = function(opt_indexOrIndexes) {
+  if (!this.enabled())
+    return this;
+
+  var index;
+  if (goog.isDef(opt_indexOrIndexes))
+    index = opt_indexOrIndexes;
+  else
+    index = (this.state.seriesState == anychart.PointState.NORMAL ? NaN : undefined);
+  this.state.removePointState(anychart.PointState.SELECT, index);
+
+  return this;
+};
+
+
 /**
  * Selection mode.
  * @type {?anychart.enums.SelectionMode}
@@ -1765,7 +1854,8 @@ anychart.core.SeriesBase.prototype.allowPointsSelect = function(opt_value) {
  */
 anychart.core.SeriesBase.prototype.serialize = function() {
   var json = goog.base(this, 'serialize');
-  json['color'] = anychart.color.serialize(/** @type {acgraph.vector.Fill}*/(this.color()));
+  if (this.color_)
+    json['color'] = anychart.color.serialize(/** @type {acgraph.vector.Fill}*/(this.color_));
   if (goog.isDef(this.name()))
     json['name'] = this.name();
   json['data'] = this.data().serialize();
@@ -1848,7 +1938,8 @@ anychart.core.SeriesBase.prototype.serialize = function() {
           ['Series hatchFill']
       );
     } else {
-      json['hatchFill'] = anychart.color.serialize(/** @type {acgraph.vector.Fill}*/(this.hatchFill()));
+      if (this.hatchFill())
+        json['hatchFill'] = anychart.color.serialize(/** @type {acgraph.vector.Fill}*/(this.hatchFill()));
     }
   }
   if (goog.isFunction(this['hoverHatchFill'])) {
@@ -1859,8 +1950,9 @@ anychart.core.SeriesBase.prototype.serialize = function() {
           ['Series hoverHatchFill']
       );
     } else {
-      json['hoverHatchFill'] = anychart.color.serialize(/** @type {acgraph.vector.Fill}*/
-          (this.hoverHatchFill()));
+      if (this.hoverHatchFill())
+        json['hoverHatchFill'] = anychart.color.serialize(/** @type {acgraph.vector.Fill}*/
+            (this.hoverHatchFill()));
     }
   }
   if (goog.isFunction(this['selectHatchFill'])) {
@@ -1871,8 +1963,9 @@ anychart.core.SeriesBase.prototype.serialize = function() {
           ['Series selectHatchFill']
       );
     } else {
-      json['selectHatchFill'] = anychart.color.serialize(/** @type {acgraph.vector.Fill}*/
-          (this.selectHatchFill()));
+      if (this.selectHatchFill())
+        json['selectHatchFill'] = anychart.color.serialize(/** @type {acgraph.vector.Fill}*/
+            (this.selectHatchFill()));
     }
   }
   if (goog.isDef(this.selectionMode()))
@@ -1909,9 +2002,9 @@ anychart.core.SeriesBase.prototype.setupByJSON = function(config) {
   this.meta(config['meta']);
   if ('data' in config)
     this.data(config['data'] || null);
-  this.labels(config['labels']);
-  this.hoverLabels(config['hoverLabels']);
-  this.selectLabels(config['selectLabels']);
+  this.labels().setup(config['labels']);
+  this.hoverLabels().setup(config['hoverLabels']);
+  this.selectLabels().setup(config['selectLabels']);
   this.tooltip(config['tooltip']);
   this.legendItem(config['legendItem']);
   if (goog.isDef(config['allowPointsSelect'])) {
@@ -1928,6 +2021,7 @@ anychart.core.SeriesBase.prototype.setupByJSON = function(config) {
 //exports
 anychart.core.SeriesBase.prototype['color'] = anychart.core.SeriesBase.prototype.color;//doc|ex
 anychart.core.SeriesBase.prototype['name'] = anychart.core.SeriesBase.prototype.name;//doc|ex
+anychart.core.SeriesBase.prototype['id'] = anychart.core.SeriesBase.prototype.id;
 anychart.core.SeriesBase.prototype['meta'] = anychart.core.SeriesBase.prototype.meta;//doc|ex
 anychart.core.SeriesBase.prototype['data'] = anychart.core.SeriesBase.prototype.data;//doc|ex
 anychart.core.SeriesBase.prototype['tooltip'] = anychart.core.SeriesBase.prototype.tooltip;
@@ -1945,3 +2039,5 @@ anychart.core.SeriesBase.prototype['selectionMode'] = anychart.core.SeriesBase.p
 anychart.core.SeriesBase.prototype['allowPointsSelect'] = anychart.core.SeriesBase.prototype.allowPointsSelect;
 
 anychart.core.SeriesBase.prototype['legendItem'] = anychart.core.SeriesBase.prototype.legendItem;
+anychart.core.SeriesBase.prototype['getPixelBounds'] = anychart.core.SeriesBase.prototype.getPixelBounds;
+anychart.core.SeriesBase.prototype['getPoint'] = anychart.core.SeriesBase.prototype.getPoint;

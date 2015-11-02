@@ -13,6 +13,13 @@ goog.require('anychart.enums');
 goog.require('anychart.utils');
 
 
+/**
+ * Namespace anychart.core.scatter
+ * @namespace
+ * @name anychart.core.scatter
+ */
+
+
 
 /**
  * Base class for all scatter series.<br/>
@@ -260,18 +267,31 @@ anychart.core.scatter.series.Base.prototype.getReferenceCoords = function() {
 };
 
 
+/**
+ * Transforms x to pix coords.
+ * @param {*} xValue X value.
+ * @return {number} Pix value.
+ */
+anychart.core.scatter.series.Base.prototype.transformX = function(xValue) {
+  return this.applyRatioToBounds(this.xScale().transform(xValue), true);
+};
+
+
+/**
+ * Transforms y to pix coords.
+ * @param {*} yValue Y value.
+ * @return {number} Pix value.
+ */
+anychart.core.scatter.series.Base.prototype.transformY = function(yValue) {
+  return this.applyRatioToBounds(this.yScale().transform(yValue), false);
+};
+
+
 //----------------------------------------------------------------------------------------------------------------------
 //
 //  Sufficient properties
 //
 //----------------------------------------------------------------------------------------------------------------------
-/**
- * Tester if the series is size based (bubble).
- * @return {boolean}
- */
-anychart.core.scatter.series.Base.prototype.isSizeBased = function() {
-  return false;
-};
 
 
 /**
@@ -837,7 +857,7 @@ anychart.core.scatter.series.Base.prototype.drawError = function() {
 //----------------------------------------------------------------------------------------------------------------------
 /**
  * Returns type of current series.
- * @return {anychart.enums.ScatterSeriesTypes} Series type.
+ * @return {anychart.enums.ScatterSeriesType} Series type.
  */
 anychart.core.scatter.series.Base.prototype.getType = goog.abstractMethod;
 
@@ -888,3 +908,5 @@ anychart.core.scatter.series.Base.prototype['data'] = anychart.core.scatter.seri
 anychart.core.scatter.series.Base.prototype['xScale'] = anychart.core.scatter.series.Base.prototype.xScale;//doc|ex
 anychart.core.scatter.series.Base.prototype['yScale'] = anychart.core.scatter.series.Base.prototype.yScale;//doc|ex
 anychart.core.scatter.series.Base.prototype['error'] = anychart.core.scatter.series.Base.prototype.error;
+anychart.core.scatter.series.Base.prototype['transformX'] = anychart.core.scatter.series.Base.prototype.transformX;
+anychart.core.scatter.series.Base.prototype['transformY'] = anychart.core.scatter.series.Base.prototype.transformY;

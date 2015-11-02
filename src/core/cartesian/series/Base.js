@@ -12,6 +12,13 @@ goog.require('anychart.enums');
 goog.require('anychart.utils');
 
 
+/**
+ * Namespace anychart.core.cartesian
+ * @namespace
+ * @name anychart.core.cartesian
+ */
+
+
 
 /**
  * Base class for all cartesian series.<br/>
@@ -346,15 +353,24 @@ anychart.core.cartesian.series.Base.prototype.getReferenceCoords = function() {
 
     switch (this.referenceValueMeanings[i]) {
       case 'x':
-        pix = xScale.isMissing(val) ? NaN : this.applyRatioToBounds(
-            xScale.transform(val, /** @type {number} */(this.xPointPosition())),
-            true);
+        if (xScale.isMissing(val))
+          pix = NaN;
+        else {
+          var ratio0 = xScale.transform(val, 0);
+          var ratio1 = xScale.transform(val, 1);
+          if (ratio0 < 0 && ratio1 < 0 || ratio0 > 1 && ratio1 > 1) {
+            pix = NaN;
+          } else
+            pix = this.applyRatioToBounds(xScale.transform(val, /** @type {number} */(this.xPointPosition())), true);
+        }
         break;
       case 'y':
+        iterator.meta('stackZero', yScale.getPrevVal(val));
         if (this.referenceValuesSupportStack)
           val = yScale.applyStacking(val);
         else if (yScale.isMissing(val))
           val = NaN;
+        iterator.meta('stackValue', val);
         pix = this.applyRatioToBounds(yScale.transform(val, 0.5), false);
         break;
       case 'z':
@@ -378,6 +394,40 @@ anychart.core.cartesian.series.Base.prototype.getReferenceCoords = function() {
     res.push(pix);
   }
   return fail ? null : res;
+};
+
+
+/**
+ * Transforms x to pix coords.
+ * @param {*} value
+ * @param {number=} opt_subRangeRatio
+ * @return {number} Pix value.
+ */
+anychart.core.cartesian.series.Base.prototype.transformX = function(value, opt_subRangeRatio) {
+  return this.applyRatioToBounds(this.xScale().transform(value, opt_subRangeRatio), true);
+};
+
+
+/**
+ * Transforms y to pix coords.
+ * @param {*} value
+ * @param {number=} opt_subRangeRatio
+ * @return {number} Pix value.
+ */
+anychart.core.cartesian.series.Base.prototype.transformY = function(value, opt_subRangeRatio) {
+  return this.applyRatioToBounds(this.yScale().transform(value, opt_subRangeRatio), false);
+};
+
+
+/**
+ * Get point width in case of width-based series.
+ * @return {number} Point width.
+ */
+anychart.core.cartesian.series.Base.prototype.getPixelPointWidth = function() {
+  if ((this.isWidthBased() || this.isBarBased()) && goog.isFunction(this.getPointWidth))
+    return this.getPointWidth();
+  else
+    return 0;
 };
 
 
@@ -478,15 +528,6 @@ anychart.core.cartesian.series.Base.prototype.isWidthBased = function() {
  * @return {boolean}
  */
 anychart.core.cartesian.series.Base.prototype.isBarBased = function() {
-  return false;
-};
-
-
-/**
- * Tester if the series is size based (bubble).
- * @return {boolean}
- */
-anychart.core.cartesian.series.Base.prototype.isSizeBased = function() {
   return false;
 };
 
@@ -828,17 +869,18 @@ anychart.core.cartesian.series.Base.prototype.applyRatioToBounds = function(rati
  */
 anychart.core.cartesian.series.Base.prototype.doClip = function() {
   var clip, bounds, axesLinesSpace;
-  if (this.clip() && !(this.rootLayer.clip() instanceof acgraph.vector.Clip)) {
-    if (goog.isBoolean(this.clip())) {
-      bounds = this.pixelBoundsCache;
-      axesLinesSpace = this.axesLinesSpace();
-      clip = axesLinesSpace.tightenBounds(/** @type {!anychart.math.Rect} */(bounds));
-    } else {
-      clip = /** @type {!anychart.math.Rect} */(this.clip());
+  if (!(this.rootLayer.clip() instanceof acgraph.vector.Clip)) {
+    clip = /** @type {!anychart.math.Rect|boolean} */ (this.clip());
+    if (goog.isBoolean(clip)) {
+      if (clip) {
+        bounds = this.pixelBoundsCache;
+        axesLinesSpace = this.axesLinesSpace();
+        clip = axesLinesSpace.tightenBounds(/** @type {!anychart.math.Rect} */(bounds));
+      }
     }
-    this.rootLayer.clip(clip);
+    this.rootLayer.clip(/** @type {anychart.math.Rect} */ (clip || null));
     var labelDOM = this.labels().getDomElement();
-    if (labelDOM) labelDOM.clip(/** @type {acgraph.math.Rect} */(bounds));
+    if (labelDOM) labelDOM.clip(/** @type {acgraph.math.Rect} */(clip || null));
   }
 };
 
@@ -1199,3 +1241,6 @@ anychart.core.cartesian.series.Base.prototype['xPointPosition'] = anychart.core.
 anychart.core.cartesian.series.Base.prototype['xScale'] = anychart.core.cartesian.series.Base.prototype.xScale;//doc|ex
 anychart.core.cartesian.series.Base.prototype['yScale'] = anychart.core.cartesian.series.Base.prototype.yScale;//doc|ex
 anychart.core.cartesian.series.Base.prototype['error'] = anychart.core.cartesian.series.Base.prototype.error;
+anychart.core.cartesian.series.Base.prototype['transformX'] = anychart.core.cartesian.series.Base.prototype.transformX;
+anychart.core.cartesian.series.Base.prototype['transformY'] = anychart.core.cartesian.series.Base.prototype.transformY;
+anychart.core.cartesian.series.Base.prototype['getPixelPointWidth'] = anychart.core.cartesian.series.Base.prototype.getPixelPointWidth;

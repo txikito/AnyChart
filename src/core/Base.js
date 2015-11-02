@@ -71,6 +71,10 @@ anychart.ConsistencyState = {
   CARTESIAN_AXES_MARKERS: 1 << 17,
   CARTESIAN_GRIDS: 1 << 18,
   CARTESIAN_CROSSHAIR: 1 << 19,
+  CARTESIAN_ZOOM: 1 << 20,
+  CARTESIAN_SCALE_MAPS: 1 << 21,
+  CARTESIAN_Y_SCALES: 1 << 22,
+  CARTESIAN_X_SCROLLER: 1 << 23,
   //---------------------------------- PYRAMID/FUNNEL STATES (CHART) ---------------------------------
   PYRAMID_FUNNEL_LABELS: 1 << 11,
   PYRAMID_FUNNEL_MARKERS: 1 << 12,
@@ -119,6 +123,15 @@ anychart.ConsistencyState = {
   MAP_MARKER_PALETTE: 1 << 16,
   MAP_HATCH_FILL_PALETTE: 1 << 17,
   MAP_COLOR_RANGE: 1 << 18,
+  //---------------------------------- HEAT MAP STATES (CHART) ---------------------------------
+  HEATMAP_SCALES: 1 << 11,
+  HEATMAP_SERIES: 1 << 12,
+  HEATMAP_AXES: 1 << 13,
+  HEATMAP_GRIDS: 1 << 14,
+  HEATMAP_COLOR_SCALE: 1 << 15,
+  HEATMAP_X_SCROLLER: 1 << 16,
+  HEATMAP_Y_SCROLLER: 1 << 17,
+  HEATMAP_ZOOM: 1 << 18,
   //---------------------------------- SERIES STATES (VB) ---------------------------------
   // also combined, due to a very big prefix
   SERIES_HATCH_FILL: 1 << 5,
@@ -138,9 +151,7 @@ anychart.ConsistencyState = {
   CONTROLLER_VISIBILITY: 1 << 6,
   CONTROLLER_POSITION: 1 << 7,
   //---------------------------------- GANTT TIMELINE STATES (VB) ---------------------------------
-  TIMELINE_SCALES: 1 << 5,
-  TIMELINE_POSITION: 1 << 6,
-  TIMELINE_HOVER: 1 << 7,
+  TIMELINE_SCALES: 1 << 8,
   //---------------------------------- GANTT TIMELINE HEADER STATES (VB) ---------------------------------
   TIMELINE_HEADER_SCALES: 1 << 5,
   //---------------------------------- GANTT TIMELINE HEADER LEVEL STATES (VB) ---------------------------------
@@ -149,15 +160,15 @@ anychart.ConsistencyState = {
   //---------------------------------- GRIDS STATES (VB) ---------------------------------
   // also combined
   GRIDS_POSITION: 1 << 5,
+  //---------------------------------- BASE GRIDS STATES (VB) ---------------------------------
+  BASE_GRID_CLICK: 1 << 6,
+  BASE_GRID_HOVER: 1 << 7,
   //---------------------------------- BUTTON STATES (VB) ---------------------------------
   BUTTON_BACKGROUND: 1 << 5,
   //---------------------------------- CREDITS STATES (VB) ---------------------------------
   CREDITS_POSITION: 1 << 5,
   //---------------------------------- DATA GRID STATES (VB) ---------------------------------
-  DATA_GRID_GRIDS: 1 << 5,
-  DATA_GRID_POSITION: 1 << 6,
-  DATA_GRID_HOVER: 1 << 7,
-  DATA_GRID_CLICK: 1 << 8,
+  DATA_GRID_GRIDS: 1 << 8,
   //---------------------------------- DATA GRID COLUMN STATES (VB) ---------------------------------
   DATA_GRID_COLUMN_TITLE: 1 << 5,
   DATA_GRID_COLUMN_POSITION: 1 << 6,
@@ -168,6 +179,7 @@ anychart.ConsistencyState = {
   //---------------------------------- LABELS FACTORY STATES (VB) ---------------------------------
   LABELS_FACTORY_BACKGROUND: 1 << 5,
   LABELS_FACTORY_HANDLERS: 1 << 6,
+  LABELS_FACTORY_CLIP: 1 << 7,
   //---------------------------------- LEGEND STATES (VB) ---------------------------------
   LEGEND_BACKGROUND: 1 << 5,
   LEGEND_TITLE: 1 << 6,
@@ -208,6 +220,8 @@ anychart.ConsistencyState = {
   TABLE_STRUCTURE: 1 << 10,
   //---------------------------------- SCROLLER (VB) ---------------------------------------------
   SCROLLER_THUMBS_SHAPE: 1 << 5,
+  SCROLLER_ORIENTATION: 1 << 6,
+  SCROLLER_AUTO_HIDE: 1 << 7,
   //---------------------------------- STOCK CHART (CHART) -------------------------------------------
   STOCK_PLOTS_APPEARANCE: 1 << 11,
   STOCK_SCROLLER: 1 << 12,
@@ -228,8 +242,8 @@ anychart.ConsistencyState = {
   //---------------------------------- STOCK DATETIME AXIS (VB) ----------------------------------------
   STOCK_DTAXIS_BACKGROUND: 1 << 5,
   //---------------------------------- STOCK SCROLLER (SCROLLER) ----------------------------------------
-  STOCK_SCROLLER_SERIES: 1 << 6,
-  STOCK_SCROLLER_AXIS: 1 << 7,
+  STOCK_SCROLLER_SERIES: 1 << 7,
+  STOCK_SCROLLER_AXIS: 1 << 8,
   /**
    * Combination of all states.
    */
