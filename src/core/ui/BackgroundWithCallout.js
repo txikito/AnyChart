@@ -6,6 +6,7 @@ goog.require('anychart.core.ui.Background');
 
 /**
  * Background with callout element class.
+ * Used for tooltip.
  * @extends {anychart.core.ui.Background}
  * @constructor
  */
@@ -19,6 +20,47 @@ anychart.core.ui.BackgroundWithCallout = function() {
    * @private
    */
   this.path_ = null;
+
+  /**
+   * We add a default here, because too many backgrounds are created in too many places to put this default there.
+   * @type {anychart.enums.BackgroundCornersType}
+   * @private
+   */
+  this.cornerType_ = anychart.enums.BackgroundCornersType.ROUND;
+
+  /**
+   * @type {!Array}
+   * @private
+   */
+  this.corners_ = [0];
+
+  /**
+   *
+   * @type {Array.<(acgraph.vector.Rect.CornerType|undefined)>}
+   * @private
+   */
+  this.cornerTypes_ = [];
+
+  /**
+   *
+   * @type {Array.<(number)>}
+   * @private
+   */
+  this.cornerSizes_ = [0, 0, 0, 0];
+
+  /**
+   * Fill settings.
+   * @type {acgraph.vector.Fill}
+   * @private
+   */
+  this.fill_ = 'none';
+
+  /**
+   * Stroke settings.
+   * @type {acgraph.vector.Stroke}
+   * @private
+   */
+  this.stroke_ = 'none';
 
   /**
    * Width in pixels or a percentage of the total width of the background.
@@ -42,6 +84,13 @@ anychart.core.ui.BackgroundWithCallout = function() {
   this.calloutOrientation_ = anychart.enums.Orientation.BOTTOM;//null; todo: to defaults BOTTOM
 
   this.calloutShift_ = '50%';//null; todo: to defaults '50%'
+
+  /**
+   * Pointer events.
+   * @type {boolean}
+   * @private
+   */
+  this.disablePointerEvents_ = false;
 
   this.resumeSignalsDispatching(false);
 };
@@ -117,6 +166,44 @@ anychart.core.ui.BackgroundWithCallout.prototype.cornerType = function(opt_value
     // that is so easy to fix it like that...
     return this.cornerType_;
   }
+};
+
+
+/**
+ * Sets corner type and radius.
+ * @param {acgraph.vector.Rect.CornerType} type Corner type.
+ * @param {...(number|string)} var_args Set of radii. Can be set with one value,
+ * four values, or string with four numbers. If radius is zero - corner looks usual.
+ * @private
+ */
+anychart.core.ui.BackgroundWithCallout.prototype.setCornerSettings_ = function(type, var_args) {
+  var topLeft, topRight, bottomRight, bottomLeft, radiusArr;
+  var args = goog.array.slice(arguments, 1);
+  var arg1 = args[0];
+
+  if (goog.isString(arg1)) radiusArr = goog.string.splitLimit(arg1, ' ', 4);
+  else radiusArr = args;
+
+  if (radiusArr.length < 4) {
+    bottomLeft = bottomRight = topRight = topLeft = parseFloat(radiusArr[0]);
+  } else {
+    topLeft = parseFloat(radiusArr[0]);
+    topRight = parseFloat(radiusArr[1]);
+    bottomRight = parseFloat(radiusArr[2]);
+    bottomLeft = parseFloat(radiusArr[3]);
+  }
+
+  this.cornerSizes_[0] = topLeft ? topLeft : 0;
+  this.cornerTypes_[0] = topLeft ? type : undefined;
+
+  this.cornerSizes_[1] = topRight ? topRight : 0;
+  this.cornerTypes_[1] = topRight ? type : undefined;
+
+  this.cornerSizes_[2] = bottomRight ? bottomRight : 0;
+  this.cornerTypes_[2] = bottomRight ? type : undefined;
+
+  this.cornerSizes_[3] = bottomLeft ? bottomLeft : 0;
+  this.cornerTypes_[3] = bottomLeft ? type : undefined;
 };
 
 
@@ -395,6 +482,31 @@ anychart.core.ui.BackgroundWithCallout.prototype.draw = function() {
     }
   }
 
+  if (this.hasInvalidationState(anychart.ConsistencyState.APPEARANCE)) {
+    this.path_.fill(this.fill_);
+    this.path_.stroke(this.stroke_);
+
+    switch (this.cornerType_) {
+      case anychart.enums.BackgroundCornersType.ROUND:
+        this.setCornerSettings_(acgraph.vector.Rect.CornerType.ROUND, this.corners_);
+        break;
+      case anychart.enums.BackgroundCornersType.CUT:
+        this.setCornerSettings_(acgraph.vector.Rect.CornerType.CUT, this.corners_);
+        break;
+      case anychart.enums.BackgroundCornersType.ROUND_INNER:
+        this.setCornerSettings_(acgraph.vector.Rect.CornerType.ROUND_INNER, this.corners_);
+        break;
+      default:
+        this.setCornerSettings_(acgraph.vector.Rect.CornerType.CUT, 0);
+        break;
+    }
+
+    this.markConsistent(anychart.ConsistencyState.APPEARANCE);
+  }
+
+  console.log(this.cornerSizes_);
+  console.log(this.cornerTypes_);
+
   var calloutHalfWidth = this.calloutWidthValue_ / 2;
   var calloutHalfHeight = this.calloutHeightValue_ / 2;
   var remainingWidth = bounds.left + bounds.right - this.calloutWidthValue_;
@@ -461,27 +573,6 @@ anychart.core.ui.BackgroundWithCallout.prototype.draw = function() {
   }
 
   this.path_.closeInternal();
-
-
-  if (this.hasInvalidationState(anychart.ConsistencyState.APPEARANCE)) {
-    this.path_.fill(this.fill_);
-    this.path_.stroke(this.stroke_);
-    //switch (this.cornerType_) {
-    //  case anychart.enums.BackgroundCornersType.ROUND:
-    //    this.path_.round.apply(this.path_, this.corners_);
-    //    break;
-    //  case anychart.enums.BackgroundCornersType.CUT:
-    //    this.path_.cut.apply(this.path_, this.corners_);
-    //    break;
-    //  case anychart.enums.BackgroundCornersType.ROUND_INNER:
-    //    this.path_.roundInner.apply(this.path_, this.corners_);
-    //    break;
-    //  default:
-    //    this.path_.cut(0);
-    //    break;
-    //}
-    this.markConsistent(anychart.ConsistencyState.APPEARANCE);
-  }
 
   if (this.hasInvalidationState(anychart.ConsistencyState.Z_INDEX)) {
     this.path_.zIndex(/** @type {number} */(this.zIndex()));
@@ -567,6 +658,7 @@ anychart.core.ui.BackgroundWithCallout.prototype.setupSpecial = function(var_arg
 /** @inheritDoc */
 anychart.core.ui.BackgroundWithCallout.prototype.setupByJSON = function(config) {
   goog.base(this, 'setupByJSON', config);
+  console.log(config);
   this.fill(config['fill']);
   this.stroke(config['stroke']);
   this.cornerType(config['cornerType']);
