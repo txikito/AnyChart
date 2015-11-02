@@ -471,7 +471,7 @@ anychart.core.ui.BackgroundWithCallout.prototype.drawTopRightCorner = function(b
 };
 
 
-anychart.core.ui.BackgroundWithCallout.prototype.drawBottomLeftCorner = function(bounds, type, size) {
+anychart.core.ui.BackgroundWithCallout.prototype.drawBottomRightCorner = function(bounds, type, size) {
   if (!type) return;
 
   switch (type) {
@@ -488,7 +488,7 @@ anychart.core.ui.BackgroundWithCallout.prototype.drawBottomLeftCorner = function
 };
 
 
-anychart.core.ui.BackgroundWithCallout.prototype.drawBottomRightCorner = function(bounds, type, size) {
+anychart.core.ui.BackgroundWithCallout.prototype.drawBottomLeftCorner = function(bounds, type, size) {
   if (!type) return;
 
   switch (type) {
@@ -569,13 +569,11 @@ anychart.core.ui.BackgroundWithCallout.prototype.draw = function() {
     this.markConsistent(anychart.ConsistencyState.APPEARANCE);
   }
 
-  console.log(this.cornerSizes_);
-  console.log(this.cornerTypes_);
-
   var calloutHalfWidth = this.calloutWidthValue_ / 2;
-  var calloutHalfHeight = this.calloutHeightValue_ / 2;
-  var remainingWidth = bounds.left + bounds.right - this.calloutWidthValue_;
-  var remainingHeight = bounds.top + bounds.height - this.calloutHeightValue_;
+  //var calloutHalfHeight = this.calloutHeightValue_ / 2;
+  //var remainingWidth = bounds.left + bounds.right - this.calloutWidthValue_;
+  //var remainingHeight = bounds.top + bounds.height - this.calloutHeightValue_;
+  var boundsForCorners = bounds.clone();
 
   this.path_.clearInternal();
 
@@ -584,65 +582,99 @@ anychart.core.ui.BackgroundWithCallout.prototype.draw = function() {
       this.path_.moveToInternal(bounds.left + this.cornerSizes_[0], bounds.top);
 
       this.path_.lineToInternal(bounds.left + bounds.width - this.cornerSizes_[1], bounds.top);
-      this.drawTopRightCorner(bounds, this.cornerTypes_[1], this.cornerSizes_[1]);
+      this.drawTopRightCorner(boundsForCorners, this.cornerTypes_[1], this.cornerSizes_[1]);
 
       this.path_.lineToInternal(bounds.left + bounds.width, bounds.top + bounds.height - this.cornerSizes_[2]);
-      this.drawBottomLeftCorner(bounds, this.cornerTypes_[2], this.cornerSizes_[2]);
+      this.drawBottomRightCorner(boundsForCorners, this.cornerTypes_[2], this.cornerSizes_[2]);
 
       this.path_.lineToInternal(bounds.left + this.cornerSizes_[3], bounds.top + bounds.height);
-      this.drawBottomRightCorner(bounds, this.cornerTypes_[3], this.cornerSizes_[3]);
+      this.drawBottomLeftCorner(boundsForCorners, this.cornerTypes_[3], this.cornerSizes_[3]);
 
       this.path_.lineToInternal(bounds.left, bounds.top + this.cornerSizes_[0]);
-      this.drawTopLeftCorner(bounds, this.cornerTypes_[0], this.cornerSizes_[0]);
+      this.drawTopLeftCorner(boundsForCorners, this.cornerTypes_[0], this.cornerSizes_[0]);
       break;
 
     case anychart.enums.Orientation.LEFT:
-      this.path_.moveToInternal(bounds.left + this.calloutHeightValue_, bounds.top);
+      this.path_.moveToInternal(bounds.left + this.calloutHeightValue_ + this.cornerSizes_[0], bounds.top);
+      boundsForCorners.left += this.calloutHeightValue_;
+      boundsForCorners.width -= this.calloutHeightValue_;
 
-      this.path_.lineToInternal(bounds.left + bounds.width, bounds.top);
-      this.path_.lineToInternal(bounds.left + bounds.width, bounds.top + bounds.height);
-      this.path_.lineToInternal(bounds.left + this.calloutHeightValue_, bounds.top + bounds.height);
+      this.path_.lineToInternal(bounds.left + bounds.width - this.cornerSizes_[1], bounds.top);
+      this.drawTopRightCorner(boundsForCorners, this.cornerTypes_[1], this.cornerSizes_[1]);
+
+      this.path_.lineToInternal(bounds.left + bounds.width, bounds.top + bounds.height - this.cornerSizes_[2]);
+      this.drawBottomRightCorner(boundsForCorners, this.cornerTypes_[2], this.cornerSizes_[2]);
+
+      this.path_.lineToInternal(bounds.left + this.calloutHeightValue_ + this.cornerSizes_[3], bounds.top + bounds.height);
+      this.drawBottomLeftCorner(boundsForCorners, this.cornerTypes_[3], this.cornerSizes_[3]);
 
       this.path_.lineToInternal(bounds.left + this.calloutHeightValue_, bounds.top + this.calloutShiftValue_ + calloutHalfWidth);
       this.path_.lineToInternal(bounds.left, bounds.top + this.calloutShiftValue_);
       this.path_.lineToInternal(bounds.left + this.calloutHeightValue_, bounds.top + this.calloutShiftValue_ - calloutHalfWidth);
+
+      this.path_.lineToInternal(bounds.left + this.calloutHeightValue_, bounds.top + this.cornerSizes_[0]);
+      this.drawTopLeftCorner(boundsForCorners, this.cornerTypes_[0], this.cornerSizes_[0]);
       break;
 
     case anychart.enums.Orientation.TOP:
-      this.path_.moveToInternal(bounds.left, bounds.top + this.calloutHeightValue_);
+      this.path_.moveToInternal(bounds.left + this.cornerSizes_[0], bounds.top + this.calloutHeightValue_);
+      boundsForCorners.top += this.calloutHeightValue_;
+      boundsForCorners.height -= this.calloutHeightValue_;
 
       this.path_.lineToInternal(bounds.left + this.calloutShiftValue_ - calloutHalfWidth, bounds.top + this.calloutHeightValue_);
       this.path_.lineToInternal(bounds.left + this.calloutShiftValue_, bounds.top);
       this.path_.lineToInternal(bounds.left + this.calloutShiftValue_ + calloutHalfWidth, bounds.top + this.calloutHeightValue_);
-      this.path_.lineToInternal(bounds.left + bounds.width, bounds.top + this.calloutHeightValue_);
+      this.path_.lineToInternal(bounds.left + bounds.width - this.cornerSizes_[1], bounds.top + this.calloutHeightValue_);
+      this.drawTopRightCorner(boundsForCorners, this.cornerTypes_[1], this.cornerSizes_[1]);
 
-      this.path_.lineToInternal(bounds.left + bounds.width, bounds.top + bounds.height);
-      this.path_.lineToInternal(bounds.left, bounds.top + bounds.height);
+      this.path_.lineToInternal(bounds.left + bounds.width, bounds.top + bounds.height - this.cornerSizes_[2]);
+      this.drawBottomRightCorner(boundsForCorners, this.cornerTypes_[2], this.cornerSizes_[2]);
+
+      this.path_.lineToInternal(bounds.left + this.cornerSizes_[3], bounds.top + bounds.height);
+      this.drawBottomLeftCorner(boundsForCorners, this.cornerTypes_[3], this.cornerSizes_[3]);
+
+      this.path_.lineToInternal(bounds.left, bounds.top + this.calloutHeightValue_ + this.cornerSizes_[0]);
+      this.drawTopLeftCorner(boundsForCorners, this.cornerTypes_[0], this.cornerSizes_[0]);
       break;
 
     case anychart.enums.Orientation.RIGHT:
-      this.path_.moveToInternal(bounds.left, bounds.top);
+      this.path_.moveToInternal(bounds.left + this.cornerSizes_[0], bounds.top);
+      boundsForCorners.width -= this.calloutHeightValue_;
 
-      this.path_.lineToInternal(bounds.left + bounds.width - this.calloutHeightValue_, bounds.top);
+      this.path_.lineToInternal(bounds.left + bounds.width - this.calloutHeightValue_ - this.cornerSizes_[1], bounds.top);
+      this.drawTopRightCorner(boundsForCorners, this.cornerTypes_[1], this.cornerSizes_[1]);
 
       this.path_.lineToInternal(bounds.left + bounds.width - this.calloutHeightValue_, bounds.top + this.calloutShiftValue_ - calloutHalfWidth);
       this.path_.lineToInternal(bounds.left + bounds.width, bounds.top + this.calloutShiftValue_);
       this.path_.lineToInternal(bounds.left + bounds.width - this.calloutHeightValue_, bounds.top + this.calloutShiftValue_ + calloutHalfWidth);
-      this.path_.lineToInternal(bounds.left + bounds.width - this.calloutHeightValue_, bounds.top + bounds.height);
+      this.path_.lineToInternal(bounds.left + bounds.width - this.calloutHeightValue_, bounds.top + bounds.height - this.cornerSizes_[2]);
+      this.drawBottomRightCorner(boundsForCorners, this.cornerTypes_[2], this.cornerSizes_[2]);
 
-      this.path_.lineToInternal(bounds.left, bounds.top + bounds.height);
+      this.path_.lineToInternal(bounds.left + this.cornerSizes_[3], bounds.top + bounds.height);
+      this.drawBottomLeftCorner(boundsForCorners, this.cornerTypes_[3], this.cornerSizes_[3]);
+
+      this.path_.lineToInternal(bounds.left, bounds.top + this.cornerSizes_[0]);
+      this.drawTopLeftCorner(boundsForCorners, this.cornerTypes_[0], this.cornerSizes_[0]);
       break;
 
     case anychart.enums.Orientation.BOTTOM:
-      this.path_.moveToInternal(bounds.left, bounds.top);
+      this.path_.moveToInternal(bounds.left + this.cornerSizes_[0], bounds.top);
+      boundsForCorners.height -= this.calloutHeightValue_;
 
-      this.path_.lineToInternal(bounds.left + bounds.width, bounds.top);
-      this.path_.lineToInternal(bounds.left + bounds.width, bounds.top + bounds.height - this.calloutHeightValue_);
+      this.path_.lineToInternal(bounds.left + bounds.width - this.cornerSizes_[1], bounds.top);
+      this.drawTopRightCorner(boundsForCorners, this.cornerTypes_[1], this.cornerSizes_[1]);
+
+      this.path_.lineToInternal(bounds.left + bounds.width, bounds.top + bounds.height - this.calloutHeightValue_ - this.cornerSizes_[2]);
+      this.drawBottomRightCorner(boundsForCorners, this.cornerTypes_[2], this.cornerSizes_[2]);
 
       this.path_.lineToInternal(bounds.left + this.calloutShiftValue_ + calloutHalfWidth, bounds.top + bounds.height - this.calloutHeightValue_);
       this.path_.lineToInternal(bounds.left + this.calloutShiftValue_, bounds.top + bounds.height);
       this.path_.lineToInternal(bounds.left + this.calloutShiftValue_ - calloutHalfWidth, bounds.top + bounds.height - this.calloutHeightValue_);
-      this.path_.lineToInternal(bounds.left, bounds.top + bounds.height - this.calloutHeightValue_);
+      this.path_.lineToInternal(bounds.left + this.cornerSizes_[3], bounds.top + bounds.height - this.calloutHeightValue_);
+      this.drawBottomLeftCorner(boundsForCorners, this.cornerTypes_[3], this.cornerSizes_[3]);
+
+      this.path_.lineToInternal(bounds.left, bounds.top + this.cornerSizes_[0]);
+      this.drawTopLeftCorner(boundsForCorners, this.cornerTypes_[0], this.cornerSizes_[0]);
       break;
   }
 
@@ -732,7 +764,6 @@ anychart.core.ui.BackgroundWithCallout.prototype.setupSpecial = function(var_arg
 /** @inheritDoc */
 anychart.core.ui.BackgroundWithCallout.prototype.setupByJSON = function(config) {
   goog.base(this, 'setupByJSON', config);
-  console.log(config);
   this.fill(config['fill']);
   this.stroke(config['stroke']);
   this.cornerType(config['cornerType']);
