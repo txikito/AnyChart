@@ -522,6 +522,8 @@ anychart.core.ui.SeriesTooltip.prototype.anchor = function(opt_value) {
     if (this.anchor_ != opt_value) {
       this.anchor_ = opt_value;
       this.instantPosition_ = null;
+      // set `null` for callout support
+      this.contentBounds_ = null;
       this.invalidate(anychart.ConsistencyState.TOOLTIP_POSITION, anychart.Signal.NEEDS_REDRAW);
     }
     return this;
