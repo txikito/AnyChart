@@ -440,6 +440,71 @@ anychart.core.ui.BackgroundWithCallout.prototype.getRemainingBounds = function()
 };
 
 
+anychart.core.ui.BackgroundWithCallout.prototype.drawTopLeftCorner = function(bounds, type, size) {
+  if (!type) return;
+
+  switch (type) {
+    case acgraph.vector.Rect.CornerType.ROUND:
+      this.path_.arcToByEndPointInternal(bounds.left + size, bounds.top, size, size, false, true);
+      break;
+    case acgraph.vector.Rect.CornerType.ROUND_INNER:
+      this.path_.arcToByEndPointInternal(bounds.left + size, bounds.top, size, size, false, false);
+      break;
+  }
+};
+
+
+anychart.core.ui.BackgroundWithCallout.prototype.drawTopRightCorner = function(bounds, type, size) {
+  if (!type) return;
+
+  switch (type) {
+    case acgraph.vector.Rect.CornerType.ROUND:
+      this.path_.arcToByEndPointInternal(bounds.left + bounds.width, bounds.top + size, size, size, false, true);
+      break;
+    case acgraph.vector.Rect.CornerType.ROUND_INNER:
+      this.path_.arcToByEndPointInternal(bounds.left + bounds.width, bounds.top + size, size, size, false, false);
+      break;
+    case acgraph.vector.Rect.CornerType.CUT:
+      this.path_.lineToInternal(bounds.left + bounds.width, bounds.top + size);
+      break;
+  }
+};
+
+
+anychart.core.ui.BackgroundWithCallout.prototype.drawBottomLeftCorner = function(bounds, type, size) {
+  if (!type) return;
+
+  switch (type) {
+    case acgraph.vector.Rect.CornerType.ROUND:
+      this.path_.arcToByEndPointInternal(bounds.left + bounds.width - size, bounds.top + bounds.height, size, size, false, true);
+      break;
+    case acgraph.vector.Rect.CornerType.ROUND_INNER:
+      this.path_.arcToByEndPointInternal(bounds.left + bounds.width - size, bounds.top + bounds.height, size, size, false, false);
+      break;
+    case acgraph.vector.Rect.CornerType.CUT:
+      this.path_.lineToInternal(bounds.left + bounds.width - size, bounds.top + bounds.height);
+      break;
+  }
+};
+
+
+anychart.core.ui.BackgroundWithCallout.prototype.drawBottomRightCorner = function(bounds, type, size) {
+  if (!type) return;
+
+  switch (type) {
+    case acgraph.vector.Rect.CornerType.ROUND:
+      this.path_.arcToByEndPointInternal(bounds.left, bounds.top + bounds.height - size, size, size, false, true);
+      break;
+    case acgraph.vector.Rect.CornerType.ROUND_INNER:
+      this.path_.arcToByEndPointInternal(bounds.left, bounds.top + bounds.height - size, size, size, false, false);
+      break;
+    case acgraph.vector.Rect.CornerType.CUT:
+      this.path_.lineToInternal(bounds.left, bounds.top + bounds.height - size);
+      break;
+  }
+};
+
+
 /**
  * Render background.
  * @return {!anychart.core.ui.Background} {@link anychart.core.ui.Background} instance for method chaining.
@@ -516,10 +581,24 @@ anychart.core.ui.BackgroundWithCallout.prototype.draw = function() {
 
   switch (this.calloutOrientation_) {
     case false:
-      this.path_.moveToInternal(bounds.left, bounds.top);
-      this.path_.lineToInternal(bounds.left + bounds.width, bounds.top);
-      this.path_.lineToInternal(bounds.left + bounds.width, bounds.top + bounds.height);
-      this.path_.lineToInternal(bounds.left, bounds.top + bounds.height);
+      var size = this.cornerSizes_[0];
+      this.path_.moveToInternal(bounds.left + size, bounds.top);
+
+      size = this.cornerSizes_[1];
+      this.path_.lineToInternal(bounds.left + bounds.width - this.cornerSizes_[1], bounds.top);
+      this.drawTopRightCorner(bounds, this.cornerTypes_[1], size);
+
+      size = this.cornerSizes_[2];
+      this.path_.lineToInternal(bounds.left + bounds.width, bounds.top + bounds.height - size);
+      this.drawBottomLeftCorner(bounds, this.cornerTypes_[2], size);
+
+      size = this.cornerSizes_[3];
+      this.path_.lineToInternal(bounds.left + size, bounds.top + bounds.height);
+      this.drawBottomRightCorner(bounds, this.cornerTypes_[3], size);
+
+      size = this.cornerSizes_[0];
+      this.path_.lineToInternal(bounds.left, bounds.top + size);
+      this.drawTopLeftCorner(bounds, this.cornerTypes_[0], size);
       break;
 
     case anychart.enums.Orientation.LEFT:
