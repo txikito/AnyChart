@@ -420,7 +420,6 @@ anychart.core.ui.BackgroundWithCallout.prototype.draw = function() {
       this.path_.lineToInternal(bounds.left + this.calloutHeightValue_, bounds.top + this.calloutShiftValue_ + calloutHalfWidth);
       this.path_.lineToInternal(bounds.left, bounds.top + this.calloutShiftValue_);
       this.path_.lineToInternal(bounds.left + this.calloutHeightValue_, bounds.top + this.calloutShiftValue_ - calloutHalfWidth);
-      //this.path_.lineToInternal(bounds.left + this.calloutHeightValue_, bounds.top);
       break;
 
     case anychart.enums.Orientation.TOP:
@@ -433,7 +432,6 @@ anychart.core.ui.BackgroundWithCallout.prototype.draw = function() {
 
       this.path_.lineToInternal(bounds.left + bounds.width, bounds.top + bounds.height);
       this.path_.lineToInternal(bounds.left, bounds.top + bounds.height);
-      //this.path_.lineToInternal(bounds.left, bounds.top + this.calloutHeightValue_);
       break;
 
     case anychart.enums.Orientation.RIGHT:
@@ -447,7 +445,6 @@ anychart.core.ui.BackgroundWithCallout.prototype.draw = function() {
       this.path_.lineToInternal(bounds.left + bounds.width - this.calloutHeightValue_, bounds.top + bounds.height);
 
       this.path_.lineToInternal(bounds.left, bounds.top + bounds.height);
-      //this.path_.lineToInternal(bounds.left, bounds.top);
       break;
 
     case anychart.enums.Orientation.BOTTOM:
@@ -460,8 +457,6 @@ anychart.core.ui.BackgroundWithCallout.prototype.draw = function() {
       this.path_.lineToInternal(bounds.left + this.calloutShiftValue_, bounds.top + bounds.height);
       this.path_.lineToInternal(bounds.left + this.calloutShiftValue_ - calloutHalfWidth, bounds.top + bounds.height - this.calloutHeightValue_);
       this.path_.lineToInternal(bounds.left, bounds.top + bounds.height - this.calloutHeightValue_);
-
-      //this.path_.lineToInternal(bounds.left, bounds.top);
       break;
   }
 
