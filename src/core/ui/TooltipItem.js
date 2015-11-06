@@ -767,7 +767,12 @@ anychart.core.ui.TooltipItem.prototype.calculateContentBounds_ = function() {
       result.height += separatorBounds.height;
     }
 
-    this.contentBounds_ = this.padding().widenBounds(result);
+    var resultWithPadding = this.padding().widenBounds(result);
+    // position fix
+    if (resultWithPadding.left < 0) resultWithPadding.left = 0;
+    if (resultWithPadding.top < 0) resultWithPadding.top = 0;
+
+    this.contentBounds_ = resultWithPadding;
   }
 };
 

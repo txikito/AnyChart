@@ -1103,6 +1103,9 @@ anychart.core.ui.SeriesTooltip.prototype.calculateContentBounds_ = function() {
     }
 
     var resultWithPadding = this.padding().widenBounds(result);
+    // position fix
+    if (resultWithPadding.left < 0) resultWithPadding.left = 0;
+    if (resultWithPadding.top < 0) resultWithPadding.top = 0;
 
     if (this.background().enabled()) {
       this.background().calloutOrientation(anychart.utils.getOrientationByAnchor(this.anchor_));
