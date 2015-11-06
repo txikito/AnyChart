@@ -389,28 +389,26 @@ anychart.utils.getCoordinateByAnchor = function(bounds, anchor) {
  * Gets orientation by anchor position.
  * Inside position (center) returns `false`.
  * @param {anychart.enums.Anchor} anchor Anchor.
- * @return {anychart.enums.Orientation|boolean}
+ * @return {!(anychart.enums.Orientation|boolean)}
  */
 anychart.utils.getOrientationByAnchor = function(anchor) {
+  anchor = anychart.enums.normalizeAnchor(anchor);
   switch (anchor) {
-    case anychart.enums.Anchor.LEFT_TOP:
     case anychart.enums.Anchor.LEFT_CENTER:
-    case anychart.enums.Anchor.LEFT_BOTTOM:
       return anychart.enums.Orientation.LEFT;
-
+      break;
     case anychart.enums.Anchor.CENTER_TOP:
       return anychart.enums.Orientation.TOP;
-
-    case anychart.enums.Anchor.CENTER:
-      return false;
-
+      break;
     case anychart.enums.Anchor.CENTER_BOTTOM:
       return anychart.enums.Orientation.BOTTOM;
-
-    case anychart.enums.Anchor.RIGHT_TOP:
+      break;
     case anychart.enums.Anchor.RIGHT_CENTER:
-    case anychart.enums.Anchor.RIGHT_BOTTOM:
       return anychart.enums.Orientation.RIGHT;
+      break;
+    default:
+      return false;
+      break;
   }
 };
 
