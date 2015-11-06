@@ -48,10 +48,35 @@
       series1 = chart.line(data1);
       series2 = chart.line(data2);
 
-      var tooltip = series1.tooltip();
+      var tooltip = series0.tooltip();
+      var tooltip1 = series1.tooltip();
+      var tooltip2 = series2.tooltip();
       //tooltip.content().textWrap(acgraph.vector.Text.TextWrap.BY_LETTER);
       tooltip.textFormatter(function() {
-        return this.x + ': ' + this.value + ' wtf!!' + '\n' + this.seriesName + ': awesome!';
+        return this.x + ': ' + this.value + ' wtf!!'
+            + '\n' + this.seriesName + ': awesome!'
+            + '\n' + this.seriesName + ': awesome!'
+            + '\n' + this.seriesName + ': awesome!'
+            + '\n' + this.seriesName + ': awesome!'
+            + '\n' + this.seriesName + ': awesome!'
+            + '\n' + this.seriesName + ': awesome!'
+            + '\n' + this.seriesName + ': awesome!'
+            + '\n' + this.seriesName + ': awesome!'
+            + '\n' + this.seriesName + ': awesome!'
+      });
+      tooltip1.textFormatter(function() {
+        return this.x + ': ' + this.value + ' wtf!!'
+            + '\n' + this.seriesName + ': awesome!'
+            + '\n' + this.seriesName + ': awesome!'
+            + '\n' + this.seriesName + ': awesome!'
+            + '\n' + this.seriesName + ': awesome!'
+      });
+      tooltip2.textFormatter(function() {
+        return this.x + ': ' + this.value + ' wtf!!'
+            + '\n' + this.seriesName + ': awesome!'
+            + '\n' + this.seriesName + ': awesome!'
+            + '\n' + this.seriesName + ': awesome!'
+            + '\n' + this.seriesName + ': awesome!'
       });
 
       //chart.crosshair(true);
