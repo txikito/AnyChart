@@ -1103,9 +1103,6 @@ anychart.core.ui.SeriesTooltip.prototype.calculateContentBounds_ = function() {
     }
 
     var resultWithPadding = this.padding().widenBounds(result);
-    // position fix
-    if (resultWithPadding.left < 0) resultWithPadding.left = 0;
-    if (resultWithPadding.top < 0) resultWithPadding.top = 0;
 
     if (this.background().enabled()) {
       this.background().calloutOrientation(anychart.utils.getOrientationByAnchor(this.anchor_));
@@ -1113,6 +1110,10 @@ anychart.core.ui.SeriesTooltip.prototype.calculateContentBounds_ = function() {
     } else {
       this.contentBounds_ = resultWithPadding;
     }
+
+    // position fix after `widenBounds`.
+    if (this.contentBounds_.left < 0) this.contentBounds_.left = 0;
+    if (this.contentBounds_.top < 0) this.contentBounds_.top = 0;
   }
 };
 
