@@ -387,7 +387,7 @@ anychart.utils.getCoordinateByAnchor = function(bounds, anchor) {
 
 /**
  * Gets orientation by anchor position.
- * Inside position (center) returns `false`.
+ * Inside position (center) and corner posotions returns `false`.
  * @param {anychart.enums.Anchor} anchor Anchor.
  * @return {!(anychart.enums.Orientation|boolean)}
  */
