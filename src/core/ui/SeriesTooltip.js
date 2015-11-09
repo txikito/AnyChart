@@ -1,7 +1,7 @@
 goog.provide('anychart.core.ui.SeriesTooltip');
 goog.require('acgraph.math.Coordinate');
 goog.require('anychart.core.VisualBase');
-goog.require('anychart.core.ui.Background');
+goog.require('anychart.core.ui.BackgroundWithCallout');
 goog.require('anychart.core.ui.Label');
 goog.require('anychart.core.ui.Separator');
 goog.require('anychart.core.ui.Title');
