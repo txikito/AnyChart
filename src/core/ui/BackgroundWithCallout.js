@@ -1,6 +1,7 @@
 goog.provide('anychart.core.ui.BackgroundWithCallout');
 goog.require('acgraph');
 goog.require('anychart.core.ui.Background');
+goog.require('anychart.math.Rect');
 
 
 
