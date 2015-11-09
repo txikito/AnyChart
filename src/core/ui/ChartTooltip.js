@@ -983,6 +983,13 @@ anychart.core.ui.ChartTooltip.prototype.setPositionToTooltip_ = function(tooltip
     }
   }
 
+  // Offset correction
+  if (isHorizontalCallout) {
+    calloutShift -= tooltip.offsetX();
+  } else {
+    calloutShift -= tooltip.offsetY();
+  }
+
   tooltip.background().calloutShift(calloutShift);
 
   tooltip.x(x);
