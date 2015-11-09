@@ -845,35 +845,41 @@ anychart.core.ui.ChartTooltip.prototype.updatePosition = function(clientX, clien
  * @private
  */
 anychart.core.ui.ChartTooltip.prototype.setPositionToTooltip_ = function(tooltip, clientX, clientY, opt_series) {
-  var x, y, chartOffset, chartPixelBounds, pixelBounds, position, anchoredPositionCoordinate;
+  var x, y, chartOffset, chartPixelBounds, pixelBounds, tooltipPosition, anchoredPositionCoordinate,
+      calloutShift = 0,
+      calloutOrientation = anychart.utils.getOrientationByAnchor(/** @type {anychart.enums.Anchor} */(tooltip.anchor())),
+      // boolean|null
+      isHorizontalCallout = goog.isString(calloutOrientation) ? anychart.utils.isHorizontal(calloutOrientation) : null;
 
   if (this.positionMode_ == anychart.enums.TooltipPositionMode.FLOAT) {
+    tooltip.background().calloutVisible(false);
     x = clientX;
     y = clientY;
 
   } else if (this.positionMode_ == anychart.enums.TooltipPositionMode.POINT) {
+    tooltip.background().calloutVisible(true);
     chartOffset = goog.style.getClientPosition(/** @type {Element} */(this.chart_.container().getStage().container()));
 
     var iterator = opt_series.getIterator();
     if (iterator.meta('shape')) {
       var shape = iterator.meta('shape');
       var shapeBounds = shape.getBounds();
-      position = this.displayMode_ == anychart.enums.TooltipDisplayMode.UNION ? this.position() : tooltip.position();
-      anchoredPositionCoordinate = anychart.utils.getCoordinateByAnchor(shapeBounds, /** @type {anychart.enums.Position} */(position));
+      tooltipPosition = this.displayMode_ == anychart.enums.TooltipDisplayMode.UNION ? this.position() : tooltip.position();
+      anchoredPositionCoordinate = anychart.utils.getCoordinateByAnchor(shapeBounds, /** @type {anychart.enums.Position} */(tooltipPosition));
       x = chartOffset.x + anchoredPositionCoordinate.x;
       y = chartOffset.y + anchoredPositionCoordinate.y;
     } else {
       x = chartOffset.x + anychart.utils.toNumber(iterator.meta('x'));
-      var yValue = iterator.meta('y') || iterator.meta('value') || iterator.meta('high');
-      y = chartOffset.y + anychart.utils.toNumber(yValue);
+      y = chartOffset.y + anychart.utils.toNumber(iterator.meta('y') || iterator.meta('value') || iterator.meta('high'));
     }
 
 
   } else if (this.positionMode_ == anychart.enums.TooltipPositionMode.CHART) {
+    tooltip.background().calloutVisible(false);
     chartPixelBounds = this.chart_.getPixelBounds();
     chartOffset = goog.style.getClientPosition(/** @type {Element} */(this.chart_.container().getStage().container()));
-    position = this.displayMode_ == anychart.enums.TooltipDisplayMode.UNION ? this.position() : tooltip.position();
-    anchoredPositionCoordinate = anychart.utils.getCoordinateByAnchor(chartPixelBounds, /** @type {anychart.enums.Position} */(position));
+    tooltipPosition = this.displayMode_ == anychart.enums.TooltipDisplayMode.UNION ? this.position() : tooltip.position();
+    anchoredPositionCoordinate = anychart.utils.getCoordinateByAnchor(chartPixelBounds, /** @type {anychart.enums.Position} */(tooltipPosition));
     x = chartOffset.x + anchoredPositionCoordinate.x;
     y = chartOffset.y + anchoredPositionCoordinate.y;
   }
@@ -887,18 +893,42 @@ anychart.core.ui.ChartTooltip.prototype.setPositionToTooltip_ = function(tooltip
 
     if (pixelBounds.left < 0) {
       x -= pixelBounds.left;
+
+      if (isHorizontalCallout) {
+        calloutShift = pixelBounds.left;
+      } else {
+        tooltip.background().calloutVisible(false);
+      }
     }
 
     if (pixelBounds.top < 0) {
       y -= pixelBounds.top;
+
+      if (isHorizontalCallout == false) {
+        calloutShift = pixelBounds.top;
+      } else {
+        tooltip.background().calloutVisible(false);
+      }
     }
 
     if (pixelBounds.getRight() > windowBox.width) {
       x -= pixelBounds.getRight() - windowBox.width;
+
+      if (isHorizontalCallout) {
+        calloutShift = pixelBounds.getRight() - windowBox.width;
+      } else {
+        tooltip.background().calloutVisible(false);
+      }
     }
 
     if (pixelBounds.getBottom() > windowBox.height) {
       y -= pixelBounds.getBottom() - windowBox.height;
+
+      if (isHorizontalCallout == false) {
+        calloutShift = pixelBounds.getBottom() - windowBox.height;
+      } else {
+        tooltip.background().calloutVisible(false);
+      }
     }
   }
 
@@ -914,20 +944,46 @@ anychart.core.ui.ChartTooltip.prototype.setPositionToTooltip_ = function(tooltip
 
     if (pixelBounds.left < chartOffset.x + chartPixelBounds.left) {
       x -= pixelBounds.left - chartOffset.x - chartPixelBounds.left;
+
+      if (isHorizontalCallout) {
+        calloutShift += pixelBounds.left - chartOffset.x - chartPixelBounds.left;
+      } else {
+        tooltip.background().calloutVisible(false);
+      }
     }
 
     if (pixelBounds.top < chartOffset.y + chartPixelBounds.top) {
       y -= pixelBounds.top - chartOffset.y - chartPixelBounds.top;
+
+      if (isHorizontalCallout == false) {
+        calloutShift += pixelBounds.top - chartOffset.y - chartPixelBounds.top;
+      } else {
+        tooltip.background().calloutVisible(false);
+      }
     }
 
     if (pixelBounds.getRight() > chartOffset.x + chartPixelBounds.getRight()) {
       x -= pixelBounds.getRight() - chartOffset.x - chartPixelBounds.getRight();
+
+      if (isHorizontalCallout) {
+        calloutShift += pixelBounds.getRight() - chartOffset.x - chartPixelBounds.getRight();
+      } else {
+        tooltip.background().calloutVisible(false);
+      }
     }
 
     if (pixelBounds.getBottom() > chartOffset.y + chartPixelBounds.getBottom()) {
       y -= pixelBounds.getBottom() - chartOffset.y - chartPixelBounds.getBottom();
+
+      if (isHorizontalCallout == false) {
+        calloutShift += pixelBounds.getBottom() - chartOffset.y - chartPixelBounds.getBottom();
+      } else {
+        tooltip.background().calloutVisible(false);
+      }
     }
   }
+
+  tooltip.background().calloutShift(calloutShift);
 
   tooltip.x(x);
   tooltip.y(y);

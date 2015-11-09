@@ -169,7 +169,7 @@ anychart.core.ui.Background.prototype.fill = function(opt_fillOrColorOrKeys, opt
  * @param {string=} opt_dashpattern .
  * @param {acgraph.vector.StrokeLineJoin=} opt_lineJoin .
  * @param {acgraph.vector.StrokeLineCap=} opt_lineCap .
- * @return {(!anychart.core.ui.Background|acgraph.vector.Stroke)} .
+ * @return {!(acgraph.vector.Stroke|anychart.core.ui.Background)} .
  */
 anychart.core.ui.Background.prototype.stroke = function(opt_strokeOrFill, opt_thickness, opt_dashpattern, opt_lineJoin, opt_lineCap) {
   if (goog.isDef(opt_strokeOrFill)) {
