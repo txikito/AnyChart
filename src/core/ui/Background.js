@@ -87,7 +87,7 @@ anychart.core.ui.Background.prototype.SUPPORTED_CONSISTENCY_STATES =
 //
 //----------------------------------------------------------------------------------------------------------------------
 /**
- * Getter/Setter for current corner radius.
+ * Getter/setter for corners.
  * @param {(number|string|Array.<number|string>)=} opt_value .
  * @return {(Array.<number|string>|!anychart.core.ui.Background)} .
  */
@@ -118,7 +118,7 @@ anychart.core.ui.Background.prototype.corners = function(opt_value) {
 
 
 /**
- * Getter/Setter for current corner type.
+ * Getter/setter for cornerType.
  * @param {(anychart.enums.BackgroundCornersType|string)=} opt_value Corner type.
  * @return {anychart.enums.BackgroundCornersType|!anychart.core.ui.Background} Corners type or self for method chaining.
  */
@@ -138,7 +138,7 @@ anychart.core.ui.Background.prototype.cornerType = function(opt_value) {
 
 
 /**
- * Getter/Setter for current fill.
+ * Getter/setter for fill.
  * @param {(!acgraph.vector.Fill|!Array.<(acgraph.vector.GradientKey|string)>|null)=} opt_fillOrColorOrKeys .
  * @param {number=} opt_opacityOrAngleOrCx .
  * @param {(number|boolean|!anychart.math.Rect|!{left:number,top:number,width:number,height:number})=} opt_modeOrCy .
@@ -163,7 +163,7 @@ anychart.core.ui.Background.prototype.fill = function(opt_fillOrColorOrKeys, opt
 
 
 /**
- * Getter/Setter for current stroke.
+ * Getter/setter for stroke.
  * @param {(acgraph.vector.Stroke|acgraph.vector.ColoredFill|string|null)=} opt_strokeOrFill .
  * @param {number=} opt_thickness .
  * @param {string=} opt_dashpattern .
