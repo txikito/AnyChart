@@ -55,13 +55,7 @@ anychart.core.map.scale.Geo = function() {
    * @type {number}
    * @protected
    */
-  this.minimumRangeBasedGap = 0;
-
-  /**
-   * @type {number}
-   * @protected
-   */
-  this.maximumRangeBasedGap = 0;
+  this.rangeBasedGap = 0;
 
   /**
    * @type {number}
@@ -168,11 +162,63 @@ anychart.core.map.scale.Geo.prototype.setBounds = function(value) {
 
 
 /**
+ * Sets transformation map
+ * @param {Object} value tx map.
+ */
+anychart.core.map.scale.Geo.prototype.setTxMap = function(value) {
+  this.tx = value;
+  this.consistent = false;
+};
+
+
+/**
+ * Sets transformation map
+ * @param {number} value tx map.
+ */
+anychart.core.map.scale.Geo.prototype.setMapZoom = function(value) {
+  this.zoom = value;
+  this.consistent = false;
+};
+
+
+/**
+ * @param {number} dx tx map.
+ * @param {number} dy tx map.
+ */
+anychart.core.map.scale.Geo.prototype.setOffsetFocusPoint = function(dx, dy) {
+  this.dx_ = dx;
+  this.dy_ = dy;
+  this.consistent = false;
+};
+
+
+/**
  * Returns scale type.
  * @return {string}
  */
 anychart.core.map.scale.Geo.prototype.getType = function() {
   return anychart.enums.MapsScaleTypes.GEO;
+};
+
+
+/**
+ * Getter/setter for gap.
+ * @param {number=} opt_value Value to set.
+ * @return {number|anychart.core.map.scale.Geo} .
+ */
+anychart.core.map.scale.Geo.prototype.gap = function(opt_value) {
+  if (goog.isDef(opt_value)) {
+    opt_value = +opt_value || 0;
+    if (this.rangeBasedGap != opt_value) {
+      this.rangeBasedGap = opt_value;
+      if (this.minimumModeAuto) {
+        this.consistent = false;
+        this.dispatchSignal(anychart.Signal.NEEDS_REAPPLICATION);
+      }
+    }
+    return this;
+  }
+  return this.rangeBasedGap;
 };
 
 
@@ -406,23 +452,23 @@ anychart.core.map.scale.Geo.prototype.determineScaleMinMax = function() {
   }
 
   if (this.minimumModeAuto) {
-    this.minX = this.dataRangeMinX - rangeX * this.minimumRangeBasedGap;
-    this.minY = this.dataRangeMinY - rangeY * this.minimumRangeBasedGap;
+    this.minX = this.dataRangeMinX - rangeX * this.rangeBasedGap;
+    this.minY = this.dataRangeMinY - rangeY * this.rangeBasedGap;
   }
 
   if (this.maximumModeAuto) {
-    this.maxX = this.dataRangeMaxX + rangeX * this.maximumRangeBasedGap;
-    this.maxY = this.dataRangeMaxY + rangeY * this.maximumRangeBasedGap;
+    this.maxX = this.dataRangeMaxX + rangeX * this.rangeBasedGap;
+    this.maxY = this.dataRangeMaxY + rangeY * this.rangeBasedGap;
   }
 };
 
 
 /**
- * @param {*} x X value to transform in input scope.
- * @param {*} y Y value to transform in input scope.
+ * @param {number} x X value to transform in input scope.
+ * @param {number} y Y value to transform in input scope.
  * @return {Array.<number>} Transformed value adjust bounds.
  */
-anychart.core.map.scale.Geo.prototype.transform = function(x, y) {
+anychart.core.map.scale.Geo.prototype.scaleToPx = function(x, y) {
   this.calculate();
 
   if (!this.bounds_)
@@ -451,7 +497,7 @@ anychart.core.map.scale.Geo.prototype.transform = function(x, y) {
  * @param {*} y Y value to transform in input scope.
  * @return {Array.<number>} Transformed value adjust bounds.
  */
-anychart.core.map.scale.Geo.prototype.inverseTransform = function(x, y) {
+anychart.core.map.scale.Geo.prototype.pxToScale = function(x, y) {
   this.calculate();
 
   if (!this.bounds_)
@@ -472,6 +518,146 @@ anychart.core.map.scale.Geo.prototype.inverseTransform = function(x, y) {
   var resultY = +(/** @type {number} */(transformY)) / this.ratio + this.minY;
 
   return [resultX, resultY];
+};
+
+
+/**
+ * Returns tx object for passed coords.
+ * @param {number} lon Longitude in degrees.
+ * @param {number} lat Latitude in degrees.
+ * @return {Object}
+ */
+anychart.core.map.scale.Geo.prototype.pickTx = function(lon, lat) {
+  var defaultTx = this.tx['default'];
+
+  var txName = goog.object.findKey(this.tx, function(value, key) {
+    if (key != 'default' && value.heatZone) {
+      var projected = window['proj4'](value.crs || defaultTx.crs).forward([lon, lat]);
+
+      var x = projected[0] * (value.scale || defaultTx.scale);
+      var y = projected[1] * (value.scale || defaultTx.scale);
+
+      x += value.xoffset || 0;
+      y += value.yoffset || 0;
+
+      var heatZone = value.heatZone;
+
+      return x >= heatZone.left &&
+          x <= heatZone.left + heatZone.width &&
+          y <= heatZone.top &&
+          y >= heatZone.top - heatZone.height;
+    }
+
+    return false;
+  }) || 'default';
+
+  return this.tx[txName];
+};
+
+
+/**
+ * Transform coords in lat/lon to pixel values.
+ * @param {number} lon Longitude in degrees.
+ * @param {number} lat Latitude in degrees.
+ * @return {Array.<number>} Transformed value adjust bounds [x, y].
+ */
+anychart.core.map.scale.Geo.prototype.transform = function(lon, lat) {
+  this.calculate();
+
+  if (!this.bounds_)
+    return [NaN, NaN];
+
+  lat = anychart.utils.toNumber(lat);
+  lon = anychart.utils.toNumber(lon) % 180;
+
+  var tx = this.pickTx(lon, lat);
+  var projected = window['proj4'](tx.crs).forward([lon, lat]);
+  var scale = tx.scale;
+
+  lon = projected[0] * scale;
+  lat = projected[1] * scale;
+
+  lon += tx.xoffset || 0;
+  lat += tx.yoffset || 0;
+
+  var transformX = (+(/** @type {number} */(lon)) - this.minX) * this.ratio;
+  var transformY = (+(/** @type {number} */(lat)) - this.minY) * this.ratio;
+
+  var resultX = (this.isInvertedX ?
+      this.bounds_.getRight() - this.centerOffsetX - transformX :
+      this.bounds_.left + this.centerOffsetX + transformX);
+
+  var minPx = this.bounds_.left + this.centerOffsetX;
+  var maxPx = minPx + this.rangeX * this.ratio;
+
+  if (resultX < minPx) {
+    resultX = maxPx + (resultX - minPx);
+  } else if (resultX > maxPx) {
+    resultX = minPx + (resultX - maxPx);
+  }
+
+  var resultY = this.isInverted ?
+      this.bounds_.top + this.centerOffsetY + transformY :
+      this.bounds_.getBottom() - this.centerOffsetY - transformY;
+
+  return [resultX * this.zoom + this.dx_, resultY * this.zoom + this.dy_];
+};
+
+
+/**
+ * Transform coords in pixel value to degrees values (lon/lat).
+ * @param {number} x X value to transform.
+ * @param {number} y Y value to transform.
+ * @return {Array.<number>} Transformed value adjust bounds.
+ */
+anychart.core.map.scale.Geo.prototype.inverseTransform = function(x, y) {
+  this.calculate();
+
+  if (!this.bounds_)
+    return [NaN, NaN];
+
+  x = anychart.utils.toNumber(x);
+  y = anychart.utils.toNumber(y);
+
+  x = (x - this.dx_) / this.zoom;
+  y = (y - this.dy_) / this.zoom;
+
+  var transformX = this.isInvertedX ?
+      this.bounds_.getRight() - this.centerOffsetX - x :
+      x - this.bounds_.left - this.centerOffsetX;
+
+  var transformY = this.isInverted ?
+      x - this.bounds_.top - this.centerOffsetY :
+      this.bounds_.getBottom() - this.centerOffsetY - y;
+
+  var resultX = +(/** @type {number} */(transformX)) / this.ratio + this.minX;
+  var resultY = +(/** @type {number} */(transformY)) / this.ratio + this.minY;
+
+  var defaultTx = this.tx['default'];
+
+  var txName = goog.object.findKey(this.tx, function(value, key) {
+    if (key != 'default' && value.heatZone) {
+      var heatZone = value.heatZone;
+
+      return resultX >= heatZone.left &&
+          resultX <= heatZone.left + heatZone.width &&
+          resultY <= heatZone.top &&
+          resultY >= heatZone.top - heatZone.height;
+    }
+    return false;
+  }) || 'default';
+
+  var tx = this.tx[txName];
+
+  resultX -= tx.xoffset || defaultTx.xoffset || 0;
+  resultY -= tx.yoffset || defaultTx.yoffset || 0;
+
+  var scale = tx.scale || defaultTx.scale;
+  var crs = tx.crs || defaultTx.crs;
+
+  var projected = window['proj4'](crs).inverse([resultX / scale, resultY / scale]);
+
+  return [projected[0], projected[1]];
 };
 
 
@@ -561,6 +747,7 @@ anychart.core.map.scale.Geo.prototype.serialize = function() {
   json['maximumY'] = this.maximumModeAuto ? null : this.maxY;
   json['minimumX'] = this.minimumModeAuto ? null : this.minX;
   json['minimumY'] = this.minimumModeAuto ? null : this.minY;
+  json['minimumGap'] = this.gap();
   if (this.bounds_)
     json['bounds'] = this.bounds_;
   return json;
@@ -575,15 +762,17 @@ anychart.core.map.scale.Geo.prototype.setupByJSON = function(config) {
   this.minimumY(config['minimumY']);
   this.maximumX(config['maximumX']);
   this.maximumY(config['maximumY']);
+  this.gap(config['gap']);
   if ('bounds' in config)
     this.setBounds(config['bounds']);
 };
 
 
+//exports
 //todo (blackart) Don't export yet.
 //anychart.core.map.scale.Geo.prototype['setBounds'] = anychart.core.map.scale.Geo.prototype.setBounds;
-anychart.core.map.scale.Geo.prototype['transform'] = anychart.core.map.scale.Geo.prototype.transform;
-anychart.core.map.scale.Geo.prototype['inverseTransform'] = anychart.core.map.scale.Geo.prototype.inverseTransform;
+//anychart.core.map.scale.Geo.prototype['transform'] = anychart.core.map.scale.Geo.prototype.transform;
+//anychart.core.map.scale.Geo.prototype['inverseTransform'] = anychart.core.map.scale.Geo.prototype.inverseTransform;
 //anychart.core.map.scale.Geo.prototype['minimumX'] = anychart.core.map.scale.Geo.prototype.minimumX;
 //anychart.core.map.scale.Geo.prototype['minimumY'] = anychart.core.map.scale.Geo.prototype.minimumY;
 //anychart.core.map.scale.Geo.prototype['maximumX'] = anychart.core.map.scale.Geo.prototype.maximumX;
@@ -593,4 +782,4 @@ anychart.core.map.scale.Geo.prototype['inverseTransform'] = anychart.core.map.sc
 //anychart.core.map.scale.Geo.prototype['inverted'] = anychart.core.map.scale.Geo.prototype.inverted;
 //anychart.core.map.scale.Geo.prototype['startAutoCalc'] = anychart.core.map.scale.Geo.prototype.startAutoCalc;
 //anychart.core.map.scale.Geo.prototype['finishAutoCalc'] = anychart.core.map.scale.Geo.prototype.finishAutoCalc;
-//exports
+anychart.core.map.scale.Geo.prototype['gap'] = anychart.core.map.scale.Geo.prototype.gap;

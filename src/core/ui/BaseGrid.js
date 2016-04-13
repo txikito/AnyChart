@@ -8,7 +8,6 @@ goog.require('anychart.core.ui.IInteractiveGrid');
 goog.require('anychart.core.ui.ScrollBar');
 goog.require('anychart.core.ui.Tooltip');
 goog.require('anychart.core.utils.GanttContextProvider');
-goog.require('anychart.core.utils.TypedLayer');
 goog.require('anychart.math.Rect');
 goog.require('goog.events.KeyHandler');
 goog.require('goog.events.MouseWheelHandler');
@@ -98,6 +97,15 @@ anychart.core.ui.BaseGrid = function(opt_controller, opt_isResource) {
    */
   this.rowStrokePath_ = null;
 
+
+  /**
+   * Path that separates header of grid's body.
+   * Takes color from this.rowStroke_.
+   * @type {acgraph.vector.Path}
+   * @private
+   */
+  this.headerSeparationPath_ = null;
+
   /**
    * Base layer.
    * @type {acgraph.vector.Layer}
@@ -149,10 +157,39 @@ anychart.core.ui.BaseGrid = function(opt_controller, opt_isResource) {
 
   /**
    * Layer that contains elements to be drawn with paths.
-   * @type {anychart.core.utils.TypedLayer}
+   * @type {acgraph.vector.Layer}
    * @private
    */
   this.drawLayer_ = null;
+
+  /**
+   * Edit structure preview fill.
+   * @type {acgraph.vector.Fill}
+   * @private
+   */
+  this.editStructurePreviewFill_;
+
+  /**
+   * Edit structure preview stroke.
+   * @type {acgraph.vector.Stroke}
+   * @private
+   */
+  this.editStructurePreviewStroke_;
+
+
+  /**
+   * Edit structure preview stroke.
+   * @type {acgraph.vector.Stroke}
+   * @private
+   */
+  this.editStructurePreviewDashStroke_;
+
+  /**
+   * Edit structure preview path.
+   * @type {acgraph.vector.Path}
+   * @private
+   */
+  this.editStructurePreviewPath_ = null;
 
   /**
    * Layer that will be clipped by height. Use it for something that
@@ -183,6 +220,12 @@ anychart.core.ui.BaseGrid = function(opt_controller, opt_isResource) {
    * @type {number}
    */
   this.totalGridsWidth = 0;
+
+  /**
+   * Height of grids.
+   * @type {number}
+   */
+  this.totalGridsHeight = 0;
 
   /**
    * Odd cells path.
@@ -296,6 +339,12 @@ anychart.core.ui.BaseGrid = function(opt_controller, opt_isResource) {
   this.dragging = false;
 
   /**
+   * Item that is currently under dragging.
+   * @type {anychart.data.Tree.DataItem}
+   */
+  this.draggingItem = null;
+
+  /**
    * Flag whether alt is pressed.
    * @type {boolean}
    */
@@ -374,7 +423,7 @@ anychart.core.ui.BaseGrid.prototype.SUPPORTED_CONSISTENCY_STATES =
     anychart.core.VisualBaseWithBounds.prototype.SUPPORTED_CONSISTENCY_STATES |
     anychart.ConsistencyState.APPEARANCE | //Coloring.
     anychart.ConsistencyState.GRIDS_POSITION | //Any vertical grid position change.
-    anychart.ConsistencyState.BASE_GRID_CLICK | //Click selects row. We use this state to highlight a row without redrawing all.
+    anychart.ConsistencyState.BASE_GRID_REDRAW | //Light redraw. We use this state to highlight a row without redrawing all or smth like that.
     anychart.ConsistencyState.BASE_GRID_HOVER; //The same.
 
 
@@ -464,23 +513,40 @@ anychart.core.ui.BaseGrid.SCROLL_MOUSE_OUT_INSIDE_LENGTH = 10;
 
 
 /**
+ * Lower drag edit ratio.
+ * TODO (A.Kudryavtsev): Describe.
+ * @type {number}
+ */
+anychart.core.ui.BaseGrid.LOWER_DRAG_EDIT_RATIO = .2;
+
+
+/**
+ * Higher drag edit ratio.
+ * TODO (A.Kudryavtsev): Describe.
+ * @type {number}
+ */
+anychart.core.ui.BaseGrid.HIGHER_DRAG_EDIT_RATIO = 1 - anychart.core.ui.BaseGrid.LOWER_DRAG_EDIT_RATIO;
+
+
+/**
  * Checks whether tree data item is actually a milestone.
  * @param {anychart.data.Tree.DataItem} treeDataItem - Tree data item.
  * @return {boolean} - Whether tree data item is milestone.
  */
 anychart.core.ui.BaseGrid.isMilestone = function(treeDataItem) {
-  var actualStart = anychart.utils.normalizeTimestamp(treeDataItem.get(anychart.enums.GanttDataFields.ACTUAL_START));
-  var actualEnd = anychart.utils.normalizeTimestamp(treeDataItem.get(anychart.enums.GanttDataFields.ACTUAL_END));
-  return (!isNaN(actualStart) && isNaN(actualEnd)) || (actualStart == actualEnd);
+  var actualStart = treeDataItem.meta(anychart.enums.GanttDataFields.ACTUAL_START);
+  var actualEnd = treeDataItem.meta(anychart.enums.GanttDataFields.ACTUAL_END);
+  return (!isNaN(actualStart) && !goog.isDef(actualEnd)) || (actualStart == actualEnd);
 };
 
 
 /** @inheritDoc */
-anychart.core.ui.BaseGrid.prototype.createFormatProvider = function(item, opt_period) {
+anychart.core.ui.BaseGrid.prototype.createFormatProvider = function(item, opt_period, opt_periodIndex) {
   if (!this.formatProvider_)
     this.formatProvider_ = new anychart.core.utils.GanttContextProvider(this.controller.isResources());
   this.formatProvider_.currentItem = item;
   this.formatProvider_.currentPeriod = opt_period;
+  this.formatProvider_.currentPeriodIndex = opt_periodIndex;
   this.formatProvider_.applyReferenceValues();
   return this.formatProvider_;
 };
@@ -663,7 +729,7 @@ anychart.core.ui.BaseGrid.prototype.rowMouseMove = function(event) {
       new acgraph.math.Coordinate(event['originalEvent']['clientX'], event['originalEvent']['clientY']) :
       new acgraph.math.Coordinate(0, 0);
 
-  var formatProvider = this.interactivityHandler.createFormatProvider(event['item'], event['period']);
+  var formatProvider = this.interactivityHandler.createFormatProvider(event['item'], event['period'], event['periodIndex']);
   tooltip.show(formatProvider, position);
 };
 
@@ -809,7 +875,12 @@ anychart.core.ui.BaseGrid.prototype.getInteractivityEvent = function(event) {
  */
 anychart.core.ui.BaseGrid.prototype.editing = function(opt_value) {
   if (goog.isDef(opt_value)) {
-    this.editable = opt_value;
+    if (this.editable != opt_value) {
+      this.editable = opt_value;
+
+      //for Timeline instance this state wil initiate connectors redraw (will set new cursors for connectors).
+      this.invalidate(anychart.ConsistencyState.BASE_GRID_REDRAW, anychart.Signal.NEEDS_REDRAW);
+    }
     return this;
   }
   return this.editable;
@@ -854,20 +925,11 @@ anychart.core.ui.BaseGrid.prototype.getCellsLayer = function() {
 
 /**
  * Inner getter for this.drawLayer_.
- * @return {anychart.core.utils.TypedLayer}
+ * @return {acgraph.vector.Layer}
  */
 anychart.core.ui.BaseGrid.prototype.getDrawLayer = function() {
   if (!this.drawLayer_) {
-    var ths = this;
-    this.drawLayer_ = new anychart.core.utils.TypedLayer(function() {
-      var el = new anychart.core.ui.BaseGrid.Element();
-      el.setParentEventTarget(ths);
-      return el;
-    }, function(child) {
-      (/** @type {anychart.core.ui.BaseGrid.Element} */ (child)).fill(null).stroke(null).clear();
-      child.currBounds = null;
-      child.type = void 0;
-    });
+    this.drawLayer_ = /** @type {acgraph.vector.Layer} */ (acgraph.layer());
     this.drawLayer_.zIndex(anychart.core.ui.BaseGrid.DRAW_Z_INDEX);
     this.registerDisposable(this.drawLayer_);
   }
@@ -966,7 +1028,7 @@ anychart.core.ui.BaseGrid.prototype.getEvenPath = function() {
 anychart.core.ui.BaseGrid.prototype.getHoverPath = function() {
   if (!this.hoverPath_) {
     this.hoverPath_ = /** @type {acgraph.vector.Path} */ (this.getCellsLayer().path());
-    this.hoverPath_.stroke(null).fill(this.hoverFill_).zIndex(10);
+    this.hoverPath_.stroke(null).fill(this.hoverFill_).zIndex(2);
     this.registerDisposable(this.hoverPath_);
   }
   return this.hoverPath_;
@@ -974,13 +1036,13 @@ anychart.core.ui.BaseGrid.prototype.getHoverPath = function() {
 
 
 /**
- * Getter for this.hoverPath_.
+ * Getter for this.selectedPath_.
  * @return {acgraph.vector.Path}
  */
 anychart.core.ui.BaseGrid.prototype.getSelectedPath = function() {
   if (!this.selectedPath_) {
     this.selectedPath_ = /** @type {acgraph.vector.Path} */ (this.getCellsLayer().path());
-    this.selectedPath_.stroke(null).fill(this.rowSelectedFill_).zIndex(20);
+    this.selectedPath_.stroke(null).fill(this.rowSelectedFill_).zIndex(3);
     this.registerDisposable(this.selectedPath_);
   }
   return this.selectedPath_;
@@ -994,10 +1056,38 @@ anychart.core.ui.BaseGrid.prototype.getSelectedPath = function() {
 anychart.core.ui.BaseGrid.prototype.getRowStrokePath = function() {
   if (!this.rowStrokePath_) {
     this.rowStrokePath_ = /** @type {acgraph.vector.Path} */ (this.getCellsLayer().path());
-    this.rowStrokePath_.stroke(this.rowStroke_).zIndex(30);
+    this.rowStrokePath_.stroke(this.rowStroke_).zIndex(4);
     this.registerDisposable(this.rowStrokePath_);
   }
   return this.rowStrokePath_;
+};
+
+
+/**
+ * Inner getter for this.editStructurePreviewPath_.
+ * @return {acgraph.vector.Path}
+ * @private
+ */
+anychart.core.ui.BaseGrid.prototype.getEditStructurePreviewPath_ = function() {
+  if (!this.editStructurePreviewPath_) {
+    this.editStructurePreviewPath_ = this.getEditLayer().path();
+    this.registerDisposable(this.editStructurePreviewPath_);
+  }
+  return this.editStructurePreviewPath_;
+};
+
+
+/**
+ * Getter for this.headerSeparationPath_.
+ * @return {acgraph.vector.Path}
+ */
+anychart.core.ui.BaseGrid.prototype.getHeaderSeparationPath = function() {
+  if (!this.headerSeparationPath_) {
+    this.headerSeparationPath_ = /** @type {acgraph.vector.Path} */ (this.getCellsLayer().path());
+    this.headerSeparationPath_.zIndex(40);
+    this.registerDisposable(this.headerSeparationPath_);
+  }
+  return this.headerSeparationPath_;
 };
 
 
@@ -1197,6 +1287,68 @@ anychart.core.ui.BaseGrid.prototype.backgroundFill = function(opt_fillOrColorOrK
 };
 
 
+/**
+ * Gets/sets a default editStructurePreviewFill.
+ * @param {(!acgraph.vector.Fill|!Array.<(acgraph.vector.GradientKey|string)>|null)=} opt_fillOrColorOrKeys .
+ * @param {number=} opt_opacityOrAngleOrCx .
+ * @param {(number|boolean|!anychart.math.Rect|!{left:number,top:number,width:number,height:number})=} opt_modeOrCy .
+ * @param {(number|!anychart.math.Rect|!{left:number,top:number,width:number,height:number}|null)=} opt_opacityOrMode .
+ * @param {number=} opt_opacity .
+ * @param {number=} opt_fx .
+ * @param {number=} opt_fy .
+ * @return {acgraph.vector.Fill|anychart.core.ui.BaseGrid|string} - Current value or itself for method chaining.
+ */
+anychart.core.ui.BaseGrid.prototype.editStructurePreviewFill = function(opt_fillOrColorOrKeys, opt_opacityOrAngleOrCx, opt_modeOrCy, opt_opacityOrMode, opt_opacity, opt_fx, opt_fy) {
+  if (goog.isDef(opt_fillOrColorOrKeys)) {
+    var val = acgraph.vector.normalizeFill.apply(null, arguments);
+    if (!anychart.color.equals(/** @type {acgraph.vector.Fill} */ (this.editStructurePreviewFill_), val)) {
+      this.editStructurePreviewFill_ = val;
+      this.invalidate(anychart.ConsistencyState.APPEARANCE, anychart.Signal.NEEDS_REDRAW);
+    }
+    return this;
+  }
+  return this.editStructurePreviewFill_;
+};
+
+
+/**
+ * Gets/sets editStructurePreviewStroke.
+ * @param {(acgraph.vector.Stroke|string)=} opt_value - Value to be set.
+ * @return {(string|acgraph.vector.Stroke|anychart.core.ui.BaseGrid)} - Current value or itself for method chaining.
+ */
+anychart.core.ui.BaseGrid.prototype.editStructurePreviewStroke = function(opt_value) {
+  if (goog.isDef(opt_value)) {
+    var val = acgraph.vector.normalizeStroke.apply(null, arguments);
+    if (!anychart.color.equals(/** @type {acgraph.vector.Stroke} */ (this.editStructurePreviewStroke_), val)) {
+      this.editStructurePreviewStroke_ = val;
+      this.invalidate(anychart.ConsistencyState.APPEARANCE, anychart.Signal.NEEDS_REDRAW);
+    }
+
+    return this;
+  }
+  return this.editStructurePreviewStroke_;
+};
+
+
+/**
+ * Gets/sets editStructurePreviewDashStroke.
+ * @param {(acgraph.vector.Stroke|string)=} opt_value - Value to be set.
+ * @return {(string|acgraph.vector.Stroke|anychart.core.ui.BaseGrid)} - Current value or itself for method chaining.
+ */
+anychart.core.ui.BaseGrid.prototype.editStructurePreviewDashStroke = function(opt_value) {
+  if (goog.isDef(opt_value)) {
+    var val = acgraph.vector.normalizeStroke.apply(null, arguments);
+    if (!anychart.color.equals(/** @type {acgraph.vector.Stroke} */ (this.editStructurePreviewDashStroke_), val)) {
+      this.editStructurePreviewDashStroke_ = val;
+      this.invalidate(anychart.ConsistencyState.APPEARANCE, anychart.Signal.NEEDS_REDRAW);
+    }
+
+    return this;
+  }
+  return this.editStructurePreviewDashStroke_;
+};
+
+
 //----------------------------------------------------------------------------------------------------------------------
 //
 //  Private.
@@ -1243,7 +1395,31 @@ anychart.core.ui.BaseGrid.prototype.dragHandler_ = function(e) {
     this.interactivityHandler.highlight();
     this.tooltip().hide();
     var evt = this.getInteractivityEvent(e);
-    if (evt) this.addDragMouseMove(evt);
+    if (evt) {
+      var destinationItem = evt['item'];
+      var hoveredIndex = evt['hoveredIndex'];
+
+      var itemHeightMouseRatio = evt['itemHeightMouseRatio'];
+      var startY = evt['startY'];
+      var endY = evt['endY'];
+
+      if (this.draggingItem && destinationItem && destinationItem != this.draggingItem && !destinationItem.isChildOf(this.draggingItem)) {
+        if (itemHeightMouseRatio < anychart.core.ui.BaseGrid.LOWER_DRAG_EDIT_RATIO ||
+            itemHeightMouseRatio > anychart.core.ui.BaseGrid.HIGHER_DRAG_EDIT_RATIO) {
+          var top = itemHeightMouseRatio < anychart.core.ui.BaseGrid.LOWER_DRAG_EDIT_RATIO ? startY : endY;
+          this.interactivityHandler.editStructureHighlight(top, void 0, 'auto');
+        } else {
+          if (anychart.core.ui.BaseGrid.isMilestone(destinationItem)) {
+            this.interactivityHandler.editStructureHighlight(void 0, void 0, 'not-allowed');
+          } else {
+            this.interactivityHandler.editStructureHighlight(startY, endY, 'auto');
+          }
+        }
+      } else {
+        this.interactivityHandler.editStructureHighlight(void 0, void 0, 'not-allowed');
+      }
+      this.addDragMouseMove(evt);
+    }
   }
 };
 
@@ -1255,8 +1431,77 @@ anychart.core.ui.BaseGrid.prototype.dragHandler_ = function(e) {
  */
 anychart.core.ui.BaseGrid.prototype.dragEndHandler_ = function(e) {
   if (this.editable) {
-    var end = this.getInteractivityEvent(e);
-    this.addDragMouseUp(end);
+    var evt = this.getInteractivityEvent(e);
+
+    this.addDragMouseUp(evt);
+
+    if (evt) {
+      var destinationItem = evt['item'];
+      var hoveredIndex = evt['hoveredIndex'];
+      var totalIndex = this.controller.startIndex() + hoveredIndex;
+
+      var visibleItems = this.controller.getVisibleItems();
+
+
+      var itemHeightMouseRatio = evt['itemHeightMouseRatio'];
+      var firstItem, secondItem; //We drop item between these two.
+
+      if (this.draggingItem && destinationItem && destinationItem != this.draggingItem && !anychart.core.ui.BaseGrid.isMilestone(destinationItem) && !destinationItem.isChildOf(this.draggingItem)) {
+        if (itemHeightMouseRatio < anychart.core.ui.BaseGrid.LOWER_DRAG_EDIT_RATIO || itemHeightMouseRatio > anychart.core.ui.BaseGrid.HIGHER_DRAG_EDIT_RATIO) {
+          if (itemHeightMouseRatio < anychart.core.ui.BaseGrid.LOWER_DRAG_EDIT_RATIO) {
+            firstItem = visibleItems[totalIndex - 1];
+            secondItem = destinationItem;
+          } else {
+            firstItem = destinationItem;
+            secondItem = visibleItems[totalIndex + 1];
+          }
+
+          if (firstItem && secondItem) {
+            var firstDepth = firstItem.meta('depth');
+            var secondDepth = secondItem.meta('depth');
+            var destIndex, tree;
+
+            if (firstDepth == secondDepth) {
+              var secondParent = secondItem.getParent() || secondItem.tree();
+              destIndex = secondParent.indexOfChild(secondItem);
+
+              var dragParent = this.draggingItem.getParent() || this.draggingItem.tree();
+              if (dragParent == secondParent) {
+                var dragIndex = dragParent.indexOfChild(this.draggingItem);
+                if (dragIndex < destIndex) destIndex = Math.max(0, destIndex - 1);
+              }
+
+              //if firstDepth equals secondDepth, then the firstParent is the secondParent in this case.
+              secondParent.addChildAt(this.draggingItem, destIndex);
+            } else {
+              if (firstDepth < secondDepth) { //Here firstItem is parent of secondItem.
+                firstItem.addChildAt(this.draggingItem, 0); //The only case if firstItem is neighbour of secondItem.
+              } else {
+                var firstParent = firstItem.getParent() || firstItem.tree();
+                destIndex = firstParent.indexOfChild(firstItem) + 1;
+                firstParent.addChildAt(this.draggingItem, destIndex);
+              }
+            }
+          } else if (secondItem) { //First item is undefined.
+            //The only case - is when we drop between very first item and header of data grid.
+            tree = secondItem.tree();
+            tree.addChildAt(this.draggingItem, 0);
+          } else if (firstItem) { //Second item is undefined.
+            //The only case - is when we drop in the end of very last item of DG.
+            tree = firstItem.getParent() || firstItem.tree();
+            destIndex = tree.indexOfChild(firstItem) + 1;
+            tree.addChildAt(this.draggingItem, destIndex);
+          }
+        } else {
+          //Dropping data item inside. Setting dragged data item as child of destinationItem.
+          destinationItem.addChild(this.draggingItem);
+        }
+      }
+    }
+
+    this.interactivityHandler.editStructureHighlight(void 0, void 0, 'auto');
+
+    this.draggingItem = null;
   }
   this.scrollDragger.reset();
   this.dragging = false;
@@ -1328,12 +1573,6 @@ anychart.core.ui.BaseGrid.prototype.drawRowFills_ = function() {
           .close();
     }
 
-    var headSepTop = header - 1 + pixelShift;
-
-    this.rowStrokePath_
-        .moveTo(this.pixelBoundsCache.left, headSepTop)
-        .lineTo(this.pixelBoundsCache.left + this.totalGridsWidth, headSepTop);
-
     totalTop = (newTop + this.rowStrokeThickness);
 
     var strokePathTop = Math.floor(totalTop - this.rowStrokeThickness / 2) + pixelShift;
@@ -1341,11 +1580,16 @@ anychart.core.ui.BaseGrid.prototype.drawRowFills_ = function() {
         .moveTo(this.pixelBoundsCache.left, strokePathTop)
         .lineTo(this.pixelBoundsCache.left + this.totalGridsWidth, strokePathTop);
 
-    this.gridHeightCache_.push(totalTop - header);
+    var h = totalTop - header;
+    this.gridHeightCache_.push(h);
+    this.totalGridsHeight = h;
   }
 
-  this.getClipLayer().clip(new anychart.math.Rect(this.pixelBoundsCache.left, this.pixelBoundsCache.top,
-      this.pixelBoundsCache.width, totalTop - this.pixelBoundsCache.top));
+  var clipRect = new anychart.math.Rect(this.pixelBoundsCache.left, this.pixelBoundsCache.top - 1,
+      this.pixelBoundsCache.width, totalTop - this.pixelBoundsCache.top + 1);
+  this.getClipLayer().clip(clipRect);
+  this.getCellsLayer().clip(clipRect);
+  this.getDrawLayer().clip(clipRect);
 
 };
 
@@ -1357,8 +1601,6 @@ anychart.core.ui.BaseGrid.prototype.drawRowFills_ = function() {
  * @private
  */
 anychart.core.ui.BaseGrid.prototype.mouseWheelHandler_ = function(e) {
-  //TODO (A.Kudryavtsev): add check goog.dom.getDocumentScroll().x here
-
   var dx = e.deltaX;
   var dy = e.deltaY;
 
@@ -1546,6 +1788,14 @@ anychart.core.ui.BaseGrid.prototype.drawInternal = function(positionRecalculated
     this.eventsRect_.setBounds(/** @type {anychart.math.Rect} */ (this.pixelBoundsCache));
     this.totalGridsWidth = this.pixelBoundsCache.width;
 
+    var header = this.pixelBoundsCache.top + this.headerHeight_;
+    var headSepTop = header + .5;
+
+    this.getHeaderSeparationPath()
+        .clear()
+        .moveTo(this.pixelBoundsCache.left, headSepTop)
+        .lineTo(this.pixelBoundsCache.left + this.totalGridsWidth, headSepTop);
+
     if (this.isStandalone) {
       /*
         NOTE: For standalone mode only!
@@ -1589,7 +1839,21 @@ anychart.core.ui.BaseGrid.prototype.drawInternal = function(positionRecalculated
     this.getOddPath().fill(this.rowOddFill_ || this.rowFill_);
     this.getEvenPath().fill(this.rowEvenFill_ || this.rowFill_);
     this.getSelectedPath().fill(this.rowSelectedFill_);
+
+    var rowStrokeColor;
+    if (goog.isString(this.rowStroke_)) {
+      rowStrokeColor = this.rowStroke_;
+    } else if (goog.isObject(this.rowStroke_) && this.rowStroke_['color']) {
+      rowStrokeColor = this.rowStroke_['color'];
+    }
+
+    if (rowStrokeColor) this.getHeaderSeparationPath().stroke(rowStrokeColor);
+
     this.getRowStrokePath().stroke(this.rowStroke_);
+
+    this.getEditStructurePreviewPath_()
+        .fill(this.editStructurePreviewFill_)
+        .stroke(this.editStructurePreviewStroke_);
 
     this.appearanceInvalidated();
 
@@ -1620,9 +1884,9 @@ anychart.core.ui.BaseGrid.prototype.drawInternal = function(positionRecalculated
     this.markConsistent(anychart.ConsistencyState.Z_INDEX);
   }
 
-  if (this.hasInvalidationState(anychart.ConsistencyState.BASE_GRID_CLICK)) {
+  if (this.hasInvalidationState(anychart.ConsistencyState.BASE_GRID_REDRAW)) {
     this.redrawPosition = true;
-    this.markConsistent(anychart.ConsistencyState.BASE_GRID_CLICK);
+    this.markConsistent(anychart.ConsistencyState.BASE_GRID_REDRAW);
   }
 
   this.specialInvalidated();
@@ -1676,6 +1940,35 @@ anychart.core.ui.BaseGrid.prototype.highlight = function(opt_index, opt_startY, 
 };
 
 
+/** @inheritDoc */
+anychart.core.ui.BaseGrid.prototype.editStructureHighlight = function(opt_startY, opt_endY, opt_cursor) {
+  var previewPath = this.getEditStructurePreviewPath_();
+  if (goog.isDef(opt_startY)) {
+    if (goog.isDef(opt_endY)) {
+      previewPath
+          .clear()
+          .moveTo(this.pixelBoundsCache.left, opt_startY)
+          .lineTo(this.pixelBoundsCache.left + this.totalGridsWidth, opt_startY)
+          .lineTo(this.pixelBoundsCache.left + this.totalGridsWidth, opt_endY)
+          .lineTo(this.pixelBoundsCache.left, opt_endY)
+          .close()
+          .stroke(this.editStructurePreviewStroke_);
+    } else {
+      previewPath
+          .clear()
+          .moveTo(this.pixelBoundsCache.left, opt_startY)
+          .lineTo(this.pixelBoundsCache.left + this.totalGridsWidth, opt_startY)
+          .stroke(this.editStructurePreviewDashStroke_);
+    }
+  } else {
+    previewPath.clear();
+  }
+  if (goog.isDef(opt_cursor))
+    goog.style.setStyle(goog.global['document']['body'], 'cursor', opt_cursor);
+
+};
+
+
 /**
  * Initializes mouse wheel scrolling and mouse drag scrolling.
  * TODO (A.Kudryavtsev): In current implementation (04 Dec 2014) mouse drag scrolling is not available.
@@ -1695,30 +1988,39 @@ anychart.core.ui.BaseGrid.prototype.initMouseFeatures = function() {
       });
     }
 
-
-    goog.events.listen(document, goog.events.EventType.MOUSEMOVE, function(e) {
-      var l = anychart.core.ui.BaseGrid.SCROLL_MOUSE_OUT_INSIDE_LENGTH;
-      var containerPosition = goog.style.getClientPosition(/** @type {Element} */(ths.container().getStage().container()));
-      var top = ths.pixelBoundsCache.top + containerPosition.y + ths.headerHeight_ + l;
-      var bottom = containerPosition.y + ths.pixelBoundsCache.height - l - l;
-      var left = containerPosition.x + ths.pixelBoundsCache.left + l;
-      var right = left + ths.pixelBoundsCache.width - l - l;
-
-      var mouseX = e['clientX'];
-      var mouseY = e['clientY'];
-
-      ths.scrollOffsetX = 0;
-      ths.scrollOffsetY = 0;
-      if (mouseX < left || mouseX > right) ths.scrollOffsetX = mouseX - left;
-      if (mouseY < top || mouseY > bottom) ths.scrollOffsetY = mouseY - top;
-
-      if (ths.dragging && !ths.scrollInterval) {
-        ths.scrollInterval = setInterval(function() {
-          ths.mouseOutMove(e);
-        }, anychart.core.ui.BaseGrid.TIMER_STEP);
-      }
-    });
+    goog.events.listen(document, goog.events.EventType.MOUSEMOVE, this.docMouseMoveListener_, false, this);
   }
+};
+
+
+/**
+ * Document mouse move listener.
+ * @param {goog.fx.DragEvent} e - Event.
+ * @private
+ */
+anychart.core.ui.BaseGrid.prototype.docMouseMoveListener_ = function(e) {
+  var l = anychart.core.ui.BaseGrid.SCROLL_MOUSE_OUT_INSIDE_LENGTH;
+  var containerPosition = goog.style.getClientPosition(/** @type {Element} */(this.container().getStage().container()));
+  var top = this.pixelBoundsCache.top + containerPosition.y + this.headerHeight_ + l;
+  var bottom = containerPosition.y + this.pixelBoundsCache.height - l - l;
+  var left = containerPosition.x + this.pixelBoundsCache.left + l;
+  var right = left + this.pixelBoundsCache.width - l - l;
+
+  var mouseX = e.clientX;
+  var mouseY = e.clientY;
+
+  this.scrollOffsetX = 0;
+  this.scrollOffsetY = 0;
+  if (mouseX < left || mouseX > right) this.scrollOffsetX = mouseX - left;
+  if (mouseY < top || mouseY > bottom) this.scrollOffsetY = mouseY - top;
+
+  var ths = this;
+  if (this.dragging && !this.scrollInterval) {
+    this.scrollInterval = setInterval(function() {
+      ths.mouseOutMove(e);
+    }, anychart.core.ui.BaseGrid.TIMER_STEP);
+  }
+
 };
 
 
@@ -1731,12 +2033,22 @@ anychart.core.ui.BaseGrid.prototype.initKeysFeatures = function() {
     this.registerDisposable(this.interactivityHandler.altKeyHandler);
 
     acgraph.events.listen(this.interactivityHandler.altKeyHandler, 'key', function(e) {
-      if (e.keyCode == 18) {
+      if (e.keyCode == 18) { //alt
         this.altKey = true;
+      }
+
+      if (e.keyCode == 46 || (e.metaKey && e.keyCode == 8)) { //delete
+        this.deleteKeyHandler(e);
       }
     }, false, this.interactivityHandler);
   }
 };
+
+
+/**
+ * @inheritDoc
+ */
+anychart.core.ui.BaseGrid.prototype.deleteKeyHandler = function(e) {};
 
 
 /**
@@ -1816,7 +2128,7 @@ anychart.core.ui.BaseGrid.prototype.selectRow = function(item) {
     if (this.selectedItem) this.selectedItem.meta('selected', false); //selectedItem has the same tree as item.
     this.selectedItem = item;
     item.tree().resumeSignalsDispatching(false);
-    this.invalidate(anychart.ConsistencyState.BASE_GRID_CLICK, anychart.Signal.NEEDS_REDRAW);
+    this.invalidate(anychart.ConsistencyState.BASE_GRID_REDRAW, anychart.Signal.NEEDS_REDRAW);
     return true;
   }
   return false;
@@ -1998,6 +2310,15 @@ anychart.core.ui.BaseGrid.prototype.verticalOffset = function(opt_value) {
 };
 
 
+/**
+ * @inheritDoc
+ */
+anychart.core.ui.BaseGrid.prototype.disposeInternal = function() {
+  goog.base(this, 'disposeInternal');
+  goog.events.unlisten(document, goog.events.EventType.MOUSEMOVE, this.docMouseMoveListener_, false, this);
+};
+
+
 /** @inheritDoc */
 anychart.core.ui.BaseGrid.prototype.serialize = function() {
   var json = goog.base(this, 'serialize');
@@ -2018,6 +2339,10 @@ anychart.core.ui.BaseGrid.prototype.serialize = function() {
   json['rowFill'] = anychart.color.serialize(/** @type {acgraph.vector.Fill} */ (this.rowFill_));
   json['hoverFill'] = anychart.color.serialize(/** @type {acgraph.vector.Fill} */ (this.hoverFill_));
   json['rowSelectedFill'] = anychart.color.serialize(/** @type {acgraph.vector.Fill} */ (this.rowSelectedFill_));
+  json['editStructurePreviewFill'] = anychart.color.serialize(/** @type {acgraph.vector.Fill} */ (this.editStructurePreviewFill_));
+  json['editStructurePreviewStroke'] = anychart.color.serialize(/** @type {acgraph.vector.Stroke} */ (this.editStructurePreviewStroke_));
+  json['editStructurePreviewDashStroke'] = anychart.color.serialize(/** @type {acgraph.vector.Stroke} */ (this.editStructurePreviewDashStroke_));
+
   json['editing'] = this.editable;
   json['tooltip'] = this.tooltip().serialize();
 
@@ -2045,6 +2370,9 @@ anychart.core.ui.BaseGrid.prototype.setupByJSON = function(config) {
   this.rowSelectedFill(config['rowSelectedFill']);
   this.tooltip(config['tooltip']);
   this.headerHeight(config['headerHeight']);
+  this.editStructurePreviewFill(config['editStructurePreviewFill']);
+  this.editStructurePreviewStroke(config['editStructurePreviewStroke']);
+  this.editStructurePreviewDashStroke(config['editStructurePreviewDashStroke']);
   this.editing(config['editing']);
 };
 
@@ -2151,13 +2479,19 @@ anychart.core.ui.BaseGrid.KeyHandler.prototype.resetState = function() {
  */
 anychart.core.ui.BaseGrid.Element = function() {
   goog.base(this);
+
+  /**
+   * Meta information. Used for inner purposes only.
+   * @type {Object}
+   */
+  this.meta = {};
 };
 goog.inherits(anychart.core.ui.BaseGrid.Element, acgraph.vector.Path);
 
 
 /**
  * Type of element. In current implementation (21 Jul 2015) can be one of timeline's bars type.
- * @type {anychart.enums.TLElementTypes}
+ * @type {anychart.enums.TLElementTypes|undefined}
  */
 anychart.core.ui.BaseGrid.Element.prototype.type;
 

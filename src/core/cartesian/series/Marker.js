@@ -64,10 +64,7 @@ anychart.core.cartesian.series.Marker = function(opt_data, opt_csvSettings) {
    */
   this.hoverSize_ = 12;
 
-  // Define reference points for a series
-  this.referenceValueNames = ['x', 'value'];
-  this.referenceValueMeanings = ['x', 'y'];
-  this.referenceValuesSupportStack = false;
+  this.seriesSupportsStack = false;
 };
 goog.inherits(anychart.core.cartesian.series.Marker, anychart.core.cartesian.series.Base);
 anychart.core.cartesian.series.Base.SeriesTypesMap[anychart.enums.CartesianSeriesType.MARKER] = anychart.core.cartesian.series.Marker;
@@ -211,24 +208,13 @@ anychart.core.cartesian.series.Marker.prototype.selectSize = function(opt_value)
 /** @inheritDoc */
 anychart.core.cartesian.series.Marker.prototype.drawSubsequentPoint = function(pointState) {
   pointState = this.state.getSeriesState() | pointState;
-
-  var referenceValues = this.getReferenceCoords();
-  if (!referenceValues)
-    return false;
-
   if (this.hasInvalidationState(anychart.ConsistencyState.APPEARANCE)) {
-    var x = referenceValues[0];
-    var y = referenceValues[1];
-
-    this.getIterator().meta('x', x).meta('value', y);
-
     this.drawMarker_(pointState);
   }
 
   if (this.hasInvalidationState(anychart.ConsistencyState.SERIES_HATCH_FILL)) {
     this.applyHatchFill(pointState);
   }
-  return true;
 };
 
 
@@ -279,13 +265,26 @@ anychart.core.cartesian.series.Marker.prototype.startDrawing = function() {
 
 
   if (this.hasInvalidationState(anychart.ConsistencyState.SERIES_HATCH_FILL)) {
-    var fill = this.getFinalHatchFill(false, anychart.PointState.NORMAL);
-    if (!this.hatchFillElement_ && !anychart.utils.isNone(fill)) {
-      this.hatchFillElement_ = new anychart.core.ui.MarkersFactory();
-      this.hatchFillElement_.container(/** @type {acgraph.vector.ILayer} */(this.rootLayer));
-      this.hatchFillElement_.zIndex(anychart.core.cartesian.series.Base.ZINDEX_HATCH_FILL);
-      this.hatchFillElement_.disablePointerEvents(true);
-    }
+    var hatchFill = this.getFinalHatchFill(false, anychart.PointState.NORMAL);
+    var hoverHatchFill = this.getFinalHatchFill(false, anychart.PointState.HOVER);
+    var selectHatchFill = this.getFinalHatchFill(false, anychart.PointState.SELECT);
+
+    this.createHatchFill_(!(anychart.utils.isNone(hatchFill) && anychart.utils.isNone(hoverHatchFill) && anychart.utils.isNone(selectHatchFill)));
+  }
+};
+
+
+/**
+ * Creates hatch fill.
+ * @param {boolean} value Whether create hatch fill.
+ * @private
+ */
+anychart.core.cartesian.series.Marker.prototype.createHatchFill_ = function(value) {
+  if (!this.hatchFillElement_ && value) {
+    this.hatchFillElement_ = new anychart.core.ui.MarkersFactory();
+    this.hatchFillElement_.container(/** @type {acgraph.vector.ILayer} */(this.rootLayer));
+    this.hatchFillElement_.zIndex(anychart.core.cartesian.series.Base.ZINDEX_HATCH_FILL);
+    this.hatchFillElement_.disablePointerEvents(true);
   }
 };
 
@@ -405,6 +404,11 @@ anychart.core.cartesian.series.Marker.prototype.drawMarker_ = function(pointStat
  * @protected
  */
 anychart.core.cartesian.series.Marker.prototype.applyHatchFill = function(pointState) {
+  if (!this.hatchFillElement_) {
+    var pointHatchFill = this.getFinalHatchFill(true, pointState);
+    this.createHatchFill_(!anychart.utils.isNone(pointHatchFill));
+  }
+
   if (this.hatchFillElement_) {
     var iterator = this.getIterator();
     var index = iterator.getIndex();

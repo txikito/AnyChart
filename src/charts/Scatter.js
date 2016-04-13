@@ -1226,10 +1226,7 @@ anychart.charts.Scatter.prototype.legendItemCanInteractInMode = function(mode) {
 };
 
 
-/**
- * Getter for data bounds of the chart.
- * @return {anychart.math.Rect}
- */
+/** @inheritDoc */
 anychart.charts.Scatter.prototype.getPlotBounds = function() {
   return this.dataBounds_;
 };
@@ -1366,8 +1363,8 @@ anychart.charts.Scatter.prototype.calculate = function() {
   /** @type {anychart.scales.ScatterBase} */
   var yScale;
 
-  /** @type {!Array.<anychart.scales.ScatterBase>} */
-  var scales = [];
+  /** @type {!Object.<anychart.scales.ScatterBase>} */
+  var scales = {};
 
   /** @type {*} */
   var x;
@@ -1530,7 +1527,9 @@ anychart.charts.Scatter.prototype.drawContent = function(bounds) {
   var i;
   var count;
 
+  anychart.performance.start('Calulation');
   this.calculate();
+  anychart.performance.end('Calulation');
 
   if (this.isConsistent())
     return;
@@ -1733,7 +1732,9 @@ anychart.charts.Scatter.prototype.drawContent = function(bounds) {
     }
 
     this.calcBubbleSizes_();
+    anychart.performance.start('Series drawing');
     this.drawSeries_();
+    anychart.performance.end('Series drawing');
     this.markConsistent(anychart.ConsistencyState.SCATTER_SERIES);
   }
 

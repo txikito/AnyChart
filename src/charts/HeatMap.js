@@ -793,12 +793,12 @@ anychart.charts.HeatMap.prototype.legendItemClick = function(item, event) {
       var tag = anychart.utils.extractTag(event['domTarget']);
       if (tag) {
         if (this.interactivity().hoverMode() == anychart.enums.HoverMode.SINGLE) {
-          tag.points = {
+          tag.points_ = {
             series: series,
             points: points
           };
         } else {
-          tag.points = [{
+          tag.points_ = [{
             series: series,
             points: points,
             lastPoint: points[points.length - 1],
@@ -835,12 +835,12 @@ anychart.charts.HeatMap.prototype.legendItemOver = function(item, event) {
       var tag = anychart.utils.extractTag(event['domTarget']);
       if (tag) {
         if (this.interactivity().hoverMode() == anychart.enums.HoverMode.SINGLE) {
-          tag.points = {
+          tag.points_ = {
             series: series,
             points: points
           };
         } else {
-          tag.points = [{
+          tag.points_ = [{
             series: series,
             points: points,
             lastPoint: points[points.length - 1],
@@ -1661,8 +1661,17 @@ anychart.charts.HeatMap.prototype.drawSeries_ = function() {
   var minFontSize, hoverMinFontSize, selectMinFontSize;
   while (iterator.advance()) {
     var index = iterator.getIndex();
-    if (iterator.get('selected'))
+    if (iterator.get('selected')) {
       series.state.setPointState(anychart.PointState.SELECT, index);
+      //TODO(AntonKagakin): этот прекрасный костыль тут потому, что в хитмапах переделано рисование лейблов
+      // 1) находит селектед лейбл
+      // 2) выставляет стейт
+      // 3) идет перерисовывать все лейблы которые до этого нарисовал (ибо вызывается label.draw() в finalizePointAppearance)
+      // 4) резетит итератор (ибо при рисовании лейблов - селектится серийный итератор по которому идет текущее рисование
+      // 5) селектится он на последний лейбл который был до текущего значения итератора (то есть index - 1)
+      // 6) получаем бесконечный цикл
+      iterator.select(index);
+    }
 
     pointState = series.state.getPointStateByIndex(index);
 

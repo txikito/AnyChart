@@ -206,6 +206,7 @@ anychart.data.Mapping.prototype.initMappingInfo = function(opt_arrayMapping, opt
     'id': [0],
     'lat': [0],
     'long': [1],
+    'points': [0],  //connector series
 
     // heat map
     'y': [1],
@@ -225,8 +226,8 @@ anychart.data.Mapping.prototype.initMappingInfo = function(opt_arrayMapping, opt
     'lowest': ['lowest', 'low'],
     'highest': ['highest', 'high'],
     //for maps
-    'lat': ['lat', 'x'],
-    'long': ['long', 'y', 'value'],
+    'lat': ['lat', 'y', 'value'],
+    'long': ['long', 'lon', 'x'],
     //for heat map
 
     'y': ['row', 'y'],

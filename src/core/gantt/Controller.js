@@ -3,6 +3,7 @@ goog.provide('anychart.core.gantt.Controller');
 goog.require('anychart.core.Base');
 goog.require('anychart.core.ui.ScrollBar');
 goog.require('anychart.data.Tree');
+goog.require('anychart.format');
 goog.require('anychart.math.Rect');
 goog.require('anychart.scales.GanttDateTime');
 
@@ -280,6 +281,80 @@ anychart.core.gantt.Controller.prototype.itemHasChildrenCondition_ = function(it
 
 
 /**
+ * Writes item's dates fields to meta as timestamp.
+ * @param {anychart.data.Tree.DataItem} item - Tree data item.
+ * @private
+ */
+anychart.core.gantt.Controller.prototype.datesToMeta_ = function(item) {
+  var dateFields = [anychart.enums.GanttDataFields.ACTUAL_START, anychart.enums.GanttDataFields.ACTUAL_END,
+    anychart.enums.GanttDataFields.BASELINE_START, anychart.enums.GanttDataFields.BASELINE_END];
+
+  for (var i = 0; i < dateFields.length; i++) {
+    var field = dateFields[i];
+
+    var actValue = item.get(field);
+
+    if (goog.isDef(actValue)) {
+      var parsedDate = anychart.format.parseDateTime(actValue);
+      var parsedVal = goog.isNull(parsedDate) ? null : +parsedDate;
+      item.meta(field, parsedVal);
+    }
+
+    this.checkDate_(item.meta(field));
+  }
+};
+
+
+/**
+ * Writes item's periods to meta as timestamp.
+ * @param {anychart.data.Tree.DataItem} item - Tree data item.
+ * @private
+ */
+anychart.core.gantt.Controller.prototype.periodsToMeta_ = function(item) {
+  var periods = item.get(anychart.enums.GanttDataFields.PERIODS);
+
+  if (this.isResources_ && goog.isArray(periods)) {
+    var minPeriodDate = NaN;
+    var maxPeriodDate = NaN;
+
+    for (var i = 0, l = periods.length; i < l; i++) {
+      var period = periods[i];
+      var periodStart = item.getMeta(anychart.enums.GanttDataFields.PERIODS, i, anychart.enums.GanttDataFields.START);
+      var periodStartVal = anychart.format.parseDateTime(period[anychart.enums.GanttDataFields.START]);
+      if (!goog.isNull(periodStartVal)) {
+        periodStartVal = +periodStartVal;
+        item.setMeta(anychart.enums.GanttDataFields.PERIODS, i, anychart.enums.GanttDataFields.START, periodStartVal);
+        periodStart = periodStartVal;
+      }
+
+      var periodEnd = item.getMeta(anychart.enums.GanttDataFields.PERIODS, i, anychart.enums.GanttDataFields.END);
+      var periodEndVal = anychart.format.parseDateTime(period[anychart.enums.GanttDataFields.END]);
+      if (!goog.isNull(periodEndVal)) {
+        periodEndVal = +periodEndVal;
+        item.setMeta(anychart.enums.GanttDataFields.PERIODS, i, anychart.enums.GanttDataFields.END, +periodEndVal);
+        periodEnd = periodEndVal;
+      }
+
+      if (!isNaN(periodStart) && !isNaN(periodEnd)) {
+        minPeriodDate = isNaN(minPeriodDate) ? Math.min(periodStart, periodEnd) : Math.min(minPeriodDate, periodStart, periodEnd);
+        maxPeriodDate = isNaN(maxPeriodDate) ? Math.max(periodStart, periodEnd) : Math.max(maxPeriodDate, periodStart, periodEnd);
+
+        //This extends dates range.
+        this.checkDate_(periodStart);
+        this.checkDate_(periodEnd);
+      }
+    }
+
+    if (!isNaN(minPeriodDate) && !isNaN(maxPeriodDate)) {
+      item.meta('minPeriodDate', minPeriodDate);
+      item.meta('maxPeriodDate', maxPeriodDate);
+    }
+
+  }
+};
+
+
+/**
  * Item's values auto calculation.
  * @param {anychart.data.Tree.DataItem} item - Current tree data item.
  * @param {number} currentDepth - Current depth.
@@ -290,13 +365,21 @@ anychart.core.gantt.Controller.prototype.autoCalcItem_ = function(item, currentD
       .meta('depth', currentDepth)
       .meta('index', this.linearIndex_++);
 
-  this.checkDate_(item.get(anychart.enums.GanttDataFields.ACTUAL_START));
-  this.checkDate_(item.get(anychart.enums.GanttDataFields.ACTUAL_END));
-  this.checkDate_(item.get(anychart.enums.GanttDataFields.BASELINE_START));
-  this.checkDate_(item.get(anychart.enums.GanttDataFields.BASELINE_END));
+  this.datesToMeta_(item);
+  this.periodsToMeta_(item);
 
-  var resultStart = anychart.utils.normalizeTimestamp(item.get(anychart.enums.GanttDataFields.ACTUAL_START));
-  var resultEnd = anychart.utils.normalizeTimestamp(item.get(anychart.enums.GanttDataFields.ACTUAL_END));
+  var itemMarkers = item.get(anychart.enums.GanttDataFields.MARKERS);
+  for (var m = 0; itemMarkers && m < itemMarkers.length; m++) {
+    var marker = itemMarkers[m];
+    var val = marker['value'];
+    var parsedDate = anychart.format.parseDateTime(val);
+    var parsedVal = goog.isNull(parsedDate) ? null : +parsedDate;
+    item.setMeta(anychart.enums.GanttDataFields.MARKERS, m, 'value', parsedVal);
+    this.checkDate_(parsedVal);
+  }
+
+  var resultStart = item.meta(anychart.enums.GanttDataFields.ACTUAL_START);
+  var resultEnd = item.meta(anychart.enums.GanttDataFields.ACTUAL_END);
 
   var progressLength = 0;
   var totalLength = 0;
@@ -309,15 +392,18 @@ anychart.core.gantt.Controller.prototype.autoCalcItem_ = function(item, currentD
       child
           .meta('depth', currentDepth + 1)
           .meta('index', this.linearIndex_++);
+
+      this.datesToMeta_(child);
+      this.periodsToMeta_(child);
     }
 
     if (!this.isResources_) {
-      var childStart = goog.isDef(child.get(anychart.enums.GanttDataFields.ACTUAL_START)) ?
-          anychart.utils.normalizeTimestamp(child.get(anychart.enums.GanttDataFields.ACTUAL_START)) :
-          child.meta('autoStart');
+      var childStart = goog.isNumber(child.meta(anychart.enums.GanttDataFields.ACTUAL_START)) ?
+          child.meta(anychart.enums.GanttDataFields.ACTUAL_START) :
+          (child.meta('autoStart') || NaN);
 
-      var childEnd = goog.isDef(child.get(anychart.enums.GanttDataFields.ACTUAL_END)) ?
-          anychart.utils.normalizeTimestamp(child.get(anychart.enums.GanttDataFields.ACTUAL_END)) :
+      var childEnd = goog.isNumber(child.meta(anychart.enums.GanttDataFields.ACTUAL_END)) ?
+          child.meta(anychart.enums.GanttDataFields.ACTUAL_END) :
           (child.meta('autoEnd') || childStart);
 
       var childProgress = goog.isDef(child.get(anychart.enums.GanttDataFields.PROGRESS_VALUE)) ?
@@ -326,31 +412,30 @@ anychart.core.gantt.Controller.prototype.autoCalcItem_ = function(item, currentD
 
       if (isNaN(resultStart)) {
         resultStart = childStart;
-      } else {
+      } else if (!isNaN(childStart) && !isNaN(childEnd)) {
         resultStart = Math.min(resultStart, childStart, childEnd);
       }
 
       if (isNaN(resultEnd)) {
         resultEnd = childEnd;
-      } else {
+      } else if (!isNaN(childStart) && !isNaN(childEnd)) {
         resultEnd = Math.max(resultEnd, childStart, childEnd);
+      } else {
+        resultEnd = childEnd;
       }
 
-      this.checkDate_(child.get(anychart.enums.GanttDataFields.ACTUAL_START));
-      this.checkDate_(child.get(anychart.enums.GanttDataFields.ACTUAL_END));
-      this.checkDate_(child.get(anychart.enums.GanttDataFields.BASELINE_START));
-      this.checkDate_(child.get(anychart.enums.GanttDataFields.BASELINE_END));
-
-      var delta = (/** @type {number} */(childEnd) - /** @type {number} */(childStart));
-      progressLength += /** @type {number} */(childProgress) * delta;
-      totalLength += delta;
+      if (!isNaN(childStart) && !isNaN(childEnd)) {
+        var delta = (/** @type {number} */(childEnd) - /** @type {number} */(childStart));
+        progressLength += /** @type {number} */(childProgress) * delta;
+        totalLength += delta;
+      }
     }
   }
 
   if (item.numChildren() && !this.isResources_) {
-    item.meta('autoProgress', progressLength / totalLength);
-    item.meta('autoStart', resultStart);
-    item.meta('autoEnd', resultEnd);
+    if (totalLength != 0) item.meta('autoProgress', progressLength / totalLength);
+    if (goog.isDef(resultStart) && !isNaN(resultStart)) item.meta('autoStart', resultStart);
+    if (goog.isDef(resultEnd) && !isNaN(resultEnd)) item.meta('autoEnd', resultEnd);
   }
 
 };
@@ -383,8 +468,7 @@ anychart.core.gantt.Controller.prototype.linearizeData_ = function() {
  * @private
  */
 anychart.core.gantt.Controller.prototype.checkDate_ = function(date) {
-  date = anychart.utils.normalizeTimestamp(date);
-  if (!isNaN(date)) {
+  if (goog.isNumber(date) && !isNaN(date)) {
     if (isNaN(this.minDate_)) { //If one of dates is NaN - the second one is NaN as well.
       this.minDate_ = date;
       this.maxDate_ = date;
@@ -423,8 +507,6 @@ anychart.core.gantt.Controller.prototype.getVisibleData_ = function() {
 
     if (this.isResources_) {
       var periods = item.get(anychart.enums.GanttDataFields.PERIODS);
-      var minPeriodDate = NaN;
-      var maxPeriodDate = NaN;
       if (goog.isArray(periods)) {
         //Working with raw array.
         for (var i = 0, l = periods.length; i < l; i++) {
@@ -438,19 +520,21 @@ anychart.core.gantt.Controller.prototype.getVisibleData_ = function() {
            */
           if (!this.periodsMap_[periodId]) this.periodsMap_[periodId] = periodItem;
 
-          ////Building connectors map for resource chart.
+          //Building connectors map for resource chart.
           var to, type, connectorsMapItem;
           if (goog.isArray(period[anychart.enums.GanttDataFields.CONNECTOR])) { //New behaviour.
             var connectors = period[anychart.enums.GanttDataFields.CONNECTOR];
             for (var j = 0; j < connectors.length; j++) {
               var connector = connectors[j];
-              //We put here a link to the period if it is already in the map or ID of destination period.
-              to = this.periodsMap_[connector[anychart.enums.GanttDataFields.CONNECT_TO]] || connector[anychart.enums.GanttDataFields.CONNECT_TO];
-              type = connector[anychart.enums.GanttDataFields.CONNECTOR_TYPE];
-              connectorsMapItem = {'from': periodItem, 'to': to};
-              if (type) connectorsMapItem['type'] = type;
-              connectorsMapItem['connSettings'] = connector;
-              this.connectorsData_.push(connectorsMapItem);
+              if (connector) {
+                //We put here a link to the period if it is already in the map or ID of destination period.
+                to = this.periodsMap_[connector[anychart.enums.GanttDataFields.CONNECT_TO]] || connector[anychart.enums.GanttDataFields.CONNECT_TO];
+                type = connector[anychart.enums.GanttDataFields.CONNECTOR_TYPE];
+                connectorsMapItem = {'from': periodItem, 'to': to};
+                if (type) connectorsMapItem['type'] = type;
+                connectorsMapItem['connSettings'] = connector;
+                this.connectorsData_.push(connectorsMapItem);
+              }
             }
           } else if (period[anychart.enums.GanttDataFields.CONNECT_TO]) { //Deprecated behaviour.
             //We put here a link to the period if it is already in the map or ID of destination period.
@@ -461,44 +545,24 @@ anychart.core.gantt.Controller.prototype.getVisibleData_ = function() {
             if (period[anychart.enums.GanttDataFields.CONNECTOR]) connectorsMapItem['connSettings'] = period[anychart.enums.GanttDataFields.CONNECTOR];
             this.connectorsData_.push(connectorsMapItem);
           }
-
-          var periodStart = anychart.utils.normalizeTimestamp(period[anychart.enums.GanttDataFields.START]);
-          var periodEnd = anychart.utils.normalizeTimestamp(period[anychart.enums.GanttDataFields.END]);
-
-          if (!isNaN(periodStart) && !isNaN(periodEnd)) {
-            minPeriodDate = isNaN(minPeriodDate) ? Math.min(periodStart, periodEnd) : Math.min(minPeriodDate, periodStart, periodEnd);
-            maxPeriodDate = isNaN(maxPeriodDate) ? Math.max(periodStart, periodEnd) : Math.max(maxPeriodDate, periodStart, periodEnd);
-
-            //This extends dates range.
-            this.checkDate_(periodStart);
-            this.checkDate_(periodEnd);
-          }
-
         }
-
-        if (!isNaN(minPeriodDate) && !isNaN(maxPeriodDate)) {
-          item.tree().suspendSignalsDispatching();
-          item.meta('minPeriodDate', minPeriodDate);
-          item.meta('maxPeriodDate', maxPeriodDate);
-          item.tree().resumeSignalsDispatching(false);
-        }
-
       }
-    }
-    else {
+    } else {
       //Building connectors map for project chart.
       var connectTo, itemConnectTo, connType, taskMapItem;
       if (goog.isArray(item.get(anychart.enums.GanttDataFields.CONNECTOR))) {//New behaviour.
         var projConnectors = item.get(anychart.enums.GanttDataFields.CONNECTOR);
         for (var k = 0; k < projConnectors.length; k++) {
           var conn = projConnectors[k];
-          connectTo = conn[anychart.enums.GanttDataFields.CONNECT_TO];
-          itemConnectTo = this.visibleItemsMap_[connectTo] || connectTo;
-          connType = conn[anychart.enums.GanttDataFields.CONNECTOR_TYPE];
-          taskMapItem = {'from': visItem, 'to': itemConnectTo};
-          if (connType) taskMapItem['type'] = connType;
-          taskMapItem['connSettings'] = conn;
-          this.connectorsData_.push(taskMapItem);
+          if (conn) {
+            connectTo = conn[anychart.enums.GanttDataFields.CONNECT_TO];
+            itemConnectTo = this.visibleItemsMap_[connectTo] || connectTo;
+            connType = conn[anychart.enums.GanttDataFields.CONNECTOR_TYPE];
+            taskMapItem = {'from': visItem, 'to': itemConnectTo};
+            if (connType) taskMapItem['type'] = connType;
+            taskMapItem['connSettings'] = conn;
+            this.connectorsData_.push(taskMapItem);
+          }
         }
       } else if (item.get(anychart.enums.GanttDataFields.CONNECT_TO)) {
         connectTo = item.get(anychart.enums.GanttDataFields.CONNECT_TO);
@@ -878,6 +942,10 @@ anychart.core.gantt.Controller.prototype.run = function() {
     if (this.hasInvalidationState(anychart.ConsistencyState.CONTROLLER_DATA)) {
       this.linearizeData_();
       this.markConsistent(anychart.ConsistencyState.CONTROLLER_DATA);
+
+      if (this.timeline_)
+        this.timeline_.initScale();
+
       this.invalidate(anychart.ConsistencyState.CONTROLLER_VISIBILITY);
     }
 

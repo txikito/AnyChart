@@ -1,24 +1,23 @@
-var chart;
-anychart.onDocumentLoad(function() {
-  chart = anychart.line([1,2,3,4,5,6,7,8,9]);
-  chart.crosshair(true);
-  chart.xAxis().ticks(true);
-  chart.container('container').draw();
+anychart.onDocumentReady(function() {
+  var image_link = 'http://static.anychart.com/images/parks_of_the_world/';
+
+  stage = anychart.graphics.create('container', 600, 600);
+  var rect = stage.rect(100, 100, 300, 300);
+
+  rect.fill({
+    src: image_link + '1.jpg',
+    mode: 'fitMax'
+  });
+  rect.translate(50, 50);
+
+  rect.listen(acgraph.events.EventType.MOUSEOVER, function(e) {
+    rect.setBounds(new acgraph.math.Rect(100, 100, 400, 400));
+    rect.setTransformationMatrix(1, 0, 0, 1, 0, 0);
+  });
+
+  rect.listen(acgraph.events.EventType.MOUSEOUT, function(e) {
+    rect.setBounds(new acgraph.math.Rect(150, 150, 300, 300));
+    rect.setTransformationMatrix(1, 0, 0, 1, 0, 0);
+  });
 });
-
-function a(a) {
-  var config = chart.toJson(false, !!a);
-  console.log(config);
-  chart.dispose();
-  chart = anychart.fromJson(config);
-  chart.container('container').draw();
-}
-
-function b(a) {
-  var config = chart.toXml(false, !!a);
-  console.log(config);
-  chart.dispose();
-  chart = anychart.fromXml(config);
-  chart.container('container').draw();
-}
 

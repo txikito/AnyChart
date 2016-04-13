@@ -1,4 +1,5 @@
 var chart;
+var text;
 
 anychart.onDocumentReady(function() {
   var treeData = anychart.data.tree(data, anychart.enums.TreeFillingMethod.AS_TABLE);
@@ -30,15 +31,22 @@ anychart.onDocumentReady(function() {
 
   chart.draw();
 
-  chart.zoomTo(951350400000, 954201600000);
+  chart.editing(true);
 
-  chart.listen('rowClick', function(e){
-    console.log(e['currentTarget']);
-  });
+  var timeLine = chart.getTimeline();
+  timeLine.textMarker(0)
+      .anchor('top')
+      .align('top')
+      .text('Marker')
+      .value(Date.UTC(2000, 2, 1))
+      .fontSize(35)
+      .fontColor('red')
+      .fontWeight('bold');
 
-  chart.listen('rowSelect', function(e){
-    console.log('select');
-  });
+  text = timeLine.textMarker(0);
+
+  //chart.zoomTo(951350400000, 954201600000);
+
 });
 var data = [
   {"id": "1", "name": "Phase 1 - Strategic Plan", "progressValue": "14%", "actualStart": 951350400000, "actualEnd": 954201600000},

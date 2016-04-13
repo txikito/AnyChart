@@ -17,6 +17,7 @@ goog.require('anychart.core.utils.Interactivity');
 goog.require('anychart.core.utils.InteractivityState');
 goog.require('anychart.core.utils.Margin');
 goog.require('anychart.core.utils.Padding');
+goog.require('anychart.performance');
 goog.require('anychart.themes.merging');
 goog.require('anychart.utils');
 goog.require('goog.json.hybrid');
@@ -49,7 +50,7 @@ anychart.core.Chart = function() {
    * @type {acgraph.vector.Rect}
    * @private
    */
-  this.shadowRect_;
+  this.shadowRect_ = null;
 
   /**
    * @type {anychart.core.utils.Margin}
@@ -82,6 +83,12 @@ anychart.core.Chart = function() {
   this.autoRedraw_ = true;
 
   /**
+   * Public property for the Table to allow restoring the autoRedraw state.
+   * @type {boolean}
+   */
+  this.originalAutoRedraw;
+
+  /**
    * @type {anychart.core.utils.Animation}
    * @private
    */
@@ -93,6 +100,20 @@ anychart.core.Chart = function() {
    * @private
    */
   this.autoRedrawIsSet_ = false;
+
+
+  /**
+   * X shift (in pixels) for 3D mode. Calculated in anychart.charts.Cartesian3d.
+   * @type {number}
+   */
+  this.x3dShift = 0;
+
+
+  /**
+   * Y shift (in pixels) for 3D mode. Calculated in anychart.charts.Cartesian3d.
+   * @type {number}
+   */
+  this.y3dShift = 0;
 
   this.invalidate(anychart.ConsistencyState.ALL);
   this.resumeSignalsDispatching(false);
@@ -125,6 +146,21 @@ anychart.core.Chart.prototype.SUPPORTED_CONSISTENCY_STATES =
  * @type {boolean}
  */
 anychart.core.Chart.prototype.supportsBaseHighlight = true;
+
+
+/**
+ * 3D mode flag.
+ * @type {boolean}
+ */
+anychart.core.Chart.prototype.isMode3d = false;
+
+
+/**
+ * Chart content bounds.
+ * @type {anychart.math.Rect}
+ * @protected
+ */
+anychart.core.Chart.prototype.contentBounds;
 
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -416,7 +452,7 @@ anychart.core.Chart.prototype.createTooltip = function() {
   this.registerDisposable(tooltip);
   tooltip.chart(this);
 
-  this.listen(anychart.enums.EventType.POINTS_HOVER, this.showTooltip_);
+  this.listen(anychart.enums.EventType.POINTS_HOVER, this.showTooltip_, true);
   return tooltip;
 };
 
@@ -427,6 +463,7 @@ anychart.core.Chart.prototype.createTooltip = function() {
  */
 anychart.core.Chart.prototype.showTooltip_ = function(event) {
   if (event.forbidTooltip) return;
+
   // summary
   // Tooltip Mode   | Interactivity mode
   // Single + Single - draw one tooltip.
@@ -443,7 +480,7 @@ anychart.core.Chart.prototype.showTooltip_ = function(event) {
   goog.array.forEach(event['seriesStatus'], function(status) {
     if (goog.array.isEmpty(status['points'])) {
       if (this.tooltip_.positionMode() == anychart.enums.TooltipPositionMode.FLOAT) {
-        this.unlisten(goog.events.EventType.MOUSEMOVE, this.updateTooltip_);
+        this.unlisten(goog.events.EventType.MOUSEMOVE, this.updateTooltip);
       }
       this.tooltip_.hide(event);
 
@@ -454,7 +491,7 @@ anychart.core.Chart.prototype.showTooltip_ = function(event) {
 
   if (!goog.array.isEmpty(toShowSeriesStatus)) {
     if (this.tooltip_.positionMode() == anychart.enums.TooltipPositionMode.FLOAT) {
-      this.listen(goog.events.EventType.MOUSEMOVE, this.updateTooltip_);
+      this.listen(goog.events.EventType.MOUSEMOVE, this.updateTooltip);
     }
 
     var interactivity = this.interactivity();
@@ -467,10 +504,10 @@ anychart.core.Chart.prototype.showTooltip_ = function(event) {
         // improve maps support (separated & point modes)
         if (goog.isDef(pointIndex['index'])) pointIndex = pointIndex['index'];
 
-        // condition for compile_each
-        if (this.series_) {
+        // check isDef series for compile_each (for gantt, etc.)
+        if (goog.isDef(this.getAllSeries())) {
           // get points from all series by point index
-          points = goog.array.map(this.series_, function(series) {
+          points = goog.array.map(this.getAllSeries(), function(series) {
             series.getIterator().select(pointIndex);
             return {
               'series': series,
@@ -538,9 +575,9 @@ anychart.core.Chart.prototype.useUnionTooltipAsSingle = function() {
 /**
  * Update tooltip position. (for float)
  * @param {anychart.core.MouseEvent} event
- * @private
+ * @protected
  */
-anychart.core.Chart.prototype.updateTooltip_ = function(event) {
+anychart.core.Chart.prototype.updateTooltip = function(event) {
   this.tooltip_.updatePosition(event['clientX'], event['clientY']);
 };
 
@@ -661,9 +698,10 @@ anychart.core.Chart.prototype.draw = function() {
   if (!this.checkDrawingNeeded())
     return this;
 
+  anychart.performance.start('Chart.draw()');
   var startTime;
   if (anychart.DEVELOP) {
-    startTime = anychart.utils.relativeNow();
+    startTime = anychart.performance.relativeNow();
   }
 
   this.suspendSignalsDispatching();
@@ -693,15 +731,35 @@ anychart.core.Chart.prototype.draw = function() {
 
     this.markConsistent(anychart.ConsistencyState.CONTAINER);
   }
+
+  if (this.hasInvalidationState(anychart.ConsistencyState.BOUNDS)) {
+    //can be null if you add chart to tooltip container on hover (Vitalya :) )
+    if (stage) {
+      //listen resize event
+      stage.resize(stage.originalWidth, stage.originalHeight);
+      stage.listen(
+          acgraph.vector.Stage.EventType.STAGE_RESIZE,
+          this.resizeHandler,
+          false,
+          this
+      );
+    }
+  }
   //end clear container consistency states
 
   // DVF-1648
+  anychart.performance.start('Chart.beforeDraw()');
   this.beforeDraw();
+  anychart.performance.end('Chart.beforeDraw()');
 
   //total chart area bounds, do not override, it can be useful later
+  anychart.performance.start('Chart.calculateBounds()');
   var totalBounds = /** @type {!anychart.math.Rect} */(this.getPixelBounds());
-  var contentBounds = this.calculateContentAreaSpace(totalBounds);
-  this.drawContent(contentBounds);
+  this.contentBounds = this.calculateContentAreaSpace(totalBounds);
+  anychart.performance.end('Chart.calculateBounds()');
+  anychart.performance.start('Chart.drawContent()');
+  this.drawContent(this.contentBounds);
+  anychart.performance.end('Chart.drawContent()');
 
   // used for crosshair
   var background = this.background();
@@ -711,7 +769,7 @@ anychart.core.Chart.prototype.draw = function() {
       this.shadowRect_ = this.rootElement.rect();
       this.shadowRect_.fill(anychart.color.TRANSPARENT_HANDLER).stroke(null);
     }
-    this.shadowRect_.setBounds(contentBounds);
+    this.shadowRect_.setBounds(this.contentBounds);
   }
 
   if (this.hasInvalidationState(anychart.ConsistencyState.CHART_LABELS | anychart.ConsistencyState.BOUNDS)) {
@@ -728,21 +786,6 @@ anychart.core.Chart.prototype.draw = function() {
     this.markConsistent(anychart.ConsistencyState.CHART_LABELS);
   }
 
-  if (this.hasInvalidationState(anychart.ConsistencyState.BOUNDS)) {
-    //can be null if you add chart to tooltip container on hover (Vitalya :) )
-    if (this.container() && this.container().getStage()) {
-      //listen resize event
-      stage = this.container().getStage();
-      stage.resize(stage.originalWidth, stage.originalHeight);
-      this.container().getStage().listen(
-          acgraph.vector.Stage.EventType.STAGE_RESIZE,
-          this.resizeHandler,
-          false,
-          this
-      );
-    }
-  }
-
   //after all chart items drawn, we can clear other states
   this.markConsistent(anychart.ConsistencyState.BOUNDS);
 
@@ -753,7 +796,11 @@ anychart.core.Chart.prototype.draw = function() {
 
   this.resumeSignalsDispatching(false);
 
-  if (manualSuspend) stage.resume();
+  if (manualSuspend) {
+    anychart.performance.start('Stage resume');
+    stage.resume();
+    anychart.performance.end('Stage resume');
+  }
 
   this.dispatchDetachedEvent({
     'type': anychart.enums.EventType.CHART_DRAW,
@@ -761,13 +808,15 @@ anychart.core.Chart.prototype.draw = function() {
   });
 
   if (anychart.DEVELOP) {
-    var msg = 'Chart rendering time: ' + anychart.math.round((anychart.utils.relativeNow() - startTime), 4);
+    var msg = 'Chart rendering time: ' + anychart.math.round((anychart.performance.relativeNow() - startTime), 4);
     anychart.utils.info(msg);
   }
 
 
   if (this.supportsBaseHighlight)
-    this.onInteractivitySignal_();
+    this.onInteractivitySignal();
+
+  anychart.performance.end('Chart.draw()');
 
   return this;
 };
@@ -820,6 +869,57 @@ anychart.core.Chart.prototype.resizeHandler = function(evt) {
     this.invalidate(anychart.ConsistencyState.ALL & ~anychart.ConsistencyState.CHART_ANIMATION,
         anychart.Signal.NEEDS_REDRAW | anychart.Signal.BOUNDS_CHANGED);
   }
+};
+
+
+//----------------------------------------------------------------------------------------------------------------------
+//
+//  Bounds/coordinates.
+//
+//----------------------------------------------------------------------------------------------------------------------
+/**
+ * Getter for plot bounds of the chart.
+ * @return {anychart.math.Rect}
+ */
+anychart.core.Chart.prototype.getPlotBounds = function() {
+  return this.contentBounds;
+};
+
+
+/**
+ * Convert coordinates relative local container (plot or data) to global coordinates relative global document.
+ * @param {number} xCoord .
+ * @param {number} yCoord .
+ * @return {Object.<string, number>} .
+ */
+anychart.core.Chart.prototype.localToGlobal = function(xCoord, yCoord) {
+  var containerPosition;
+  if (this.container() && this.container().getStage() && this.container().getStage().container()) {
+    containerPosition = goog.style.getClientPosition(/** @type {Element} */(this.container().getStage().container()));
+  }
+
+  return containerPosition ?
+      {'x': xCoord + containerPosition.x, 'y': yCoord + containerPosition.y} :
+      {'x': xCoord, 'y': yCoord};
+
+};
+
+
+/**
+ * Convert global coordinates relative global document to coordinates relative local container (plot or data).
+ * @param {number} xCoord .
+ * @param {number} yCoord .
+ * @return {Object.<string, number>} .
+ */
+anychart.core.Chart.prototype.globalToLocal = function(xCoord, yCoord) {
+  var containerPosition;
+  if (this.container() && this.container().getStage() && this.container().getStage().container()) {
+    containerPosition = goog.style.getClientPosition(/** @type {Element} */(this.container().getStage().container()));
+  }
+
+  return containerPosition ?
+      {'x': xCoord - containerPosition.x, 'y': yCoord - containerPosition.y} :
+      {'x': xCoord, 'y': yCoord};
 };
 
 
@@ -1219,18 +1319,22 @@ anychart.core.Chart.prototype.handleMouseOverAndMove = function(event) {
   var tag = anychart.utils.extractTag(event['domTarget']);
   var index;
   var forbidTooltip = false;
+  var isTargetLegendOrColorRange = event['target'] instanceof anychart.core.ui.Legend || this.checkIfColorRange(event['target']);
 
   if (event['target'] instanceof anychart.core.ui.LabelsFactory || event['target'] instanceof anychart.core.ui.MarkersFactory) {
     var parent = event['target'].getParentEventTarget();
     if (parent.isSeries && parent.isSeries())
       series = parent;
     index = tag;
-  } else if (event['target'] instanceof anychart.core.ui.Legend) {
+  } else if (isTargetLegendOrColorRange) {
     if (tag) {
-      if (tag.points) {
-        series = tag.points.series;
-        index = tag.points.points;
+      if (tag.points_) {
+        series = tag.points_.series;
+        index = tag.points_.points;
       } else {
+        // I don't understand, why it is like this here.
+        //series = tag.series_;
+        //index = tag.index_;
         series = tag.series;
         index = tag.index;
       }
@@ -1243,10 +1347,17 @@ anychart.core.Chart.prototype.handleMouseOverAndMove = function(event) {
 
   if (series && !series.isDisposed() && series.enabled() && goog.isFunction(series.makePointEvent)) {
     var evt = series.makePointEvent(event);
+
+    if (series.hasOutlierMarkers && series.hasOutlierMarkers() && goog.isNumber(evt['pointIndex']))
+      index = evt['pointIndex'];
     if (evt && ((anychart.utils.checkIfParent(/** @type {!goog.events.EventTarget} */(series), event['relatedTarget'])) || series.dispatchEvent(evt))) {
       if (interactivity.hoverMode() == anychart.enums.HoverMode.SINGLE) {
 
-        if (goog.isArray(index) || (!series.state.hasPointStateByPointIndex(anychart.PointState.HOVER, index) && !isNaN(index))) {
+        var whetherNeedHoverIndex = goog.isArray(index) && !goog.array.every(index, function(el) {
+          return series.state.hasPointStateByPointIndex(anychart.PointState.HOVER, el);
+        }, this);
+
+        if (whetherNeedHoverIndex || (!series.state.hasPointStateByPointIndex(anychart.PointState.HOVER, index) && !isNaN(index))) {
           if (goog.isFunction(series.hoverPoint))
             series.hoverPoint(/** @type {number} */ (index), event);
 
@@ -1258,10 +1369,13 @@ anychart.core.Chart.prototype.handleMouseOverAndMove = function(event) {
             eventSeriesStatus.push({
               series: series,
               points: alreadyHoveredPoints,
-              nearestPointToCursor: {index: index, distance: 0}
+              nearestPointToCursor: {index: (goog.isArray(index) ? index[0] : index), distance: 0}
             });
 
-          this.dispatchEvent(this.makeInteractivityPointEvent('hovered', event, eventSeriesStatus, false, forbidTooltip));
+          if (eventSeriesStatus.length) {
+            this.dispatchEvent(this.makeInteractivityPointEvent('hovered', event, eventSeriesStatus, false, forbidTooltip));
+            this.prevHoverSeriesStatus = eventSeriesStatus.length ? eventSeriesStatus : null;
+          }
         }
       }
     }
@@ -1279,7 +1393,10 @@ anychart.core.Chart.prototype.handleMouseOverAndMove = function(event) {
           contains = contains || series[i] == seriesStatus[j].series;
         }
         if (!contains && series[i].state.getIndexByPointState(anychart.PointState.HOVER).length) {
-          seriesStatus.push({series: series[i], points: []});
+          seriesStatus.push({
+            series: series[i],
+            points: []
+          });
           series[i].unhover();
           dispatchEvent = true;
         }
@@ -1328,12 +1445,15 @@ anychart.core.Chart.prototype.handleMouseOut = function(event) {
     if (parent.isSeries && parent.isSeries())
       series = parent;
     index = tag;
-  } else if (event['target'] instanceof anychart.core.ui.Legend) {
+  } else if (event['target'] instanceof anychart.core.ui.Legend || this.checkIfColorRange(event['target'])) {
     if (tag) {
-      if (tag.points) {
-        series = tag.points.series;
-        index = tag.points.points;
+      if (tag.points_) {
+        series = tag.points_.series;
+        index = tag.points_.points;
       } else {
+        // I don't understand, why it is like this here.
+        //series = tag.series_;
+        //index = tag.index_;
         series = tag.series;
         index = tag.index;
       }
@@ -1355,10 +1475,11 @@ anychart.core.Chart.prototype.handleMouseOut = function(event) {
     if ((!ifParent || (prevIndex != index)) && series.dispatchEvent(evt)) {
       if (hoverMode == anychart.enums.HoverMode.SINGLE && (!isNaN(index) || goog.isArray(index))) {
         series.unhover();
+        this.doAdditionActionsOnMouseOut();
         this.dispatchEvent(this.makeInteractivityPointEvent('hovered', event, [{
           series: series,
           points: [],
-          nearestPointToCursor: {index: index, distance: 0}
+          nearestPointToCursor: {index: (goog.isArray(index) ? index[0] : index), distance: 0}
         }], false, forbidTooltip));
       }
     }
@@ -1378,10 +1499,30 @@ anychart.core.Chart.prototype.handleMouseOut = function(event) {
 
 
 /**
+ * Checks if the target is a color range.
+ * @param {*} target
+ * @return {boolean}
+ */
+anychart.core.Chart.prototype.checkIfColorRange = function(target) {
+  return false;
+};
+
+
+/**
  * Handler for mouseClick event.
  * @param {anychart.core.MouseEvent} event Event object.
  */
 anychart.core.Chart.prototype.handleMouseDown = function(event) {
+  this.onMouseDown(event);
+};
+
+
+/**
+ * Logic for mouse down. It needs for inherited classes.
+ * @protected
+ * @param {anychart.core.MouseEvent} event Event object.
+ */
+anychart.core.Chart.prototype.onMouseDown = function(event) {
   var interactivity = this.interactivity();
 
   var seriesStatus, eventSeriesStatus, allSeries, alreadySelectedPoints, i;
@@ -1396,12 +1537,15 @@ anychart.core.Chart.prototype.handleMouseDown = function(event) {
     if (parent.isSeries && parent.isSeries())
       series = parent;
     index = tag;
-  } else if (event['target'] instanceof anychart.core.ui.Legend) {
+  } else if (event['target'] instanceof anychart.core.ui.Legend || this.checkIfColorRange(event['target'])) {
     if (tag) {
-      if (tag.points) {
-        series = tag.points.series;
-        index = tag.points.points;
+      if (tag.points_) {
+        series = tag.points_.series;
+        index = tag.points_.points;
       } else {
+        // I don't understand, why it is like this here.
+        //series = tag.series_;
+        //index = tag.index_;
         series = tag.series;
         index = tag.index;
       }
@@ -1674,7 +1818,7 @@ anychart.core.Chart.prototype.unhover = function(opt_indexOrIndexes) {
 anychart.core.Chart.prototype.interactivity = function(opt_value) {
   if (!this.interactivity_) {
     this.interactivity_ = new anychart.core.utils.Interactivity(this);
-    this.interactivity_.listenSignals(this.onInteractivitySignal_, this);
+    this.interactivity_.listenSignals(this.onInteractivitySignal, this);
   }
 
   if (goog.isDef(opt_value)) {
@@ -1690,9 +1834,9 @@ anychart.core.Chart.prototype.interactivity = function(opt_value) {
 
 /**
  * Animation enabled change handler.
- * @private
+ * @protected
  */
-anychart.core.Chart.prototype.onInteractivitySignal_ = function() {
+anychart.core.Chart.prototype.onInteractivitySignal = function() {
   var series = this.getAllSeries();
   for (var i = series.length; i--;) {
     if (series[i])
@@ -1733,3 +1877,5 @@ anychart.core.Chart.prototype['saveAsJpg'] = anychart.core.Chart.prototype.saveA
 anychart.core.Chart.prototype['saveAsPdf'] = anychart.core.Chart.prototype.saveAsPdf;//inherited
 anychart.core.Chart.prototype['saveAsSvg'] = anychart.core.Chart.prototype.saveAsSvg;//inherited
 anychart.core.Chart.prototype['toSvg'] = anychart.core.Chart.prototype.toSvg;//inherited
+anychart.core.Chart.prototype['localToGlobal'] = anychart.core.Chart.prototype.localToGlobal;
+anychart.core.Chart.prototype['globalToLocal'] = anychart.core.Chart.prototype.globalToLocal;

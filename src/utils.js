@@ -923,7 +923,7 @@ anychart.utils.json2xml = function(json, opt_rootNodeName, opt_returnAsXmlNode) 
   var root = anychart.utils.json2xml_(json, opt_rootNodeName || 'anychart', result);
   if (root) {
     if (!opt_rootNodeName)
-      root.setAttribute('xmlns', 'http://anychart.com/schemas/7.8.0/xml-schema.xsd');
+      root.setAttribute('xmlns', 'http://anychart.com/schemas/7.9.1/xml-schema.xsd');
     result.appendChild(root);
   }
   return opt_returnAsXmlNode ? result : goog.dom.xml.serialize(result);
@@ -1077,6 +1077,8 @@ anychart.utils.getNodeNames_ = function(arrayPropName) {
       return ['knob_pointers', 'pointer'];
     case 'scales':
       return ['scales', 'scale'];
+    case 'colorScales':
+      return ['color_scales', 'scale'];
     case 'explicit':
       return ['explicit', 'tick'];
     case 'values':
@@ -1097,6 +1099,8 @@ anychart.utils.getNodeNames_ = function(arrayPropName) {
       return ['index', 'key'];
     case 'outliers':
       return ['outliers', 'outlier'];
+    case 'inverted':
+      return ['inverted_list', 'inverted'];
   }
   return null;
 };
@@ -1162,6 +1166,10 @@ anychart.utils.getArrayPropName_ = function(nodeName) {
       return ['index', 'key'];
     case 'outliers':
       return ['outliers', 'outlier'];
+    case 'invertedList':
+      return ['inverted', 'inverted'];
+    case 'colorScales':
+      return ['colorScales', 'scale'];
   }
   return null;
 };
@@ -1323,6 +1331,9 @@ anychart.utils.getErrorDescription = function(code, opt_arguments) {
     case anychart.enums.ErrorCode.NO_LEGEND_IN_CHART:
       return 'Bullet and Sparkline charts do not support Legend. Please use anychart.ui.Legend component for a group of charts instead.';
 
+    case anychart.enums.ErrorCode.NO_LEGEND_IN_STOCK:
+      return 'Stock chart itself doesn\'t support legend - stock plots do. So use stock.plot().legend() instead.';
+
     case anychart.enums.ErrorCode.NO_CREDITS_IN_CHART:
       return 'Bullet and Sparkline charts do not support Credits.';
 
@@ -1334,6 +1345,15 @@ anychart.utils.getErrorDescription = function(code, opt_arguments) {
 
     case anychart.enums.ErrorCode.CSV_PARSING_FAILED:
       return 'CSV parsing failed.';
+
+    case anychart.enums.ErrorCode.TABLE_MAPPING_DIFFERENT_TABLE:
+      return 'Cannot create a computer on the table with the mapping of another table.';
+
+    case anychart.enums.ErrorCode.TABLE_FIELD_NAME_DUPLICATE:
+      return 'Cannot create computed field "' + opt_arguments[0] + '" - field name should be unique for the table';
+
+    case anychart.enums.ErrorCode.TABLE_COMPUTER_OUTPUT_FIELD_DUPLICATE:
+      return 'Cannot create output field "' + opt_arguments[0] + '" on the computer - field with this name already exists';
 
     default:
       return 'Unknown error occurred. Please, contact support team at http://support.anychart.com/.\n' +
@@ -1449,7 +1469,7 @@ anychart.utils.getWarningDescription = function(code, opt_arguments) {
     case anychart.enums.WarningCode.GANTT_FIT_TO_TASK:
       return 'Can not fit gantt chart timeline to task with id \'' + opt_arguments[0] + '\' because both fields \'' +
           anychart.enums.GanttDataFields.ACTUAL_START + '\' and \'' + anychart.enums.GanttDataFields.ACTUAL_END +
-          '\' must be specified in data item.';
+          '\' must be correctly specified in data item.';
 
     case anychart.enums.WarningCode.SERIES_DOESNT_SUPPORT_ERROR:
       return 'Series type "' + opt_arguments[0] + '" does not support error settings - ' +
@@ -1482,6 +1502,19 @@ anychart.utils.getWarningDescription = function(code, opt_arguments) {
     case anychart.enums.WarningCode.SCALE_TYPE_NOT_SUPPORTED:
       return 'Scale type "' + opt_arguments[0] + '" is not supported - only ' + opt_arguments[1] + ' is.';
 
+    case anychart.enums.WarningCode.PARSE_DATETIME:
+      return 'Could not parse date time value "' + opt_arguments[0] + '".' + (!!opt_arguments[1] ?
+              ('Symbols parsed: ' + opt_arguments[1]) : '');
+
+    case anychart.enums.WarningCode.IMMUTABLE_MARKER_SCALE:
+      return 'Scale is immutable for this type of axis marker and scale will not be set.';
+
+    case anychart.enums.WarningCode.IMMUTABLE_MARKER_LAYOUT:
+      return 'Layout is immutable for this type of axis marker and layout will not be set.';
+
+    case anychart.enums.WarningCode.FEATURE_ID_NOT_FOUND:
+      return 'Feature with id "' + opt_arguments[0] + '" not found';
+
     default:
       return 'Unknown error. Please, contact support team at http://support.anychart.com/.\n' +
           'We will be very grateful for your report!';
@@ -1504,17 +1537,6 @@ anychart.utils.callLog_ = function(name, message, opt_exception) {
     }
   }
 };
-
-
-/**
- * Returns the number of milliseconds passed since an event in past. Returns fractional milliseconds, if possible.
- * Consequent calls return non-decreasing numeric sequences.
- * @return {number}
- */
-anychart.utils.relativeNow = (
-    goog.global['performance'] && goog.isFunction(goog.global['performance']['now']) ?
-        goog.bind(goog.global['performance']['now'], goog.global['performance']) :
-        goog.now);
 
 
 /**

@@ -185,9 +185,79 @@ anychart.core.map.series.BaseWithMarkers.prototype.startDrawing = function() {
 
 
 /** @inheritDoc */
+anychart.core.map.series.BaseWithMarkers.prototype.applyZoomMoveTransform = function() {
+  var domElement, prevPos, newPos, trX, trY, selfTx;
+
+  var iterator = this.getIterator();
+  var index = iterator.getIndex();
+  var pointState = this.state.getPointStateByIndex(index);
+
+  var selected = this.state.isStateContains(pointState, anychart.PointState.SELECT);
+  var hovered = !selected && this.state.isStateContains(pointState, anychart.PointState.HOVER);
+
+  var pointMarker = iterator.get('marker');
+  var hoverPointMarker = iterator.get('hoverMarker');
+  var selectPointMarker = iterator.get('selectMarker');
+
+  var marker = this.markers_.getMarker(index);
+
+  var markerEnabledState = pointMarker && goog.isDef(pointMarker['enabled']) ? pointMarker['enabled'] : null;
+  var markerHoverEnabledState = hoverPointMarker && goog.isDef(hoverPointMarker['enabled']) ? hoverPointMarker['enabled'] : null;
+  var markerSelectEnabledState = selectPointMarker && goog.isDef(selectPointMarker['enabled']) ? selectPointMarker['enabled'] : null;
+
+  var isDraw = hovered || selected ?
+      hovered ?
+          goog.isNull(markerHoverEnabledState) ?
+              this.hoverMarkers_ && goog.isNull(this.hoverMarkers_.enabled()) ?
+                  goog.isNull(markerEnabledState) ?
+                      this.markers_.enabled() :
+                      markerEnabledState :
+                  this.hoverMarkers_.enabled() :
+              markerHoverEnabledState :
+          goog.isNull(markerSelectEnabledState) ?
+              this.selectMarkers_ && goog.isNull(this.selectMarkers_.enabled()) ?
+                  goog.isNull(markerEnabledState) ?
+                      this.markers_.enabled() :
+                      markerEnabledState :
+                  this.selectMarkers_.enabled() :
+              markerSelectEnabledState :
+      goog.isNull(markerEnabledState) ?
+          this.markers_.enabled() :
+          markerEnabledState;
+
+  if (isDraw) {
+    if (marker && marker.getDomElement() && marker.positionProvider()) {
+      prevPos = marker.positionProvider()['value'];
+
+      var position = this.getMarkersPosition(pointState);
+      var positionProvider = this.createPositionProvider(/** @type {string} */(position));
+
+      newPos = positionProvider['value'];
+
+      domElement = marker.getDomElement();
+      selfTx = domElement.getSelfTransformation();
+
+      var markerRotation = iterator.meta('markerRotation');
+      if (goog.isDef(markerRotation))
+        domElement.rotateByAnchor(-markerRotation);
+
+      trX = -selfTx.getTranslateX() + newPos['x'] - prevPos['x'];
+      trY = -selfTx.getTranslateY() + newPos['y'] - prevPos['y'];
+
+      domElement.translate(trX, trY);
+
+      if (goog.isDef(markerRotation))
+        domElement.rotateByAnchor(/** @type {number}*/(markerRotation));
+    }
+  }
+  anychart.core.map.series.BaseWithMarkers.base(this, 'applyZoomMoveTransform');
+};
+
+
+/** @inheritDoc */
 anychart.core.map.series.BaseWithMarkers.prototype.drawPoint = function(pointState) {
   goog.base(this, 'drawPoint', pointState);
-  this.drawMarker(pointState);
+  this.configureMarker(pointState, true);
 };
 
 
@@ -209,12 +279,6 @@ anychart.core.map.series.BaseWithMarkers.prototype.finalizeDrawing = function() 
     this.selectMarkers_.markConsistent(anychart.ConsistencyState.ALL);
   }
 
-  //if (this.clip()) {
-  //  var bounds = /** @type {!anychart.math.Rect} */(goog.isBoolean(this.clip()) ? this.pixelBoundsCache : this.clip());
-  //  var markerDOM = this.markers().getDomElement();
-  //  if (markerDOM) markerDOM.clip(/** @type {anychart.math.Rect} */(bounds));
-  //}
-
   goog.base(this, 'finalizeDrawing');
 };
 
@@ -222,7 +286,7 @@ anychart.core.map.series.BaseWithMarkers.prototype.finalizeDrawing = function() 
 /**
  * Gets marker position.
  * @param {anychart.PointState|number} pointState If it is a hovered oe selected marker drawing.
- * @return {string} Position settings.
+ * @return {string|number} Position settings.
  */
 anychart.core.map.series.BaseWithMarkers.prototype.getMarkersPosition = function(pointState) {
   var iterator = this.getIterator();
@@ -234,23 +298,34 @@ anychart.core.map.series.BaseWithMarkers.prototype.getMarkersPosition = function
   var hoverPointMarker = iterator.get('hoverMarker');
   var selectPointMarker = iterator.get('selectMarker');
 
-  var markerPosition = pointMarker && pointMarker['position'] ? pointMarker['position'] : null;
-  var markerHoverPosition = hoverPointMarker && hoverPointMarker['position'] ? hoverPointMarker['position'] : null;
-  var markerSelectPosition = selectPointMarker && selectPointMarker['position'] ? selectPointMarker['position'] : null;
+  var markerPosition = pointMarker && goog.isDef(pointMarker['position']) ? pointMarker['position'] : this.markers().position();
+  var markerHoverPosition = hoverPointMarker && goog.isDef(hoverPointMarker['position']) ? hoverPointMarker['position'] : goog.isDef(this.hoverMarkers().position()) ? this.hoverMarkers().position() : markerPosition;
+  var markerSelectPosition = selectPointMarker && goog.isDef(selectPointMarker['position']) ? selectPointMarker['position'] : goog.isDef(this.selectMarkers().position()) ? this.hoverMarkers().position() : markerPosition;
 
-  return (hovered && (markerHoverPosition || this.hoverMarkers().position())) ||
-      (selected && (markerSelectPosition || this.selectMarkers().position())) ||
-      markerPosition || this.markers().position();
+  return hovered ? markerHoverPosition : selected ? markerSelectPosition : markerPosition;
+};
+
+
+/**
+ * Draws marker for the point.
+ * @param {anychart.PointState|number} pointState Point state.
+ * @protected
+ */
+anychart.core.map.series.BaseWithMarkers.prototype.drawMarker = function(pointState) {
+  var marker = this.configureMarker(pointState, true);
+  if (marker)
+    marker.draw();
 };
 
 
 /**
  * Draws marker for the point.
  * @param {anychart.PointState|number} pointState If it is a hovered oe selected marker drawing.
- * @protected
+ * @param {boolean=} opt_reset Whether reset marker settings.
+ * @return {?anychart.core.ui.MarkersFactory.Marker}
  */
-anychart.core.map.series.BaseWithMarkers.prototype.drawMarker = function(pointState) {
-  if (!this.markers_) return;
+anychart.core.map.series.BaseWithMarkers.prototype.configureMarker = function(pointState, opt_reset) {
+  if (!this.markers_) return null;
   var iterator = this.getIterator();
 
   var selected = this.state.isStateContains(pointState, anychart.PointState.SELECT);
@@ -305,13 +380,16 @@ anychart.core.map.series.BaseWithMarkers.prototype.drawMarker = function(pointSt
       marker = this.markers_.add(positionProvider, index);
     }
 
-    marker.resetSettings();
-    marker.currentMarkersFactory(markersFactory);
-    marker.setSettings(/** @type {Object} */(pointMarker), /** @type {Object} */(hovered ? hoverPointMarker : selectPointMarker));
-    marker.draw();
+    if (opt_reset) {
+      marker.resetSettings();
+      marker.currentMarkersFactory(markersFactory);
+      marker.setSettings(/** @type {Object} */(pointMarker), /** @type {Object} */(hovered ? hoverPointMarker : selectPointMarker));
+    }
+    return marker;
   } else if (marker) {
-    marker.clear();
+    this.markers_.clear(marker.getIndex());
   }
+  return null;
 };
 
 
@@ -382,6 +460,12 @@ anychart.core.map.series.BaseWithMarkers.prototype.getLegendItemData = function(
   return data;
 };
 
+
+/** @inheritDoc */
+anychart.core.map.series.BaseWithMarkers.prototype.finalizePointAppearance = function() {
+  anychart.core.map.series.BaseWithMarkers.base(this, 'finalizePointAppearance');
+  this.markers().draw();
+};
 
 
 //anychart.core.map.series.BaseWithMarkers.prototype['startDrawing'] = anychart.core.map.series.BaseWithMarkers.prototype.startDrawing;//inherited

@@ -177,7 +177,7 @@ anychart.core.map.series.Base.prototype.geoIdField = function(opt_value) {
     }
     return this;
   }
-  return this.geoIdField_;
+  return this.geoIdField_ || this.geoAutoGeoIdField_;
 };
 
 
@@ -186,9 +186,11 @@ anychart.core.map.series.Base.prototype.geoIdField = function(opt_value) {
  * @param {string} value
  */
 anychart.core.map.series.Base.prototype.setAutoGeoIdField = function(value) {
-  this.geoAutoGeoIdField_ = value;
-  if (!this.geoIdField_)
-    this.invalidate(anychart.ConsistencyState.SERIES_DATA, anychart.Signal.NEEDS_REDRAW);
+  if (this.geoAutoGeoIdField_ != value) {
+    this.geoAutoGeoIdField_ = value;
+    if (!this.geoIdField_)
+      this.invalidate(anychart.ConsistencyState.SERIES_DATA, anychart.Signal.NEEDS_REDRAW);
+  }
 };
 
 
@@ -209,7 +211,7 @@ anychart.core.map.series.Base.prototype.getFinalGeoIdField = function() {
 anychart.core.map.series.Base.prototype.setGeoData = function(map, geoData) {
   this.map = map;
   this.geoData = geoData;
-  this.invalidate(anychart.ConsistencyState.SERIES_DATA, anychart.Signal.NEEDS_REDRAW);
+  this.calculate();
 };
 
 
@@ -309,7 +311,96 @@ anychart.core.map.series.Base.prototype.calculate = function() {
         }
       }
     }
-    this.markConsistent(anychart.ConsistencyState.SERIES_DATA);
+  }
+};
+
+
+/**
+ * Update series elements on zoom or move map interactivity.
+ * p.s. There is should be logic for series that does some manipulation with series elements. Now it is just series redrawing.
+ * @return {anychart.core.map.series.Base}
+ */
+anychart.core.map.series.Base.prototype.updateOnZoomOrMove = function() {
+  var iterator = this.getResetIterator();
+
+  var stage = this.container() ? this.container().getStage() : null;
+  var manualSuspend = stage && !stage.isSuspended();
+  if (manualSuspend) stage.suspend();
+
+  while (iterator.advance() && this.enabled()) {
+    this.applyZoomMoveTransform();
+  }
+
+  if (manualSuspend)
+    stage.resume();
+
+  this.markConsistent(anychart.ConsistencyState.ALL);
+
+  return this;
+};
+
+
+/**
+ * Applying zoom and move transformations to series elements for improve performans.
+ */
+anychart.core.map.series.Base.prototype.applyZoomMoveTransform = function() {
+  var domElement, prevPos, newPos, trX, trY, selfTx;
+
+  var iterator = this.getIterator();
+  var index = iterator.getIndex();
+  var pointState = this.state.getPointStateByIndex(index);
+  var selected = this.state.isStateContains(pointState, anychart.PointState.SELECT);
+  var hovered = !selected && this.state.isStateContains(pointState, anychart.PointState.HOVER);
+
+  var isDraw, labelsFactory, pointLabel, stateLabel, labelEnabledState, stateLabelEnabledState;
+
+  pointLabel = iterator.get('label');
+  labelEnabledState = pointLabel && goog.isDef(pointLabel['enabled']) ? pointLabel['enabled'] : null;
+  if (selected) {
+    stateLabel = iterator.get('selectLabel');
+    stateLabelEnabledState = stateLabel && goog.isDef(stateLabel['enabled']) ? stateLabel['enabled'] : null;
+    labelsFactory = /** @type {anychart.core.ui.LabelsFactory} */(this.selectLabels());
+  } else if (hovered) {
+    stateLabel = iterator.get('hoverLabel');
+    stateLabelEnabledState = stateLabel && goog.isDef(stateLabel['enabled']) ? stateLabel['enabled'] : null;
+    labelsFactory = /** @type {anychart.core.ui.LabelsFactory} */(this.hoverLabels());
+  } else {
+    stateLabel = null;
+    labelsFactory = this.labels();
+  }
+
+  if (selected || hovered) {
+    isDraw = goog.isNull(stateLabelEnabledState) ?
+        goog.isNull(labelsFactory.enabled()) ?
+            goog.isNull(labelEnabledState) ?
+                this.labels().enabled() :
+                labelEnabledState :
+            labelsFactory.enabled() :
+        stateLabelEnabledState;
+  } else {
+    isDraw = goog.isNull(labelEnabledState) ?
+        this.labels().enabled() :
+        labelEnabledState;
+  }
+
+  if (isDraw) {
+    var label = this.labels().getLabel(index);
+    if (label && label.getDomElement() && label.positionProvider()) {
+
+      var position = this.getLabelsPosition(pointState);
+      var positionProvider = this.createPositionProvider(position);
+
+      prevPos = label.positionProvider()['value'];
+      newPos = positionProvider['value'];
+
+      domElement = label.getDomElement();
+      selfTx = domElement.getSelfTransformation();
+
+      trX = -selfTx.getTranslateX() + newPos['x'] - prevPos['x'];
+      trY = -selfTx.getTranslateY() + newPos['y'] - prevPos['y'];
+
+      domElement.translate(trX, trY);
+    }
   }
 };
 
@@ -330,7 +421,7 @@ anychart.core.map.series.Base.prototype.draw = function() {
   this.startDrawing();
   while (iterator.advance() && this.enabled()) {
     var index = iterator.getIndex();
-    if (iterator.get('selected'))
+    if (iterator.get('selected') && this.hasInvalidationState(anychart.ConsistencyState.SERIES_DATA))
       this.state.setPointState(anychart.PointState.SELECT, index);
 
     this.drawPoint(this.state.getPointStateByIndex(index));
@@ -338,7 +429,7 @@ anychart.core.map.series.Base.prototype.draw = function() {
   this.finalizeDrawing();
 
   this.resumeSignalsDispatching(false);
-  this.markConsistent(anychart.ConsistencyState.ALL);
+  this.markConsistent(anychart.ConsistencyState.ALL & ~anychart.ConsistencyState.CONTAINER);
 
   return this;
 };
@@ -365,7 +456,7 @@ anychart.core.map.series.Base.prototype.startDrawing = function() {
   this.selectLabels().suspendSignalsDispatching();
 
   this.labels().clear();
-  this.labels().container(/** @type {acgraph.vector.ILayer} */(this.container()));
+
   this.labels().parentBounds(/** @type {anychart.math.Rect} */(this.container().getBounds()));
 };
 
@@ -396,6 +487,7 @@ anychart.core.map.series.Base.prototype.drawPoint = function(pointState) {
  * series.finalizeDrawing();
  */
 anychart.core.map.series.Base.prototype.finalizeDrawing = function() {
+  this.labels().container(/** @type {acgraph.vector.ILayer} */(this.container()));
   this.labels().draw();
 
   this.labels().resumeSignalsDispatching(false);
@@ -405,16 +497,6 @@ anychart.core.map.series.Base.prototype.finalizeDrawing = function() {
   this.labels().markConsistent(anychart.ConsistencyState.ALL);
   this.hoverLabels().markConsistent(anychart.ConsistencyState.ALL);
   this.selectLabels().markConsistent(anychart.ConsistencyState.ALL);
-
-  //if (this.clip()) {
-  //  var bounds = /** @type {!anychart.math.Rect} */(goog.isBoolean(this.clip()) ? this.pixelBoundsCache : this.clip());
-  //  var labelDOM = this.labels().getDomElement();
-  //  if (labelDOM) labelDOM.clip(/** @type {anychart.math.Rect} */(bounds));
-  //}
-
-  // This check need to prevent finalizeDrawing to mark CONTAINER consistency state in case when series was disabled by
-  // series.enabled(false).
-  this.markConsistent(anychart.ConsistencyState.ALL);
 };
 
 
@@ -460,7 +542,7 @@ anychart.core.map.series.Base.prototype.transformXY = function(xCoord, yCoord) {
  * @protected
  */
 anychart.core.map.series.Base.prototype.createFormatProvider = function(opt_force) {
-  if (!this.pointProvider)
+  if (!this.pointProvider || opt_force)
     this.pointProvider = new anychart.core.utils.MapPointContextProvider(this, this.referenceValueNames);
   this.pointProvider.applyReferenceValues();
 
@@ -484,7 +566,7 @@ anychart.core.map.series.Base.prototype.getPositionByRegion = function() {
   var shape = iterator.meta('regionShape');
   var positionProvider;
   if (shape) {
-    var bounds = shape.getBounds();
+    var bounds = shape.getAbsoluteBounds();
     positionProvider = {'value': {'x': bounds.left + bounds.width * middleX, 'y': bounds.top + bounds.height * middleY}};
   } else {
     positionProvider = {'value': {'x': 0, 'y': 0}};
@@ -514,6 +596,9 @@ anychart.core.map.series.Base.prototype.createPositionProvider = function(positi
 
 /** @inheritDoc */
 anychart.core.map.series.Base.prototype.remove = function() {
+  if (this.rootLayer && this.needSelfLayer)
+    this.rootLayer.remove();
+
   this.labels().container(null);
 
   goog.base(this, 'remove');
@@ -617,8 +702,8 @@ anychart.core.map.series.Base.prototype.serialize = function() {
 
   json['seriesType'] = this.getType();
 
-  if (goog.isDef(this.geoIdField()))
-    json['geoIdField'] = this.geoIdField();
+  if (goog.isDef(this.geoIdField_))
+    json['geoIdField'] = this.geoIdField_;
 
   return json;
 };

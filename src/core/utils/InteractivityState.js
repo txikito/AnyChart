@@ -135,6 +135,9 @@ anychart.core.utils.InteractivityState.prototype.getSeriesStateForUpdate = funct
 anychart.core.utils.InteractivityState.prototype.setPointState = function(state, opt_index, opt_stateToChange) {
   var i;
   if (goog.isDef(opt_index)) {
+    //If passed index out of index data, then do nothing
+    if (opt_index >= this.target.getIterator().getRowsCount())
+      return;
     if (goog.isArray(opt_index)) {
       goog.array.sort(opt_index);
       for (i = opt_index.length; i--;)
@@ -164,17 +167,19 @@ anychart.core.utils.InteractivityState.prototype.setPointState = function(state,
     this.target.finalizePointAppearance();
 
     if (this.updateRules(state)) {
-      if (this.target.isDiscreteBased()) {
-        iterator = this.target.getResetIterator();
-        while (iterator.advance()) {
-          index = iterator.getIndex();
-          if (iterator.select(index)) {
-            this.target.applyAppearanceToSeries(state);
+      if (this.target.isConsistent()) {
+        if (this.target.isDiscreteBased()) {
+          iterator = this.target.getResetIterator();
+          while (iterator.advance()) {
+            index = iterator.getIndex();
+            if (iterator.select(index) && this.updateRules(state, index)) {
+              this.target.applyAppearanceToSeries(state);
+            }
           }
+        } else {
+          if (this.updateRules(state, NaN))
+            this.target.applyAppearanceToSeries(state);
         }
-      } else {
-        if (this.updateRules(state, NaN))
-          this.target.applyAppearanceToSeries(state);
       }
       this.seriesState = /** @type {anychart.PointState|number}*/(state);
     }
@@ -220,6 +225,9 @@ anychart.core.utils.InteractivityState.prototype.addPointStateInternal = functio
 anychart.core.utils.InteractivityState.prototype.addPointState = function(state, opt_index) {
   var i;
   if (goog.isDef(opt_index)) {
+    //If passed index out of index data, then do nothing
+    if (opt_index >= this.target.getIterator().getRowsCount())
+      return;
     if (goog.isArray(opt_index)) {
       goog.array.sort(opt_index);
       for (i = opt_index.length; i--;)
@@ -342,17 +350,19 @@ anychart.core.utils.InteractivityState.prototype.removePointState = function(sta
 
     this.seriesState &= ~state;
 
-    if (this.target.isDiscreteBased()) {
-      var iterator = this.target.getResetIterator();
+    if (this.target.isConsistent()) {
+      if (this.target.isDiscreteBased()) {
+        var iterator = this.target.getResetIterator();
 
-      while (iterator.advance()) {
-        var index = iterator.getIndex();
-        if (iterator.select(index)) {
-          this.target.applyAppearanceToSeries(this.seriesState);
+        while (iterator.advance()) {
+          var index = iterator.getIndex();
+          if (iterator.select(index) && this.updateRules(state, index)) {
+            this.target.applyAppearanceToSeries(this.seriesState);
+          }
         }
+      } else {
+        this.target.applyAppearanceToSeries(this.seriesState);
       }
-    } else {
-      this.target.applyAppearanceToSeries(this.seriesState);
     }
   }
 };

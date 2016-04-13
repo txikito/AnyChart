@@ -7,6 +7,7 @@ goog.require('anychart.core.ui.Paginator');
 goog.require('anychart.core.ui.Separator');
 goog.require('anychart.core.ui.Title');
 goog.require('anychart.core.ui.Tooltip');
+goog.require('anychart.core.utils.ITokenProvider');
 goog.require('anychart.core.utils.Margin');
 goog.require('anychart.core.utils.Padding');
 goog.require('anychart.enums');
@@ -20,6 +21,7 @@ goog.require('goog.object');
 /**
  * Legend element.
  * @constructor
+ * @implements {anychart.core.utils.ITokenProvider}
  * @extends {anychart.core.Text}
  */
 anychart.core.ui.Legend = function() {
@@ -122,6 +124,12 @@ anychart.core.ui.Legend = function() {
    * @private
    */
   this.hoverCursor_;
+
+  /**
+   * @type {boolean}
+   * @private
+   */
+  this.inverted_ = false;
 
   this.invalidate(anychart.ConsistencyState.ALL);
 
@@ -633,6 +641,36 @@ anychart.core.ui.Legend.prototype.onTooltipSignal_ = function(event) {
 
 
 /**
+ * TODO(AntonKagakin): need to rewrite legend tooltip provider!.
+ * Stub.
+ * @override
+ */
+anychart.core.ui.Legend.prototype.getTokenType = function(name) {
+  switch (name) {
+    case '%Value':
+      return anychart.enums.TokenType.STRING;
+    default:
+      return anychart.enums.TokenType.UNKNOWN;
+  }
+};
+
+
+/**
+ * TODO(AntonKagakin): need to rewrite legend tooltip provider!.
+ * Stub.
+ * @override
+ */
+anychart.core.ui.Legend.prototype.getTokenValue = function(name) {
+  switch (name) {
+    case '%Value':
+      return this['value'];
+    default:
+      return void 0;
+  }
+};
+
+
+/**
  * Show data point tooltip.
  * @protected
  * @param {anychart.core.MouseEvent} event Event that initiates tooltip display.
@@ -651,7 +689,9 @@ anychart.core.ui.Legend.prototype.showTooltip = function(event) {
       'iconMarkerType': item.iconMarkerType(),
       'iconMarkerStroke': item.iconMarkerStroke(),
       'iconMarkerFill': item.iconMarkerFill(),
-      'meta': this.legendItemsMeta_[index]
+      'meta': this.legendItemsMeta_[index],
+      'getTokenValue': this.getTokenValue,
+      'getTokenType': this.getTokenType
     };
     if (tooltip.isFloating() && event) {
       tooltip.show(
@@ -873,7 +913,7 @@ anychart.core.ui.Legend.prototype.initializeLegendItems_ = function(items) {
         if ((goog.isDef(itemSourceUid) && goog.isDef(itemSourceKey) && itemSourceUid == items[i]['sourceUid'] && itemSourceKey == items[i]['sourceKey'])) {
           item.setup(items[i]);
           item.applyTextSettings(item.getTextElement(), false);
-          item.setItemIndexToLayer(i);
+          item.setItemIndexToLayer(this.inverted_ ? items.length - 1 - i : i);
           break;
         }
       }
@@ -900,7 +940,7 @@ anychart.core.ui.Legend.prototype.initializeLegendItems_ = function(items) {
       items[i]['enabled'] = false;
       item.setup(items[i]);
       item.applyTextSettings(item.getTextElement(), true);
-      item.setItemIndexToLayer(i);
+      item.setItemIndexToLayer(this.inverted_ ? items.length - 1 - i : i);
 
       this.items_.push(item);
       this.legendItemsMeta_.push(items[i]['meta'] ? items[i]['meta'] : {});
@@ -1766,6 +1806,8 @@ anychart.core.ui.Legend.prototype.makePointEvent_ = function(event) {
     default:
       return null;
   }
+
+  itemIndex = this.inverted_ ? this.items_.length - 1 - itemIndex : itemIndex;
 
   var itemSource = null;
   var itemIndexInSource = NaN;

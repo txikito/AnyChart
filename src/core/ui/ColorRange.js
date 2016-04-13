@@ -24,7 +24,8 @@ anychart.core.ui.ColorRange = function() {
    */
   this.colorLineSize_ = NaN;
 
-  this.bindHandlersToComponent(this, this.handleMouseOverAndMove, this.handleMouseOut, this.handleMouseClick, this.handleMouseOverAndMove);
+  this.bindHandlersToComponent(this, this.handleMouseOverAndMove, this.handleMouseOut, null, this.handleMouseOverAndMove);
+  this.eventsHandler.listen(this, acgraph.events.EventType.MOUSEDOWN, this.handleMouseClick);
 
   this.ALL_VISUAL_STATES |= anychart.ConsistencyState.COLOR_RANGE_MARKER;
 };
@@ -682,7 +683,7 @@ anychart.core.ui.ColorRange.prototype.showMarker = function(value) {
   var isSeries = series && series.enabled() && series.colorScale() == scale;
   if (this.enabled() && isMarker && scale && isSeries) {
     var lineBounds = this.line.getBounds();
-    var ratio = this.scale().transform(value, .5);
+    var ratio = goog.math.clamp(this.scale().transform(value, .5), 0, 1);
 
     if (isNaN(ratio)) return;
 
@@ -815,34 +816,68 @@ anychart.core.ui.ColorRange.prototype.handleMouseClick = function(event) {
     if (!(event.metaKey || event.shiftKey)) {
       series.map.unselect();
     }
-    var iterator, pointValue;
+    var iterator, pointValue, points;
     if (scale instanceof anychart.scales.OrdinalColor) {
       var range = scale.getRangeByValue(/** @type {number} */(value));
-      if (series)
-        series.selectPoint(this.rangeRegions_[range.sourceIndex], event);
+      if (scale && series) {
+        points = this.rangeRegions_[range.sourceIndex];
+        if (series.getChart().interactivity().hoverMode() == anychart.enums.HoverMode.SINGLE) {
+          this.points_ = {
+            series: series,
+            points: points
+          };
+        } else {
+          this.points_ = [{
+            series: series,
+            points: points,
+            lastPoint: points[points.length - 1],
+            nearestPointToCursor: {index: points[points.length - 1], distance: 0}
+          }];
+        }
+      }
+
     } else if (scale instanceof anychart.scales.LinearColor) {
       iterator = series.getResetIterator();
       var minLength = Infinity;
-      var targetIndex = NaN;
+      var targetValue = NaN;
+      var scaleMin = /** @type {number} */(scale.minimum());
+      var scaleMax = /** @type {number} */(scale.maximum());
       while (iterator.advance()) {
         pointValue = /** @type {number} */(iterator.get(series.referenceValueNames[1]));
+        pointValue = goog.math.clamp(pointValue, scaleMin, scaleMax);
         var currLength = Math.abs(value - pointValue);
         if (minLength > currLength) {
           minLength = currLength;
-          targetIndex = iterator.getIndex();
+          targetValue = pointValue;
         }
       }
-      iterator.select(targetIndex);
-      value = iterator.get(series.referenceValueNames[1]);
+
+      points = [];
 
       iterator = series.getResetIterator();
       while (iterator.advance()) {
-        pointValue = iterator.get(series.referenceValueNames[1]);
+        pointValue = /** @type {number} */(iterator.get(series.referenceValueNames[1]));
+        pointValue = goog.math.clamp(pointValue, scaleMin, scaleMax);
         if (pointValue == value)
-          series.selectPoint(iterator.getIndex());
+          points.push(iterator.getIndex());
+      }
+
+      if (scale && series) {
+        if (series.getChart().interactivity().hoverMode() == anychart.enums.HoverMode.SINGLE) {
+          this.points_ = {
+            series: series,
+            points: points
+          };
+        } else {
+          this.points_ = [{
+            series: series,
+            points: points,
+            lastPoint: points[points.length - 1],
+            nearestPointToCursor: {index: points[points.length - 1], distance: 0}
+          }];
+        }
       }
     }
-    event.stopPropagation();
   }
 };
 
@@ -866,39 +901,84 @@ anychart.core.ui.ColorRange.prototype.handleMouseOverAndMove = function(event) {
       ratio = (lineBounds.height - (y - min)) / lineBounds.height;
     }
 
-    var iterator, pointValue;
-
+    var iterator, pointValue, points;
     value = /** @type {number} */(scale.inverseTransform(ratio));
     if (scale instanceof anychart.scales.OrdinalColor) {
       var range = scale.getRangeByValue(/** @type {number} */(value));
-      if (series)
-        series.hoverPoint(this.rangeRegions_[range.sourceIndex]);
+      points = this.rangeRegions_[range.sourceIndex];
+      if (series.getChart().interactivity().hoverMode() == anychart.enums.HoverMode.SINGLE) {
+        this.points_ = {
+          series: series,
+          points: points
+        };
+      } else {
+        this.points_ = [{
+          series: series,
+          points: points,
+          lastPoint: points[points.length - 1],
+          nearestPointToCursor: {index: points[points.length - 1], distance: 0}
+        }];
+      }
     } else if (scale instanceof anychart.scales.LinearColor && series) {
       iterator = series.getResetIterator();
       var minLength = Infinity;
-      var targetIndex = NaN;
+      var targetValue = NaN;
+      var scaleMin = /** @type {number} */(scale.minimum());
+      var scaleMax = /** @type {number} */(scale.maximum());
 
       while (iterator.advance()) {
         pointValue = /** @type {number} */(iterator.get(series.referenceValueNames[1]));
+        pointValue = goog.math.clamp(pointValue, scaleMin, scaleMax);
         var currLength = Math.abs(value - pointValue);
         if (minLength > currLength) {
           minLength = currLength;
-          targetIndex = iterator.getIndex();
+          targetValue = pointValue;
         }
       }
 
-      iterator.select(targetIndex);
-      value = iterator.get(series.referenceValueNames[1]);
-      series.unhover();
-
+      points = [];
       iterator = series.getResetIterator();
+      value = targetValue;
       while (iterator.advance()) {
-        pointValue = iterator.get(series.referenceValueNames[1]);
+        pointValue = /** @type {number} */(iterator.get(series.referenceValueNames[1]));
+        pointValue = goog.math.clamp(pointValue, scaleMin, scaleMax);
         if (pointValue == value)
-          series.hoverPoint(iterator.getIndex());
+          points.push(iterator.getIndex());
       }
+
+      if (scale && series) {
+        var map = series.getChart();
+        if (map.interactivity().hoverMode() == anychart.enums.HoverMode.SINGLE) {
+
+          var dispatchUnhover = this.points_ && !goog.array.every(points, function(el) {
+            return goog.array.contains(this.points_.points, el);
+          }, this);
+
+          if (dispatchUnhover) {
+            var nearestPointIndex = this.points_.points[this.points_.points.length - 1];
+            map.dispatchEvent(map.makeInteractivityPointEvent('hovered', event, [{
+              series: series,
+              points: [],
+              nearestPointToCursor: {index: nearestPointIndex, distance: 0}
+            }], false));
+          }
+
+          this.points_ = {
+            series: series,
+            points: points
+          };
+        } else {
+          this.points_ = [{
+            series: series,
+            points: points,
+            lastPoint: points[points.length - 1],
+            nearestPointToCursor: {index: points[points.length - 1], distance: 0}
+          }];
+        }
+      }
+
     }
-    this.showMarker(/** @type {number} */(value));
+    this.showMarker(value);
   }
 };
 
@@ -908,10 +988,10 @@ anychart.core.ui.ColorRange.prototype.handleMouseOverAndMove = function(event) {
  */
 anychart.core.ui.ColorRange.prototype.handleMouseOut = function(event) {
   this.hideMarker();
+
   var series = /** @type {anychart.core.map.series.Base} */(this.targetSeries_);
-  if (this.enabled() && series && series.enabled()) {
-    series.unhover();
-  }
+  if (series)
+    this.series_ = series;
 };
 
 

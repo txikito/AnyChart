@@ -423,7 +423,7 @@ anychart.themes.merging.mergingMap_ = [
       'defaultAxis.minorLabels',
       'chart.defaultSeriesSettings.base.labels',
       'pieFunnelPyramidBase.labels',
-      'gantt.base.timeline.labelsFactory',
+      'gantt.base.timeline.labels',
       'defaultDataGrid.defaultColumnSettings.cellTextSettings',
       'gantt.base.timeline.header.labelsFactory',
       'standalones.labelsFactory',
@@ -445,7 +445,7 @@ anychart.themes.merging.mergingMap_ = [
     targets: [
       'chart.defaultSeriesSettings.base.markers',
       'pieFunnelPyramidBase.markers',
-      'gantt.base.timeline.markersFactory',
+      'gantt.base.timeline.markers',
       'standalones.markersFactory',
       'heatMap.markers',
       'map.defaultSeriesSettings.base.markers'
@@ -536,7 +536,8 @@ anychart.themes.merging.mergingMap_ = [
       'cartesianBase.defaultLineMarkerSettings',
       'scatter.defaultLineMarkerSettings',
       'sparkline.defaultLineMarkerSettings',
-      'standalones.lineAxisMarker'
+      'standalones.lineAxisMarker',
+      'gantt.base.timeline.defaultLineMarkerSettings'
     ]
   },
   {
@@ -545,7 +546,8 @@ anychart.themes.merging.mergingMap_ = [
       'cartesianBase.defaultTextMarkerSettings',
       'scatter.defaultTextMarkerSettings',
       'sparkline.defaultTextMarkerSettings',
-      'standalones.textAxisMarker'
+      'standalones.textAxisMarker',
+      'gantt.base.timeline.defaultTextMarkerSettings'
     ]
   },
   {
@@ -554,7 +556,8 @@ anychart.themes.merging.mergingMap_ = [
       'cartesianBase.defaultRangeMarkerSettings',
       'scatter.defaultRangeMarkerSettings',
       'sparkline.defaultRangeMarkerSettings',
-      'standalones.rangeAxisMarker'
+      'standalones.rangeAxisMarker',
+      'gantt.base.timeline.defaultRangeMarkerSettings'
     ]
   },
   {
@@ -680,6 +683,33 @@ anychart.themes.merging.mergingMap_ = [
     ]
   },
   {
+    defaultObj: 'cartesian3d.defaultSeriesSettings.base',
+    targets: [
+      'cartesian3d.defaultSeriesSettings.bar',
+      'cartesian3d.defaultSeriesSettings.column',
+      'cartesian3d.defaultSeriesSettings.area',
+      'bar3d.defaultSeriesSettings.bar',
+      'column3d.defaultSeriesSettings.column',
+      'area3d.defaultSeriesSettings.area'
+    ]
+  },
+  {
+    defaultObj: 'cartesian',
+    targets: ['cartesian3d']
+  },
+  {
+    defaultObj: 'bar',
+    targets: ['bar3d']
+  },
+  {
+    defaultObj: 'column',
+    targets: ['column3d']
+  },
+  {
+    defaultObj: 'area',
+    targets: ['area3d']
+  },
+  {
     defaultObj: 'scatter.defaultSeriesSettings.base',
     targets: [
       'scatter.defaultSeriesSettings.bubble',
@@ -770,14 +800,18 @@ anychart.themes.merging.mergingMap_ = [
     defaultObj: 'map.defaultSeriesSettings.base',
     targets: [
       'map.defaultSeriesSettings.choropleth',
-      'map.defaultSeriesSettings.bubble'
+      'map.defaultSeriesSettings.bubble',
+      'map.defaultSeriesSettings.marker',
+      'map.defaultSeriesSettings.connector'
     ]
   },
   {
     defaultObj: 'map',
     targets: [
       'choropleth',
-      'bubbleMap'
+      'bubbleMap',
+      'connector',
+      'markerMap'
     ]
   },
   {

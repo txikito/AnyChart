@@ -34,13 +34,13 @@ anychart.core.SeriesPoint.prototype.getSeries = function() {
 
 /** @inheritDoc */
 anychart.core.SeriesPoint.prototype.get = function(field) {
-  return this.series.data().get(this.index, field);
+  return this.series.getValueInternal(this.index, field);
 };
 
 
 /** @inheritDoc */
 anychart.core.SeriesPoint.prototype.set = function(field, value) {
-  this.series.data().set(this.index, field, value);
+  this.series.setValueInternal(this.index, field, value);
   return this;
 };
 
@@ -50,7 +50,7 @@ anychart.core.SeriesPoint.prototype.set = function(field, value) {
  * @return {number}
  */
 anychart.core.SeriesPoint.prototype.getStackValue = function() {
-  return /** @type {number} */ (this.series.data().meta(this.index, 'stackValue'));
+  return /** @type {number} */ (this.series.getStackedValue(this.index));
 };
 
 
@@ -59,7 +59,7 @@ anychart.core.SeriesPoint.prototype.getStackValue = function() {
  * @return {number}
  */
 anychart.core.SeriesPoint.prototype.getStackZero = function() {
-  return /** @type {number} */ (this.series.data().meta(this.index, 'stackZero'));
+  return /** @type {number} */ (this.series.getStackedZero(this.index));
 };
 
 
@@ -102,7 +102,7 @@ anychart.core.SeriesPoint.prototype.hovered = function(opt_value) {
  * @return {boolean} Whether point exists in dataset or not.
  */
 anychart.core.SeriesPoint.prototype.exists = function() {
-  return (this.index < this.series.data().getRowsCount());
+  return (this.index < this.series.getIterator().getRowsCount());
 };
 
 

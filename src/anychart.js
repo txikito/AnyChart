@@ -5,7 +5,8 @@
 
 goog.provide('anychart');
 goog.provide('anychart.globalLock');
-goog.require('acgraphexport');
+goog.require('acgraph');
+goog.require('anychart.performance');
 goog.require('anychart.themes.merging');
 goog.require('anychart.utils');
 goog.require('goog.dom');
@@ -40,6 +41,13 @@ anychart.VERSION = '';
  * @define {boolean} Replaced on compile time.
  */
 anychart.DEVELOP = true;
+
+
+/**
+ *
+ * @define {boolean} Replaced on compile time.
+ */
+anychart.PERFORMANCE_MONITORING = true;
 
 
 /**
@@ -572,6 +580,7 @@ anychart.theme = function(opt_value) {
  */
 anychart.getFullTheme = function() {
   if (!anychart.compiledTheme_) {
+    anychart.performance.start('Theme compilation');
     if (!anychart.defaultThemeCompiled_) {
       anychart.defaultThemeCompiled_ = anychart.themes.merging.compileTheme(
           goog.global['anychart']['themes'][anychart.DEFAULT_THEME]);
@@ -583,9 +592,14 @@ anychart.getFullTheme = function() {
     } else {
       anychart.compiledTheme_ = anychart.defaultThemeCompiled_;
     }
+    anychart.performance.end('Theme compilation');
   }
   return anychart.compiledTheme_;
 };
+
+
+// we execute it here to move load from first chart drawing to library initialization phase.
+anychart.getFullTheme();
 
 
 /**
@@ -599,8 +613,24 @@ anychart.area = anychart.area || function() {
 /**
  * @ignoreDoc
  */
+anychart.area3d = anychart.area3d || function() {
+  anychart.utils.error(anychart.enums.ErrorCode.NO_FEATURE_IN_MODULE, null, ['3D Area chart']);
+};
+
+
+/**
+ * @ignoreDoc
+ */
 anychart.bar = anychart.bar || function() {
   anychart.utils.error(anychart.enums.ErrorCode.NO_FEATURE_IN_MODULE, null, ['Bar chart']);
+};
+
+
+/**
+ * @ignoreDoc
+ */
+anychart.bar3d = anychart.bar3d || function() {
+  anychart.utils.error(anychart.enums.ErrorCode.NO_FEATURE_IN_MODULE, null, ['3D Bar chart']);
 };
 
 
@@ -631,6 +661,14 @@ anychart.cartesian = anychart.cartesian || function() {
 /**
  * @ignoreDoc
  */
+anychart.cartesian3d = anychart.cartesian3d || function() {
+  anychart.utils.error(anychart.enums.ErrorCode.NO_FEATURE_IN_MODULE, null, ['3D Cartesian chart']);
+};
+
+
+/**
+ * @ignoreDoc
+ */
 anychart.scatter = anychart.scatter || function() {
   anychart.utils.error(anychart.enums.ErrorCode.NO_FEATURE_IN_MODULE, null, ['Scatter chart']);
 };
@@ -641,6 +679,14 @@ anychart.scatter = anychart.scatter || function() {
  */
 anychart.column = anychart.column || function() {
   anychart.utils.error(anychart.enums.ErrorCode.NO_FEATURE_IN_MODULE, null, ['Column chart']);
+};
+
+
+/**
+ * @ignoreDoc
+ */
+anychart.column3d = anychart.column3d || function() {
+  anychart.utils.error(anychart.enums.ErrorCode.NO_FEATURE_IN_MODULE, null, ['3D Column chart']);
 };
 
 
@@ -775,6 +821,22 @@ anychart.bubbleMap = anychart.bubbleMap || function() {
 /**
  * @ignoreDoc
  */
+anychart.connector = anychart.connector || function() {
+  anychart.utils.error(anychart.enums.ErrorCode.NO_FEATURE_IN_MODULE, null, ['Connector map']);
+};
+
+
+/**
+ * @ignoreDoc
+ */
+anychart.markerMap = anychart.markerMap || function() {
+  anychart.utils.error(anychart.enums.ErrorCode.NO_FEATURE_IN_MODULE, null, ['Marker map']);
+};
+
+
+/**
+ * @ignoreDoc
+ */
 anychart.ganttProject = anychart.ganttProject || function() {
   anychart.utils.error(anychart.enums.ErrorCode.NO_FEATURE_IN_MODULE, null, ['Gantt Project chart']);
 };
@@ -816,6 +878,7 @@ anychart.ganttToolbar = anychart.ganttToolbar || function() {
 goog.exportSymbol('anychart.VERSION', anychart.VERSION);//doc|ex
 goog.exportSymbol('anychart.DEVELOP', anychart.DEVELOP);//doc|ex
 goog.exportSymbol('anychart.DEFAULT_THEME', anychart.DEFAULT_THEME);
+goog.exportSymbol('anychart.PERFORMANCE_MONITORING', anychart.PERFORMANCE_MONITORING);
 goog.exportSymbol('anychart.graphics', anychart.graphics);//import
 goog.exportSymbol('anychart.server', anychart.server);
 goog.exportSymbol('anychart.fromJson', anychart.fromJson);//doc|ex
@@ -824,12 +887,16 @@ goog.exportSymbol('anychart.onDocumentLoad', anychart.onDocumentLoad);//doc|need
 goog.exportSymbol('anychart.onDocumentReady', anychart.onDocumentReady);//doc|ex
 goog.exportSymbol('anychart.licenseKey', anychart.licenseKey);//doc|ex
 goog.exportSymbol('anychart.area', anychart.area);//linkedFromModule
+goog.exportSymbol('anychart.area3d', anychart.area3d);
 goog.exportSymbol('anychart.bar', anychart.bar);//linkedFromModule
+goog.exportSymbol('anychart.bar3d', anychart.bar3d);
 goog.exportSymbol('anychart.box', anychart.box);
 goog.exportSymbol('anychart.bubble', anychart.bubble);//linkedFromModule
 goog.exportSymbol('anychart.bullet', anychart.bullet);//linkedFromModule
 goog.exportSymbol('anychart.cartesian', anychart.cartesian);//linkedFromModule
+goog.exportSymbol('anychart.cartesian3d', anychart.cartesian3d);
 goog.exportSymbol('anychart.column', anychart.column);//linkedFromModule
+goog.exportSymbol('anychart.column3d', anychart.column3d);
 goog.exportSymbol('anychart.financial', anychart.financial);//linkedFromModule
 goog.exportSymbol('anychart.funnel', anychart.funnel);//linkedFromModule
 goog.exportSymbol('anychart.line', anychart.line);//linkedFromModule
@@ -845,6 +912,8 @@ goog.exportSymbol('anychart.scatter', anychart.scatter);
 goog.exportSymbol('anychart.map', anychart.map);
 goog.exportSymbol('anychart.choropleth', anychart.choropleth);
 goog.exportSymbol('anychart.bubbleMap', anychart.bubbleMap);
+goog.exportSymbol('anychart.markerMap', anychart.markerMap);
+goog.exportSymbol('anychart.connector', anychart.connector);
 goog.exportSymbol('anychart.areaChart', anychart.area);
 goog.exportSymbol('anychart.barChart', anychart.bar);
 goog.exportSymbol('anychart.bubbleChart', anychart.bubble);

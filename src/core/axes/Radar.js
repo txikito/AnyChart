@@ -4,6 +4,7 @@ goog.require('anychart.color');
 goog.require('anychart.core.VisualBase');
 goog.require('anychart.core.axes.RadialTicks');
 goog.require('anychart.core.ui.LabelsFactory');
+goog.require('anychart.core.utils.AxisLabelsContextProvider');
 goog.require('anychart.core.utils.Bounds');
 goog.require('anychart.enums');
 goog.require('anychart.math.Rect');
@@ -516,16 +517,19 @@ anychart.core.axes.Radar.prototype.calculateAxisBounds_ = function() {
  */
 anychart.core.axes.Radar.prototype.getRemainingBounds = function() {
   var parentBounds = this.parentBounds();
-
   if (parentBounds) {
-    this.calculateAxisBounds_();
-    var lineThickness = this.line_.stroke()['thickness'] ? this.line_.stroke()['thickness'] : 1;
-    var halfThickness = Math.floor(lineThickness / 2);
-    return new anychart.math.Rect(
-        this.cx_ - this.radius_ + halfThickness,
-        this.cy_ - this.radius_ + halfThickness,
-        (this.radius_ - halfThickness) * 2,
-        (this.radius_ - halfThickness) * 2);
+    if (this.enabled()) {
+      this.calculateAxisBounds_();
+      var lineThickness = this.line_.stroke()['thickness'] ? this.line_.stroke()['thickness'] : 1;
+      var halfThickness = Math.floor(lineThickness / 2);
+      return new anychart.math.Rect(
+          this.cx_ - this.radius_ + halfThickness,
+          this.cy_ - this.radius_ + halfThickness,
+          (this.radius_ - halfThickness) * 2,
+          (this.radius_ - halfThickness) * 2);
+    } else {
+      return /** @type {anychart.math.Rect} */(parentBounds);
+    }
   } else
     return new anychart.math.Rect(0, 0, 0, 0);
 };
@@ -629,27 +633,7 @@ anychart.core.axes.Radar.prototype.drawLine_ = function(index, x, y) {
  * @private
  */
 anychart.core.axes.Radar.prototype.getLabelsFormatProvider_ = function(index, value) {
-  var scale = this.scale();
-
-  var labelText, labelValue;
-  if (scale instanceof anychart.scales.Ordinal) {
-    labelText = scale.ticks().names()[index];
-    labelValue = value;
-  }
-
-  return {
-    'index': index,
-    'value': labelText,
-    'tickValue': labelValue,
-    'max': scale.max ? scale.max : null,
-    'min': scale.min ? scale.min : null,
-    'scale': scale
-    //TODO as soon as it is possible:
-    //sum -- the sum data values from series bound to this axis (depends on orientation)
-    //average -- the sum divided by the number of points
-    //median -- axis median
-    //mode -- axis mode
-  };
+  return new anychart.core.utils.AxisLabelsContextProvider(this, index, value);
 };
 
 

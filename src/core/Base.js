@@ -124,6 +124,8 @@ anychart.ConsistencyState = {
   MAP_MARKER_PALETTE: 1 << 16,
   MAP_HATCH_FILL_PALETTE: 1 << 17,
   MAP_COLOR_RANGE: 1 << 18,
+  MAP_MOVE: 1 << 19,
+  MAP_ZOOM: 1 << 20,
   //---------------------------------- HEAT MAP STATES (CHART) ---------------------------------
   HEATMAP_SCALES: 1 << 11,
   HEATMAP_SERIES: 1 << 12,
@@ -161,8 +163,8 @@ anychart.ConsistencyState = {
   //---------------------------------- GRIDS STATES (VB) ---------------------------------
   // also combined
   GRIDS_POSITION: 1 << 5,
-  //---------------------------------- BASE GRID STATES (GRIDS) ---------------------------------
-  BASE_GRID_CLICK: 1 << 6,
+  //---------------------------------- BASE GRIDS STATES (VB) ---------------------------------
+  BASE_GRID_REDRAW: 1 << 6,
   BASE_GRID_HOVER: 1 << 7,
   //---------------------------------- BUTTON STATES (VB) ---------------------------------
   BUTTON_BACKGROUND: 1 << 5,
@@ -244,8 +246,8 @@ anychart.ConsistencyState = {
   //---------------------------------- STOCK DATETIME AXIS (VB) ----------------------------------------
   STOCK_DTAXIS_BACKGROUND: 1 << 5,
   //---------------------------------- STOCK SCROLLER (SCROLLER) ----------------------------------------
-  STOCK_SCROLLER_SERIES: 1 << 7,
-  STOCK_SCROLLER_AXIS: 1 << 8,
+  STOCK_SCROLLER_SERIES: 1 << 8,
+  STOCK_SCROLLER_AXIS: 1 << 9,
   /**
    * Combination of all states.
    */

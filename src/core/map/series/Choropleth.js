@@ -1,4 +1,5 @@
 goog.provide('anychart.core.map.series.Choropleth');
+goog.require('anychart.core.ChoroplethPoint');
 goog.require('anychart.core.map.series.BaseWithMarkers');
 goog.require('anychart.core.utils.TypedLayer');
 
@@ -212,6 +213,8 @@ anychart.core.map.series.Choropleth.prototype.calculate = function() {
           var prop = geom['properties'];
           if (prop[this.getFinalGeoIdField()] == name) {
             this.points_.push(geom);
+            //todo (blackart) Don't remove it for the time.
+            if (geom.domElement) this.bindHandlersToGraphics(geom.domElement);
             iterator.meta('regionShape', geom.domElement).meta('regionProperties', prop);
             break;
           }
@@ -224,7 +227,6 @@ anychart.core.map.series.Choropleth.prototype.calculate = function() {
           this.colorScale_.extendDataRange(value);
       }
     }
-    this.markConsistent(anychart.ConsistencyState.SERIES_DATA);
     this.markConsistent(anychart.ConsistencyState.MAP_COLOR_SCALE);
   }
 };
@@ -295,6 +297,16 @@ anychart.core.map.series.Choropleth.prototype.drawPoint = function(pointState) {
 
 
 /** @inheritDoc */
+anychart.core.map.series.Choropleth.prototype.draw = function() {
+  anychart.core.map.series.Choropleth.base(this, 'draw');
+
+  this.markConsistent(anychart.ConsistencyState.CONTAINER);
+
+  return this;
+};
+
+
+/** @inheritDoc */
 anychart.core.map.series.Choropleth.prototype.isDiscreteBased = function() {
   return true;
 };
@@ -328,4 +340,11 @@ anychart.core.map.series.Choropleth.prototype.applyAppearanceToSeries = function
 };
 
 
+/** @inheritDoc */
+anychart.core.map.series.Choropleth.prototype.getPoint = function(index) {
+  return new anychart.core.ChoroplethPoint(this, index);
+};
+
+
 anychart.core.map.series.Choropleth.prototype['colorScale'] = anychart.core.map.series.Choropleth.prototype.colorScale;
+anychart.core.map.series.Choropleth.prototype['getPoint'] = anychart.core.map.series.Choropleth.prototype.getPoint;

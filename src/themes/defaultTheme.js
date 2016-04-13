@@ -134,6 +134,24 @@ var returnLightenSourceColor = function() {
  * @this {*}
  * @return {*}
  */
+var returnLightenSourceColor20 = function() {
+  return window['anychart']['color']['lighten'](this['sourceColor'], 0.2);
+};
+
+
+/**
+ * @this {*}
+ * @return {*}
+ */
+var returnLightenSourceColor30 = function() {
+  return window['anychart']['color']['lighten'](this['sourceColor'], 0.3);
+};
+
+
+/**
+ * @this {*}
+ * @return {*}
+ */
 var returnStrokeSourceColor = function() {
   return window['anychart']['color']['setThickness'](this['sourceColor'], 1.5);
 };
@@ -1152,7 +1170,7 @@ window['anychart']['themes']['defaultTheme'] = {
     }
   },
 
-  // merge with defaultCartesian
+  // merge with cartesianBase
   'cartesian': {
     'defaultSeriesType': 'line',
     'xAxes': [],
@@ -1366,6 +1384,70 @@ window['anychart']['themes']['defaultTheme'] = {
     ]
   },
 
+  // merge with cartesian
+  'cartesian3d': {
+    'defaultSeriesType': 'column',
+    'zAngle': 45,
+    'zAspect': '50%',
+    'zDistribution': true,
+    'zPadding': 10,
+    'defaultSeriesSettings': {
+      'base': {
+        'stroke': 'none',
+        'hoverStroke': returnSourceColor,
+        'selectStroke': returnSourceColor,
+        'fill': returnSourceColor,
+        'hoverFill': returnLightenSourceColor20,
+        'selectFill': returnLightenSourceColor30
+      }
+    }
+  },
+
+  // merge with area
+  'bar3d': {
+    'defaultSeriesType': 'bar',
+    'zAngle': 45,
+    'zAspect': '50%',
+    'zDistribution': false,
+    'zPadding': 10,
+    'grids': [{}, {
+      'enabled': true,
+      'layout': 'horizontal',
+      'scale': 0
+    }]
+  },
+
+  // merge with column
+  'column3d': {
+    'defaultSeriesType': 'column',
+    'zAngle': 45,
+    'zAspect': '50%',
+    'zDistribution': false,
+    'zPadding': 10,
+    'grids': [{}, {
+      'enabled': true,
+      'layout': 'vertical',
+      'scale': 0
+    }]
+  },
+
+  // merge with area
+  'area3d': {
+    'defaultSeriesType': 'area',
+    'zAngle': 45,
+    'zAspect': '50%',
+    'zDistribution': true,
+    'zPadding': 5,
+    'grids': [{}, {
+      'enabled': true,
+      'layout': 'vertical',
+      'scale': 0
+    }],
+    'hatchFillPalette': {
+      'items': ['backwardDiagonal', 'forwardDiagonal', 'dashedBackwardDiagonal', 'grid', 'dashedForwardDiagonal', 'dashedHorizontal', 'dashedVertical', 'diagonalCross', 'diagonalBrick', 'divot', 'horizontalBrick', 'verticalBrick', 'checkerBoard', 'confetti', 'plaid', 'solidDiamond', 'zigZag', 'weave', 'percent05', 'percent10', 'percent20', 'percent25', 'percent30', 'percent40', 'percent50', 'percent60', 'percent70', 'percent75', 'percent80', 'percent90', 'horizontal', 'vertical']
+    }
+  },
+
   // merge with chart
   'heatMap': {
     'scales': [
@@ -1484,7 +1566,7 @@ window['anychart']['themes']['defaultTheme'] = {
       } else {
         color = this['sourceColor'];
       }
-      return window['anychart']['color']['setThickness'](color, 1 , .85);
+      return window['anychart']['color']['setThickness'](color, 1, .85);
     },
     /**
      * @this {*}
@@ -2255,6 +2337,25 @@ window['anychart']['themes']['defaultTheme'] = {
     'connectMissingPoints': false,
     'pointWidth': '95%',
 
+    'tooltip': {
+      'title': false,
+      'separator': false,
+      /**
+       * @this {*}
+       * @return {*}
+       */
+      'titleFormatter': function() {
+        return this['x'];
+      },
+      /**
+       * @this {*}
+       * @return {*}
+       */
+      'textFormatter': function() {
+        return 'x: ' + this['x'] + '\ny: ' + this['value'];
+      }
+    },
+
     'defaultSeriesSettings': {
       'base': {
         'markers': {
@@ -2433,6 +2534,7 @@ window['anychart']['themes']['defaultTheme'] = {
       }
     }
   },
+
   // merge with chart
   'map': {
     'defaultSeriesSettings': {
@@ -2511,9 +2613,69 @@ window['anychart']['themes']['defaultTheme'] = {
         'yScale': null
       },
       'choropleth': {},
+      'connector': {
+        'startSize': 1,
+        'endSize': 1,
+        'curvature': .3,
+        'markers': {
+          'position': 'middle',
+          'rotation': null,
+          'type': 'arrowhead'
+        },
+        'labels': {
+          'enabled': false,
+          'position': 'middle',
+          /**
+           * @this {*}
+           * @return {*}
+           */
+          'textFormatter': function() {
+            return 'from: ' + this['startPoint']['lat'] + ',' + this['startPoint']['long'] + '\nto: ' + this['endPoint']['lat'] + ',' + this['endPoint']['long'];
+          }
+        },
+        'tooltip': {
+          /**
+           * @this {*}
+           * @return {*}
+           */
+          'textFormatter': function() {
+            return 'from: ' + this['startPoint']['lat'] + ',' + this['startPoint']['long'] + '\nto: ' + this['endPoint']['lat'] + ',' + this['endPoint']['long'];
+          }
+        }
+      },
       'bubble': {
         'hoverFill': '#545f69',
-        'selectFill': '#333'
+        'selectFill': '#333',
+        'tooltip': {
+          /**
+           * @this {*}
+           * @return {*}
+           */
+          'textFormatter': function() {
+            return 'Id: ' + this['id'] + '\nValue: ' + this['valuePrefix'] + this['size'] + this['valuePostfix'];
+          }
+        }
+      },
+      'marker': {
+        'hoverFill': '#545f69',
+        'selectFill': '#333',
+        'tooltip': {
+          /**
+           * @this {*}
+           * @return {*}
+           */
+          'textFormatter': function() {
+            var result;
+            if (this['id']) {
+              result = 'Id: ' + this['id'];
+            } else {
+              result = 'lat: ' + this['lat'] + '\nlong: ' + this['long'];
+            }
+            if (this['value'])
+              result += '\nValue: ' + this['valuePrefix'] + this['value'] + this['valuePostfix'];
+            return result;
+          }
+        }
       }
     },
     'colorRange': {
@@ -2554,20 +2716,46 @@ window['anychart']['themes']['defaultTheme'] = {
       'labels': {'offsetX': 0},
       'ticks': {
         'stroke': {'thickness': 3, 'color': '#fff', 'position': 'center', 'length': 20}
-      }
+      },
+      'zIndex': 50
     },
     'unboundRegions': {'enabled': true, 'fill': '#F7F7F7', 'stroke': '#B9B9B9'},
     'linearColor': {'colors': ['#fff', '#ffd54f', '#ef6c00']},
     'legend': {'enabled': false},
     'maxBubbleSize': '20%',
     'minBubbleSize': '5%',
-    'geoIdField': 'id'
+    'geoIdField': 'id',
+    'interactivity': {
+      'copyFormatter': function() {
+        var ths = arguments[0];
+        var seriesStatus = ths['seriesStatus'];
+        var result = '';
+        for (var i = 0, len = seriesStatus.length; i < len; i++) {
+          var status = seriesStatus[i];
+          if (status['points'].length == 0) continue;
+          result += 'Series ' + status['series'].index() + ':\n';
+          for (var j = 0, len_ = status['points'].length; j < len_; j++) {
+            var point = status['points'][j];
+            result += 'id: ' + point['id'] + ' index: ' + point['index'];
+            if (j != len_ - 1) result += '\n';
+          }
+          if (i != len - 1) result += '\n';
+        }
+        return result || 'no selected points';
+      },
+      'drag': true,
+      'mouseWheel': true
+    }
   },
   // merge with map
   'choropleth': {},
-
   // merge with map
   'bubbleMap': {},
+  // merge with map
+  'markerMap': {},
+
+  // merge with map
+  'connector': {},
 
   'defaultDataGrid': {
     'isStandalone': true,
@@ -2610,8 +2798,12 @@ window['anychart']['themes']['defaultTheme'] = {
       'content': {
         'hAlign': 'left'
       },
-      'textFormatter': function(data) {
-        var name = data['get']('name');
+      /**
+       * @this {*}
+       * @return {string}
+       */
+      'textFormatter': function() {
+        var name = this['name'];
         return (name !== void 0) ? name + '' : '';
       }
     },
@@ -2655,15 +2847,23 @@ window['anychart']['themes']['defaultTheme'] = {
           'enabled': false
         }
       },
-      'textFormatter': function(item) {
+      /**
+       * @this {*}
+       * @return {string}
+       */
+      'textFormatter': function() {
         return '';
       }
     },
     'columns': [
       {
         'width': 50,
-        'textFormatter': function(item) {
-          var val = item['meta']('index');
+        /**
+         * @this {*}
+         * @return {string}
+         */
+        'textFormatter': function() {
+          var val = this['item']['meta']('index');
           return (val != null) ? (val + 1) + '' : '';
         },
         'title': {
@@ -2674,8 +2874,12 @@ window['anychart']['themes']['defaultTheme'] = {
         'width': 170,
         'collapseExpandButtons': true,
         'depthPaddingMultiplier': 15,
-        'textFormatter': function(item) {
-          var val = item['get']('name');
+        /**
+         * @this {*}
+         * @return {string}
+         */
+        'textFormatter': function() {
+          var val = this['name'];
           return (val != null) ? (val + '') : '';
         },
         'title': {
@@ -2741,10 +2945,12 @@ window['anychart']['themes']['defaultTheme'] = {
           'color': '#545f69',
           'dash': '3 3'
         },
+
         'editPreviewFill': {
           'color': '#fff',
           'opacity': 0.00001
         },
+
         'editPreviewStroke': {
           'color': '#aaa',
           'dash': '3 3'
@@ -2756,6 +2962,21 @@ window['anychart']['themes']['defaultTheme'] = {
         'editIntervalThumbStroke': '#545f69',
         'editConnectorThumbFill': '#EAEAEA',
         'editConnectorThumbStroke': '#545f69',
+
+        'editStructurePreviewFill': {
+          'color': '#4285F4',
+          'opacity': 0.2
+        },
+
+        'editStructurePreviewStroke': {
+          'color': '#4285F4',
+          'thickness': 2
+        },
+
+        'editStructurePreviewDashStroke': {
+          'color': '#4285F4',
+          'dash': '4 4'
+        },
 
         'baseFill': '#7ec1f5',
         'baseStroke': '#74b2e2',
@@ -2775,6 +2996,7 @@ window['anychart']['themes']['defaultTheme'] = {
         'connectorStroke': '#545f69',
         'selectedElementFill': '#ef6c00',
         'selectedElementStroke': '#bc5704',
+        'selectedConnectorStroke': '2 #bc5704',
         'minimumGap': 0.1,
         'maximumGap': 0.1,
         'baselineAbove': false,
@@ -2794,7 +3016,7 @@ window['anychart']['themes']['defaultTheme'] = {
             'hAlign': 'left'
           }
         },
-        'labelsFactory': {
+        'labels': {
           'enabled': true,
           'anchor': 'leftCenter',
           'position': 'rightCenter',
@@ -2816,11 +3038,25 @@ window['anychart']['themes']['defaultTheme'] = {
           'zIndex': 40,
           'disablePointerEvents': true
         },
-        'markersFactory': {
+        'markers': {
           'anchor': 'centerTop',
           'zIndex': 50,
-          'enabled': true,
-          'type': 'star4'
+          'type': 'star5',
+          'fill': '#ff0',
+          'stroke': '2 red'
+        },
+        'defaultLineMarkerSettings': {
+          'layout': 'vertical',
+          'zIndex': 1.5
+        },
+        'defaultRangeMarkerSettings': {
+          'layout': 'vertical',
+          'zIndex': 1
+        },
+        'defaultTextMarkerSettings': {
+          'layout': 'vertical',
+          'zIndex': 2,
+          'textWrap': 'byLetter'
         },
         'header': {
           'labelsFactory': {
@@ -2968,7 +3204,7 @@ window['anychart']['themes']['defaultTheme'] = {
               var val = this['value'];
               if (val === undefined) val = this['close'];
               val = parseFloat(val).toFixed(4);
-              return this['seriesName'] + ': ' + this['valuePrefix'] + val + this['valuePostfix'];
+              return this['seriesName'] + (isNaN(val) ? '' : (': ' + this['valuePrefix'] + val + this['valuePostfix']));
             }
           },
           'legendItem': {'iconStroke': 'none'}

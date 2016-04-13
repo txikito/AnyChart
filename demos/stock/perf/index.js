@@ -17,6 +17,13 @@ anychart.onDocumentReady(function() {
   mapping.addField('close', 4, 'last');
   mapping.addField('value', 4, 'last');
 
+  var c = table.createComputer(mapping);
+  c.addOutputField('asdf', 'qwer');
+  c.setContext({a: 100});
+  c.setCalculationFunction(function(row) {
+    row.set('asdf', row.get('value') + this.a);
+  });
+
   perfMeter.end('Storage initialization');
 
   perfMeter.start('Chart creation');
@@ -25,10 +32,15 @@ anychart.onDocumentReady(function() {
   chart.padding(10, 10, 10, 50);
   //chart.plot(0).line(mapping);
   chart.plot(0).ohlc(mapping);
+  chart.plot(0).sma(mapping, 20).series().stroke('red');
+
+  chart.plot(0).line(table, {value: c.getFieldIndex('asdf')});
+
   chart.plot(0).yAxis();
   //chart.plot(0).xAxis(false);
   //chart.plot(0).legend(true);
   chart.scroller().line(mapping);
+  chart.scroller().sma(mapping, 20).series().stroke('red').selectedStroke('red');
   chart.title('Stock Demo\nClick this title to start streaming');
   chart.container('container');
 

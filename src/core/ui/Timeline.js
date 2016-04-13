@@ -2,6 +2,9 @@ goog.provide('anychart.core.ui.Timeline');
 
 
 goog.require('acgraph.vector.Path');
+goog.require('anychart.core.axisMarkers.GanttLine');
+goog.require('anychart.core.axisMarkers.GanttRange');
+goog.require('anychart.core.axisMarkers.GanttText');
 goog.require('anychart.core.gantt.TimelineHeader');
 goog.require('anychart.core.ui.BaseGrid');
 goog.require('anychart.core.ui.LabelsFactory');
@@ -259,6 +262,14 @@ anychart.core.ui.Timeline = function(opt_controller, opt_isResources) {
 
 
   /**
+   * Selected element stroke.
+   * @type {!acgraph.vector.Stroke}
+   * @private
+   */
+  this.selectedConnectorStroke_;
+
+
+  /**
    * Connector arrow fill.
    * @type {acgraph.vector.Fill}
    * @private
@@ -279,6 +290,14 @@ anychart.core.ui.Timeline = function(opt_controller, opt_isResources) {
    * @private
    */
   this.selectedPeriodId_ = void 0;
+
+  /**
+   * Information about currently selected connector.
+   * Connector can't be characterized by it's path, but can be defined by elements that it connects.
+   * @type {Object}
+   * @private
+   */
+  this.selectedConnectorData_ = null;
 
   /**
    * Minimum gap.
@@ -362,6 +381,12 @@ anychart.core.ui.Timeline = function(opt_controller, opt_isResources) {
   this.draggingProgress = false;
 
   /**
+   * Whether we are dragging the preview.
+   * @type {boolean}
+   */
+  this.draggingPreview = false;
+
+  /**
    * Whether we are dragging the thumb.
    * @type {anychart.core.ui.Timeline.ThumbDragger}
    * @private
@@ -374,6 +399,38 @@ anychart.core.ui.Timeline = function(opt_controller, opt_isResources) {
    * @private
    */
   this.currentConnectorDragger_ = null;
+
+  /**
+   * Timeline visual elements.
+   * @type {Array.<anychart.core.ui.BaseGrid.Element>}
+   * @private
+   */
+  this.visElements_ = [];
+
+  /**
+   * Number of used visual elements.
+   * @type {number}
+   * @private
+   */
+  this.visElementsInUse_ = 0;
+
+  /**
+   * @type {Array.<anychart.core.axisMarkers.GanttLine>}
+   * @private
+   */
+  this.lineMarkers_ = [];
+
+  /**
+   * @type {Array.<anychart.core.axisMarkers.GanttRange>}
+   * @private
+   */
+  this.rangeMarkers_ = [];
+
+  /**
+   * @type {Array.<anychart.core.axisMarkers.GanttText>}
+   * @private
+   */
+  this.textMarkers_ = [];
 
   /**
    * Date time scale.
@@ -664,7 +721,7 @@ anychart.core.ui.Timeline.prototype.editPreviewStroke = function(opt_strokeOrFil
     var val = acgraph.vector.normalizeStroke.apply(null, arguments);
     if (!anychart.color.equals(this.editPreviewStroke_, val)) {
       this.editPreviewStroke_ = val;
-      this.invalidate(anychart.ConsistencyState.GRIDS_POSITION, anychart.Signal.NEEDS_REDRAW);
+      this.invalidate(anychart.ConsistencyState.APPEARANCE, anychart.Signal.NEEDS_REDRAW);
     }
     return this;
   }
@@ -711,7 +768,7 @@ anychart.core.ui.Timeline.prototype.editProgressStroke = function(opt_strokeOrFi
     var val = acgraph.vector.normalizeStroke.apply(null, arguments);
     if (!anychart.color.equals(this.editProgressStroke_, val)) {
       this.editProgressStroke_ = val;
-      this.invalidate(anychart.ConsistencyState.GRIDS_POSITION, anychart.Signal.NEEDS_REDRAW);
+      this.invalidate(anychart.ConsistencyState.APPEARANCE, anychart.Signal.NEEDS_REDRAW);
     }
     return this;
   }
@@ -758,7 +815,7 @@ anychart.core.ui.Timeline.prototype.editIntervalThumbStroke = function(opt_strok
     var val = acgraph.vector.normalizeStroke.apply(null, arguments);
     if (!anychart.color.equals(this.editIntervalThumbStroke_, val)) {
       this.editIntervalThumbStroke_ = val;
-      this.invalidate(anychart.ConsistencyState.GRIDS_POSITION, anychart.Signal.NEEDS_REDRAW);
+      this.invalidate(anychart.ConsistencyState.APPEARANCE, anychart.Signal.NEEDS_REDRAW);
     }
     return this;
   }
@@ -805,7 +862,7 @@ anychart.core.ui.Timeline.prototype.editConnectorThumbStroke = function(opt_stro
     var val = acgraph.vector.normalizeStroke.apply(null, arguments);
     if (!anychart.color.equals(this.editConnectorThumbStroke_, val)) {
       this.editConnectorThumbStroke_ = val;
-      this.invalidate(anychart.ConsistencyState.GRIDS_POSITION, anychart.Signal.NEEDS_REDRAW);
+      this.invalidate(anychart.ConsistencyState.APPEARANCE, anychart.Signal.NEEDS_REDRAW);
     }
     return this;
   }
@@ -830,7 +887,7 @@ anychart.core.ui.Timeline.prototype.baseFill = function(opt_fillOrColorOrKeys, o
     var val = acgraph.vector.normalizeFill.apply(null, arguments);
     if (!anychart.color.equals(/** @type {acgraph.vector.Fill} */ (this.baseFill_), val)) {
       this.baseFill_ = val;
-      this.invalidate(anychart.ConsistencyState.GRIDS_POSITION, anychart.Signal.NEEDS_REDRAW);
+      this.invalidate(anychart.ConsistencyState.BASE_GRID_REDRAW, anychart.Signal.NEEDS_REDRAW);
     }
     return this;
   }
@@ -853,7 +910,7 @@ anychart.core.ui.Timeline.prototype.baseStroke = function(opt_strokeOrFill, opt_
     var val = acgraph.vector.normalizeStroke.apply(null, arguments);
     if (!anychart.color.equals(this.baseStroke_, val)) {
       this.baseStroke_ = val;
-      this.invalidate(anychart.ConsistencyState.GRIDS_POSITION, anychart.Signal.NEEDS_REDRAW);
+      this.invalidate(anychart.ConsistencyState.BASE_GRID_REDRAW, anychart.Signal.NEEDS_REDRAW);
     }
     return this;
   }
@@ -878,7 +935,7 @@ anychart.core.ui.Timeline.prototype.baselineFill = function(opt_fillOrColorOrKey
     var val = acgraph.vector.normalizeFill.apply(null, arguments);
     if (!anychart.color.equals(/** @type {acgraph.vector.Fill} */ (this.baselineFill_), val)) {
       this.baselineFill_ = val;
-      this.invalidate(anychart.ConsistencyState.GRIDS_POSITION, anychart.Signal.NEEDS_REDRAW);
+      this.invalidate(anychart.ConsistencyState.BASE_GRID_REDRAW, anychart.Signal.NEEDS_REDRAW);
     }
     return this;
   }
@@ -901,7 +958,7 @@ anychart.core.ui.Timeline.prototype.baselineStroke = function(opt_strokeOrFill, 
     var val = acgraph.vector.normalizeStroke.apply(null, arguments);
     if (!anychart.color.equals(this.baselineStroke_, val)) {
       this.baselineStroke_ = val;
-      this.invalidate(anychart.ConsistencyState.GRIDS_POSITION, anychart.Signal.NEEDS_REDRAW);
+      this.invalidate(anychart.ConsistencyState.BASE_GRID_REDRAW, anychart.Signal.NEEDS_REDRAW);
     }
     return this;
   }
@@ -926,7 +983,7 @@ anychart.core.ui.Timeline.prototype.progressFill = function(opt_fillOrColorOrKey
     var val = acgraph.vector.normalizeFill.apply(null, arguments);
     if (!anychart.color.equals(/** @type {acgraph.vector.Fill} */ (this.progressFill_), val)) {
       this.progressFill_ = val;
-      this.invalidate(anychart.ConsistencyState.GRIDS_POSITION, anychart.Signal.NEEDS_REDRAW);
+      this.invalidate(anychart.ConsistencyState.BASE_GRID_REDRAW, anychart.Signal.NEEDS_REDRAW);
     }
     return this;
   }
@@ -949,7 +1006,7 @@ anychart.core.ui.Timeline.prototype.progressStroke = function(opt_strokeOrFill, 
     var val = acgraph.vector.normalizeStroke.apply(null, arguments);
     if (!anychart.color.equals(this.progressStroke_, val)) {
       this.progressStroke_ = val;
-      this.invalidate(anychart.ConsistencyState.GRIDS_POSITION, anychart.Signal.NEEDS_REDRAW);
+      this.invalidate(anychart.ConsistencyState.BASE_GRID_REDRAW, anychart.Signal.NEEDS_REDRAW);
     }
     return this;
   }
@@ -974,7 +1031,7 @@ anychart.core.ui.Timeline.prototype.milestoneFill = function(opt_fillOrColorOrKe
     var val = acgraph.vector.normalizeFill.apply(null, arguments);
     if (!anychart.color.equals(/** @type {acgraph.vector.Fill} */ (this.milestoneFill_), val)) {
       this.milestoneFill_ = val;
-      this.invalidate(anychart.ConsistencyState.GRIDS_POSITION, anychart.Signal.NEEDS_REDRAW);
+      this.invalidate(anychart.ConsistencyState.BASE_GRID_REDRAW, anychart.Signal.NEEDS_REDRAW);
     }
     return this;
   }
@@ -997,7 +1054,7 @@ anychart.core.ui.Timeline.prototype.milestoneStroke = function(opt_strokeOrFill,
     var val = acgraph.vector.normalizeStroke.apply(null, arguments);
     if (!anychart.color.equals(this.milestoneStroke_, val)) {
       this.milestoneStroke_ = val;
-      this.invalidate(anychart.ConsistencyState.GRIDS_POSITION, anychart.Signal.NEEDS_REDRAW);
+      this.invalidate(anychart.ConsistencyState.BASE_GRID_REDRAW, anychart.Signal.NEEDS_REDRAW);
     }
     return this;
   }
@@ -1022,7 +1079,7 @@ anychart.core.ui.Timeline.prototype.parentFill = function(opt_fillOrColorOrKeys,
     var val = acgraph.vector.normalizeFill.apply(null, arguments);
     if (!anychart.color.equals(/** @type {acgraph.vector.Fill} */ (this.parentFill_), val)) {
       this.parentFill_ = val;
-      this.invalidate(anychart.ConsistencyState.GRIDS_POSITION, anychart.Signal.NEEDS_REDRAW);
+      this.invalidate(anychart.ConsistencyState.BASE_GRID_REDRAW, anychart.Signal.NEEDS_REDRAW);
     }
     return this;
   }
@@ -1045,7 +1102,7 @@ anychart.core.ui.Timeline.prototype.parentStroke = function(opt_strokeOrFill, op
     var val = acgraph.vector.normalizeStroke.apply(null, arguments);
     if (!anychart.color.equals(this.parentStroke_, val)) {
       this.parentStroke_ = val;
-      this.invalidate(anychart.ConsistencyState.GRIDS_POSITION, anychart.Signal.NEEDS_REDRAW);
+      this.invalidate(anychart.ConsistencyState.BASE_GRID_REDRAW, anychart.Signal.NEEDS_REDRAW);
     }
     return this;
   }
@@ -1070,7 +1127,7 @@ anychart.core.ui.Timeline.prototype.connectorFill = function(opt_fillOrColorOrKe
     var val = acgraph.vector.normalizeFill.apply(null, arguments);
     if (!anychart.color.equals(/** @type {acgraph.vector.Fill} */ (this.connectorFill_), val)) {
       this.connectorFill_ = val;
-      this.invalidate(anychart.ConsistencyState.GRIDS_POSITION, anychart.Signal.NEEDS_REDRAW);
+      this.invalidate(anychart.ConsistencyState.BASE_GRID_REDRAW, anychart.Signal.NEEDS_REDRAW);
     }
     return this;
   }
@@ -1118,7 +1175,7 @@ anychart.core.ui.Timeline.prototype.selectedElementFill = function(opt_fillOrCol
     var val = acgraph.vector.normalizeFill.apply(null, arguments);
     if (!anychart.color.equals(/** @type {acgraph.vector.Fill} */ (this.selectedElementFill_), val)) {
       this.selectedElementFill_ = val;
-      this.invalidate(anychart.ConsistencyState.GRIDS_POSITION, anychart.Signal.NEEDS_REDRAW);
+      this.invalidate(anychart.ConsistencyState.BASE_GRID_REDRAW, anychart.Signal.NEEDS_REDRAW);
     }
     return this;
   }
@@ -1141,11 +1198,33 @@ anychart.core.ui.Timeline.prototype.selectedElementStroke = function(opt_strokeO
     var val = acgraph.vector.normalizeStroke.apply(null, arguments);
     if (!anychart.color.equals(this.selectedElementStroke_, val)) {
       this.selectedElementStroke_ = val;
-      this.invalidate(anychart.ConsistencyState.GRIDS_POSITION, anychart.Signal.NEEDS_REDRAW);
+      this.invalidate(anychart.ConsistencyState.BASE_GRID_REDRAW, anychart.Signal.NEEDS_REDRAW);
     }
     return this;
   }
   return this.selectedElementStroke_ || 'none';
+};
+
+
+/**
+ * Gets/sets selected connector stroke.
+ * @param {(acgraph.vector.Stroke|acgraph.vector.ColoredFill|string|null)=} opt_strokeOrFill .
+ * @param {number=} opt_thickness .
+ * @param {string=} opt_dashpattern .
+ * @param {acgraph.vector.StrokeLineJoin=} opt_lineJoin .
+ * @param {acgraph.vector.StrokeLineCap=} opt_lineCap .
+ * @return {acgraph.vector.Stroke|anychart.core.ui.Timeline|string} - Current value or itself for chaining.
+ */
+anychart.core.ui.Timeline.prototype.selectedConnectorStroke = function(opt_strokeOrFill, opt_thickness, opt_dashpattern, opt_lineJoin, opt_lineCap) {
+  if (goog.isDef(opt_strokeOrFill)) {
+    var val = acgraph.vector.normalizeStroke.apply(null, arguments);
+    if (!anychart.color.equals(this.selectedConnectorStroke_, val)) {
+      this.selectedConnectorStroke_ = val;
+      this.invalidate(anychart.ConsistencyState.BASE_GRID_REDRAW, anychart.Signal.NEEDS_REDRAW);
+    }
+    return this;
+  }
+  return this.selectedConnectorStroke_ || 'none';
 };
 
 
@@ -1170,6 +1249,169 @@ anychart.core.ui.Timeline.prototype.columnStroke = function(opt_value) {
     return this;
   }
   return this.columnStroke_;
+};
+
+
+//----------------------------------------------------------------------------------------------------------------------
+//
+//  Axes markers.
+//
+//----------------------------------------------------------------------------------------------------------------------
+/**
+ * Getter/setter for line marker default settings.
+ * @param {Object=} opt_value - Object with line marker settings.
+ * @return {Object}
+ */
+anychart.core.ui.Timeline.prototype.defaultLineMarkerSettings = function(opt_value) {
+  if (goog.isDef(opt_value)) {
+    this.defaultLineMarkerSettings_ = opt_value;
+    return this;
+  }
+  return this.defaultLineMarkerSettings_ || {};
+};
+
+
+/**
+ * Getter/setter for range marker default settings.
+ * @param {Object=} opt_value - Object with range marker settings.
+ * @return {Object}
+ */
+anychart.core.ui.Timeline.prototype.defaultRangeMarkerSettings = function(opt_value) {
+  if (goog.isDef(opt_value)) {
+    this.defaultRangeMarkerSettings_ = opt_value;
+    return this;
+  }
+  return this.defaultRangeMarkerSettings_ || {};
+};
+
+
+/**
+ * Getter/setter for text marker default settings.
+ * @param {Object=} opt_value - Object with text marker settings.
+ * @return {Object}
+ */
+anychart.core.ui.Timeline.prototype.defaultTextMarkerSettings = function(opt_value) {
+  if (goog.isDef(opt_value)) {
+    this.defaultTextMarkerSettings_ = opt_value;
+    return this;
+  }
+  return this.defaultTextMarkerSettings_ || {};
+};
+
+
+/**
+ * Getter/setter for lineMarker.
+ * @param {(Object|boolean|null|number)=} opt_indexOrValue - Line marker settings to set.
+ * @param {(Object|boolean|null|anychart.enums.GanttDateTimeMarkers)=} opt_value - Line marker settings to set.
+ * @return {!(anychart.core.axisMarkers.GanttLine|anychart.core.ui.Timeline)} - Line marker instance by index or itself for method chaining.
+ */
+anychart.core.ui.Timeline.prototype.lineMarker = function(opt_indexOrValue, opt_value) {
+  var index, value;
+  index = anychart.utils.toNumber(opt_indexOrValue);
+  if (isNaN(index)) {
+    index = 0;
+    value = opt_indexOrValue;
+  } else {
+    index = opt_indexOrValue;
+    value = opt_value;
+  }
+  var lineMarker = this.lineMarkers_[index];
+  if (!lineMarker) {
+    lineMarker = new anychart.core.axisMarkers.GanttLine(this.scale_);
+    lineMarker.setup(this.defaultLineMarkerSettings());
+    this.lineMarkers_[index] = lineMarker;
+    this.registerDisposable(lineMarker);
+    lineMarker.listenSignals(this.onMarkersSignal_, this);
+    this.invalidate(anychart.ConsistencyState.TIMELINE_SCALES, anychart.Signal.NEEDS_REDRAW);
+  }
+
+  if (goog.isDef(value)) {
+    lineMarker.setup(value);
+    return this;
+  } else {
+    return lineMarker;
+  }
+};
+
+
+/**
+ * Getter/setter for rangeMarker.
+ * @param {(Object|boolean|null|number)=} opt_indexOrValue - Range marker settings to set.
+ * @param {(Object|boolean|null|anychart.enums.GanttDateTimeMarkers)=} opt_value - Range marker settings to set.
+ * @return {!(anychart.core.axisMarkers.GanttRange|anychart.core.ui.Timeline)} - Range marker instance by index or
+ *  itself for method chaining.
+ */
+anychart.core.ui.Timeline.prototype.rangeMarker = function(opt_indexOrValue, opt_value) {
+  var index, value;
+  index = anychart.utils.toNumber(opt_indexOrValue);
+  if (isNaN(index)) {
+    index = 0;
+    value = opt_indexOrValue;
+  } else {
+    index = opt_indexOrValue;
+    value = opt_value;
+  }
+  var rangeMarker = this.rangeMarkers_[index];
+  if (!rangeMarker) {
+    rangeMarker = new anychart.core.axisMarkers.GanttRange(this.scale_);
+    rangeMarker.setup(this.defaultRangeMarkerSettings());
+    this.rangeMarkers_[index] = rangeMarker;
+    this.registerDisposable(rangeMarker);
+    rangeMarker.listenSignals(this.onMarkersSignal_, this);
+    this.invalidate(anychart.ConsistencyState.TIMELINE_SCALES, anychart.Signal.NEEDS_REDRAW);
+  }
+
+  if (goog.isDef(value)) {
+    rangeMarker.setup(value);
+    return this;
+  } else {
+    return rangeMarker;
+  }
+};
+
+
+/**
+ * Getter/setter for textMarker.
+ * @param {(Object|boolean|null|number)=} opt_indexOrValue - Text marker settings to set.
+ * @param {(Object|boolean|null|anychart.enums.GanttDateTimeMarkers)=} opt_value - Text marker settings to set.
+ * @return {!(anychart.core.axisMarkers.GanttText|anychart.core.ui.Timeline)} - Text marker instance by index or itself for chaining call.
+ */
+anychart.core.ui.Timeline.prototype.textMarker = function(opt_indexOrValue, opt_value) {
+  var index, value;
+  index = anychart.utils.toNumber(opt_indexOrValue);
+  if (isNaN(index)) {
+    index = 0;
+    value = opt_indexOrValue;
+  } else {
+    index = opt_indexOrValue;
+    value = opt_value;
+  }
+  var textMarker = this.textMarkers_[index];
+  if (!textMarker) {
+    textMarker = new anychart.core.axisMarkers.GanttText(this.scale_);
+    textMarker.setup(this.defaultTextMarkerSettings());
+    this.textMarkers_[index] = textMarker;
+    this.registerDisposable(textMarker);
+    textMarker.listenSignals(this.onMarkersSignal_, this);
+    this.invalidate(anychart.ConsistencyState.TIMELINE_SCALES, anychart.Signal.NEEDS_REDRAW);
+  }
+
+  if (goog.isDef(value)) {
+    textMarker.setup(value);
+    return this;
+  } else {
+    return textMarker;
+  }
+};
+
+
+/**
+ * Listener for markers invalidation.
+ * @param {anychart.SignalEvent} event Invalidation event.
+ * @private
+ */
+anychart.core.ui.Timeline.prototype.onMarkersSignal_ = function(event) {
+  this.invalidate(anychart.ConsistencyState.TIMELINE_SCALES, anychart.Signal.NEEDS_REDRAW);
 };
 
 
@@ -1210,11 +1452,11 @@ anychart.core.ui.Timeline.prototype.maximumGap = function(opt_value) {
 
 
 /**
- * Inner labels factory getter.
+ * Labels factory getter/setter.
  * @param {Object=} opt_value - Value to be set.
  * @return {anychart.core.ui.Timeline|anychart.core.ui.LabelsFactory} - Current value or itself for method chaining.
  */
-anychart.core.ui.Timeline.prototype.labelsFactory = function(opt_value) {
+anychart.core.ui.Timeline.prototype.labels = function(opt_value) {
   if (!this.labelsFactory_) {
     this.labelsFactory_ = new anychart.core.ui.LabelsFactory();
     this.labelsFactory_.setParentEventTarget(this);
@@ -1232,13 +1474,44 @@ anychart.core.ui.Timeline.prototype.labelsFactory = function(opt_value) {
       redraw = false;
     }
     if (redraw) {
-
       this.invalidate(anychart.ConsistencyState.GRIDS_POSITION, anychart.Signal.NEEDS_REDRAW);
     }
     return this;
   }
 
   return this.labelsFactory_;
+};
+
+
+/**
+ * Markers factory getter/setter.
+ * @param {Object=} opt_value - Value to be set.
+ * @return {anychart.core.ui.Timeline|anychart.core.ui.MarkersFactory} - Current value or itself for method chaining.
+ */
+anychart.core.ui.Timeline.prototype.markers = function(opt_value) {
+  if (!this.markersFactory_) {
+    this.markersFactory_ = new anychart.core.ui.MarkersFactory();
+    this.markersFactory_.setParentEventTarget(this);
+  }
+
+  if (goog.isDef(opt_value)) {
+    var redraw = true;
+    if (opt_value instanceof anychart.core.ui.MarkersFactory) {
+      this.markersFactory_.setup(opt_value.serialize());
+    } else if (goog.isObject(opt_value)) {
+      this.markersFactory_.setup(opt_value);
+    } else if (anychart.utils.isNone(opt_value)) {
+      this.markersFactory_.enabled(false);
+    } else {
+      redraw = false;
+    }
+    if (redraw) {
+      this.invalidate(anychart.ConsistencyState.GRIDS_POSITION, anychart.Signal.NEEDS_REDRAW);
+    }
+    return this;
+  }
+
+  return this.markersFactory_;
 };
 
 
@@ -1267,7 +1540,8 @@ anychart.core.ui.Timeline.prototype.baselineAbove = function(opt_value) {
  */
 anychart.core.ui.Timeline.prototype.getSeparationPath_ = function() {
   if (!this.separationPath_) {
-    this.separationPath_ = /** @type {acgraph.vector.Path} */ (this.getClipLayer().path());
+    this.separationPath_ = /** @type {acgraph.vector.Path} */ (this.getCellsLayer().path());
+    this.separationPath_.zIndex(6);
     this.separationPath_.stroke(this.columnStroke_);
     this.registerDisposable(this.separationPath_);
   }
@@ -1452,6 +1726,7 @@ anychart.core.ui.Timeline.prototype.clearEdit_ = function() {
   this.getEditFinishConnectorPath_().clear().setTransformationMatrix(1, 0, 0, 1, 0, 0);
   this.getEditStartConnectorPath_().clear().setTransformationMatrix(1, 0, 0, 1, 0, 0);
   this.getEditConnectorPreviewPath_().clear();
+  this.tooltip().enabled(true);
 };
 
 
@@ -1584,6 +1859,7 @@ anychart.core.ui.Timeline.prototype.editPreviewDragStart_ = function(e) {
 anychart.core.ui.Timeline.prototype.editPreviewDrag_ = function(e) {
   this.dragging = true;
   this.interactive = false;
+  this.draggingPreview = true;
 };
 
 
@@ -1595,7 +1871,6 @@ anychart.core.ui.Timeline.prototype.editPreviewDrag_ = function(e) {
 anychart.core.ui.Timeline.prototype.editPreviewEnd_ = function(e) {
   if (this.dragging) {
     if (this.scrollDragger) this.scrollDragger.setEnabled(true);
-    this.tooltip().enabled(true);
     var draggedBounds = this.getEditPreviewPath_().getBounds();
 
     this.clearEdit_();
@@ -1623,43 +1898,52 @@ anychart.core.ui.Timeline.prototype.editPreviewEnd_ = function(e) {
       switch (el.type) {
         case anychart.enums.TLElementTypes.MILESTONE:
           dataItem.set(anychart.enums.GanttDataFields.ACTUAL_START, newActualStart);
-          if (goog.isDef(dataItem.get(anychart.enums.GanttDataFields.ACTUAL_END)))
+          dataItem.meta(anychart.enums.GanttDataFields.ACTUAL_START, newActualStart);
+          if (goog.isDef(dataItem.get(anychart.enums.GanttDataFields.ACTUAL_END))) {
             dataItem.set(anychart.enums.GanttDataFields.ACTUAL_END, newActualStart);
+            dataItem.meta(anychart.enums.GanttDataFields.ACTUAL_END, newActualStart);
+          }
           break;
         case anychart.enums.TLElementTypes.PERIOD:
-          var period = el.period;
           var periodIndex = el.periodIndex;
-          var periodStart = anychart.utils.normalizeTimestamp(period[anychart.enums.GanttDataFields.START]);
-          var periodEnd = anychart.utils.normalizeTimestamp(period[anychart.enums.GanttDataFields.END]);
+          var periodStart = /** @type {number} */ (dataItem.getMeta(anychart.enums.GanttDataFields.PERIODS, periodIndex, anychart.enums.GanttDataFields.START));
+          var periodEnd = dataItem.getMeta(anychart.enums.GanttDataFields.PERIODS, periodIndex, anychart.enums.GanttDataFields.END);
           delta = newActualStart - periodStart;
           var newPeriodEnd = periodEnd + delta;
           if (!isNaN(newPeriodEnd)) {
             dataItem.set(anychart.enums.GanttDataFields.PERIODS, periodIndex, anychart.enums.GanttDataFields.START, newActualStart);
+            dataItem.setMeta(anychart.enums.GanttDataFields.PERIODS, periodIndex, anychart.enums.GanttDataFields.START, newActualStart);
             dataItem.set(anychart.enums.GanttDataFields.PERIODS, periodIndex, anychart.enums.GanttDataFields.END, newPeriodEnd);
+            dataItem.setMeta(anychart.enums.GanttDataFields.PERIODS, periodIndex, anychart.enums.GanttDataFields.END, newPeriodEnd);
           }
           break;
         case anychart.enums.TLElementTypes.BASELINE:
-          var baselineStart = anychart.utils.normalizeTimestamp(dataItem.get(anychart.enums.GanttDataFields.BASELINE_START));
-          var baselineEnd = anychart.utils.normalizeTimestamp(dataItem.get(anychart.enums.GanttDataFields.BASELINE_END));
+          var baselineStart = /** @type {number} */ (dataItem.meta(anychart.enums.GanttDataFields.BASELINE_START));
+          var baselineEnd = dataItem.meta(anychart.enums.GanttDataFields.BASELINE_END);
           delta = newActualStart - baselineStart;
           var newBaselineEnd = baselineEnd + delta;
-          if (!isNaN(newBaselineEnd))
+          if (!isNaN(newBaselineEnd)) {
             dataItem.set(anychart.enums.GanttDataFields.BASELINE_START, newActualStart);
+            dataItem.meta(anychart.enums.GanttDataFields.BASELINE_START, newActualStart);
+          }
           dataItem.set(anychart.enums.GanttDataFields.BASELINE_END, baselineEnd + delta);
+          dataItem.meta(anychart.enums.GanttDataFields.BASELINE_END, baselineEnd + delta);
           break;
         default:
-          var actualStart = /** @type {number} */ (goog.isDef(dataItem.get(anychart.enums.GanttDataFields.ACTUAL_START)) ?
-              anychart.utils.normalizeTimestamp(dataItem.get(anychart.enums.GanttDataFields.ACTUAL_START)) :
-              dataItem.meta('autoStart'));
+          var actualStart = /** @type {number} */ ((goog.isNumber(dataItem.meta(anychart.enums.GanttDataFields.ACTUAL_START)) ?
+              dataItem.meta(anychart.enums.GanttDataFields.ACTUAL_START) :
+              dataItem.meta('autoStart')));
 
-          var actualEnd = goog.isDef(dataItem.get(anychart.enums.GanttDataFields.ACTUAL_END)) ?
-              anychart.utils.normalizeTimestamp(dataItem.get(anychart.enums.GanttDataFields.ACTUAL_END)) :
+          var actualEnd = goog.isNumber(dataItem.meta(anychart.enums.GanttDataFields.ACTUAL_END)) ?
+              dataItem.meta(anychart.enums.GanttDataFields.ACTUAL_END) :
               dataItem.meta('autoEnd');
           delta = newActualStart - actualStart;
           var newActualEnd = actualEnd + delta;
           if (!isNaN(newActualEnd)) {
             dataItem.set(anychart.enums.GanttDataFields.ACTUAL_START, newActualStart);
+            dataItem.meta(anychart.enums.GanttDataFields.ACTUAL_START, newActualStart);
             dataItem.set(anychart.enums.GanttDataFields.ACTUAL_END, newActualEnd);
+            dataItem.meta(anychart.enums.GanttDataFields.ACTUAL_END, newActualEnd);
           }
       }
     }
@@ -1667,9 +1951,10 @@ anychart.core.ui.Timeline.prototype.editPreviewEnd_ = function(e) {
 
     tree.resumeSignalsDispatching(true);
 
-    this.initScale_();
+    this.initScale();
 
     this.dragging = false;
+    this.draggingPreview = false;
     clearInterval(this.scrollInterval);
     this.scrollInterval = null;
   }
@@ -1713,7 +1998,6 @@ anychart.core.ui.Timeline.prototype.editProgressDrag_ = function(e) {
 anychart.core.ui.Timeline.prototype.editProgressDragEnd_ = function(e) {
   if (this.dragging) {
     if (this.scrollDragger) this.scrollDragger.setEnabled(true);
-    this.tooltip().enabled(true);
 
     this.clearEdit_();
 
@@ -1782,7 +2066,7 @@ anychart.core.ui.Timeline.prototype.drawThumbPreview_ = function(event, opt_scro
 
     var item = path.item;
     var type = path.type;
-    var period = path.period;
+    var periodIndex = path.periodIndex;
     var bounds = path.bounds;
 
     var time;
@@ -1790,22 +2074,22 @@ anychart.core.ui.Timeline.prototype.drawThumbPreview_ = function(event, opt_scro
     switch (type) {
       case anychart.enums.TLElementTypes.BASELINE:
         time = this.currentThumbDragger_.isLeft ?
-            anychart.utils.normalizeTimestamp(item.get(anychart.enums.GanttDataFields.BASELINE_END)) :
-            anychart.utils.normalizeTimestamp(item.get(anychart.enums.GanttDataFields.BASELINE_START));
+            item.meta(anychart.enums.GanttDataFields.BASELINE_END) :
+            item.meta(anychart.enums.GanttDataFields.BASELINE_START);
         break;
       case anychart.enums.TLElementTypes.PERIOD:
         time = this.currentThumbDragger_.isLeft ?
-            anychart.utils.normalizeTimestamp(period[anychart.enums.GanttDataFields.END]) :
-            anychart.utils.normalizeTimestamp(period[anychart.enums.GanttDataFields.START]);
+            item.getMeta(anychart.enums.GanttDataFields.PERIODS, periodIndex, anychart.enums.GanttDataFields.END) :
+            item.getMeta(anychart.enums.GanttDataFields.PERIODS, periodIndex, anychart.enums.GanttDataFields.START);
         break;
       default:
         if (this.currentThumbDragger_.isLeft) {
-          time = goog.isDef(item.get(anychart.enums.GanttDataFields.ACTUAL_END)) ?
-              anychart.utils.normalizeTimestamp(item.get(anychart.enums.GanttDataFields.ACTUAL_END)) :
+          time = goog.isNumber(item.meta(anychart.enums.GanttDataFields.ACTUAL_END)) ?
+              item.meta(anychart.enums.GanttDataFields.ACTUAL_END) :
               item.meta('autoEnd');
         } else {
-          time = goog.isDef(item.get(anychart.enums.GanttDataFields.ACTUAL_START)) ?
-              anychart.utils.normalizeTimestamp(item.get(anychart.enums.GanttDataFields.ACTUAL_START)) :
+          time = goog.isNumber(item.meta(anychart.enums.GanttDataFields.ACTUAL_START)) ?
+              item.meta(anychart.enums.GanttDataFields.ACTUAL_START) :
               item.meta('autoStart');
         }
     }
@@ -1841,11 +2125,13 @@ anychart.core.ui.Timeline.prototype.drawThumbPreview_ = function(event, opt_scro
  * @private
  */
 anychart.core.ui.Timeline.prototype.drawConnectorPreview_ = function(event, opt_scrollOffsetX, opt_scrollOffsetY) {
-  if (this.currentConnectorDragger_) {
+  //TODO (A.Kudryavtsev): In DVF-1809 case this.currentConnectorDragger_ can remain not null. Check it carefully!
+  if (this.currentConnectorDragger_ && this.dragging) {
     var circle = this.currentConnectorDragger_.isStart ? this.editStartConnectorPath_ : this.editFinishConnectorPath_;
 
     var index = circle.index;
     var period = circle.period;
+    var periodIndex = circle.periodIndex;
 
     var containerLeft = goog.style.getClientPosition(/** @type {Element} */(this.container().getStage().container())).x;
     var containerTop = goog.style.getClientPosition(/** @type {Element} */(this.container().getStage().container())).y;
@@ -1860,7 +2146,7 @@ anychart.core.ui.Timeline.prototype.drawConnectorPreview_ = function(event, opt_
       mouseTop = event.clientY - containerTop;
     }
 
-    var initItemsBounds = this.getItemBounds_(index, period);
+    var initItemsBounds = this.getItemBounds_(index, period, periodIndex);
 
     var previewThickness = anychart.utils.extractThickness(this.connectorPreviewStroke_);
     var pixelShift = (previewThickness % 2 && acgraph.type() === acgraph.StageType.SVG) ? 0.5 : 0;
@@ -1897,7 +2183,6 @@ anychart.core.ui.Timeline.prototype.editThumbDrag_ = function(e) {
 anychart.core.ui.Timeline.prototype.editThumbDragEnd_ = function(e) {
   if (this.dragging) {
     if (this.scrollDragger) this.scrollDragger.setEnabled(true);
-    this.tooltip().enabled(true);
     var dragPreviewBounds = this.editPreviewPath_.getBounds();
 
     this.clearEdit_();
@@ -1921,20 +2206,26 @@ anychart.core.ui.Timeline.prototype.editThumbDragEnd_ = function(e) {
       switch (el.type) {
         case anychart.enums.TLElementTypes.PERIOD:
           dataItem.set(anychart.enums.GanttDataFields.PERIODS, periodIndex, anychart.enums.GanttDataFields.START, newStart);
+          dataItem.setMeta(anychart.enums.GanttDataFields.PERIODS, periodIndex, anychart.enums.GanttDataFields.START, newStart);
           dataItem.set(anychart.enums.GanttDataFields.PERIODS, periodIndex, anychart.enums.GanttDataFields.END, newEnd);
+          dataItem.setMeta(anychart.enums.GanttDataFields.PERIODS, periodIndex, anychart.enums.GanttDataFields.END, newEnd);
           break;
         case anychart.enums.TLElementTypes.BASELINE:
           dataItem.set(anychart.enums.GanttDataFields.BASELINE_START, newStart);
+          dataItem.meta(anychart.enums.GanttDataFields.BASELINE_START, newStart);
           dataItem.set(anychart.enums.GanttDataFields.BASELINE_END, newEnd);
+          dataItem.meta(anychart.enums.GanttDataFields.BASELINE_END, newEnd);
           break;
         default:
           dataItem.set(anychart.enums.GanttDataFields.ACTUAL_START, newStart);
+          dataItem.meta(anychart.enums.GanttDataFields.ACTUAL_START, newStart);
           dataItem.set(anychart.enums.GanttDataFields.ACTUAL_END, newEnd);
+          dataItem.meta(anychart.enums.GanttDataFields.ACTUAL_END, newEnd);
       }
     }
 
     tree.resumeSignalsDispatching(true);
-    this.initScale_();
+    this.initScale();
 
     this.currentThumbDragger_ = null;
     this.dragging = false;
@@ -2340,34 +2631,37 @@ anychart.core.ui.Timeline.prototype.addConnector = function(startItem, targetIte
  */
 anychart.core.ui.Timeline.prototype.addMouseUp = function(evt) {
   if (this.editable && this.draggingConnector) {
-    var destinationItem = evt['item'];
-    var destinationPeriodIndex = evt['periodIndex'];
-    var originalEvent = evt['originalEvent'];
-    var domTarget = originalEvent['domTarget'];
-    if (domTarget instanceof anychart.core.ui.BaseGrid.Element && domTarget.type != anychart.enums.TLElementTypes.BASELINE) {
-      var left = originalEvent.clientX - goog.style.getClientPosition(/** @type {Element} */(this.container().getStage().container())).x;
-      var elBounds = domTarget.currBounds;
-      var dropRatio = (left - elBounds.left) / elBounds.width;
+    if (evt) {
+      var destinationItem = evt['item'];
+      var destinationPeriodIndex = evt['periodIndex'];
+      var originalEvent = evt['originalEvent'];
+      var domTarget = originalEvent['domTarget'];
+      if (domTarget instanceof anychart.core.ui.BaseGrid.Element && domTarget.type != anychart.enums.TLElementTypes.BASELINE) {
+        var left = originalEvent.clientX - goog.style.getClientPosition(/** @type {Element} */(this.container().getStage().container())).x;
+        var elBounds = domTarget.currBounds;
+        var dropRatio = (left - elBounds.left) / elBounds.width;
 
-      var circle = this.currentConnectorDragger_.isStart ? this.editStartConnectorPath_ : this.editFinishConnectorPath_;
+        var circle = this.currentConnectorDragger_.isStart ? this.editStartConnectorPath_ : this.editFinishConnectorPath_;
 
-      var startItem = circle.item;
-      var startPeriodIndex = circle.periodIndex;
+        var startItem = circle.item;
+        var startPeriodIndex = circle.periodIndex;
 
-      var startStart = this.currentConnectorDragger_.isStart;
-      var dropStart = dropRatio < .5;
-      var connType;
-      if (startStart) {
-        connType = dropStart ? anychart.enums.ConnectorType.START_START : anychart.enums.ConnectorType.START_FINISH;
-      } else {
-        connType = dropStart ? anychart.enums.ConnectorType.FINISH_START : anychart.enums.ConnectorType.FINISH_FINISH;
+        var startStart = this.currentConnectorDragger_.isStart;
+        var dropStart = dropRatio < .5;
+        var connType;
+        if (startStart) {
+          connType = dropStart ? anychart.enums.ConnectorType.START_START : anychart.enums.ConnectorType.START_FINISH;
+        } else {
+          connType = dropStart ? anychart.enums.ConnectorType.FINISH_START : anychart.enums.ConnectorType.FINISH_FINISH;
+        }
+
+        this.addConnector(startItem, destinationItem, connType, startPeriodIndex, destinationPeriodIndex);
       }
-
-      this.addConnector(startItem, destinationItem, connType, startPeriodIndex, destinationPeriodIndex);
     }
     this.draggingConnector = false;
   }
   this.currentConnectorDragger_ = null;
+  this.interactive = true;
 };
 
 
@@ -2379,7 +2673,7 @@ anychart.core.ui.Timeline.prototype.mouseOutMove = function(e) {
     if (this.scrollOffsetX)
       scrollX = this.scrollOffsetX > 0 ? anychart.core.ui.BaseGrid.SCROLL_STEP : -anychart.core.ui.BaseGrid.SCROLL_STEP;
 
-    if (this.draggingConnector && this.scrollOffsetY) {
+    if ((this.draggingConnector || this.draggingItem) && this.scrollOffsetY) {
       scrollY = this.scrollOffsetY > 0 ? anychart.core.ui.BaseGrid.SCROLL_STEP : -anychart.core.ui.BaseGrid.SCROLL_STEP;
     }
 
@@ -2396,15 +2690,38 @@ anychart.core.ui.Timeline.prototype.mouseOutMove = function(e) {
  * @override
  */
 anychart.core.ui.Timeline.prototype.rowSelect = function(event) {
-  var item = event['item'];
-  var period = event['period'];
-  var periodId = period ? period[anychart.enums.GanttDataFields.ID] : void 0;
-
-  if (this.selectTimelineRow(item, periodId)) {
-    var eventObj = goog.object.clone(event);
-    eventObj['type'] = anychart.enums.EventType.ROW_SELECT;
-    (/** @type {anychart.core.ui.IInteractiveGrid} */ (this.interactivityHandler)).dispatchEvent(eventObj);
+  if (!this.checkRowSelection(event)) {
+    var item = event['item'];
+    var period = event['period'];
+    var periodId = period ? period[anychart.enums.GanttDataFields.ID] : void 0;
+    if (this.selectTimelineRow(item, periodId)) {
+      var eventObj = goog.object.clone(event);
+      eventObj['type'] = anychart.enums.EventType.ROW_SELECT;
+      (/** @type {anychart.core.ui.IInteractiveGrid} */ (this.interactivityHandler)).dispatchEvent(eventObj);
+    }
   }
+};
+
+
+/**
+ * Additional action on row selection.
+ * Used to select the connector instead the row.
+ * @param {Object} event - Dispatched event object.
+ * @return {boolean} - Whether to dispatch event.
+ */
+anychart.core.ui.Timeline.prototype.checkRowSelection = function(event) {
+  var domTarget = (event && event['originalEvent']) ? event['originalEvent']['domTarget'] : null;
+  if (domTarget && domTarget.type == anychart.enums.TLElementTypes.CONNECTOR) {
+    this.clearEdit_();
+    //Pretty light comparison (8 or less iterations).
+    if (!this.selectedConnectorData_ || (goog.isObject(this.selectedConnectorData_) && !goog.object.equals(this.selectedConnectorData_, domTarget.meta))) {
+      this.interactivityHandler.rowUnselect(event['originalEvent']);
+      this.selectedConnectorData_ = goog.object.clone(domTarget.meta); //Pretty light operation (copying 4 or less primitive values).
+      this.invalidate(anychart.ConsistencyState.BASE_GRID_REDRAW, anychart.Signal.NEEDS_REDRAW);
+    }
+    return true;
+  }
+  return false;
 };
 
 
@@ -2470,7 +2787,8 @@ anychart.core.ui.Timeline.prototype.selectTimelineRow = function(item, opt_perio
   }
 
   if (itemSelected || periodSelected) {
-    this.invalidate(anychart.ConsistencyState.BASE_GRID_CLICK, anychart.Signal.NEEDS_REDRAW);
+    this.selectedConnectorData_ = null;
+    this.invalidate(anychart.ConsistencyState.BASE_GRID_REDRAW, anychart.Signal.NEEDS_REDRAW);
     return true;
   }
   return false;
@@ -2478,43 +2796,25 @@ anychart.core.ui.Timeline.prototype.selectTimelineRow = function(item, opt_perio
 
 
 /**
- * Inner labels factory getter.
- * @return {anychart.core.ui.LabelsFactory}
+ * Generates anychart.core.ui.BaseGrid.Element.
+ * @return {anychart.core.ui.BaseGrid.Element}
  * @private
  */
-anychart.core.ui.Timeline.prototype.getLabelsFactory_ = function() {
-  if (!this.labelsFactory_) {
-    this.labelsFactory_ = new anychart.core.ui.LabelsFactory();
-    this.labelsFactory_
-        .zIndex(anychart.core.ui.Timeline.LABEL_Z_INDEX)
-        .anchor(anychart.enums.Anchor.LEFT_CENTER)
-        .position(anychart.enums.Position.RIGHT_CENTER)
-        .padding(3, anychart.core.ui.Timeline.ARROW_MARGIN);
-
-    this.labelsFactory_.setParentEventTarget(this);
-
+anychart.core.ui.Timeline.prototype.genElement_ = function() {
+  var element;
+  if (this.visElementsInUse_ < this.visElements_.length) {
+    element = this.visElements_[this.visElementsInUse_++];
+    element.fill(null).stroke(null).clear();
+    element.currBounds = null;
+    element.type = void 0;
+  } else {
+    element = new anychart.core.ui.BaseGrid.Element();
+    element.setParentEventTarget(this);
+    this.visElements_.push(element);
+    this.visElementsInUse_++;
   }
-  return this.labelsFactory_;
-};
-
-
-/**
- * Inner getter for markers factory.
- * @return {anychart.core.ui.MarkersFactory}
- * @private
- */
-anychart.core.ui.Timeline.prototype.getMarkersFactory_ = function() {
-  if (!this.markersFactory_) {
-    this.markersFactory_ = new anychart.core.ui.MarkersFactory();
-    this.markersFactory_
-        .anchor(anychart.enums.Anchor.CENTER_TOP)
-        .zIndex(anychart.core.ui.Timeline.MARKER_Z_INDEX)
-        .enabled(true)
-        .type(anychart.enums.MarkerType.STAR4);
-
-    this.markersFactory_.setParentEventTarget(this);
-  }
-  return this.markersFactory_;
+  element.parent(this.getDrawLayer());
+  return element;
 };
 
 
@@ -2523,9 +2823,30 @@ anychart.core.ui.Timeline.prototype.getMarkersFactory_ = function() {
  * @private
  */
 anychart.core.ui.Timeline.prototype.drawTimelineElements_ = function() {
-  this.getDrawLayer().clear();
-  this.getLabelsFactory_().clear();
-  this.getMarkersFactory_().clear();
+  this.getDrawLayer().removeChildren();
+
+  var markers = goog.array.concat(this.lineMarkers_, this.rangeMarkers_, this.textMarkers_);
+
+  var dataBounds = new anychart.math.Rect(this.pixelBoundsCache.left,
+      (this.pixelBoundsCache.top + /** @type {number} */ (this.headerHeight()) + 1),
+      this.pixelBoundsCache.width,
+      (this.pixelBoundsCache.height - /** @type {number} */ (this.headerHeight()) - 1));
+
+  for (var m = 0, count = markers.length; m < count; m++) {
+    var axesMarker = markers[m];
+    if (axesMarker) {
+      axesMarker.suspendSignalsDispatching();
+      axesMarker.parentBounds(dataBounds);
+      axesMarker.container(this.getDrawLayer());
+      axesMarker.invalidate(anychart.ConsistencyState.CONTAINER); //Force set of parent.
+      axesMarker.draw();
+      axesMarker.resumeSignalsDispatching(false);
+    }
+  }
+
+  this.visElementsInUse_ = 0;
+  this.labels().clear();
+  this.markers().clear();
 
   if (this.controller.isResources()) {
     this.drawResourceTimeline_();
@@ -2533,10 +2854,18 @@ anychart.core.ui.Timeline.prototype.drawTimelineElements_ = function() {
     this.drawProjectTimeline_();
   }
 
-  this.getLabelsFactory_().draw();
-  this.getMarkersFactory_().draw();
+  this.labels().draw();
+  this.markers().draw();
 
   this.drawConnectors_();
+
+  //Clearing remaining elements.
+  for (var i = this.visElementsInUse_, l = this.visElements_.length; i < l; i++) {
+    var el = this.visElements_[i];
+    el.fill(null).stroke(null).clear();
+    el.currBounds = null;
+    el.type = void 0;
+  }
 };
 
 
@@ -2622,7 +2951,7 @@ anychart.core.ui.Timeline.prototype.drawBar_ = function(bounds, item, type, opt_
     if (rawLabel && rawLabel['position']) {
       position = rawLabel['position'];
     } else {
-      position = this.getLabelsFactory_().position();
+      position = this.labels().position();
       if (isActualBaseline) {
         position = anychart.enums.Position.CENTER;
       } else if (isParent) {
@@ -2633,7 +2962,7 @@ anychart.core.ui.Timeline.prototype.drawBar_ = function(bounds, item, type, opt_
     position = anychart.enums.normalizeAnchor(position);
     var positionProvider = {'value': anychart.utils.getCoordinateByAnchor(bounds, position)};
     var formatProvider = {'value': textValue};
-    var label = this.getLabelsFactory_().add(formatProvider, positionProvider);
+    var label = this.labels().add(formatProvider, positionProvider);
     if (isActualBaseline) {
       label.fontColor('#fff');
       label.anchor(anychart.enums.Anchor.CENTER);
@@ -2641,7 +2970,9 @@ anychart.core.ui.Timeline.prototype.drawBar_ = function(bounds, item, type, opt_
     if (rawLabel) label.setup(rawLabel);
   }
 
-  var bar = this.getDrawLayer().genNextChild();
+  //var bar = this.getDrawLayer().genNextChild();
+  var bar = this.genElement_();
+
   bar.tag = isTreeDataItem ? item.get(anychart.enums.GanttDataFields.ID) : item[anychart.enums.GanttDataFields.ID];
   bar.type = type;
 
@@ -2679,7 +3010,7 @@ anychart.core.ui.Timeline.prototype.drawBar_ = function(bounds, item, type, opt_
   if (settings) {
     var rawStartMarker = settings[anychart.enums.GanttDataFields.START_MARKER];
     if (rawStartMarker) {
-      var startMarker = this.getMarkersFactory_().add({value: {x: bounds.left, y: bounds.top}});
+      var startMarker = this.markers().add({value: {x: bounds.left, y: bounds.top}});
       startMarker
           .size(bounds.height / 2)
           .setup(rawStartMarker);
@@ -2687,7 +3018,7 @@ anychart.core.ui.Timeline.prototype.drawBar_ = function(bounds, item, type, opt_
 
     var rawEndMarker = settings[anychart.enums.GanttDataFields.END_MARKER];
     if (rawEndMarker) {
-      var endMarker = this.getMarkersFactory_().add({value: {x: bounds.left + bounds.width, y: bounds.top}});
+      var endMarker = this.markers().add({value: {x: bounds.left + bounds.width, y: bounds.top}});
       endMarker
           .size(bounds.height / 2)
           .setup(rawEndMarker);
@@ -2715,6 +3046,40 @@ anychart.core.ui.Timeline.prototype.drawBar_ = function(bounds, item, type, opt_
 
 
 /**
+ * Draws data item's time markers.
+ * @param {anychart.data.Tree.DataItem} dataItem - Current tree data item.
+ * @param {number} totalTop - Pixel value of total top. Is needed to place item correctly.
+ * @param {number} itemHeight - Height of row.
+ * @private
+ */
+anychart.core.ui.Timeline.prototype.drawMarkers_ = function(dataItem, totalTop, itemHeight) {
+  var markers = dataItem.get(anychart.enums.GanttDataFields.MARKERS);
+  if (markers) {
+    for (var i = 0; i < markers.length; i++) {
+      var marker = markers[i];
+      if (marker) {
+        var val = dataItem.getMeta(anychart.enums.GanttDataFields.MARKERS, i, 'value');
+        if (!goog.isNull(val)) {
+          var ratio = this.scale_.timestampToRatio(val);
+          if (ratio >= 0 && ratio <= 1) { //Marker is visible
+            var height = itemHeight * anychart.core.ui.Timeline.DEFAULT_HEIGHT_REDUCTION;
+
+            var left = Math.round(this.pixelBoundsCache.left + this.pixelBoundsCache.width * ratio);
+            var top = Math.round(totalTop + (itemHeight - height) / 2);
+
+            var markerEl = this.markers().add({value: {x: left, y: top}});
+            markerEl
+                .size(height / 2)
+                .setup(marker);
+          }
+        }
+      }
+    }
+  }
+};
+
+
+/**
  * Internal resource timeline drawer.
  * @private
  */
@@ -2729,6 +3094,7 @@ anychart.core.ui.Timeline.prototype.drawResourceTimeline_ = function() {
     var newTop = /** @type {number} */ (totalTop + itemHeight);
 
     this.drawAsPeriods_(item, totalTop, itemHeight);
+    this.drawMarkers_(item, totalTop, itemHeight);
 
     totalTop = (newTop + this.rowStrokeThickness);
   }
@@ -2767,6 +3133,8 @@ anychart.core.ui.Timeline.prototype.drawProjectTimeline_ = function() {
       }
     }
 
+    this.drawMarkers_(item, totalTop, itemHeight);
+
     totalTop = (newTop + this.rowStrokeThickness);
   }
 };
@@ -2784,10 +3152,10 @@ anychart.core.ui.Timeline.prototype.drawAsPeriods_ = function(dataItem, totalTop
   if (periods) {
     for (var j = 0; j < periods.length; j++) {
       var period = periods[j];
-      var start = anychart.utils.normalizeTimestamp(period[anychart.enums.GanttDataFields.START]);
-      var end = anychart.utils.normalizeTimestamp(period[anychart.enums.GanttDataFields.END]);
+      var start = dataItem.getMeta(anychart.enums.GanttDataFields.PERIODS, j, anychart.enums.GanttDataFields.START);
+      var end = dataItem.getMeta(anychart.enums.GanttDataFields.PERIODS, j, anychart.enums.GanttDataFields.END);
 
-      if (!isNaN(start) && !isNaN(end)) {
+      if (goog.isNumber(start) && goog.isNumber(end)) {
         var startRatio = this.scale_.timestampToRatio(start);
         var endRatio = this.scale_.timestampToRatio(end);
 
@@ -2812,14 +3180,14 @@ anychart.core.ui.Timeline.prototype.drawAsPeriods_ = function(dataItem, totalTop
  * @private
  */
 anychart.core.ui.Timeline.prototype.drawAsBaseline_ = function(dataItem, totalTop, itemHeight) {
-  var actualStart = goog.isDef(dataItem.get(anychart.enums.GanttDataFields.ACTUAL_START)) ?
-      anychart.utils.normalizeTimestamp(dataItem.get(anychart.enums.GanttDataFields.ACTUAL_START)) :
+  var actualStart = goog.isNumber(dataItem.meta(anychart.enums.GanttDataFields.ACTUAL_START)) ?
+      dataItem.meta(anychart.enums.GanttDataFields.ACTUAL_START) :
       dataItem.meta('autoStart');
-  var actualEnd = goog.isDef(dataItem.get(anychart.enums.GanttDataFields.ACTUAL_END)) ?
-      anychart.utils.normalizeTimestamp(dataItem.get(anychart.enums.GanttDataFields.ACTUAL_END)) :
+  var actualEnd = goog.isNumber(dataItem.meta(anychart.enums.GanttDataFields.ACTUAL_END)) ?
+      dataItem.meta(anychart.enums.GanttDataFields.ACTUAL_END) :
       dataItem.meta('autoEnd');
-  var baselineStart = anychart.utils.normalizeTimestamp(dataItem.get(anychart.enums.GanttDataFields.BASELINE_START));
-  var baselineEnd = anychart.utils.normalizeTimestamp(dataItem.get(anychart.enums.GanttDataFields.BASELINE_END));
+  var baselineStart = dataItem.meta(anychart.enums.GanttDataFields.BASELINE_START);
+  var baselineEnd = dataItem.meta(anychart.enums.GanttDataFields.BASELINE_END);
 
   var actualStartRatio = this.scale_.timestampToRatio(actualStart);
   var actualEndRatio = this.scale_.timestampToRatio(actualEnd);
@@ -2878,11 +3246,11 @@ anychart.core.ui.Timeline.prototype.drawAsBaseline_ = function(dataItem, totalTo
  * @private
  */
 anychart.core.ui.Timeline.prototype.drawAsParent_ = function(dataItem, totalTop, itemHeight) {
-  var actualStart = goog.isDef(dataItem.get(anychart.enums.GanttDataFields.ACTUAL_START)) ?
-      anychart.utils.normalizeTimestamp(dataItem.get(anychart.enums.GanttDataFields.ACTUAL_START)) :
+  var actualStart = goog.isNumber(dataItem.meta(anychart.enums.GanttDataFields.ACTUAL_START)) ?
+      dataItem.meta(anychart.enums.GanttDataFields.ACTUAL_START) :
       dataItem.meta('autoStart');
-  var actualEnd = goog.isDef(dataItem.get(anychart.enums.GanttDataFields.ACTUAL_END)) ?
-      anychart.utils.normalizeTimestamp(dataItem.get(anychart.enums.GanttDataFields.ACTUAL_END)) :
+  var actualEnd = goog.isNumber(dataItem.meta(anychart.enums.GanttDataFields.ACTUAL_END)) ?
+      dataItem.meta(anychart.enums.GanttDataFields.ACTUAL_END) :
       dataItem.meta('autoEnd');
   var startRatio = this.scale_.timestampToRatio(actualStart);
   var endRatio = this.scale_.timestampToRatio(actualEnd);
@@ -2923,11 +3291,11 @@ anychart.core.ui.Timeline.prototype.drawAsParent_ = function(dataItem, totalTop,
  * @private
  */
 anychart.core.ui.Timeline.prototype.drawAsProgress_ = function(dataItem, totalTop, itemHeight) {
-  var actualStart = goog.isDef(dataItem.get(anychart.enums.GanttDataFields.ACTUAL_START)) ?
-      anychart.utils.normalizeTimestamp(dataItem.get(anychart.enums.GanttDataFields.ACTUAL_START)) :
+  var actualStart = goog.isNumber(dataItem.meta(anychart.enums.GanttDataFields.ACTUAL_START)) ?
+      dataItem.meta(anychart.enums.GanttDataFields.ACTUAL_START) :
       dataItem.meta('autoStart');
-  var actualEnd = goog.isDef(dataItem.get(anychart.enums.GanttDataFields.ACTUAL_END)) ?
-      anychart.utils.normalizeTimestamp(dataItem.get(anychart.enums.GanttDataFields.ACTUAL_END)) :
+  var actualEnd = goog.isNumber(dataItem.meta(anychart.enums.GanttDataFields.ACTUAL_END)) ?
+      dataItem.meta(anychart.enums.GanttDataFields.ACTUAL_END) :
       dataItem.meta('autoEnd');
 
   var startRatio = this.scale_.timestampToRatio(actualStart);
@@ -2986,7 +3354,9 @@ anychart.core.ui.Timeline.prototype.drawAsMilestone_ = function(dataItem, totalT
     var centerLeft = Math.round(this.pixelBoundsCache.left + this.pixelBoundsCache.width * ratio) + pixelShift;
     var centerTop = Math.round(totalTop + itemHeight / 2) + pixelShift;
 
-    var milestone = this.getDrawLayer().genNextChild();
+    //var milestone = this.getDrawLayer().genNextChild();
+    var milestone = this.genElement_();
+
     milestone.tag = dataItem.get(anychart.enums.GanttDataFields.ID);
     milestone.type = anychart.enums.TLElementTypes.MILESTONE;
 
@@ -3015,11 +3385,11 @@ anychart.core.ui.Timeline.prototype.drawAsMilestone_ = function(dataItem, totalT
     }
 
     if (textValue) {
-      var position = (rawLabel && rawLabel['position']) ? rawLabel['position'] : this.getLabelsFactory_().position();
+      var position = (rawLabel && rawLabel['position']) ? rawLabel['position'] : this.labels().position();
       position = anychart.enums.normalizeAnchor(position);
       var positionProvider = {'value': anychart.utils.getCoordinateByAnchor(bounds, position)};
       var formatProvider = {'value': textValue};
-      var label = this.getLabelsFactory_().add(formatProvider, positionProvider);
+      var label = this.labels().add(formatProvider, positionProvider);
       if (rawLabel) label.setup(rawLabel);
     }
 
@@ -3054,11 +3424,11 @@ anychart.core.ui.Timeline.prototype.drawAsMilestone_ = function(dataItem, totalT
  * @param {number} index - Linear index of item in controller's visible items. If is period, index
  *  is linear index of treeDataItem that period belongs to.
  * @param {Object=} opt_period - Period object. Required if chart is resources chart.
-
+ * @param {number=} opt_periodIndex - Period index.
  * @return {?anychart.math.Rect} - Bounds in current scale's state or null if data object contains some wrong data.
  * @private
  */
-anychart.core.ui.Timeline.prototype.getItemBounds_ = function(index, opt_period) {
+anychart.core.ui.Timeline.prototype.getItemBounds_ = function(index, opt_period, opt_periodIndex) {
   var totalTop = /** @type {number} */ (this.pixelBoundsCache.top + this.headerHeight() + 1);
   var heightCache = this.controller.getHeightCache();
   var startIndex = this.controller.startIndex();
@@ -3077,20 +3447,20 @@ anychart.core.ui.Timeline.prototype.getItemBounds_ = function(index, opt_period)
   var actualTop = (relativeTop - relativeHeight) + totalTop;
   var rowHeight = anychart.core.gantt.Controller.getItemHeight(item);
 
-  var actStart = goog.isDef(item.get(anychart.enums.GanttDataFields.ACTUAL_START)) ?
-      anychart.utils.normalizeTimestamp(item.get(anychart.enums.GanttDataFields.ACTUAL_START)) :
+  var actStart = goog.isNumber(item.meta(anychart.enums.GanttDataFields.ACTUAL_START)) ?
+      item.meta(anychart.enums.GanttDataFields.ACTUAL_START) :
       item.meta('autoStart');
 
-  var actEnd = goog.isDef(item.get(anychart.enums.GanttDataFields.ACTUAL_END)) ?
-      anychart.utils.normalizeTimestamp(item.get(anychart.enums.GanttDataFields.ACTUAL_END)) :
+  var actEnd = goog.isNumber(item.meta(anychart.enums.GanttDataFields.ACTUAL_END)) ?
+      item.meta(anychart.enums.GanttDataFields.ACTUAL_END) :
       item.meta('autoEnd');
 
   var startTimestamp = this.controller.isResources() ?
-      anychart.utils.normalizeTimestamp(opt_period[anychart.enums.GanttDataFields.START]) :
+      item.getMeta(anychart.enums.GanttDataFields.PERIODS, opt_periodIndex, anychart.enums.GanttDataFields.START) :
       actStart;
 
   var endTimestamp = this.controller.isResources() ?
-      anychart.utils.normalizeTimestamp(opt_period[anychart.enums.GanttDataFields.END]) :
+      item.getMeta(anychart.enums.GanttDataFields.PERIODS, opt_periodIndex, anychart.enums.GanttDataFields.END) :
       actEnd;
 
   var milestoneHalfWidth = 0;
@@ -3141,12 +3511,14 @@ anychart.core.ui.Timeline.prototype.getItemBounds_ = function(index, opt_period)
 anychart.core.ui.Timeline.prototype.connectItems_ = function(from, to, opt_connType, opt_connSettings, opt_path) {
   opt_connType = opt_connType || anychart.enums.ConnectorType.FINISH_START;
 
-  //Here 'to' is {'item':period, 'index':index} or {'period':period, 'index':index}. 'from' is as well.
+  //Here 'to' is {'item':item, 'index':index} or {'period':period, 'index':index, 'periodIndex':index}. 'from' is as well.
   var fromIndex = from['index'];
   var toIndex = to['index'];
+  var fromPeriodIndex = from['periodIndex'];
+  var toPeriodIndex = to['periodIndex'];
 
-  var fromBounds = this.getItemBounds_(fromIndex, from['period']);
-  var toBounds = this.getItemBounds_(toIndex, to['period']);
+  var fromBounds = this.getItemBounds_(fromIndex, from['period'], from['periodIndex']);
+  var toBounds = this.getItemBounds_(toIndex, to['period'], to['periodIndex']);
 
   if (fromBounds && toBounds) {
     var fill, stroke;
@@ -3159,8 +3531,171 @@ anychart.core.ui.Timeline.prototype.connectItems_ = function(from, to, opt_connT
         acgraph.vector.normalizeStroke(opt_connSettings[anychart.enums.GanttDataFields.STROKE]) :
         this.connectorStroke_;
 
-    this.drawConnector_(fromBounds, toBounds, opt_connType, /** @type {acgraph.vector.Fill} */ (fill),
-        /** @type {acgraph.vector.Stroke} */ (stroke), opt_path);
+    var drawPreview = goog.isDefAndNotNull(opt_path);
+
+    var fromLeft, fromTop, toLeft, toTop, orientation;
+    var am = anychart.core.ui.Timeline.ARROW_MARGIN;
+    var size = anychart.core.ui.Timeline.ARROW_SIZE;
+    var path = /** @type {?acgraph.vector.Path} */ (opt_path || null);
+    var arrow = drawPreview ? path : null;
+
+    var segmentLeft0, segmentLeft1; //Util variables, temporary segment X-coordinate storage.
+    var segmentTop0; //Util variable, temporary segment Y-coordinate storage.
+    var aboveSequence = true; //If 'from' bar is above the 'to' bar.
+
+    var lineThickness = anychart.utils.extractThickness(stroke);
+
+    var pixelShift = (lineThickness % 2 && acgraph.type() === acgraph.StageType.SVG) ? 0.5 : 0;
+
+    switch ((opt_connType + '').toLowerCase()) {
+      case anychart.enums.ConnectorType.FINISH_FINISH:
+        fromLeft = Math.round(fromBounds.left + fromBounds.width) + pixelShift;
+        fromTop = Math.round(fromBounds.top + fromBounds.height / 2) + pixelShift;
+        toLeft = Math.round(toBounds.left + toBounds.width) + pixelShift;
+        toTop = Math.round(toBounds.top + toBounds.height / 2) + pixelShift;
+        orientation = anychart.enums.Orientation.LEFT;
+
+        if (fromBounds.top == toBounds.top) { //Same line
+          path = this.drawSegment_(fromLeft, fromTop, toLeft, toTop, path);
+          if (fromLeft > toLeft) orientation = anychart.enums.Orientation.RIGHT;
+        } else {
+          segmentLeft0 = Math.max(fromLeft + size + am, toLeft + size + am);
+          path = this.drawSegment_(fromLeft, fromTop, segmentLeft0, fromTop, path);
+          path = this.drawSegment_(segmentLeft0, fromTop, segmentLeft0, toTop, path);
+          path = this.drawSegment_(segmentLeft0, toTop, toLeft, toTop, path);
+        }
+        arrow = this.drawArrow_(toLeft, toTop, orientation, arrow);
+        break;
+
+      case anychart.enums.ConnectorType.START_FINISH:
+        fromLeft = Math.round(fromBounds.left) + pixelShift;
+        fromTop = Math.round(fromBounds.top + fromBounds.height / 2) + pixelShift;
+        toLeft = Math.round(toBounds.left + toBounds.width) + pixelShift;
+        toTop = Math.round(toBounds.top + toBounds.height / 2) + pixelShift;
+        orientation = anychart.enums.Orientation.LEFT;
+
+        if (fromLeft - am - am - size > toLeft) {
+          segmentLeft0 = toLeft + am + size;
+          path = this.drawSegment_(fromLeft, fromTop, segmentLeft0, fromTop, path);
+          path = this.drawSegment_(segmentLeft0, fromTop, segmentLeft0, toTop, path);
+          path = this.drawSegment_(segmentLeft0, toTop, toLeft, toTop, path);
+        } else {
+          aboveSequence = toBounds.top >= fromBounds.top;
+
+          segmentLeft0 = fromLeft - am;
+          segmentLeft1 = toLeft + am + size;
+          segmentTop0 = Math.round(aboveSequence ? toBounds.top : toBounds.top + toBounds.height) + pixelShift;
+
+          path = this.drawSegment_(fromLeft, fromTop, segmentLeft0, fromTop, path);
+          path = this.drawSegment_(segmentLeft0, fromTop, segmentLeft0, segmentTop0, path);
+          path = this.drawSegment_(segmentLeft0, segmentTop0, segmentLeft1, segmentTop0, path);
+          path = this.drawSegment_(segmentLeft1, segmentTop0, segmentLeft1, toTop, path);
+          path = this.drawSegment_(segmentLeft1, toTop, toLeft, toTop, path);
+
+        }
+
+        arrow = this.drawArrow_(toLeft, toTop, orientation, arrow);
+
+        break;
+
+      case anychart.enums.ConnectorType.START_START:
+        fromLeft = Math.round(fromBounds.left) + pixelShift;
+        fromTop = Math.round(fromBounds.top + fromBounds.height / 2) + pixelShift;
+        toLeft = Math.round(toBounds.left) + pixelShift;
+        toTop = Math.round(toBounds.top + toBounds.height / 2) + pixelShift;
+        orientation = anychart.enums.Orientation.RIGHT;
+
+        if (fromBounds.top == toBounds.top) { //Same line
+          path = this.drawSegment_(fromLeft, fromTop, toLeft, toTop, path);
+          if (fromLeft > toLeft) orientation = anychart.enums.Orientation.LEFT;
+        } else {
+          segmentLeft0 = Math.min(fromLeft - size - am, toLeft - size - am);
+          path = this.drawSegment_(fromLeft, fromTop, segmentLeft0, fromTop, path);
+          path = this.drawSegment_(segmentLeft0, fromTop, segmentLeft0, toTop, path);
+          path = this.drawSegment_(segmentLeft0, toTop, toLeft, toTop, path);
+        }
+        arrow = this.drawArrow_(toLeft, toTop, orientation, arrow);
+        break;
+
+      default: //anychart.enums.ConnectorType.FINISH_START:
+        fromLeft = Math.round(fromBounds.left + fromBounds.width) + pixelShift;
+        fromTop = Math.round(fromBounds.top + fromBounds.height / 2) + pixelShift;
+        toLeft = Math.round(toBounds.left) + pixelShift;
+        var extraEndY;
+
+        if (toLeft >= fromLeft) {
+          toLeft = Math.min(toLeft + am, Math.round(toBounds.left + toBounds.width / 2) + pixelShift);
+          if (toBounds.top > fromBounds.top) {
+            extraEndY = Math.round(toBounds.top) + pixelShift;
+            path = this.drawSegment_(fromLeft, fromTop, toLeft, fromTop, path);
+            path = this.drawSegment_(toLeft, fromTop, toLeft, extraEndY, path);
+            arrow = this.drawArrow_(toLeft, extraEndY, anychart.enums.Orientation.BOTTOM, arrow);
+          } else if (toBounds.top < fromBounds.top) {
+            extraEndY = Math.round(toBounds.top + toBounds.height) + pixelShift;
+            path = this.drawSegment_(fromLeft, fromTop, toLeft, fromTop, path);
+            path = this.drawSegment_(toLeft, fromTop, toLeft, extraEndY, path);
+            arrow = this.drawArrow_(toLeft, extraEndY, anychart.enums.Orientation.TOP, arrow);
+          } else { //Same line
+            toLeft = Math.round(toBounds.left) + pixelShift;
+            toTop = Math.round(toBounds.top + toBounds.height / 2) + pixelShift;
+            path = this.drawSegment_(fromLeft, fromTop, toLeft, toTop, path);
+            arrow = this.drawArrow_(toLeft, toTop, anychart.enums.Orientation.RIGHT, arrow);
+          }
+
+        } else { //if toLeft < fromLeft
+          extraEndY = Math.round(toBounds.top + toBounds.height / 2) + pixelShift;
+          segmentTop0 = Math.round((toBounds.top > fromBounds.top) ? toBounds.top : (toBounds.top + toBounds.height)) + pixelShift;
+          segmentLeft0 = fromLeft + am;
+          segmentLeft1 = toLeft - am - size;
+
+          path = this.drawSegment_(fromLeft, fromTop, segmentLeft0, fromTop, path);
+          path = this.drawSegment_(segmentLeft0, fromTop, segmentLeft0, segmentTop0, path);
+          path = this.drawSegment_(segmentLeft0, segmentTop0, segmentLeft1, segmentTop0, path);
+          path = this.drawSegment_(segmentLeft1, segmentTop0, segmentLeft1, extraEndY, path);
+          path = this.drawSegment_(segmentLeft1, extraEndY, toLeft, extraEndY, path);
+
+          arrow = this.drawArrow_(toLeft, extraEndY, anychart.enums.Orientation.RIGHT, arrow);
+        }
+    }
+
+    var editConnectorHighlight = false;
+    var meta;
+    if (this.editable) {
+      meta = {
+        'fromItemIndex': fromIndex,
+        'toItemIndex': toIndex,
+        'connType': opt_connType
+      };
+
+      if (this.controller.isResources()) {
+        meta['fromPeriodIndex'] = fromPeriodIndex;
+        meta['toPeriodIndex'] = toPeriodIndex;
+        if (opt_connType) meta['connType'] = opt_connType;
+      }
+
+      editConnectorHighlight = (goog.isObject(this.selectedConnectorData_) && goog.object.equals(this.selectedConnectorData_, meta));
+    }
+
+    if (path && !drawPreview) {
+      path.stroke(/** @type {acgraph.vector.Stroke} */ (stroke));
+      path.tag = void 0; //Tooltip will not appear on connector mouse over.
+      path.type = anychart.enums.TLElementTypes.CONNECTOR;
+      path.currBounds = null;
+      path.cursor(this.editable ? acgraph.vector.Cursor.POINTER : acgraph.vector.Cursor.DEFAULT);
+
+      path.meta = meta; //Yes, it cam become void 0.
+      path.stroke(editConnectorHighlight ? this.selectedConnectorStroke_ : /** @type {acgraph.vector.Stroke} */ (stroke));
+    }
+    if (arrow && !drawPreview) {
+      arrow.fill(/** @type {acgraph.vector.Fill} */ (fill)).stroke(/** @type {acgraph.vector.Stroke} */ (stroke));
+      arrow.tag = void 0; //Tooltip will not appear on connector arrow mouse over.
+      arrow.type = anychart.enums.TLElementTypes.CONNECTOR;
+      arrow.currBounds = null;
+      arrow.cursor(this.editable ? acgraph.vector.Cursor.POINTER : acgraph.vector.Cursor.DEFAULT);
+
+      arrow.meta = meta; //Yes, it cam become void 0.
+      arrow.stroke(editConnectorHighlight ? this.selectedConnectorStroke_ : /** @type {acgraph.vector.Stroke} */ (stroke));
+    }
   }
 };
 
@@ -3196,173 +3731,6 @@ anychart.core.ui.Timeline.prototype.drawConnectors_ = function() {
       */
       goog.array.splice(connectorsData, l, 1);
     }
-  }
-};
-
-
-/**
- * Draws a single connector.
- * @param {anychart.math.Rect} fromBounds - Bounds of start item (see illustration).
- * @param {anychart.math.Rect} toBounds - Bounds of end item (see illustration).
- * @param {anychart.enums.ConnectorType} connType - Connection type.
- * @param {acgraph.vector.Fill} fill - Fill settings.
- * @param {acgraph.vector.Stroke} stroke - Stroke settings.
- * @param {acgraph.vector.Path=} opt_path - Path to be used to draw connector.
- * @private
- */
-anychart.core.ui.Timeline.prototype.drawConnector_ = function(fromBounds, toBounds, connType, fill, stroke, opt_path) {
-  /*
-    Bounds in this case are not bounds of bar.
-    Bounds are an area of whole row to simplify the calculations of connectors:
-
-    +--------------------------------------+
-    | This is an area in row above the bar |
-    +--------------------------------------+
-    |\\\\\\\\\ This is a bar itself \\\\\\\|        <- this is an incoming bounds.
-    +--------------------------------------+
-    | This is an area in row below the bar |
-    +--------------------------------------+
-
-   */
-
-  var drawPreview = goog.isDefAndNotNull(opt_path);
-
-  var fromLeft, fromTop, toLeft, toTop, orientation;
-  var am = anychart.core.ui.Timeline.ARROW_MARGIN;
-  var size = anychart.core.ui.Timeline.ARROW_SIZE;
-  var path = /** @type {?acgraph.vector.Path} */ (opt_path || null);
-  var arrow = drawPreview ? path : null;
-  //var arrow = null;
-  var segmentLeft0, segmentLeft1; //Util variables, temporary segment X-coordinate storage.
-  var segmentTop0; //Util variable, temporary segment Y-coordinate storage.
-  var aboveSequence = true; //If 'from' bar is above the 'to' bar.
-
-  var lineThickness = anychart.utils.extractThickness(stroke);
-
-  var pixelShift = (lineThickness % 2 && acgraph.type() === acgraph.StageType.SVG) ? 0.5 : 0;
-
-  switch ((connType + '').toLowerCase()) {
-    case anychart.enums.ConnectorType.FINISH_FINISH:
-      fromLeft = Math.round(fromBounds.left + fromBounds.width) + pixelShift;
-      fromTop = Math.round(fromBounds.top + fromBounds.height / 2) + pixelShift;
-      toLeft = Math.round(toBounds.left + toBounds.width) + pixelShift;
-      toTop = Math.round(toBounds.top + toBounds.height / 2) + pixelShift;
-      orientation = anychart.enums.Orientation.LEFT;
-
-      if (fromBounds.top == toBounds.top) { //Same line
-        path = this.drawSegment_(fromLeft, fromTop, toLeft, toTop, path);
-        if (fromLeft > toLeft) orientation = anychart.enums.Orientation.RIGHT;
-      } else {
-        segmentLeft0 = Math.max(fromLeft + size + am, toLeft + size + am);
-        path = this.drawSegment_(fromLeft, fromTop, segmentLeft0, fromTop, path);
-        path = this.drawSegment_(segmentLeft0, fromTop, segmentLeft0, toTop, path);
-        path = this.drawSegment_(segmentLeft0, toTop, toLeft, toTop, path);
-      }
-      arrow = this.drawArrow_(toLeft, toTop, orientation, arrow);
-      break;
-
-    case anychart.enums.ConnectorType.START_FINISH:
-      fromLeft = Math.round(fromBounds.left) + pixelShift;
-      fromTop = Math.round(fromBounds.top + fromBounds.height / 2) + pixelShift;
-      toLeft = Math.round(toBounds.left + toBounds.width) + pixelShift;
-      toTop = Math.round(toBounds.top + toBounds.height / 2) + pixelShift;
-      orientation = anychart.enums.Orientation.LEFT;
-
-      if (fromLeft - am - am - size > toLeft) {
-        segmentLeft0 = toLeft + am + size;
-        path = this.drawSegment_(fromLeft, fromTop, segmentLeft0, fromTop, path);
-        path = this.drawSegment_(segmentLeft0, fromTop, segmentLeft0, toTop, path);
-        path = this.drawSegment_(segmentLeft0, toTop, toLeft, toTop, path);
-      } else {
-        aboveSequence = toBounds.top >= fromBounds.top;
-
-        segmentLeft0 = fromLeft - am;
-        segmentLeft1 = toLeft + am + size;
-        segmentTop0 = Math.round(aboveSequence ? toBounds.top : toBounds.top + toBounds.height) + pixelShift;
-
-        path = this.drawSegment_(fromLeft, fromTop, segmentLeft0, fromTop, path);
-        path = this.drawSegment_(segmentLeft0, fromTop, segmentLeft0, segmentTop0, path);
-        path = this.drawSegment_(segmentLeft0, segmentTop0, segmentLeft1, segmentTop0, path);
-        path = this.drawSegment_(segmentLeft1, segmentTop0, segmentLeft1, toTop, path);
-        path = this.drawSegment_(segmentLeft1, toTop, toLeft, toTop, path);
-
-      }
-
-      arrow = this.drawArrow_(toLeft, toTop, orientation, arrow);
-
-      break;
-
-    case anychart.enums.ConnectorType.START_START:
-      fromLeft = Math.round(fromBounds.left) + pixelShift;
-      fromTop = Math.round(fromBounds.top + fromBounds.height / 2) + pixelShift;
-      toLeft = Math.round(toBounds.left) + pixelShift;
-      toTop = Math.round(toBounds.top + toBounds.height / 2) + pixelShift;
-      orientation = anychart.enums.Orientation.RIGHT;
-
-      if (fromBounds.top == toBounds.top) { //Same line
-        path = this.drawSegment_(fromLeft, fromTop, toLeft, toTop, path);
-        if (fromLeft > toLeft) orientation = anychart.enums.Orientation.LEFT;
-      } else {
-        segmentLeft0 = Math.min(fromLeft - size - am, toLeft - size - am);
-        path = this.drawSegment_(fromLeft, fromTop, segmentLeft0, fromTop, path);
-        path = this.drawSegment_(segmentLeft0, fromTop, segmentLeft0, toTop, path);
-        path = this.drawSegment_(segmentLeft0, toTop, toLeft, toTop, path);
-      }
-      arrow = this.drawArrow_(toLeft, toTop, orientation, arrow);
-      break;
-
-    default: //anychart.enums.ConnectorType.FINISH_START:
-      fromLeft = Math.round(fromBounds.left + fromBounds.width) + pixelShift;
-      fromTop = Math.round(fromBounds.top + fromBounds.height / 2) + pixelShift;
-      toLeft = Math.round(toBounds.left) + pixelShift;
-      var extraEndY;
-
-      if (toLeft >= fromLeft) {
-        toLeft = Math.min(toLeft + am, Math.round(toBounds.left + toBounds.width / 2) + pixelShift);
-        if (toBounds.top > fromBounds.top) {
-          extraEndY = Math.round(toBounds.top) + pixelShift;
-          path = this.drawSegment_(fromLeft, fromTop, toLeft, fromTop, path);
-          path = this.drawSegment_(toLeft, fromTop, toLeft, extraEndY, path);
-          arrow = this.drawArrow_(toLeft, extraEndY, anychart.enums.Orientation.BOTTOM, arrow);
-        } else if (toBounds.top < fromBounds.top) {
-          extraEndY = Math.round(toBounds.top + toBounds.height) + pixelShift;
-          path = this.drawSegment_(fromLeft, fromTop, toLeft, fromTop, path);
-          path = this.drawSegment_(toLeft, fromTop, toLeft, extraEndY, path);
-          arrow = this.drawArrow_(toLeft, extraEndY, anychart.enums.Orientation.TOP, arrow);
-        } else { //Same line
-          toLeft = Math.round(toBounds.left) + pixelShift;
-          toTop = Math.round(toBounds.top + toBounds.height / 2) + pixelShift;
-          path = this.drawSegment_(fromLeft, fromTop, toLeft, toTop, path);
-          arrow = this.drawArrow_(toLeft, toTop, anychart.enums.Orientation.RIGHT, arrow);
-        }
-
-      } else { //if toLeft < fromLeft
-        extraEndY = Math.round(toBounds.top + toBounds.height / 2) + pixelShift;
-        segmentTop0 = Math.round((toBounds.top > fromBounds.top) ? toBounds.top : (toBounds.top + toBounds.height)) + pixelShift;
-        segmentLeft0 = fromLeft + am;
-        segmentLeft1 = toLeft - am - size;
-
-        path = this.drawSegment_(fromLeft, fromTop, segmentLeft0, fromTop, path);
-        path = this.drawSegment_(segmentLeft0, fromTop, segmentLeft0, segmentTop0, path);
-        path = this.drawSegment_(segmentLeft0, segmentTop0, segmentLeft1, segmentTop0, path);
-        path = this.drawSegment_(segmentLeft1, segmentTop0, segmentLeft1, extraEndY, path);
-        path = this.drawSegment_(segmentLeft1, extraEndY, toLeft, extraEndY, path);
-
-        arrow = this.drawArrow_(toLeft, extraEndY, anychart.enums.Orientation.RIGHT, arrow);
-      }
-  }
-
-  if (path && !drawPreview) {
-    path.stroke(/** @type {acgraph.vector.Stroke} */ (stroke));
-    path.tag = void 0; //Tooltip will not appear on connector mouse over.
-    path.type = anychart.enums.TLElementTypes.CONNECTOR;
-    path.currBounds = null; //TODO (A.Kudryavtsev): Maybe make connector editable somehow?
-  }
-  if (arrow && !drawPreview) {
-    arrow.fill(/** @type {acgraph.vector.Fill} */ (fill)).stroke(/** @type {acgraph.vector.Stroke} */ (stroke));
-    arrow.tag = void 0; //Tooltip will not appear on connector arrow mouse over.
-    arrow.type = anychart.enums.TLElementTypes.CONNECTOR;
-    arrow.currBounds = null; //TODO (A.Kudryavtsev): Maybe make connector editable somehow?
   }
 };
 
@@ -3422,7 +3790,8 @@ anychart.core.ui.Timeline.prototype.drawSegment_ = function(fromLeft, fromTop, t
         top < (this.pixelBoundsCache.top + this.pixelBoundsCache.height) &&
         bottom > this.pixelBoundsCache.top) { //Segment or the part of it is visible.
 
-      path = /** @type {acgraph.vector.Path} */ (this.getDrawLayer().genNextChild());
+      //path = /** @type {acgraph.vector.Path} */ (this.getDrawLayer().genNextChild());
+      path = this.genElement_();
 
       path
           .zIndex(anychart.core.ui.Timeline.CONNECTOR_Z_INDEX)
@@ -3491,7 +3860,10 @@ anychart.core.ui.Timeline.prototype.drawArrow_ = function(left, top, orientation
         break;
     }
 
-    if (!drawPreview) path = /** @type {acgraph.vector.Path} */ (this.getDrawLayer().genNextChild());
+    if (!drawPreview) {
+      //path = /** @type {acgraph.vector.Path} */ (this.getDrawLayer().genNextChild());
+      path = this.genElement_();
+    }
     path
         .zIndex(anychart.core.ui.Timeline.ARROW_Z_INDEX)
         .moveTo(left, top)
@@ -3528,11 +3900,14 @@ anychart.core.ui.Timeline.prototype.drawLowTicks_ = function(ticks) {
 
 /**
  * Recalculates scale depending on current controller's state.
- * @private
  */
-anychart.core.ui.Timeline.prototype.initScale_ = function() {
+anychart.core.ui.Timeline.prototype.initScale = function() {
   var totalMin = this.controller.getMinDate();
   var totalMax = this.controller.getMaxDate();
+
+  //Without these settings scale will not be able to calculate ratio by anychart.enums.GanttDateTimeMarkers.
+  this.scale_.trackedTotalMin = totalMin;
+  this.scale_.trackedTotalMax = totalMax;
 
   var minGap = this.minimumGap() * (totalMax - totalMin);
   var maxGap = this.maximumGap() * (totalMax - totalMin);
@@ -3570,10 +3945,10 @@ anychart.core.ui.Timeline.prototype.initScale_ = function() {
  */
 anychart.core.ui.Timeline.prototype.initDom = function() {
   this.getClipLayer().zIndex(anychart.core.ui.BaseGrid.DRAW_Z_INDEX - 1); //Put it under draw layer.
-  this.getMarkersFactory_().container(this.getContentLayer());
-  this.getLabelsFactory_().container(this.getContentLayer());
+  this.markers().container(this.getContentLayer());
+  this.labels().container(this.getContentLayer());
   this.header_.container(this.getBase());
-  this.initScale_();
+  this.initScale();
 };
 
 
@@ -3584,7 +3959,7 @@ anychart.core.ui.Timeline.prototype.boundsInvalidated = function() {
   this.header_
       .bounds()
       .set(this.pixelBoundsCache.left, this.pixelBoundsCache.top,
-      this.pixelBoundsCache.width, /** @type {number} */ (this.headerHeight()));
+          this.pixelBoundsCache.width, /** @type {number} */ (this.headerHeight()));
   this.redrawHeader = true;
 };
 
@@ -3674,6 +4049,85 @@ anychart.core.ui.Timeline.prototype.positionFinal = function() {
   if (this.redrawPosition || this.redrawHeader) {
     this.drawTimelineElements_();
     this.redrawHeader = false;
+
+    var dataBounds = new anychart.math.Rect(this.pixelBoundsCache.left,
+        (this.pixelBoundsCache.top + /** @type {number} */ (this.headerHeight()) + 1),
+        this.pixelBoundsCache.width,
+        this.totalGridsHeight);
+
+    for (var i = 0; i < this.textMarkers_.length; i++) {
+      var textMarker = this.textMarkers_[i];
+      textMarker.suspendSignalsDispatching();
+      textMarker.parentBounds(dataBounds);
+      textMarker.resumeSignalsDispatching(false);
+      textMarker.draw();
+    }
+  }
+};
+
+
+/**
+ * @inheritDoc
+ */
+anychart.core.ui.Timeline.prototype.deleteKeyHandler = function(e) {
+  if (this.selectedConnectorData_) {
+    var fromItemIndex = this.selectedConnectorData_['fromItemIndex'];
+    var toItemIndex = this.selectedConnectorData_['toItemIndex'];
+    var connType = this.selectedConnectorData_['connType'];
+    var visibleItems = this.controller.getVisibleItems();
+    var fromItem = visibleItems[fromItemIndex];
+    var toItem = visibleItems[toItemIndex];
+    var i = 0;
+
+    if (this.controller.isResources()) {
+      var fromPeriodIndex = this.selectedConnectorData_['fromPeriodIndex'];
+      var fromPeriods = fromItem.get(anychart.enums.GanttDataFields.PERIODS);
+      var fromPeriod = fromPeriods[fromPeriodIndex];
+      var fromPeriodConnectors = fromPeriod[anychart.enums.GanttDataFields.CONNECTOR];
+
+      var toPeriods = toItem.get(anychart.enums.GanttDataFields.PERIODS);
+      var toPeriod = toPeriods[this.selectedConnectorData_['toPeriodIndex']];
+      var toPeriodId = toPeriod[anychart.enums.GanttDataFields.ID];
+
+      if (goog.isArray(fromPeriodConnectors)) {
+        for (i = 0; i < fromPeriodConnectors.length; i++) {//New behaviour.
+          var perConn = fromPeriodConnectors[i];
+          if (perConn) {
+            var perId = perConn[anychart.enums.GanttDataFields.CONNECT_TO];
+            var perConnType = perConn[anychart.enums.GanttDataFields.CONNECTOR_TYPE] ||
+                anychart.enums.ConnectorType.FINISH_START;
+            if (perId == toPeriodId && perConnType == connType) {
+              fromItem.del(anychart.enums.GanttDataFields.PERIODS, fromPeriodIndex, anychart.enums.GanttDataFields.CONNECTOR, i);
+            }
+          }
+        }
+      } else { //Old behaviour.
+        fromItem.del(anychart.enums.GanttDataFields.PERIODS, fromPeriodIndex, anychart.enums.GanttDataFields.CONNECTOR);
+        fromItem.del(anychart.enums.GanttDataFields.PERIODS, fromPeriodIndex, anychart.enums.GanttDataFields.CONNECTOR_TYPE);
+        fromItem.del(anychart.enums.GanttDataFields.PERIODS, fromPeriodIndex, anychart.enums.GanttDataFields.CONNECT_TO);
+      }
+    } else {
+      var toItemId = toItem.get(anychart.enums.GanttDataFields.ID);
+      var connectors = fromItem.get(anychart.enums.GanttDataFields.CONNECTOR);
+      if (goog.isArray(connectors)) { //New behaviour.
+        for (i = 0; i < connectors.length; i++) {
+          var connector = connectors[i];
+          if (connector) {
+            var currentConnType = connector[anychart.enums.GanttDataFields.CONNECTOR_TYPE] ||
+                anychart.enums.ConnectorType.FINISH_START;
+            if (toItemId == connector[anychart.enums.GanttDataFields.CONNECT_TO] && currentConnType == connType) {
+              fromItem.del(anychart.enums.GanttDataFields.CONNECTOR, i);
+            }
+          }
+        }
+      } else { //Old behaviour.
+        fromItem.del(anychart.enums.GanttDataFields.CONNECTOR);
+        fromItem.del(anychart.enums.GanttDataFields.CONNECTOR_TYPE);
+        fromItem.del(anychart.enums.GanttDataFields.CONNECT_TO);
+      }
+    }
+
+    this.selectedConnectorData_ = null;
   }
 };
 
@@ -3725,15 +4179,18 @@ anychart.core.ui.Timeline.prototype.scroll = function(horizontalPixelOffset, ver
     this.clearEdit_();
   }
 
+  var startIndex = this.controller.startIndex();
   var heightCache = this.controller.getHeightCache();
-  var totalVerticalStartOffset = this.controller.startIndex() ? heightCache[this.controller.startIndex() - 1] : 0;
-  totalVerticalStartOffset += (this.controller.verticalOffset() + verticalPixelOffset);
+  var verticalOffset = this.controller.verticalOffset();
+
+  var totalVerticalStartOffset = startIndex ? heightCache[startIndex - 1] : 0;
+  totalVerticalStartOffset += (verticalOffset + verticalPixelOffset);
   this.controller.scrollTo(/** @type {number} */ (totalVerticalStartOffset));
 
   var ratio = horizontalPixelOffset / this.pixelBoundsCache.width;
-  if (opt_dragScrolling && !this.draggingConnector) {
+  if (opt_dragScrolling && !this.draggingConnector && (this.currentThumbDragger_ || this.draggingPreview)) {
     this.scale_.ratioForceScroll(ratio);
-  } else {
+  } else if (this.draggingConnector || (this.dragging && this.draggingItem) || (!this.dragging)) {
     this.scale_.ratioScroll(ratio);
   }
 
@@ -3746,6 +4203,8 @@ anychart.core.ui.Timeline.prototype.serialize = function() {
   var json = goog.base(this, 'serialize');
 
   json['scale'] = this.scale_.serialize();
+  json['labels'] = this.labels().serialize();
+  json['markers'] = this.markers().serialize();
 
   json['columnStroke'] = anychart.color.serialize(this.columnStroke_);
 
@@ -3765,6 +4224,7 @@ anychart.core.ui.Timeline.prototype.serialize = function() {
   json['connectorStroke'] = anychart.color.serialize(this.connectorStroke_);
   json['selectedElementFill'] = anychart.color.serialize(this.selectedElementFill_);
   json['selectedElementStroke'] = anychart.color.serialize(this.selectedElementStroke_);
+  json['selectedConnectorStroke'] = anychart.color.serialize(this.selectedConnectorStroke_);
 
   json['connectorPreviewStroke'] = anychart.color.serialize(this.connectorPreviewStroke_);
   json['editPreviewFill'] = anychart.color.serialize(this.editPreviewFill_);
@@ -3776,6 +4236,25 @@ anychart.core.ui.Timeline.prototype.serialize = function() {
   json['editConnectorThumbFill'] = anychart.color.serialize(this.editConnectorThumbFill_);
   json['editConnectorThumbStroke'] = anychart.color.serialize(this.editConnectorThumbStroke_);
 
+  var i = 0;
+  var lineMarkers = [];
+  for (i = 0; i < this.lineMarkers_.length; i++) {
+    lineMarkers.push(this.lineMarkers_[i].serialize());
+  }
+  if (lineMarkers.length) json['lineAxesMarkers'] = lineMarkers;
+
+  var rangeMarkers = [];
+  for (i = 0; i < this.rangeMarkers_.length; i++) {
+    rangeMarkers.push(this.rangeMarkers_[i].serialize());
+  }
+  if (rangeMarkers.length) json['rangeAxesMarkers'] = rangeMarkers;
+
+  var textMarkers = [];
+  for (i = 0; i < this.textMarkers_.length; i++) {
+    textMarkers.push(this.textMarkers_[i].serialize());
+  }
+  if (textMarkers.length) json['textAxesMarkers'] = textMarkers;
+
   return json;
 };
 
@@ -3785,7 +4264,8 @@ anychart.core.ui.Timeline.prototype.setupByJSON = function(config) {
   goog.base(this, 'setupByJSON', config);
 
   if ('scale' in config) this.scale_.setup(config['scale']);
-  if ('labelsFactory' in config) this.labelsFactory(config['labelsFactory']);
+  if ('labels' in config) this.labels(config['labels']);
+  if ('markers' in config) this.markers(config['markers']);
 
   this.columnStroke(config['columnStroke']);
   this.baselineAbove(config['baselineAbove']);
@@ -3804,6 +4284,7 @@ anychart.core.ui.Timeline.prototype.setupByJSON = function(config) {
   this.connectorStroke(config['connectorStroke']);
   this.selectedElementFill(config['selectedElementFill']);
   this.selectedElementStroke(config['selectedElementStroke']);
+  this.selectedConnectorStroke(config['selectedConnectorStroke']);
 
   this.connectorPreviewStroke(config['connectorPreviewStroke']);
   this.editPreviewFill(config['editPreviewFill']);
@@ -3815,6 +4296,37 @@ anychart.core.ui.Timeline.prototype.setupByJSON = function(config) {
   this.editConnectorThumbFill(config['editConnectorThumbFill']);
   this.editConnectorThumbStroke(config['editConnectorThumbStroke']);
 
+  if ('defaultLineMarkerSettings' in config)
+    this.defaultLineMarkerSettings(config['defaultLineMarkerSettings']);
+
+  if ('defaultRangeMarkerSettings' in config)
+    this.defaultRangeMarkerSettings(config['defaultRangeMarkerSettings']);
+
+  if ('defaultTextMarkerSettings' in config)
+    this.defaultTextMarkerSettings(config['defaultTextMarkerSettings']);
+
+  var lineAxesMarkers = config['lineAxesMarkers'];
+  var rangeAxesMarkers = config['rangeAxesMarkers'];
+  var textAxesMarkers = config['textAxesMarkers'];
+
+  var i = 0;
+  if (goog.isArray(lineAxesMarkers)) {
+    for (i = 0; i < lineAxesMarkers.length; i++) {
+      this.lineMarker(i, lineAxesMarkers[i]);
+    }
+  }
+
+  if (goog.isArray(rangeAxesMarkers)) {
+    for (i = 0; i < rangeAxesMarkers.length; i++) {
+      this.rangeMarker(i, rangeAxesMarkers[i]);
+    }
+  }
+
+  if (goog.isArray(textAxesMarkers)) {
+    for (i = 0; i < textAxesMarkers.length; i++) {
+      this.textMarker(i, textAxesMarkers[i]);
+    }
+  }
 };
 
 
@@ -3846,7 +4358,7 @@ anychart.core.ui.Timeline.LiveEditControl.prototype.index = -1;
 
 
 /**
- * @type {anychart.enums.TLElementTypes}
+ * @type {anychart.enums.TLElementTypes|undefined}
  */
 anychart.core.ui.Timeline.LiveEditControl.prototype.type;
 
@@ -4138,6 +4650,8 @@ anychart.core.ui.Timeline.prototype['selectedElementStroke'] = anychart.core.ui.
 anychart.core.ui.Timeline.prototype['tooltip'] = anychart.core.ui.Timeline.prototype.tooltip;
 anychart.core.ui.Timeline.prototype['minimumGap'] = anychart.core.ui.Timeline.prototype.minimumGap;
 anychart.core.ui.Timeline.prototype['maximumGap'] = anychart.core.ui.Timeline.prototype.maximumGap;
+anychart.core.ui.Timeline.prototype['labels'] = anychart.core.ui.Timeline.prototype.labels;
+anychart.core.ui.Timeline.prototype['markers'] = anychart.core.ui.Timeline.prototype.markers;
 
 anychart.core.ui.Timeline.prototype['connectorPreviewStroke'] = anychart.core.ui.Timeline.prototype.connectorPreviewStroke;
 anychart.core.ui.Timeline.prototype['editPreviewFill'] = anychart.core.ui.Timeline.prototype.editPreviewFill;
@@ -4148,3 +4662,10 @@ anychart.core.ui.Timeline.prototype['editIntervalThumbFill'] = anychart.core.ui.
 anychart.core.ui.Timeline.prototype['editIntervalThumbStroke'] = anychart.core.ui.Timeline.prototype.editIntervalThumbStroke;
 anychart.core.ui.Timeline.prototype['editConnectorThumbFill'] = anychart.core.ui.Timeline.prototype.editConnectorThumbFill;
 anychart.core.ui.Timeline.prototype['editConnectorThumbStroke'] = anychart.core.ui.Timeline.prototype.editConnectorThumbStroke;
+anychart.core.ui.Timeline.prototype['editStructurePreviewFill'] = anychart.core.ui.Timeline.prototype.editStructurePreviewFill;
+anychart.core.ui.Timeline.prototype['editStructurePreviewStroke'] = anychart.core.ui.Timeline.prototype.editStructurePreviewStroke;
+anychart.core.ui.Timeline.prototype['editStructurePreviewDashStroke'] = anychart.core.ui.Timeline.prototype.editStructurePreviewDashStroke;
+
+anychart.core.ui.Timeline.prototype['textMarker'] = anychart.core.ui.Timeline.prototype.textMarker;
+anychart.core.ui.Timeline.prototype['lineMarker'] = anychart.core.ui.Timeline.prototype.lineMarker;
+anychart.core.ui.Timeline.prototype['rangeMarker'] = anychart.core.ui.Timeline.prototype.rangeMarker;
