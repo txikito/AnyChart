@@ -1607,8 +1607,35 @@ anychart.utils.formatDateTime = function(date, pattern) {
 };
 
 
+/**
+ * Hide all tooltips.
+ * @param {boolean=} opt_force Ignore tooltips hide delay.
+ */
+anychart.utils.hideTooltips = function(opt_force) {
+  anychart.core.utils.TooltipsContainer.getInstance().hideTooltips(opt_force);
+};
+
+
+/**
+ * Returns the keys of the object/map/hash.
+ *
+ * @param {*} obj The object from which to get the keys.
+ * @return {!Array<string>} Array of property keys.
+ */
+anychart.utils.getKeys = function(obj) {
+  var res = [];
+  var i = 0;
+  for (var key in obj) {
+    if (obj.hasOwnProperty(key))
+      res[i++] = key;
+  }
+  return res;
+};
+
+
 //exports
 goog.exportSymbol('anychart.utils.xml2json', anychart.utils.xml2json);
 goog.exportSymbol('anychart.utils.json2xml', anychart.utils.json2xml);
 goog.exportSymbol('anychart.utils.defaultDateFormatter', anychart.utils.defaultDateFormatter);
 goog.exportSymbol('anychart.utils.formatDateTime', anychart.utils.formatDateTime);
+goog.exportSymbol('anychart.utils.hideTooltips', anychart.utils.hideTooltips);
