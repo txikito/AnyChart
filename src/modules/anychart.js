@@ -7,6 +7,7 @@ goog.provide('anychart.modules.anychart');
 
 goog.require('anychart.modules.base');
 goog.require('anychart.modules.bullet');
+goog.require('anychart.modules.calendar');
 goog.require('anychart.modules.cartesian');
 goog.require('anychart.modules.cartesian3d');
 goog.require('anychart.modules.funnel');

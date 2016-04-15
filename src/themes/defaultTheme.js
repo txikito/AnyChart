@@ -2321,6 +2321,9 @@ goog.provide('anychart.themes.defaultTheme');
     },
 
     // merge with chart
+    'calendar': {},
+
+    // merge with chart
     'scatter': {
       'defaultSeriesType': 'marker',
       'legend': {
