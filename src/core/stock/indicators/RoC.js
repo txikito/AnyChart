@@ -1,7 +1,7 @@
 goog.provide('anychart.core.stock.indicators.RoC');
-goog.require('anychart.core.calculations.roc');
 goog.require('anychart.core.stock.indicators.Base');
 goog.require('anychart.enums');
+goog.require('anychart.math.roc');
 goog.require('anychart.utils');
 
 
@@ -33,7 +33,7 @@ goog.inherits(anychart.core.stock.indicators.RoC, anychart.core.stock.indicators
 
 /** @inheritDoc */
 anychart.core.stock.indicators.RoC.prototype.createComputer = function(mapping) {
-  return anychart.core.calculations.roc.createComputer(mapping, this.period_);
+  return anychart.math.roc.createComputer(mapping, this.period_);
 };
 
 
@@ -46,10 +46,10 @@ anychart.core.stock.indicators.RoC.prototype.createNameForSeries = function(seri
 /**
  * Getter for the indicator series or setter for it's type. If passed - recreates the series.
  * @param {anychart.enums.StockSeriesType=} opt_type
- * @return {anychart.core.stock.indicators.RoC|anychart.core.stock.series.Base|anychart.core.stock.scrollerSeries.Base}
+ * @return {anychart.core.stock.indicators.RoC|anychart.core.series.Stock}
  */
 anychart.core.stock.indicators.RoC.prototype.series = function(opt_type) {
-  return /** @type {anychart.core.stock.indicators.RoC|anychart.core.stock.series.Base|anychart.core.stock.scrollerSeries.Base} */(
+  return /** @type {anychart.core.stock.indicators.RoC|anychart.core.series.Stock} */(
       this.seriesInternal('main', opt_type));
 };
 

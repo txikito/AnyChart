@@ -102,6 +102,10 @@
             <xsd:element minOccurs="0" maxOccurs="1" name="color_scale" type="OrdinalColorScale"/>
             <xsd:element minOccurs="0" maxOccurs="1" name="y_zoom" type="core.CartesianXZoom"/>
             <xsd:element minOccurs="0" maxOccurs="1" name="y_scroller" type="core.ChartScroller"/>
+            <!-- charts.TreeMap elements -->
+            <xsd:element minOccurs="0" maxOccurs="1" name="headers" type="core.LabelsFactory"/>
+            <xsd:element minOccurs="0" maxOccurs="1" name="hover_headers" type="core.LabelsFactory"/>
+
             <!-- new Cartesian elements -->
             <xsd:element minOccurs="0" maxOccurs="1" name="x_zoom" type="core.CartesianXZoom"/>
             <xsd:element minOccurs="0" maxOccurs="1" name="x_scroller" type="core.ChartScroller"/>
@@ -205,6 +209,14 @@
         <xsd:attribute name="color_scale" type="simple.ChartScaleRef"/>
         <xsd:attribute name="y_zoom" type="simple.NumberOrBoolOrNull"/>
         <xsd:attribute name="y_scroller" type="simple.BoolOrNull"/>
+        <!-- charts.TreeMap elements -->
+        <xsd:attribute name="headers_display_mode" type="enums.LabelsDisplayMode" default="clip"/>
+        <xsd:attribute name="headers" type="simple.BoolOrNull"/>
+        <xsd:attribute name="hover_headers" type="simple.BoolOrNull"/>
+        <xsd:attribute name="max_depth" type="xsd:unsignedInt"/>
+        <xsd:attribute name="hint_depth" type="xsd:unsignedInt"/>
+        <xsd:attribute name="hint_opacity" type="simple.Ratio"/>
+        <xsd:attribute name="max_headers_height" type="simple.NumberOrPercent"/>
         <!-- new Cartesian attributes -->
         <xsd:attribute name="x_zoom" type="simple.NumberOrBoolOrNull"/>
         <xsd:attribute name="x_scroller" type="simple.BoolOrNull"/>
@@ -309,6 +321,7 @@
             <xsd:element minOccurs="0" maxOccurs="1" name="credits" type="core.Credits"/>
             <xsd:element minOccurs="0" maxOccurs="1" name="chart_labels" type="core.Label_list"/>
             <xsd:element minOccurs="0" maxOccurs="1" name="animation" type="utils.Animation"/>
+            <xsd:element minOccurs="0" maxOccurs="1" name="crs_animation" type="utils.Animation"/>
             <xsd:element minOccurs="0" maxOccurs="1" name="interactivity" type="utils.MapInteractivity"/>
             <!-- Common elements -->
             <xsd:element minOccurs="0" maxOccurs="1" name="data" type="Data"/>
@@ -340,6 +353,7 @@
         <xsd:attribute name="max_bubble_size" type="simple.NumberOrPercent" default="20%"/>
         <xsd:attribute name="geo_id_field" type="xsd:string"/>
         <xsd:attribute name="geo_data" type="xsd:string"/>
+        <xsd:attribute name="crs" type="xsd:string"/>
     </xsd:complexType>
 
     <xsd:complexType name="Series">
@@ -365,6 +379,7 @@
             <xsd:element minOccurs="0" maxOccurs="1" name="error" type="utils.Error"/>
             <xsd:element minOccurs="0" maxOccurs="1" name="legend_item" type="utils.LegendItemSettings"/>
             <xsd:element minOccurs="0" maxOccurs="1" name="name" type="xsd:string"/>
+            <xsd:element minOccurs="0" maxOccurs="1" name="id" type="xsd:string"/>
             <xsd:element minOccurs="0" maxOccurs="1" name="selectionMode" type="enums.SelectionMode"/>
             <!-- BaseWithMarkers series -->
             <xsd:element minOccurs="0" maxOccurs="1" name="markers" type="core.MarkersFactory"/>
@@ -435,6 +450,8 @@
         <xsd:attribute name="color" type="xsd:string"/>
         <xsd:attribute name="x_point_position" type="simple.Ratio"/>
         <xsd:attribute name="name" type="xsd:string"/>
+        <xsd:attribute name="id" type="xsd:string"/>
+        <xsd:attribute name="autoIndex" type="xsd:unsignedInt"/>
         <xsd:attribute name="labels" type="simple.BoolOrNull" default="false"/>
         <xsd:attribute name="hover_labels" type="simple.BoolOrNull" default="false"/>
         <xsd:attribute name="select_labels" type="simple.BoolOrNull" default="false"/>
@@ -2416,6 +2433,7 @@
             <xsd:enumeration value="financial"/>
             <xsd:enumeration value="funnel"/>
             <xsd:enumeration value="heatMap"/>
+            <xsd:enumeration value="treeMap"/>
             <xsd:enumeration value="line"/>
             <xsd:enumeration value="marker"/>
             <xsd:enumeration value="pie"/>

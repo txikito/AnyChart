@@ -44,7 +44,8 @@ anychart.enums.ChartTypes = {
   SCATTER: 'scatter',
   STOCK: 'stock',
   SPARKLINE: 'sparkline',
-  HEAT_MAP: 'heatMap'
+  HEAT_MAP: 'heatMap',
+  TREE_MAP: 'treeMap'
 };
 
 
@@ -283,8 +284,9 @@ anychart.enums.Anchor = acgraph.vector.Anchor;
 /**
  * Normalizes anchor to an anychart.enums.Anchor instance.
  * @param {*} value Input to normalize.
- * @param {anychart.enums.Anchor=} opt_default Default value, if input cannot be recognized. Defaults to LEFT_TOP.
- * @return {anychart.enums.Anchor}
+ * @param {T=} opt_default Default value, if input cannot be recognized. Defaults to LEFT_TOP.
+ * @return {anychart.enums.Anchor|T}
+ * @template T
  */
 anychart.enums.normalizeAnchor = function(value, opt_default) {
   value = (String(value)).toLowerCase();
@@ -342,7 +344,7 @@ anychart.enums.normalizeAnchor = function(value, opt_default) {
     case 'br':
       return anychart.enums.Anchor.RIGHT_BOTTOM;
   }
-  return opt_default || anychart.enums.Anchor.LEFT_TOP;
+  return goog.isDef(opt_default) ? opt_default : anychart.enums.Anchor.LEFT_TOP;
 };
 
 
@@ -1014,8 +1016,8 @@ anychart.enums.getMarkerDrawer = function(type) {
       return function(path, x, y, size) {
         var left = x - size;
         var top = y - size;
-        var right = left + size * 2;
-        var bottom = top + size * 2;
+        var right = x + size;
+        var bottom = y + size;
 
         path
             .moveTo(left, top)
@@ -1910,6 +1912,85 @@ anychart.enums.normalizeMapSeriesType = function(value, opt_default) {
 };
 
 
+/**
+ * List of names of common map projections.
+ * @enum {string}
+ */
+anychart.enums.MapProjections = {
+  BONNE: 'bonne',
+  ECKERT1: 'eckert1',
+  ECKERT3: 'eckert3',
+  FAHEY: 'fahey',
+  HAMMER: 'hammer',
+  AITOFF: 'aitoff',
+  MERCATOR: 'mercator',
+  ORTHOGRAPHIC: 'orthographic',
+  ROBINSON: 'robinson',
+  WAGNER6: 'wagner6',
+  WSG84: 'wsg84',
+  EQUIRECTANGULAR: 'equirectangular',
+  AUGUST: 'august'
+};
+
+
+/**
+ * Normalizes map projections names.
+ * @param {*} value Projection name to normalize.
+ * @return {Object|Function|anychart.enums.MapProjections|string}
+ */
+anychart.enums.normalizeMapProjections = function(value) {
+  switch (String(value).toLowerCase()) {
+    case 'bonne':
+      return anychart.enums.MapProjections.BONNE;
+      break;
+    case 'eckert1':
+      return anychart.enums.MapProjections.ECKERT1;
+      break;
+    case 'eckert3':
+      return anychart.enums.MapProjections.ECKERT3;
+      break;
+    case 'fahey':
+      return anychart.enums.MapProjections.FAHEY;
+      break;
+    case 'hammeraitoff':
+    case 'hammer-aitoff':
+    case 'hammer':
+      return anychart.enums.MapProjections.HAMMER;
+      break;
+    case 'aitoff':
+      return anychart.enums.MapProjections.AITOFF;
+      break;
+    case 'mercator':
+      return anychart.enums.MapProjections.MERCATOR;
+      break;
+    case 'orthographic':
+      return anychart.enums.MapProjections.ORTHOGRAPHIC;
+      break;
+    case 'robinson':
+      return anychart.enums.MapProjections.ROBINSON;
+      break;
+    case 'wagner':
+    case 'wagner6':
+      return anychart.enums.MapProjections.WAGNER6;
+      break;
+    case 'undefined':
+    case 'null':
+    case 'none':
+    case 'wsg84':
+    case 'base':
+      return anychart.enums.MapProjections.WSG84;
+      break;
+    case 'equirectangular':
+      return anychart.enums.MapProjections.EQUIRECTANGULAR;
+      break;
+    case 'august':
+      return anychart.enums.MapProjections.AUGUST;
+      break;
+  }
+  return /** @type {Object|Function|anychart.enums.MapProjections|string} */(value);
+};
+
+
 //----------------------------------------------------------------------------------------------------------------------
 //
 //  CartesianSeriesTypes
@@ -2037,24 +2118,24 @@ anychart.enums.normalizeCartesian3dSeriesType = function(value, opt_default) {
  * @enum {string}
  */
 anychart.enums.StockSeriesType = {
-  //AREA: 'area',
-  //BAR: 'bar',
-  //BOX: 'box',
-  //BUBBLE: 'bubble',
-  //CANDLESTICK: 'candlestick',
+  AREA: 'area',
+  // BAR: 'bar',
+  // BOX: 'box',
+  // BUBBLE: 'bubble',
+  CANDLESTICK: 'candlestick',
   COLUMN: 'column',
   LINE: 'line',
-  //MARKER: 'marker',
-  OHLC: 'ohlc'
-  //RANGE_AREA: 'rangeArea',
-  //RANGE_BAR: 'rangeBar',
-  //RANGE_COLUMN: 'rangeColumn',
-  //RANGE_SPLINE_AREA: 'rangeSplineArea',
-  //RANGE_STEP_AREA: 'rangeStepArea',
-  //SPLINE: 'spline',
-  //SPLINE_AREA: 'splineArea',
-  //STEP_AREA: 'stepArea',
-  //STEP_LINE: 'stepLine'
+  MARKER: 'marker',
+  OHLC: 'ohlc',
+  RANGE_AREA: 'rangeArea',
+  // RANGE_BAR: 'rangeBar',
+  RANGE_COLUMN: 'rangeColumn',
+  RANGE_SPLINE_AREA: 'rangeSplineArea',
+  RANGE_STEP_AREA: 'rangeStepArea',
+  SPLINE: 'spline',
+  SPLINE_AREA: 'splineArea',
+  STEP_AREA: 'stepArea',
+  STEP_LINE: 'stepLine'
 };
 
 
@@ -2067,12 +2148,42 @@ anychart.enums.StockSeriesType = {
 anychart.enums.normalizeStockSeriesType = function(value, opt_default) {
   value = (String(value)).toLowerCase();
   switch (value) {
+    case 'area':
+      return anychart.enums.StockSeriesType.AREA;
+    // case 'bar':
+    //   return anychart.enums.StockSeriesType.BAR;
+    // case 'box':
+    //   return anychart.enums.StockSeriesType.BOX;
+    // case 'bubble':
+    //   return anychart.enums.StockSeriesType.BUBBLE;
+    case 'candlestick':
+      return anychart.enums.StockSeriesType.CANDLESTICK;
     case 'column':
       return anychart.enums.StockSeriesType.COLUMN;
     case 'line':
       return anychart.enums.StockSeriesType.LINE;
+    case 'marker':
+      return anychart.enums.StockSeriesType.MARKER;
     case 'ohlc':
       return anychart.enums.StockSeriesType.OHLC;
+    case 'rangearea':
+      return anychart.enums.StockSeriesType.RANGE_AREA;
+    // case 'rangebar':
+    //   return anychart.enums.StockSeriesType.RANGE_BAR;
+    case 'rangecolumn':
+      return anychart.enums.StockSeriesType.RANGE_COLUMN;
+    case 'rangesplinearea':
+      return anychart.enums.StockSeriesType.RANGE_SPLINE_AREA;
+    case 'rangesteparea':
+      return anychart.enums.StockSeriesType.RANGE_STEP_AREA;
+    case 'spline':
+      return anychart.enums.StockSeriesType.SPLINE;
+    case 'splinearea':
+      return anychart.enums.StockSeriesType.SPLINE_AREA;
+    case 'steparea':
+      return anychart.enums.StockSeriesType.STEP_AREA;
+    case 'stepline':
+      return anychart.enums.StockSeriesType.STEP_LINE;
   }
   return opt_default || anychart.enums.StockSeriesType.LINE;
 };
@@ -2555,6 +2666,8 @@ anychart.enums.WarningCode = {
   SCALE_TYPE_NOT_SUPPORTED: 16,
 
   DATA_ITEM_SET_PATH: 17,
+
+  TREEMAP_MANY_ROOTS: 18,
 
   TABLE_ALREADY_IN_TRANSACTION: 101,
 
@@ -3330,6 +3443,85 @@ anychart.enums.TokenType = {
 };
 
 
+//region General series related enums
+//----------------------------------------------------------------------------------------------------------------------
+//
+//  General series related enums
+//
+//----------------------------------------------------------------------------------------------------------------------
+/**
+ * A enum for the drawer settings normalizer type.
+ * @enum {string}
+ */
+anychart.enums.SeriesFieldHandlerTypes = {
+  FILL: 'fill',
+  STROKE: 'stroke',
+  HATCH_FILL: 'hatchFill'
+};
+
+
+/**
+ * Drawers type.
+ * @enum {number}
+ */
+anychart.enums.SeriesDrawerTypes = {
+  BASE: 0,
+  AREA: 1,
+  AREA_3D: 2,
+  BAR: 3,
+  BAR_3D: 4,
+  BOX: 5,
+  BUBBLE: 6,
+  CANDLESTICK: 7,
+  COLUMN: 8,
+  COLUMN_3D: 9,
+  LINE: 10,
+  MARKER: 11,
+  OHLC: 12,
+  RANGE_AREA: 13,
+  RANGE_BAR: 14,
+  RANGE_COLUMN: 15,
+  RANGE_SPLINE_AREA: 16,
+  RANGE_STEP_AREA: 17,
+  SPLINE: 18,
+  SPLINE_AREA: 19,
+  STEP_AREA: 20,
+  STEP_LINE: 21
+};
+
+
+/**
+ * Shape manager type enum.
+ * @enum {number}
+ */
+anychart.enums.ShapeManagerTypes = {
+  PER_SERIES: 1,
+  PER_POINT: 2
+};
+
+
+/**
+ * Color type.
+ * @enum {number}
+ */
+anychart.enums.ColorType = {
+  FILL: 1,
+  STROKE: 2,
+  HATCH_FILL: 3
+};
+
+
+/**
+ * Series properties handler type.
+ * @enum {number}
+ */
+anychart.enums.PropertyHandlerType = {
+  SINGLE_ARG: 0,
+  MULTI_ARG: 1
+};
+//endregion
+
+
 //exports
 goog.exportSymbol('anychart.enums.RadialGridLayout.CIRCUIT', anychart.enums.RadialGridLayout.CIRCUIT);
 goog.exportSymbol('anychart.enums.RadialGridLayout.RADIAL', anychart.enums.RadialGridLayout.RADIAL);
@@ -3420,6 +3612,20 @@ goog.exportSymbol('anychart.enums.MarkerType.LINE', anychart.enums.MarkerType.LI
 goog.exportSymbol('anychart.enums.MapAsTableMode.VALUE', anychart.enums.MapAsTableMode.VALUE);//doc
 goog.exportSymbol('anychart.enums.MapAsTableMode.RANGE', anychart.enums.MapAsTableMode.RANGE);//doc
 goog.exportSymbol('anychart.enums.MapAsTableMode.OHLC', anychart.enums.MapAsTableMode.OHLC);//doc
+
+goog.exportSymbol('anychart.enums.MapProjections.BONNE', anychart.enums.MapProjections.BONNE);
+goog.exportSymbol('anychart.enums.MapProjections.AITOFF', anychart.enums.MapProjections.AITOFF);
+goog.exportSymbol('anychart.enums.MapProjections.AUGUST', anychart.enums.MapProjections.AUGUST);
+goog.exportSymbol('anychart.enums.MapProjections.ECKERT1', anychart.enums.MapProjections.ECKERT1);
+goog.exportSymbol('anychart.enums.MapProjections.ECKERT3', anychart.enums.MapProjections.ECKERT3);
+goog.exportSymbol('anychart.enums.MapProjections.EQUIRECTANGULAR', anychart.enums.MapProjections.EQUIRECTANGULAR);
+goog.exportSymbol('anychart.enums.MapProjections.FAHEY', anychart.enums.MapProjections.FAHEY);
+goog.exportSymbol('anychart.enums.MapProjections.HAMMER', anychart.enums.MapProjections.HAMMER);
+goog.exportSymbol('anychart.enums.MapProjections.MERCATOR', anychart.enums.MapProjections.MERCATOR);
+goog.exportSymbol('anychart.enums.MapProjections.ORTHOGRAPHIC', anychart.enums.MapProjections.ORTHOGRAPHIC);
+goog.exportSymbol('anychart.enums.MapProjections.ROBINSON', anychart.enums.MapProjections.ROBINSON);
+goog.exportSymbol('anychart.enums.MapProjections.WAGNER6', anychart.enums.MapProjections.WAGNER6);
+goog.exportSymbol('anychart.enums.MapProjections.WSG84', anychart.enums.MapProjections.WSG84);
 
 goog.exportSymbol('anychart.enums.TreeFillingMethod.AS_TREE', anychart.enums.TreeFillingMethod.AS_TREE);
 goog.exportSymbol('anychart.enums.TreeFillingMethod.AS_TABLE', anychart.enums.TreeFillingMethod.AS_TABLE);
