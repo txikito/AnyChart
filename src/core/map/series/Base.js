@@ -204,12 +204,19 @@ anychart.core.map.series.Base.prototype.getFinalGeoIdField = function() {
 
 
 /**
- * Internal method. Sets link to geo data.
+ * Internal method. Sets link to parent chart.
  * @param {anychart.charts.Map} map .
+ */
+anychart.core.map.series.Base.prototype.setMap = function(map) {
+  this.map = map;
+};
+
+
+/**
+ * Internal method. Sets link to geo data.
  * @param {!Array.<anychart.core.map.geom.Point|anychart.core.map.geom.Line|anychart.core.map.geom.Polygon|anychart.core.map.geom.Collection>} geoData Geo data to set.
  */
-anychart.core.map.series.Base.prototype.setGeoData = function(map, geoData) {
-  this.map = map;
+anychart.core.map.series.Base.prototype.setGeoData = function(geoData) {
   this.geoData = geoData;
   this.calculate();
 };
@@ -276,11 +283,12 @@ anychart.core.map.series.Base.prototype.calculateStatistics = function() {
   }
   var seriesAverage = seriesSum / seriesPointsCount;
 
-  this.statistics('seriesMax', seriesMax);
-  this.statistics('seriesMin', seriesMin);
-  this.statistics('seriesSum', seriesSum);
-  this.statistics('seriesAverage', seriesAverage);
-  this.statistics('seriesPointsCount', seriesPointsCount);
+  this.statistics(anychart.enums.Statistics.SERIES_MAX, seriesMax);
+  this.statistics(anychart.enums.Statistics.SERIES_MIN, seriesMin);
+  this.statistics(anychart.enums.Statistics.SERIES_SUM, seriesSum);
+  this.statistics(anychart.enums.Statistics.SERIES_AVERAGE, seriesAverage);
+  this.statistics(anychart.enums.Statistics.SERIES_POINTS_COUNT, seriesPointsCount);
+  this.statistics(anychart.enums.Statistics.SERIES_POINT_COUNT, seriesPointsCount);
 };
 
 
@@ -334,9 +342,47 @@ anychart.core.map.series.Base.prototype.updateOnZoomOrMove = function() {
   if (manualSuspend)
     stage.resume();
 
-  this.markConsistent(anychart.ConsistencyState.ALL);
-
   return this;
+};
+
+
+/**
+ * Applying zoom and move transformations to marker element.
+ * @param {anychart.core.ui.LabelsFactory.Label} label .
+ * @param {number} pointState .
+ */
+anychart.core.map.series.Base.prototype.applyZoomMoveTransformToLabel = function(label, pointState) {
+  var domElement, prevPos, newPos, trX, trY, selfTx;
+
+  domElement = label.getDomElement();
+  var iterator = this.getIterator();
+
+  var position = this.getLabelsPosition(pointState);
+  var positionProvider = this.createPositionProvider(position);
+
+  var labelRotation = label.getFinalSettings('rotation');
+
+  var labelAnchor = label.getFinalSettings('anchor');
+  if (!goog.isDef(labelAnchor) || goog.isNull(labelAnchor)) {
+    labelAnchor = iterator.meta('labelAnchor');
+  }
+
+  if (goog.isDef(labelRotation))
+    domElement.rotateByAnchor(-labelRotation, /** @type {anychart.enums.Anchor} */(labelAnchor));
+
+  prevPos = label.positionProvider()['value'];
+  newPos = positionProvider['value'];
+
+  selfTx = domElement.getSelfTransformation();
+
+  trX = -selfTx.getTranslateX() + newPos['x'] - prevPos['x'];
+  trY = -selfTx.getTranslateY() + newPos['y'] - prevPos['y'];
+
+  domElement.translate(trX, trY);
+
+
+  if (goog.isDef(labelRotation))
+    domElement.rotateByAnchor(/** @type {number}*/(labelRotation), /** @type {anychart.enums.Anchor} */(labelAnchor));
 };
 
 
@@ -344,8 +390,6 @@ anychart.core.map.series.Base.prototype.updateOnZoomOrMove = function() {
  * Applying zoom and move transformations to series elements for improve performans.
  */
 anychart.core.map.series.Base.prototype.applyZoomMoveTransform = function() {
-  var domElement, prevPos, newPos, trX, trY, selfTx;
-
   var iterator = this.getIterator();
   var index = iterator.getIndex();
   var pointState = this.state.getPointStateByIndex(index);
@@ -386,20 +430,7 @@ anychart.core.map.series.Base.prototype.applyZoomMoveTransform = function() {
   if (isDraw) {
     var label = this.labels().getLabel(index);
     if (label && label.getDomElement() && label.positionProvider()) {
-
-      var position = this.getLabelsPosition(pointState);
-      var positionProvider = this.createPositionProvider(position);
-
-      prevPos = label.positionProvider()['value'];
-      newPos = positionProvider['value'];
-
-      domElement = label.getDomElement();
-      selfTx = domElement.getSelfTransformation();
-
-      trX = -selfTx.getTranslateX() + newPos['x'] - prevPos['x'];
-      trY = -selfTx.getTranslateY() + newPos['y'] - prevPos['y'];
-
-      domElement.translate(trX, trY);
+      this.applyZoomMoveTransformToLabel(label, pointState);
     }
   }
 };
@@ -487,7 +518,7 @@ anychart.core.map.series.Base.prototype.drawPoint = function(pointState) {
  * series.finalizeDrawing();
  */
 anychart.core.map.series.Base.prototype.finalizeDrawing = function() {
-  this.labels().container(/** @type {acgraph.vector.ILayer} */(this.container()));
+  this.labels().container(/** @type {acgraph.vector.ILayer} */(this.rootLayer));
   this.labels().draw();
 
   this.labels().resumeSignalsDispatching(false);
@@ -641,14 +672,18 @@ anychart.core.map.series.Base.prototype.getLegendItemData = function(itemsTextFo
   legendItem.markAllConsistent();
   var json = legendItem.serialize();
   var iconFill, iconStroke, iconHatchFill;
+  var ctx = {
+    'sourceColor': this.color()
+  };
   if (goog.isFunction(legendItem.iconFill())) {
-    iconFill = legendItem.iconFill().call(this.color());
+    json['iconFill'] = legendItem.iconFill().call(ctx, ctx);
   }
   if (goog.isFunction(legendItem.iconStroke())) {
-    iconStroke = legendItem.iconStroke().call(this.color());
+    json['iconStroke'] = legendItem.iconStroke().call(ctx, ctx);
   }
   if (goog.isFunction(legendItem.iconHatchFill())) {
-    iconHatchFill = legendItem.iconHatchFill().call(this.autoHatchFill);
+    ctx['sourceColor'] = this.autoHatchFill;
+    json['iconHatchFill'] = legendItem.iconHatchFill().call(ctx, ctx);
   }
   var itemText;
   if (goog.isFunction(itemsTextFormatter)) {
@@ -658,13 +693,16 @@ anychart.core.map.series.Base.prototype.getLegendItemData = function(itemsTextFo
   if (!goog.isString(itemText))
     itemText = goog.isDef(this.name()) ? this.name() : 'Series: ' + this.index();
 
+  this.updateLegendItemMarker(json);
+
+  json['iconType'] = this.getLegendIconType(json['iconType']);
+
   var ret = {
     'text': /** @type {string} */ (itemText),
     'iconEnabled': true,
-    'iconType': this.getLegendIconType(),
-    'iconStroke': iconStroke,
-    'iconFill': iconFill || this.color(),
-    'iconHatchFill': iconHatchFill,
+    'iconStroke': void 0,
+    'iconFill': /** @type {acgraph.vector.Fill} */ (this.color()),
+    'iconHatchFill': void 0,
     'disabled': !this.enabled()
   };
   goog.object.extend(ret, json);

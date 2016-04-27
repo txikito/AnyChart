@@ -21,6 +21,7 @@ anychart.core.SeparateChart = function() {
 
   if (this.supportsBaseHighlight)
     this.bindHandlersToComponent(this, this.handleMouseOverAndMove, this.handleMouseOut, null, this.handleMouseOverAndMove, null, this.handleMouseDown);
+
 };
 goog.inherits(anychart.core.SeparateChart, anychart.core.ChartWithCredits);
 
@@ -84,7 +85,7 @@ anychart.core.SeparateChart.prototype.onLegendSignal_ = function(event) {
     state |= anychart.ConsistencyState.BOUNDS;
     signal |= anychart.Signal.BOUNDS_CHANGED;
   }
-  // If there are no signals – state == 0 and nothing will happen.
+  // If there are no signals - state == 0 and nothing will happen.
   this.invalidate(state, signal);
 };
 

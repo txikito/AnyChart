@@ -82,14 +82,16 @@ window['anychart']['themes']['v6'] = {
     'items': ['backwardDiagonal', 'forwardDiagonal', 'horizontal', 'vertical', 'dashedBackwardDiagonal', 'grid', 'dashedForwardDiagonal', 'dashedHorizontal', 'dashedVertical', 'diagonalCross', 'diagonalBrick', 'divot', 'horizontalBrick', 'verticalBrick', 'checkerBoard', 'confetti', 'plaid', 'solidDiamond', 'zigZag', 'weave', 'percent05', 'percent10', 'percent20', 'percent25', 'percent30', 'percent40', 'percent50', 'percent60', 'percent70', 'percent75', 'percent80', 'percent90']
   },
   'markerPalette': {
-    'items': ['circle', 'square', 'triangleUp', 'diamond', 'triangleDown', 'cross', 'diagonalCross', 'star4', 'star5', 'star6', 'star7', 'star10', 'pentagon', 'trapezium', 'line']
+    'items': ['circle', 'square', 'triangleUp', 'diamond', 'triangleDown', 'cross', 'diagonalCross', 'star4', 'star5', 'star6', 'star7', 'star10', 'pentagon', 'trapezium', 'vline']
   },
 
-  'ordinalColor': {
+  'defaultOrdinalColorScale': {
     'autoColors': function(rangesCount) {
       return window['anychart']['color']['blendedHueProgression']('#ffd54f', '#ef6c00', rangesCount);
     }
   },
+
+  'defaultLinearColorScale': {'colors': ['#fff', '#ffd54f', '#ef6c00']},
 
   // global background settings
   'defaultBackground': {
@@ -500,6 +502,42 @@ window['anychart']['themes']['v6'] = {
         }
       }
     }
+  },
+
+  'defaultGroupingSettings': {
+    'enabled': true,
+    'forced': false,
+    'levels': [
+      {'unit': 'millisecond', 'count': 1},
+      {'unit': 'millisecond', 'count': 5},
+      {'unit': 'millisecond', 'count': 10},
+      {'unit': 'millisecond', 'count': 25},
+      {'unit': 'millisecond', 'count': 50},
+      {'unit': 'millisecond', 'count': 100},
+      {'unit': 'millisecond', 'count': 250},
+      {'unit': 'millisecond', 'count': 500},
+      {'unit': 'second', 'count': 1},
+      {'unit': 'second', 'count': 5},
+      {'unit': 'second', 'count': 10},
+      {'unit': 'second', 'count': 20},
+      {'unit': 'second', 'count': 30},
+      {'unit': 'minute', 'count': 1},
+      {'unit': 'minute', 'count': 5},
+      {'unit': 'minute', 'count': 15},
+      {'unit': 'minute', 'count': 30},
+      {'unit': 'hour', 'count': 1},
+      {'unit': 'hour', 'count': 2},
+      {'unit': 'hour', 'count': 6},
+      {'unit': 'hour', 'count': 12},
+      {'unit': 'day', 'count': 1},
+      {'unit': 'week', 'count': 1},
+      {'unit': 'month', 'count': 1},
+      {'unit': 'month', 'count': 3},
+      {'unit': 'month', 'count': 6},
+      {'unit': 'year', 'count': 1}
+    ],
+    'maxVisiblePoints': 500,
+    'minPixPerPoint': NaN
   },
 
   // base/separated chart
@@ -960,7 +998,9 @@ window['anychart']['themes']['v6'] = {
            * @return {*}
            */
           'textFormatter': function() {
-            return this['x'];
+            return 'Highest: ' + parseFloat(this['highest']).toFixed(2) + '\n' +
+                'Median: ' + parseFloat(this['median']).toFixed(2) + '\n' +
+                'Lowest: ' + parseFloat(this['lowest']).toFixed(2);
           }
         },
         /**
@@ -4825,6 +4865,7 @@ window['anychart']['themes']['v6'] = {
         'labels': {
           'enabled': false,
           'position': 'middle',
+          'anchor': null,
           /**
            * @this {*}
            * @return {*}
@@ -4885,7 +4926,6 @@ window['anychart']['themes']['v6'] = {
       'minorTicks': {'enabled': false}
     },
     'unboundRegions': {'enabled': true, 'fill': '#F7F7F7', 'stroke': '#B9B9B9'},
-    'linearColor': {'colors': ['#fff', '#ffd54f', '#ef6c00']},
     'maxBubbleSize': '20%',
     'minBubbleSize': '5%',
     'geoIdField': 'id',
@@ -5506,7 +5546,7 @@ window['anychart']['themes']['v6'] = {
          */
         'titleFormatter': function() {
           var date = /** @type {number} */(this['value']);
-          switch (this['groupingIntervalUnit']) {
+          switch (this['dataIntervalUnit']) {
             case 'year':
               return window['anychart']['format']['dateTime'](date, 'yyyy');
             case 'semester':
@@ -5834,7 +5874,7 @@ window['anychart']['themes']['v6'] = {
        */
       'titleFormatter': function() {
         var date = /** @type {number} */(this['hoveredDate']);
-        switch (this['groupingIntervalUnit']) {
+        switch (this['dataIntervalUnit']) {
           case 'year':
             return window['anychart']['format']['dateTime'](date, 'yyyy');
           case 'semester':

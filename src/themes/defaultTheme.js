@@ -192,6 +192,52 @@ var returnRangeLabelsContentFormatter = function() {
  * @this {*}
  * @return {*}
  */
+var OHLCTooltipFormatter = function() {
+  return 'Open: ' + parseFloat(this['open']).toFixed(2) + '\n' +
+      'High: ' + parseFloat(this['high']).toFixed(2) + '\n' +
+      'Low: ' + parseFloat(this['low']).toFixed(2) + '\n' +
+      'Close: ' + parseFloat(this['close']).toFixed(2);
+};
+
+
+/**
+ * @this {*}
+ * @return {*}
+ */
+var StockSimpleTooltipFormatter = function() {
+  var val = parseFloat(this['value']).toFixed(2);
+  return this['seriesName'] + ': ' + this['valuePrefix'] + val + this['valuePostfix'];
+};
+
+
+/**
+ * @this {*}
+ * @return {*}
+ */
+var StockRangeTooltipFormatter = function() {
+  return this['seriesName'] + ':\n' +
+      '  High: ' + parseFloat(this['high']).toFixed(2) + '\n' +
+      '  Low: ' + parseFloat(this['low']).toFixed(2);
+};
+
+
+/**
+ * @this {*}
+ * @return {*}
+ */
+var StockOHLCTooltipFormatter = function() {
+  return this['seriesName'] + ':\n' +
+      '  Open: ' + parseFloat(this['open']).toFixed(2) + '\n' +
+      '  High: ' + parseFloat(this['high']).toFixed(2) + '\n' +
+      '  Low: ' + parseFloat(this['low']).toFixed(2) + '\n' +
+      '  Close: ' + parseFloat(this['close']).toFixed(2);
+};
+
+
+/**
+ * @this {*}
+ * @return {*}
+ */
 var returnStrokeWithThickness = function() {
   return window['anychart']['color']['setThickness'](this['sourceColor'], 1.5);
 };
@@ -211,15 +257,18 @@ window['anychart']['themes']['defaultTheme'] = {
     'items': ['backwardDiagonal', 'forwardDiagonal', 'dashedBackwardDiagonal', 'grid', 'dashedForwardDiagonal', 'dashedHorizontal', 'dashedVertical', 'diagonalCross', 'diagonalBrick', 'divot', 'horizontalBrick', 'verticalBrick', 'checkerBoard', 'confetti', 'plaid', 'solidDiamond', 'zigZag', 'weave', 'percent05', 'percent10', 'percent20', 'percent25', 'percent30', 'percent40', 'percent50', 'percent60', 'percent70', 'percent75', 'percent80', 'percent90', 'horizontal', 'vertical']
   },
   'markerPalette': {
-    'items': ['circle', 'diamond', 'square', 'triangleDown', 'triangleUp', 'diagonalCross', 'pentagon', 'cross', 'line', 'star5', 'star4', 'trapezium', 'star7', 'star6', 'star10']
+    'items': ['circle', 'diamond', 'square', 'triangleDown', 'triangleUp', 'diagonalCross', 'pentagon', 'cross', 'vline', 'star5', 'star4', 'trapezium', 'star7', 'star6', 'star10']
   },
 
-  'ordinalColor': {
+  'defaultOrdinalColorScale': {
     'autoColors': function(rangesCount) {
       return window['anychart']['color']['blendedHueProgression']('#90caf9', '#01579b', rangesCount);
       //return window['anychart']['color']['blendedHueProgression']('#ffd54f', '#ef6c00', rangesCount); //todo: delete after final choice
     }
   },
+
+  'defaultLinearColorScale': {'colors': ['#90caf9', '#01579b']},
+  //'defaultLinearColorScale': {'colors': ['#ffd54f', '#ef6c00']}, //todo: delete after final choice
 
   'defaultFontSettings': {
     'fontSize': 13,
@@ -630,6 +679,42 @@ window['anychart']['themes']['defaultTheme'] = {
     'zIndex': 35
   },
 
+  'defaultGroupingSettings': {
+    'enabled': true,
+    'forced': false,
+    'levels': [
+      {'unit': 'millisecond', 'count': 1},
+      {'unit': 'millisecond', 'count': 5},
+      {'unit': 'millisecond', 'count': 10},
+      {'unit': 'millisecond', 'count': 25},
+      {'unit': 'millisecond', 'count': 50},
+      {'unit': 'millisecond', 'count': 100},
+      {'unit': 'millisecond', 'count': 250},
+      {'unit': 'millisecond', 'count': 500},
+      {'unit': 'second', 'count': 1},
+      {'unit': 'second', 'count': 5},
+      {'unit': 'second', 'count': 10},
+      {'unit': 'second', 'count': 20},
+      {'unit': 'second', 'count': 30},
+      {'unit': 'minute', 'count': 1},
+      {'unit': 'minute', 'count': 5},
+      {'unit': 'minute', 'count': 15},
+      {'unit': 'minute', 'count': 30},
+      {'unit': 'hour', 'count': 1},
+      {'unit': 'hour', 'count': 2},
+      {'unit': 'hour', 'count': 6},
+      {'unit': 'hour', 'count': 12},
+      {'unit': 'day', 'count': 1},
+      {'unit': 'week', 'count': 1},
+      {'unit': 'month', 'count': 1},
+      {'unit': 'month', 'count': 3},
+      {'unit': 'month', 'count': 6},
+      {'unit': 'year', 'count': 1}
+    ],
+    'maxVisiblePoints': 500,
+    'minPixPerPoint': NaN
+  },
+
   'chart': {
     'enabled': true,
     'padding': {'top': 10, 'right': 20, 'bottom': 5, 'left': 10},
@@ -915,9 +1000,6 @@ window['anychart']['themes']['defaultTheme'] = {
         'labels': {
           'anchor': 'leftBottom'
         },
-        'legendItem': {
-          'iconType': 'line'
-        },
         'hoverMarkers': {
           'enabled': true
         },
@@ -973,16 +1055,7 @@ window['anychart']['themes']['defaultTheme'] = {
         'selectRisingStroke': defaultSelectColor,
         'selectFallingStroke': defaultSelectColor,
         'tooltip': {
-          /**
-           * @this {*}
-           * @return {string}
-           */
-          'textFormatter': function() {
-            return 'O: ' + parseFloat(this['open']).toFixed(4) + '\n' +
-                'H: ' + parseFloat(this['high']).toFixed(4) + '\n' +
-                'L: ' + parseFloat(this['low']).toFixed(4) + '\n' +
-                'C: ' + parseFloat(this['close']).toFixed(4);
-          }
+          'textFormatter': OHLCTooltipFormatter
         },
         'markers': {
           'position': 'centerTop'
@@ -1029,16 +1102,7 @@ window['anychart']['themes']['defaultTheme'] = {
         'selectRisingStroke': '3 ' + defaultSelectColor,
         'selectFallingStroke': '3 ' + defaultSelectColor,
         'tooltip': {
-          /**
-           * @this {*}
-           * @return {*}
-           */
-          'textFormatter': function() {
-            return 'O: ' + parseFloat(this['open']).toFixed(4) + '\n' +
-                'H: ' + parseFloat(this['high']).toFixed(4) + '\n' +
-                'L: ' + parseFloat(this['low']).toFixed(4) + '\n' +
-                'C: ' + parseFloat(this['close']).toFixed(4);
-          }
+          'textFormatter': OHLCTooltipFormatter
         },
         'markers': {
           'position': 'centerTop'
@@ -1153,6 +1217,17 @@ window['anychart']['themes']['defaultTheme'] = {
           'size': 4,
           'fill': defaultSelectColor,
           'stroke': defaultSelectStroke
+        },
+        'labels': {
+          /**
+           * @this {*}
+           * @return {*}
+           */
+          'textFormatter': function() {
+            return 'Highest: ' + parseFloat(this['highest']).toFixed(2) + '\n' +
+                'Median: ' + parseFloat(this['median']).toFixed(2) + '\n' +
+                'Lowest: ' + parseFloat(this['lowest']).toFixed(2);
+          }
         },
         'tooltip': {
           /**
@@ -1274,12 +1349,6 @@ window['anychart']['themes']['defaultTheme'] = {
   'bar': {
     'barChartMode': true,
     'defaultSeriesType': 'bar',
-    'defaultGridSettings': {
-      'layout': 'vertical'
-    },
-    'defaultMinorGridSettings': {
-      'layout': 'vertical'
-    },
     'defaultXAxisSettings': {
       'orientation': 'left'
     },
@@ -1549,8 +1618,14 @@ window['anychart']['themes']['defaultTheme'] = {
         return this['name'] ? this['name'] : this['x'];
       }
     },
-    'outsideLabels': {'autoColor': fontColorBright},
-    'insideLabels': {'autoColor': fontColorReversedNormal},
+    'outsideLabels': {
+      'disablePointerEvents': false,
+      'autoColor': fontColorBright
+    },
+    'insideLabels': {
+      'disablePointerEvents': true,
+      'autoColor': fontColorReversedNormal
+    },
     'hoverLabels': {
       'enabled': null
     },
@@ -1814,12 +1889,6 @@ window['anychart']['themes']['defaultTheme'] = {
       'line': {},
       'marker': {}
     },
-    //'defaultGridSettings': {
-    //  'layout': null//'radial'
-    //},
-    //'defaultMinorGridSettings': {
-    //  'layout': null//'circuit'
-    //},
     'xAxis': {
       'scale': 0,
       'zIndex': 25
@@ -1876,12 +1945,6 @@ window['anychart']['themes']['defaultTheme'] = {
       'line': {},
       'marker': {}
     },
-    //'defaultGridSettings': {
-    //  'layout': null//'radial'
-    //},
-    //'defaultMinorGridSettings': {
-    //  'layout': null//'circuit'
-    //},
     'xAxis': {
       'scale': 0,
       'zIndex': 25
@@ -2299,29 +2362,38 @@ window['anychart']['themes']['defaultTheme'] = {
       'choropleth': {
         'labels': {
           'fontColor': fontColorDark
-        }
+        },
+        'colorScale': {}
       },
       'connector': {
         'startSize': 0,
         'endSize': 0,
-        'hoverStroke': '1.5 #455a64',
-        'stroke': '1.5 #1976d2',
         'curvature': .3,
+        'stroke': returnSourceColor,
+        'hoverStroke': returnLightenSourceColor,
+        'selectStroke': '2 ' + defaultSelectColor,
         'markers': {
           'position': 'middle',
           'enabled': true,
           'size': 15,
-          'fill': '#455a64',
           'stroke': '1.5 #f7f7f7',
           'rotation': null,
+          'anchor': null,
           'type': 'arrowhead'
         },
         'hoverMarkers': {
-          'fill': '#1976d2'
+          'stroke': '1.5 #f7f7f7',
+          'size': 15
+        },
+        'selectMarkers': {
+          'fill': defaultSelectColor,
+          'stroke': '1.5 #f7f7f7',
+          'size': 15
         },
         'labels': {
           'enabled': false,
           'position': 'middle',
+          'anchor': null,
           /**
            * @this {*}
            * @return {*}
@@ -2392,8 +2464,6 @@ window['anychart']['themes']['defaultTheme'] = {
       'zIndex': 50
     },
     'unboundRegions': {'enabled': true, 'fill': '#F7F7F7', 'stroke': '#e0e0e0'},
-    'linearColor': {'colors': ['#90caf9', '#01579b']},
-    //'linearColor': {'colors': ['#ffd54f', '#ef6c00']}, //todo: delete after final choice
     'legend': {'enabled': false},
     'maxBubbleSize': '20%',
     'minBubbleSize': '5%',
@@ -3257,6 +3327,50 @@ window['anychart']['themes']['defaultTheme'] = {
   },
 
   'stock': {
+    'grouping': {},
+    'scrollerGrouping': {
+      'levels': [
+        {'unit': 'millisecond', 'count': 1},
+        {'unit': 'millisecond', 'count': 2},
+        {'unit': 'millisecond', 'count': 5},
+        {'unit': 'millisecond', 'count': 10},
+        {'unit': 'millisecond', 'count': 25},
+        {'unit': 'millisecond', 'count': 50},
+        {'unit': 'millisecond', 'count': 100},
+        {'unit': 'millisecond', 'count': 250},
+        {'unit': 'millisecond', 'count': 500},
+        {'unit': 'second', 'count': 1},
+        {'unit': 'second', 'count': 2},
+        {'unit': 'second', 'count': 5},
+        {'unit': 'second', 'count': 10},
+        {'unit': 'second', 'count': 20},
+        {'unit': 'second', 'count': 30},
+        {'unit': 'minute', 'count': 1},
+        {'unit': 'minute', 'count': 2},
+        {'unit': 'minute', 'count': 5},
+        {'unit': 'minute', 'count': 10},
+        {'unit': 'minute', 'count': 20},
+        {'unit': 'minute', 'count': 30},
+        {'unit': 'hour', 'count': 1},
+        {'unit': 'hour', 'count': 2},
+        {'unit': 'hour', 'count': 3},
+        {'unit': 'hour', 'count': 4},
+        {'unit': 'hour', 'count': 6},
+        {'unit': 'hour', 'count': 12},
+        {'unit': 'day', 'count': 1},
+        {'unit': 'day', 'count': 2},
+        {'unit': 'day', 'count': 4},
+        {'unit': 'week', 'count': 1},
+        {'unit': 'week', 'count': 2},
+        {'unit': 'month', 'count': 1},
+        {'unit': 'month', 'count': 2},
+        {'unit': 'month', 'count': 3},
+        {'unit': 'month', 'count': 6},
+        {'unit': 'year', 'count': 1}
+      ],
+      'maxVisiblePoints': NaN,
+      'minPixPerPoint': 1
+    },
     'defaultPlotSettings': {
       'background': {
         'enabled': false
@@ -3265,24 +3379,43 @@ window['anychart']['themes']['defaultTheme'] = {
         'base': {
           'pointWidth': '75%',
           'tooltip': {
-            /**
-             * @this {*}
-             * @return {*}
-             */
-            'textFormatter': function() {
-              var val = this['value'];
-              if (val === undefined) val = this['close'];
-              val = parseFloat(val).toFixed(4);
-              return this['seriesName'] + (isNaN(val) ? '' : (': ' + this['valuePrefix'] + val + this['valuePostfix']));
-            }
+            'textFormatter': StockSimpleTooltipFormatter
           },
           'legendItem': {'iconStroke': 'none'}
+        },
+        'rangeArea': {
+          'tooltip': {
+            'textFormatter': StockRangeTooltipFormatter
+          }
+        },
+        'rangeSplineArea': {
+          'tooltip': {
+            'textFormatter': StockRangeTooltipFormatter
+          }
+        },
+        'rangeStepArea': {
+          'tooltip': {
+            'textFormatter': StockRangeTooltipFormatter
+          }
+        },
+        'candlestick': {
+          'tooltip': {
+            'textFormatter': StockOHLCTooltipFormatter
+          }
         },
         'column': {
           'stroke': 'none'
         },
         'rangeColumn': {
-          'stroke': 'none'
+          'stroke': 'none',
+          'tooltip': {
+            'textFormatter': StockRangeTooltipFormatter
+          }
+        },
+        'ohlc': {
+          'tooltip': {
+            'textFormatter': StockOHLCTooltipFormatter
+          }
         }
       },
       'defaultGridSettings': {
@@ -3427,7 +3560,7 @@ window['anychart']['themes']['defaultTheme'] = {
          */
         'titleFormatter': function() {
           var date = /** @type {number} */(this['value']);
-          switch (this['groupingIntervalUnit']) {
+          switch (this['dataIntervalUnit']) {
             case 'year':
               return window['anychart']['format']['dateTime'](date, 'yyyy');
             case 'semester':
@@ -3696,7 +3829,7 @@ window['anychart']['themes']['defaultTheme'] = {
        */
       'titleFormatter': function() {
         var date = /** @type {number} */(this['hoveredDate']);
-        switch (this['groupingIntervalUnit']) {
+        switch (this['dataIntervalUnit']) {
           case 'year':
             return window['anychart']['format']['dateTime'](date, 'yyyy');
           case 'semester':

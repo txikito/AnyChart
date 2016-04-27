@@ -1152,7 +1152,7 @@ anychart.charts.HeatMap.prototype.useUnionTooltipAsSingle = function() {
 //
 //----------------------------------------------------------------------------------------------------------------------
 /**
- * Calculate cartesian chart properties.
+ * @inheritDoc
  */
 anychart.charts.HeatMap.prototype.calculate = function() {
   if (this.hasInvalidationState(anychart.ConsistencyState.HEATMAP_SCALES)) {
@@ -1684,13 +1684,14 @@ anychart.charts.HeatMap.prototype.drawSeries_ = function() {
     var index = iterator.getIndex();
     if (iterator.get('selected')) {
       series.state.setPointState(anychart.PointState.SELECT, index);
-      //TODO(AntonKagakin): этот прекрасный костыль тут потому, что в хитмапах переделано рисование лейблов
-      // 1) находит селектед лейбл
-      // 2) выставляет стейт
-      // 3) идет перерисовывать все лейблы которые до этого нарисовал (ибо вызывается label.draw() в finalizePointAppearance)
-      // 4) резетит итератор (ибо при рисовании лейблов - селектится серийный итератор по которому идет текущее рисование
-      // 5) селектится он на последний лейбл который был до текущего значения итератора (то есть index - 1)
-      // 6) получаем бесконечный цикл
+      //TODO(AntonKagakin): rewrite it. This is because the HeatMap makes the following:
+      // 1) finds the selected label
+      // 2) sets state
+      // 3) redraws all labels that were already drawn (because finalizePointAppearance calls label.draw())
+      // 4) resets iterator (because it is used in drawing)
+      // 5) selects iterator to a label prior to the last one
+      // 6) ...
+      // 7) PROFIT! - infinite loop!
       iterator.select(index);
     }
 
@@ -1833,6 +1834,312 @@ anychart.charts.HeatMap.prototype.invalidateSeries_ = function() {
 
 //----------------------------------------------------------------------------------------------------------------------
 //
+//  Overwritten series methods. (for encapsulation series)
+//
+//----------------------------------------------------------------------------------------------------------------------
+/**
+ * Getter/setter for current fill color.
+ * @param {(!acgraph.vector.Fill|!Array.<(acgraph.vector.GradientKey|string)>|Function|null)=} opt_fillOrColorOrKeys .
+ * @param {number=} opt_opacityOrAngleOrCx .
+ * @param {(number|boolean|!anychart.math.Rect|!{left:number,top:number,width:number,height:number})=} opt_modeOrCy .
+ * @param {(number|!anychart.math.Rect|!{left:number,top:number,width:number,height:number}|null)=} opt_opacityOrMode .
+ * @param {number=} opt_opacity .
+ * @param {number=} opt_fx .
+ * @param {number=} opt_fy .
+ * @return {acgraph.vector.Fill|anychart.charts.HeatMap|Function} .
+ */
+anychart.charts.HeatMap.prototype.fill = function(opt_fillOrColorOrKeys, opt_opacityOrAngleOrCx, opt_modeOrCy, opt_opacityOrMode, opt_opacity, opt_fx, opt_fy) {
+  if (goog.isDef(opt_fillOrColorOrKeys)) {
+    this.series_.fill(opt_fillOrColorOrKeys, opt_opacityOrAngleOrCx, opt_modeOrCy, opt_opacityOrMode, opt_opacity, opt_fx, opt_fy);
+    return this;
+  }
+  return this.series_.fill();
+};
+
+
+/**
+ * Getter/setter for current hover fill color.
+ * @param {(!acgraph.vector.Fill|!Array.<(acgraph.vector.GradientKey|string)>|Function|null)=} opt_fillOrColorOrKeys .
+ * @param {number=} opt_opacityOrAngleOrCx .
+ * @param {(number|boolean|!anychart.math.Rect|!{left:number,top:number,width:number,height:number})=} opt_modeOrCy .
+ * @param {(number|!anychart.math.Rect|!{left:number,top:number,width:number,height:number}|null)=} opt_opacityOrMode .
+ * @param {number=} opt_opacity .
+ * @param {number=} opt_fx .
+ * @param {number=} opt_fy .
+ * @return {acgraph.vector.Fill|anychart.charts.HeatMap|Function} .
+ */
+anychart.charts.HeatMap.prototype.hoverFill = function(opt_fillOrColorOrKeys, opt_opacityOrAngleOrCx, opt_modeOrCy, opt_opacityOrMode, opt_opacity, opt_fx, opt_fy) {
+  if (goog.isDef(opt_fillOrColorOrKeys)) {
+    this.series_.hoverFill(opt_fillOrColorOrKeys, opt_opacityOrAngleOrCx, opt_modeOrCy, opt_opacityOrMode, opt_opacity, opt_fx, opt_fy);
+    return this;
+  }
+  return this.series_.hoverFill();
+};
+
+
+/**
+ * Getter/setter for current select fill color.
+ * @param {(!acgraph.vector.Fill|!Array.<(acgraph.vector.GradientKey|string)>|Function|null)=} opt_fillOrColorOrKeys .
+ * @param {number=} opt_opacityOrAngleOrCx .
+ * @param {(number|boolean|!anychart.math.Rect|!{left:number,top:number,width:number,height:number})=} opt_modeOrCy .
+ * @param {(number|!anychart.math.Rect|!{left:number,top:number,width:number,height:number}|null)=} opt_opacityOrMode .
+ * @param {number=} opt_opacity .
+ * @param {number=} opt_fx .
+ * @param {number=} opt_fy .
+ * @return {acgraph.vector.Fill|anychart.charts.HeatMap|Function} .
+ */
+anychart.charts.HeatMap.prototype.selectFill = function(opt_fillOrColorOrKeys, opt_opacityOrAngleOrCx, opt_modeOrCy, opt_opacityOrMode, opt_opacity, opt_fx, opt_fy) {
+  if (goog.isDef(opt_fillOrColorOrKeys)) {
+    this.series_.selectFill(opt_fillOrColorOrKeys, opt_opacityOrAngleOrCx, opt_modeOrCy, opt_opacityOrMode, opt_opacity, opt_fx, opt_fy);
+    return this;
+  }
+  return this.series_.selectFill();
+};
+
+
+/**
+ * Getter/setter for current stroke settings.
+ * @param {(acgraph.vector.Stroke|acgraph.vector.ColoredFill|string|Function|null)=} opt_strokeOrFill Fill settings
+ *    or stroke settings.
+ * @param {number=} opt_thickness [1] Line thickness.
+ * @param {string=} opt_dashpattern Controls the pattern of dashes and gaps used to stroke paths.
+ * @param {acgraph.vector.StrokeLineJoin=} opt_lineJoin Line joint style.
+ * @param {acgraph.vector.StrokeLineCap=} opt_lineCap Line cap style.
+ * @return {anychart.charts.HeatMap|acgraph.vector.Stroke|Function} .
+ */
+anychart.charts.HeatMap.prototype.stroke = function(opt_strokeOrFill, opt_thickness, opt_dashpattern, opt_lineJoin, opt_lineCap) {
+  if (goog.isDef(opt_strokeOrFill)) {
+    this.series_.stroke(opt_strokeOrFill, opt_thickness, opt_dashpattern, opt_lineJoin, opt_lineCap);
+    return this;
+  }
+  return this.series_.stroke();
+};
+
+
+/**
+ * Getter/setter for current hover stroke settings.
+ * @param {(acgraph.vector.Stroke|acgraph.vector.ColoredFill|string|Function|null)=} opt_strokeOrFill Fill settings
+ *    or stroke settings.
+ * @param {number=} opt_thickness [1] Line thickness.
+ * @param {string=} opt_dashpattern Controls the pattern of dashes and gaps used to stroke paths.
+ * @param {acgraph.vector.StrokeLineJoin=} opt_lineJoin Line joint style.
+ * @param {acgraph.vector.StrokeLineCap=} opt_lineCap Line cap style.
+ * @return {anychart.charts.HeatMap|acgraph.vector.Stroke|Function} .
+ */
+anychart.charts.HeatMap.prototype.hoverStroke = function(opt_strokeOrFill, opt_thickness, opt_dashpattern, opt_lineJoin, opt_lineCap) {
+  if (goog.isDef(opt_strokeOrFill)) {
+    this.series_.hoverStroke(opt_strokeOrFill, opt_thickness, opt_dashpattern, opt_lineJoin, opt_lineCap);
+    return this;
+  }
+  return this.series_.hoverStroke();
+};
+
+
+/**
+ * Getter/setter for current select stroke settings.
+ * @param {(acgraph.vector.Stroke|acgraph.vector.ColoredFill|string|Function|null)=} opt_strokeOrFill Fill settings
+ *    or stroke settings.
+ * @param {number=} opt_thickness [1] Line thickness.
+ * @param {string=} opt_dashpattern Controls the pattern of dashes and gaps used to stroke paths.
+ * @param {acgraph.vector.StrokeLineJoin=} opt_lineJoin Line joint style.
+ * @param {acgraph.vector.StrokeLineCap=} opt_lineCap Line cap style.
+ * @return {anychart.charts.HeatMap|acgraph.vector.Stroke|Function} .
+ */
+anychart.charts.HeatMap.prototype.selectStroke = function(opt_strokeOrFill, opt_thickness, opt_dashpattern, opt_lineJoin, opt_lineCap) {
+  if (goog.isDef(opt_strokeOrFill)) {
+    this.series_.selectStroke(opt_strokeOrFill, opt_thickness, opt_dashpattern, opt_lineJoin, opt_lineCap);
+    return this;
+  }
+  return this.series_.selectStroke();
+};
+
+
+/**
+ * Getter/setter for current hatch fill settings.
+ * @param {(acgraph.vector.PatternFill|acgraph.vector.HatchFill|Function|acgraph.vector.HatchFill.HatchFillType|
+ * string|boolean)=} opt_patternFillOrTypeOrState PatternFill or HatchFill instance or type or state of hatch fill.
+ * @param {string=} opt_color Color.
+ * @param {number=} opt_thickness Thickness.
+ * @param {number=} opt_size Pattern size.
+ * @return {acgraph.vector.PatternFill|acgraph.vector.HatchFill|anychart.charts.HeatMap|Function|boolean} Hatch fill.
+ */
+anychart.charts.HeatMap.prototype.hatchFill = function(opt_patternFillOrTypeOrState, opt_color, opt_thickness, opt_size) {
+  if (goog.isDef(opt_patternFillOrTypeOrState)) {
+    this.series_.hatchFill(opt_patternFillOrTypeOrState, opt_color, opt_thickness, opt_size);
+    return this;
+  }
+  return this.series_.hatchFill();
+};
+
+
+/**
+ * Getter/setter for current hover hatch fill settings.
+ * @param {(acgraph.vector.PatternFill|acgraph.vector.HatchFill|Function|acgraph.vector.HatchFill.HatchFillType|
+ * string|boolean)=} opt_patternFillOrTypeOrState PatternFill or HatchFill instance or type or state of hatch fill.
+ * @param {string=} opt_color Color.
+ * @param {number=} opt_thickness Thickness.
+ * @param {number=} opt_size Pattern size.
+ * @return {acgraph.vector.PatternFill|acgraph.vector.HatchFill|anychart.charts.HeatMap|Function|boolean} Hatch fill.
+ */
+anychart.charts.HeatMap.prototype.hoverHatchFill = function(opt_patternFillOrTypeOrState, opt_color, opt_thickness, opt_size) {
+  if (goog.isDef(opt_patternFillOrTypeOrState)) {
+    this.series_.hoverHatchFill(opt_patternFillOrTypeOrState, opt_color, opt_thickness, opt_size);
+    return this;
+  }
+  return this.series_.hoverHatchFill();
+};
+
+
+/**
+ * Getter/setter for selected hatch fill settings.
+ * @param {(acgraph.vector.PatternFill|acgraph.vector.HatchFill|Function|acgraph.vector.HatchFill.HatchFillType|
+ * string|boolean)=} opt_patternFillOrTypeOrState PatternFill or HatchFill instance or type or state of hatch fill.
+ * @param {string=} opt_color Color.
+ * @param {number=} opt_thickness Thickness.
+ * @param {number=} opt_size Pattern size.
+ * @return {acgraph.vector.PatternFill|acgraph.vector.HatchFill|anychart.charts.HeatMap|Function|boolean} Hatch fill.
+ */
+anychart.charts.HeatMap.prototype.selectHatchFill = function(opt_patternFillOrTypeOrState, opt_color, opt_thickness, opt_size) {
+  if (goog.isDef(opt_patternFillOrTypeOrState)) {
+    this.series_.selectHatchFill(opt_patternFillOrTypeOrState, opt_color, opt_thickness, opt_size);
+    return this;
+  }
+  return this.series_.selectHatchFill();
+};
+
+
+/**
+ * Getter/setter for current series data labels.
+ * @param {(Object|boolean|null)=} opt_value Series data labels settings.
+ * @return {!(anychart.core.ui.LabelsFactory|anychart.charts.HeatMap)} Labels instance or itself for chaining call.
+ */
+anychart.charts.HeatMap.prototype.labels = function(opt_value) {
+  if (goog.isDef(opt_value)) {
+    this.series_.labels(opt_value);
+    return this;
+  }
+  return this.series_.labels();
+};
+
+
+/**
+ * Gets or sets series hover data labels.
+ * @param {(Object|boolean|null)=} opt_value Series data labels settings.
+ * @return {!(anychart.core.ui.LabelsFactory|anychart.charts.HeatMap)} Labels instance or itself for chaining call.
+ */
+anychart.charts.HeatMap.prototype.hoverLabels = function(opt_value) {
+  if (goog.isDef(opt_value)) {
+    this.series_.hoverLabels(opt_value);
+    return this;
+  }
+  return this.series_.hoverLabels();
+};
+
+
+/**
+ * Gets or sets series select data labels.
+ * @param {(Object|boolean|null)=} opt_value Series data labels settings.
+ * @return {!(anychart.core.ui.LabelsFactory|anychart.charts.HeatMap)} Labels instance or itself for chaining call.
+ */
+anychart.charts.HeatMap.prototype.selectLabels = function(opt_value) {
+  if (goog.isDef(opt_value)) {
+    this.series_.selectLabels(opt_value);
+    return this;
+  }
+  return this.series_.selectLabels();
+};
+
+
+/**
+ * Getter/setter for current series markers.
+ * @param {(Object|boolean|null)=} opt_value Series data labels settings.
+ * @return {!(anychart.core.ui.MarkersFactory|anychart.charts.HeatMap)} Marker instance or itself for chaining call.
+ */
+anychart.charts.HeatMap.prototype.markers = function(opt_value) {
+  if (goog.isDef(opt_value)) {
+    this.series_.markers(opt_value);
+    return this;
+  }
+  return this.series_.markers();
+};
+
+
+/**
+ * Gets or sets series hover markers.
+ * @param {(Object|boolean|null)=} opt_value Series data labels settings.
+ * @return {!(anychart.core.ui.MarkersFactory|anychart.charts.HeatMap)} Marker instance or itself for chaining call.
+ */
+anychart.charts.HeatMap.prototype.hoverMarkers = function(opt_value) {
+  if (goog.isDef(opt_value)) {
+    this.series_.hoverMarkers(opt_value);
+    return this;
+  }
+  return this.series_.hoverMarkers();
+};
+
+
+/**
+ * Gets or sets series select markers.
+ * @param {(Object|boolean|null)=} opt_value Series data labels settings.
+ * @return {!(anychart.core.ui.MarkersFactory|anychart.charts.HeatMap)} Marker instance or itself for chaining call.
+ */
+anychart.charts.HeatMap.prototype.selectMarkers = function(opt_value) {
+  if (goog.isDef(opt_value)) {
+    this.series_.selectMarkers(opt_value);
+    return this;
+  }
+  return this.series_.selectMarkers();
+};
+
+
+/**
+ * Getter/setter for mapping.
+ * @param {?(anychart.data.View|anychart.data.Set|Array|string)=} opt_value Value to set.
+ * @param {Object.<string, (string|boolean)>=} opt_csvSettings If CSV string is passed, you can pass CSV parser settings here as a hash map.
+ * @return {(!anychart.charts.HeatMap|!anychart.data.View)} Returns itself if used as a setter or the mapping if used as a getter.
+ */
+anychart.charts.HeatMap.prototype.data = function(opt_value, opt_csvSettings) {
+  if (goog.isDef(opt_value)) {
+    this.series_.data(opt_value, opt_csvSettings);
+    return this;
+  }
+  return this.series_.data();
+};
+
+
+/**
+ * Returns current mapping iterator.
+ * @return {!anychart.data.Iterator} Current series iterator.
+ */
+anychart.charts.HeatMap.prototype.getIterator = function() {
+  return this.series_.getIterator();
+};
+
+
+/**
+ * If index is passed, hovers a point by its index, else hovers all points.
+ * @param {(number|Array<number>)=} opt_indexOrIndexes Point index or array of indexes.
+ * @return {!anychart.charts.HeatMap} instance for method chaining.
+ */
+anychart.charts.HeatMap.prototype.hover = function(opt_indexOrIndexes) {
+  this.series_.hover(opt_indexOrIndexes);
+  return this;
+};
+
+
+/**
+ * Imitates selects a point by its index.
+ * @param {(number|Array.<number>)=} opt_indexOrIndexes Index or array of indexes of the point to select.
+ * @return {!anychart.charts.HeatMap} instance for method chaining.
+ */
+anychart.charts.HeatMap.prototype.select = function(opt_indexOrIndexes) {
+  this.series_.select(opt_indexOrIndexes);
+  return this;
+};
+
+
+//----------------------------------------------------------------------------------------------------------------------
+//
 //  Setup
 //
 //----------------------------------------------------------------------------------------------------------------------
@@ -1924,8 +2231,9 @@ anychart.charts.HeatMap.prototype.setupByJSON = function(config) {
     if (!scale)
       scale = scalesInstances[json];
   } else if (goog.isObject(json)) {
-    scale = anychart.scales.Base.fromString(json['type'], false);
-    scale.setup(json);
+    scale = anychart.scales.Base.fromString(json['type'], null);
+    if (scale)
+      scale.setup(json);
   } else {
     scale = null;
   }
@@ -2293,312 +2601,6 @@ anychart.charts.HeatMap.prototype.labelsDisplayMode = function(opt_value) {
     return this;
   }
   return this.labelDisplayMode_;
-};
-
-
-//----------------------------------------------------------------------------------------------------------------------
-//
-//  Overwritten series methods. (for encapsulation series)
-//
-//----------------------------------------------------------------------------------------------------------------------
-/**
- * Getter/setter for current fill color.
- * @param {(!acgraph.vector.Fill|!Array.<(acgraph.vector.GradientKey|string)>|Function|null)=} opt_fillOrColorOrKeys .
- * @param {number=} opt_opacityOrAngleOrCx .
- * @param {(number|boolean|!anychart.math.Rect|!{left:number,top:number,width:number,height:number})=} opt_modeOrCy .
- * @param {(number|!anychart.math.Rect|!{left:number,top:number,width:number,height:number}|null)=} opt_opacityOrMode .
- * @param {number=} opt_opacity .
- * @param {number=} opt_fx .
- * @param {number=} opt_fy .
- * @return {acgraph.vector.Fill|anychart.charts.HeatMap|Function} .
- */
-anychart.charts.HeatMap.prototype.fill = function(opt_fillOrColorOrKeys, opt_opacityOrAngleOrCx, opt_modeOrCy, opt_opacityOrMode, opt_opacity, opt_fx, opt_fy) {
-  if (goog.isDef(opt_fillOrColorOrKeys)) {
-    this.series_.fill(opt_fillOrColorOrKeys, opt_opacityOrAngleOrCx, opt_modeOrCy, opt_opacityOrMode, opt_opacity, opt_fx, opt_fy);
-    return this;
-  }
-  return this.series_.fill();
-};
-
-
-/**
- * Getter/setter for current hover fill color.
- * @param {(!acgraph.vector.Fill|!Array.<(acgraph.vector.GradientKey|string)>|Function|null)=} opt_fillOrColorOrKeys .
- * @param {number=} opt_opacityOrAngleOrCx .
- * @param {(number|boolean|!anychart.math.Rect|!{left:number,top:number,width:number,height:number})=} opt_modeOrCy .
- * @param {(number|!anychart.math.Rect|!{left:number,top:number,width:number,height:number}|null)=} opt_opacityOrMode .
- * @param {number=} opt_opacity .
- * @param {number=} opt_fx .
- * @param {number=} opt_fy .
- * @return {acgraph.vector.Fill|anychart.charts.HeatMap|Function} .
- */
-anychart.charts.HeatMap.prototype.hoverFill = function(opt_fillOrColorOrKeys, opt_opacityOrAngleOrCx, opt_modeOrCy, opt_opacityOrMode, opt_opacity, opt_fx, opt_fy) {
-  if (goog.isDef(opt_fillOrColorOrKeys)) {
-    this.series_.hoverFill(opt_fillOrColorOrKeys, opt_opacityOrAngleOrCx, opt_modeOrCy, opt_opacityOrMode, opt_opacity, opt_fx, opt_fy);
-    return this;
-  }
-  return this.series_.hoverFill();
-};
-
-
-/**
- * Getter/setter for current select fill color.
- * @param {(!acgraph.vector.Fill|!Array.<(acgraph.vector.GradientKey|string)>|Function|null)=} opt_fillOrColorOrKeys .
- * @param {number=} opt_opacityOrAngleOrCx .
- * @param {(number|boolean|!anychart.math.Rect|!{left:number,top:number,width:number,height:number})=} opt_modeOrCy .
- * @param {(number|!anychart.math.Rect|!{left:number,top:number,width:number,height:number}|null)=} opt_opacityOrMode .
- * @param {number=} opt_opacity .
- * @param {number=} opt_fx .
- * @param {number=} opt_fy .
- * @return {acgraph.vector.Fill|anychart.charts.HeatMap|Function} .
- */
-anychart.charts.HeatMap.prototype.selectFill = function(opt_fillOrColorOrKeys, opt_opacityOrAngleOrCx, opt_modeOrCy, opt_opacityOrMode, opt_opacity, opt_fx, opt_fy) {
-  if (goog.isDef(opt_fillOrColorOrKeys)) {
-    this.series_.selectFill(opt_fillOrColorOrKeys, opt_opacityOrAngleOrCx, opt_modeOrCy, opt_opacityOrMode, opt_opacity, opt_fx, opt_fy);
-    return this;
-  }
-  return this.series_.selectFill();
-};
-
-
-/**
- * Getter/setter for current stroke settings.
- * @param {(acgraph.vector.Stroke|acgraph.vector.ColoredFill|string|Function|null)=} opt_strokeOrFill Fill settings
- *    or stroke settings.
- * @param {number=} opt_thickness [1] Line thickness.
- * @param {string=} opt_dashpattern Controls the pattern of dashes and gaps used to stroke paths.
- * @param {acgraph.vector.StrokeLineJoin=} opt_lineJoin Line joint style.
- * @param {acgraph.vector.StrokeLineCap=} opt_lineCap Line cap style.
- * @return {anychart.charts.HeatMap|acgraph.vector.Stroke|Function} .
- */
-anychart.charts.HeatMap.prototype.stroke = function(opt_strokeOrFill, opt_thickness, opt_dashpattern, opt_lineJoin, opt_lineCap) {
-  if (goog.isDef(opt_strokeOrFill)) {
-    this.series_.stroke(opt_strokeOrFill, opt_thickness, opt_dashpattern, opt_lineJoin, opt_lineCap);
-    return this;
-  }
-  return this.series_.stroke();
-};
-
-
-/**
- * Getter/setter for current hover stroke settings.
- * @param {(acgraph.vector.Stroke|acgraph.vector.ColoredFill|string|Function|null)=} opt_strokeOrFill Fill settings
- *    or stroke settings.
- * @param {number=} opt_thickness [1] Line thickness.
- * @param {string=} opt_dashpattern Controls the pattern of dashes and gaps used to stroke paths.
- * @param {acgraph.vector.StrokeLineJoin=} opt_lineJoin Line joint style.
- * @param {acgraph.vector.StrokeLineCap=} opt_lineCap Line cap style.
- * @return {anychart.charts.HeatMap|acgraph.vector.Stroke|Function} .
- */
-anychart.charts.HeatMap.prototype.hoverStroke = function(opt_strokeOrFill, opt_thickness, opt_dashpattern, opt_lineJoin, opt_lineCap) {
-  if (goog.isDef(opt_strokeOrFill)) {
-    this.series_.hoverStroke(opt_strokeOrFill, opt_thickness, opt_dashpattern, opt_lineJoin, opt_lineCap);
-    return this;
-  }
-  return this.series_.hoverStroke();
-};
-
-
-/**
- * Getter/setter for current select stroke settings.
- * @param {(acgraph.vector.Stroke|acgraph.vector.ColoredFill|string|Function|null)=} opt_strokeOrFill Fill settings
- *    or stroke settings.
- * @param {number=} opt_thickness [1] Line thickness.
- * @param {string=} opt_dashpattern Controls the pattern of dashes and gaps used to stroke paths.
- * @param {acgraph.vector.StrokeLineJoin=} opt_lineJoin Line joint style.
- * @param {acgraph.vector.StrokeLineCap=} opt_lineCap Line cap style.
- * @return {anychart.charts.HeatMap|acgraph.vector.Stroke|Function} .
- */
-anychart.charts.HeatMap.prototype.selectStroke = function(opt_strokeOrFill, opt_thickness, opt_dashpattern, opt_lineJoin, opt_lineCap) {
-  if (goog.isDef(opt_strokeOrFill)) {
-    this.series_.selectStroke(opt_strokeOrFill, opt_thickness, opt_dashpattern, opt_lineJoin, opt_lineCap);
-    return this;
-  }
-  return this.series_.selectStroke();
-};
-
-
-/**
- * Getter/setter for current hatch fill settings.
- * @param {(acgraph.vector.PatternFill|acgraph.vector.HatchFill|Function|acgraph.vector.HatchFill.HatchFillType|
- * string|boolean)=} opt_patternFillOrTypeOrState PatternFill or HatchFill instance or type or state of hatch fill.
- * @param {string=} opt_color Color.
- * @param {number=} opt_thickness Thickness.
- * @param {number=} opt_size Pattern size.
- * @return {acgraph.vector.PatternFill|acgraph.vector.HatchFill|anychart.charts.HeatMap|Function|boolean} Hatch fill.
- */
-anychart.charts.HeatMap.prototype.hatchFill = function(opt_patternFillOrTypeOrState, opt_color, opt_thickness, opt_size) {
-  if (goog.isDef(opt_patternFillOrTypeOrState)) {
-    this.series_.hatchFill(opt_patternFillOrTypeOrState, opt_color, opt_thickness, opt_size);
-    return this;
-  }
-  return this.series_.hatchFill();
-};
-
-
-/**
- * Getter/setter for current hover hatch fill settings.
- * @param {(acgraph.vector.PatternFill|acgraph.vector.HatchFill|Function|acgraph.vector.HatchFill.HatchFillType|
- * string|boolean)=} opt_patternFillOrTypeOrState PatternFill or HatchFill instance or type or state of hatch fill.
- * @param {string=} opt_color Color.
- * @param {number=} opt_thickness Thickness.
- * @param {number=} opt_size Pattern size.
- * @return {acgraph.vector.PatternFill|acgraph.vector.HatchFill|anychart.charts.HeatMap|Function|boolean} Hatch fill.
- */
-anychart.charts.HeatMap.prototype.hoverHatchFill = function(opt_patternFillOrTypeOrState, opt_color, opt_thickness, opt_size) {
-  if (goog.isDef(opt_patternFillOrTypeOrState)) {
-    this.series_.hoverHatchFill(opt_patternFillOrTypeOrState, opt_color, opt_thickness, opt_size);
-    return this;
-  }
-  return this.series_.hoverHatchFill();
-};
-
-
-/**
- * Getter/setter for selected hatch fill settings.
- * @param {(acgraph.vector.PatternFill|acgraph.vector.HatchFill|Function|acgraph.vector.HatchFill.HatchFillType|
- * string|boolean)=} opt_patternFillOrTypeOrState PatternFill or HatchFill instance or type or state of hatch fill.
- * @param {string=} opt_color Color.
- * @param {number=} opt_thickness Thickness.
- * @param {number=} opt_size Pattern size.
- * @return {acgraph.vector.PatternFill|acgraph.vector.HatchFill|anychart.charts.HeatMap|Function|boolean} Hatch fill.
- */
-anychart.charts.HeatMap.prototype.selectHatchFill = function(opt_patternFillOrTypeOrState, opt_color, opt_thickness, opt_size) {
-  if (goog.isDef(opt_patternFillOrTypeOrState)) {
-    this.series_.selectHatchFill(opt_patternFillOrTypeOrState, opt_color, opt_thickness, opt_size);
-    return this;
-  }
-  return this.series_.selectHatchFill();
-};
-
-
-/**
- * Getter/setter for current series data labels.
- * @param {(Object|boolean|null)=} opt_value Series data labels settings.
- * @return {!(anychart.core.ui.LabelsFactory|anychart.charts.HeatMap)} Labels instance or itself for chaining call.
- */
-anychart.charts.HeatMap.prototype.labels = function(opt_value) {
-  if (goog.isDef(opt_value)) {
-    this.series_.labels(opt_value);
-    return this;
-  }
-  return this.series_.labels();
-};
-
-
-/**
- * Gets or sets series hover data labels.
- * @param {(Object|boolean|null)=} opt_value Series data labels settings.
- * @return {!(anychart.core.ui.LabelsFactory|anychart.charts.HeatMap)} Labels instance or itself for chaining call.
- */
-anychart.charts.HeatMap.prototype.hoverLabels = function(opt_value) {
-  if (goog.isDef(opt_value)) {
-    this.series_.hoverLabels(opt_value);
-    return this;
-  }
-  return this.series_.hoverLabels();
-};
-
-
-/**
- * Gets or sets series select data labels.
- * @param {(Object|boolean|null)=} opt_value Series data labels settings.
- * @return {!(anychart.core.ui.LabelsFactory|anychart.charts.HeatMap)} Labels instance or itself for chaining call.
- */
-anychart.charts.HeatMap.prototype.selectLabels = function(opt_value) {
-  if (goog.isDef(opt_value)) {
-    this.series_.selectLabels(opt_value);
-    return this;
-  }
-  return this.series_.selectLabels();
-};
-
-
-/**
- * Getter/setter for current series markers.
- * @param {(Object|boolean|null)=} opt_value Series data labels settings.
- * @return {!(anychart.core.ui.MarkersFactory|anychart.charts.HeatMap)} Marker instance or itself for chaining call.
- */
-anychart.charts.HeatMap.prototype.markers = function(opt_value) {
-  if (goog.isDef(opt_value)) {
-    this.series_.markers(opt_value);
-    return this;
-  }
-  return this.series_.markers();
-};
-
-
-/**
- * Gets or sets series hover markers.
- * @param {(Object|boolean|null)=} opt_value Series data labels settings.
- * @return {!(anychart.core.ui.MarkersFactory|anychart.charts.HeatMap)} Marker instance or itself for chaining call.
- */
-anychart.charts.HeatMap.prototype.hoverMarkers = function(opt_value) {
-  if (goog.isDef(opt_value)) {
-    this.series_.hoverMarkers(opt_value);
-    return this;
-  }
-  return this.series_.hoverMarkers();
-};
-
-
-/**
- * Gets or sets series select markers.
- * @param {(Object|boolean|null)=} opt_value Series data labels settings.
- * @return {!(anychart.core.ui.MarkersFactory|anychart.charts.HeatMap)} Marker instance or itself for chaining call.
- */
-anychart.charts.HeatMap.prototype.selectMarkers = function(opt_value) {
-  if (goog.isDef(opt_value)) {
-    this.series_.selectMarkers(opt_value);
-    return this;
-  }
-  return this.series_.selectMarkers();
-};
-
-
-/**
- * Getter/setter for mapping.
- * @param {?(anychart.data.View|anychart.data.Set|Array|string)=} opt_value Value to set.
- * @param {Object.<string, (string|boolean)>=} opt_csvSettings If CSV string is passed, you can pass CSV parser settings here as a hash map.
- * @return {(!anychart.charts.HeatMap|!anychart.data.View)} Returns itself if used as a setter or the mapping if used as a getter.
- */
-anychart.charts.HeatMap.prototype.data = function(opt_value, opt_csvSettings) {
-  if (goog.isDef(opt_value)) {
-    this.series_.data(opt_value, opt_csvSettings);
-    return this;
-  }
-  return this.series_.data();
-};
-
-
-/**
- * Returns current mapping iterator.
- * @return {!anychart.data.Iterator} Current series iterator.
- */
-anychart.charts.HeatMap.prototype.getIterator = function() {
-  return this.series_.getIterator();
-};
-
-
-/**
- * If index is passed, hovers a point by its index, else hovers all points.
- * @param {(number|Array<number>)=} opt_indexOrIndexes Point index or array of indexes.
- * @return {!anychart.charts.HeatMap} instance for method chaining.
- */
-anychart.charts.HeatMap.prototype.hover = function(opt_indexOrIndexes) {
-  this.series_.hover(opt_indexOrIndexes);
-  return this;
-};
-
-
-/**
- * Imitates selects a point by its index.
- * @param {(number|Array.<number>)=} opt_indexOrIndexes Index or array of indexes of the point to select.
- * @return {!anychart.charts.HeatMap} instance for method chaining.
- */
-anychart.charts.HeatMap.prototype.select = function(opt_indexOrIndexes) {
-  this.series_.select(opt_indexOrIndexes);
-  return this;
 };
 
 

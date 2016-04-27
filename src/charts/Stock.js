@@ -1,7 +1,9 @@
 goog.provide('anychart.charts.Stock');
 goog.require('anychart.core.ChartWithCredits');
 goog.require('anychart.core.IChart');
+goog.require('anychart.core.IGroupingProvider');
 goog.require('anychart.core.stock.Controller');
+goog.require('anychart.core.stock.IKeyIndexTransformer');
 goog.require('anychart.core.stock.Plot');
 goog.require('anychart.core.stock.Scroller');
 goog.require('anychart.core.ui.ChartTooltip');
@@ -17,6 +19,8 @@ goog.require('anychart.utils');
  * @constructor
  * @extends {anychart.core.ChartWithCredits}
  * @implements {anychart.core.IChart}
+ * @implements {anychart.core.IGroupingProvider}
+ * @implements {anychart.core.stock.IKeyIndexTransformer}
  */
 anychart.charts.Stock = function() {
   // See SeparateChart
@@ -40,7 +44,7 @@ anychart.charts.Stock = function() {
 
   /**
    * Stock data controller.
-   * @type {anychart.core.stock.Controller}
+   * @type {!anychart.core.stock.Controller}
    * @private
    */
   this.dataController_ = new anychart.core.stock.Controller();
@@ -87,6 +91,13 @@ anychart.charts.Stock = function() {
    * @private
    */
   this.highlightedClientY_ = NaN;
+
+  /**
+   * Minimum plot width.
+   * @type {number}
+   * @private
+   */
+  this.minPlotsDrawingWidth_ = NaN;
 };
 goog.inherits(anychart.charts.Stock, anychart.core.ChartWithCredits);
 
@@ -107,8 +118,19 @@ anychart.charts.Stock.prototype.SUPPORTED_CONSISTENCY_STATES =
     anychart.ConsistencyState.STOCK_PLOTS_APPEARANCE |
     anychart.ConsistencyState.STOCK_SCROLLER |
     anychart.ConsistencyState.STOCK_DATA |
-    anychart.ConsistencyState.STOCK_SCALES |
-    anychart.ConsistencyState.STOCK_FULL_RANGE_PARAMS;
+    anychart.ConsistencyState.STOCK_SCALES;
+
+
+//region Chart type and series types
+//----------------------------------------------------------------------------------------------------------------------
+//
+//  Chart type and series types
+//
+//----------------------------------------------------------------------------------------------------------------------
+/** @inheritDoc */
+anychart.charts.Stock.prototype.getType = function() {
+  return anychart.enums.ChartTypes.STOCK;
+};
 
 
 /**
@@ -319,12 +341,6 @@ anychart.charts.Stock.prototype.seriesConfig = (function() {
 
 
 /** @inheritDoc */
-anychart.charts.Stock.prototype.getType = function() {
-  return anychart.enums.ChartTypes.STOCK;
-};
-
-
-/** @inheritDoc */
 anychart.charts.Stock.prototype.getVersionHistoryLink = function() {
   return 'http://anychart.com/products/anystock/history';
 };
@@ -360,6 +376,20 @@ anychart.charts.Stock.prototype.getConfigByType = function(type) {
   }
   return res;
 };
+//endregion
+
+
+//region Public getter/setters and methods
+//----------------------------------------------------------------------------------------------------------------------
+//
+//  Public getter/setters and methods
+//
+//----------------------------------------------------------------------------------------------------------------------
+/**
+ * @inheritDoc
+ * TODO (A.Kudryavtsev): statistics calculations TBA.
+ */
+anychart.charts.Stock.prototype.calculate = goog.nullFunction;
 
 
 /**
@@ -371,20 +401,6 @@ anychart.charts.Stock.prototype.getConfigByType = function(type) {
 anychart.charts.Stock.prototype.legend = function(opt_value) {
   anychart.utils.error(anychart.enums.ErrorCode.NO_LEGEND_IN_STOCK);
   return goog.isDef(opt_value) ? this : null;
-};
-
-
-/**
- * Setter for plot default settings.
- * @param {Object} value Object with default series settings.
- */
-anychart.charts.Stock.prototype.setDefaultPlotSettings = function(value) {
-  /**
-   * Default plot settings.
-   * @type {*}
-   * @private
-   */
-  this.defaultPlotSettings_ = value;
 };
 
 
@@ -440,8 +456,7 @@ anychart.charts.Stock.prototype.scroller = function(opt_value) {
     this.eventsHandler.listen(this.scroller_, anychart.enums.EventType.SCROLLER_CHANGE_FINISH, this.scrollerChangeFinishHandler_);
     this.invalidate(
         anychart.ConsistencyState.STOCK_SCROLLER |
-        anychart.ConsistencyState.BOUNDS |
-        anychart.ConsistencyState.STOCK_FULL_RANGE_PARAMS,
+        anychart.ConsistencyState.BOUNDS,
         anychart.Signal.NEEDS_REDRAW);
   }
 
@@ -461,8 +476,90 @@ anychart.charts.Stock.prototype.scroller = function(opt_value) {
  * @return {anychart.charts.Stock}
  */
 anychart.charts.Stock.prototype.selectRange = function(start, end) {
-  this.selectRangeInternal(anychart.utils.normalizeTimestamp(start), anychart.utils.normalizeTimestamp(end));
+  this.selectRangeInternal_(anychart.utils.normalizeTimestamp(start), anychart.utils.normalizeTimestamp(end));
   return this;
+};
+
+
+/**
+ * Stock chart X scale getter and setter. It is a misconfiguration if you use it as a setter with anything but a string.
+ * We can consider a warning for that.
+ * @param {string=} opt_value
+ * @return {anychart.scales.StockScatterDateTime|anychart.charts.Stock}
+ */
+anychart.charts.Stock.prototype.xScale = function(opt_value) {
+  if (goog.isDef(opt_value)) {
+    var askedForScatter = anychart.scales.StockScatterDateTime.askedForScatter(opt_value);
+    var currIsScatter = this.xScale_ && !(this.xScale_ instanceof anychart.scales.StockOrdinalDateTime);
+    if (askedForScatter != currIsScatter) {
+      if (askedForScatter) {
+        this.xScale_ = new anychart.scales.StockScatterDateTime(this);
+        if (this.scroller_)
+          this.scroller_.xScale(new anychart.scales.StockScatterDateTime(this.scroller_));
+      } else {
+        this.xScale_ = new anychart.scales.StockOrdinalDateTime(this);
+        if (this.scroller_)
+          this.scroller_.xScale(new anychart.scales.StockOrdinalDateTime(this.scroller_));
+      }
+
+      this.invalidate(anychart.ConsistencyState.STOCK_SCROLLER);
+      this.invalidateRedrawable();
+    }
+    return this;
+  }
+  if (!this.xScale_) {
+    this.xScale_ = new anychart.scales.StockOrdinalDateTime(this);
+  }
+  return this.xScale_;
+};
+
+
+/**
+ * Grouping settings object getter/setter.
+ * @param {(boolean|Array.<string|anychart.core.stock.Grouping.Level>|Object)=} opt_value
+ * @return {anychart.charts.Stock|anychart.core.stock.Grouping}
+ */
+anychart.charts.Stock.prototype.grouping = function(opt_value) {
+  if (goog.isDef(opt_value)) {
+    this.dataController_.grouping(opt_value);
+    return this;
+  }
+  return /** @type {anychart.core.stock.Grouping} */(this.dataController_.grouping());
+};
+
+
+/**
+ * Scroller grouping settings object getter/setter.
+ * @param {(boolean|Array.<string|anychart.core.stock.Grouping.Level>|Object)=} opt_value
+ * @return {anychart.charts.Stock|anychart.core.stock.Grouping}
+ */
+anychart.charts.Stock.prototype.scrollerGrouping = function(opt_value) {
+  if (goog.isDef(opt_value)) {
+    this.dataController_.scrollerGrouping(opt_value);
+    return this;
+  }
+  return /** @type {anychart.core.stock.Grouping} */(this.dataController_.scrollerGrouping());
+};
+//endregion
+
+
+//region Infrastructure methods
+//----------------------------------------------------------------------------------------------------------------------
+//
+//  Infrastructure methods
+//
+//----------------------------------------------------------------------------------------------------------------------
+/**
+ * Setter for plot default settings.
+ * @param {Object} value Object with default series settings.
+ */
+anychart.charts.Stock.prototype.setDefaultPlotSettings = function(value) {
+  /**
+   * Default plot settings.
+   * @type {*}
+   * @private
+   */
+  this.defaultPlotSettings_ = value;
 };
 
 
@@ -470,83 +567,126 @@ anychart.charts.Stock.prototype.selectRange = function(start, end) {
  * Internal function to select a range.
  * @param {number} start
  * @param {number} end
- * @param {boolean=} opt_forceUpdate
+ * @private
  */
-anychart.charts.Stock.prototype.selectRangeInternal = function(start, end, opt_forceUpdate) {
-  if (this.dataController_.select(start, end, opt_forceUpdate) || opt_forceUpdate) {
-    this.xScale().setCurrentRange(
-        this.dataController_.getFirstSelectedKey(),
-        this.dataController_.getLastSelectedKey(),
-        this.dataController_.getFirstSelectedIndex(),
-        this.dataController_.getLastSelectedIndex(),
-        this.dataController_.getCurrentGroupingIntervalUnit(),
-        this.dataController_.getCurrentGroupingIntervalCount());
+anychart.charts.Stock.prototype.selectRangeInternal_ = function(start, end) {
+  if (this.dataController_.select(start, end)) {
+    this.dataController_.updateCurrentRangeForScale(/** @type {!anychart.scales.StockScatterDateTime} */(this.xScale()), false);
     this.invalidateRedrawable();
   }
 };
 
 
+/**
+ * Dispatches range change event. If opt_first and opt_last are passed, includes only first/last Selected into the event
+ * (usable for pre- events). Otherwise includes all info from data controller.
+ * @param {anychart.enums.EventType} type
+ * @param {anychart.enums.StockRangeChangeSource} source
+ * @param {number=} opt_first
+ * @param {number=} opt_last
+ * @return {boolean}
+ * @private
+ */
+anychart.charts.Stock.prototype.dispatchRangeChange_ = function(type, source, opt_first, opt_last) {
+  if (goog.isDef(opt_first)) {
+    return this.dispatchEvent({
+      'type': type,
+      'source': source,
+      'firstSelected': opt_first,
+      'lastSelected': opt_last
+    });
+  } else {
+    var grouping = /** @type {anychart.core.stock.Grouping} */(this.grouping());
+    return this.dispatchEvent({
+      'type': type,
+      'source': source,
+      'firstSelected': this.dataController_.getFirstSelectedKey(),
+      'lastSelected': this.dataController_.getLastSelectedKey(),
+      'firstVisible': this.dataController_.getFirstVisibleKey(),
+      'lastVisible': this.dataController_.getLastVisibleKey(),
+      'dataIntervalUnit': grouping.getCurrentDataInterval().unit,
+      'dataIntervalUnitCount': grouping.getCurrentDataInterval().count,
+      'dataIsGrouped': grouping.isGrouped()
+    });
+  }
+};
+
+
+/** @inheritDoc */
+anychart.charts.Stock.prototype.resizeHandler = function(e) {
+  if (this.bounds().dependsOnContainerSize()) {
+    this.invalidate(anychart.ConsistencyState.BOUNDS,
+        anychart.Signal.NEEDS_REDRAW | anychart.Signal.BOUNDS_CHANGED);
+  }
+};
+
+
+/** @inheritDoc */
+anychart.charts.Stock.prototype.createTooltip = function() {
+  var tooltip = new anychart.core.ui.ChartTooltip();
+  this.registerDisposable(tooltip);
+  tooltip.chart(this);
+
+  return tooltip;
+};
+
+
+/**
+ * Returns current selection min distance (from selectable sources).
+ * @return {number}
+ */
+anychart.charts.Stock.prototype.getCurrentMinDistance = function() {
+  return this.dataController_.getCurrentMinDistance();
+};
+
+
+/**
+ * Returns current selection min distance (from scroller sources).
+ * @return {number}
+ */
+anychart.charts.Stock.prototype.getCurrentScrollerMinDistance = function() {
+  return this.dataController_.getCurrentScrollerMinDistance();
+};
+//endregion
+
+
+//region Drawing
+//----------------------------------------------------------------------------------------------------------------------
+//
+//  Drawing
+//
+//----------------------------------------------------------------------------------------------------------------------
 /** @inheritDoc */
 anychart.charts.Stock.prototype.drawContent = function(bounds) {
-  anychart.core.Base.suspendSignalsDispatching(this.plots_, this.scroller_);
-
-  var i, plot;
-
+  // anychart.core.Base.suspendSignalsDispatching(this.plots_, this.scroller_);
   if (this.hasInvalidationState(anychart.ConsistencyState.BOUNDS)) {
     this.distributeBounds_(bounds);
-    this.invalidate(anychart.ConsistencyState.STOCK_PLOTS_APPEARANCE |
-        anychart.ConsistencyState.STOCK_SCROLLER);
+    this.invalidate(anychart.ConsistencyState.STOCK_DATA);
     // we do not mark BOUNDS consistent, since the chart becomes unresizable in that case
     //this.markConsistent(anychart.ConsistencyState.BOUNDS);
-    this.invalidate(anychart.ConsistencyState.STOCK_FULL_RANGE_PARAMS);
   }
 
+  // means that stock selection range needs to be updated
   if (this.hasInvalidationState(anychart.ConsistencyState.STOCK_DATA)) {
-    var veryFirst = this.dataController_.getFirstKey();
-    var veryLast = this.dataController_.getLastKey();
-    this.xScale().setAutoFullRange(
-        veryFirst,
-        veryLast,
-        this.dataController_.getFirstIndex(),
-        this.dataController_.getLastIndex());
-    var first = this.dataController_.getFirstSelectedKey();
-    if (isNaN(first) || this.dataController_.currentSelectionSticksLeft())
-      first = veryFirst;
-    first = goog.math.clamp(first, veryFirst, veryLast);
-    var last = this.dataController_.getLastSelectedKey();
-    if (isNaN(last) || this.dataController_.currentSelectionSticksRight())
-      last = veryLast;
-    last = goog.math.clamp(last, veryFirst, veryLast);
-
-    this.invalidate(anychart.ConsistencyState.STOCK_FULL_RANGE_PARAMS);
-    this.selectRangeInternal(first, last, true);
-
-    this.markConsistent(anychart.ConsistencyState.STOCK_DATA);
-
-    this.dispatchRangeChange_(
-        anychart.enums.EventType.SELECTED_RANGE_CHANGE,
-        anychart.enums.StockRangeChangeSource.DATA_CHANGE);
-  }
-
-  if (this.hasInvalidationState(anychart.ConsistencyState.STOCK_FULL_RANGE_PARAMS)) {
-    if (this.scroller_) {
-      this.dataController_.refreshFullRangeSources(this.scroller_.getPixelBounds().width);
-      var scale = this.scroller_.xScale();
-      scale.setAutoFullRange(
-          this.dataController_.getFirstKey(),
-          this.dataController_.getLastKey(),
-          this.dataController_.getFirstIndex(),
-          this.dataController_.getLastIndex());
-      scale.setCurrentRange(
-          this.dataController_.getFirstKey(),
-          this.dataController_.getLastKey(),
-          this.dataController_.getFirstFullRangeIndex(),
-          this.dataController_.getLastFullRangeIndex(),
-          this.dataController_.getFullRangeGroupingIntervalUnit(),
-          this.dataController_.getFullRangeGroupingIntervalCount());
-      this.scroller_.invalidateScaleDependend();
+    var xScale = /** @type {anychart.scales.StockScatterDateTime} */(this.xScale());
+    var scrollerXScale = /** @type {anychart.scales.StockScatterDateTime} */(this.scroller().xScale());
+    var changed = this.dataController_.refreshSelection(this.minPlotsDrawingWidth_);
+    var firstKey = this.dataController_.getFirstKey();
+    var lastKey = this.dataController_.getLastKey();
+    var firstIndex = this.dataController_.getFirstIndex();
+    var lastIndex = this.dataController_.getLastIndex();
+    xScale.setAutoFullRange(firstKey, lastKey, firstIndex, lastIndex);
+    scrollerXScale.setAutoFullRange(firstKey, lastKey, firstIndex, lastIndex);
+    if (!!(changed & 1)) {
+      this.dataController_.updateCurrentRangeForScale(xScale, false);
+      this.invalidateRedrawable();
     }
-    this.markConsistent(anychart.ConsistencyState.STOCK_FULL_RANGE_PARAMS);
+    if (!!(changed & 2)) {
+      this.dataController_.updateCurrentRangeForScale(scrollerXScale, true);
+      this.scroller_.invalidateScaleDependend();
+      this.invalidate(anychart.ConsistencyState.STOCK_SCROLLER);
+    }
+    this.markConsistent(anychart.ConsistencyState.STOCK_DATA);
   }
 
   if (this.hasInvalidationState(anychart.ConsistencyState.STOCK_SCALES)) {
@@ -555,22 +695,23 @@ anychart.charts.Stock.prototype.drawContent = function(bounds) {
   }
 
   if (this.hasInvalidationState(anychart.ConsistencyState.STOCK_SCROLLER)) {
-    if (this.scroller_) {
-      this.scroller_.setRangeByValues(
-          this.dataController_.getFirstSelectedKey(),
-          this.dataController_.getLastSelectedKey());
-      this.scroller_.container(this.rootElement);
-      this.scroller_.draw();
-    }
+    // we created scroller at least at STOCK_DATA this.scroller().xScale() call
+    this.scroller()
+        .setRangeByValues(
+            this.dataController_.getFirstSelectedKey(),
+            this.dataController_.getLastSelectedKey())
+        .container(this.rootElement)
+        .draw();
     this.markConsistent(anychart.ConsistencyState.STOCK_SCROLLER);
   }
 
   if (this.hasInvalidationState(anychart.ConsistencyState.STOCK_PLOTS_APPEARANCE)) {
-    for (i = 0; i < this.plots_.length; i++) {
-      plot = this.plots_[i];
+    for (var i = 0; i < this.plots_.length; i++) {
+      var plot = this.plots_[i];
       if (plot) {
-        if (!plot.container()) plot.container(this.rootElement);
-        plot.draw();
+        plot
+          .container(this.rootElement)
+          .draw();
       }
     }
     this.markConsistent(anychart.ConsistencyState.STOCK_PLOTS_APPEARANCE);
@@ -578,7 +719,7 @@ anychart.charts.Stock.prototype.drawContent = function(bounds) {
 
   this.refreshHighlight_();
 
-  anychart.core.Base.resumeSignalsDispatchingFalse(this.plots_, this.scroller_);
+  // anychart.core.Base.resumeSignalsDispatchingFalse(this.plots_, this.scroller_);
 };
 
 
@@ -599,7 +740,8 @@ anychart.charts.Stock.prototype.calculateScales_ = function() {
         scale = /** @type {anychart.scales.Base} */(aSeries.yScale());
         if (scale.needsAutoCalc()) {
           scale.startAutoCalc();
-          scale.extendDataRange.apply(scale, aSeries.getScaleReferenceValues());
+          if (aSeries.enabled())
+            scale.extendDataRange.apply(scale, aSeries.getScaleReferenceValues());
           scales.push(scale);
         }
       }
@@ -613,22 +755,14 @@ anychart.charts.Stock.prototype.calculateScales_ = function() {
       scale = /** @type {anychart.scales.Base} */(aSeries.yScale());
       if (scale.needsAutoCalc()) {
         scale.startAutoCalc();
-        scale.extendDataRange.apply(scale, aSeries.getScaleReferenceValues());
+        if (aSeries.enabled())
+          scale.extendDataRange.apply(scale, aSeries.getScaleReferenceValues());
         scales.push(scale);
       }
     }
   }
   for (i = 0; i < scales.length; i++)
     scales[i].finishAutoCalc();
-};
-
-
-/** @inheritDoc */
-anychart.charts.Stock.prototype.resizeHandler = function(e) {
-  if (this.bounds().dependsOnContainerSize()) {
-    this.invalidate(anychart.ConsistencyState.BOUNDS,
-        anychart.Signal.NEEDS_REDRAW | anychart.Signal.BOUNDS_CHANGED);
-  }
 };
 
 
@@ -674,6 +808,15 @@ anychart.charts.Stock.prototype.distributeBounds_ = function(contentBounds) {
   }
   if (boundsArray.length)
     this.distributeBoundsLocal_(boundsArray, currentTop, remainingBounds.height, remainingBounds.height);
+
+  this.minPlotsDrawingWidth_ = Infinity;
+  for (i = 0; i < this.plots_.length; i++) {
+    var width = this.plots_[i].getDrawingWidth();
+    if (this.minPlotsDrawingWidth_ > width)
+      this.minPlotsDrawingWidth_ = width;
+  }
+  if (!isFinite(this.minPlotsDrawingWidth_))
+    this.minPlotsDrawingWidth_ = NaN;
 };
 
 
@@ -789,84 +932,21 @@ anychart.charts.Stock.prototype.distributeBoundsLocal_ = function(boundsArray, t
     current += size;
   }
 };
-
-
-/**
- * Stock chart X scale getter and setter. It is a misconfiguration if you use it as a setter with anything but a string.
- * We can consider a warning for that.
- * @param {string=} opt_value
- * @return {anychart.scales.StockScatterDateTime|anychart.charts.Stock}
- */
-anychart.charts.Stock.prototype.xScale = function(opt_value) {
-  if (goog.isDef(opt_value)) {
-    var askedForScatter = anychart.scales.StockScatterDateTime.askedForScatter(opt_value);
-    var currIsScatter = this.xScale_ && !(this.xScale_ instanceof anychart.scales.StockOrdinalDateTime);
-    if (askedForScatter != currIsScatter) {
-      if (askedForScatter) {
-        this.xScale_ = new anychart.scales.StockScatterDateTime(this);
-        if (this.scroller_)
-          this.scroller_.xScale(new anychart.scales.StockScatterDateTime(this.scroller_));
-      } else {
-        this.xScale_ = new anychart.scales.StockOrdinalDateTime(this);
-        if (this.scroller_)
-          this.scroller_.xScale(new anychart.scales.StockOrdinalDateTime(this.scroller_));
-      }
-
-      this.invalidate(anychart.ConsistencyState.STOCK_SCROLLER);
-      this.invalidateRedrawable();
-    }
-    return this;
-  }
-  if (!this.xScale_) {
-    this.xScale_ = new anychart.scales.StockOrdinalDateTime(this);
-  }
-  return this.xScale_;
-};
-
-
-/**
- * Dispatches range change event. If opt_first and opt_last are passed, includes only first/last Selected into the event
- * (usable for pre- events). Otherwise includes all info from data controller.
- * @param {anychart.enums.EventType} type
- * @param {anychart.enums.StockRangeChangeSource} source
- * @param {number=} opt_first
- * @param {number=} opt_last
- * @return {boolean}
- * @private
- */
-anychart.charts.Stock.prototype.dispatchRangeChange_ = function(type, source, opt_first, opt_last) {
-  if (goog.isDef(opt_first)) {
-    return this.dispatchEvent({
-      'type': type,
-      'source': source,
-      'firstSelected': opt_first,
-      'lastSelected': opt_last
-    });
-  } else {
-    return this.dispatchEvent({
-      'type': type,
-      'source': source,
-      'firstSelected': this.dataController_.getFirstSelectedKey(),
-      'lastSelected': this.dataController_.getLastSelectedKey(),
-      'firstVisible': this.dataController_.getFirstVisibleKey(),
-      'lastVisible': this.dataController_.getLastVisibleKey(),
-      'groupingIntervalUnit': this.dataController_.getCurrentGroupingIntervalUnit(),
-      'groupingIntervalUnitCount': this.dataController_.getCurrentGroupingIntervalCount()
-    });
-  }
-};
+//endregion
 
 
 //region Signals handlers
 /**
  * Plot signals handler.
- * @param {anychart.SignalEvent} event
+ * @param {anychart.SignalEvent} e
  * @private
  */
-anychart.charts.Stock.prototype.plotInvalidated_ = function(event) {
+anychart.charts.Stock.prototype.plotInvalidated_ = function(e) {
   var state = anychart.ConsistencyState.STOCK_PLOTS_APPEARANCE;
-  if (event.hasSignal(anychart.Signal.BOUNDS_CHANGED))
+  if (e.hasSignal(anychart.Signal.BOUNDS_CHANGED))
     state |= anychart.ConsistencyState.BOUNDS;
+  if (e.hasSignal(anychart.Signal.NEEDS_RECALCULATION))
+    state |= anychart.ConsistencyState.STOCK_SCALES;
   this.invalidate(state, anychart.Signal.NEEDS_REDRAW);
 };
 
@@ -883,6 +963,8 @@ anychart.charts.Stock.prototype.scrollerInvalidated_ = function(e) {
     state |= anychart.ConsistencyState.BOUNDS;
     signal |= anychart.Signal.BOUNDS_CHANGED;
   }
+  if (e.hasSignal(anychart.Signal.NEEDS_RECALCULATION))
+    state |= anychart.ConsistencyState.STOCK_SCALES;
   this.invalidate(state, signal);
 };
 
@@ -948,15 +1030,22 @@ anychart.charts.Stock.prototype.deregisterSource = function(source) {
   if (!isUsed)
     this.dataController_.deregisterSource(source);
 };
+//endregion
 
 
+//region IKeyIndexTransformation
+//----------------------------------------------------------------------------------------------------------------------
+//
+//  IKeyIndexTransformation
+//
+//----------------------------------------------------------------------------------------------------------------------
 /**
  * Returns key by index. Index can be fractional - the key will be inter- or extrapolated.
  * @param {number} index
  * @return {number}
  */
 anychart.charts.Stock.prototype.getKeyByIndex = function(index) {
-  return this.dataController_.getKey(index);
+  return this.dataController_.getKeyByIndex(index);
 };
 
 
@@ -966,7 +1055,7 @@ anychart.charts.Stock.prototype.getKeyByIndex = function(index) {
  * @return {number}
  */
 anychart.charts.Stock.prototype.getIndexByKey = function(key) {
-  return this.dataController_.getIndex(key);
+  return this.dataController_.getIndexByKey(key);
 };
 
 
@@ -975,8 +1064,8 @@ anychart.charts.Stock.prototype.getIndexByKey = function(key) {
  * @param {number} index
  * @return {number}
  */
-anychart.charts.Stock.prototype.getKeyByFullRangeIndex = function(index) {
-  return this.dataController_.getFullRangeKey(index);
+anychart.charts.Stock.prototype.getKeyByScrollerIndex = function(index) {
+  return this.dataController_.getKeyByScrollerIndex(index);
 };
 
 
@@ -985,90 +1074,13 @@ anychart.charts.Stock.prototype.getKeyByFullRangeIndex = function(index) {
  * @param {number} key
  * @return {number}
  */
-anychart.charts.Stock.prototype.getFullRangeIndexByKey = function(key) {
-  return this.dataController_.getFullRangeIndex(key);
-};
-
-
-/**
- * Returns last visible date.
- * @return {number}
- */
-anychart.charts.Stock.prototype.getLastDate = function() {
-  return this.dataController_.getLastVisibleKey();
+anychart.charts.Stock.prototype.getScrollerIndexByKey = function(key) {
+  return this.dataController_.getScrollerIndexByKey(key);
 };
 //endregion
 
 
 //region Interactivity
-/**
- * @param {string} source
- * @return {anychart.enums.StockRangeChangeSource}
- * @private
- */
-anychart.charts.Stock.prototype.transformScrollerSource_ = function(source) {
-  switch (source) {
-    case anychart.enums.ScrollerRangeChangeSource.THUMB_DRAG:
-      return anychart.enums.StockRangeChangeSource.SCROLLER_THUMB_DRAG;
-    case anychart.enums.ScrollerRangeChangeSource.SELECTED_RANGE_DRAG:
-      return anychart.enums.StockRangeChangeSource.SCROLLER_DRAG;
-    //case anychart.enums.ScrollerRangeChangeSource.BACKGROUND_CLICK:
-    default: // for very weird case when there is an incorrect source at incoming event.
-      return anychart.enums.StockRangeChangeSource.SCROLLER_CLICK;
-  }
-};
-
-
-/**
- * Scroller change start event handler.
- * @param {anychart.core.ui.Scroller.ScrollerChangeEvent} e
- * @return {boolean}
- * @private
- */
-anychart.charts.Stock.prototype.scrollerChangeStartHandler_ = function(e) {
-  var res = this.dispatchRangeChange_(
-      anychart.enums.EventType.SELECTED_RANGE_CHANGE_START,
-      this.transformScrollerSource_(e['source']));
-  if (res)
-    this.preventHighlight_();
-  return res;
-};
-
-
-/**
- * Scroller change start event handler.
- * @param {anychart.core.ui.Scroller.ScrollerChangeEvent} e
- * @private
- */
-anychart.charts.Stock.prototype.scrollerChangeHandler_ = function(e) {
-  e.preventDefault();
-  var first = e['startKey'];
-  var last = e['endKey'];
-  var source = this.transformScrollerSource_(e['source']);
-  if (this.dispatchRangeChange_(
-      anychart.enums.EventType.SELECTED_RANGE_BEFORE_CHANGE,
-      source,
-      Math.min(first, last), Math.max(first, last))) {
-    this.selectRangeInternal(first, last);
-    this.dispatchRangeChange_(anychart.enums.EventType.SELECTED_RANGE_CHANGE, source);
-  }
-};
-
-
-/**
- * Scroller change start event handler.
- * @param {anychart.core.ui.Scroller.ScrollerChangeEvent} e
- * @private
- */
-anychart.charts.Stock.prototype.scrollerChangeFinishHandler_ = function(e) {
-  e.preventDefault();
-  this.dispatchRangeChange_(
-      anychart.enums.EventType.SELECTED_RANGE_CHANGE_FINISH,
-      this.transformScrollerSource_(e['source']));
-  this.allowHighlight_();
-};
-
-
 /**
  * Highlights points on all charts by ratio of current selected range. Used by plots.
  * @param {number} ratio
@@ -1091,6 +1103,15 @@ anychart.charts.Stock.prototype.unhighlight = function() {
   this.highlightedClientX_ = NaN;
   this.highlightedClientY_ = NaN;
   this.unhighlight_();
+};
+
+
+/**
+ * Returns last visible date.
+ * @return {number}
+ */
+anychart.charts.Stock.prototype.getLastDate = function() {
+  return this.dataController_.getLastVisibleKey();
 };
 
 
@@ -1197,30 +1218,108 @@ anychart.charts.Stock.prototype.unhighlight_ = function() {
     this.tooltip().hide();
   }
 };
+//endregion
 
 
-/** @inheritDoc */
-anychart.charts.Stock.prototype.createTooltip = function() {
-  var tooltip = new anychart.core.ui.ChartTooltip();
-  this.registerDisposable(tooltip);
-  tooltip.chart(this);
-
-  return tooltip;
+//region Scroller change
+//----------------------------------------------------------------------------------------------------------------------
+//
+//  Scroller change
+//
+//----------------------------------------------------------------------------------------------------------------------
+/**
+ * @param {string} source
+ * @return {anychart.enums.StockRangeChangeSource}
+ * @private
+ */
+anychart.charts.Stock.prototype.transformScrollerSource_ = function(source) {
+  switch (source) {
+    case anychart.enums.ScrollerRangeChangeSource.THUMB_DRAG:
+      return anychart.enums.StockRangeChangeSource.SCROLLER_THUMB_DRAG;
+    case anychart.enums.ScrollerRangeChangeSource.SELECTED_RANGE_DRAG:
+      return anychart.enums.StockRangeChangeSource.SCROLLER_DRAG;
+      //case anychart.enums.ScrollerRangeChangeSource.BACKGROUND_CLICK:
+    default: // for very weird case when there is an incorrect source at incoming event.
+      return anychart.enums.StockRangeChangeSource.SCROLLER_CLICK;
+  }
 };
 
 
 /**
- * Returns current first selected.
- * @return {{
+ * Scroller change start event handler.
+ * @param {anychart.core.ui.Scroller.ScrollerChangeEvent} e
+ * @return {boolean}
+ * @private
+ */
+anychart.charts.Stock.prototype.scrollerChangeStartHandler_ = function(e) {
+  var res = this.dispatchRangeChange_(
+      anychart.enums.EventType.SELECTED_RANGE_CHANGE_START,
+      this.transformScrollerSource_(e['source']));
+  if (res)
+    this.preventHighlight_();
+  return res;
+};
+
+
+/**
+ * Scroller change start event handler.
+ * @param {anychart.core.ui.Scroller.ScrollerChangeEvent} e
+ * @private
+ */
+anychart.charts.Stock.prototype.scrollerChangeHandler_ = function(e) {
+  e.preventDefault();
+  var first = e['startKey'];
+  var last = e['endKey'];
+  var source = this.transformScrollerSource_(e['source']);
+  if (this.dispatchRangeChange_(
+      anychart.enums.EventType.SELECTED_RANGE_BEFORE_CHANGE,
+      source,
+      Math.min(first, last), Math.max(first, last))) {
+    this.selectRangeInternal_(first, last);
+    this.dispatchRangeChange_(anychart.enums.EventType.SELECTED_RANGE_CHANGE, source);
+  }
+};
+
+
+/**
+ * Scroller change start event handler.
+ * @param {anychart.core.ui.Scroller.ScrollerChangeEvent} e
+ * @private
+ */
+anychart.charts.Stock.prototype.scrollerChangeFinishHandler_ = function(e) {
+  e.preventDefault();
+  this.dispatchRangeChange_(
+      anychart.enums.EventType.SELECTED_RANGE_CHANGE_FINISH,
+      this.transformScrollerSource_(e['source']));
+  this.allowHighlight_();
+};
+//endregion
+
+
+//region Drag
+//----------------------------------------------------------------------------------------------------------------------
+//
+//  Drag
+//
+//----------------------------------------------------------------------------------------------------------------------
+/**
+ * @typedef {{
  *    firstKey: number,
  *    lastKey: number,
  *    firstIndex: number,
  *    lastIndex: number,
- *    minIndex: number,
- *    maxIndex: number,
  *    minKey: number,
- *    maxKey: number
+ *    maxKey: number,
+ *    minIndex: number,
+ *    maxIndex: number
  * }}
+ */
+anychart.charts.Stock.DragAnchor;
+
+
+/**
+ * Returns current first selected.
+ * @return {anychart.charts.Stock.DragAnchor}
  */
 anychart.charts.Stock.prototype.getDragAnchor = function() {
   var controller = this.dataController_;
@@ -1229,10 +1328,10 @@ anychart.charts.Stock.prototype.getDragAnchor = function() {
     lastKey: controller.getLastSelectedKey(),
     firstIndex: controller.getFirstSelectedIndex(),
     lastIndex: controller.getLastSelectedIndex(),
-    minIndex: this.getIndexByKey(controller.getFirstKey()),
-    maxIndex: this.getIndexByKey(controller.getLastKey()),
     minKey: controller.getFirstKey(),
-    maxKey: controller.getLastKey()
+    maxKey: controller.getLastKey(),
+    minIndex: controller.getFirstIndex(),
+    maxIndex: controller.getLastIndex()
   };
 };
 
@@ -1240,7 +1339,7 @@ anychart.charts.Stock.prototype.getDragAnchor = function() {
 /**
  * Drags the chart to passed position.
  * @param {number} ratio
- * @param {Object} anchor
+ * @param {anychart.charts.Stock.DragAnchor} anchor
  */
 anychart.charts.Stock.prototype.dragToRatio = function(ratio, anchor) {
   var scale = this.xScale();
@@ -1262,7 +1361,7 @@ anychart.charts.Stock.prototype.dragToRatio = function(ratio, anchor) {
           anychart.enums.EventType.SELECTED_RANGE_BEFORE_CHANGE,
           anychart.enums.StockRangeChangeSource.PLOT_DRAG,
           Math.min(start, end), Math.max(start, end))) {
-    this.selectRangeInternal(start, end);
+    this.selectRangeInternal_(start, end);
     anchor.firstIndex = this.getIndexByKey(anchor.firstKey);
     anchor.lastIndex = this.getIndexByKey(anchor.lastKey);
     anchor.minIndex = this.getIndexByKey(this.dataController_.getFirstKey());
@@ -1327,13 +1426,18 @@ anychart.charts.Stock.prototype.dragEnd = function() {
 //endregion
 
 
+//region Serialization / deserialization / disposing
+//----------------------------------------------------------------------------------------------------------------------
+//
+//  Serialization / deserialization / disposing
+//
+//----------------------------------------------------------------------------------------------------------------------
 /** @inheritDoc */
 anychart.charts.Stock.prototype.disposeInternal = function() {
   goog.disposeAll(this.plots_, this.scroller_, this.dataController_);
-
   this.plots_ = null;
   this.scroller_ = null;
-  this.dataController_ = null;
+  delete this.dataController_;
 
   goog.base(this, 'disposeInternal');
 };
@@ -1342,6 +1446,8 @@ anychart.charts.Stock.prototype.disposeInternal = function() {
 /** @inheritDoc */
 anychart.charts.Stock.prototype.serialize = function() {
   var json = goog.base(this, 'serialize');
+  json['grouping'] = this.grouping().serialize();
+  json['scrollerGrouping'] = this.scrollerGrouping().serialize();
   json['xScale'] = this.xScale().serialize();
   json['scroller'] = this.scroller().serialize();
   json['plots'] = goog.array.map(this.plots_, function(element) { return element ? element.serialize() : null; });
@@ -1368,12 +1474,15 @@ anychart.charts.Stock.prototype.setupByJSON = function(config) {
   }
 
   this.scroller(config['scroller']);
+  this.grouping(config['grouping']);
+  this.scrollerGrouping(config['scrollerGrouping']);
 
   json = config['selectedRange'];
   if (goog.isObject(json)) {
     this.selectRange(json['start'], json['end']);
   }
 };
+//endregion
 
 
 /**
@@ -1405,10 +1514,10 @@ anychart.charts.Stock.prototype.extractHeaders = function(storage, headers, head
 
 
 /** @inheritDoc */
-anychart.charts.Stock.prototype.toCsv = function(opt_csvMode, opt_csvSettings) {
-  opt_csvMode = anychart.enums.normalizeCsvMode(opt_csvMode);
-  var rawData = (opt_csvMode == anychart.enums.CsvMode.RAW);
-  var groupedData = (opt_csvMode == anychart.enums.CsvMode.GROUPED);
+anychart.charts.Stock.prototype.toCsv = function(opt_chartDataExportMode, opt_csvSettings) {
+  opt_chartDataExportMode = anychart.enums.normalizeChartDataExportMode(opt_chartDataExportMode);
+  var rawData = (opt_chartDataExportMode == anychart.enums.ChartDataExportMode.RAW);
+  var groupedData = (opt_chartDataExportMode == anychart.enums.ChartDataExportMode.GROUPED);
   var settings = goog.isObject(opt_csvSettings) ? opt_csvSettings : {};
   var rowsSeparator = settings['rowsSeparator'] || '\n';
   this.checkSeparator(rowsSeparator);
@@ -1655,3 +1764,5 @@ anychart.charts.Stock.prototype['selectRange'] = anychart.charts.Stock.prototype
 anychart.charts.Stock.prototype['getType'] = anychart.charts.Stock.prototype.getType;
 anychart.charts.Stock.prototype['legend'] = anychart.charts.Stock.prototype.legend;
 anychart.charts.Stock.prototype['toCsv'] = anychart.charts.Stock.prototype.toCsv;
+anychart.charts.Stock.prototype['grouping'] = anychart.charts.Stock.prototype.grouping;
+anychart.charts.Stock.prototype['scrollerGrouping'] = anychart.charts.Stock.prototype.scrollerGrouping;

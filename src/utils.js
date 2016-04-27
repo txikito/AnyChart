@@ -1,5 +1,6 @@
 goog.provide('anychart.utils');
 
+goog.require('anychart.core.utils.TooltipsContainer');
 goog.require('anychart.enums');
 goog.require('anychart.math');
 goog.require('goog.array');
@@ -14,6 +15,14 @@ goog.require('goog.json.hybrid');
  @namespace
  @name anychart.utils
  */
+
+
+/**
+ * Last info code.
+ * @type {number}
+ * @private
+ */
+anychart.utils.lastInfoCode_ = -1;
 
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -948,7 +957,7 @@ anychart.utils.json2xml = function(json, opt_rootNodeName, opt_returnAsXmlNode) 
   var root = anychart.utils.json2xml_(json, opt_rootNodeName || 'anychart', result);
   if (root) {
     if (!opt_rootNodeName)
-      root.setAttribute('xmlns', 'http://anychart.com/schemas/7.9.1/xml-schema.xsd');
+      root.setAttribute('xmlns', 'http://anychart.com/schemas/7.10.0/xml-schema.xsd');
     result.appendChild(root);
   }
   return opt_returnAsXmlNode ? result : goog.dom.xml.serialize(result);
@@ -1128,6 +1137,8 @@ anychart.utils.getNodeNames_ = function(arrayPropName) {
       return ['outliers', 'outlier'];
     case 'inverted':
       return ['inverted_list', 'inverted'];
+    case 'drillTo':
+      return ['drill_to', 'item'];
   }
   return null;
 };
@@ -1199,6 +1210,8 @@ anychart.utils.getArrayPropName_ = function(nodeName) {
       return ['inverted', 'inverted'];
     case 'colorScales':
       return ['colorScales', 'scale'];
+    case 'drillTo':
+      return ['drillTo', 'item'];
   }
   return null;
 };
@@ -1392,18 +1405,21 @@ anychart.utils.getErrorDescription = function(code, opt_arguments) {
 
 
 /**
- * Log en info by code.
+ * Logs an info.
  * @param {anychart.enums.InfoCode|string} codeOrMsg Info internal code,. @see anychart.enums.InfoCode.
  * @param {Array.<*>=} opt_descArgs Description message arguments.
  */
 anychart.utils.info = function(codeOrMsg, opt_descArgs) {
   if (anychart.DEVELOP) {
     if (goog.isNumber(codeOrMsg)) {
-      anychart.utils.callLog_(
-          'info',
-          ('Info: ' + codeOrMsg + '\nDescription: ' + anychart.utils.getInfoDescription(codeOrMsg, opt_descArgs)),
-          ''
-      );
+      if (anychart.utils.lastInfoCode_ != codeOrMsg) {
+        anychart.utils.lastInfoCode_ = /** @type {number} */ (codeOrMsg);
+        anychart.utils.callLog_(
+            'info',
+            ('Info: ' + codeOrMsg + '\nDescription: ' + anychart.utils.getInfoDescription(codeOrMsg, opt_descArgs)),
+            ''
+        );
+      }
     } else {
       anychart.utils.callLog_('info', codeOrMsg, '');
     }
@@ -1487,9 +1503,6 @@ anychart.utils.getWarningDescription = function(code, opt_arguments) {
       return 'Data grid incorrect method \'' + opt_arguments[0] + '()\' usage: You use not standalone data grid. Perform all operations ' +
           'on data grid using the controller, but not directly. In current case, use \'' + opt_arguments[1] + '()\' instead. ' +
           opt_arguments[2];
-
-    case anychart.enums.WarningCode.BULLET_CHART_OUT_OF_RANGE:
-      return 'Bullet Chart point value: ' + opt_arguments[0] + ' is out of scale range. Check minimum and maximum scale settings.';
 
     case anychart.enums.WarningCode.NOT_FOUND:
       //TODO (A.Kudryavtsev): Make another suggestion what to do.
@@ -1633,6 +1646,61 @@ anychart.utils.getKeys = function(obj) {
       res[i++] = key;
   }
   return res;
+};
+
+
+/**
+ * Interval estimations.
+ * @type {Array.<{unit: anychart.enums.Interval, range: number, basic: boolean}>}
+ */
+anychart.utils.INTERVAL_ESTIMATIONS = [
+  {unit: anychart.enums.Interval.YEAR, range: 1000 * 60 * 60 * 24 * 365, basic: true},
+  {unit: anychart.enums.Interval.SEMESTER, range: 1000 * 60 * 60 * 24 * 365 / 2, basic: false},
+  {unit: anychart.enums.Interval.QUARTER, range: 1000 * 60 * 60 * 24 * 365 / 4, basic: false},
+  {unit: anychart.enums.Interval.MONTH, range: 1000 * 60 * 60 * 24 * 28, basic: true},
+  {unit: anychart.enums.Interval.THIRD_OF_MONTH, range: 1000 * 60 * 60 * 24 * 365 / 36, basic: false},
+  {unit: anychart.enums.Interval.WEEK, range: 1000 * 60 * 60 * 24 * 7, basic: false},
+  {unit: anychart.enums.Interval.DAY, range: 1000 * 60 * 60 * 24, basic: true},
+  {unit: anychart.enums.Interval.HOUR, range: 1000 * 60 * 60, basic: true},
+  {unit: anychart.enums.Interval.MINUTE, range: 1000 * 60, basic: true},
+  {unit: anychart.enums.Interval.SECOND, range: 1000, basic: true},
+  {unit: anychart.enums.Interval.MILLISECOND, range: 1, basic: true}
+];
+
+
+/**
+ * Returns an array of [unit: anychart.enums.Interval, count: number] with estimation of the data interval passed.
+ * Interval must be a valid number (not a NaN).
+ * @param {number} interval
+ * @return {!{unit: anychart.enums.Interval, count: number}}}
+ */
+anychart.utils.estimateInterval = function(interval) {
+  interval = Math.floor(interval);
+  var estimation, largestEstimation, unit, count = 1;
+  if (interval) {
+    for (var i = 0; i < anychart.utils.INTERVAL_ESTIMATIONS.length; i++) {
+      estimation = anychart.utils.INTERVAL_ESTIMATIONS[i];
+      var divResult = interval / estimation.range;
+      // we add 1 percent for rounding errors
+      if (Math.floor(divResult * 1.1) >= 1) {
+        largestEstimation = largestEstimation || estimation;
+        if (divResult - Math.floor(divResult) < 0.15) {
+          count = Math.floor(divResult);
+          break;
+        }
+      }
+    }
+    if (largestEstimation != estimation && largestEstimation.basic && count > 100) {
+      estimation = largestEstimation;
+      count = Math.round(20 * interval / estimation.range) / 20;
+    }
+  }
+  if (!estimation) { // very unlikely that this is a case
+    unit = anychart.enums.Interval.MILLISECOND;
+  } else {
+    unit = estimation.unit;
+  }
+  return {'unit': unit, 'count': count};
 };
 
 

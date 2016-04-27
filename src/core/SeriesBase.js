@@ -474,7 +474,7 @@ anychart.core.SeriesBase.prototype.name = function(opt_value) {
     }
     return this;
   } else {
-    return this.name_;
+    return this.name_ || ('Series ' + this.getIndex());
   }
 };
 
@@ -530,8 +530,8 @@ anychart.core.SeriesBase.prototype.id = function(opt_value) {
 /**
  * Series statistics.
  * @param {string=} opt_name Statistics parameter name.
- * @param {number=} opt_value Statistics parameter value.
- * @return {anychart.core.SeriesBase|Object.<number>|number}
+ * @param {*=} opt_value Statistics parameter value.
+ * @return {anychart.core.SeriesBase|*}
  */
 anychart.core.SeriesBase.prototype.statistics = function(opt_name, opt_value) {
   if (goog.isDef(opt_name)) {
@@ -549,8 +549,21 @@ anychart.core.SeriesBase.prototype.statistics = function(opt_name, opt_value) {
 
 /**
  * Calculate series statistics.
+ * TODO (A.Kudryavtsev): In current date (16 Mar 2016) anychart.core.cartesian.series.Base has pretty specific
+ * TODO (A.Kudryavtsev): calculation mechanism (calculates drawing plans). It calculates all statistics there in singe passage.
  */
 anychart.core.SeriesBase.prototype.calculateStatistics = goog.nullFunction;
+
+
+/**
+ * Gets statistics value by key.
+ * @param {string} key - Key.
+ * @return {*} - Statistics value.
+ */
+anychart.core.SeriesBase.prototype.getStat = function(key) {
+  if (this.chart_) this.chart_.calculate();
+  return this.statistics_[key];
+};
 
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -604,14 +617,18 @@ anychart.core.SeriesBase.prototype.getLegendItemData = function(itemsTextFormatt
   legendItem.markAllConsistent();
   var json = legendItem.serialize();
   var iconFill, iconStroke, iconHatchFill;
+  var ctx = {
+    'sourceColor': this.color()
+  };
   if (goog.isFunction(legendItem.iconFill())) {
-    iconFill = legendItem.iconFill().call(this.color());
+    json['iconFill'] = legendItem.iconFill().call(ctx, ctx);
   }
   if (goog.isFunction(legendItem.iconStroke())) {
-    iconStroke = legendItem.iconStroke().call(this.color());
+    json['iconStroke'] = legendItem.iconStroke().call(ctx, ctx);
   }
   if (goog.isFunction(legendItem.iconHatchFill())) {
-    iconHatchFill = legendItem.iconHatchFill().call(this.autoHatchFill);
+    ctx['sourceColor'] = this.autoHatchFill;
+    json['iconHatchFill'] = legendItem.iconHatchFill().call(ctx, ctx);
   }
   var itemText;
   if (goog.isFunction(itemsTextFormatter)) {
@@ -621,14 +638,17 @@ anychart.core.SeriesBase.prototype.getLegendItemData = function(itemsTextFormatt
   if (!goog.isString(itemText))
     itemText = goog.isDef(this.name()) ? this.name() : 'Series: ' + this.index();
 
+  this.updateLegendItemMarker(json);
+
+  json['iconType'] = this.getLegendIconType(json['iconType']);
+
   var ret = {
     'meta': /** @type {Object} */ (this.meta()),
     'text': /** @type {string} */ (itemText),
     'iconEnabled': true,
-    'iconType': this.getLegendIconType(),
-    'iconStroke': iconStroke || this.getFinalStroke(false, anychart.PointState.NORMAL),
-    'iconFill': iconFill || this.getFinalFill(false, anychart.PointState.NORMAL),
-    'iconHatchFill': iconHatchFill || this.getFinalHatchFill(false, anychart.PointState.NORMAL),
+    'iconStroke': this.getFinalStroke(false, anychart.PointState.NORMAL),
+    'iconFill': this.getFinalFill(false, anychart.PointState.NORMAL),
+    'iconHatchFill': this.getFinalHatchFill(false, anychart.PointState.NORMAL),
     'disabled': !this.enabled()
   };
   goog.object.extend(ret, json);
@@ -637,11 +657,42 @@ anychart.core.SeriesBase.prototype.getLegendItemData = function(itemsTextFormatt
 
 
 /**
+ * Update legend item marker.
+ * @param {Object} json JSON object for update.
+ */
+anychart.core.SeriesBase.prototype.updateLegendItemMarker = function(json) {
+};
+
+
+/**
  * Gets legend icon type for the series.
+ * @param {*} type iconType.
  * @return {(anychart.enums.LegendItemIconType|function(acgraph.vector.Path, number))}
  */
-anychart.core.SeriesBase.prototype.getLegendIconType = function() {
-  return /** @type {anychart.enums.LegendItemIconType} */(anychart.enums.LegendItemIconType.SQUARE);
+anychart.core.SeriesBase.prototype.getLegendIconType = function(type) {
+  if (type == anychart.enums.LegendItemIconType.MARKER) {
+    if (!this.supportsMarkers()) {
+      type = this.type();
+    } else {
+      var markerType = this.getMarkerType();
+      if (markerType)
+        type = markerType;
+    }
+    if (type == anychart.enums.LegendItemIconType.LINE)
+      type = anychart.enums.LegendItemIconType.V_LINE;
+  } else if (!goog.isFunction(type)) {
+    type = anychart.enums.normalizeLegendItemIconType(type);
+  }
+  return /** @type {anychart.enums.LegendItemIconType} */ (type);
+};
+
+
+/**
+ * Returns marker tyoe.
+ * @return {?anychart.enums.MarkerType}
+ */
+anychart.core.SeriesBase.prototype.getMarkerType = function() {
+  return null;
 };
 
 
@@ -712,12 +763,36 @@ anychart.core.SeriesBase.prototype.color = function(opt_fillOrColorOrKeys, opt_o
 
 
 /**
+ * Returns labels default font color.
+ * @return {string}
+ */
+anychart.core.SeriesBase.prototype.getLabelsColor = function() {
+  var color;
+  if (anychart.DEFAULT_THEME != 'v6') {
+    color = anychart.color.darken(/** @type {acgraph.vector.Fill} */(this.color()));
+    if (goog.isObject(color)) {
+      color = /** @type {string|undefined} */(color['color']);
+    }
+  }
+  return /** @type {string} */(color || '');
+};
+
+
+/**
  * Sets series color that parent chart have set for it.
  * @param {acgraph.vector.Fill} value Auto color fill distributed by the chart.
  */
 anychart.core.SeriesBase.prototype.setAutoColor = function(value) {
   this.autoColor_ = value;
+  this.labels().setAutoColor(this.getLabelsColor());
+  this.setAutoMarkerColor();
 };
+
+
+/**
+ * Sets marker auto colors
+ */
+anychart.core.SeriesBase.prototype.setAutoMarkerColor = goog.nullFunction;
 
 
 /**
@@ -1298,6 +1373,7 @@ anychart.core.SeriesBase.prototype.configureLabel = function(pointState, opt_res
 
     var positionProvider = this.createLabelsPositionProvider(/** @type {anychart.enums.Position|string} */(position));
     var formatProvider = this.createFormatProvider(true);
+    formatProvider.pointInternal = this.getPoint(index);
     if (label) {
       label.formatProvider(formatProvider);
       label.positionProvider(positionProvider);
@@ -1458,11 +1534,73 @@ anychart.core.SeriesBase.prototype.makePointEvent = function(event) {
  * @return {anychart.core.Point} Wrapped point.
  */
 anychart.core.SeriesBase.prototype.getPoint = function(index) {
+  var point;
   if (this.isSizeBased()) {
-    return new anychart.core.BubblePoint(this, index);
+    point = new anychart.core.BubblePoint(this, index);
   } else {
-    return new anychart.core.SeriesPoint(this, index);
+    point = new anychart.core.SeriesPoint(this, index);
   }
+
+  if (this.chart_) {
+    this.chart_.calculate();
+    var chartStat = this.chart_.statistics;
+    var val = /** @type {number} */ (point.get(anychart.opt.VALUE));
+    var size = /** @type {number} */ (point.get(anychart.opt.SIZE)); //Bubble.
+    var v;
+
+    if (goog.isNumber(chartStat[anychart.enums.Statistics.DATA_PLOT_X_SUM])) {
+      v = val / /** @type {number} */ (chartStat[anychart.enums.Statistics.DATA_PLOT_X_SUM]);
+      point.statistics[anychart.enums.Statistics.X_PERCENT_OF_TOTAL] = v * 100;
+    }
+
+    if (goog.isNumber(this.statistics(anychart.enums.Statistics.SERIES_X_SUM))) {
+      v = val / /** @type {number} */ (this.statistics(anychart.enums.Statistics.SERIES_X_SUM));
+      point.statistics[anychart.enums.Statistics.X_PERCENT_OF_SERIES] = v * 100;
+    }
+
+    if (goog.isNumber(this.statistics(anychart.enums.Statistics.SERIES_BUBBLE_SIZE_SUM))) {
+      v = size / /** @type {number} */ (this.statistics(anychart.enums.Statistics.SERIES_BUBBLE_SIZE_SUM));
+      point.statistics[anychart.enums.Statistics.BUBBLE_SIZE_PERCENT_OF_SERIES] = v * 100;
+      v = size / /** @type {number} */ (chartStat[anychart.enums.Statistics.DATA_PLOT_BUBBLE_SIZE_SUM]);
+      point.statistics[anychart.enums.Statistics.BUBBLE_SIZE_PERCENT_OF_TOTAL] = v * 100;
+      point.statistics[anychart.enums.Statistics.BUBBLE_SIZE] = size;
+    }
+
+    var chartSumArr = chartStat[anychart.enums.Statistics.CATEGORY_Y_SUM_ARR_];
+    var x = /** @type {number} */ (point.get(anychart.opt.X));
+
+    if (chartSumArr) {
+      point.statistics[anychart.enums.Statistics.CATEGORY_NAME] = x;
+      var catSum = chartSumArr[index];
+
+      v = val / /** @type {number} */ (this.statistics(anychart.enums.Statistics.SERIES_Y_SUM));
+      point.statistics[anychart.enums.Statistics.Y_PERCENT_OF_SERIES] = v * 100;
+      v = val / chartStat[anychart.enums.Statistics.DATA_PLOT_Y_SUM];
+      point.statistics[anychart.enums.Statistics.Y_PERCENT_OF_TOTAL] = v * 100;
+      v = val / catSum;
+      point.statistics[anychart.enums.Statistics.Y_PERCENT_OF_CATEGORY] = v * 100;
+      v = catSum / chartStat[anychart.enums.Statistics.DATA_PLOT_Y_SUM];
+      point.statistics[anychart.enums.Statistics.CATEGORY_Y_PERCENT_OF_TOTAL] = v * 100;
+      point.statistics[anychart.enums.Statistics.CATEGORY_Y_SUM] = catSum;
+      point.statistics[anychart.enums.Statistics.CATEGORY_Y_MAX] = chartStat[anychart.enums.Statistics.CATEGORY_Y_MAX_ARR_][index];
+      point.statistics[anychart.enums.Statistics.CATEGORY_Y_MIN] = chartStat[anychart.enums.Statistics.CATEGORY_Y_MIN_ARR_][index];
+      point.statistics[anychart.enums.Statistics.CATEGORY_Y_AVERAGE] = chartStat[anychart.enums.Statistics.CATEGORY_Y_AVG_ARR_][index];
+      point.statistics[anychart.enums.Statistics.CATEGORY_Y_MEDIAN] = chartStat[anychart.enums.Statistics.CATEGORY_Y_MEDIAN_ARR_][index];
+      point.statistics[anychart.enums.Statistics.CATEGORY_Y_MODE] = chartStat[anychart.enums.Statistics.CATEGORY_Y_MODE_ARR_][index];
+    } else {
+      v = x / /** @type {number} */ (this.statistics(anychart.enums.Statistics.SERIES_X_SUM));
+      point.statistics[anychart.enums.Statistics.X_PERCENT_OF_SERIES] = v * 100;
+      v = val / /** @type {number} */ (this.statistics(anychart.enums.Statistics.SERIES_Y_SUM));
+      point.statistics[anychart.enums.Statistics.Y_PERCENT_OF_SERIES] = v * 100;
+      v = x / /** @type {number} */ (chartStat[anychart.enums.Statistics.DATA_PLOT_X_SUM]);
+      point.statistics[anychart.enums.Statistics.X_PERCENT_OF_TOTAL] = v * 100;
+      v = val / /** @type {number} */ (chartStat[anychart.enums.Statistics.DATA_PLOT_Y_SUM]);
+      point.statistics[anychart.enums.Statistics.Y_PERCENT_OF_TOTAL] = v * 100;
+
+    }
+  }
+
+  return point;
 };
 
 
@@ -1529,8 +1667,7 @@ anychart.core.SeriesBase.prototype.hover = function(opt_indexOrIndexes) {
  */
 anychart.core.SeriesBase.prototype.unhover = function(opt_indexOrIndexes) {
   if (!(this.state.hasPointState(anychart.PointState.HOVER) ||
-      this.state.isStateContains(this.state.getSeriesState(), anychart.PointState.HOVER)) ||
-      !this.enabled())
+      this.state.isStateContains(this.state.getSeriesState(), anychart.PointState.HOVER)) || !this.enabled())
     return this;
 
   var index;
@@ -1961,3 +2098,5 @@ anychart.core.SeriesBase.prototype['allowPointsSelect'] = anychart.core.SeriesBa
 anychart.core.SeriesBase.prototype['legendItem'] = anychart.core.SeriesBase.prototype.legendItem;
 anychart.core.SeriesBase.prototype['getPixelBounds'] = anychart.core.SeriesBase.prototype.getPixelBounds;
 anychart.core.SeriesBase.prototype['getPoint'] = anychart.core.SeriesBase.prototype.getPoint;
+
+anychart.core.SeriesBase.prototype['getStat'] = anychart.core.SeriesBase.prototype.getStat;

@@ -79,7 +79,7 @@ anychart.core.ChartWithCredits.prototype.onCreditsSignal_ = function(event) {
   if (event.hasSignal(anychart.Signal.BOUNDS_CHANGED)) {
     state |= anychart.ConsistencyState.BOUNDS;
   }
-  // If there are no signals – state == 0 and nothing will happen.
+  // If there are no signals - state == 0 and nothing will happen.
   this.invalidate(state, signal);
 };
 
@@ -146,16 +146,6 @@ anychart.core.ChartWithCredits.prototype.calculateContentAreaSpace = function(to
   boundsWithoutTitle = title.enabled() ? title.getRemainingBounds() : boundsWithoutPadding;
 
   return boundsWithoutTitle.clone();
-};
-
-
-/** @inheritDoc */
-anychart.core.ChartWithCredits.prototype.resizeHandler = function(evt) {
-  this.suspendSignalsDispatching();
-  this.invalidate(anychart.ConsistencyState.CHART_CREDITS, anychart.Signal.NEEDS_REDRAW);
-  this.credits().invalidate(anychart.ConsistencyState.CREDITS_POSITION);
-  anychart.core.ChartWithCredits.base(this, 'resizeHandler', evt);
-  this.resumeSignalsDispatching(true);
 };
 
 

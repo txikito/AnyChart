@@ -86,8 +86,21 @@ anychart.core.series.Stock.prototype.getCategoryWidth = function() {
   var xScale = this.getXScale();
   if (xScale instanceof anychart.scales.StockOrdinalDateTime)
     return this.pixelBoundsCache.width / (xScale.getMaximumIndex() - xScale.getMinimumIndex());
-  else
-    return this.getSelectableData().getMinDistance() / (xScale.getMaximum() - xScale.getMinimum()) * this.pixelBoundsCache.width;
+  else {
+    var minDistance = (/** @type {anychart.core.IGroupingProvider} */(this.chart)).getCurrentMinDistance();
+    return minDistance / (xScale.getMaximum() - xScale.getMinimum()) * this.pixelBoundsCache.width;
+  }
+};
+
+
+/**
+ * Gets wrapped point by index.
+ * @param {number} index - Point index.
+ * @return {anychart.core.Point} Wrapped point.
+ */
+anychart.core.series.Stock.prototype.getPoint = function(index) {
+  //TODO (A.Kudryavtsev): Add for stock statistics?
+  return null;
 };
 
 
@@ -342,6 +355,40 @@ anychart.core.series.Stock.prototype.highlight = function(value) {
 anychart.core.series.Stock.prototype.removeHighlight = function() {
   this.highlightedRow_ = null;
 };
+
+
+/** @inheritDoc */
+anychart.core.series.Stock.prototype.getSeriesState = function() {
+  return this.seriesState;
+};
+
+
+/**
+ * WE DO NOT CURRENTLY EXPORT THIS METHOD.
+ * Hovers all points of the series. Use <b>unhover</b> method for unhover series.
+ * @return {!anychart.core.series.Stock}
+ */
+anychart.core.series.Stock.prototype.hoverSeries = function() {
+  if (!(this.seriesState & anychart.PointState.HOVER)) {
+    this.seriesState = anychart.PointState.HOVER;
+    this.invalidate(anychart.ConsistencyState.SERIES_COLOR, anychart.Signal.NEEDS_REDRAW);
+  }
+  return this;
+};
+
+
+/**
+ * WE DO NOT CURRENTLY EXPORT THIS METHOD.
+ * Removes hover from the series or point by index.
+ * @return {!anychart.core.series.Stock}
+ */
+anychart.core.series.Stock.prototype.unhover = function() {
+  if (this.seriesState != anychart.PointState.NORMAL) {
+    this.seriesState = anychart.PointState.NORMAL;
+    this.invalidate(anychart.ConsistencyState.SERIES_COLOR, anychart.Signal.NEEDS_REDRAW);
+  }
+  return this;
+};
 //endregion
 
 
@@ -430,19 +477,37 @@ anychart.core.series.Stock.prototype.getLegendIconColor = function(legendItemJso
 
 
 /** @inheritDoc */
-anychart.core.series.Stock.prototype.getLegendIconType = function(context) {
-  // commented yet because legendItem doesn't currently support icon types other than anychart.enums.LegendIconType
-  // if (this.check(anychart.core.drawers.Capabilities.IS_OHLC_BASED))
-  //   return (context['open'] < context['close']) ?
-  //       anychart.enums.MarkerType.TRIANGLE_UP :
-  //       anychart.enums.MarkerType.TRIANGLE_DOWN;
-  return anychart.core.series.Stock.base(this, 'getLegendIconType', context);
+anychart.core.series.Stock.prototype.getLegendIconType = function(type, context) {
+  if (String(type).toLowerCase() == anychart.enums.LegendItemIconType.RISING_FALLING) {
+    if (this.check(anychart.core.drawers.Capabilities.IS_OHLC_BASED)) {
+      return (context[anychart.opt.OPEN] < context[anychart.opt.CLOSE]) ?
+          anychart.enums.LegendItemIconType.TRIANGLE_UP :
+          anychart.enums.LegendItemIconType.TRIANGLE_DOWN;
+    }
+  }
+  return anychart.core.series.Stock.base(this, 'getLegendIconType', type, context);
 };
 
 
 /** @inheritDoc */
 anychart.core.series.Stock.prototype.getLegendItemText = function(context) {
-  return this.name() + (isNaN(context['value']) ? '' : (': ' + anychart.utils.toNumber(context['value']).toFixed(2)));
+  var missing;
+  var result;
+  if (this.check(anychart.core.drawers.Capabilities.IS_OHLC_BASED)) {
+    missing = isNaN(context['high']) || isNaN(context['low']) || isNaN(context['open']) || isNaN(context['close']);
+    result = ': (O: ' + Number(context['open']).toFixed(2) +
+        '; H: ' + Number(context['high']).toFixed(2) +
+        '; L: ' + Number(context['low']).toFixed(2) +
+        '; C: ' + Number(context['close']).toFixed(2) + ')';
+  } else if (this.check(anychart.core.drawers.Capabilities.IS_RANGE_BASED)) {
+    missing = isNaN(context['high']) || isNaN(context['low']);
+    result = ': (H: ' + Number(context['high']).toFixed(2) +
+        '; L: ' + Number(context['low']).toFixed(2) + ')';
+  } else {
+    missing = isNaN(context['value']);
+    result = ': ' + Number(context['value']).toFixed(2);
+  }
+  return this.name() + (missing ? '' : result);
 };
 //endregion
 

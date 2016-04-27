@@ -1,5 +1,6 @@
 goog.provide('anychart.core.I3DProvider');
 goog.provide('anychart.core.IChart');
+goog.provide('anychart.core.IGroupingProvider');
 goog.provide('anychart.core.IPlot');
 
 
@@ -37,6 +38,13 @@ anychart.core.IChart.prototype.xScale = function() {};
  * @return {?Array.<string|anychart.core.series.TypeConfig>}
  */
 anychart.core.IChart.prototype.getConfigByType = function(name) {};
+
+
+/**
+ * Performs calculations before chart draw.
+ * Also must include calculation of statistics.
+ */
+anychart.core.IChart.prototype.calculate = function() {};
 
 
 
@@ -104,6 +112,18 @@ anychart.core.I3DProvider.prototype.getY3DShift = function(seriesIsStacked) {};
 
 
 /**
+ * @return {number}
+ */
+anychart.core.I3DProvider.prototype.getX3DFullShift = function() {};
+
+
+/**
+ * @return {number}
+ */
+anychart.core.I3DProvider.prototype.getY3DFullShift = function() {};
+
+
+/**
  * @param {number} seriesIndex
  * @param {boolean} seriesIsStacked
  * @param {string} scalesIds
@@ -122,3 +142,23 @@ anychart.core.I3DProvider.prototype.yInverted = function() {};
  * @return {boolean}
  */
 anychart.core.I3DProvider.prototype.xInverted = function() {};
+
+
+
+/**
+ * @interface
+ * @extends {anychart.core.IChart}
+ */
+anychart.core.IGroupingProvider = function() {};
+
+
+/**
+ * @return {number}
+ */
+anychart.core.IGroupingProvider.prototype.getCurrentMinDistance = function() {};
+
+
+/**
+ * @return {anychart.core.IGroupingProvider|anychart.core.stock.Grouping}
+ */
+anychart.core.IGroupingProvider.prototype.grouping = function() {};

@@ -79,12 +79,14 @@ anychart.ConsistencyState = {
   //---------------------------------- PYRAMID/FUNNEL STATES (CHART) ---------------------------------
   PYRAMID_FUNNEL_LABELS: 1 << 11,
   PYRAMID_FUNNEL_MARKERS: 1 << 12,
+  PYRAMID_FUNNEL_DATA: 1 << 13,
   //---------------------------------- GANTT STATES (CHART) ---------------------------------
   GANTT_DATA: 1 << 11,
   GANTT_POSITION: 1 << 12,
   GANTT_SPLITTER_POSITION: 1 << 13,
   //---------------------------------- PIE STATES (CHART) ---------------------------------
   PIE_LABELS: 1 << 11,
+  PIE_DATA: 1 << 12,
   //---------------------------------- POLAR STATES (CHART) ---------------------------------
   POLAR_PALETTE: 1 << 11,
   POLAR_MARKER_PALETTE: 1 << 12,
@@ -141,7 +143,6 @@ anychart.ConsistencyState = {
   SERIES_MARKERS: 1 << 6, //
   SERIES_LABELS: 1 << 7, //
   SERIES_DATA: 1 << 8,
-  //
   SERIES_POINTS: 1 << 9, //
   SERIES_COLOR: 1 << 10, //
   SERIES_CLIP: 1 << 11, //
@@ -237,7 +238,6 @@ anychart.ConsistencyState = {
   STOCK_SCROLLER: 1 << 12,
   STOCK_DATA: 1 << 22, //13,
   STOCK_SCALES: 1 << 14,
-  STOCK_FULL_RANGE_PARAMS: 1 << 15,
   //---------------------------------- STOCK PLOT (VB) -------------------------------------------
   STOCK_PLOT_BACKGROUND: 1 << 5,
   STOCK_PLOT_SERIES: 1 << 6,
@@ -246,10 +246,6 @@ anychart.ConsistencyState = {
   STOCK_PLOT_GRIDS: 1 << 9,
   STOCK_PLOT_LEGEND: 1 << 10,
   STOCK_PLOT_PALETTE: 1 << 11,
-  //---------------------------------- STOCK SERIES (VB) -------------------------------------------
-  STOCK_SERIES_POINTS: 1 << 5,
-  STOCK_SERIES_COLOR: 1 << 6,
-  STOCK_SERIES_CLIP: 1 << 7,
   //---------------------------------- STOCK DATETIME AXIS (VB) ----------------------------------------
   STOCK_DTAXIS_BACKGROUND: 1 << 5,
   //---------------------------------- STOCK SCROLLER (SCROLLER) ----------------------------------------

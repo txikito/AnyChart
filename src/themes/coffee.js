@@ -43,11 +43,12 @@ window['anychart']['themes']['coffee'] = {
     'fontColor': '#3e2723',
     'fontSize': 12
   },
-  'ordinalColor': {
+  'defaultOrdinalColorScale': {
     'autoColors': function(rangesCount) {
       return window['anychart']['color']['blendedHueProgression']('#d8b597', '#9b301c', rangesCount);
     }
   },
+  'defaultLinearColorScale': {'colors': ['#d8b597', '#9b301c']},
   'defaultBackground': {
     'fill': '#a1887f',
     'stroke': null,
@@ -228,7 +229,6 @@ window['anychart']['themes']['coffee'] = {
   },
   'map': {
     'unboundRegions': {'enabled': true, 'fill': '#bcaaa4', 'stroke': '#d7ccc8'},
-    'linearColor': {'colors': ['#d8b597', '#9b301c']},
     'defaultSeriesSettings': {
       'base': {
         'stroke': '#d7ccc8',
@@ -237,15 +237,29 @@ window['anychart']['themes']['coffee'] = {
           'fontColor': '#fafafa'
         }
       },
+      'bubble': {
+        'stroke': returnDarkenSourceColor
+      },
       'connector': {
         'selectStroke': '1.5 #000',
-        'stroke': '1.5 #8d5932',
+        'hoverStroke': '#8d5932',
+        'stroke': '#482311',
         'markers': {
           'fill': '#482311',
           'stroke': '1.5 #bcaaa4'
         },
         'hoverMarkers': {
-          'fill': '#482311'
+          'fill': '#482311',
+          'stroke': '1.5 #bcaaa4'
+        },
+        'selectMarkers': {
+          'fill': '#000',
+          'stroke': '1.5 #bcaaa4'
+        }
+      },
+      'marker': {
+        'labels': {
+          'fontColor': '#3e2723'
         }
       }
     }

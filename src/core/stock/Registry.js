@@ -35,6 +35,34 @@ anychart.core.stock.Registry = function() {
    * @private
    */
   this.syncMode_ = true;
+
+  /**
+   * Search rows cache array. Acts like a cycled buffer.
+   * @type {Array.<!anychart.core.stock.Registry.Search>}
+   * @private
+   */
+  this.searchCache_ = [];
+
+  /**
+   * Points on an index in searchCache_ where we should write.
+   * @type {number}
+   * @private
+   */
+  this.searchCachePointer_ = 0;
+
+  /**
+   * Selection objects cache array. Acts like a cycled buffer.
+   * @type {Array.<!anychart.core.stock.Registry.Selection>}
+   * @private
+   */
+  this.selectionCache_ = [];
+
+  /**
+   * Points on an index in selectionCache_ where we should write.
+   * @type {number}
+   * @private
+   */
+  this.selectionCachePointer_ = 0;
 };
 
 
@@ -59,10 +87,35 @@ anychart.core.stock.Registry.Item;
  *   firstIndex: number,
  *   preFirstIndex: number,
  *   lastIndex: number,
- *   postLastIndex: number
+ *   postLastIndex: number,
+ *   minDistance: number
  * }}
  */
 anychart.core.stock.Registry.Selection;
+
+
+/**
+ * Internal type to represent table search result.
+ * @typedef {{
+ *   key: number,
+ *   index: number
+ * }}
+ */
+anychart.core.stock.Registry.Search;
+
+
+/**
+ * Selection cache size constant.
+ * @type {number}
+ */
+anychart.core.stock.Registry.SELECTION_CACHE_SIZE = 10;
+
+
+/**
+ * Search cache size constant.
+ * @type {number}
+ */
+anychart.core.stock.Registry.SEARCH_CACHE_SIZE = 3;
 
 
 /**
@@ -79,28 +132,56 @@ anychart.core.stock.Registry.prototype.isInSyncMode = function() {
  * @param {number} index
  * @return {number}
  */
-anychart.core.stock.Registry.prototype.getKey = function(index) {
+anychart.core.stock.Registry.prototype.getKeyByIndex = function(index) {
+  // checking cache
+  for (var i = 0; i < this.searchCache_.length; i++) {
+    // we need this indexing to prioritize selection cache lookup (from the most recent to older ones)
+    // assume we have a cache like [3, 4, 5, 0, 1, 2] (greater is more recent, MAX_CACHE_SIZE = 6)
+    // than we have a pointer with value 3 (points to 0) and we want to lookup the cache from 5 to 0
+    // than the proper cache index would be as follows:
+    var cacheIndex = (this.searchCachePointer_ - i - 1 + anychart.core.stock.Registry.SEARCH_CACHE_SIZE) %
+        anychart.core.stock.Registry.SEARCH_CACHE_SIZE;
+    var search = this.searchCache_[cacheIndex];
+    if (search.index == index)
+      return search.key;
+  }
+
   var len = this.keys_.length;
-  if (len >= 2) { // also filters NaNs
+  var result;
+  if (len >= 2 && !isNaN(index)) { // also filters NaNs
     var low = Math.floor(index);
     var high = Math.ceil(index);
     var lowKey, highKey;
-    if (high <= 0) {
-      low = 0;
-    } else if (low >= len - 1) {
-      low = len - 2;
-    } else if (low == high) {
-      return this.keys_[index].key;
+    if (low == high) {
+      if (high <= 0) {
+        low = 0;
+      } else if (low > len - 1) {
+        low = len - 1;
+      } else {
+        low = index;
+      }
+      result = this.keys_[low].key;
+    } else {
+      if (high <= 0) {
+        low = 0;
+      } else if (low >= len - 1) {
+        low = len - 2;
+      }
+      // inter/extrapolating
+      lowKey = this.keys_[low].key;
+      highKey = this.keys_[low + 1].key;
+      result = Math.round((highKey - lowKey) * (index - low) + lowKey);
     }
-    // inter/extrapolating
-    lowKey = this.keys_[low].key;
-    highKey = this.keys_[low + 1].key;
-    return Math.round((highKey - lowKey) * (index - low) + lowKey);
   } else {
-    if (len && index == 0)
-      return this.keys_[index].key;
-    return NaN;
+    result = (len && index == 0) ? this.keys_[index].key : NaN;
   }
+
+  this.searchCache_[this.searchCachePointer_] = {
+    key: result,
+    index: index
+  };
+  this.searchCachePointer_ = (this.searchCachePointer_ + 1) % anychart.core.stock.Registry.SEARCH_CACHE_SIZE;
+  return result;
 };
 
 
@@ -109,9 +190,23 @@ anychart.core.stock.Registry.prototype.getKey = function(index) {
  * @param {number} key
  * @return {number}
  */
-anychart.core.stock.Registry.prototype.getIndex = function(key) {
+anychart.core.stock.Registry.prototype.getIndexByKey = function(key) {
+  // checking cache
+  for (var i = 0; i < this.searchCache_.length; i++) {
+    // we need this indexing to prioritize selection cache lookup (from the most recent to older ones)
+    // assume we have a cache like [3, 4, 5, 0, 1, 2] (greater is more recent, MAX_CACHE_SIZE = 6)
+    // than we have a pointer with value 3 (points to 0) and we want to lookup the cache from 5 to 0
+    // than the proper cache index would be as follows:
+    var cacheIndex = (this.searchCachePointer_ - i - 1 + anychart.core.stock.Registry.SEARCH_CACHE_SIZE) %
+        anychart.core.stock.Registry.SEARCH_CACHE_SIZE;
+    var search = this.searchCache_[cacheIndex];
+    if (search.key == key)
+      return search.index;
+  }
+
+  var result;
   var len = this.keys_.length;
-  if (len >= 2) { // also filters NaNs
+  if (len >= 2 && !isNaN(key)) { // also filters NaNs
     var index = goog.array.binarySelect(this.keys_, anychart.data.TableRow.searchEvaluator, key);
     if (index < 0) {
       var low = ~index - 1;
@@ -124,14 +219,20 @@ anychart.core.stock.Registry.prototype.getIndex = function(key) {
       // inter/extrapolating
       lowKey = this.keys_[low].key;
       highKey = this.keys_[low + 1].key;
-      return (key - lowKey) / (highKey - lowKey) + low;
+      result = (key - lowKey) / (highKey - lowKey) + low;
+    } else {
+      result = index;
     }
-    return index;
   } else {
-    if (len == 1 && key == this.keys_[0].key)
-      return 0;
-    return NaN;
+    result = (len == 1 && key == this.keys_[0].key) ? 0 : NaN;
   }
+
+  this.searchCache_[this.searchCachePointer_] = {
+    key: key,
+    index: result
+  };
+  this.searchCachePointer_ = (this.searchCachePointer_ + 1) % anychart.core.stock.Registry.SEARCH_CACHE_SIZE;
+  return result;
 };
 
 
@@ -142,7 +243,7 @@ anychart.core.stock.Registry.prototype.getIndex = function(key) {
  * @return {!anychart.core.stock.Registry.Iterator}
  */
 anychart.core.stock.Registry.prototype.getIterator = function(firstKey, lastKey) {
-  return this.getIteratorFast(this.getIndex(firstKey), this.getIndex(lastKey));
+  return this.getIteratorFast(this.getIndexByKey(firstKey), this.getIndexByKey(lastKey));
 };
 
 
@@ -219,6 +320,7 @@ anychart.core.stock.Registry.prototype.isDirty = function() {
  */
 anychart.core.stock.Registry.prototype.resetSources = function() {
   this.sources_.length = 0;
+  this.dirty_ = true;
 };
 
 
@@ -238,11 +340,24 @@ anychart.core.stock.Registry.prototype.addSource = function(table) {
  * @return {anychart.core.stock.Registry.Selection}
  */
 anychart.core.stock.Registry.prototype.getSelection = function(startKey, endKey) {
-  var first, last, preFirst, postLast, startIndex, endIndex;
+  var first, last, preFirst, postLast, startIndex, endIndex, selection, minDistance, i;
   var keysLength = this.keys_.length;
   if (keysLength) {
-    startIndex = this.getIndex(startKey);
-    endIndex = this.getIndex(endKey);
+    // checking cache
+    for (i = 0; i < this.selectionCache_.length; i++) {
+      // we need this indexing to prioritize selection cache lookup (from the most recent to older ones)
+      // assume we have a cache like [3, 4, 5, 0, 1, 2] (greater is more recent, MAX_CACHE_SIZE = 6)
+      // than we have a pointer with value 3 (points to 0) and we want to lookup the cache from 5 to 0
+      // than the proper cache index would be as follows:
+      var cacheIndex = (this.selectionCachePointer_ - i - 1 + anychart.core.stock.Registry.SELECTION_CACHE_SIZE) %
+          anychart.core.stock.Registry.SELECTION_CACHE_SIZE;
+      selection = this.selectionCache_[cacheIndex];
+      if (selection.startKey == startKey && selection.endKey == endKey)
+        return selection;
+    }
+
+    startIndex = this.getIndexByKey(startKey);
+    endIndex = this.getIndexByKey(endKey);
     first = Math.ceil(startIndex);
     if (first >= keysLength)
       first = NaN;
@@ -250,7 +365,7 @@ anychart.core.stock.Registry.prototype.getSelection = function(startKey, endKey)
     if (isNaN(first)) {
       // this means that we tried to select keys greater than there are in the storage
       preFirst = keysLength - 1;
-      last = postLast = NaN;
+      last = postLast = minDistance = NaN;
     } else {
       last = Math.floor(endIndex);
       if (last < 0)
@@ -259,18 +374,30 @@ anychart.core.stock.Registry.prototype.getSelection = function(startKey, endKey)
         // this means that we tried to select keys less than there are in the storage
         // and, thereby first should be now the first row in the storage (index 0)
         postLast = first;
-        first = preFirst = NaN;
+        first = preFirst = minDistance = NaN;
       } else {
         first = Math.max(0, first);
         last = Math.min(last, keysLength - 1);
         preFirst = first > 0 ? first - 1 : NaN;
         postLast = last < keysLength - 1 ? last + 1 : NaN;
+        minDistance = Infinity;
+        var tmpFirst = isNaN(preFirst) ? first : preFirst;
+        var tmpLast = isNaN(postLast) ? last : postLast;
+        var curr = this.keys_[tmpFirst];
+        for (i = tmpFirst; i < tmpLast; i++) {
+          var prev = curr;
+          curr = prev.next;
+          minDistance = Math.min(minDistance, curr.key - prev.key);
+        }
+        if (!isFinite(minDistance))
+          minDistance = NaN;
       }
     }
   } else {
-    first = last = preFirst = postLast = startIndex = endIndex = NaN;
+    first = last = preFirst = postLast = startIndex = endIndex = minDistance = NaN;
   }
-  return {
+
+  selection = {
     startKey: startKey,
     endKey: endKey,
     startIndex: startIndex,
@@ -278,8 +405,14 @@ anychart.core.stock.Registry.prototype.getSelection = function(startKey, endKey)
     firstIndex: first,
     preFirstIndex: preFirst,
     lastIndex: last,
-    postLastIndex: postLast
+    postLastIndex: postLast,
+    minDistance: minDistance
   };
+  if (keysLength) {
+    this.selectionCache_[this.selectionCachePointer_] = selection;
+    this.selectionCachePointer_ = (this.selectionCachePointer_ + 1) % anychart.core.stock.Registry.SELECTION_CACHE_SIZE;
+  }
+  return selection;
 };
 
 
@@ -288,6 +421,12 @@ anychart.core.stock.Registry.prototype.getSelection = function(startKey, endKey)
  */
 anychart.core.stock.Registry.prototype.update = function() {
   if (!this.dirty_) return;
+
+  this.searchCache_.length = 0;
+  this.searchCachePointer_ = 0;
+  this.selectionCache_.length = 0;
+  this.selectionCachePointer_ = 0;
+
   if (!this.sources_.length) {
     this.keys_ = [];
   } else if (this.sources_.length == 1) {

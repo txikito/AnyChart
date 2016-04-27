@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <xsd:schema
         xmlns:xsd="http://www.w3.org/2001/XMLSchema"
-        targetNamespace="http://anychart.com/schemas/7.9.1/xml-schema.xsd"
-        xmlns="http://anychart.com/schemas/7.9.1/xml-schema.xsd"
+        targetNamespace="http://anychart.com/schemas/7.10.0/xml-schema.xsd"
+        xmlns="http://anychart.com/schemas/7.10.0/xml-schema.xsd"
         elementFormDefault="qualified">
 
     <xsd:element name="anychart" type="Anychart"/>
@@ -108,6 +108,7 @@
             <xsd:element minOccurs="0" maxOccurs="1" name="headers" type="core.LabelsFactory"/>
             <xsd:element minOccurs="0" maxOccurs="1" name="hover_headers" type="core.LabelsFactory"/>
             <xsd:element minOccurs="0" maxOccurs="1" name="color_range" type="core.ColorRange"/>
+            <xsd:element minOccurs="0" maxOccurs="1" name="drill_to" type="DrillToList"/>
             <!-- new Cartesian elements -->
             <xsd:element minOccurs="0" maxOccurs="1" name="x_zoom" type="core.CartesianXZoom"/>
             <xsd:element minOccurs="0" maxOccurs="1" name="x_scroller" type="core.ChartScroller"/>
@@ -2163,6 +2164,17 @@
         <xsd:attribute name="auto_hide" type="simple.Bool" default="false"/>
     </xsd:complexType>
 
+    <xsd:complexType name="DrillToList">
+        <xsd:sequence minOccurs="0" maxOccurs="unbounded">
+            <xsd:element name="item" type="simple.UnsignedInteger"/>
+        </xsd:sequence>
+    </xsd:complexType>
+
+    <xsd:complexType name="simple.UnsignedInteger">
+        <xsd:simpleContent>
+            <xsd:extension base="xsd:unsignedInt"/>
+        </xsd:simpleContent>
+    </xsd:complexType>
 
     <!-- Simple types -->
 
@@ -2585,6 +2597,7 @@
             <xsd:enumeration value="bar"/>
             <xsd:enumeration value="x"/>
             <xsd:enumeration value="line"/>
+            <xsd:enumeration value="vline"/>
             <xsd:enumeration value="ellipse"/>
             <xsd:enumeration value="trapezium"/>
             <xsd:enumeration value="pentagon"/>

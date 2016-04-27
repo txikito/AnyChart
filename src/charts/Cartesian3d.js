@@ -127,6 +127,9 @@ anychart.charts.Cartesian3d.areaPostProcessor = function(series, shapes, pointSt
   shapes[anychart.opt.RIGHT].fill({'color': rightFill, 'opacity': opacity});
   shapes[anychart.opt.TOP].fill({'color': topFill, 'opacity': opacity});
   shapes[anychart.opt.FRONT].fill(frontFill);
+
+  // fix for batik (DVF-2068)
+  shapes[anychart.opt.TOP].stroke({'color': topFill, 'thickness': 0.8});
 };
 
 
@@ -456,6 +459,22 @@ anychart.charts.Cartesian3d.prototype.getY3DShift = function(seriesIsStacked) {
     seriesShift = (seriesShift - zPaddingShift * (seriesCount - 1)) / seriesCount;
   }
   return seriesShift;
+};
+
+
+/**
+ * @return {number}
+ */
+anychart.charts.Cartesian3d.prototype.getX3DFullShift = function() {
+  return this.x3dShift;
+};
+
+
+/**
+ * @return {number}
+ */
+anychart.charts.Cartesian3d.prototype.getY3DFullShift = function() {
+  return this.y3dShift;
 };
 
 
@@ -865,4 +884,5 @@ anychart.charts.Cartesian3d.prototype['zAspect'] = anychart.charts.Cartesian3d.p
 anychart.charts.Cartesian3d.prototype['zAngle'] = anychart.charts.Cartesian3d.prototype.zAngle;
 anychart.charts.Cartesian3d.prototype['zDistribution'] = anychart.charts.Cartesian3d.prototype.zDistribution;
 anychart.charts.Cartesian3d.prototype['zPadding'] = anychart.charts.Cartesian3d.prototype.zPadding;
+anychart.charts.Cartesian3d.prototype['getStat'] = anychart.charts.Cartesian3d.prototype.getStat;
 anychart.charts.Cartesian3d.prototype['zDepth'] = anychart.charts.Cartesian3d.prototype.zDepth; // deprecated

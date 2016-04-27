@@ -11,6 +11,7 @@ goog.require('anychart.data');
 goog.require('anychart.enums');
 goog.require('anychart.opt');
 goog.require('anychart.utils');
+goog.require('goog.array');
 
 
 
@@ -171,8 +172,8 @@ anychart.core.series.Cartesian.prototype.applyConfig = function(config) {
 
 
 /** @inheritDoc */
-anychart.core.series.Cartesian.prototype.applyDefaultsToElements = function(defaults) {
-  anychart.core.series.Cartesian.base(this, 'applyDefaultsToElements', defaults);
+anychart.core.series.Cartesian.prototype.applyDefaultsToElements = function(defaults, opt_resetLegendItem) {
+  anychart.core.series.Cartesian.base(this, 'applyDefaultsToElements', defaults, opt_resetLegendItem);
 
   if (goog.isDef(defaults['allowPointsSelect'])) {
     this.selectionMode(goog.isBoolean(defaults['allowPointsSelect']) ?
@@ -329,7 +330,7 @@ anychart.core.series.Cartesian.prototype.data = function(opt_value, opt_csvSetti
       this.dataInternal = this.parentView;
       this.dataInternal.listenSignals(this.dataInvalidated_, this);
       // DATA is supported only in Bubble, so we invalidate only for it.
-      this.invalidate(anychart.ConsistencyState.APPEARANCE | anychart.ConsistencyState.SERIES_DATA,
+      this.invalidate(anychart.ConsistencyState.SERIES_POINTS | anychart.ConsistencyState.SERIES_DATA,
           anychart.Signal.NEEDS_RECALCULATION | anychart.Signal.NEEDS_REDRAW | anychart.Signal.DATA_CHANGED);
     }
     return this;
@@ -443,6 +444,95 @@ anychart.core.series.Cartesian.prototype.setValueInternal = function(index, name
   }
   this.data().set(index, name, value);
 };
+
+
+/**
+ * Excludes points at passed indexes.
+ * @param {number|Array.<number>} indexes Point indexes.
+ * @return {boolean} If anything changed.
+ */
+anychart.core.series.Cartesian.prototype.excludePoint = function(indexes) {
+  if (!this.excludedPoints_)
+    this.excludedPoints_ = [];
+  if (!goog.isArray(indexes))
+    indexes = [indexes];
+  var doInvalidate = false;
+  for (var i = 0; i < indexes.length; i++) {
+    doInvalidate = goog.array.binaryInsert(this.excludedPoints_, indexes[i]) || doInvalidate;
+  }
+  if (doInvalidate)
+    this.invalidate(anychart.ConsistencyState.SERIES_POINTS,
+        anychart.Signal.NEEDS_RECALCULATION | anychart.Signal.NEEDS_REDRAW);
+  return doInvalidate;
+};
+
+
+/**
+ * Includes excluded points at passed indexes.
+ * @param {number|Array.<number>} indexes Point indexes.
+ * @return {boolean} If anything changed.
+ */
+anychart.core.series.Cartesian.prototype.includePoint = function(indexes) {
+  if (!this.excludedPoints_)
+    return false;
+  if (!goog.isArray(indexes))
+    indexes = [indexes];
+  var doInvalidate = false;
+  for (var i = 0; i < indexes.length; i++) {
+    doInvalidate = goog.array.binaryRemove(this.excludedPoints_, indexes[i]) || doInvalidate;
+  }
+  if (doInvalidate)
+    this.invalidate(anychart.ConsistencyState.SERIES_POINTS,
+        anychart.Signal.NEEDS_RECALCULATION | anychart.Signal.NEEDS_REDRAW);
+  return doInvalidate;
+};
+
+
+/**
+ * Returns an array of excluded points.
+ * @return {Array.<number>}
+ */
+anychart.core.series.Cartesian.prototype.getExcludedIndexesInternal = function() {
+  return this.excludedPoints_ || [];
+};
+
+
+/**
+ * Returns an array of excluded points.
+ * @return {Array.<anychart.core.Point>}
+ */
+anychart.core.series.Cartesian.prototype.getExcludedPoints = function() {
+  return goog.array.map(this.excludedPoints_ || [], this.getPoint, this);
+};
+
+
+/**
+ * Keep only passed points.
+ * @param {number|Array.<number>} indexes Point index.
+ */
+anychart.core.series.Cartesian.prototype.keepOnlyPoints = function(indexes) {
+  this.excludedPoints_ ? this.excludedPoints_.length = 0 : this.excludedPoints_ = [];
+  var pointsCount = this.getIterator().getRowsCount();
+  for (var i = 0; i < pointsCount; i++) {
+    this.excludedPoints_.push(i);
+  }
+  this.includePoint(indexes);
+};
+
+
+/**
+ * Includes all points.
+ * @return {boolean} If anything changed.
+ */
+anychart.core.series.Cartesian.prototype.includeAllPoints = function() {
+  if (this.excludedPoints_ && this.excludedPoints_.length) {
+    this.excludedPoints_.length = 0;
+    this.invalidate(anychart.ConsistencyState.SERIES_POINTS,
+        anychart.Signal.NEEDS_RECALCULATION | anychart.Signal.NEEDS_REDRAW);
+    return true;
+  }
+  return false;
+};
 //endregion
 
 
@@ -489,8 +579,11 @@ anychart.core.series.Cartesian.prototype.planIsXScaleInverted = function() {
 
 
 /** @inheritDoc */
-anychart.core.series.Cartesian.prototype.isPointVisible = function(index) {
-  return !this.drawingPlan || index >= this.drawingPlan.firstIndex && index <= this.drawingPlan.lastIndex;
+anychart.core.series.Cartesian.prototype.isPointVisible = function(point) {
+  var index = point.getIndex();
+  return !point.meta(anychart.opt.ARTIFICIAL) &&
+      !point.meta(anychart.opt.EXCLUDED) &&
+      (!this.drawingPlan || index >= this.drawingPlan.firstIndex && index <= this.drawingPlan.lastIndex);
 };
 //endregion
 
@@ -514,14 +607,12 @@ anychart.core.series.Cartesian.prototype.getDrawingData_ = function(data, dataPu
   anychart.performance.start('Drawing plan calc');
   var iterator = this.data().getIterator();
   var yScale = /** @type {anychart.scales.Base} */ (this.yScale());
-  var seriesMin = Infinity;
-  var seriesMax = -Infinity;
-  var seriesSum = 0;
   var pointLabelsCount = 0;
   var pointMarkersCount = 0;
   var pointOutliersCount = 0;
   var hasXErrors = false;
   var hasYErrors = false;
+
   while (iterator.advance()) {
     var xValue = xNormalizer(iterator.get(anychart.opt.X));
     if (xMissingChecker(xValue)) // we do not add missings for points that have undefined X
@@ -570,31 +661,31 @@ anychart.core.series.Cartesian.prototype.getDrawingData_ = function(data, dataPu
     meta[anychart.opt.RAW_INDEX] = iterator.getIndex();
 
     if (!missing) {
-      val = pointData[anychart.opt.VALUE];
-      seriesSum += val;
-      if (seriesMax < val)
-        seriesMax = val;
-      if (seriesMin > val)
-        seriesMin = val;
       // we count marker pointData settings
       if (this.supportsMarkers() && (
           pointData[anychart.opt.MARKER] ||
           pointData[anychart.opt.HOVER_MARKER] ||
-          pointData[anychart.opt.SELECT_MARKER]))
+          pointData[anychart.opt.SELECT_MARKER])) {
+        meta[anychart.opt.HAS_POINT_MARKER] = true;
         pointMarkersCount++;
+      }
       // we count label pointData settings
       if (this.supportsLabels() && (
           pointData[anychart.opt.LABEL] ||
           pointData[anychart.opt.HOVER_LABEL] ||
-          pointData[anychart.opt.SELECT_LABEL]))
+          pointData[anychart.opt.SELECT_LABEL])) {
+        meta[anychart.opt.HAS_POINT_LABEL] = true;
         pointLabelsCount++;
+      }
       // we count label pointData settings
       if (this.supportsOutliers() && (
           pointData[anychart.opt.OUTLIERS] ||
           pointData[anychart.opt.OUTLIER_MARKER] ||
           pointData[anychart.opt.HOVER_OUTLIER_MARKER] ||
-          pointData[anychart.opt.SELECT_OUTLIER_MARKER]))
+          pointData[anychart.opt.SELECT_OUTLIER_MARKER])) {
+        meta[anychart.opt.HAS_POINT_OUTLIER] = true;
         pointOutliersCount++;
+      }
     }
     var point = {
       data: pointData,
@@ -602,21 +693,16 @@ anychart.core.series.Cartesian.prototype.getDrawingData_ = function(data, dataPu
     };
     point = dataPusher(data, point);
     // if the new pointData replaced a pointData, we should decrease labels and markers counters
-    if (point) {
-      if (!point.meta[anychart.opt.MISSING]) {
-        if (point[anychart.opt.MARKER])
-          pointMarkersCount--;
-        if (point[anychart.opt.LABEL])
-          pointLabelsCount--;
-        // we count label pointData settings
-        if (this.supportsOutliers() && pointData[anychart.opt.OUTLIERS])
-          pointOutliersCount--;
-      }
+    if (point && !point.meta[anychart.opt.MISSING]) {
+      if (point.meta[anychart.opt.HAS_POINT_MARKER])
+        pointMarkersCount--;
+      if (point.meta[anychart.opt.HAS_POINT_LABEL])
+        pointLabelsCount--;
+      if (point.meta[anychart.opt.HAS_POINT_OUTLIER])
+        pointOutliersCount--;
     }
   }
-  this.statistics('seriesMax', seriesMax);
-  this.statistics('seriesMin', seriesMin);
-  this.statistics('seriesSum', seriesSum);
+
   anychart.performance.end('Drawing plan calc');
   this.invalidate(anychart.ConsistencyState.SERIES_DATA);
   return this.drawingPlan = {
@@ -665,7 +751,9 @@ anychart.core.series.Cartesian.prototype.getScatterDrawingPlan = function(sorted
     };
   }
   var needsSorting = false;
-  var xNormalizer = dateTimeMode ? anychart.utils.normalizeTimestamp : function(a) { return a; };
+  var xNormalizer = dateTimeMode ? anychart.utils.normalizeTimestamp : function(a) {
+    return a;
+  };
   var xMissingChecker = isNaN;
 
   var result = this.getDrawingData_([], dataPusher, xNormalizer, xMissingChecker);
@@ -711,8 +799,12 @@ anychart.core.series.Cartesian.prototype.getOrdinalDrawingPlan = function(xHashM
       return result || null;
     };
   }
-  var xNormalizer = function(a) { return a; };
-  var xMissingChecker = function(a) { return a === undefined; };
+  var xNormalizer = function(a) {
+    return a;
+  };
+  var xMissingChecker = function(a) {
+    return a === undefined;
+  };
 
   var result = this.getDrawingData_(new Array(xArray.length), dataPusher, xNormalizer, xMissingChecker, opt_namesField);
   var data = result.data;
@@ -764,7 +856,9 @@ anychart.core.series.Cartesian.prototype.findX = function(fieldValue) {
       res = this.drawingPlan.xHashMap[anychart.utils.hash(fieldValue)];
       return isNaN(res) ? -1 : res;
     } else { // scatter case - plan.data should be sorted by X field
-      res = goog.array.binarySelect(this.drawingPlan.data, function(val) { return /** @type {number} */(fieldValue) - val.data[anychart.opt.X]; });
+      res = goog.array.binarySelect(this.drawingPlan.data, function(val) {
+        return /** @type {number} */(fieldValue) - val.data[anychart.opt.X];
+      });
       if (res < 0) {
         res = ~res;
         if (res > 0) {
@@ -801,9 +895,13 @@ anychart.core.series.Cartesian.prototype.findInRangeByX = function(minValue, max
       start = this.drawingPlan.xHashMap[anychart.utils.hash(minValue)];
       end = this.drawingPlan.xHashMap[anychart.utils.hash(maxValue)];
     } else { // scatter case - plan.data should be sorted by X field
-      start = goog.array.binarySelect(this.drawingPlan.data, function(val) { return /** @type {number} */(minValue) - val.data[anychart.opt.X]; });
+      start = goog.array.binarySelect(this.drawingPlan.data, function(val) {
+        return /** @type {number} */(minValue) - val.data[anychart.opt.X];
+      });
       if (start < 0) start = ~start;
-      end = goog.array.binarySelect(this.drawingPlan.data, function(val) { return /** @type {number} */(maxValue) - val.data[anychart.opt.X]; });
+      end = goog.array.binarySelect(this.drawingPlan.data, function(val) {
+        return /** @type {number} */(maxValue) - val.data[anychart.opt.X];
+      });
       if (end < 0) end = ~end;
     }
     if (!isNaN(start) && !isNaN(end)) {
@@ -949,8 +1047,7 @@ anychart.core.series.Cartesian.prototype.hover = function(opt_indexOrIndexes) {
  */
 anychart.core.series.Cartesian.prototype.unhover = function(opt_indexOrIndexes) {
   if (!(this.state.hasPointState(anychart.PointState.HOVER) ||
-      this.state.isStateContains(this.state.getSeriesState(), anychart.PointState.HOVER)) ||
-      !this.enabled())
+      this.state.isStateContains(this.state.getSeriesState(), anychart.PointState.HOVER)) || !this.enabled())
     return this;
 
   var index;
@@ -1201,14 +1298,97 @@ anychart.core.series.Cartesian.prototype.makePointEvent = function(event) {
 /**
  * Gets wrapped point by index.
  * @param {number} index Point index.
- * @return {anychart.core.Point} Wrapped point.
+ * @return {anychart.core.SeriesPoint} Wrapped point.
  */
 anychart.core.series.Cartesian.prototype.getPoint = function(index) {
+  var point;
   if (this.isSizeBased()) {
-    return new anychart.core.BubblePoint(this, index);
+    point = new anychart.core.BubblePoint(this, index);
   } else {
-    return new anychart.core.SeriesPoint(this, index);
+    point = new anychart.core.SeriesPoint(this, index);
   }
+
+  this.chart.calculate();
+  var chartStat = (/** @type {anychart.core.CartesianBase} */ (this.chart)).statistics;
+  var isRangeSeries = this.check(anychart.core.drawers.Capabilities.IS_RANGE_BASED | anychart.core.drawers.Capabilities.IS_OHLC_BASED);
+
+  var val = /** @type {number} */ (isRangeSeries ? (/** @type {number} */ (point.get(anychart.opt.HIGH)) - /** @type {number} */ (point.get(anychart.opt.LOW))) :
+      point.get(anychart.opt.VALUE));
+
+  var size = /** @type {number} */ (point.get(anychart.opt.SIZE)); //Bubble.
+  var v;
+
+  if (goog.isNumber(chartStat[anychart.enums.Statistics.DATA_PLOT_X_SUM])) {
+    v = val / /** @type {number} */ (chartStat[anychart.enums.Statistics.DATA_PLOT_X_SUM]);
+    point.statistics[anychart.enums.Statistics.X_PERCENT_OF_TOTAL] = v * 100;
+  }
+
+  if (goog.isNumber(this.statistics(anychart.enums.Statistics.SERIES_X_SUM))) {
+    v = val / /** @type {number} */ (this.statistics(anychart.enums.Statistics.SERIES_X_SUM));
+    point.statistics[anychart.enums.Statistics.X_PERCENT_OF_SERIES] = v * 100;
+  }
+
+  if (goog.isNumber(this.statistics(anychart.enums.Statistics.SERIES_BUBBLE_SIZE_SUM))) {
+    v = size / /** @type {number} */ (this.statistics(anychart.enums.Statistics.SERIES_BUBBLE_SIZE_SUM));
+    point.statistics[anychart.enums.Statistics.BUBBLE_SIZE_PERCENT_OF_SERIES] = v * 100;
+    v = size / /** @type {number} */ (chartStat[anychart.enums.Statistics.DATA_PLOT_BUBBLE_SIZE_SUM]);
+    point.statistics[anychart.enums.Statistics.BUBBLE_SIZE_PERCENT_OF_TOTAL] = v * 100;
+    point.statistics[anychart.enums.Statistics.BUBBLE_SIZE] = size;
+  }
+
+  var sumArr = isRangeSeries ?
+      this.statistics(anychart.enums.Statistics.CATEGORY_Y_RANGE_SUM_ARR_) :
+      this.statistics(anychart.enums.Statistics.CATEGORY_Y_SUM_ARR_);
+  var x = /** @type {number} */ (point.get(anychart.opt.X));
+
+  if (sumArr) {
+    point.statistics[anychart.enums.Statistics.CATEGORY_NAME] = x;
+    var catSum = sumArr[index];
+
+    if (isRangeSeries) {
+      v = val / /** @type {number} */ (this.statistics(anychart.enums.Statistics.SERIES_Y_RANGE_SUM));
+      point.statistics[anychart.enums.Statistics.Y_PERCENT_OF_SERIES] = v * 100;
+      v = val / chartStat[anychart.enums.Statistics.DATA_PLOT_Y_SUM];
+      point.statistics[anychart.enums.Statistics.Y_PERCENT_OF_TOTAL] = v * 100;
+      v = val / catSum;
+      point.statistics[anychart.enums.Statistics.Y_PERCENT_OF_CATEGORY] = v * 100;
+      v = catSum / chartStat[anychart.enums.Statistics.DATA_PLOT_Y_SUM];
+      point.statistics[anychart.enums.Statistics.CATEGORY_Y_RANGE_PERCENT_OF_TOTAL] = v * 100;
+      point.statistics[anychart.enums.Statistics.CATEGORY_Y_RANGE_SUM] = catSum;
+      point.statistics[anychart.enums.Statistics.CATEGORY_Y_RANGE_MAX] = this.statistics(anychart.enums.Statistics.CATEGORY_Y_RANGE_MAX_ARR_)[index];
+      point.statistics[anychart.enums.Statistics.CATEGORY_Y_RANGE_MIN] = this.statistics(anychart.enums.Statistics.CATEGORY_Y_RANGE_MIN_ARR_)[index];
+      point.statistics[anychart.enums.Statistics.CATEGORY_Y_RANGE_AVERAGE] = this.statistics(anychart.enums.Statistics.CATEGORY_Y_RANGE_AVG_ARR_)[index];
+      point.statistics[anychart.enums.Statistics.CATEGORY_Y_RANGE_MEDIAN] = this.statistics(anychart.enums.Statistics.CATEGORY_Y_RANGE_MEDIAN_ARR_)[index];
+      point.statistics[anychart.enums.Statistics.CATEGORY_Y_RANGE_MODE] = this.statistics(anychart.enums.Statistics.CATEGORY_Y_RANGE_MODE_ARR_)[index];
+    } else {
+      v = val / /** @type {number} */ (this.statistics(anychart.enums.Statistics.SERIES_Y_SUM));
+      point.statistics[anychart.enums.Statistics.Y_PERCENT_OF_SERIES] = v * 100;
+      v = val / chartStat[anychart.enums.Statistics.DATA_PLOT_Y_SUM];
+      point.statistics[anychart.enums.Statistics.Y_PERCENT_OF_TOTAL] = v * 100;
+      v = val / catSum;
+      point.statistics[anychart.enums.Statistics.Y_PERCENT_OF_CATEGORY] = v * 100;
+      v = catSum / chartStat[anychart.enums.Statistics.DATA_PLOT_Y_SUM];
+      point.statistics[anychart.enums.Statistics.CATEGORY_Y_PERCENT_OF_TOTAL] = v * 100;
+      point.statistics[anychart.enums.Statistics.CATEGORY_Y_SUM] = catSum;
+      point.statistics[anychart.enums.Statistics.CATEGORY_Y_MAX] = this.statistics(anychart.enums.Statistics.CATEGORY_Y_MAX_ARR_)[index];
+      point.statistics[anychart.enums.Statistics.CATEGORY_Y_MIN] = this.statistics(anychart.enums.Statistics.CATEGORY_Y_MIN_ARR_)[index];
+      point.statistics[anychart.enums.Statistics.CATEGORY_Y_AVERAGE] = this.statistics(anychart.enums.Statistics.CATEGORY_Y_AVG_ARR_)[index];
+      point.statistics[anychart.enums.Statistics.CATEGORY_Y_MEDIAN] = this.statistics(anychart.enums.Statistics.CATEGORY_Y_MEDIAN_ARR_)[index];
+      point.statistics[anychart.enums.Statistics.CATEGORY_Y_MODE] = this.statistics(anychart.enums.Statistics.CATEGORY_Y_MODE_ARR_)[index];
+    }
+  } else {
+    v = x / /** @type {number} */ (this.statistics(anychart.enums.Statistics.SERIES_X_SUM));
+    point.statistics[anychart.enums.Statistics.X_PERCENT_OF_SERIES] = v * 100;
+    v = val / /** @type {number} */ (this.statistics(anychart.enums.Statistics.SERIES_Y_SUM));
+    point.statistics[anychart.enums.Statistics.Y_PERCENT_OF_SERIES] = v * 100;
+    v = x / /** @type {number} */ (chartStat[anychart.enums.Statistics.DATA_PLOT_X_SUM]);
+    point.statistics[anychart.enums.Statistics.X_PERCENT_OF_TOTAL] = v * 100;
+    v = val / /** @type {number} */ (chartStat[anychart.enums.Statistics.DATA_PLOT_Y_SUM]);
+    point.statistics[anychart.enums.Statistics.Y_PERCENT_OF_TOTAL] = v * 100;
+
+  }
+
+  return point;
 };
 //endregion
 
@@ -1294,3 +1474,8 @@ anychart.core.series.Cartesian.prototype['selectionMode'] = anychart.core.series
 anychart.core.series.Cartesian.prototype['allowPointsSelect'] = anychart.core.series.Cartesian.prototype.allowPointsSelect;
 
 anychart.core.series.Cartesian.prototype['getPoint'] = anychart.core.series.Cartesian.prototype.getPoint;
+anychart.core.series.Cartesian.prototype['excludePoint'] = anychart.core.series.Cartesian.prototype.excludePoint;
+anychart.core.series.Cartesian.prototype['includePoint'] = anychart.core.series.Cartesian.prototype.includePoint;
+anychart.core.series.Cartesian.prototype['keepOnlyPoints'] = anychart.core.series.Cartesian.prototype.keepOnlyPoints;
+anychart.core.series.Cartesian.prototype['includeAllPoints'] = anychart.core.series.Cartesian.prototype.includeAllPoints;
+anychart.core.series.Cartesian.prototype['getExcludedPoints'] = anychart.core.series.Cartesian.prototype.getExcludedPoints;

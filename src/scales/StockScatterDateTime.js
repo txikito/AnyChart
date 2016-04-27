@@ -1,5 +1,6 @@
 goog.provide('anychart.scales.StockScatterDateTime');
 goog.require('anychart.core.Base');
+goog.require('anychart.core.stock.IKeyIndexTransformer');
 goog.require('anychart.enums');
 goog.require('anychart.scales.IXScale');
 goog.require('anychart.scales.StockScatterTicksIterator');
@@ -9,7 +10,7 @@ goog.require('anychart.utils');
 
 /**
  * Stock scatter datetime scale class.
- * @param {!(anychart.charts.Stock|anychart.core.stock.Scroller)} chartOrScroller
+ * @param {!anychart.core.stock.IKeyIndexTransformer} chartOrScroller
  * @constructor
  * @extends {anychart.core.Base}
  * @implements {anychart.scales.IXScale}
@@ -18,7 +19,7 @@ anychart.scales.StockScatterDateTime = function(chartOrScroller) {
   goog.base(this);
   /**
    * Chart reference. Used for key<->index transformations.
-   * @type {!(anychart.charts.Stock|anychart.core.stock.Scroller)}
+   * @type {!anychart.core.stock.IKeyIndexTransformer}
    * @protected
    */
   this.keyIndexTransformer = chartOrScroller;
@@ -97,7 +98,7 @@ anychart.scales.StockScatterDateTime = function(chartOrScroller) {
    * Consistency flag. Easier to use than Base consistency here.
    * @type {boolean}
    */
-  this.consistent = true;
+  this.consistent = false;
 
   /**
    * Major ticks for the scale.
@@ -190,24 +191,6 @@ anychart.scales.StockScatterDateTime.prototype.getMinimumIndex = function() {
  */
 anychart.scales.StockScatterDateTime.prototype.getMaximumIndex = function() {
   return this.maxIndex;
-};
-
-
-/**
- * Gets current grouping unit.
- * @return {anychart.enums.Interval}
- */
-anychart.scales.StockScatterDateTime.prototype.getGroupingUnit = function() {
-  return this.unit;
-};
-
-
-/**
- * Gets current grouping unit count.
- * @return {number}
- */
-anychart.scales.StockScatterDateTime.prototype.getGroupingUnitCount = function() {
-  return this.count;
 };
 
 
@@ -426,6 +409,26 @@ anychart.scales.StockScatterDateTime.prototype.ticksInvalidated_ = function(even
     this.consistent = false;
     this.dispatchSignal(anychart.Signal.NEED_UPDATE_TICK_DEPENDENT);
   }
+};
+
+
+/**
+ * Gets current grouping unit.
+ * @return {anychart.enums.Interval}
+ * @deprecated Use stockChart.grouping().getEstimatedDataInterval() instead.
+ */
+anychart.scales.StockScatterDateTime.prototype.getGroupingUnit = function() {
+  return this.unit;
+};
+
+
+/**
+ * Gets current grouping unit count.
+ * @return {number}
+ * @deprecated Use stockChart.grouping().getEstimatedDataInterval() instead.
+ */
+anychart.scales.StockScatterDateTime.prototype.getGroupingUnitCount = function() {
+  return this.count;
 };
 
 

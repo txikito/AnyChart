@@ -808,6 +808,7 @@ anychart.enums.MarkerType = {
   PENTAGON: 'pentagon',
   TRAPEZIUM: 'trapezium',
   LINE: 'line',
+  V_LINE: 'vline',
   ARROWHEAD: 'arrowhead'
 };
 
@@ -823,6 +824,8 @@ anychart.enums.normalizeMarkerType = function(type, opt_default) {
   switch (type) {
     case 'line':
       return anychart.enums.MarkerType.LINE;
+    case 'vline':
+      return anychart.enums.MarkerType.V_LINE;
     case 'star4':
       return anychart.enums.MarkerType.STAR4;
     case 'star5':
@@ -908,6 +911,8 @@ anychart.enums.normalizeAnyMarkerType = function(type) {
     case 'arrow':
     case 'arrowhead':
       return anychart.enums.MarkerType.ARROWHEAD;
+    case 'vline':
+      return anychart.enums.MarkerType.V_LINE;
   }
   return null;
 };
@@ -1029,6 +1034,7 @@ anychart.enums.getMarkerDrawer = function(type) {
 
         return path;
       };
+    case 'vline':
     case 'line':
       return function(path, x, y, size) {
         var height = size * 2;
@@ -1381,13 +1387,13 @@ anychart.enums.normalizeBackgroundCornerType = function(value, opt_default) {
  * @enum {string}
  */
 anychart.enums.LegendItemIconType = {
+  // icons by series type
   AREA: 'area',
   BAR: 'bar',
   BUBBLE: 'bubble',
   CANDLESTICK: 'candlestick',
   COLUMN: 'column',
   LINE: 'line',
-  MARKER: 'marker',
   OHLC: 'ohlc',
   RANGE_AREA: 'rangearea',
   RANGE_BAR: 'rangebar',
@@ -1399,7 +1405,26 @@ anychart.enums.LegendItemIconType = {
   STEP_LINE: 'stepline',
   STEP_AREA: 'steparea',
   CIRCLE: 'circle',
-  SQUARE: 'square'
+  SQUARE: 'square',
+
+  // icons by marker type
+  TRIANGLE_UP: 'triangleup',
+  TRIANGLE_DOWN: 'triangledown',
+  DIAMOND: 'diamond',
+  CROSS: 'cross',
+  DIAGONAL_CROSS: 'diagonalcross',
+  STAR4: 'star4',
+  STAR5: 'star5',
+  STAR6: 'star6',
+  STAR7: 'star7',
+  STAR10: 'star10',
+  PENTAGON: 'pentagon',
+  TRAPEZIUM: 'trapezium',
+  ARROWHEAD: 'arrowhead',
+  V_LINE: 'vline',
+  // special icon types
+  MARKER: 'marker',
+  RISING_FALLING: 'risingfalling'
 };
 
 
@@ -1450,6 +1475,39 @@ anychart.enums.normalizeLegendItemIconType = function(value, opt_default) {
       return anychart.enums.LegendItemIconType.CIRCLE;
     case 'square':
       return anychart.enums.LegendItemIconType.SQUARE;
+    case 'star4':
+      return anychart.enums.LegendItemIconType.STAR4;
+    case 'star5':
+      return anychart.enums.LegendItemIconType.STAR5;
+    case 'star6':
+      return anychart.enums.LegendItemIconType.STAR6;
+    case 'star7':
+      return anychart.enums.LegendItemIconType.STAR7;
+    case 'star10':
+      return anychart.enums.LegendItemIconType.STAR10;
+    case 'diamond':
+      return anychart.enums.LegendItemIconType.DIAMOND;
+    case 'triangleup':
+      return anychart.enums.LegendItemIconType.TRIANGLE_UP;
+    case 'triangledown':
+      return anychart.enums.LegendItemIconType.TRIANGLE_DOWN;
+    case 'cross':
+      return anychart.enums.LegendItemIconType.CROSS;
+    case 'diagonalcross':
+      return anychart.enums.LegendItemIconType.DIAGONAL_CROSS;
+    case 'trapezoid':
+    case 'trapezium':
+      return anychart.enums.LegendItemIconType.TRAPEZIUM;
+    case 'pentagon':
+      return anychart.enums.LegendItemIconType.PENTAGON;
+    case 'arrow':
+    case 'arrowhead':
+      return anychart.enums.LegendItemIconType.ARROWHEAD;
+    case 'vline':
+      return anychart.enums.LegendItemIconType.V_LINE;
+    case 'rf':
+    case 'risingfalling':
+      return anychart.enums.LegendItemIconType.RISING_FALLING;
   }
   return opt_default || anychart.enums.LegendItemIconType.SQUARE;
 };
@@ -1978,6 +2036,7 @@ anychart.enums.normalizeMapProjections = function(value) {
     case 'none':
     case 'wsg84':
     case 'base':
+    case '+proj=longlat +datum=WGS84 +no_defs':
       return anychart.enums.MapProjections.WSG84;
       break;
     case 'equirectangular':
@@ -2554,7 +2613,7 @@ anychart.enums.normalizeGaugeScaleTypes = function(value) {
  * Csv mode enum.
  * @enum {string}
  */
-anychart.enums.CsvMode = {
+anychart.enums.ChartDataExportMode = {
   RAW: 'raw',
   SPECIFIC: 'specific',
   GROUPED: 'grouped'
@@ -2565,21 +2624,21 @@ anychart.enums.CsvMode = {
  * Normalizes csv mode.
  * By default normalizes as SPECIFIC.
  * @param {string=} opt_value
- * @return {anychart.enums.CsvMode} Normalized csv mode.
+ * @return {anychart.enums.ChartDataExportMode} Normalized csv mode.
  */
-anychart.enums.normalizeCsvMode = function(opt_value) {
+anychart.enums.normalizeChartDataExportMode = function(opt_value) {
   opt_value = (String(opt_value)).toLowerCase();
 
   switch (opt_value) {
     case 'raw':
-      return anychart.enums.CsvMode.RAW;
+      return anychart.enums.ChartDataExportMode.RAW;
     case 'specific':
-      return anychart.enums.CsvMode.SPECIFIC;
+      return anychart.enums.ChartDataExportMode.SPECIFIC;
     case 'grouped':
-      return anychart.enums.CsvMode.GROUPED;
+      return anychart.enums.ChartDataExportMode.GROUPED;
   }
 
-  return anychart.enums.CsvMode.SPECIFIC;
+  return anychart.enums.ChartDataExportMode.SPECIFIC;
 };
 
 
@@ -2653,8 +2712,6 @@ anychart.enums.WarningCode = {
   //anychart.core.ui.DataGrid incorrect component usage.
   DG_INCORRECT_METHOD_USAGE: 9, //can't be tested now
 
-  BULLET_CHART_OUT_OF_RANGE: 10,
-
   GANTT_FIT_TO_TASK: 11,
 
   SERIES_DOESNT_SUPPORT_ERROR: 12,
@@ -2690,30 +2747,38 @@ anychart.enums.WarningCode = {
 //  DateTimeTicks Interval
 //
 //----------------------------------------------------------------------------------------------------------------------
-///**
+// /**
 // * Returns human readable
 // * @param {anychart.enums.Interval} value
 // * @return {string}
 // */
-//anychart.enums.denormalizeInterval = function(value) {
-//  switch (value) {
-//    case anychart.enums.Interval.YEAR:
-//      return 'years';
-//    case anychart.enums.Interval.MONTH:
-//      return 'months';
-//    case anychart.enums.Interval.DAY:
-//      return 'days';
-//    case anychart.enums.Interval.HOUR:
-//      return 'hours';
-//    case anychart.enums.Interval.MINUTE:
-//      return 'minutes';
-//    case anychart.enums.Interval.SECOND:
-//      return 'seconds';
-//    case anychart.enums.Interval.MILLISECOND:
-//      return 'milliseconds';
-//  }
-//  return 'unknown';
-//};
+// anychart.enums.denormalizeInterval = function(value) {
+//   switch (value) {
+//     case anychart.enums.Interval.YEAR:
+//       return 'year';
+//     case anychart.enums.Interval.SEMESTER:
+//       return 'semester';
+//     case anychart.enums.Interval.QUARTER:
+//       return 'quarter';
+//     case anychart.enums.Interval.MONTH:
+//       return 'month';
+//     case anychart.enums.Interval.THIRD_OF_MONTH:
+//       return 'thirdOfMonth';
+//     case anychart.enums.Interval.WEEK:
+//       return 'week';
+//     case anychart.enums.Interval.DAY:
+//       return 'day';
+//     case anychart.enums.Interval.HOUR:
+//       return 'hour';
+//     case anychart.enums.Interval.MINUTE:
+//       return 'minute';
+//     case anychart.enums.Interval.SECOND:
+//       return 'second';
+//     case anychart.enums.Interval.MILLISECOND:
+//       return 'millisecond';
+//   }
+//   return 'unknown';
+// };
 
 
 /**
@@ -3192,6 +3257,34 @@ anychart.enums.normalizeAggregationType = function(value) {
 };
 
 
+// /**
+//  * X determining mode.
+//  * @enum {string}
+//  */
+// anychart.enums.XGroupingMode = {
+//   FIRST: 'first',
+//   LAST: 'last'
+// };
+//
+//
+// /**
+//  * Normalizes X grouping mode.
+//  * @param {*} value
+//  * @return {anychart.enums.XGroupingMode|Function}
+//  */
+// anychart.enums.normalizeXGroupingMode = function(value) {
+//   var res;
+//   if (goog.isFunction(value)) {
+//     res = value;
+//   } else {
+//     res = String(value).toLowerCase();
+//     if (res != 'last')
+//       res = anychart.enums.XGroupingMode.FIRST;
+//   }
+//   return /** @type {anychart.enums.XGroupingMode|Function} */(res);
+// };
+
+
 /**
  * Enum for data table search modes.
  * @enum {string}
@@ -3439,7 +3532,1112 @@ anychart.enums.TokenType = {
   UNKNOWN: '',
   NUMBER: 'number',
   STRING: 'string',
-  DATE_TIME: 'datetime'
+  DATE_TIME: 'datetime',
+  PERCENT: 'percent'
+};
+
+
+/**
+ * String token enum.
+ * @enum {string}
+ */
+anychart.enums.StringToken = {
+  /**
+   Average.
+   */
+  AVERAGE: '%Average',
+  ///**
+  // The average value of all points in series that are bound this axis.
+  // */
+  //AXIS_AVERAGE: '%AxisAverage',
+  ///**
+  // The maximal bubble size of all points in series that are bound this axis.
+  // */
+  //AXIS_BUBBLE_SIZE_MAX: '%AxisBubbleSizeMax',
+  ///**
+  // The minimal bubble size of all points in series that are bound this axis.
+  // */
+  //AXIS_BUBBLE_SIZE_MIN: '%AxisBubbleSizeMin',
+  ///**
+  // The sum of all bubble sizes of all points in series that are bound this axis.
+  // */
+  //AXIS_BUBBLE_SIZE_SUM: '%AxisBubbleSizeSum',
+  ///**
+  // The maximal value of all points in series that are bound this axis.
+  // */
+  //AXIS_MAX: '%AxisMax',
+  ///**
+  // The median value of all points in series that are bound this axis.
+  // */
+  //AXIS_MEDIAN: '%AxisMedian',
+  ///**
+  // The minimal value of all points in series that are bound this axis.
+  // */
+  //AXIS_MIN: '%AxisMin',
+  ///**
+  // The mode value of all points in series that are bound this axis.
+  // */
+  //AXIS_MODE: '%AxisMode',
+  /**
+   The name of the axis.
+   */
+  AXIS_NAME: '%AxisName',
+  /**
+   The maximal scale value.
+   */
+  AXIS_SCALE_MAX: '%AxisScaleMax',
+  /**
+   The minimal scale value.
+   */
+  AXIS_SCALE_MIN: '%AxisScaleMin',
+  ///**
+  // The sum of all y values of all points in series that are bound this axis.
+  // */
+  //AXIS_SUM: '%AxisSum',
+  /**
+   The bubble size value of this point (Bubble chart).
+   */
+  BUBBLE_SIZE: '%BubbleSize',
+  /**
+   The percentage of all the points with the same name this point represents (Categorized charts).
+   */
+  BUBBLE_SIZE_PERCENT_OF_CATEGORY: '%BubbleSizePercentOfCategory',
+  /**
+   The percentage of the series this point represents.
+   */
+  BUBBLE_SIZE_PERCENT_OF_SERIES: '%BubbleSizePercentOfSeries',
+  /**
+   The percentage of all the series on the chart this point represents.
+   */
+  BUBBLE_SIZE_PERCENT_OF_TOTAL: '%BubbleSizePercentOfTotal',
+  /**
+   The name of the category.
+   */
+  CATEGORY_NAME: '%CategoryName',
+  /**
+   The average of all the points within this category.
+   */
+  CATEGORY_Y_AVERAGE: '%CategoryYAverage',
+  /**
+   The median of all the points within this category.
+   */
+  CATEGORY_Y_MEDIAN: '%CategoryYMedian',
+  /**
+   The mode of all the points within this category.
+   */
+  CATEGORY_Y_MODE: '%CategoryYMode',
+  /**
+   The percent of all the data on the chart this category represents.
+   */
+  CATEGORY_Y_PERCENT_OF_TOTAL: '%CategoryYPercentOfTotal',
+  /**
+   Cat y range average.
+   */
+  CATEGORY_Y_RANGE_AVERAGE: '%CategoryYRangeAverage',
+  /**
+   The maximal range in this category (Range charts).
+   */
+  CATEGORY_Y_RANGE_MAX: '%CategoryYRangeMax',
+  /**
+   The minimal range in this category (Range charts).
+   */
+  CATEGORY_Y_RANGE_MIN: '%CategoryYRangeMin',
+  /**
+   The median range in this category (Range charts).
+   */
+  CATEGORY_Y_RANGE_MEDIAN: '%CategoryYRangeMedian',
+  /**
+   The mode range in this category (Range charts).
+   */
+  CATEGORY_Y_RANGE_MODE: '%CategoryYRangeMode',
+  /**
+   The sum of all ranges in this category (Range charts).
+   */
+  CATEGORY_Y_RANGE_SUM: '%CategoryYRangeSum',
+  /**
+   Category Y range percent of total (Range charts).
+   */
+  CATEGORY_Y_RANGE_PERCENT_OF_TOTAL: '%CategoryYRangePercentOfTotal',
+  /**
+   The sum of all the points within this category.
+   */
+  CATEGORY_Y_SUM: '%CategoryYSum',
+  /**
+   The close value of this point (OHLC, Candlestick).
+   */
+  CLOSE: '%Close',
+  /**
+   The maximal of all the points bubble sizes (Bubble chart).
+   */
+  DATA_PLOT_BUBBLE_MAX_SIZE: '%DataPlotBubbleMaxSize',
+  /**
+   The minimal of all the points bubble sizes (Bubble chart).
+   */
+  DATA_PLOT_BUBBLE_MIN_SIZE: '%DataPlotBubbleMinSize',
+  /**
+   The average bubble size of all the points (Scatter plot charts).
+   */
+  DATA_PLOT_BUBBLE_SIZE_AVERAGE: '%DataPlotBubbleSizeAverage',
+  /**
+   The sum of all the points bubble sizes (Bubble chart).
+   */
+  DATA_PLOT_BUBBLE_SIZE_SUM: '%DataPlotBubbleSizeSum',
+  /**
+   The name of the series with a maximal sum of the points y values.
+   */
+  DATA_PLOT_MAX_Y_SUM_SERIES_NAME: '%DataPlotMaxYSumSeriesName',
+  /**
+   The name of the point with a maximal of all the points y values.
+   */
+  DATA_PLOT_MAX_Y_VALUE_POINT_NAME: '%DataPlotMaxYValuePointName',
+  /**
+   The name of the series with a maximal of all the points y values.
+   */
+  DATA_PLOT_MAX_Y_VALUE_POINT_SERIES_NAME: '%DataPlotMaxYValuePointSeriesName',
+  /**
+   The name of the series with a minimal sum of the points y values.
+   */
+  DATA_PLOT_MIN_Y_SUM_SERIES_NAME: '%DataPlotMinYSumSeriesName',
+  /**
+   The name of the point with a minimal of all the points y values.
+   */
+  DATA_PLOT_MIN_Y_VALUE_POINT_NAME: '%DataPlotMinYValuePointName',
+  /**
+   The name of the series with a minimal of all the points y values.
+   */
+  DATA_PLOT_MIN_Y_VALUE_POINT_SERIES_NAME: '%DataPlotMinYValuePointSeriesName',
+  /**
+   The number of the points within the chart.
+   */
+  DATA_PLOT_POINT_COUNT: '%DataPlotPointCount',
+  /**
+   The number of the series within the chart.
+   */
+  DATA_PLOT_SERIES_COUNT: '%DataPlotSeriesCount',
+  /**
+   The average x value of all the points (Scatter plot charts).
+   */
+  DATA_PLOT_X_AVERAGE: '%DataPlotXAverage',
+  /**
+   The maximal of all the points x values (Scatter plot chart).
+   */
+  DATA_PLOT_X_MAX: '%DataPlotXMax',
+  /**
+   The minimal of all the points x values (Scatter plot chart).
+   */
+  DATA_PLOT_X_MIN: '%DataPlotXMin',
+  /**
+   The sum of all the points x values (Scatter plot charts).
+   */
+  DATA_PLOT_X_SUM: '%DataPlotXSum',
+  /**
+   The average y value of all the points.
+   */
+  DATA_PLOT_Y_AVERAGE: '%DataPlotYAverage',
+  /**
+   The maximal of all the points y values.
+   */
+  DATA_PLOT_Y_MAX: '%DataPlotYMax',
+  /**
+   The minimal of all the points y values.
+   */
+  DATA_PLOT_Y_MIN: '%DataPlotYMin',
+  /**
+   The maximal of the ranges of the points within the chart.
+   */
+  DATA_PLOT_Y_RANGE_MAX: '%DataPlotYRangeMax',
+  /**
+   The minimal of the ranges of the points within the chart.
+   */
+  DATA_PLOT_Y_RANGE_MIN: '%DataPlotYRangeMin',
+  /**
+   The sum of the ranges of the points within the chart.
+   */
+  DATA_PLOT_Y_RANGE_SUM: '%DataPlotYRangeSum',
+  /**
+   The sum of all the points y values.
+   */
+  DATA_PLOT_Y_SUM: '%DataPlotYSum',
+  /**
+   The high value of this point (OHLC, Candlestick).
+   */
+  HIGH: '%High',
+  ///**
+  // Returns series or point specific icon.
+  // */
+  //ICON: '%Icon',
+  /**
+   The index of this point in the series this point represents (zero-based).
+   */
+  INDEX: '%Index',
+  /**
+   The low value of this point (OHLC, Candlestick).
+   */
+  LOW: '%Low',
+  /**
+   The name of this point.
+   */
+  NAME: '%Name',
+  /**
+   The open value of this point (OHLC, Candlestick).
+   */
+  OPEN: '%Open',
+  /**
+   The range of this point (RangeEnd - RangeStart).
+   */
+  RANGE: '%Range',
+  /**
+   The ending value of this point (Range charts).
+   */
+  RANGE_END: '%RangeEnd',
+  /**
+   The starting value of this point (Range charts).
+   */
+  RANGE_START: '%RangeStart',
+  /**
+   The maximal bubble size value of all the points within this series (Bubble chart).
+   */
+  SERIES_BUBBLE_MAX_SIZE: '%SeriesBubbleMaxSize',
+  /**
+   The minimal bubble size value of all the points within this series (Bubble chart).
+   */
+  SERIES_BUBBLE_MIN_SIZE: '%SeriesBubbleMinSize',
+  /**
+   The average bubble size value of all the points within this series (Bubble chart).
+   */
+  SERIES_BUBBLE_SIZE_AVERAGE: '%SeriesBubbleSizeAverage',
+  /**
+   The median bubble size value of all the points within this series (Bubble chart).
+   */
+  SERIES_BUBBLE_SIZE_MEDIAN: '%SeriesBubbleSizeMedian',
+  /**
+   The mode bubble size value of all the points within this series (Bubble chart).
+   */
+  SERIES_BUBBLE_SIZE_MODE: '%SeriesBubbleSizeMode',
+  /**
+   The sum of all the points bubble sizes (Bubble chart).
+   */
+  SERIES_BUBBLE_SIZE_SUM: '%SeriesBubbleSizeSum',
+  /**
+   The x value of the first point in this series (Scatter plot charts).
+   */
+  SERIES_FIRST_X_VALUE: '%SeriesFirstXValue',
+  /**
+   The y value of the first point in this series.
+   */
+  SERIES_FIRST_Y_VALUE: '%SeriesFirstYValue',
+  /**
+   The x value of the last point in this series (Scatter plot charts).
+   */
+  SERIES_LAST_X_VALUE: '%SeriesLastXValue',
+  /**
+   The y value of the first point in this series.
+   */
+  SERIES_LAST_Y_VALUE: '%SeriesLastYValue',
+  /**
+   The name of this series.
+   */
+  SERIES_NAME: '%SeriesName',
+  /**
+   The number of points in this series.
+   */
+  SERIES_POINT_COUNT: '%SeriesPointCount',
+  /**
+   The number of points in this series.
+   */
+  SERIES_POINTS_COUNT: '%SeriesPointsCount',
+  /**
+   The average x value of all the points within this series.
+   */
+  SERIES_X_AVERAGE: '%SeriesXAverage',
+  /**
+   The title text of the X Axis.
+   */
+  SERIES_X_AXIS_NAME: '%SeriesXAxisName',
+  /**
+   The maximal x value of all the elements within this series (Scatter plot charts).
+   */
+  SERIES_X_MAX: '%SeriesXMax',
+  /**
+   The median x value of all the points within this series (Scatter plot charts).
+   */
+  SERIES_X_MEDIAN: '%SeriesXMedian',
+  /**
+   The minimal x value of all the elements within this series (Scatter plot charts).
+   */
+  SERIES_X_MIN: '%SeriesXMin',
+  /**
+   The mode x value of all the points within this series (Scatter plot charts).
+   */
+  SERIES_X_MODE: '%SeriesXMode',
+  /**
+   The sum of all the points x values (Scatter plot charts).
+   */
+  SERIES_X_SUM: '%SeriesXSum',
+  /**
+   The average y value of all the points within this series.
+   */
+  SERIES_Y_AVERAGE: '%SeriesYAverage',
+  /**
+   The title text of the Y Axis.
+   */
+  SERIES_Y_AXIS_NAME: '%SeriesYAxisName',
+  /**
+   The maximal y value of all the elements within this series.
+   */
+  SERIES_Y_MAX: '%SeriesYMax',
+  /**
+   The median y value of all the points within this series.
+   */
+  SERIES_Y_MEDIAN: '%SeriesYMedian',
+  /**
+   The minimal y value of all the elements within this series.
+   */
+  SERIES_Y_MIN: '%SeriesYMin',
+  /**
+   The mode y value of all the points within this series.
+   */
+  SERIES_Y_MODE: '%SeriesYMode',
+  /**
+   The maximal range in this series (Range charts).
+   */
+  SERIES_Y_RANGE_MAX: '%SeriesYRangeMax',
+  /**
+   The minimal range in this series (Range charts).
+   */
+  SERIES_Y_RANGE_MIN: '%SeriesYRangeMin',
+  /**
+   The sum of all ranges in this series (Range charts).
+   */
+  SERIES_Y_RANGE_SUM: '%SeriesYRangeSum',
+  /**
+   The sum of all the points y values.
+   */
+  SERIES_Y_SUM: '%SeriesYSum',
+  /**
+   The y value of this point.
+   */
+  VALUE: '%Value',
+  ///**
+  // The average x value of all points in series.
+  // */
+  //X_AXIS_AVERAGE: '%XAxisAverage',
+  ///**
+  // The maximal bubble size of all points in series.
+  // */
+  //X_AXIS_BUBBLE_SIZE_MAX: '%XAxisBubbleSizeMax',
+  ///**
+  // The minimal bubble size of all points in series.
+  // */
+  //X_AXIS_BUBBLE_SIZE_MIN: '%XAxisBubbleSizeMin',
+  ///**
+  // The sum of all bubble sizes of all points in series.
+  // */
+  //X_AXIS_BUBBLE_SIZE_SUM: '%XAxisBubbleSizeSum',
+  ///**
+  // The maximal x value of all points in series.
+  // */
+  //X_AXIS_MAX: '%XAxisMax',
+  ///**
+  // The median x value of all points in series.
+  // */
+  //X_AXIS_MEDIAN: '%XAxisMedian',
+  ///**
+  // The minimal x value of all points in series.
+  // */
+  //X_AXIS_MIN: '%XAxisMin',
+  ///**
+  // The mode x value of all points in series.
+  // */
+  //X_AXIS_MODE: '%XAxisMode',
+  ///**
+  // The name of the axis.
+  // */
+  //X_AXIS_NAME: '%XAxisName',
+  ///**
+  // The maximal scale value.
+  // */
+  //X_AXIS_SCALE_MAX: '%XAxisScaleMax',
+  ///**
+  // The minimal scale value.
+  // */
+  //X_AXIS_SCALE_MIN: '%XAxisScaleMin',
+  ///**
+  // The sum of all x values of all points in series.
+  // */
+  //X_AXIS_SUM: '%XAxisSum',
+  /**
+   The percentage of the series this point represents (Scatter Plot charts).
+   */
+  X_PERCENT_OF_SERIES: '%XPercentOfSeries',
+  /**
+   The percentage of all the series on the chart this point represents.
+   */
+  X_PERCENT_OF_TOTAL: '%XPercentOfTotal',
+  /**
+   The x value of this point (Scatter Plot charts).
+   */
+  X_VALUE: '%XValue',
+  ///**
+  // The average y value of all points in series that are bound this axis.
+  // */
+  //Y_AXIS_AVERAGE: '%YAxisAverage',
+  ///**
+  // The maximal bubble size of all points in series that are bound this axis.
+  // */
+  //Y_AXIS_BUBBLE_SIZE_MAX: '%YAxisBubbleSizeMax',
+  ///**
+  // The minimal bubble size of all points in series that are bound this axis.
+  // */
+  //Y_AXIS_BUBBLE_SIZE_MIN: '%YAxisBubbleSizeMin',
+  ///**
+  // The sum of all bubble sizes of all points in series that are bound this axis.
+  // */
+  //Y_AXIS_BUBBLE_SIZE_SUM: '%YAxisBubbleSizeSum',
+  ///**
+  // The maximal y value of all points in series that are bound this axis.
+  // */
+  //Y_AXIS_MAX: '%YAxisMax',
+  ///**
+  // The median y value of all points in series that are bound this axis.
+  // */
+  //Y_AXIS_MEDIAN: '%YAxisMedian',
+  ///**
+  // The minimal y value of all points in series that are bound this axis.
+  // */
+  //Y_AXIS_MIN: '%YAxisMin',
+  ///**
+  // The mode y value of all points in series that are bound this axis.
+  // */
+  //Y_AXIS_MODE: '%YAxisMode',
+  ///**
+  // The name of the axis.
+  // */
+  //Y_AXIS_NAME: '%YAxisName',
+  ///**
+  // The maximal scale value.
+  // */
+  //Y_AXIS_SCALE_MAX: '%YAxisScaleMax',
+  ///**
+  // The minimal scale value.
+  // */
+  //Y_AXIS_SCALE_MIN: '%YAxisScaleMin',
+  ///**
+  // The sum of all y values of all points in series that are bound this axis.
+  // */
+  //Y_AXIS_SUM: '%YAxisSum',
+  /**
+   The percentage of all the points with the same name this point represents.
+   */
+  Y_PERCENT_OF_CATEGORY: '%YPercentOfCategory',
+  /**
+   The percentage of the series this point represents.
+   */
+  Y_PERCENT_OF_SERIES: '%YPercentOfSeries',
+  /**
+   The percentage of all the series on the chart this point represents.
+   */
+  Y_PERCENT_OF_TOTAL: '%YPercentOfTotal',
+  /**
+   The y value of this point.*/
+  Y_VALUE: '%YValue'
+};
+
+
+/**
+ * Statistics enum.
+ * @enum {string}
+ */
+anychart.enums.Statistics = {
+  /**
+   Average.
+   */
+  AVERAGE: 'average',
+  ///**
+  // The average value of all points in series that are bound this axis.
+  // */
+  //AXIS_AVERAGE: 'axisAverage',
+  ///**
+  // The maximal bubble size of all points in series that are bound this axis.
+  // */
+  //AXIS_BUBBLE_SIZE_MAX: 'axisBubbleSizeMax',
+  ///**
+  // The minimal bubble size of all points in series that are bound this axis.
+  // */
+  //AXIS_BUBBLE_SIZE_MIN: 'axisBubbleSizeMin',
+  ///**
+  // The sum of all bubble sizes of all points in series that are bound this axis.
+  // */
+  //AXIS_BUBBLE_SIZE_SUM: 'axisBubbleSizeSum',
+  ///**
+  // The maximal value of all points in series that are bound this axis.
+  // */
+  //AXIS_MAX: 'axisMax',
+  ///**
+  // The median value of all points in series that are bound this axis.
+  // */
+  //AXIS_MEDIAN: 'axisMedian',
+  ///**
+  // The minimal value of all points in series that are bound this axis.
+  // */
+  //AXIS_MIN: 'axisMin',
+  ///**
+  // The mode value of all points in series that are bound this axis.
+  // */
+  //AXIS_MODE: 'axisMode',
+  ///**
+  // The name of the axis.
+  // */
+  //AXIS_NAME: 'axisName',
+  ///**
+  // The maximal scale value.
+  // */
+  //AXIS_SCALE_MAX: 'axisScaleMax',
+  ///**
+  // The minimal scale value.
+  // */
+  //AXIS_SCALE_MIN: 'axisScaleMin',
+  ///**
+  // The sum of all y values of all points in series that are bound this axis.
+  // */
+  //AXIS_SUM: 'axisSum',
+  /**
+   The bubble size value of this point (Bubble chart).
+   */
+  BUBBLE_SIZE: 'bubbleSize',
+  /**
+   The percentage of all the points with the same name this point represents (Categorized charts).
+   */
+  BUBBLE_SIZE_PERCENT_OF_CATEGORY: 'bubbleSizePercentOfCategory',
+  /**
+   The percentage of the series this point represents.
+   */
+  BUBBLE_SIZE_PERCENT_OF_SERIES: 'bubbleSizePercentOfSeries',
+  /**
+   The percentage of all the series on the chart this point represents.
+   */
+  BUBBLE_SIZE_PERCENT_OF_TOTAL: 'bubbleSizePercentOfTotal',
+  /**
+   The name of the category.
+   */
+  CATEGORY_NAME: 'categoryName',
+  /**
+   The average of all the points within this category.
+   */
+  CATEGORY_Y_AVERAGE: 'categoryYAverage',
+  /**
+   The max of all the points within this category.
+   */
+  CATEGORY_Y_MAX: 'categoryYMax',
+  /**
+   The median of all the points within this category.
+   */
+  CATEGORY_Y_MEDIAN: 'categoryYMedian',
+  /**
+   The min of all the points within this category.
+   */
+  CATEGORY_Y_MIN: 'categoryYMin',
+  /**
+   The mode of all the points within this category.
+   */
+  CATEGORY_Y_MODE: 'categoryYMode',
+  /**
+   The percent of all the data on the chart this category represents.
+   */
+  CATEGORY_Y_PERCENT_OF_TOTAL: 'categoryYPercentOfTotal',
+  /**
+   The average range in this category (Range charts).
+   */
+  CATEGORY_Y_RANGE_AVERAGE: 'categoryYRangeAverage',
+  /**
+   The maximal range in this category (Range charts).
+   */
+  CATEGORY_Y_RANGE_MAX: 'categoryYRangeMax',
+  /**
+   The median range in this category (Range charts).
+   */
+  CATEGORY_Y_RANGE_MEDIAN: 'categoryYRangeMedian',
+  /**
+   The minimal range in this category (Range charts).
+   */
+  CATEGORY_Y_RANGE_MIN: 'categoryYRangeMin',
+  /**
+   The mode range in this category (Range charts).
+   */
+  CATEGORY_Y_RANGE_MODE: 'categoryYRangeMode',
+  /**
+   The minimal range in this category (Range charts).
+   */
+  CATEGORY_Y_RANGE_PERCENT_OF_TOTAL: 'categoryYRangePercentOfTotal',
+  /**
+   The sum of all ranges in this category (Range charts).
+   */
+  CATEGORY_Y_RANGE_SUM: 'categoryYRangeSum',
+  /**
+   The sum of all the points within this category.
+   */
+  CATEGORY_Y_SUM: 'categoryYSum',
+  /**
+   The close value of this point (OHLC, Candlestick).
+   */
+  CLOSE: 'close',
+  /**
+   Count.
+   */
+  COUNT: 'count',
+  /**
+   The maximal of all the points bubble sizes (Bubble chart).
+   */
+  DATA_PLOT_BUBBLE_MAX_SIZE: 'dataPlotBubbleMaxSize',
+  /**
+   The minimal of all the points bubble sizes (Bubble chart).
+   */
+  DATA_PLOT_BUBBLE_MIN_SIZE: 'dataPlotBubbleMinSize',
+  /**
+   The average bubble size of all the points (Scatter plot charts).
+   */
+  DATA_PLOT_BUBBLE_SIZE_AVERAGE: 'dataPlotBubbleSizeAverage',
+  /**
+   The sum of all the points bubble sizes (Bubble chart).
+   */
+  DATA_PLOT_BUBBLE_SIZE_SUM: 'dataPlotBubbleSizeSum',
+  /**
+   The name of the series with a maximal sum of the points x values.
+   */
+  DATA_PLOT_MAX_X_SUM_SERIES_NAME: 'dataPlotMaxXSumSeriesName',
+  /**
+   The name of the series with a maximal sum of the points y values.
+   */
+  DATA_PLOT_MAX_Y_SUM_SERIES_NAME: 'dataPlotMaxYSumSeriesName',
+  ///**
+  // The name of the point with a maximal of all the points y values.
+  // */
+  //DATA_PLOT_MAX_Y_VALUE_POINT_NAME: 'dataPlotMaxYValuePointName',
+  /**
+   The name of the series with a maximal of all the points x values.
+   */
+  DATA_PLOT_MAX_X_VALUE_POINT_SERIES_NAME: 'dataPlotMaxXValuePointSeriesName',
+  /**
+   The name of the series with a maximal of all the points y values.
+   */
+  DATA_PLOT_MAX_Y_VALUE_POINT_SERIES_NAME: 'dataPlotMaxYValuePointSeriesName',
+  /**
+   The name of the series with a minimal sum of the points x values.
+   */
+  DATA_PLOT_MIN_X_SUM_SERIES_NAME: 'dataPlotMinXSumSeriesName',
+  /**
+   The name of the series with a minimal sum of the points y values.
+   */
+  DATA_PLOT_MIN_Y_SUM_SERIES_NAME: 'dataPlotMinYSumSeriesName',
+  ///**
+  // The name of the point with a minimal of all the points y values.
+  // */
+  //DATA_PLOT_MIN_Y_VALUE_POINT_NAME: 'dataPlotMinYValuePointName',
+  /**
+   The name of the series with a minimal of all the points x values.
+   */
+  DATA_PLOT_MIN_X_VALUE_POINT_SERIES_NAME: 'dataPlotMinXValuePointSeriesName',
+  /**
+   The name of the series with a minimal of all the points y values.
+   */
+  DATA_PLOT_MIN_Y_VALUE_POINT_SERIES_NAME: 'dataPlotMinYValuePointSeriesName',
+  /**
+   The number of the points within the chart.
+   */
+  DATA_PLOT_POINT_COUNT: 'dataPlotPointCount',
+  /**
+   The number of the series within the chart.
+   */
+  DATA_PLOT_SERIES_COUNT: 'dataPlotSeriesCount',
+  /**
+   The average x value of all the points (Scatter plot charts).
+   */
+  DATA_PLOT_X_AVERAGE: 'dataPlotXAverage',
+  /**
+   The maximal of all the points x values (Scatter plot chart).
+   */
+  DATA_PLOT_X_MAX: 'dataPlotXMax',
+  /**
+   The minimal of all the points x values (Scatter plot chart).
+   */
+  DATA_PLOT_X_MIN: 'dataPlotXMin',
+  /**
+   The sum of all the points x values (Scatter plot charts).
+   */
+  DATA_PLOT_X_SUM: 'dataPlotXSum',
+  /**
+   The average y value of all the points.
+   */
+  DATA_PLOT_Y_AVERAGE: 'dataPlotYAverage',
+  /**
+   The maximal of all the points y values.
+   */
+  DATA_PLOT_Y_MAX: 'dataPlotYMax',
+  /**
+   The minimal of all the points y values.
+   */
+  DATA_PLOT_Y_MIN: 'dataPlotYMin',
+  /**
+   The maximal of the ranges of the points within the chart.
+   */
+  DATA_PLOT_Y_RANGE_MAX: 'dataPlotYRangeMax',
+  /**
+   The minimal of the ranges of the points within the chart.
+   */
+  DATA_PLOT_Y_RANGE_MIN: 'dataPlotYRangeMin',
+  /**
+   The sum of the ranges of the points within the chart.
+   */
+  DATA_PLOT_Y_RANGE_SUM: 'dataPlotYRangeSum',
+  /**
+   The sum of all the points y values.
+   */
+  DATA_PLOT_Y_SUM: 'dataPlotYSum',
+  /**
+   The high value of this point (OHLC, Candlestick).
+   */
+  HIGH: 'high',
+  ///**
+  // Returns series or point specific icon.
+  // */
+  //ICON: 'icon',
+  /**
+   The index of this point in the series this point represents (zero-based).
+   */
+  INDEX: 'index',
+  /**
+   The low value of this point (OHLC, Candlestick).
+   */
+  LOW: 'low',
+  /**
+   Max.
+   */
+  MAX: 'max',
+  /**
+   Min.
+   */
+  MIN: 'min',
+  /**
+   The name of this point.
+   */
+  NAME: 'name',
+  /**
+   The open value of this point (OHLC, Candlestick).
+   */
+  OPEN: 'open',
+  /**
+   Points count.
+   */
+  POINTS_COUNT: 'pointsCount',
+  /**
+   The range of this point (RangeEnd - RangeStart).
+   */
+  RANGE: 'range',
+  /**
+   The ending value of this point (Range charts).
+   */
+  RANGE_END: 'rangeEnd',
+  /**
+   The starting value of this point (Range charts).
+   */
+  RANGE_START: 'rangeStart',
+  /**
+   Series average.
+   */
+  SERIES_AVERAGE: 'seriesAverage',
+  /**
+   The maximal bubble size value of all the points within this series (Bubble chart).
+   */
+  SERIES_BUBBLE_MAX_SIZE: 'seriesBubbleMaxSize',
+  /**
+   The minimal bubble size value of all the points within this series (Bubble chart).
+   */
+  SERIES_BUBBLE_MIN_SIZE: 'seriesBubbleMinSize',
+  /**
+   The average bubble size value of all the points within this series (Bubble chart).
+   */
+  SERIES_BUBBLE_SIZE_AVERAGE: 'seriesBubbleSizeAverage',
+  /**
+   The median bubble size value of all the points within this series (Bubble chart).
+   */
+  SERIES_BUBBLE_SIZE_MEDIAN: 'seriesBubbleSizeMedian',
+  /**
+   The mode bubble size value of all the points within this series (Bubble chart).
+   */
+  SERIES_BUBBLE_SIZE_MODE: 'seriesBubbleSizeMode',
+  /**
+   The sum of all the points bubble sizes (Bubble chart).
+   */
+  SERIES_BUBBLE_SIZE_SUM: 'seriesBubbleSizeSum',
+  /**
+   The x value of the first point in this series (Scatter plot charts).
+   */
+  SERIES_FIRST_X_VALUE: 'seriesFirstXValue',
+  /**
+   The y value of the first point in this series.
+   */
+  SERIES_FIRST_Y_VALUE: 'seriesFirstYValue',
+  /**
+   The x value of the last point in this series (Scatter plot charts).
+   */
+  SERIES_LAST_X_VALUE: 'seriesLastXValue',
+  /**
+   The y value of the first point in this series.
+   */
+  SERIES_LAST_Y_VALUE: 'seriesLastYValue',
+  /**
+   Series max.
+   */
+  SERIES_MAX: 'seriesMax',
+  /**
+   Series min.
+   */
+  SERIES_MIN: 'seriesMin',
+  /**
+   The name of this series.
+   */
+  SERIES_NAME: 'seriesName',
+  /**
+   The number of points in this series.
+   */
+  SERIES_POINT_COUNT: 'seriesPointCount',
+  /**
+   The number of points in this series.
+   */
+  SERIES_POINTS_COUNT: 'seriesPointsCount',
+  /**
+   Series sum.
+   */
+  SERIES_SUM: 'seriesSum',
+  /**
+   The average x value of all the points within this series.
+   */
+  SERIES_X_AVERAGE: 'seriesXAverage',
+  ///**
+  // The title text of the X Axis.
+  // */
+  //SERIES_X_AXIS_NAME: 'seriesXAxisName',
+  /**
+   The maximal x value of all the elements within this series (Scatter plot charts).
+   */
+  SERIES_X_MAX: 'seriesXMax',
+  /**
+   The median x value of all the points within this series (Scatter plot charts).
+   */
+  SERIES_X_MEDIAN: 'seriesXMedian',
+  /**
+   The minimal x value of all the elements within this series (Scatter plot charts).
+   */
+  SERIES_X_MIN: 'seriesXMin',
+  /**
+   The mode x value of all the points within this series (Scatter plot charts).
+   */
+  SERIES_X_MODE: 'seriesXMode',
+  /**
+   The sum of all the points x values (Scatter plot charts).
+   */
+  SERIES_X_SUM: 'seriesXSum',
+  /**
+   The average y value of all the points within this series.
+   */
+  SERIES_Y_AVERAGE: 'seriesYAverage',
+  ///**
+  // The title text of the Y Axis.
+  // */
+  //SERIES_Y_AXIS_NAME: 'seriesYAxisName',
+  /**
+   The maximal y value of all the elements within this series.
+   */
+  SERIES_Y_MAX: 'seriesYMax',
+  /**
+   The median y value of all the points within this series.
+   */
+  SERIES_Y_MEDIAN: 'seriesYMedian',
+  /**
+   The minimal y value of all the elements within this series.
+   */
+  SERIES_Y_MIN: 'seriesYMin',
+  /**
+   The mode y value of all the points within this series.
+   */
+  SERIES_Y_MODE: 'seriesYMode',
+  /**
+   The average of all ranges in this series (Range charts).
+   */
+  SERIES_Y_RANGE_AVERAGE: 'seriesYRangeAverage',
+  /**
+   The maximal range in this series (Range charts).
+   */
+  SERIES_Y_RANGE_MAX: 'seriesYRangeMax',
+  /**
+   The median range in this series (Range charts).
+   */
+  SERIES_Y_RANGE_MEDIAN: 'seriesYRangeMedian',
+  /**
+   The minimal range in this series (Range charts).
+   */
+  SERIES_Y_RANGE_MIN: 'seriesYRangeMin',
+  /**
+   The mode range in this series (Range charts).
+   */
+  SERIES_Y_RANGE_MODE: 'seriesYRangeMode',
+  /**
+   The sum of all ranges in this series (Range charts).
+   */
+  SERIES_Y_RANGE_SUM: 'seriesYRangeSum',
+  /**
+   The sum of all the points y values.
+   */
+  SERIES_Y_SUM: 'seriesYSum',
+  /**
+   The sum of all the points y values.
+   */
+  SUM: 'sum',
+  /**
+   The y value of this point.
+   */
+  VALUE: 'value',
+  ///**
+  // The average x value of all points in series.
+  // */
+  //X_AXIS_AVERAGE: 'xAxisAverage',
+  ///**
+  // The maximal bubble size of all points in series.
+  // */
+  //X_AXIS_BUBBLE_SIZE_MAX: 'xAxisBubbleSizeMax',
+  ///**
+  // The minimal bubble size of all points in series.
+  // */
+  //X_AXIS_BUBBLE_SIZE_MIN: 'xAxisBubbleSizeMin',
+  ///**
+  // The sum of all bubble sizes of all points in series.
+  // */
+  //X_AXIS_BUBBLE_SIZE_SUM: 'xAxisBubbleSizeSum',
+  ///**
+  // The maximal x value of all points in series.
+  // */
+  //X_AXIS_MAX: 'xAxisMax',
+  ///**
+  // The median x value of all points in series.
+  // */
+  //X_AXIS_MEDIAN: 'xAxisMedian',
+  ///**
+  // The minimal x value of all points in series.
+  // */
+  //X_AXIS_MIN: 'xAxisMin',
+  ///**
+  // The mode x value of all points in series.
+  // */
+  //X_AXIS_MODE: 'xAxisMode',
+  ///**
+  // The name of the axis.
+  // */
+  //X_AXIS_NAME: 'xAxisName',
+  ///**
+  // The maximal scale value.
+  // */
+  //X_AXIS_SCALE_MAX: 'xAxisScaleMax',
+  ///**
+  // The minimal scale value.
+  // */
+  //X_AXIS_SCALE_MIN: 'xAxisScaleMin',
+  ///**
+  // The sum of all x values of all points in series.
+  // */
+  //X_AXIS_SUM: 'xAxisSum',
+  /**
+   The percentage of the series this point represents (Scatter Plot charts).
+   */
+  X_PERCENT_OF_SERIES: 'xPercentOfSeries',
+  /**
+   The percentage of all the series on the chart this point represents.
+   */
+  X_PERCENT_OF_TOTAL: 'xPercentOfTotal',
+  /**
+   The x value of this point (Scatter Plot charts).
+   */
+  X_VALUE: 'xValue',
+  ///**
+  // The average y value of all points in series that are bound this axis.
+  // */
+  //Y_AXIS_AVERAGE: 'yAxisAverage',
+  ///**
+  // The maximal bubble size of all points in series that are bound this axis.
+  // */
+  //Y_AXIS_BUBBLE_SIZE_MAX: 'yAxisBubbleSizeMax',
+  ///**
+  // The minimal bubble size of all points in series that are bound this axis.
+  // */
+  //Y_AXIS_BUBBLE_SIZE_MIN: 'yAxisBubbleSizeMin',
+  ///**
+  // The sum of all bubble sizes of all points in series that are bound this axis.
+  // */
+  //Y_AXIS_BUBBLE_SIZE_SUM: 'yAxisBubbleSizeSum',
+  ///**
+  // The maximal y value of all points in series that are bound this axis.
+  // */
+  //Y_AXIS_MAX: 'yAxisMax',
+  ///**
+  // The median y value of all points in series that are bound this axis.
+  // */
+  //Y_AXIS_MEDIAN: 'yAxisMedian',
+  ///**
+  // The minimal y value of all points in series that are bound this axis.
+  // */
+  //Y_AXIS_MIN: 'yAxisMin',
+  ///**
+  // The mode y value of all points in series that are bound this axis.
+  // */
+  //Y_AXIS_MODE: 'yAxisMode',
+  ///**
+  // The name of the axis.
+  // */
+  //Y_AXIS_NAME: 'yAxisName',
+  ///**
+  // The maximal scale value.
+  // */
+  //Y_AXIS_SCALE_MAX: 'yAxisScaleMax',
+  ///**
+  // The minimal scale value.
+  // */
+  //Y_AXIS_SCALE_MIN: 'yAxisScaleMin',
+  ///**
+  // The sum of all y values of all points in series that are bound this axis.
+  // */
+  //Y_AXIS_SUM: 'yAxisSum',
+  /**
+   The percentage of all the points with the same name this point represents.
+   */
+  Y_PERCENT_OF_CATEGORY: 'yPercentOfCategory',
+  /**
+   The percentage of the series this point represents.
+   */
+  Y_PERCENT_OF_SERIES: 'yPercentOfSeries',
+  /**
+   The percentage of all the series on the chart this point represents.
+   */
+  Y_PERCENT_OF_TOTAL: 'yPercentOfTotal',
+  /**
+   The y value of this point.*/
+  Y_VALUE: 'yValue',
+
+  //--------------------------------------------------------------------------------------------------------------------
+  // Private values. Do not export.
+  //--------------------------------------------------------------------------------------------------------------------
+  CATEGORY_Y_SUM_ARR_: 'catYSumArr_',
+  CATEGORY_Y_MIN_ARR_: 'catYMinArr_',
+  CATEGORY_Y_MAX_ARR_: 'catYMaxArr_',
+  CATEGORY_Y_AVG_ARR_: 'catYAvgArr_',
+  CATEGORY_Y_MEDIAN_ARR_: 'catYMedianArr_',
+  CATEGORY_Y_MODE_ARR_: 'catYModeArr_',
+
+  CATEGORY_Y_RANGE_SUM_ARR_: 'catYRangeSumArr_',
+  CATEGORY_Y_RANGE_MIN_ARR_: 'catYRangeMinArr_',
+  CATEGORY_Y_RANGE_MAX_ARR_: 'catYRangeMaxArr_',
+  CATEGORY_Y_RANGE_AVG_ARR_: 'catYRangeAvgArr_',
+  CATEGORY_Y_RANGE_MEDIAN_ARR_: 'catYRangeMedianArr_',
+  CATEGORY_Y_RANGE_MODE_ARR_: 'catYRangeModeArr_'
+
 };
 
 
@@ -3521,6 +4719,10 @@ anychart.enums.PropertyHandlerType = {
 };
 //endregion
 
+
+// DVF-1826
+// goog.exportSymbol('anychart.enums.XGroupingMode.FIRST', anychart.enums.XGroupingMode.FIRST);
+// goog.exportSymbol('anychart.enums.XGroupingMode.LAST', anychart.enums.XGroupingMode.LAST);
 
 //exports
 goog.exportSymbol('anychart.enums.RadialGridLayout.CIRCUIT', anychart.enums.RadialGridLayout.CIRCUIT);
@@ -3852,6 +5054,273 @@ goog.exportSymbol('anychart.enums.TokenType.NUMBER', anychart.enums.TokenType.NU
 goog.exportSymbol('anychart.enums.TokenType.STRING', anychart.enums.TokenType.STRING);
 goog.exportSymbol('anychart.enums.TokenType.DATE_TIME', anychart.enums.TokenType.DATE_TIME);
 
-goog.exportSymbol('anychart.enums.CsvMode.RAW', anychart.enums.CsvMode.RAW);
-goog.exportSymbol('anychart.enums.CsvMode.SPECIFIC', anychart.enums.CsvMode.SPECIFIC);
-goog.exportSymbol('anychart.enums.CsvMode.GROUPED', anychart.enums.CsvMode.GROUPED);
+//goog.exportSymbol('anychart.enums.StringToken.AXIS_AVERAGE', anychart.enums.StringToken.AXIS_AVERAGE);
+//goog.exportSymbol('anychart.enums.StringToken.AXIS_BUBBLE_SIZE_MAX', anychart.enums.StringToken.AXIS_BUBBLE_SIZE_MAX);
+//goog.exportSymbol('anychart.enums.StringToken.AXIS_BUBBLE_SIZE_MIN', anychart.enums.StringToken.AXIS_BUBBLE_SIZE_MIN);
+//goog.exportSymbol('anychart.enums.StringToken.AXIS_BUBBLE_SIZE_SUM', anychart.enums.StringToken.AXIS_BUBBLE_SIZE_SUM);
+//goog.exportSymbol('anychart.enums.StringToken.AXIS_MAX', anychart.enums.StringToken.AXIS_MAX);
+//goog.exportSymbol('anychart.enums.StringToken.AXIS_MEDIAN', anychart.enums.StringToken.AXIS_MEDIAN);
+//goog.exportSymbol('anychart.enums.StringToken.AXIS_MIN', anychart.enums.StringToken.AXIS_MIN);
+//goog.exportSymbol('anychart.enums.StringToken.AXIS_MODE', anychart.enums.StringToken.AXIS_MODE);
+goog.exportSymbol('anychart.enums.StringToken.AXIS_NAME', anychart.enums.StringToken.AXIS_NAME);
+goog.exportSymbol('anychart.enums.StringToken.AXIS_SCALE_MAX', anychart.enums.StringToken.AXIS_SCALE_MAX);
+goog.exportSymbol('anychart.enums.StringToken.AXIS_SCALE_MIN', anychart.enums.StringToken.AXIS_SCALE_MIN);
+//goog.exportSymbol('anychart.enums.StringToken.AXIS_SUM', anychart.enums.StringToken.AXIS_SUM);
+goog.exportSymbol('anychart.enums.StringToken.BUBBLE_SIZE', anychart.enums.StringToken.BUBBLE_SIZE);
+goog.exportSymbol('anychart.enums.StringToken.BUBBLE_SIZE_PERCENT_OF_CATEGORY', anychart.enums.StringToken.BUBBLE_SIZE_PERCENT_OF_CATEGORY);
+goog.exportSymbol('anychart.enums.StringToken.BUBBLE_SIZE_PERCENT_OF_SERIES', anychart.enums.StringToken.BUBBLE_SIZE_PERCENT_OF_SERIES);
+goog.exportSymbol('anychart.enums.StringToken.BUBBLE_SIZE_PERCENT_OF_TOTAL', anychart.enums.StringToken.BUBBLE_SIZE_PERCENT_OF_TOTAL);
+goog.exportSymbol('anychart.enums.StringToken.CATEGORY_NAME', anychart.enums.StringToken.CATEGORY_NAME);
+goog.exportSymbol('anychart.enums.StringToken.CATEGORY_Y_AVERAGE', anychart.enums.StringToken.CATEGORY_Y_AVERAGE);
+goog.exportSymbol('anychart.enums.StringToken.CATEGORY_Y_MEDIAN', anychart.enums.StringToken.CATEGORY_Y_MEDIAN);
+goog.exportSymbol('anychart.enums.StringToken.CATEGORY_Y_MODE', anychart.enums.StringToken.CATEGORY_Y_MODE);
+goog.exportSymbol('anychart.enums.StringToken.CATEGORY_Y_PERCENT_OF_TOTAL', anychart.enums.StringToken.CATEGORY_Y_PERCENT_OF_TOTAL);
+goog.exportSymbol('anychart.enums.StringToken.CATEGORY_Y_RANGE_AVERAGE', anychart.enums.StringToken.CATEGORY_Y_RANGE_AVERAGE);
+goog.exportSymbol('anychart.enums.StringToken.CATEGORY_Y_RANGE_PERCENT_OF_TOTAL', anychart.enums.StringToken.CATEGORY_Y_RANGE_PERCENT_OF_TOTAL);
+goog.exportSymbol('anychart.enums.StringToken.CATEGORY_Y_RANGE_MAX', anychart.enums.StringToken.CATEGORY_Y_RANGE_MAX);
+goog.exportSymbol('anychart.enums.StringToken.CATEGORY_Y_RANGE_MIN', anychart.enums.StringToken.CATEGORY_Y_RANGE_MIN);
+goog.exportSymbol('anychart.enums.StringToken.CATEGORY_Y_RANGE_MEDIAN', anychart.enums.StringToken.CATEGORY_Y_RANGE_MEDIAN);
+goog.exportSymbol('anychart.enums.StringToken.CATEGORY_Y_RANGE_MODE', anychart.enums.StringToken.CATEGORY_Y_RANGE_MODE);
+goog.exportSymbol('anychart.enums.StringToken.CATEGORY_Y_RANGE_SUM', anychart.enums.StringToken.CATEGORY_Y_RANGE_SUM);
+goog.exportSymbol('anychart.enums.StringToken.CATEGORY_Y_SUM', anychart.enums.StringToken.CATEGORY_Y_SUM);
+goog.exportSymbol('anychart.enums.StringToken.CLOSE', anychart.enums.StringToken.CLOSE);
+goog.exportSymbol('anychart.enums.StringToken.DATA_PLOT_BUBBLE_MAX_SIZE', anychart.enums.StringToken.DATA_PLOT_BUBBLE_MAX_SIZE);
+goog.exportSymbol('anychart.enums.StringToken.DATA_PLOT_BUBBLE_MIN_SIZE', anychart.enums.StringToken.DATA_PLOT_BUBBLE_MIN_SIZE);
+goog.exportSymbol('anychart.enums.StringToken.DATA_PLOT_BUBBLE_SIZE_AVERAGE', anychart.enums.StringToken.DATA_PLOT_BUBBLE_SIZE_AVERAGE);
+goog.exportSymbol('anychart.enums.StringToken.DATA_PLOT_BUBBLE_SIZE_SUM', anychart.enums.StringToken.DATA_PLOT_BUBBLE_SIZE_SUM);
+goog.exportSymbol('anychart.enums.StringToken.DATA_PLOT_MAX_Y_SUM_SERIES_NAME', anychart.enums.StringToken.DATA_PLOT_MAX_Y_SUM_SERIES_NAME);
+goog.exportSymbol('anychart.enums.StringToken.DATA_PLOT_MAX_Y_VALUE_POINT_NAME', anychart.enums.StringToken.DATA_PLOT_MAX_Y_VALUE_POINT_NAME);
+goog.exportSymbol('anychart.enums.StringToken.DATA_PLOT_MAX_Y_VALUE_POINT_SERIES_NAME', anychart.enums.StringToken.DATA_PLOT_MAX_Y_VALUE_POINT_SERIES_NAME);
+goog.exportSymbol('anychart.enums.StringToken.DATA_PLOT_MIN_Y_SUM_SERIES_NAME', anychart.enums.StringToken.DATA_PLOT_MIN_Y_SUM_SERIES_NAME);
+goog.exportSymbol('anychart.enums.StringToken.DATA_PLOT_MIN_Y_VALUE_POINT_NAME', anychart.enums.StringToken.DATA_PLOT_MIN_Y_VALUE_POINT_NAME);
+goog.exportSymbol('anychart.enums.StringToken.DATA_PLOT_MIN_Y_VALUE_POINT_SERIES_NAME', anychart.enums.StringToken.DATA_PLOT_MIN_Y_VALUE_POINT_SERIES_NAME);
+goog.exportSymbol('anychart.enums.StringToken.DATA_PLOT_POINT_COUNT', anychart.enums.StringToken.DATA_PLOT_POINT_COUNT);
+goog.exportSymbol('anychart.enums.StringToken.DATA_PLOT_SERIES_COUNT', anychart.enums.StringToken.DATA_PLOT_SERIES_COUNT);
+goog.exportSymbol('anychart.enums.StringToken.DATA_PLOT_X_AVERAGE', anychart.enums.StringToken.DATA_PLOT_X_AVERAGE);
+goog.exportSymbol('anychart.enums.StringToken.DATA_PLOT_X_MAX', anychart.enums.StringToken.DATA_PLOT_X_MAX);
+goog.exportSymbol('anychart.enums.StringToken.DATA_PLOT_X_MIN', anychart.enums.StringToken.DATA_PLOT_X_MIN);
+goog.exportSymbol('anychart.enums.StringToken.DATA_PLOT_X_SUM', anychart.enums.StringToken.DATA_PLOT_X_SUM);
+goog.exportSymbol('anychart.enums.StringToken.DATA_PLOT_Y_AVERAGE', anychart.enums.StringToken.DATA_PLOT_Y_AVERAGE);
+goog.exportSymbol('anychart.enums.StringToken.DATA_PLOT_Y_MAX', anychart.enums.StringToken.DATA_PLOT_Y_MAX);
+goog.exportSymbol('anychart.enums.StringToken.DATA_PLOT_Y_MIN', anychart.enums.StringToken.DATA_PLOT_Y_MIN);
+goog.exportSymbol('anychart.enums.StringToken.DATA_PLOT_Y_RANGE_MAX', anychart.enums.StringToken.DATA_PLOT_Y_RANGE_MAX);
+goog.exportSymbol('anychart.enums.StringToken.DATA_PLOT_Y_RANGE_MIN', anychart.enums.StringToken.DATA_PLOT_Y_RANGE_MIN);
+goog.exportSymbol('anychart.enums.StringToken.DATA_PLOT_Y_RANGE_SUM', anychart.enums.StringToken.DATA_PLOT_Y_RANGE_SUM);
+goog.exportSymbol('anychart.enums.StringToken.DATA_PLOT_Y_SUM', anychart.enums.StringToken.DATA_PLOT_Y_SUM);
+goog.exportSymbol('anychart.enums.StringToken.HIGH', anychart.enums.StringToken.HIGH);
+goog.exportSymbol('anychart.enums.StringToken.INDEX', anychart.enums.StringToken.INDEX);
+goog.exportSymbol('anychart.enums.StringToken.LOW', anychart.enums.StringToken.LOW);
+goog.exportSymbol('anychart.enums.StringToken.NAME', anychart.enums.StringToken.NAME);
+goog.exportSymbol('anychart.enums.StringToken.OPEN', anychart.enums.StringToken.OPEN);
+goog.exportSymbol('anychart.enums.StringToken.RANGE', anychart.enums.StringToken.RANGE);
+goog.exportSymbol('anychart.enums.StringToken.RANGE_END', anychart.enums.StringToken.RANGE_END);
+goog.exportSymbol('anychart.enums.StringToken.RANGE_START', anychart.enums.StringToken.RANGE_START);
+goog.exportSymbol('anychart.enums.StringToken.SERIES_BUBBLE_MAX_SIZE', anychart.enums.StringToken.SERIES_BUBBLE_MAX_SIZE);
+goog.exportSymbol('anychart.enums.StringToken.SERIES_BUBBLE_MIN_SIZE', anychart.enums.StringToken.SERIES_BUBBLE_MIN_SIZE);
+goog.exportSymbol('anychart.enums.StringToken.SERIES_BUBBLE_SIZE_AVERAGE', anychart.enums.StringToken.SERIES_BUBBLE_SIZE_AVERAGE);
+goog.exportSymbol('anychart.enums.StringToken.SERIES_BUBBLE_SIZE_MEDIAN', anychart.enums.StringToken.SERIES_BUBBLE_SIZE_MEDIAN);
+goog.exportSymbol('anychart.enums.StringToken.SERIES_BUBBLE_SIZE_MODE', anychart.enums.StringToken.SERIES_BUBBLE_SIZE_MODE);
+goog.exportSymbol('anychart.enums.StringToken.SERIES_BUBBLE_SIZE_SUM', anychart.enums.StringToken.SERIES_BUBBLE_SIZE_SUM);
+goog.exportSymbol('anychart.enums.StringToken.SERIES_FIRST_X_VALUE', anychart.enums.StringToken.SERIES_FIRST_X_VALUE);
+goog.exportSymbol('anychart.enums.StringToken.SERIES_FIRST_Y_VALUE', anychart.enums.StringToken.SERIES_FIRST_Y_VALUE);
+goog.exportSymbol('anychart.enums.StringToken.SERIES_LAST_X_VALUE', anychart.enums.StringToken.SERIES_LAST_X_VALUE);
+goog.exportSymbol('anychart.enums.StringToken.SERIES_LAST_Y_VALUE', anychart.enums.StringToken.SERIES_LAST_Y_VALUE);
+goog.exportSymbol('anychart.enums.StringToken.SERIES_NAME', anychart.enums.StringToken.SERIES_NAME);
+goog.exportSymbol('anychart.enums.StringToken.SERIES_POINT_COUNT', anychart.enums.StringToken.SERIES_POINT_COUNT);
+goog.exportSymbol('anychart.enums.StringToken.SERIES_X_AVERAGE', anychart.enums.StringToken.SERIES_X_AVERAGE);
+goog.exportSymbol('anychart.enums.StringToken.SERIES_X_AXIS_NAME', anychart.enums.StringToken.SERIES_X_AXIS_NAME);
+goog.exportSymbol('anychart.enums.StringToken.SERIES_X_MAX', anychart.enums.StringToken.SERIES_X_MAX);
+goog.exportSymbol('anychart.enums.StringToken.SERIES_X_MEDIAN', anychart.enums.StringToken.SERIES_X_MEDIAN);
+goog.exportSymbol('anychart.enums.StringToken.SERIES_X_MIN', anychart.enums.StringToken.SERIES_X_MIN);
+goog.exportSymbol('anychart.enums.StringToken.SERIES_X_MODE', anychart.enums.StringToken.SERIES_X_MODE);
+goog.exportSymbol('anychart.enums.StringToken.SERIES_X_SUM', anychart.enums.StringToken.SERIES_X_SUM);
+goog.exportSymbol('anychart.enums.StringToken.SERIES_Y_AVERAGE', anychart.enums.StringToken.SERIES_Y_AVERAGE);
+goog.exportSymbol('anychart.enums.StringToken.SERIES_Y_AXIS_NAME', anychart.enums.StringToken.SERIES_Y_AXIS_NAME);
+goog.exportSymbol('anychart.enums.StringToken.SERIES_Y_MAX', anychart.enums.StringToken.SERIES_Y_MAX);
+goog.exportSymbol('anychart.enums.StringToken.SERIES_Y_MEDIAN', anychart.enums.StringToken.SERIES_Y_MEDIAN);
+goog.exportSymbol('anychart.enums.StringToken.SERIES_Y_MIN', anychart.enums.StringToken.SERIES_Y_MIN);
+goog.exportSymbol('anychart.enums.StringToken.SERIES_Y_MODE', anychart.enums.StringToken.SERIES_Y_MODE);
+goog.exportSymbol('anychart.enums.StringToken.SERIES_Y_RANGE_MAX', anychart.enums.StringToken.SERIES_Y_RANGE_MAX);
+goog.exportSymbol('anychart.enums.StringToken.SERIES_Y_RANGE_MIN', anychart.enums.StringToken.SERIES_Y_RANGE_MIN);
+goog.exportSymbol('anychart.enums.StringToken.SERIES_Y_RANGE_SUM', anychart.enums.StringToken.SERIES_Y_RANGE_SUM);
+goog.exportSymbol('anychart.enums.StringToken.SERIES_Y_SUM', anychart.enums.StringToken.SERIES_Y_SUM);
+goog.exportSymbol('anychart.enums.StringToken.VALUE', anychart.enums.StringToken.VALUE);
+//goog.exportSymbol('anychart.enums.StringToken.X_AXIS_AVERAGE', anychart.enums.StringToken.X_AXIS_AVERAGE);
+//goog.exportSymbol('anychart.enums.StringToken.X_AXIS_BUBBLE_SIZE_MAX', anychart.enums.StringToken.X_AXIS_BUBBLE_SIZE_MAX);
+//goog.exportSymbol('anychart.enums.StringToken.X_AXIS_BUBBLE_SIZE_MIN', anychart.enums.StringToken.X_AXIS_BUBBLE_SIZE_MIN);
+//goog.exportSymbol('anychart.enums.StringToken.X_AXIS_BUBBLE_SIZE_SUM', anychart.enums.StringToken.X_AXIS_BUBBLE_SIZE_SUM);
+//goog.exportSymbol('anychart.enums.StringToken.X_AXIS_MAX', anychart.enums.StringToken.X_AXIS_MAX);
+//goog.exportSymbol('anychart.enums.StringToken.X_AXIS_MEDIAN', anychart.enums.StringToken.X_AXIS_MEDIAN);
+//goog.exportSymbol('anychart.enums.StringToken.X_AXIS_MIN', anychart.enums.StringToken.X_AXIS_MIN);
+//goog.exportSymbol('anychart.enums.StringToken.X_AXIS_MODE', anychart.enums.StringToken.X_AXIS_MODE);
+//goog.exportSymbol('anychart.enums.StringToken.X_AXIS_NAME', anychart.enums.StringToken.X_AXIS_NAME);
+//goog.exportSymbol('anychart.enums.StringToken.X_AXIS_SCALE_MAX', anychart.enums.StringToken.X_AXIS_SCALE_MAX);
+//goog.exportSymbol('anychart.enums.StringToken.X_AXIS_SCALE_MIN', anychart.enums.StringToken.X_AXIS_SCALE_MIN);
+//goog.exportSymbol('anychart.enums.StringToken.X_AXIS_SUM', anychart.enums.StringToken.X_AXIS_SUM);
+goog.exportSymbol('anychart.enums.StringToken.X_PERCENT_OF_SERIES', anychart.enums.StringToken.X_PERCENT_OF_SERIES);
+goog.exportSymbol('anychart.enums.StringToken.X_PERCENT_OF_TOTAL', anychart.enums.StringToken.X_PERCENT_OF_TOTAL);
+goog.exportSymbol('anychart.enums.StringToken.X_VALUE', anychart.enums.StringToken.X_VALUE);
+//goog.exportSymbol('anychart.enums.StringToken.Y_AXIS_AVERAGE', anychart.enums.StringToken.Y_AXIS_AVERAGE);
+//goog.exportSymbol('anychart.enums.StringToken.Y_AXIS_BUBBLE_SIZE_MAX', anychart.enums.StringToken.Y_AXIS_BUBBLE_SIZE_MAX);
+//goog.exportSymbol('anychart.enums.StringToken.Y_AXIS_BUBBLE_SIZE_MIN', anychart.enums.StringToken.Y_AXIS_BUBBLE_SIZE_MIN);
+//goog.exportSymbol('anychart.enums.StringToken.Y_AXIS_BUBBLE_SIZE_SUM', anychart.enums.StringToken.Y_AXIS_BUBBLE_SIZE_SUM);
+//goog.exportSymbol('anychart.enums.StringToken.Y_AXIS_MAX', anychart.enums.StringToken.Y_AXIS_MAX);
+//goog.exportSymbol('anychart.enums.StringToken.Y_AXIS_MEDIAN', anychart.enums.StringToken.Y_AXIS_MEDIAN);
+//goog.exportSymbol('anychart.enums.StringToken.Y_AXIS_MIN', anychart.enums.StringToken.Y_AXIS_MIN);
+//goog.exportSymbol('anychart.enums.StringToken.Y_AXIS_MODE', anychart.enums.StringToken.Y_AXIS_MODE);
+//goog.exportSymbol('anychart.enums.StringToken.Y_AXIS_NAME', anychart.enums.StringToken.Y_AXIS_NAME);
+//goog.exportSymbol('anychart.enums.StringToken.Y_AXIS_SCALE_MAX', anychart.enums.StringToken.Y_AXIS_SCALE_MAX);
+//goog.exportSymbol('anychart.enums.StringToken.Y_AXIS_SCALE_MIN', anychart.enums.StringToken.Y_AXIS_SCALE_MIN);
+//goog.exportSymbol('anychart.enums.StringToken.Y_AXIS_SUM', anychart.enums.StringToken.Y_AXIS_SUM);
+goog.exportSymbol('anychart.enums.StringToken.Y_PERCENT_OF_CATEGORY', anychart.enums.StringToken.Y_PERCENT_OF_CATEGORY);
+goog.exportSymbol('anychart.enums.StringToken.Y_PERCENT_OF_SERIES', anychart.enums.StringToken.Y_PERCENT_OF_SERIES);
+goog.exportSymbol('anychart.enums.StringToken.Y_PERCENT_OF_TOTAL', anychart.enums.StringToken.Y_PERCENT_OF_TOTAL);
+goog.exportSymbol('anychart.enums.StringToken.Y_VALUE', anychart.enums.StringToken.Y_VALUE);
+
+goog.exportSymbol('anychart.enums.Statistics.AVERAGE', anychart.enums.Statistics.AVERAGE);
+//goog.exportSymbol('anychart.enums.Statistics.AXIS_AVERAGE', anychart.enums.Statistics.AXIS_AVERAGE);
+//goog.exportSymbol('anychart.enums.Statistics.AXIS_BUBBLE_SIZE_MAX', anychart.enums.Statistics.AXIS_BUBBLE_SIZE_MAX);
+//goog.exportSymbol('anychart.enums.Statistics.AXIS_BUBBLE_SIZE_MIN', anychart.enums.Statistics.AXIS_BUBBLE_SIZE_MIN);
+//goog.exportSymbol('anychart.enums.Statistics.AXIS_BUBBLE_SIZE_SUM', anychart.enums.Statistics.AXIS_BUBBLE_SIZE_SUM);
+//goog.exportSymbol('anychart.enums.Statistics.AXIS_MAX', anychart.enums.Statistics.AXIS_MAX);
+//goog.exportSymbol('anychart.enums.Statistics.AXIS_MEDIAN', anychart.enums.Statistics.AXIS_MEDIAN);
+//goog.exportSymbol('anychart.enums.Statistics.AXIS_MIN', anychart.enums.Statistics.AXIS_MIN);
+//goog.exportSymbol('anychart.enums.Statistics.AXIS_MODE', anychart.enums.Statistics.AXIS_MODE);
+//goog.exportSymbol('anychart.enums.Statistics.AXIS_NAME', anychart.enums.Statistics.AXIS_NAME);
+//goog.exportSymbol('anychart.enums.Statistics.AXIS_SCALE_MAX', anychart.enums.Statistics.AXIS_SCALE_MAX);
+//goog.exportSymbol('anychart.enums.Statistics.AXIS_SCALE_MIN', anychart.enums.Statistics.AXIS_SCALE_MIN);
+//goog.exportSymbol('anychart.enums.Statistics.AXIS_SUM', anychart.enums.Statistics.AXIS_SUM);
+goog.exportSymbol('anychart.enums.Statistics.BUBBLE_SIZE', anychart.enums.Statistics.BUBBLE_SIZE);
+goog.exportSymbol('anychart.enums.Statistics.BUBBLE_SIZE_PERCENT_OF_CATEGORY', anychart.enums.Statistics.BUBBLE_SIZE_PERCENT_OF_CATEGORY);
+goog.exportSymbol('anychart.enums.Statistics.BUBBLE_SIZE_PERCENT_OF_SERIES', anychart.enums.Statistics.BUBBLE_SIZE_PERCENT_OF_SERIES);
+goog.exportSymbol('anychart.enums.Statistics.BUBBLE_SIZE_PERCENT_OF_TOTAL', anychart.enums.Statistics.BUBBLE_SIZE_PERCENT_OF_TOTAL);
+goog.exportSymbol('anychart.enums.Statistics.CATEGORY_NAME', anychart.enums.Statistics.CATEGORY_NAME);
+goog.exportSymbol('anychart.enums.Statistics.CATEGORY_Y_AVERAGE', anychart.enums.Statistics.CATEGORY_Y_AVERAGE);
+goog.exportSymbol('anychart.enums.Statistics.CATEGORY_Y_MAX', anychart.enums.Statistics.CATEGORY_Y_MAX);
+goog.exportSymbol('anychart.enums.Statistics.CATEGORY_Y_MEDIAN', anychart.enums.Statistics.CATEGORY_Y_MEDIAN);
+goog.exportSymbol('anychart.enums.Statistics.CATEGORY_Y_MIN', anychart.enums.Statistics.CATEGORY_Y_MIN);
+goog.exportSymbol('anychart.enums.Statistics.CATEGORY_Y_MODE', anychart.enums.Statistics.CATEGORY_Y_MODE);
+goog.exportSymbol('anychart.enums.Statistics.CATEGORY_Y_PERCENT_OF_TOTAL', anychart.enums.Statistics.CATEGORY_Y_PERCENT_OF_TOTAL);
+goog.exportSymbol('anychart.enums.Statistics.CATEGORY_Y_RANGE_AVERAGE', anychart.enums.Statistics.CATEGORY_Y_RANGE_AVERAGE);
+goog.exportSymbol('anychart.enums.Statistics.CATEGORY_Y_RANGE_MAX', anychart.enums.Statistics.CATEGORY_Y_RANGE_MAX);
+goog.exportSymbol('anychart.enums.Statistics.CATEGORY_Y_RANGE_MEDIAN', anychart.enums.Statistics.CATEGORY_Y_RANGE_MEDIAN);
+goog.exportSymbol('anychart.enums.Statistics.CATEGORY_Y_RANGE_MIN', anychart.enums.Statistics.CATEGORY_Y_RANGE_MIN);
+goog.exportSymbol('anychart.enums.Statistics.CATEGORY_Y_RANGE_MODE', anychart.enums.Statistics.CATEGORY_Y_RANGE_MODE);
+goog.exportSymbol('anychart.enums.Statistics.CATEGORY_Y_RANGE_PERCENT_OF_TOTAL', anychart.enums.Statistics.CATEGORY_Y_RANGE_PERCENT_OF_TOTAL);
+goog.exportSymbol('anychart.enums.Statistics.CATEGORY_Y_RANGE_SUM', anychart.enums.Statistics.CATEGORY_Y_RANGE_SUM);
+goog.exportSymbol('anychart.enums.Statistics.CATEGORY_Y_SUM', anychart.enums.Statistics.CATEGORY_Y_SUM);
+goog.exportSymbol('anychart.enums.Statistics.CLOSE', anychart.enums.Statistics.CLOSE);
+goog.exportSymbol('anychart.enums.Statistics.COUNT', anychart.enums.Statistics.COUNT);
+goog.exportSymbol('anychart.enums.Statistics.DATA_PLOT_BUBBLE_MAX_SIZE', anychart.enums.Statistics.DATA_PLOT_BUBBLE_MAX_SIZE);
+goog.exportSymbol('anychart.enums.Statistics.DATA_PLOT_BUBBLE_MIN_SIZE', anychart.enums.Statistics.DATA_PLOT_BUBBLE_MIN_SIZE);
+goog.exportSymbol('anychart.enums.Statistics.DATA_PLOT_BUBBLE_SIZE_AVERAGE', anychart.enums.Statistics.DATA_PLOT_BUBBLE_SIZE_AVERAGE);
+goog.exportSymbol('anychart.enums.Statistics.DATA_PLOT_BUBBLE_SIZE_SUM', anychart.enums.Statistics.DATA_PLOT_BUBBLE_SIZE_SUM);
+goog.exportSymbol('anychart.enums.Statistics.DATA_PLOT_MAX_X_SUM_SERIES_NAME', anychart.enums.Statistics.DATA_PLOT_MAX_X_SUM_SERIES_NAME);
+goog.exportSymbol('anychart.enums.Statistics.DATA_PLOT_MAX_Y_SUM_SERIES_NAME', anychart.enums.Statistics.DATA_PLOT_MAX_Y_SUM_SERIES_NAME);
+//goog.exportSymbol('anychart.enums.Statistics.DATA_PLOT_MAX_Y_VALUE_POINT_NAME', anychart.enums.Statistics.DATA_PLOT_MAX_Y_VALUE_POINT_NAME);
+goog.exportSymbol('anychart.enums.Statistics.DATA_PLOT_MAX_X_VALUE_POINT_SERIES_NAME', anychart.enums.Statistics.DATA_PLOT_MAX_X_VALUE_POINT_SERIES_NAME);
+goog.exportSymbol('anychart.enums.Statistics.DATA_PLOT_MAX_Y_VALUE_POINT_SERIES_NAME', anychart.enums.Statistics.DATA_PLOT_MAX_Y_VALUE_POINT_SERIES_NAME);
+goog.exportSymbol('anychart.enums.Statistics.DATA_PLOT_MIN_X_SUM_SERIES_NAME', anychart.enums.Statistics.DATA_PLOT_MIN_X_SUM_SERIES_NAME);
+goog.exportSymbol('anychart.enums.Statistics.DATA_PLOT_MIN_Y_SUM_SERIES_NAME', anychart.enums.Statistics.DATA_PLOT_MIN_Y_SUM_SERIES_NAME);
+//goog.exportSymbol('anychart.enums.Statistics.DATA_PLOT_MIN_Y_VALUE_POINT_NAME', anychart.enums.Statistics.DATA_PLOT_MIN_Y_VALUE_POINT_NAME);
+goog.exportSymbol('anychart.enums.Statistics.DATA_PLOT_MIN_X_VALUE_POINT_SERIES_NAME', anychart.enums.Statistics.DATA_PLOT_MIN_X_VALUE_POINT_SERIES_NAME);
+goog.exportSymbol('anychart.enums.Statistics.DATA_PLOT_MIN_Y_VALUE_POINT_SERIES_NAME', anychart.enums.Statistics.DATA_PLOT_MIN_Y_VALUE_POINT_SERIES_NAME);
+goog.exportSymbol('anychart.enums.Statistics.DATA_PLOT_POINT_COUNT', anychart.enums.Statistics.DATA_PLOT_POINT_COUNT);
+goog.exportSymbol('anychart.enums.Statistics.DATA_PLOT_SERIES_COUNT', anychart.enums.Statistics.DATA_PLOT_SERIES_COUNT);
+goog.exportSymbol('anychart.enums.Statistics.DATA_PLOT_X_AVERAGE', anychart.enums.Statistics.DATA_PLOT_X_AVERAGE);
+goog.exportSymbol('anychart.enums.Statistics.DATA_PLOT_X_MAX', anychart.enums.Statistics.DATA_PLOT_X_MAX);
+goog.exportSymbol('anychart.enums.Statistics.DATA_PLOT_X_MIN', anychart.enums.Statistics.DATA_PLOT_X_MIN);
+goog.exportSymbol('anychart.enums.Statistics.DATA_PLOT_X_SUM', anychart.enums.Statistics.DATA_PLOT_X_SUM);
+goog.exportSymbol('anychart.enums.Statistics.DATA_PLOT_Y_AVERAGE', anychart.enums.Statistics.DATA_PLOT_Y_AVERAGE);
+goog.exportSymbol('anychart.enums.Statistics.DATA_PLOT_Y_MAX', anychart.enums.Statistics.DATA_PLOT_Y_MAX);
+goog.exportSymbol('anychart.enums.Statistics.DATA_PLOT_Y_MIN', anychart.enums.Statistics.DATA_PLOT_Y_MIN);
+goog.exportSymbol('anychart.enums.Statistics.DATA_PLOT_Y_RANGE_MAX', anychart.enums.Statistics.DATA_PLOT_Y_RANGE_MAX);
+goog.exportSymbol('anychart.enums.Statistics.DATA_PLOT_Y_RANGE_MIN', anychart.enums.Statistics.DATA_PLOT_Y_RANGE_MIN);
+goog.exportSymbol('anychart.enums.Statistics.DATA_PLOT_Y_RANGE_SUM', anychart.enums.Statistics.DATA_PLOT_Y_RANGE_SUM);
+goog.exportSymbol('anychart.enums.Statistics.DATA_PLOT_Y_SUM', anychart.enums.Statistics.DATA_PLOT_Y_SUM);
+goog.exportSymbol('anychart.enums.Statistics.HIGH', anychart.enums.Statistics.HIGH);
+//goog.exportSymbol('anychart.enums.Statistics.ICON', anychart.enums.Statistics.ICON);
+goog.exportSymbol('anychart.enums.Statistics.INDEX', anychart.enums.Statistics.INDEX);
+goog.exportSymbol('anychart.enums.Statistics.LOW', anychart.enums.Statistics.LOW);
+goog.exportSymbol('anychart.enums.Statistics.NAME', anychart.enums.Statistics.NAME);
+goog.exportSymbol('anychart.enums.Statistics.MAX', anychart.enums.Statistics.MAX);
+goog.exportSymbol('anychart.enums.Statistics.MIN', anychart.enums.Statistics.MIN);
+goog.exportSymbol('anychart.enums.Statistics.OPEN', anychart.enums.Statistics.OPEN);
+goog.exportSymbol('anychart.enums.Statistics.POINTS_COUNT', anychart.enums.Statistics.POINTS_COUNT);
+goog.exportSymbol('anychart.enums.Statistics.RANGE', anychart.enums.Statistics.RANGE);
+goog.exportSymbol('anychart.enums.Statistics.RANGE_END', anychart.enums.Statistics.RANGE_END);
+goog.exportSymbol('anychart.enums.Statistics.RANGE_START', anychart.enums.Statistics.RANGE_START);
+goog.exportSymbol('anychart.enums.Statistics.SERIES_AVERAGE', anychart.enums.Statistics.SERIES_AVERAGE);
+goog.exportSymbol('anychart.enums.Statistics.SERIES_BUBBLE_MAX_SIZE', anychart.enums.Statistics.SERIES_BUBBLE_MAX_SIZE);
+goog.exportSymbol('anychart.enums.Statistics.SERIES_BUBBLE_MIN_SIZE', anychart.enums.Statistics.SERIES_BUBBLE_MIN_SIZE);
+goog.exportSymbol('anychart.enums.Statistics.SERIES_BUBBLE_SIZE_AVERAGE', anychart.enums.Statistics.SERIES_BUBBLE_SIZE_AVERAGE);
+goog.exportSymbol('anychart.enums.Statistics.SERIES_BUBBLE_SIZE_MEDIAN', anychart.enums.Statistics.SERIES_BUBBLE_SIZE_MEDIAN);
+goog.exportSymbol('anychart.enums.Statistics.SERIES_BUBBLE_SIZE_MODE', anychart.enums.Statistics.SERIES_BUBBLE_SIZE_MODE);
+goog.exportSymbol('anychart.enums.Statistics.SERIES_BUBBLE_SIZE_SUM', anychart.enums.Statistics.SERIES_BUBBLE_SIZE_SUM);
+goog.exportSymbol('anychart.enums.Statistics.SERIES_FIRST_X_VALUE', anychart.enums.Statistics.SERIES_FIRST_X_VALUE);
+goog.exportSymbol('anychart.enums.Statistics.SERIES_FIRST_Y_VALUE', anychart.enums.Statistics.SERIES_FIRST_Y_VALUE);
+goog.exportSymbol('anychart.enums.Statistics.SERIES_LAST_X_VALUE', anychart.enums.Statistics.SERIES_LAST_X_VALUE);
+goog.exportSymbol('anychart.enums.Statistics.SERIES_LAST_Y_VALUE', anychart.enums.Statistics.SERIES_LAST_Y_VALUE);
+goog.exportSymbol('anychart.enums.Statistics.SERIES_MIN', anychart.enums.Statistics.SERIES_MIN);
+goog.exportSymbol('anychart.enums.Statistics.SERIES_MAX', anychart.enums.Statistics.SERIES_MAX);
+goog.exportSymbol('anychart.enums.Statistics.SERIES_NAME', anychart.enums.Statistics.SERIES_NAME);
+goog.exportSymbol('anychart.enums.Statistics.SERIES_POINT_COUNT', anychart.enums.Statistics.SERIES_POINT_COUNT);
+goog.exportSymbol('anychart.enums.Statistics.SERIES_POINTS_COUNT', anychart.enums.Statistics.SERIES_POINTS_COUNT);
+goog.exportSymbol('anychart.enums.Statistics.SERIES_SUM', anychart.enums.Statistics.SERIES_SUM);
+goog.exportSymbol('anychart.enums.Statistics.SERIES_X_AVERAGE', anychart.enums.Statistics.SERIES_X_AVERAGE);
+//goog.exportSymbol('anychart.enums.Statistics.SERIES_X_AXIS_NAME', anychart.enums.Statistics.SERIES_X_AXIS_NAME);
+goog.exportSymbol('anychart.enums.Statistics.SERIES_X_MAX', anychart.enums.Statistics.SERIES_X_MAX);
+goog.exportSymbol('anychart.enums.Statistics.SERIES_X_MEDIAN', anychart.enums.Statistics.SERIES_X_MEDIAN);
+goog.exportSymbol('anychart.enums.Statistics.SERIES_X_MIN', anychart.enums.Statistics.SERIES_X_MIN);
+goog.exportSymbol('anychart.enums.Statistics.SERIES_X_MODE', anychart.enums.Statistics.SERIES_X_MODE);
+goog.exportSymbol('anychart.enums.Statistics.SERIES_X_SUM', anychart.enums.Statistics.SERIES_X_SUM);
+goog.exportSymbol('anychart.enums.Statistics.SERIES_Y_AVERAGE', anychart.enums.Statistics.SERIES_Y_AVERAGE);
+//goog.exportSymbol('anychart.enums.Statistics.SERIES_Y_AXIS_NAME', anychart.enums.Statistics.SERIES_Y_AXIS_NAME);
+goog.exportSymbol('anychart.enums.Statistics.SERIES_Y_MAX', anychart.enums.Statistics.SERIES_Y_MAX);
+goog.exportSymbol('anychart.enums.Statistics.SERIES_Y_MEDIAN', anychart.enums.Statistics.SERIES_Y_MEDIAN);
+goog.exportSymbol('anychart.enums.Statistics.SERIES_Y_MIN', anychart.enums.Statistics.SERIES_Y_MIN);
+goog.exportSymbol('anychart.enums.Statistics.SERIES_Y_MODE', anychart.enums.Statistics.SERIES_Y_MODE);
+goog.exportSymbol('anychart.enums.Statistics.SERIES_Y_RANGE_AVERAGE', anychart.enums.Statistics.SERIES_Y_RANGE_AVERAGE);
+goog.exportSymbol('anychart.enums.Statistics.SERIES_Y_RANGE_MAX', anychart.enums.Statistics.SERIES_Y_RANGE_MAX);
+goog.exportSymbol('anychart.enums.Statistics.SERIES_Y_RANGE_MEDIAN', anychart.enums.Statistics.SERIES_Y_RANGE_MEDIAN);
+goog.exportSymbol('anychart.enums.Statistics.SERIES_Y_RANGE_MIN', anychart.enums.Statistics.SERIES_Y_RANGE_MIN);
+goog.exportSymbol('anychart.enums.Statistics.SERIES_Y_RANGE_MODE', anychart.enums.Statistics.SERIES_Y_RANGE_MODE);
+goog.exportSymbol('anychart.enums.Statistics.SERIES_Y_RANGE_SUM', anychart.enums.Statistics.SERIES_Y_RANGE_SUM);
+goog.exportSymbol('anychart.enums.Statistics.SERIES_Y_SUM', anychart.enums.Statistics.SERIES_Y_SUM);
+goog.exportSymbol('anychart.enums.Statistics.SUM', anychart.enums.Statistics.SUM);
+goog.exportSymbol('anychart.enums.Statistics.VALUE', anychart.enums.Statistics.VALUE);
+//goog.exportSymbol('anychart.enums.Statistics.X_AXIS_AVERAGE', anychart.enums.Statistics.X_AXIS_AVERAGE);
+//goog.exportSymbol('anychart.enums.Statistics.X_AXIS_BUBBLE_SIZE_MAX', anychart.enums.Statistics.X_AXIS_BUBBLE_SIZE_MAX);
+//goog.exportSymbol('anychart.enums.Statistics.X_AXIS_BUBBLE_SIZE_MIN', anychart.enums.Statistics.X_AXIS_BUBBLE_SIZE_MIN);
+//goog.exportSymbol('anychart.enums.Statistics.X_AXIS_BUBBLE_SIZE_SUM', anychart.enums.Statistics.X_AXIS_BUBBLE_SIZE_SUM);
+//goog.exportSymbol('anychart.enums.Statistics.X_AXIS_MAX', anychart.enums.Statistics.X_AXIS_MAX);
+//goog.exportSymbol('anychart.enums.Statistics.X_AXIS_MEDIAN', anychart.enums.Statistics.X_AXIS_MEDIAN);
+//goog.exportSymbol('anychart.enums.Statistics.X_AXIS_MIN', anychart.enums.Statistics.X_AXIS_MIN);
+//goog.exportSymbol('anychart.enums.Statistics.X_AXIS_MODE', anychart.enums.Statistics.X_AXIS_MODE);
+//goog.exportSymbol('anychart.enums.Statistics.X_AXIS_NAME', anychart.enums.Statistics.X_AXIS_NAME);
+//goog.exportSymbol('anychart.enums.Statistics.X_AXIS_SCALE_MAX', anychart.enums.Statistics.X_AXIS_SCALE_MAX);
+//goog.exportSymbol('anychart.enums.Statistics.X_AXIS_SCALE_MIN', anychart.enums.Statistics.X_AXIS_SCALE_MIN);
+//goog.exportSymbol('anychart.enums.Statistics.X_AXIS_SUM', anychart.enums.Statistics.X_AXIS_SUM);
+goog.exportSymbol('anychart.enums.Statistics.X_PERCENT_OF_SERIES', anychart.enums.Statistics.X_PERCENT_OF_SERIES);
+goog.exportSymbol('anychart.enums.Statistics.X_PERCENT_OF_TOTAL', anychart.enums.Statistics.X_PERCENT_OF_TOTAL);
+goog.exportSymbol('anychart.enums.Statistics.X_VALUE', anychart.enums.Statistics.X_VALUE);
+//goog.exportSymbol('anychart.enums.Statistics.Y_AXIS_AVERAGE', anychart.enums.Statistics.Y_AXIS_AVERAGE);
+//goog.exportSymbol('anychart.enums.Statistics.Y_AXIS_BUBBLE_SIZE_MAX', anychart.enums.Statistics.Y_AXIS_BUBBLE_SIZE_MAX);
+//goog.exportSymbol('anychart.enums.Statistics.Y_AXIS_BUBBLE_SIZE_MIN', anychart.enums.Statistics.Y_AXIS_BUBBLE_SIZE_MIN);
+//goog.exportSymbol('anychart.enums.Statistics.Y_AXIS_BUBBLE_SIZE_SUM', anychart.enums.Statistics.Y_AXIS_BUBBLE_SIZE_SUM);
+//goog.exportSymbol('anychart.enums.Statistics.Y_AXIS_MAX', anychart.enums.Statistics.Y_AXIS_MAX);
+//goog.exportSymbol('anychart.enums.Statistics.Y_AXIS_MEDIAN', anychart.enums.Statistics.Y_AXIS_MEDIAN);
+//goog.exportSymbol('anychart.enums.Statistics.Y_AXIS_MIN', anychart.enums.Statistics.Y_AXIS_MIN);
+//goog.exportSymbol('anychart.enums.Statistics.Y_AXIS_MODE', anychart.enums.Statistics.Y_AXIS_MODE);
+//goog.exportSymbol('anychart.enums.Statistics.Y_AXIS_NAME', anychart.enums.Statistics.Y_AXIS_NAME);
+//goog.exportSymbol('anychart.enums.Statistics.Y_AXIS_SCALE_MAX', anychart.enums.Statistics.Y_AXIS_SCALE_MAX);
+//goog.exportSymbol('anychart.enums.Statistics.Y_AXIS_SCALE_MIN', anychart.enums.Statistics.Y_AXIS_SCALE_MIN);
+//goog.exportSymbol('anychart.enums.Statistics.Y_AXIS_SUM', anychart.enums.Statistics.Y_AXIS_SUM);
+goog.exportSymbol('anychart.enums.Statistics.Y_PERCENT_OF_CATEGORY', anychart.enums.Statistics.Y_PERCENT_OF_CATEGORY);
+goog.exportSymbol('anychart.enums.Statistics.Y_PERCENT_OF_SERIES', anychart.enums.Statistics.Y_PERCENT_OF_SERIES);
+goog.exportSymbol('anychart.enums.Statistics.Y_PERCENT_OF_TOTAL', anychart.enums.Statistics.Y_PERCENT_OF_TOTAL);
+goog.exportSymbol('anychart.enums.Statistics.Y_VALUE', anychart.enums.Statistics.Y_VALUE);
+
+goog.exportSymbol('anychart.enums.ChartDataExportMode.RAW', anychart.enums.ChartDataExportMode.RAW);
+goog.exportSymbol('anychart.enums.ChartDataExportMode.SPECIFIC', anychart.enums.ChartDataExportMode.SPECIFIC);
+goog.exportSymbol('anychart.enums.ChartDataExportMode.GROUPED', anychart.enums.ChartDataExportMode.GROUPED);

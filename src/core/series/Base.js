@@ -773,11 +773,7 @@ anychart.core.series.Base.prototype.get3DProvider = function() {
 
 /** @inheritDoc */
 anychart.core.series.Base.prototype.getEnableChangeSignals = function() {
-  return anychart.Signal.NEEDS_REDRAW |
-      anychart.Signal.BOUNDS_CHANGED |
-      anychart.Signal.DATA_CHANGED |
-      anychart.Signal.NEEDS_RECALCULATION |
-      anychart.Signal.NEED_UPDATE_LEGEND;
+  return this.SUPPORTED_SIGNALS;
 };
 
 
@@ -796,6 +792,11 @@ anychart.core.series.Base.prototype.setAutoPointWidth = function(value) {
  */
 anychart.core.series.Base.prototype.setAutoColor = function(value) {
   this.autoSettings[anychart.opt.COLOR] = value;
+  this.labels().setAutoColor(this.getLabelsColor());
+  this.markers().setAutoFill(this.getMarkerFill());
+  this.markers().setAutoStroke(this.getMarkerStroke());
+  this.outlierMarkers().setAutoFill(this.getOutliersFill());
+  this.outlierMarkers().setAutoStroke(this.getOutliersStroke());
 };
 
 
@@ -813,8 +814,8 @@ anychart.core.series.Base.prototype.setAutoXPointPosition = function(position) {
  * @param {anychart.enums.MarkerType} value Auto marker type distributed by the chart.
  */
 anychart.core.series.Base.prototype.setAutoMarkerType = function(value) {
-  // not used yet
   this.autoSettings[anychart.opt.TYPE] = value;
+  this.markers().setAutoType(value);
 };
 
 
@@ -1085,14 +1086,6 @@ anychart.core.series.Base.prototype.scaleInvalidated = function(event) {
 //
 //----------------------------------------------------------------------------------------------------------------------
 /**
- * Gets wrapped point by index.
- * @param {number} index Point index.
- * @return {anychart.core.Point} Wrapped point.
- */
-anychart.core.series.Base.prototype.getPoint = goog.abstractMethod;
-
-
-/**
  * Transforms x to pix coords.
  * @param {*} value
  * @param {number=} opt_subRangeRatio
@@ -1356,9 +1349,11 @@ anychart.core.series.Base.prototype.getLegendItemData = function(itemsTextFormat
       itemText = this.getLegendItemText(context);
     json[anychart.opt.TEXT] = itemText;
   }
-  if (!goog.isDefAndNotNull(json[anychart.opt.ICON_TYPE])) {
-    json[anychart.opt.ICON_TYPE] = this.getLegendIconType(context);
+  if (json[anychart.opt.ICON_TYPE] == anychart.enums.LegendItemIconType.MARKER && !this.check(anychart.core.drawers.Capabilities.IS_MARKER_BASED)) {
+    json[anychart.opt.ICON_FILL] = this.markers_.fill();
+    json[anychart.opt.ICON_STROKE] = this.markers_.stroke();
   }
+  json[anychart.opt.ICON_TYPE] = this.getLegendIconType(json[anychart.opt.ICON_TYPE], context);
   json[anychart.opt.ICON_ENABLED] = anychart.opt.ICON_ENABLED in json ? !!json[anychart.opt.ICON_ENABLED] : true;
   json[anychart.opt.ICON_STROKE] = this.getLegendIconColor(
       json[anychart.opt.ICON_STROKE],
@@ -1391,18 +1386,25 @@ anychart.core.series.Base.prototype.getLegendItemData = function(itemsTextFormat
 
 /**
  * Gets legend icon type for the series.
- * @param {Object=} opt_context
+ * @param {*} type
+ * @param {Object} context
  * @return {(anychart.enums.LegendItemIconType|function(acgraph.vector.Path, number))}
  */
-anychart.core.series.Base.prototype.getLegendIconType = function(opt_context) {
-  if (this.check(anychart.core.drawers.Capabilities.IS_MARKER_BASED)) {
-    var type = this.getSeriesOption(anychart.opt.TYPE);
-    var markerDrawer = goog.isFunction(type) ? type : anychart.enums.getMarkerDrawer(type);
-    return function(path, size) {
-      return markerDrawer(path, size / 2, size / 2, size / 2);
-    };
+anychart.core.series.Base.prototype.getLegendIconType = function(type, context) {
+  if (type == anychart.enums.LegendItemIconType.MARKER) {
+    if (this.check(anychart.core.drawers.Capabilities.IS_MARKER_BASED)) {
+      type = this.getSeriesOption(anychart.opt.TYPE);
+    } else if (this.supportsMarkers()) {
+      type = this.markers().type();
+    } else {
+      type = anychart.enums.LegendItemIconType.SQUARE;
+    }
+    if (type == anychart.enums.LegendItemIconType.LINE)
+      type = anychart.enums.LegendItemIconType.V_LINE;
+  } else if (!goog.isFunction(type)) {
+    type = anychart.enums.normalizeLegendItemIconType(type);
   }
-  return anychart.enums.LegendItemIconType.SQUARE;
+  return /** @type {anychart.enums.LegendItemIconType} */ (type);
 };
 
 
@@ -1417,7 +1419,10 @@ anychart.core.series.Base.prototype.getLegendIconType = function(opt_context) {
 anychart.core.series.Base.prototype.getLegendIconColor = function(legendItemJson, colorType, baseColor, context) {
   if (legendItemJson) {
     if (goog.isFunction(legendItemJson)) {
-      legendItemJson = legendItemJson.call(baseColor);
+      var ctx = {
+        'sourceColor': baseColor
+      };
+      legendItemJson = legendItemJson.call(ctx, ctx);
     } else {
       legendItemJson = anychart.color.serialize(
           /** @type {acgraph.vector.Fill|acgraph.vector.Stroke} */(legendItemJson));
@@ -1836,7 +1841,7 @@ anychart.core.series.Base.prototype.drawFactoryElement = function(factoryGetters
           (stateFactory && stateFactory.position()) ||
           (pointOverride && pointOverride[anychart.opt.POSITION]) ||
           mainFactory.position();
-      positionProvider = this.createPositionProvider(/** @type {anychart.enums.Position|string} */(position), isLabel);
+      positionProvider = this.createPositionProvider(/** @type {anychart.enums.Position|string} */(position), true);
       return this.drawSingleFactoryElement(mainFactory, index, positionProvider, formatProvider,
           stateFactory, pointOverride, statePointOverride);
     }
@@ -2426,7 +2431,6 @@ anychart.core.series.Base.prototype.draw = function() {
     stateFactoriesEnabled = /** @type {boolean} */(this.hoverLabels().enabled() || this.selectLabels().enabled());
     if (this.prepareFactory(factory, stateFactoriesEnabled, this.planHasPointLabels(),
         anychart.core.series.Capabilities.SUPPORTS_LABELS, anychart.ConsistencyState.SERIES_LABELS)) {
-      factory.setAutoColor(this.getLabelsColor());
       factory.setAutoZIndex(/** @type {number} */(this.zIndex() + anychart.core.shapeManagers.LABELS_ZINDEX));
       elementsDrawers.push(this.drawLabel);
       factoriesToFinalize.push(factory);
@@ -2439,9 +2443,6 @@ anychart.core.series.Base.prototype.draw = function() {
     stateFactoriesEnabled = /** @type {boolean} */(this.hoverMarkers().enabled() || this.selectMarkers().enabled());
     if (this.prepareFactory(factory, stateFactoriesEnabled, this.planHasPointMarkers(),
         anychart.core.series.Capabilities.SUPPORTS_MARKERS, anychart.ConsistencyState.SERIES_MARKERS)) {
-      factory.setAutoType(this.autoSettings[anychart.opt.TYPE]);
-      factory.setAutoFill(this.getMarkerFill());
-      factory.setAutoStroke(this.getMarkerStroke());
       factory.setAutoZIndex(/** @type {number} */(this.zIndex() + anychart.core.shapeManagers.MARKERS_ZINDEX));
       elementsDrawers.push(this.drawMarker);
       factoriesToFinalize.push(factory);
@@ -2464,8 +2465,6 @@ anychart.core.series.Base.prototype.draw = function() {
     stateFactoriesEnabled = /** @type {boolean} */(this.hoverOutlierMarkers().enabled() || this.selectOutlierMarkers().enabled());
     if (this.prepareFactory(factory, stateFactoriesEnabled, this.planHasPointOutliers(),
         anychart.core.drawers.Capabilities.SUPPORTS_OUTLIERS, anychart.ConsistencyState.SERIES_OUTLIERS)) {
-      factory.setAutoFill(this.getOutliersFill());
-      factory.setAutoStroke(this.getOutliersStroke());
       factory.setAutoZIndex(/** @type {number} */(this.zIndex() + anychart.core.shapeManagers.OUTLIERS_ZINDEX));
       elementsDrawers.push(this.drawPointOutliers);
       factoriesToFinalize.push(factory);
@@ -2522,6 +2521,10 @@ anychart.core.series.Base.prototype.draw = function() {
       }
     }
     this.markConsistent(anychart.ConsistencyState.SERIES_COLOR | anychart.ConsistencyState.Z_INDEX);
+
+    if (this.check(anychart.core.drawers.Capabilities.USES_CONTAINER_AS_ROOT)) {
+      this.invalidate(anychart.ConsistencyState.SERIES_CLIP);
+    }
   } else if (elementsDrawersLength) {
     iterator = this.getResetIterator();
     while (iterator.advance()) {
@@ -2647,11 +2650,10 @@ anychart.core.series.Base.prototype.calcFullClipBounds = function() {
     if (this.check(anychart.core.drawers.Capabilities.IS_3D_BASED)) {
       clip = (/** @type {anychart.math.Rect} */(clip)).clone();
       var provider = this.get3DProvider();
-      var stacked = this.planIsStacked();
-      var yShift = provider.getY3DShift(stacked);
+      var yShift = provider.getY3DFullShift();
       clip.top -= yShift;
       clip.height += yShift;
-      clip.width += provider.getX3DShift(stacked);
+      clip.width += provider.getX3DFullShift();
     }
   }
   return /** @type {!anychart.math.Rect} */(clip);
@@ -2680,8 +2682,11 @@ anychart.core.series.Base.prototype.applyClip = function(opt_customClip) {
   } else {
     clipElement = null;
   }
-  if (!this.check(anychart.core.drawers.Capabilities.USES_CONTAINER_AS_ROOT))
+  if (this.check(anychart.core.drawers.Capabilities.USES_CONTAINER_AS_ROOT)) {
+    this.shapeManager.applyClip(clipElement);
+  } else {
     this.rootLayer.clip(clipElement);
+  }
   if (this.labels_) {
     var labelDOM = this.labels_.getDomElement();
     if (labelDOM) labelDOM.clip(clipElement);
@@ -2758,10 +2763,10 @@ anychart.core.series.Base.prototype.getSeriesState = function() {
 
 /**
  * Returns if the point is in visible subset (due to zoom).
- * @param {number} index
+ * @param {anychart.data.IRowInfo} point
  * @return {boolean}
  */
-anychart.core.series.Base.prototype.isPointVisible = function(index) {
+anychart.core.series.Base.prototype.isPointVisible = function(point) {
   return true;
 };
 
@@ -2840,7 +2845,7 @@ anychart.core.series.Base.prototype.applyAxesLinesSpace = function(value) {
  */
 anychart.core.series.Base.prototype.makePointMeta = function(rowInfo, yNames, yColumns) {
   var i;
-  var shouldBeDrawn = !rowInfo.meta(anychart.opt.ARTIFICIAL) && this.isPointVisible(rowInfo.getIndex());
+  var shouldBeDrawn = this.isPointVisible(rowInfo);
   if (shouldBeDrawn && this.isSizeBased()) {
     var size = Number(rowInfo.get(anychart.opt.SIZE));
     if (isNaN(size) || (size < 0 && !this.getSeriesOption(anychart.opt.DISPLAY_NEGATIVE))) {
@@ -2967,7 +2972,6 @@ anychart.core.series.Base.prototype.createLegendContextProvider = function() {
  * @param {string} position Understands anychart.enums.Position and some additional values.
  * @param {boolean=} opt_shift3D If true, adds a 3D shift if possible.
  * @return {Object} Object with info for labels formatting.
- * @protected
  */
 anychart.core.series.Base.prototype.createPositionProvider = function(position, opt_shift3D) {
   var iterator = this.getIterator();
@@ -3014,16 +3018,17 @@ anychart.core.series.Base.prototype.createPositionProvider = function(position, 
           val = NaN;
         }
       }
-      if (opt_shift3D && this.check(anychart.core.drawers.Capabilities.IS_3D_BASED)) {
-        var provider3D = this.get3DProvider();
-        var index = this.getIndex();
-        x += provider3D.getX3DDistributionShift(index, this.planIsStacked());
-        val -= provider3D.getY3DDistributionShift(index, this.planIsStacked());
-      }
       if (this.isBarBased())
         point = {'x': val, 'y': x};
       else
         point = {'x': x, 'y': val};
+    }
+
+    if (opt_shift3D && this.check(anychart.core.drawers.Capabilities.IS_3D_BASED)) {
+      var provider3D = this.get3DProvider();
+      var index = this.getIndex();
+      point['x'] += provider3D.getX3DDistributionShift(index, this.planIsStacked());
+      point['y'] -= provider3D.getY3DDistributionShift(index, this.planIsStacked());
     }
   }
   return {'value': point};
@@ -3747,7 +3752,7 @@ anychart.core.series.Base.PROPERTY_DESCRIPTORS = (function() {
 /**
  * Series statistics.
  * @param {string=} opt_name Statistics parameter name.
- * @param {number=} opt_value Statistics parameter value.
+ * @param {*=} opt_value Statistics parameter value.
  * @return {anychart.core.series.Base|Object.<number>|number}
  */
 anychart.core.series.Base.prototype.statistics = function(opt_name, opt_value) {
@@ -3769,6 +3774,17 @@ anychart.core.series.Base.prototype.statistics = function(opt_name, opt_value) {
  */
 anychart.core.series.Base.prototype.calculateStatistics = goog.nullFunction;
 //endregion
+
+
+/**
+ * Gets statistics value by key.
+ * @param {string} key - Key.
+ * @return {*} - Statistics value.
+ */
+anychart.core.series.Base.prototype.getStat = function(key) {
+  this.chart.calculate();
+  return this.statistics_[key];
+};
 
 
 //region Serialization/Deserialization/Dispose
@@ -4045,3 +4061,5 @@ anychart.core.series.Base.prototype['transformY'] = anychart.core.series.Base.pr
 
 anychart.core.series.Base.prototype['getPixelBounds'] = anychart.core.series.Base.prototype.getPixelBounds;
 anychart.core.series.Base.prototype['getPixelPointWidth'] = anychart.core.series.Base.prototype.getPixelPointWidth;
+
+anychart.core.series.Base.prototype['getStat'] = anychart.core.series.Base.prototype.getStat;

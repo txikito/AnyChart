@@ -89,13 +89,6 @@ anychart.data.TableStorage = function(table) {
    * @private
    */
   this.fullRangeCalcMaxsCache_ = null;
-
-  /**
-   * Cache of min keys distance for full range selection.
-   * @type {number}
-   * @private
-   */
-  this.fullRangeMinDistanceCache_ = NaN;
 };
 
 
@@ -113,8 +106,7 @@ anychart.data.TableStorage = function(table) {
  *   mins: !Object.<number>,
  *   maxs: !Object.<number>,
  *   calcMins: !Array.<number>,
- *   calcMaxs: !Array.<number>,
- *   minDistance: number
+ *   calcMaxs: !Array.<number>
  * }}
  */
 anychart.data.TableStorage.Selection;
@@ -152,7 +144,6 @@ anychart.data.TableStorage.SEARCH_CACHE_SIZE = 3;
 anychart.data.TableStorage.prototype.dropCaches = function() {
   this.fullRangeMaxsCache_ = this.fullRangeMinsCache_ = null;
   this.fullRangeCalcMaxsCache_ = this.fullRangeCalcMinsCache_ = null;
-  this.fullRangeMinDistanceCache_ = NaN;
   this.selectionCache_.length = 0;
   this.selectionCachePointer_ = 0;
   this.searchCache_.length = 0;
@@ -273,13 +264,11 @@ anychart.data.TableStorage.prototype.selectFast = function(startKey, endKey, fir
   var maxs = {};
   var calcMins = [];
   var calcMaxs = [];
-  var minDistance = NaN;
   var field, val;
   if (first) { // first and last can be null only in the same time, so no point to check last in addition
     var isFullRangeSelect = !preFirst && !postLast;
     // we have additional cache for full range selections
     if (isFullRangeSelect && this.fullRangeMinsCache_) { // caches should exist only all at once
-      minDistance = this.fullRangeMinDistanceCache_;
       for (field in this.fullRangeMinsCache_) {
         mins[field] = this.fullRangeMinsCache_[field];
         maxs[field] = this.fullRangeMaxsCache_[field];
@@ -289,7 +278,6 @@ anychart.data.TableStorage.prototype.selectFast = function(startKey, endKey, fir
         calcMaxs.push(this.fullRangeCalcMaxsCache_[i]);
       }
     } else {
-      minDistance = Number.POSITIVE_INFINITY;
       if (asArray) {
         for (i = 0; i < fields; i++) {
           mins[i] = Number.POSITIVE_INFINITY;
@@ -309,8 +297,6 @@ anychart.data.TableStorage.prototype.selectFast = function(startKey, endKey, fir
       /** @type {anychart.data.TableRow} */
       var curr = first;
       while (curr && curr != postLast) {
-        if (prev)
-          minDistance = Math.min(minDistance, curr.key - prev.key);
         if (asArray) {
           var len = Math.min((/** @type {Array} */(curr.values)).length, fields);
           for (i = 0; i < len; i++) {
@@ -339,8 +325,6 @@ anychart.data.TableStorage.prototype.selectFast = function(startKey, endKey, fir
         prev = curr;
         curr = curr.next;
       }
-      if (minDistance == Number.POSITIVE_INFINITY)
-        minDistance = NaN;
       if (asArray) {
         for (i = 0; i < fields; i++) {
           if (mins[i] == Number.POSITIVE_INFINITY)
@@ -370,11 +354,9 @@ anychart.data.TableStorage.prototype.selectFast = function(startKey, endKey, fir
         goog.mixin(this.fullRangeMaxsCache_, maxs);
         this.fullRangeCalcMinsCache_ = goog.array.slice(calcMins, 0);
         this.fullRangeCalcMaxsCache_ = goog.array.slice(calcMaxs, 0);
-        this.fullRangeMinDistanceCache_ = minDistance;
       }
     }
   } else {
-    minDistance = NaN;
     if (asArray) {
       for (i = 0; i < fields; i++) {
         mins[i] = maxs[i] = NaN;
@@ -401,11 +383,12 @@ anychart.data.TableStorage.prototype.selectFast = function(startKey, endKey, fir
     mins: mins,
     maxs: maxs,
     calcMaxs: calcMaxs,
-    calcMins: calcMins,
-    minDistance: minDistance
+    calcMins: calcMins
   };
-  this.selectionCache_[this.selectionCachePointer_] = selection;
-  this.selectionCachePointer_ = (this.selectionCachePointer_ + 1) % anychart.data.TableStorage.SELECTION_CACHE_SIZE;
+  if (this.storage.length) {
+    this.selectionCache_[this.selectionCachePointer_] = selection;
+    this.selectionCachePointer_ = (this.selectionCachePointer_ + 1) % anychart.data.TableStorage.SELECTION_CACHE_SIZE;
+  }
   return selection;
 };
 
@@ -653,7 +636,7 @@ anychart.data.TableAggregatedStorage.prototype.aggregateRemoves_ = function(tabl
     while (item && (!firstValid || item.key < firstValid.key)) {
       for (i = 0; i < this.numColumns_; i++) {
         var aggregator = aggregators[i];
-        aggregator.process(item.values[aggregator.valuesColumn], item.values[aggregator.weightsColumn]);
+        aggregator.process(item.values[aggregator.valuesColumn], item.values[aggregator.weightsColumn], item.values);
       }
       item = item.next;
     }
@@ -711,7 +694,7 @@ anychart.data.TableAggregatedStorage.prototype.aggregateNewColumns_ = function(t
       for (i = first; i <= last; i++) {
         var aggregator = aggregators[i];
         aggregator.process(currentInMain.values[aggregator.valuesColumn],
-            currentInMain.values[aggregator.weightsColumn]);
+            currentInMain.values[aggregator.weightsColumn], currentInMain.values);
       }
       currentInMain = currentInMain.next;
     }
@@ -760,7 +743,7 @@ anychart.data.TableAggregatedStorage.prototype.createAggregate_ = function(table
         for (i = 0; i < aggregatorsLength; i++) {
           aggregator = aggregators[i];
           aggregator.process(currentInStorage.values[aggregator.valuesColumn],
-              currentInStorage.values[aggregator.weightsColumn]);
+              currentInStorage.values[aggregator.weightsColumn], currentInStorage.values);
         }
         currentInStorage = currentInStorage.next;
       }
@@ -782,7 +765,7 @@ anychart.data.TableAggregatedStorage.prototype.createAggregate_ = function(table
       for (i = 0; i < aggregatorsLength; i++) {
         aggregator = aggregators[i];
         aggregator.process(currentInStorage.values[aggregator.valuesColumn],
-            currentInStorage.values[aggregator.weightsColumn]);
+            currentInStorage.values[aggregator.weightsColumn], currentInStorage.values);
       }
       row = new Array(aggregatorsLength);
       for (i = 0; i < aggregatorsLength; i++) {

@@ -159,7 +159,7 @@ anychart.charts.TreeMap.prototype.applyAppearanceToPoint = function(pointState) 
 
   // here type can only be RECT and LEAF. both has shape in meta.
 
-  var shape = node.meta('shape');
+  var shape = node.meta(anychart.charts.TreeMap.DataFields.SHAPE);
   if (shape) {
     this.colorizeShape(pointState);
     this.applyHatchFill(pointState);
@@ -347,17 +347,43 @@ anychart.charts.TreeMap.prototype.checkIfColorRange = function(target) {
 };
 
 
+/**
+ * Dispatch drill change event.
+ * @param {anychart.data.Tree.DataItem} node Node in which we are trying to drill.
+ * @param {anychart.core.MouseEvent=} opt_event Event object.
+ */
+anychart.charts.TreeMap.prototype.doDrillChange = function(node, opt_event) {
+  opt_event = /** @type {anychart.core.MouseEvent} */ (opt_event || {
+    'target': this
+  });
+  var crumbs = this.createCrumbsTo(node);
+  var drillChange = {
+    'type': anychart.enums.EventType.DRILL_CHANGE,
+    'path': crumbs,
+    'current': crumbs[crumbs.length - 1]
+  };
+  this.unselect();
+  if (this.prevSelectSeriesStatus) {
+    this.dispatchEvent(this.makeInteractivityPointEvent('selected', opt_event, this.prevSelectSeriesStatus, true));
+    this.prevSelectSeriesStatus = null;
+  }
+  if (this.dispatchEvent(drillChange))
+    this.setRootNode(node);
+};
+
+
 /** @inheritDoc */
 anychart.charts.TreeMap.prototype.handleMouseDown = function(event) {
+  if (event['button'] != acgraph.events.BrowserEvent.MouseButton.LEFT) return;
   var legendOrColorRange = event['target'] instanceof anychart.core.ui.Legend || this.checkIfColorRange(event['target']);
   /*
-    Because this method also handle legend item click and color range item click
+    Because this method also handles legend item click and color range item click
     we should prevent this click behaviour to avoid drilldown
   */
   if (legendOrColorRange) return;
   var tag = anychart.utils.extractTag(event['domTarget']);
 
-  var series, s, index;
+  var series, index;
   if (event['target'] instanceof anychart.core.ui.LabelsFactory || event['target'] instanceof anychart.core.ui.MarkersFactory) {
     var parent = event['target'].getParentEventTarget();
     if (parent.isSeries && parent.isSeries())
@@ -369,37 +395,15 @@ anychart.charts.TreeMap.prototype.handleMouseDown = function(event) {
   }
 
   if (series && !series.isDisposed() && series.enabled() && goog.isFunction(series.makePointEvent)) {
-    var drillChange;
     var iterator = this.getIterator();
     iterator.select(/** @type {number} */ (index));
     var node = /** @type {anychart.data.Tree.DataItem} */ (iterator.getItem());
     if (this.isRootNode(node)) {
       if (!this.isTreeRoot(node)) {
-        var drillTo = node.getParent();
-        drillChange = {
-          'type': anychart.enums.EventType.DRILL_CHANGE,
-          'path': this.createCrumbsTo(drillTo)
-        };
-        this.unselect();
-        if (this.prevSelectSeriesStatus) {
-          this.dispatchEvent(this.makeInteractivityPointEvent('selected', event, this.prevSelectSeriesStatus, true));
-          this.prevSelectSeriesStatus = null;
-        }
-        if (this.dispatchEvent(drillChange))
-          this.setRootNode(drillTo);
+        this.doDrillChange(node.getParent());
       }
     } else if (node.numChildren()) {
-      drillChange = {
-        'type': anychart.enums.EventType.DRILL_CHANGE,
-        'path': this.createCrumbsTo(node)
-      };
-      this.unselect();
-      if (this.prevSelectSeriesStatus) {
-        this.dispatchEvent(this.makeInteractivityPointEvent('selected', event, this.prevSelectSeriesStatus, true));
-        this.prevSelectSeriesStatus = null;
-      }
-      if (this.dispatchEvent(drillChange))
-        this.setRootNode(node);
+      this.doDrillChange(node);
     } else {
       anychart.charts.TreeMap.base(this, 'handleMouseDown', event);
     }
@@ -427,7 +431,7 @@ anychart.charts.TreeMap.prototype.createCrumbsTo = function(node) {
  * Creates crumbs to current root.
  * @return {Array} Current path.
  */
-anychart.charts.TreeMap.prototype.getCurrentPath = function() {
+anychart.charts.TreeMap.prototype.getDrilldownPath = function() {
   this.ensureDataPrepared();
   if (!this.rootNode_)
     return null;
@@ -675,7 +679,7 @@ anychart.charts.TreeMap.prototype.data = function(opt_value, opt_fillMethod) {
 
 /**
  * Drills down to target.
- * @param {anychart.data.Tree.DataItem} target Target to drill down to.
+ * @param {(anychart.data.Tree.DataItem|Array|string)} target Target to drill down to.
  */
 anychart.charts.TreeMap.prototype.drillTo = function(target) {
   if (this.prevHoverSeriesStatus) {
@@ -684,7 +688,37 @@ anychart.charts.TreeMap.prototype.drillTo = function(target) {
     this.prevHoverSeriesStatus = null;
   }
   this.ensureDataPrepared();
-  this.setRootNode(target);
+  var node = null;
+  var data;
+  if (target instanceof anychart.data.Tree.DataItem) {
+    // trying to drill by node
+    node = target;
+  } else if (goog.isArray(target)) {
+    data = this.data();
+    // suppose user have only one root, or id in first root of tree
+    if (data && data.numChildren()) {
+      var result = data.getChildAt(0);
+      for (var i = 0; i < target.length; i++) {
+        if (result)
+          result = result.getChildAt(target[i]);
+        else
+          break;
+      }
+      if (result)
+        node = result;
+    }
+    // trying to drill by array
+  } else {
+    // assume we are trying to drill using id from tree
+    data = this.data();
+    // suppose user have only one root, or id in first root of tree
+    if (data && data.numChildren()) {
+      node = data.searchItems('id', target);
+      if (node.length > 0)
+        node = node[0];
+    }
+  }
+  this.setRootNode(node);
 };
 
 
@@ -2184,6 +2218,10 @@ anychart.charts.TreeMap.prototype.drawNodeBox_ = function(pointState) {
   var thickness = 0;
   if (stroke)
     thickness = acgraph.vector.getThickness(/** @type {acgraph.vector.Stroke} */ (stroke));
+  shiftedBounds.left += thickness / 2;
+  shiftedBounds.width -= thickness;
+  shiftedBounds.top += thickness / 2;
+  shiftedBounds.height -= thickness;
 
   var l = anychart.utils.applyPixelShift(shiftedBounds.left, thickness);
   var dl = l - shiftedBounds.left;
@@ -2455,6 +2493,10 @@ anychart.charts.TreeMap.prototype.drawNode_ = function(node, bounds, depth) {
       contentBounds = this.getBoundsForContent_(bounds, pointBounds);
       node.meta(anychart.charts.TreeMap.DataFields.POINT_BOUNDS, pointBounds);
       node.meta(anychart.charts.TreeMap.DataFields.CONTENT_BOUNDS, contentBounds);
+      // this kind of thing need for tooltip's positionMode=point
+      // because it uses iterator.meta('x').meta('y') to calculate
+      // tooltip's coordinate
+      node.meta('x', pointBounds.left).meta('y', pointBounds.top);
     }
     if (type == anychart.charts.TreeMap.NodeType.RECT || type == anychart.charts.TreeMap.NodeType.TRANSIENT) {
       pointBounds = bounds.clone();
@@ -2704,6 +2746,43 @@ anychart.charts.TreeMap.prototype.resizeHandler = function(e) {
 };
 
 
+/** @inheritDoc */
+anychart.charts.TreeMap.prototype.specificContextMenuItems = function(items, context, isPointContext) {
+  var tag = anychart.utils.extractTag(context['event']['domTarget']);
+  var node;
+  if (context['target'] instanceof anychart.core.ui.LabelsFactory || context['target'] instanceof anychart.core.ui.MarkersFactory) {
+    node = this.linearNodes_[tag];
+  } else {
+    node = tag['node'];
+  }
+
+  var specificItems = [];
+
+  var isHeader = node.meta(anychart.charts.TreeMap.DataFields.TYPE) == anychart.charts.TreeMap.NodeType.HEADER;
+  var canDrillDown = node.numChildren() && !(isHeader && this.isRootNode(node));
+  if (canDrillDown) {
+    specificItems.push({
+      'text': 'Drilldown To',
+      'eventType': 'anychart.drillTo',
+      'action': goog.bind(this.doDrillChange, this, node)
+    });
+  }
+
+  var canDrillUp = !this.isTreeRoot(this.getRootNode());
+  if (canDrillUp)
+    specificItems.push({
+      'text': 'Drill Up',
+      'eventType': 'anychart.drillUp',
+      'action': goog.bind(this.doDrillChange, this, this.getRootNode().getParent())
+    });
+
+  if (specificItems.length)
+    specificItems.push(null);
+
+  return specificItems.concat(items);
+};
+
+
 /**
  * @inheritDoc
  */
@@ -2719,8 +2798,9 @@ anychart.charts.TreeMap.prototype.setupByJSON = function(config) {
     if (goog.isString(json)) {
       scale = anychart.scales.Base.fromString(json, null);
     } else if (goog.isObject(json)) {
-      scale = anychart.scales.Base.fromString(json['type'], false);
-      scale.setup(json);
+      scale = anychart.scales.Base.fromString(json['type'], null);
+      if (scale)
+        scale.setup(json);
     }
     if (scale)
       this.colorScale(/** @type {anychart.scales.LinearColor|anychart.scales.OrdinalColor} */ (scale));
@@ -2737,6 +2817,8 @@ anychart.charts.TreeMap.prototype.setupByJSON = function(config) {
   if ('colorRange' in config)
     this.colorRange(config['colorRange']);
   this.sort(config['sort']);
+  if ('drillTo' in config)
+    this.drillTo(config['drillTo']);
 
   this.hoverMode(config['hoverMode']);
   this.selectionMode(config['selectionMode']);
@@ -2873,6 +2955,17 @@ anychart.charts.TreeMap.prototype.serialize = function() {
   var data = this.data();
   if (data)
     json['treeData'] = data.serializeWithoutMeta();
+
+  var drillPath = this.getDrilldownPath();
+  var drillTo = [];
+  var parentNode;
+  for (var i = 1; i < drillPath.length; i++) {
+    parentNode = drillPath[i - 1].getNode();
+    drillTo[i - 1] = parentNode.indexOfChild(drillPath[i].getNode());
+  }
+  if (drillTo.length)
+    json['drillTo'] = drillTo;
+
   json['colorRange'] = this.colorRange().serialize();
   json['maxDepth'] = this.maxDepth();
   json['hintDepth'] = this.hintDepth();
@@ -2947,7 +3040,7 @@ anychart.charts.TreeMap.prototype.makeObject = function(node, rawData, headers, 
 
 
 /** @inheritDoc */
-anychart.charts.TreeMap.prototype.toCsv = function(csvMode, opt_csvSettings) {
+anychart.charts.TreeMap.prototype.toCsv = function(chartDataExportMode, opt_csvSettings) {
   var settings = goog.isObject(opt_csvSettings) ? opt_csvSettings : {};
   var rowsSeparator = settings['rowsSeparator'] || '\n';
   this.checkSeparator(rowsSeparator);
@@ -3089,6 +3182,6 @@ anychart.charts.TreeMap.prototype['selectHatchFill'] = anychart.charts.TreeMap.p
 
 anychart.charts.TreeMap.prototype['drillTo'] = anychart.charts.TreeMap.prototype.drillTo;
 anychart.charts.TreeMap.prototype['drillUp'] = anychart.charts.TreeMap.prototype.drillUp;
-anychart.charts.TreeMap.prototype['getCurrentPath'] = anychart.charts.TreeMap.prototype.getCurrentPath;
+anychart.charts.TreeMap.prototype['getDrilldownPath'] = anychart.charts.TreeMap.prototype.getDrilldownPath;
 
 anychart.charts.TreeMap.prototype['toCsv'] = anychart.charts.TreeMap.prototype.toCsv;

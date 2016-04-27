@@ -36,13 +36,14 @@ window['anychart']['themes'] = window['anychart']['themes'] || {};
 window['anychart']['themes']['darkBlue'] = {
   'palette': {
     'type': 'distinct',
-    'items': ['#40c4ff', '#0288d1', '#0179be', '#9fa8da', '#5c6bc0', '#7e57c2', '#54dbdf', '#15a9c7', '#00897b', '#304ffe']
+    'items': ['#40c4ff', '#0288d1', '#9fa8da', '#5c6bc0', '#7e57c2', '#54dbdf', '#15a9c7', '#00897b', '#304ffe', '#0179be']
   },
-  'ordinalColor': {
+  'defaultOrdinalColorScale': {
     'autoColors': function(rangesCount) {
       return window['anychart']['color']['blendedHueProgression']('#40c4ff', '#0179be', rangesCount);
     }
   },
+  'defaultLinearColorScale': {'colors': ['#40c4ff', '#0179be']},
   'defaultFontSettings': {
     'fontFamily': '"Lucida Console", Monaco, monospace',
     'fontColor': '#b0bec5',
@@ -186,7 +187,6 @@ window['anychart']['themes']['darkBlue'] = {
   },
   'map': {
     'unboundRegions': {'enabled': true, 'fill': '#455a64', 'stroke': '#546e7a'},
-    'linearColor': {'colors': ['#40c4ff', '#0179be']},
     'defaultSeriesSettings': {
       'base': {
         'labels': {
@@ -196,15 +196,19 @@ window['anychart']['themes']['darkBlue'] = {
       },
       'connector': {
         'selectStroke': '1.5 #000',
-        'hoverStroke': '1.5 #b0bec5',
-        'stroke': '1.5 #42a5f5',
         'markers': {
-          'fill': '#b0bec5',
           'stroke': '1.5 #455a64'
         },
         'hoverMarkers': {
-          'fill': '#42a5f5'
+          'stroke': '1.5 #455a64'
+        },
+        'selectMarkers': {
+          'stroke': '1.5 #455a64',
+          'fill': '#000'
         }
+      },
+      'bubble': {
+        'stroke': returnLightenSourceColor
       },
       'marker': {
         'labels': {

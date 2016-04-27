@@ -121,7 +121,9 @@ goog.inherits(anychart.core.stock.Plot, anychart.core.VisualBaseWithBounds);
  * Supported consistency states.
  * @type {number}
  */
-anychart.core.stock.Plot.prototype.SUPPORTED_SIGNALS = anychart.core.VisualBase.prototype.SUPPORTED_SIGNALS;
+anychart.core.stock.Plot.prototype.SUPPORTED_SIGNALS =
+    anychart.core.VisualBaseWithBounds.prototype.SUPPORTED_SIGNALS |
+    anychart.Signal.NEEDS_RECALCULATION;
 
 
 /**
@@ -135,6 +137,7 @@ anychart.core.stock.Plot.prototype.SUPPORTED_CONSISTENCY_STATES =
     anychart.ConsistencyState.STOCK_PLOT_DT_AXIS |
     anychart.ConsistencyState.STOCK_PLOT_SERIES |
     anychart.ConsistencyState.STOCK_PLOT_BACKGROUND |
+    anychart.ConsistencyState.STOCK_PLOT_PALETTE |
     anychart.ConsistencyState.STOCK_PLOT_LEGEND;
 
 
@@ -178,30 +181,6 @@ anychart.core.stock.Plot.ZINDEX_AXIS = 35;
  * @type {number}
  */
 anychart.core.stock.Plot.ZINDEX_BACKGROUND = 1;
-
-
-/**
- * Getter/setter for stock plot defaultSeriesType.
- * @param {(string|anychart.enums.StockSeriesType)=} opt_value Default series type.
- * @return {anychart.core.stock.Plot|anychart.enums.StockSeriesType} Default series type or self for chaining.
- */
-anychart.core.stock.Plot.prototype.defaultSeriesType = function(opt_value) {
-  if (goog.isDef(opt_value)) {
-    opt_value = anychart.enums.normalizeStockSeriesType(opt_value);
-    this.defaultSeriesType_ = opt_value;
-    return this;
-  }
-  return this.defaultSeriesType_;
-};
-
-
-/**
- * Returns stock chart.
- * @return {!anychart.charts.Stock}
- */
-anychart.core.stock.Plot.prototype.getChart = function() {
-  return this.chart_;
-};
 
 
 //region Series-related methods
@@ -718,7 +697,131 @@ anychart.core.stock.Plot.prototype.createSeriesByType = function(type, opt_data,
 //endregion
 
 
-//region Public properties
+//region Infrastructure
+//----------------------------------------------------------------------------------------------------------------------
+//
+//  Infrastructure
+//
+//----------------------------------------------------------------------------------------------------------------------
+/**
+ * Getter/setter for stock plot defaultSeriesType.
+ * @param {(string|anychart.enums.StockSeriesType)=} opt_value Default series type.
+ * @return {anychart.core.stock.Plot|anychart.enums.StockSeriesType} Default series type or self for chaining.
+ */
+anychart.core.stock.Plot.prototype.defaultSeriesType = function(opt_value) {
+  if (goog.isDef(opt_value)) {
+    opt_value = anychart.enums.normalizeStockSeriesType(opt_value);
+    this.defaultSeriesType_ = opt_value;
+    return this;
+  }
+  return this.defaultSeriesType_;
+};
+
+
+/**
+ * Returns stock chart.
+ * @return {!anychart.charts.Stock}
+ */
+anychart.core.stock.Plot.prototype.getChart = function() {
+  return this.chart_;
+};
+
+
+/**
+ * Getter/setter for y axis default settings.
+ * @param {Object} value Object with default settings.
+ */
+anychart.core.stock.Plot.prototype.setDefaultYAxisSettings = function(value) {
+  this.defaultYAxisSettings_ = value;
+};
+
+
+/**
+ * Getter/setter for minor grid default settings.
+ * @param {Object} value Object with default minor grid settings.
+ */
+anychart.core.stock.Plot.prototype.setDefaultMinorGridSettings = function(value) {
+  this.defaultMinorGridSettings_ = value;
+};
+
+
+/**
+ * Getter/setter for grid default settings.
+ * @param {Object} value Object with default grid settings.
+ */
+anychart.core.stock.Plot.prototype.setDefaultGridSettings = function(value) {
+  this.defaultGridSettings_ = value;
+};
+
+
+/**
+ * Invalidates plot series. Doesn't dispatch anything.
+ * @param {boolean} doInvalidateBounds
+ */
+anychart.core.stock.Plot.prototype.invalidateRedrawable = function(doInvalidateBounds) {
+  var i;
+
+  var state = anychart.ConsistencyState.SERIES_POINTS;
+  if (doInvalidateBounds) state |= anychart.ConsistencyState.BOUNDS;
+  for (i = 0; i < this.series_.length; i++) {
+    if (this.series_[i])
+      this.series_[i].invalidate(state);
+  }
+
+  for (i = 0; i < this.yAxes_.length; i++) {
+    var axis = this.yAxes_[i];
+    if (axis) {
+      axis.suspendSignalsDispatching();
+      // effectively invalidates all what's needed
+      axis.invalidateParentBounds();
+      axis.resumeSignalsDispatching(false);
+    }
+  }
+
+  var grid;
+  for (i = 0; i < this.grids_.length; i++) {
+    grid = this.grids_[i];
+    if (grid)
+      grid.invalidate(anychart.ConsistencyState.GRIDS_POSITION);
+  }
+  for (i = 0; i < this.minorGrids_.length; i++) {
+    grid = this.minorGrids_[i];
+    if (grid)
+      grid.invalidate(anychart.ConsistencyState.GRIDS_POSITION);
+  }
+
+  state = anychart.ConsistencyState.APPEARANCE;
+  if (doInvalidateBounds) state |= anychart.ConsistencyState.BOUNDS;
+  if (this.xAxis_)
+    this.xAxis_.invalidate(state);
+  if (this.legend_ && this.legend_.enabled())
+    this.legend_.invalidate(state);
+
+  this.invalidate(anychart.ConsistencyState.STOCK_PLOT_SERIES |
+      anychart.ConsistencyState.STOCK_PLOT_AXES |
+      anychart.ConsistencyState.STOCK_PLOT_DT_AXIS |
+      anychart.ConsistencyState.STOCK_PLOT_GRIDS |
+      anychart.ConsistencyState.STOCK_PLOT_LEGEND);
+};
+
+
+/**
+ * Returns plot series drawing width.
+ * @return {number}
+ */
+anychart.core.stock.Plot.prototype.getDrawingWidth = function() {
+  this.ensureBoundsDistributed_();
+  return this.seriesBounds_.width;
+};
+//endregion
+
+
+//region Public getters, setters and methods
+//----------------------------------------------------------------------------------------------------------------------
+//
+//  Public getters, setters and methods
+//
+//----------------------------------------------------------------------------------------------------------------------
 /**
  * Plot background getter-setter.
  * @param {(string|Object|null|boolean)=} opt_value .
@@ -792,15 +895,6 @@ anychart.core.stock.Plot.prototype.yScale = function(opt_value) {
 
 
 /**
- * Getter/setter for y axis default settings.
- * @param {Object} value Object with default settings.
- */
-anychart.core.stock.Plot.prototype.setDefaultYAxisSettings = function(value) {
-  this.defaultYAxisSettings_ = value;
-};
-
-
-/**
  * Y axis multi getter/setter.
  * @param {(Object|boolean|null|number)=} opt_indexOrValue Chart axis settings to set.
  * @param {(Object|boolean|null)=} opt_value Chart axis settings to set.
@@ -842,7 +936,7 @@ anychart.core.stock.Plot.prototype.yAxis = function(opt_indexOrValue, opt_value)
  */
 anychart.core.stock.Plot.prototype.xAxis = function(opt_value) {
   if (!this.xAxis_) {
-    this.xAxis_ = new anychart.core.axes.StockDateTime();
+    this.xAxis_ = new anychart.core.axes.StockDateTime(this.chart_);
     this.xAxis_.setParentEventTarget(this);
     this.xAxis_.enabled(false);
     this.xAxis_.zIndex(anychart.core.stock.Plot.ZINDEX_AXIS);
@@ -866,15 +960,6 @@ anychart.core.stock.Plot.prototype.xAxis = function(opt_value) {
  */
 anychart.core.stock.Plot.prototype.getAxisByIndex = function(index) {
   return index ? (this.yAxes_[index - 1]) : this.xAxis_;
-};
-
-
-/**
- * Getter/setter for grid default settings.
- * @param {Object} value Object with default grid settings.
- */
-anychart.core.stock.Plot.prototype.setDefaultGridSettings = function(value) {
-  this.defaultGridSettings_ = value;
 };
 
 
@@ -911,15 +996,6 @@ anychart.core.stock.Plot.prototype.grid = function(opt_indexOrValue, opt_value) 
   } else {
     return grid;
   }
-};
-
-
-/**
- * Getter/setter for minor grid default settings.
- * @param {Object} value Object with default minor grid settings.
- */
-anychart.core.stock.Plot.prototype.setDefaultMinorGridSettings = function(value) {
-  this.defaultMinorGridSettings_ = value;
 };
 
 
@@ -984,8 +1060,15 @@ anychart.core.stock.Plot.prototype.dateTimeHighlighter = function(opt_strokeOrFi
     return this.dateTimeHighlighterStroke_;
   }
 };
+//endregion
 
 
+//region Drawing
+//----------------------------------------------------------------------------------------------------------------------
+//
+//  Drawing
+//
+//----------------------------------------------------------------------------------------------------------------------
 /**
  * Draws the plot.
  * @return {anychart.core.stock.Plot}
@@ -994,24 +1077,11 @@ anychart.core.stock.Plot.prototype.draw = function() {
   if (!this.checkDrawingNeeded())
     return this;
 
-  var i, axis, legend, series;
+  var i, axis, series;
 
   this.suspendSignalsDispatching();
 
-  if (!this.rootLayer_) {
-    this.rootLayer_ = acgraph.layer();
-    this.bindHandlersToGraphics(this.rootLayer_);
-    this.eventsInterceptor_ = this.rootLayer_.rect();
-    this.eventsInterceptor_.zIndex(1000);
-    //this.eventsInterceptor_.cursor(acgraph.vector.Cursor.EW_RESIZE);
-    this.eventsInterceptor_.fill(anychart.color.TRANSPARENT_HANDLER);
-    this.eventsInterceptor_.stroke(null);
-    this.eventsHandler.listenOnce(this.eventsInterceptor_, acgraph.events.EventType.MOUSEDOWN, this.initDragger_);
-    this.eventsHandler.listenOnce(this.eventsInterceptor_, acgraph.events.EventType.TOUCHSTART, this.initDragger_);
-    this.eventsHandler.listen(this.eventsInterceptor_, acgraph.events.EventType.MOUSEOVER, this.handlePlotMouseOverAndMove_);
-    this.eventsHandler.listen(this.eventsInterceptor_, acgraph.events.EventType.MOUSEMOVE, this.handlePlotMouseOverAndMove_);
-    this.eventsHandler.listen(this.eventsInterceptor_, acgraph.events.EventType.MOUSEOUT, this.handlePlotMouseOut_);
-  }
+  this.ensureVisualReady_();
 
   if (this.hasInvalidationState(anychart.ConsistencyState.CONTAINER)) {
     this.rootLayer_.parent(/** @type {acgraph.vector.ILayer} */(this.container()));
@@ -1038,86 +1108,7 @@ anychart.core.stock.Plot.prototype.draw = function() {
     this.markConsistent(anychart.ConsistencyState.STOCK_PLOT_PALETTE);
   }
 
-  if (this.hasInvalidationState(anychart.ConsistencyState.STOCK_PLOT_SERIES)) {
-    for (i = 0; i < this.series_.length; i++) {
-      series = this.series_[i];
-      if (series) {
-        series.updateLastRow();
-      }
-    }
-  }
-
-  if (this.hasInvalidationState(anychart.ConsistencyState.BOUNDS | anychart.ConsistencyState.STOCK_PLOT_LEGEND)) {
-    var seriesBounds = this.getPixelBounds();
-    if (this.background_) {
-      this.background_.suspendSignalsDispatching();
-      this.background_.parentBounds(seriesBounds);
-      this.background_.resumeSignalsDispatching(false);
-      //seriesBounds = this.background_.getRemainingBounds();
-      this.invalidate(anychart.ConsistencyState.STOCK_PLOT_BACKGROUND);
-    }
-
-    var legendTitleDate;
-    if (this.hasInvalidationState(anychart.ConsistencyState.STOCK_PLOT_LEGEND)) {
-      legendTitleDate = isNaN(this.highlightedValue_) ? this.chart_.getLastDate() : this.highlightedValue_;
-    } else {
-      legendTitleDate = NaN;
-    }
-    this.updateLegend_(seriesBounds, legendTitleDate);
-    seriesBounds = this.legend().getRemainingBounds();
-
-    if (this.xAxis_) {
-      this.xAxis_.suspendSignalsDispatching();
-      this.xAxis_.parentBounds(seriesBounds);
-      this.xAxis_.resumeSignalsDispatching(false);
-      // we need this to reduce bounds height by the height of the axis
-      seriesBounds = this.xAxis_.getRemainingBounds();
-      this.invalidate(anychart.ConsistencyState.STOCK_PLOT_DT_AXIS);
-    }
-
-    var bounds = seriesBounds.clone();
-    var leftPadding = 0;
-    var rightPadding = 0;
-    for (i = 0; i < this.yAxes_.length; i++) {
-      axis = this.yAxes_[i];
-      if (axis) {
-        axis.suspendSignalsDispatching();
-        var width = axis.width();
-        if (axis.orientation() == anychart.enums.Orientation.LEFT) {
-          axis.parentBounds(/** @type {number} */(bounds.left - width - leftPadding),
-              bounds.top, 0, bounds.height);
-          leftPadding += width;
-        } else if (axis.orientation() == anychart.enums.Orientation.RIGHT) {
-          rightPadding += width;
-          axis.parentBounds(bounds.left, bounds.top, /** @type {number} */(bounds.width + rightPadding), bounds.height);
-        }
-        axis.resumeSignalsDispatching(false);
-      }
-    }
-
-    if (this.xAxis_) {
-      this.xAxis_.suspendSignalsDispatching();
-      // we need this to tell xAxis about new width by Y axes
-      this.xAxis_.parentBounds(seriesBounds.left, seriesBounds.top,
-          seriesBounds.width, /** @type {number} */(seriesBounds.height + this.xAxis_.height()));
-      this.xAxis_.resumeSignalsDispatching(false);
-      seriesBounds = this.xAxis_.getRemainingBounds();
-    }
-
-    if (this.legend_ && this.legend_.enabled()) {
-      var legendBounds = seriesBounds.clone();
-      var legendHeight = this.legend_.getPixelBounds().height;
-      legendBounds.top -= legendHeight;
-      legendBounds.height += legendHeight;
-      this.updateLegend_(legendBounds);
-      seriesBounds = this.legend_.getRemainingBounds();
-    }
-
-    this.seriesBounds_ = seriesBounds;
-    this.eventsInterceptor_.setBounds(this.seriesBounds_);
-    this.invalidateRedrawable(true);
-    this.markConsistent(anychart.ConsistencyState.BOUNDS | anychart.ConsistencyState.STOCK_PLOT_LEGEND);
-  }
+  this.ensureBoundsDistributed_();
 
   if (this.hasInvalidationState(anychart.ConsistencyState.STOCK_PLOT_AXES)) {
     for (i = 0; i < this.yAxes_.length; i++) {
@@ -1197,10 +1188,124 @@ anychart.core.stock.Plot.prototype.draw = function() {
 
   return this;
 };
+
+
+/**
+ * Ensures that the root layer is created.
+ * @private
+ */
+anychart.core.stock.Plot.prototype.ensureVisualReady_ = function() {
+  if (!this.rootLayer_) {
+    this.rootLayer_ = acgraph.layer();
+    this.bindHandlersToGraphics(this.rootLayer_);
+    this.eventsInterceptor_ = this.rootLayer_.rect();
+    this.eventsInterceptor_.zIndex(1000);
+    //this.eventsInterceptor_.cursor(acgraph.vector.Cursor.EW_RESIZE);
+    this.eventsInterceptor_.fill(anychart.color.TRANSPARENT_HANDLER);
+    this.eventsInterceptor_.stroke(null);
+    this.eventsHandler.listenOnce(this.eventsInterceptor_, acgraph.events.EventType.MOUSEDOWN, this.initDragger_);
+    this.eventsHandler.listenOnce(this.eventsInterceptor_, acgraph.events.EventType.TOUCHSTART, this.initDragger_);
+    this.eventsHandler.listen(this.eventsInterceptor_, acgraph.events.EventType.MOUSEOVER, this.handlePlotMouseOverAndMove_);
+    this.eventsHandler.listen(this.eventsInterceptor_, acgraph.events.EventType.MOUSEMOVE, this.handlePlotMouseOverAndMove_);
+    this.eventsHandler.listen(this.eventsInterceptor_, acgraph.events.EventType.MOUSEOUT, this.handlePlotMouseOut_);
+  }
+};
+
+
+/**
+ * Ensures that plot space is distributed among plot elements.
+ * Redraws legend twice.
+ * @private
+ */
+anychart.core.stock.Plot.prototype.ensureBoundsDistributed_ = function() {
+  this.ensureVisualReady_();
+
+  var i;
+  if (this.hasInvalidationState(anychart.ConsistencyState.STOCK_PLOT_SERIES)) {
+    for (i = 0; i < this.series_.length; i++) {
+      var series = this.series_[i];
+      if (series) {
+        series.updateLastRow();
+      }
+    }
+  }
+
+  if (this.hasInvalidationState(anychart.ConsistencyState.BOUNDS | anychart.ConsistencyState.STOCK_PLOT_LEGEND)) {
+    var seriesBounds = this.getPixelBounds();
+    if (this.background_) {
+      this.background_.parentBounds(seriesBounds);
+    }
+
+    var legendTitleDate;
+    if (this.hasInvalidationState(anychart.ConsistencyState.STOCK_PLOT_LEGEND)) {
+      legendTitleDate = isNaN(this.highlightedValue_) ? this.chart_.getLastDate() : this.highlightedValue_;
+    } else {
+      legendTitleDate = NaN;
+    }
+    this.updateLegend_(seriesBounds, legendTitleDate);
+    seriesBounds = this.legend().getRemainingBounds();
+
+    if (this.xAxis_) {
+      this.xAxis_.suspendSignalsDispatching();
+      this.xAxis_.parentBounds(seriesBounds);
+      this.xAxis_.resumeSignalsDispatching(false);
+      // we need this to reduce bounds height by the height of the axis
+      seriesBounds = this.xAxis_.getRemainingBounds();
+      this.invalidate(anychart.ConsistencyState.STOCK_PLOT_DT_AXIS);
+    }
+
+    var leftPadding = 0;
+    var rightPadding = 0;
+    for (i = 0; i < this.yAxes_.length; i++) {
+      var axis = this.yAxes_[i];
+      if (axis) {
+        axis.suspendSignalsDispatching();
+        var width = axis.width();
+        if (axis.orientation() == anychart.enums.Orientation.LEFT) {
+          axis.parentBounds(/** @type {number} */(seriesBounds.left - width - leftPadding),
+              seriesBounds.top, 0, seriesBounds.height);
+          leftPadding += width;
+        } else if (axis.orientation() == anychart.enums.Orientation.RIGHT) {
+          rightPadding += width;
+          axis.parentBounds(seriesBounds.left, seriesBounds.top, /** @type {number} */(seriesBounds.width + rightPadding), seriesBounds.height);
+        }
+        axis.resumeSignalsDispatching(false);
+      }
+    }
+
+    if (this.xAxis_) {
+      this.xAxis_.suspendSignalsDispatching();
+      // we need this to tell xAxis about new width by Y axes
+      this.xAxis_.parentBounds(seriesBounds.left, seriesBounds.top,
+          seriesBounds.width, /** @type {number} */(seriesBounds.height + this.xAxis_.height()));
+      this.xAxis_.resumeSignalsDispatching(false);
+      seriesBounds = this.xAxis_.getRemainingBounds();
+    }
+
+    if (this.legend_ && this.legend_.enabled()) {
+      var legendBounds = seriesBounds.clone();
+      var legendHeight = this.legend_.getPixelBounds().height;
+      legendBounds.top -= legendHeight;
+      legendBounds.height += legendHeight;
+      this.updateLegend_(legendBounds);
+      seriesBounds = this.legend_.getRemainingBounds();
+    }
+
+    this.seriesBounds_ = seriesBounds;
+    this.eventsInterceptor_.setBounds(this.seriesBounds_);
+    this.invalidateRedrawable(true);
+    this.markConsistent(anychart.ConsistencyState.BOUNDS | anychart.ConsistencyState.STOCK_PLOT_LEGEND);
+  }
+};
 //endregion
 
 
 //region Legend
+//----------------------------------------------------------------------------------------------------------------------
+//
+//  Legend
+//
+//----------------------------------------------------------------------------------------------------------------------
 /**
  * Updates legend.
  * @param {anychart.math.Rect=} opt_seriesBounds
@@ -1217,10 +1322,12 @@ anychart.core.stock.Plot.prototype.updateLegend_ = function(opt_seriesBounds, op
   }
   var formatter;
   if (!isNaN(opt_titleValue) && goog.isFunction(formatter = legend.titleFormatter())) {
+    var grouping = /** @type {anychart.core.stock.Grouping} */(this.chart_.grouping());
     var context = {
       'value': opt_titleValue,
-      'groupingIntervalUnit': this.chart_.xScale().getGroupingUnit(),
-      'groupingIntervalUnitCount': this.chart_.xScale().getGroupingUnitCount()
+      'dataIntervalUnit': grouping.getCurrentDataInterval().unit,
+      'dataIntervalUnitCount': grouping.getCurrentDataInterval().count,
+      'isGrouped': grouping.isGrouped()
     };
     legend.title().text(formatter.call(context, context));
   }
@@ -1247,7 +1354,7 @@ anychart.core.stock.Plot.prototype.onLegendSignal_ = function(event) {
     state |= anychart.ConsistencyState.BOUNDS;
     signal |= anychart.Signal.BOUNDS_CHANGED;
   }
-  // If there are no signals � state == 0 and nothing will happen.
+  // If there are no signals state == 0 and nothing will happen.
   this.invalidate(state, signal);
 };
 
@@ -1269,7 +1376,7 @@ anychart.core.stock.Plot.prototype.createLegendItemsProvider = function(sourceMo
     if (series) {
       var itemData = series.getLegendItemData(itemsTextFormatter);
       itemData['sourceUid'] = goog.getUid(this);
-      itemData['sourceKey'] = i;
+      itemData['sourceKey'] = series.id();
       data.push(itemData);
     }
   }
@@ -1284,7 +1391,7 @@ anychart.core.stock.Plot.prototype.createLegendItemsProvider = function(sourceMo
  * @return {boolean} Can interact or not.
  */
 anychart.core.stock.Plot.prototype.legendItemCanInteractInMode = function(mode) {
-  return false;
+  return (mode == anychart.enums.LegendItemsSourceMode.DEFAULT);
 };
 
 
@@ -1293,25 +1400,58 @@ anychart.core.stock.Plot.prototype.legendItemCanInteractInMode = function(mode) 
  * @param {anychart.core.ui.LegendItem} item Legend item that was clicked.
  * @param {anychart.core.MouseEvent} event Mouse event.
  */
-anychart.core.stock.Plot.prototype.legendItemClick = goog.nullFunction;
+anychart.core.stock.Plot.prototype.legendItemClick = function(item, event) {
+  var sourceKey = item.sourceKey();
+  var series = this.getSeries(/** @type {number} */ (sourceKey));
+  if (series) {
+    series.enabled(!series.enabled());
+    if (series.enabled())
+      series.hoverSeries();
+    else
+      series.unhover();
+  }
+};
 
 
 /**
  * Calls when legend item that some how belongs to the chart was hovered.
  * @param {anychart.core.ui.LegendItem} item Legend item that was hovered.
+ * @param {anychart.core.MouseEvent} event Mouse event.
  */
-anychart.core.stock.Plot.prototype.legendItemOver = goog.nullFunction;
+anychart.core.stock.Plot.prototype.legendItemOver = function(item, event) {
+  var sourceKey = item.sourceKey();
+  if (item && !goog.isDefAndNotNull(sourceKey) && !isNaN(sourceKey))
+    return;
+  var series = this.getSeries(/** @type {number} */ (sourceKey));
+  if (series) {
+    series.hoverSeries();
+  }
+};
 
 
 /**
  * Calls when legend item that some how belongs to the chart was unhovered.
  * @param {anychart.core.ui.LegendItem} item Legend item that was unhovered.
+ * @param {anychart.core.MouseEvent} event Mouse event.
  */
-anychart.core.stock.Plot.prototype.legendItemOut = goog.nullFunction;
+anychart.core.stock.Plot.prototype.legendItemOut = function(item, event) {
+  var sourceKey = item.sourceKey();
+  if (item && !goog.isDefAndNotNull(sourceKey) && !isNaN(sourceKey))
+    return;
+  var series = this.getSeries(/** @type {number} */ (sourceKey));
+  if (series) {
+    series.unhover();
+  }
+};
 //endregion
 
 
 //region Interactivity
+//----------------------------------------------------------------------------------------------------------------------
+//
+//  Interactivity
+//
+//----------------------------------------------------------------------------------------------------------------------
 /**
  * Prepares highlight and returns an array of highlighted data rows for each series of the plot.
  * @param {number} value
@@ -1389,8 +1529,15 @@ anychart.core.stock.Plot.prototype.unhighlight = function() {
     this.updateLegend_(null, this.chart_.getLastDate());
   }
 };
+//endregion
 
 
+//region Drag
+//----------------------------------------------------------------------------------------------------------------------
+//
+//  Drag
+//
+//----------------------------------------------------------------------------------------------------------------------
 /**
  * Mousedown handler.
  * @param {acgraph.events.BrowserEvent} e
@@ -1481,6 +1628,9 @@ anychart.core.stock.Plot.prototype.seriesInvalidated_ = function(e) {
   var state = anychart.ConsistencyState.STOCK_PLOT_SERIES;
   if (e.hasSignal(anychart.Signal.NEED_UPDATE_LEGEND))
     state |= anychart.ConsistencyState.STOCK_PLOT_LEGEND;
+  if (e.hasSignal(anychart.Signal.NEEDS_RECALCULATION)) {
+    signal |= anychart.Signal.NEEDS_RECALCULATION;
+  }
   this.invalidate(state, signal);
 };
 
@@ -1518,57 +1668,6 @@ anychart.core.stock.Plot.prototype.xAxisInvalidated_ = function(e) {
  */
 anychart.core.stock.Plot.prototype.onGridSignal_ = function(e) {
   this.invalidate(anychart.ConsistencyState.STOCK_PLOT_GRIDS, anychart.Signal.NEEDS_REDRAW);
-};
-
-
-/**
- * Invalidates plot series. Doesn't dispatch anything.
- * @param {boolean} doInvalidateBounds
- */
-anychart.core.stock.Plot.prototype.invalidateRedrawable = function(doInvalidateBounds) {
-  var i;
-
-  var state = anychart.ConsistencyState.STOCK_SERIES_POINTS;
-  if (doInvalidateBounds) state |= anychart.ConsistencyState.BOUNDS;
-  for (i = 0; i < this.series_.length; i++) {
-    if (this.series_[i])
-      this.series_[i].invalidate(state);
-  }
-
-  for (i = 0; i < this.yAxes_.length; i++) {
-    var axis = this.yAxes_[i];
-    if (axis) {
-      axis.suspendSignalsDispatching();
-      // effectively invalidates all what's needed
-      axis.invalidateParentBounds();
-      axis.resumeSignalsDispatching(false);
-    }
-  }
-
-  var grid;
-  for (i = 0; i < this.grids_.length; i++) {
-    grid = this.grids_[i];
-    if (grid)
-      grid.invalidate(anychart.ConsistencyState.GRIDS_POSITION);
-  }
-  for (i = 0; i < this.minorGrids_.length; i++) {
-    grid = this.minorGrids_[i];
-    if (grid)
-      grid.invalidate(anychart.ConsistencyState.GRIDS_POSITION);
-  }
-
-  state = anychart.ConsistencyState.APPEARANCE;
-  if (doInvalidateBounds) state |= anychart.ConsistencyState.BOUNDS;
-  if (this.xAxis_)
-    this.xAxis_.invalidate(state);
-  if (this.legend_ && this.legend_.enabled())
-    this.legend_.invalidate(state);
-
-  this.invalidate(anychart.ConsistencyState.STOCK_PLOT_SERIES |
-      anychart.ConsistencyState.STOCK_PLOT_AXES |
-      anychart.ConsistencyState.STOCK_PLOT_DT_AXIS |
-      anychart.ConsistencyState.STOCK_PLOT_GRIDS |
-      anychart.ConsistencyState.STOCK_PLOT_LEGEND);
 };
 //endregion
 
@@ -1682,6 +1781,12 @@ anychart.core.stock.Plot.prototype.paletteInvalidated_ = function(event) {
 //endregion
 
 
+//region Serialization / deserialization / disposing
+//----------------------------------------------------------------------------------------------------------------------
+//
+//  Serialization / deserialization / disposing
+//
+//----------------------------------------------------------------------------------------------------------------------
 /** @inheritDoc */
 anychart.core.stock.Plot.prototype.disposeInternal = function() {
   goog.dispose(this.background_);
@@ -1736,6 +1841,10 @@ anychart.core.stock.Plot.prototype.serialize = function() {
   axesIds.push(goog.getUid(this.xAxis()));
   json['xAxis'] = this.xAxis().serialize();
   json['dateTimeHighlighter'] = anychart.color.serialize(this.dateTimeHighlighterStroke_);
+
+  json['palette'] = this.palette().serialize();
+  // json['markerPalette'] = this.markerPalette().serialize();
+  json['hatchFillPalette'] = this.hatchFillPalette().serialize();
 
   var yAxes = [];
   for (i = 0; i < this.yAxes_.length; i++) {
@@ -1866,6 +1975,11 @@ anychart.core.stock.Plot.prototype.setupByJSON = function(config) {
   var i, json, scale;
 
   this.defaultSeriesType(config['defaultSeriesType']);
+
+  this.palette(config['palette']);
+  // this.markerPalette(config['markerPalette']);
+  this.hatchFillPalette(config['hatchFillPalette']);
+
   this.background(config['background']);
   this.xAxis(config['xAxis']);
   this.dateTimeHighlighter(config['dateTimeHighlighter']);
@@ -1970,51 +2084,16 @@ anychart.core.stock.Plot.prototype.setupByJSON = function(config) {
     }
   }
 };
-
-
-/**
- * Returns current pixel position of 0.5 ratio.
- * @return {{
- *    firstKey: number,
- *    lastKey: number,
- *    firstIndex: number,
- *    lastIndex: number,
- *    minIndex: number,
- *    maxIndex: number,
- *    minKey: number,
- *    maxKey: number
- * }}
- */
-anychart.core.stock.Plot.prototype.getDragAnchor = function() {
-  return this.chart_.getDragAnchor();
-};
-
-
-/**
- * Drags current 0.5 date to passed position.
- * @param {number} x
- * @param {Object} anchor
- */
-anychart.core.stock.Plot.prototype.dragTo = function(x, anchor) {
-  this.chart_.dragToRatio(x / this.seriesBounds_.width, anchor);
-};
-
-
-/**
- * Limits passed position.
- * @param {number} x
- * @param {Object} anchor
- * @return {number}
- */
-anychart.core.stock.Plot.prototype.limitDragPosition = function(x, anchor) {
-  if (!this.seriesBounds_) return x;
-  var width = this.seriesBounds_.width;
-  var ratio = this.chart_.limitDragRatio(x / width, anchor);
-  return ratio * width;
-};
+//endregion
 
 
 
+//region anychart.core.stock.Plot.Dragger
+//----------------------------------------------------------------------------------------------------------------------
+//
+//  anychart.core.stock.Plot.Dragger
+//
+//----------------------------------------------------------------------------------------------------------------------
 /**
  * Dragger for plot thumbs.
  * @param {anychart.core.stock.Plot} plot
@@ -2038,19 +2117,10 @@ goog.inherits(anychart.core.stock.Plot.Dragger, goog.fx.Dragger);
 /** @inheritDoc */
 anychart.core.stock.Plot.Dragger.prototype.computeInitialPosition = function() {
   /**
-   * @type {{
-   *    firstKey: number,
-   *    lastKey: number,
-   *    firstIndex: number,
-   *    lastIndex: number,
-   *    minIndex: number,
-   *    maxIndex: number,
-   *    minKey: number,
-   *    maxKey: number
-   * }}
+   * @type {anychart.charts.Stock.DragAnchor}
    * @private
    */
-  this.anchor_ = this.plot_.getDragAnchor();
+  this.anchor_ = this.plot_.chart_.getDragAnchor();
   this.deltaX = 0;
   this.deltaY = 0;
 };
@@ -2058,13 +2128,15 @@ anychart.core.stock.Plot.Dragger.prototype.computeInitialPosition = function() {
 
 /** @inheritDoc */
 anychart.core.stock.Plot.Dragger.prototype.defaultAction = function(x, y) {
-  this.plot_.dragTo(x, this.anchor_);
+  this.plot_.chart_.dragToRatio(x / this.plot_.seriesBounds_.width, this.anchor_);
 };
 
 
 /** @inheritDoc */
 anychart.core.stock.Plot.Dragger.prototype.limitX = function(x) {
-  return this.plot_.limitDragPosition(x, this.anchor_);
+  var width = this.plot_.seriesBounds_.width;
+  var ratio = this.plot_.chart_.limitDragRatio(x / width, this.anchor_);
+  return ratio * width;
 };
 
 
@@ -2072,6 +2144,7 @@ anychart.core.stock.Plot.Dragger.prototype.limitX = function(x) {
 anychart.core.stock.Plot.Dragger.prototype.limitY = function(y) {
   return 0;
 };
+//endregion
 
 
 //exports
@@ -2111,5 +2184,5 @@ anychart.core.stock.Plot.prototype['roc'] = anychart.core.stock.Plot.prototype.r
 anychart.core.stock.Plot.prototype['rsi'] = anychart.core.stock.Plot.prototype.rsi;
 anychart.core.stock.Plot.prototype['sma'] = anychart.core.stock.Plot.prototype.sma;
 anychart.core.stock.Plot.prototype['palette'] = anychart.core.stock.Plot.prototype.palette;
-anychart.core.stock.Plot.prototype['markerPalette'] = anychart.core.stock.Plot.prototype.markerPalette;
+// anychart.core.stock.Plot.prototype['markerPalette'] = anychart.core.stock.Plot.prototype.markerPalette;
 anychart.core.stock.Plot.prototype['hatchFillPalette'] = anychart.core.stock.Plot.prototype.hatchFillPalette;

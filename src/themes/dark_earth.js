@@ -38,11 +38,12 @@ window['anychart']['themes']['darkEarth'] = {
     'type': 'distinct',
     'items': ['#827717', '#c77532', '#998675', '#6b617b', '#c69c6d', '#d29b9b', '#879872', '#16685d', '#57a7b1', '#bdbdbd']
   },
-  'ordinalColor': {
+  'defaultOrdinalColorScale': {
     'autoColors': function(rangesCount) {
       return window['anychart']['color']['blendedHueProgression']('#827717', '#c77532', rangesCount);
     }
   },
+  'defaultLinearColorScale': {'colors': ['#827717', '#c77532']},
   'defaultFontSettings': {
     'fontColor': '#888888'
   },
@@ -171,10 +172,9 @@ window['anychart']['themes']['darkEarth'] = {
   },
   'map': {
     'unboundRegions': {'enabled': true, 'fill': '#424242', 'stroke': '#616161'},
-    'linearColor': {'colors': ['#827717', '#c77532']},
     'defaultSeriesSettings': {
       'base': {
-        'stroke': returnDarkenSourceColor,
+        'stroke': returnLightenSourceColor,
         'hoverFill': '#bdbdbd',
         'selectFill': '#e0e0e0',
         'selectStroke': '1.5 #212121',
@@ -184,15 +184,19 @@ window['anychart']['themes']['darkEarth'] = {
       },
       'connector': {
         'selectStroke': '1.5 #fafafa',
-        'hoverStroke': '1.5 #eeeeee',
-        'stroke': '1.5 #827717',
         'markers': {
-          'fill': '#c77532',
           'stroke': '1.5 #424242'
         },
         'hoverMarkers': {
-          'fill': '#c77532'
+          'stroke': '1.5 #424242'
+        },
+        'selectMarkers': {
+          'fill': '#fafafa',
+          'stroke': '1.5 #424242'
         }
+      },
+      'bubble': {
+        'stroke': returnLightenSourceColor
       },
       'marker': {
         'labels': {

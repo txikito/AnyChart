@@ -17,6 +17,7 @@ goog.require('anychart.core.utils.Interactivity');
 goog.require('anychart.core.utils.InteractivityState');
 goog.require('anychart.core.utils.Margin');
 goog.require('anychart.core.utils.Padding');
+goog.require('anychart.exports');
 goog.require('anychart.performance');
 goog.require('anychart.themes.merging');
 goog.require('anychart.utils');
@@ -118,6 +119,13 @@ anychart.core.Chart = function() {
    * @type {number}
    */
   this.y3dShift = 0;
+
+
+  /**
+   * Statistics object.
+   * @type {Object}
+   */
+  this.statistics = {};
 
   this.invalidate(anychart.ConsistencyState.ALL);
   this.resumeSignalsDispatching(false);
@@ -357,7 +365,7 @@ anychart.core.Chart.prototype.onTitleSignal_ = function(event) {
     state |= anychart.ConsistencyState.BOUNDS;
     signal |= anychart.Signal.BOUNDS_CHANGED;
   }
-  // If there are no signals – state == 0 and nothing will happen.
+  // If there are no signals - state == 0 and nothing will happen.
   this.invalidate(state, signal);
 };
 
@@ -419,6 +427,34 @@ anychart.core.Chart.prototype.onLabelSignal_ = function(event) {
  */
 anychart.core.Chart.prototype.createChartLabel = function() {
   return new anychart.core.ui.Label();
+};
+
+
+//----------------------------------------------------------------------------------------------------------------------
+//
+//  Statistics.
+//
+//----------------------------------------------------------------------------------------------------------------------
+/**
+ * Developers note:
+ * This method:
+ * - Calculates all required drawing data.
+ * - Considering all calculated data, fills the statistics object with calculated values.
+ * - Can be called before this.draw() method is called.
+ * - Can be called any amount of times. Must do the calculations only if something important had been changed.
+ * - This method is called EVERY TIME getStat() is called.
+ */
+anychart.core.Chart.prototype.calculate = goog.nullFunction;
+
+
+/**
+ * Gets statistics value by key.
+ * @param {string} key - Key.
+ * @return {*} - Statistics value.
+ */
+anychart.core.Chart.prototype.getStat = function(key) {
+  this.calculate();
+  return this.statistics[key];
 };
 
 
@@ -600,8 +636,10 @@ anychart.core.Chart.prototype.contextMenu = function(opt_value) {
   if (!this.contextMenu_) {
     // suppress NO_FEATURE_IN_MODULE warning
     this.contextMenu_ = goog.global['anychart']['ui']['contextMenu'](!!goog.isObject(opt_value) && opt_value['fromTheme']);
-    this.registerDisposable(this.contextMenu_);
-    this.contextMenu_['itemsProvider'](this.contextMenuItemsProvider);
+    if (this.contextMenu_) {
+      this.registerDisposable(this.contextMenu_);
+      this.contextMenu_['itemsProvider'](this.contextMenuItemsProvider);
+    }
   }
 
   if (goog.isDef(opt_value)) {
@@ -634,38 +672,64 @@ anychart.core.Chart.prototype.getVersionHistoryLink = function() {
  * @protected
  */
 anychart.core.Chart.prototype.contextMenuItemsProvider = function(context) {
+  // For fired on MarkersFactory or LabelsFactory
+  var parentEventTarget = context['event']['target'].getParentEventTarget();
+  // For fired on series point (context['event']['target'] == chart)
   var meta = anychart.utils.extractTag(context['event']['domTarget']);
-  var isPointContext = context['target'].isSeries && context['target'].isSeries() &&
-      goog.isObject(meta) && goog.isDef(meta['index']);
+  var isSeries = goog.isObject(meta) && goog.isDef(meta.series) &&
+      meta.series['seriesType'] && goog.isDef(meta.index);
+  var isPointContext = isSeries || (parentEventTarget && parentEventTarget['seriesType']);
 
-  var defaultMenu = isPointContext ?
-      anychart.core.Chart.contextMenuMap.point :
-      anychart.core.Chart.contextMenuMap.main;
+  var items = /** @type {Array.<anychart.ui.ContextMenu.Item>} */ (anychart.utils.recursiveClone(anychart.core.Chart.contextMenuMap.main));
 
-  defaultMenu = /** @type {Array.<anychart.ui.ContextMenu.Item>} */ (anychart.utils.recursiveClone(defaultMenu));
+  if (anychart.DEVELOP) {
+    // prepare version link (specific to each product)
+    var versionHistoryItem = anychart.utils.recursiveClone(anychart.core.Chart.contextMenuItems.versionHistory);
+    versionHistoryItem['href'] = context['chart'].getVersionHistoryLink() + '?version=' + anychart.VERSION;
 
-  // prepare version link (specific to each product)
-  var versionItemIndex = goog.array.findIndex(defaultMenu, function(item) {
-    return (item && item['text']) == 'Version ' + anychart.VERSION;
-  });
-  if (versionItemIndex != -1) {
-    defaultMenu[versionItemIndex]['href'] = context['chart'].getVersionHistoryLink();
+    items.push(
+        null,
+        anychart.core.Chart.contextMenuItems.saveConfigAs,
+        anychart.core.Chart.contextMenuItems.linkToHelp,
+        versionHistoryItem
+    );
   }
 
-  return context['chart'].specificContextMenuItems(defaultMenu, context);
+  return context['chart'].specificContextMenuItems(anychart.utils.recursiveClone(items), context, isPointContext);
 };
 
 
 /**
  * Specific set context menu items to chart.
- * @param {Array.<anychart.ui.ContextMenu.Item>} defaultItems Default items provided from chart.
+ * @param {Array.<anychart.ui.ContextMenu.Item>} items Default items provided from chart.
  * @param {anychart.ui.ContextMenu.PrepareItemsContext} context Context object.
- * @this {anychart.ui.ContextMenu.PrepareItemsContext}
+ * @param {boolean} isPointContext
  * @return {Array.<anychart.ui.ContextMenu.Item>}
  * @protected
  */
-anychart.core.Chart.prototype.specificContextMenuItems = function(defaultItems, context) {
-  return defaultItems;
+anychart.core.Chart.prototype.specificContextMenuItems = function(items, context, isPointContext) {
+  return items;
+};
+
+
+/**
+ * Get selected points.
+ * @return {Array.<anychart.core.Point>}
+ */
+anychart.core.Chart.prototype.getSelectedPoints = function() {
+  var selectedPoints = [];
+  var selectedPointsIndexes, series, i, j;
+  var allSeries = this.getAllSeries();
+  for (i = 0; i < allSeries.length; i++) {
+    series = allSeries[i];
+    if (!series || !series.state) continue;
+    selectedPointsIndexes = series.state.getIndexByPointState(anychart.PointState.SELECT);
+    for (j = 0; j < selectedPointsIndexes.length; j++) {
+      selectedPoints.push(series.getPoint(selectedPointsIndexes[j]));
+    }
+  }
+
+  return selectedPoints;
 };
 
 
@@ -676,35 +740,35 @@ anychart.core.Chart.prototype.specificContextMenuItems = function(defaultItems, 
 anychart.core.Chart.contextMenuItems = {
   // Item 'Export as ...'.
   exportAs: {
-    'text': 'Export as...',
+    'text': 'Save chart as...',
     'iconClass': 'fa fa-floppy-o',
     'subMenu': [{
       'text': '.png',
       'iconClass': 'fa fa-file-image-o',
       'eventType': 'anychart.saveAsPng',
       'action': function(context) {
-        context['chart']['saveAsPng']();
+        context['chart'].saveAsPng();
       }
     },{
       'text': '.jpg',
       'iconClass': 'fa fa-file-image-o',
       'eventType': 'anychart.saveAsJpg',
       'action': function(context) {
-        context['chart']['saveAsJpg']();
+        context['chart'].saveAsJpg();
       }
     },{
       'text': '.pdf',
       'iconClass': 'fa fa-file-pdf-o',
       'eventType': 'anychart.saveAsPdf',
       'action': function(context) {
-        context['chart']['saveAsPdf']();
+        context['chart'].saveAsPdf();
       }
     },{
       'text': '.svg',
       'iconClass': 'fa fa-file-code-o',
       'eventType': 'anychart.saveAsSvg',
       'action': function(context) {
-        context['chart']['saveAsSvg']();
+        context['chart'].saveAsSvg();
       }
     }]
   },
@@ -716,14 +780,16 @@ anychart.core.Chart.contextMenuItems = {
     'subMenu': [{
       'text': '.csv',
       'iconClass': 'fa fa-file-excel-o',
+      'eventType': 'anychart.saveAsCsv',
       'action': function(context) {
-        //context['chart']['saveAsCsv']();
+        context['chart'].saveAsCsv();
       }
     },{
       'text': '.xslx',
       'iconClass': 'fa fa-file-excel-o',
+      'eventType': 'anychart.saveAsXlsx',
       'action': function(context) {
-        //context['chart']['saveAsXlsx']();
+        context['chart'].saveAsXlsx();
       }
     }]
   },
@@ -735,37 +801,41 @@ anychart.core.Chart.contextMenuItems = {
     'subMenu': [{
       'text': '.json',
       'iconClass': 'fa fa-file-code-o',
+      'eventType': 'anychart.saveAsJson',
       'action': function(context) {
-        //context['chart']['saveAsJson']();
+        context['chart'].saveAsJson();
       }
     },{
       'text': '.xml',
       'iconClass': 'fa fa-file-code-o',
+      'eventType': 'anychart.saveAsXml',
       'action': function(context) {
-        //context['chart']['saveAsXml']();
+        context['chart'].saveAsXml();
       }
     }]
   },
 
   // Item 'Print Chart'.
   printChart: {
-    'text': 'Print Chart',
+    'text': 'Print',
     'iconClass': 'fa fa-print',
     'eventType': 'anychart.print',
     'action': function(context) {
-      context['chart']['print']();
+      context['chart'].print();
     }
   },
 
-  // Item-link to version history 'Version x.x.x'.
-  version: {
-    'text': 'Version ' + anychart.VERSION,
+  // Item-link to version history.
+  versionHistory: {
+    'text': 'Version History',
     'href': ''
   },
 
-  // Item-link to our site 'About AnyChart'.
+  // Item-link to our site.
   about: {
-    'text': 'About AnyChart',
+    'text': 'AnyChart ' + (anychart.VERSION ?
+        goog.string.subs.apply(null, ['v%s.%s.%s'].concat(anychart.VERSION.split('.'))) :
+        ' develop version'),
     'href': 'http://anychart.com'
   },
 
@@ -773,16 +843,6 @@ anychart.core.Chart.contextMenuItems = {
   linkToHelp: {
     'text': 'Need help? Go to support center!',
     'href': 'http://anychart.com/support'
-  },
-
-  // Item 'Exclude Point'.
-  excludePoint: {
-    'text': 'Exclude Point',
-    'eventType': 'anychart.excludePoint',
-    'action': function(context) {
-      //todo
-      //console.log(context['selectedPoints']);
-    }
   }
 };
 
@@ -795,26 +855,10 @@ anychart.core.Chart.contextMenuMap = {
   // Menu 'Default menu'.
   main: [
     anychart.core.Chart.contextMenuItems.exportAs,
-    anychart.core.Chart.contextMenuItems.saveConfigAs,
     anychart.core.Chart.contextMenuItems.saveDataAs,
     anychart.core.Chart.contextMenuItems.printChart,
     null,
-    anychart.core.Chart.contextMenuItems.version,
-    anychart.core.Chart.contextMenuItems.about,
-    anychart.core.Chart.contextMenuItems.linkToHelp
-  ],
-  // Menu 'Point menu'.
-  point: [
-    anychart.core.Chart.contextMenuItems.excludePoint,
-    null,
-    anychart.core.Chart.contextMenuItems.exportAs,
-    anychart.core.Chart.contextMenuItems.saveConfigAs,
-    anychart.core.Chart.contextMenuItems.saveDataAs,
-    anychart.core.Chart.contextMenuItems.printChart,
-    null,
-    anychart.core.Chart.contextMenuItems.version,
-    anychart.core.Chart.contextMenuItems.about,
-    anychart.core.Chart.contextMenuItems.linkToHelp
+    anychart.core.Chart.contextMenuItems.about
   ]
 };
 
@@ -1080,7 +1124,7 @@ anychart.core.Chart.prototype.drawContent = goog.nullFunction;
 //
 //----------------------------------------------------------------------------------------------------------------------
 /**
- * Define auto resize settings. В таком  виде это экспортить нельзя.
+ * Define auto resize settings.
  * @param {boolean=} opt_value
  * @return {!(boolean|anychart.core.Chart)} Auto resize settings or itself for chaining call.
  */
@@ -1834,6 +1878,7 @@ anychart.core.Chart.prototype.onMouseDown = function(event) {
   if (series && !series.isDisposed() && series.enabled() && goog.isFunction(series.makePointEvent)) {
     var evt = series.makePointEvent(event);
     if (evt && ((anychart.utils.checkIfParent(/** @type {!goog.events.EventTarget} */(series), event['relatedTarget'])) || series.dispatchEvent(evt))) {
+      index = evt['pointIndex'];
       if (interactivity.hoverMode() == anychart.enums.HoverMode.SINGLE) {
         if (interactivity.selectionMode() == anychart.enums.SelectionMode.NONE || series.selectionMode() == anychart.enums.SelectionMode.NONE)
           return;
@@ -2087,27 +2132,6 @@ anychart.core.Chart.prototype.unhover = function(opt_indexOrIndexes) {
 
 
 /**
- * Get selected points.
- * @return {Array.<anychart.core.Point>}
- */
-anychart.core.Chart.prototype.getSelectedPoints = function() {
-  var selectedPoints = [];
-  var selectedPointsIndexes, series, i, j;
-  var allSeries = this.getAllSeries();
-  for (i = 0; i < allSeries.length; i++) {
-    series = allSeries[i];
-    if (!series || !series.state) continue;
-    selectedPointsIndexes = series.state.getIndexByPointState(anychart.PointState.SELECT);
-    for (j = 0; j < selectedPointsIndexes.length; j++) {
-      selectedPoints.push(series.getPoint(selectedPointsIndexes[j]));
-    }
-  }
-
-  return selectedPoints;
-};
-
-
-/**
  * Sets/gets settings for regions doesn't linked to anything regions.
  * @param {(Object|anychart.enums.HoverMode)=} opt_value Settings object or boolean value like enabled state.
  * @return {anychart.core.utils.Interactivity|anychart.core.Chart}
@@ -2176,8 +2200,8 @@ anychart.core.Chart.prototype.extractHeaders = function(dataSet, headers, header
         if (!(column in headers))
           headers[column] = headersLength++;
     } else {
-      if (!('*' in headers))
-        headers['*'] = headersLength++;
+      if (!('value' in headers))
+        headers['value'] = headersLength++;
     }
   }
   return headersLength;
@@ -2226,13 +2250,13 @@ anychart.core.Chart.prototype.escapeValuesInRow = function(row, colSep, rowSep) 
 
 /**
  * Returns CSV string with series data.
- * @param {(string|anychart.enums.CsvMode)=} opt_csvMode CSV mode.
+ * @param {(string|anychart.enums.ChartDataExportMode)=} opt_chartDataExportMode CSV mode.
  * @param {Object.<string, (string|boolean|undefined)>=} opt_csvSettings CSV settings.
  * @return {string} CSV string.
  */
-anychart.core.Chart.prototype.toCsv = function(opt_csvMode, opt_csvSettings) {
-  opt_csvMode = anychart.enums.normalizeCsvMode(opt_csvMode);
-  var rawData = (opt_csvMode == anychart.enums.CsvMode.RAW);
+anychart.core.Chart.prototype.toCsv = function(opt_chartDataExportMode, opt_csvSettings) {
+  opt_chartDataExportMode = anychart.enums.normalizeChartDataExportMode(opt_chartDataExportMode);
+  var rawData = (opt_chartDataExportMode == anychart.enums.ChartDataExportMode.RAW);
   var type = this.getType();
   var scatterPolar = (type == anychart.enums.ChartTypes.SCATTER || type == anychart.enums.ChartTypes.POLAR);
   var settings = goog.isObject(opt_csvSettings) ? opt_csvSettings : {};
@@ -2312,7 +2336,7 @@ anychart.core.Chart.prototype.toCsv = function(opt_csvMode, opt_csvSettings) {
             csvRow[columnIndex] = finalValue;
           }
         } else {
-          columnIndex = headers['*'];
+          columnIndex = headers['value'];
           csvRow[columnIndex] = row;
         }
 
@@ -2374,7 +2398,7 @@ anychart.core.Chart.prototype.toCsv = function(opt_csvMode, opt_csvSettings) {
             csvRows[groupingField][columnIndex] = finalValue;
           }
         } else {
-          prefixed = seriesPrefix + '*';
+          prefixed = seriesPrefix + 'value';
           if (!(prefixed in headers)) {
             headers[prefixed] = headersLength++;
           }
@@ -2408,7 +2432,7 @@ anychart.core.Chart.prototype.saveAsXml = function(opt_includeTheme, opt_filenam
   if (stage) {
     var xml = /** @type {string} */(this.toXml(false, opt_includeTheme));
     var option = {};
-    if (goog.isString(opt_filename)) option['file-name'] = opt_filename;
+    option['file-name'] = opt_filename || anychart.exports.filename();
     stage.getHelperElement().sendRequestToExportServer(acgraph.exportServer + '/xml', xml, 'xml', 'file', option);
   }
 };
@@ -2424,7 +2448,7 @@ anychart.core.Chart.prototype.saveAsJson = function(opt_includeTheme, opt_filena
   if (stage) {
     var json = /** @type {string} */(this.toJson(true, opt_includeTheme));
     var option = {};
-    if (goog.isString(opt_filename)) option['file-name'] = opt_filename;
+    option['file-name'] = opt_filename || anychart.exports.filename();
     stage.getHelperElement().sendRequestToExportServer(acgraph.exportServer + '/json', json, 'json', 'file', option);
   }
 };
@@ -2432,16 +2456,16 @@ anychart.core.Chart.prototype.saveAsJson = function(opt_includeTheme, opt_filena
 
 /**
  * Saves chart data as csv.
- * @param {(string|anychart.enums.CsvMode)=} opt_csvMode CSV mode.
+ * @param {(string|anychart.enums.ChartDataExportMode)=} opt_chartDataExportMode CSV mode.
  * @param {Object.<string, (string|boolean|undefined)>=} opt_csvSettings CSV settings.
  * @param {string=} opt_filename file name to save.
  */
-anychart.core.Chart.prototype.saveAsCsv = function(opt_csvMode, opt_csvSettings, opt_filename) {
+anychart.core.Chart.prototype.saveAsCsv = function(opt_chartDataExportMode, opt_csvSettings, opt_filename) {
   var stage = this.container() ? this.container().getStage() : null;
   if (stage) {
-    var csv = this.toCsv(opt_csvMode, opt_csvSettings);
+    var csv = this.toCsv(opt_chartDataExportMode, opt_csvSettings);
     var option = {};
-    if (goog.isString(opt_filename)) option['file-name'] = opt_filename;
+    option['file-name'] = opt_filename || anychart.exports.filename();
     stage.getHelperElement().sendRequestToExportServer(acgraph.exportServer + '/csv', csv, 'csv', 'file', option);
   }
 };
@@ -2449,15 +2473,15 @@ anychart.core.Chart.prototype.saveAsCsv = function(opt_csvMode, opt_csvSettings,
 
 /**
  * Saves chart data as excel document.
- * @param {(string|anychart.enums.CsvMode)=} opt_csvMode CSV mode.
+ * @param {(string|anychart.enums.ChartDataExportMode)=} opt_chartDataExportMode CSV mode.
  * @param {string=} opt_filename file name to save.
  */
-anychart.core.Chart.prototype.saveAsXlsx = function(opt_csvMode, opt_filename) {
+anychart.core.Chart.prototype.saveAsXlsx = function(opt_chartDataExportMode, opt_filename) {
   var stage = this.container() ? this.container().getStage() : null;
   if (stage) {
-    var csv = this.toCsv(opt_csvMode, {'rowsSeparator': '\n', 'columnsSeparator': ',', 'ignoreFirstRow': false});
+    var csv = this.toCsv(opt_chartDataExportMode, {'rowsSeparator': '\n', 'columnsSeparator': ',', 'ignoreFirstRow': false});
     var option = {};
-    if (goog.isString(opt_filename)) option['file-name'] = opt_filename;
+    option['file-name'] = opt_filename || anychart.exports.filename();
     stage.getHelperElement().sendRequestToExportServer(acgraph.exportServer + '/xlsx', csv, 'xlsx', 'file', option);
   }
 };
@@ -2489,4 +2513,6 @@ anychart.core.Chart.prototype['saveAsJson'] = anychart.core.Chart.prototype.save
 anychart.core.Chart.prototype['toCsv'] = anychart.core.Chart.prototype.toCsv;
 anychart.core.Chart.prototype['localToGlobal'] = anychart.core.Chart.prototype.localToGlobal;
 anychart.core.Chart.prototype['globalToLocal'] = anychart.core.Chart.prototype.globalToLocal;
+anychart.core.Chart.prototype['getStat'] = anychart.core.Chart.prototype.getStat;
 anychart.core.Chart.prototype['getSelectedPoints'] = anychart.core.Chart.prototype.getSelectedPoints;
+

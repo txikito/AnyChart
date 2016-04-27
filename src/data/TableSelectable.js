@@ -182,7 +182,7 @@ anychart.data.TableSelectable.prototype.wrapRow_ = function(row, rowIndexInStora
           row,
           this.mapping_,
           !this.currentStorageIsMain_,
-          this.controller_.getIndex(row.key),
+          this.controller_.getIndexByKey(row.key),
           this.metaData_[rowIndexInStorage]
       ) :
       null;
@@ -234,15 +234,6 @@ anychart.data.TableSelectable.prototype.getMin = function(field) {
  */
 anychart.data.TableSelectable.prototype.getMax = function(field) {
   return this.getColumnMax(this.getFieldColumn(field));
-};
-
-
-/**
- * Returns minimum keys distance for the selection. If selection contains less than 2 points, returns NaN.
- * @return {number}
- */
-anychart.data.TableSelectable.prototype.getMinDistance = function() {
-  return this.currentSelection_.minDistance;
 };
 
 
@@ -337,8 +328,7 @@ anychart.data.TableSelectable.prototype.getExportingIterator = function() {
     mins: {},
     maxs: {},
     calcMaxs: [],
-    calcMins: [],
-    minDistance: NaN
+    calcMins: []
   };
   return new anychart.data.TableIterator(this.mapping_, selection, this.metaData_, !this.currentStorageIsMain_, coIterator);
 };
@@ -399,14 +389,14 @@ anychart.data.TableSelectable.IController = function() {};
  * @param {boolean=} opt_exportingData
  * @return {anychart.data.TableIterator.ICoIterator}
  */
-anychart.data.TableSelectable.IController.prototype.getCoIterator;
+anychart.data.TableSelectable.IController.prototype.getCoIterator = function(fullRange, opt_exportingData) {};
 
 
 /**
  * @param {number} key
  * @return {number}
  */
-anychart.data.TableSelectable.IController.prototype.getIndex;
+anychart.data.TableSelectable.IController.prototype.getIndexByKey = function(key) {};
 
 
 
@@ -528,7 +518,6 @@ anychart.data.TableSelectable.RowProxy.prototype.getKey = function() {
 //anychart.data.TableSelectable.prototype['getMax'] = anychart.data.TableSelectable.prototype.getMax;
 //anychart.data.TableSelectable.prototype['getColumnMin'] = anychart.data.TableSelectable.prototype.getColumnMin;
 //anychart.data.TableSelectable.prototype['getColumnMax'] = anychart.data.TableSelectable.prototype.getColumnMax;
-//anychart.data.TableSelectable.prototype['getMinDistance'] = anychart.data.TableSelectable.prototype.getMinDistance;
 //anychart.data.TableSelectable.prototype['getMapping'] = anychart.data.TableSelectable.prototype.getMapping;
 
 //exports
