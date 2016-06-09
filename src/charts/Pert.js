@@ -73,8 +73,8 @@ anychart.charts.Pert = function() {
   this.expectedTimeCalculator_ = goog.nullFunction;
 
   /**
-   *
-   * @type {null}
+   * Format provider.
+   * @type {anychart.core.utils.PertPointContextProvider}
    * @private
    */
   this.formatProvider_ = null;
@@ -213,8 +213,8 @@ anychart.charts.Pert.prototype.getAllSeries = function() {
 //----------------------------------------------------------------------------------------------------------------------
 /**
  * Gets/sets function to calculate expected time.
- * @param {function:number=} opt_value - Value to be set.
- * @return {function:number|anychart.charts.Pert} - Current value or itself for method chainig.
+ * @param {function():number=} opt_value - Value to be set.
+ * @return {function():number|anychart.charts.Pert} - Current value or itself for method chaining.
  */
 anychart.charts.Pert.prototype.expectedTimeCalculator = function(opt_value) {
   if (goog.isDef(opt_value)) {
@@ -354,7 +354,7 @@ anychart.charts.Pert.prototype.calculateActivity_ = function(id) {
 
 
   if (!this.activitiesMap_.hasOwnProperty(id)) {
-    this.activitiesMap_[id] = {};
+    this.activitiesMap_[id] = /** @type {anychart.charts.Pert.Activity} */ ({});
   }
 
   var activity = this.activitiesMap_[id];
@@ -373,7 +373,7 @@ anychart.charts.Pert.prototype.calculateActivity_ = function(id) {
     var max = 0;
     for (i = 0; i < vertexData.predecessors.length; i++) {
       var pred = vertexData.predecessors[i];
-      var predId = pred.get(anychart.enums.DataField.ID);
+      var predId = String(pred.get(anychart.enums.DataField.ID));
       var predActivity = this.activitiesMap_[predId];
       if (!goog.isDef(predActivity) || !goog.isDef(predActivity.earliestFinish))
         this.calculateActivity_(predId);
@@ -392,7 +392,7 @@ anychart.charts.Pert.prototype.calculateActivity_ = function(id) {
       val = Infinity;
       for (i = 0; i < vertexData.successors.length; i++) {
         var succ = vertexData.successors[i];
-        var succId = succ.get(anychart.enums.DataField.ID);
+        var succId = String(succ.get(anychart.enums.DataField.ID));
         var succActivity = this.activitiesMap_[succId];
         if (!goog.isDef(succActivity) || !goog.isDef(succActivity.latestStart))
           this.calculateActivity_(succId);
@@ -403,7 +403,7 @@ anychart.charts.Pert.prototype.calculateActivity_ = function(id) {
       val = -Infinity;
       for (i = 0; i < this.finishActivities_.length; i++) {
         var fin = this.finishActivities_[i];
-        var finId = fin.get(anychart.enums.DataField.ID);
+        var finId = String(fin.get(anychart.enums.DataField.ID));
         var finActivity = this.activitiesMap_[finId];
         if (!goog.isDef(finActivity) || !goog.isDef(finActivity.earliestFinish))
           this.calculateActivity_(finId);

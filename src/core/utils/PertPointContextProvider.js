@@ -1,6 +1,7 @@
 goog.provide('anychart.core.utils.PertPointContextProvider');
 
 goog.require('anychart.core.utils.BaseContextProvider');
+goog.require('anychart.core.utils.IContextProvider');
 goog.require('anychart.enums');
 
 
@@ -23,7 +24,7 @@ anychart.core.utils.PertPointContextProvider = function(chart) {
   this.currentItem = null;
 
   /**
-   * @type {anychart.charts.Pert.Activity}
+   * @type {anychart.charts.Pert.Activity|null|undefined}
    */
   this.activityData = null;
 
@@ -58,24 +59,25 @@ anychart.core.utils.PertPointContextProvider.prototype.applyReferenceValues = fu
     this['earliestFinish'] = this.activityData.earliestFinish;
     this['latestStart'] = this.activityData.latestStart;
     this['latestFinish'] = this.activityData.latestFinish;
-    this[anychart.enums.DataField.DURATION] = this.activityData.duration; //Yes, calculated value has higher priority.
+    this[anychart.enums.DataField.DURATION] = this.activityData.duration;
     this['slack'] = this.activityData.slack;
   }
 };
 
 
 /**
- * Fetch statistics value by its key or a whole object if no key provided.
- * @param {string} key - Key.
+ * Gets statistics.
+ * @param {string=} opt_key - Key.
  * @return {*}
  */
-anychart.core.utils.PertPointContextProvider.prototype.getStat = function(key) {
-  if (this.pointInternal && goog.isDef(this.pointInternal.getStat(key))) {
-    return this.pointInternal.getStat(key);
-  } else if (this.chartInternal && this.chartInternal.getStat(key)) {
-    return this.chartInternal.getStat(key);
+anychart.core.utils.PertPointContextProvider.prototype.getStat = function(opt_key) {
+  if (!opt_key) return void 0;
+  if (this.pointInternal && goog.isDef(this.pointInternal.getStat(opt_key))) {
+    return this.pointInternal.getStat(opt_key);
+  } else if (this.chartInternal && this.chartInternal.getStat(opt_key)) {
+    return this.chartInternal.getStat(opt_key);
   } else {
-    return this.getDataValue(key);
+    return this.getDataValue(/** @type {string} */ (opt_key));
   }
 };
 
