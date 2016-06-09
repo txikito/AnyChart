@@ -5904,6 +5904,23 @@ goog.provide('anychart.themes.v6');
       }
     },
 
+    'pert': {
+      /**
+       * @this {*}
+       * @return {*}
+       */
+      'expectedTimeCalculator': function() {
+        if (this['duration'] === void 0) {
+          var pessimistic = this['pessimistic'];
+          var optimistic = this['optimistic'];
+          var mostLikely = this['mostLikely'];
+          return Math.round(((optimistic + 4 * mostLikely + pessimistic) / 6) * 100) / 100; //Round to 2 digits after floating point.
+        } else {
+          return Number(this['duration']);
+        }
+      }
+    },
+
     // standalone components
     'standalones': {
       'background': {

@@ -43,7 +43,8 @@ anychart.enums.ChartTypes = {
   STOCK: 'stock',
   SPARKLINE: 'sparkline',
   HEAT_MAP: 'heatMap',
-  TREE_MAP: 'treeMap'
+  TREE_MAP: 'treeMap',
+  PERT: 'pert'
 };
 
 
@@ -2414,6 +2415,28 @@ anychart.enums.GanttDateTimeMarkers = {
   START: 'start',
   END: 'end',
   CURRENT: 'current'
+};
+
+
+//----------------------------------------------------------------------------------------------------------------------
+//
+//  Reserved data fields.
+//
+//----------------------------------------------------------------------------------------------------------------------
+/**
+ * Data fields.
+ * @enum {string}
+ */
+anychart.enums.DataField = {
+  DEPENDS_ON: 'dependsOn',
+  OPTIMISTIC: 'optimistic',
+  PESSIMISTIC: 'pessimistic',
+  MOST_LIKELY: 'mostLikely',
+  EXPECTED: 'expected',
+  DURATION: 'duration',
+  FROM: 'from',
+  TO: 'to',
+  ID: 'id'
 };
 
 
@@ -5139,6 +5162,16 @@ goog.exportSymbol('anychart.enums.ColumnFormats.FINANCIAL', anychart.enums.Colum
 goog.exportSymbol('anychart.enums.GanttDateTimeMarkers.START', anychart.enums.GanttDateTimeMarkers.START);
 goog.exportSymbol('anychart.enums.GanttDateTimeMarkers.END', anychart.enums.GanttDateTimeMarkers.END);
 goog.exportSymbol('anychart.enums.GanttDateTimeMarkers.CURRENT', anychart.enums.GanttDateTimeMarkers.CURRENT);
+
+
+goog.exportSymbol('anychart.enums.DataField.DEPENDS_ON', anychart.enums.DataField.DEPENDS_ON);
+goog.exportSymbol('anychart.enums.DataField.OPTIMISTIC', anychart.enums.DataField.OPTIMISTIC);
+goog.exportSymbol('anychart.enums.DataField.PESSIMISTIC', anychart.enums.DataField.PESSIMISTIC);
+goog.exportSymbol('anychart.enums.DataField.MOST_LIKELY', anychart.enums.DataField.MOST_LIKELY);
+goog.exportSymbol('anychart.enums.DataField.EXPECTED', anychart.enums.DataField.EXPECTED);
+goog.exportSymbol('anychart.enums.DataField.FROM', anychart.enums.DataField.FROM);
+goog.exportSymbol('anychart.enums.DataField.TO', anychart.enums.DataField.TO);
+goog.exportSymbol('anychart.enums.DataField.ID', anychart.enums.DataField.ID);
 
 goog.exportSymbol('anychart.enums.Interval.YEARS', anychart.enums.Interval.YEAR);//deprecated since >7.6.0
 goog.exportSymbol('anychart.enums.Interval.MONTHS', anychart.enums.Interval.MONTH);//deprecated since >7.6.0

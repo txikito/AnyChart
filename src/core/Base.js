@@ -259,6 +259,9 @@ anychart.ConsistencyState = {
   TREEMAP_NODE_TYPES: 1 << 15,
   TREEMAP_COLOR_RANGE: 1 << 16,
   TREEMAP_HINT_OPACITY: 1 << 17,
+  //---------------------------------- PERT CHART (SEPARATE CHART) ----------------------------------
+  PERT_DATA: 1 << 11,
+  PERT_CALCULATIONS: 1 << 12,
   /**
    * Combination of all states.
    */

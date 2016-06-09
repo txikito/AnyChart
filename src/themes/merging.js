@@ -523,7 +523,8 @@ anychart.themes.merging.mergingMap_ = [
       'heatMap.labels',
       'map.defaultSeriesSettings.base.labels',
       'treeMap.headers',
-      'treeMap.labels'
+      'treeMap.labels',
+      'pert.labels'
     ]
   },
   {
@@ -720,7 +721,8 @@ anychart.themes.merging.mergingMap_ = [
       'ganttBase',
       'stock',
       'stock.defaultPlotSettings',
-      'treeMap'
+      'treeMap',
+      'pert'
     ]
   },
   {
