@@ -359,6 +359,9 @@ anychart.ConsistencyState = {
   //---------------------------------- DATE TIME WITH CALENDAR -----------------------------
   DTWC_TS_GRID: 1 << 0,
   DTWC_TS_GRID_ZERO: 1 << 1,
+  //---------------------------------- CALENDAR CHART (SEPARATE CHART) ----------------------------------
+  CALENDAR_COLOR_SCALE: 1 << 12,
+  CALENDAR_COLOR_RANGE: 1 << 13,
   /**
    * Combination of all states.
    */

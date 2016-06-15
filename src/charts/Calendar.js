@@ -21,6 +21,27 @@ anychart.charts.Calendar = function(opt_data, opt_csvSettings) {
 goog.inherits(anychart.charts.Calendar, anychart.core.SeparateChart);
 
 
+//region --- STATES/SIGNALS ---
+/**
+ * Supported signals.
+ * @type {number}
+ */
+anychart.charts.Calendar.prototype.SUPPORTED_SIGNALS =
+    anychart.core.SeparateChart.prototype.SUPPORTED_SIGNALS |
+    anychart.Signal.NEED_UPDATE_COLOR_RANGE;
+
+
+/**
+ * Supported consistency states.
+ * @type {number}
+ */
+anychart.charts.Calendar.prototype.SUPPORTED_CONSISTENCY_STATES =
+    anychart.core.SeparateChart.prototype.SUPPORTED_CONSISTENCY_STATES |
+    anychart.ConsistencyState.CALENDAR_COLOR_SCALE |
+    anychart.ConsistencyState.CALENDAR_COLOR_RANGE;
+//endregion
+
+
 /**
  * Getter/setter data.
  * @param {(anychart.data.View|anychart.data.Set|Array|string)=} opt_data Data for the chart.
@@ -31,6 +52,7 @@ anychart.charts.Calendar.prototype.data = function(opt_data, opt_csvSettings) {
 };
 
 
+//region --- INHERITED API ---
 /** @inheritDoc */
 anychart.charts.Calendar.prototype.getAllSeries = function() {
   return [];
@@ -41,8 +63,10 @@ anychart.charts.Calendar.prototype.getAllSeries = function() {
 anychart.charts.Calendar.prototype.createLegendItemsProvider = function() {
   return [];
 };
+//endregion
 
 
+//region --- OWN API ---
 /**
  * Color scale.
  * @param {(anychart.scales.LinearColor|anychart.scales.OrdinalColor)=} opt_value Scale to set.
@@ -122,17 +146,20 @@ anychart.charts.Calendar.prototype.colorRangeInvalidated_ = function(event) {
   // if there are no signals, state == 0 and nothing happens.
   this.invalidate(state, signal);
 };
+//endregion
 
-// region Factories
+
+//region --- FACTORIES ---
 anychart.charts.Calendar.prototype.labels = function() {};
 anychart.charts.Calendar.prototype.hoverLabels = function() {};
 anychart.charts.Calendar.prototype.selectLabels = function() {};
 anychart.charts.Calendar.prototype.markers = function() {};
 anychart.charts.Calendar.prototype.hoverMarkers = function() {};
 anychart.charts.Calendar.prototype.selectMarkers = function() {};
-// end region
+//endregion
 
 
+//region --- DRAWING ---
 /** @inheritDoc */
 anychart.charts.Calendar.prototype.drawContent = function(bounds) {
   if (this.isConsistent())
@@ -142,17 +169,48 @@ anychart.charts.Calendar.prototype.drawContent = function(bounds) {
     this.markConsistent(anychart.ConsistencyState.APPEARANCE);
   }
 };
+//endregion
 
 
+//region --- SETUP/DISPOSE ---
 /** @inheritDoc */
 anychart.charts.Calendar.prototype.serialize = function() {
-  anychart.charts.Calendar.base(this, 'serialize');
+  var json = anychart.charts.Calendar.base(this, 'serialize');
+
+  json['colorScale'] = this.colorScale().serialize();
+  json['colorRange'] = this.colorRange().serialize();
+
+  return json;
 };
 
 
 /** @inheritDoc */
 anychart.charts.Calendar.prototype.setupByJSON = function(config) {
   anychart.charts.Calendar.base(this, 'setupByJSON', config);
+
+  if ('colorScale' in config) {
+    var json = config['colorScale'];
+    var scale = null;
+    if (goog.isString(json)) {
+      scale = anychart.scales.Base.fromString(json, null);
+    } else if (goog.isObject(json)) {
+      scale = anychart.scales.Base.fromString(json['type'], null);
+      if (scale)
+        scale.setup(json);
+    }
+    if (scale)
+      this.colorScale(/** @type {anychart.scales.LinearColor|anychart.scales.OrdinalColor} */ (scale));
+  }
+
+  if ('colorRange' in config)
+    this.colorRange(config['colorRange']);
 };
+
+
+/** @inheritDoc */
+anychart.charts.Calendar.prototype.disposeInternal = function() {
+  anychart.charts.Calendar.base(this, 'disposeInternal');
+};
+//endregion
 
 //exports
