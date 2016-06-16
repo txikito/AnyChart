@@ -24,7 +24,7 @@ anychart.core.utils.PertPointContextProvider = function(chart) {
   this.currentItem = null;
 
   /**
-   * @type {anychart.charts.Pert.Activity|null|undefined}
+   * @type {anychart.charts.Pert.ActivityData|null|undefined}
    */
   this.activityData = null;
 

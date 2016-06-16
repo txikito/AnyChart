@@ -2436,7 +2436,8 @@ anychart.enums.DataField = {
   DURATION: 'duration',
   FROM: 'from',
   TO: 'to',
-  ID: 'id'
+  ID: 'id',
+  NAME: 'name'
 };
 
 
@@ -5172,6 +5173,7 @@ goog.exportSymbol('anychart.enums.DataField.EXPECTED', anychart.enums.DataField.
 goog.exportSymbol('anychart.enums.DataField.FROM', anychart.enums.DataField.FROM);
 goog.exportSymbol('anychart.enums.DataField.TO', anychart.enums.DataField.TO);
 goog.exportSymbol('anychart.enums.DataField.ID', anychart.enums.DataField.ID);
+goog.exportSymbol('anychart.enums.DataField.NAME', anychart.enums.DataField.NAME);
 
 goog.exportSymbol('anychart.enums.Interval.YEARS', anychart.enums.Interval.YEAR);//deprecated since >7.6.0
 goog.exportSymbol('anychart.enums.Interval.MONTHS', anychart.enums.Interval.MONTH);//deprecated since >7.6.0

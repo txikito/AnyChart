@@ -23,18 +23,18 @@ anychart.charts.Pert = function() {
   this.data_ = null;
 
   /**
-   * Vertices map.
+   * Works map.
    * Allows to determine item's successors and predecessors.
-   * @type {Object.<string, anychart.charts.Pert.Vertex>}
+   * @type {Object.<string, anychart.charts.Pert.Work>}
    * @private
    */
-  this.verticesMap_ = {};
+  this.worksMap_ = {};
 
 
   /**
-   * Activities map.
+   * Activity data map.
    * Contains calculated values as earliestStart, earliestFinish, latestStart, latestFinish, duration, slack.
-   * @type {Object.<string, anychart.charts.Pert.Activity>}
+   * @type {Object.<string, anychart.charts.Pert.ActivityData>}
    * @private
    */
   this.activitiesMap_ = {};
@@ -79,8 +79,66 @@ anychart.charts.Pert = function() {
    */
   this.formatProvider_ = null;
 
+  /**
+   * Finish milestone.
+   * @type {?anychart.charts.Pert.Milestone}
+   * @private
+   */
+  this.finishMilestone_ = null;
+
+  /**
+   * Start milestone.
+   * @type {?anychart.charts.Pert.Milestone}
+   * @private
+   */
+  this.startMilestone_ = null;
+
+  /**
+   * Location of milestone in a grid.
+   * @type {Array.<Array.<anychart.charts.Pert.Milestone>>}
+   * @private
+   */
+  this.milestones_ = [];
+
+  /**
+   * Index of filled columns in this.milestones_.
+   * @type {number}
+   * @private
+   */
+  this.xFill_ = 0;
+
+  /**
+   * Index of filled rows in this.milestones_.
+   * @type {number}
+   * @private
+   */
+  this.yFill_ = 0;
+
+  /**
+   * Milestones map.
+   * @type {Object.<string, anychart.charts.Pert.Milestone>}
+   * @private
+   */
+  this.milestonesMap_ = {};
+
 };
 goog.inherits(anychart.charts.Pert, anychart.core.SeparateChart);
+
+
+/**
+ * Cell pixel width.
+ * @type {number}
+ * @private
+ */
+anychart.charts.Pert.CELL_PIXEL_WIDTH_ = 75;
+
+
+/**
+ * Cell pixel height.
+ * @type {number}
+ * @private
+ */
+anychart.charts.Pert.CELL_PIXEL_HEIGHT_ = 35;
 
 
 /**
@@ -93,7 +151,24 @@ goog.inherits(anychart.charts.Pert, anychart.core.SeparateChart);
  *    slack: number
  * }}
  */
-anychart.charts.Pert.Activity;
+anychart.charts.Pert.ActivityData;
+
+
+/**
+ * TODO (A.Kudryavtsev): Describe fields!
+ * @typedef {{
+ *    id: string,
+ *    label: string,
+ *    successors: Array.<anychart.data.Tree.DataItem>,
+ *    predecessors: Array.<anychart.data.Tree.DataItem>,
+ *    mSuccessors: Array.<anychart.charts.Pert.Milestone>,
+ *    mPredecessors: Array.<anychart.charts.Pert.Milestone>,
+ *    level: number,
+ *    xIndex: number,
+ *    yIndex: number
+ * }}
+ */
+anychart.charts.Pert.Milestone;
 
 
 /**
@@ -101,10 +176,12 @@ anychart.charts.Pert.Activity;
  *    item: anychart.data.Tree.DataItem,
  *    successors: Array.<anychart.data.Tree.DataItem>,
  *    predecessors: Array.<anychart.data.Tree.DataItem>,
- *    level: number
+ *    level: number,
+ *    startMilestone: anychart.charts.Pert.Milestone,
+ *    finishMilestone: anychart.charts.Pert.Milestone
  * }}
  */
-anychart.charts.Pert.Vertex;
+anychart.charts.Pert.Work;
 
 
 /**
@@ -133,7 +210,7 @@ anychart.charts.Pert.prototype.getType = function() {
 /**
  * Creates format provider and applies reference values.
  * @param {anychart.data.Tree.DataItem} item - Data item.
- * @param {anychart.charts.Pert.Activity=} opt_activityData - Activity data.
+ * @param {anychart.charts.Pert.ActivityData=} opt_activityData - Activity data.
  * @return {anychart.core.utils.PertPointContextProvider} - Format provider.
  */
 anychart.charts.Pert.prototype.createFormatProvider = function(item, opt_activityData) {
@@ -229,7 +306,7 @@ anychart.charts.Pert.prototype.expectedTimeCalculator = function(opt_value) {
 /** @inheritDoc */
 anychart.charts.Pert.prototype.calculate = function() {
   if (this.hasInvalidationState(anychart.ConsistencyState.PERT_DATA)) {
-    this.verticesMap_ = {};
+    this.worksMap_ = {};
     this.startActivities_.length = 0;
     this.finishActivities_.length = 0;
 
@@ -239,8 +316,8 @@ anychart.charts.Pert.prototype.calculate = function() {
         var item = items[i];
         var id = String(item.get(anychart.enums.DataField.ID));
 
-        if (!this.verticesMap_.hasOwnProperty(id)) {
-          this.verticesMap_[id] = {
+        if (!(id in this.worksMap_)) {
+          this.worksMap_[id] = {
             item: item,
             successors: [],
             predecessors: [],
@@ -253,24 +330,24 @@ anychart.charts.Pert.prototype.calculate = function() {
         if (goog.isDef(deps) && goog.typeOf(deps) == 'array') {
           for (var j = 0; j < deps.length; j++) {
             var dependsOn = String(deps[j]);
-            if (this.verticesMap_.hasOwnProperty(dependsOn)) {
+            if (dependsOn in this.worksMap_) {
               if (dependsOn != id) {
-                this.verticesMap_[dependsOn].successors.push(item);
-                this.verticesMap_[id].predecessors.push(this.verticesMap_[dependsOn].item);
-                goog.array.remove(this.finishActivities_, this.verticesMap_[dependsOn].item); //Has successor - remove.
+                this.worksMap_[dependsOn].successors.push(item);
+                this.worksMap_[id].predecessors.push(this.worksMap_[dependsOn].item);
+                goog.array.remove(this.finishActivities_, this.worksMap_[dependsOn].item); //Has successor - remove.
               }
             } else {
               var found = this.data_.find(anychart.enums.DataField.ID, dependsOn)[0];
               if (found) {
                 var foundId = String(found.get(anychart.enums.DataField.ID));
-                this.verticesMap_[foundId] = {
+                this.worksMap_[foundId] = {
                   item: found,
                   successors: [item],
                   predecessors: [],
                   level: -1
                 };
                 goog.array.remove(this.finishActivities_, found); //Has successor - remove.
-                this.verticesMap_[id].predecessors.push(found);
+                this.worksMap_[id].predecessors.push(found);
               }
             }
           }
@@ -281,6 +358,7 @@ anychart.charts.Pert.prototype.calculate = function() {
 
       this.calculateLevels_();
       this.calculateActivities_();
+      this.calculateMilestones_();
 
     }
     this.markConsistent(anychart.ConsistencyState.PERT_DATA);
@@ -306,24 +384,24 @@ anychart.charts.Pert.prototype.calculateLevels_ = function() {
  * @private
  */
 anychart.charts.Pert.prototype.calculateLevel_ = function(id) {
-  var vertexData = this.verticesMap_[id];
-  if (vertexData.level < 0) { //Needs to be calculated.
+  var workData = this.worksMap_[id];
+  if (workData.level < 0) { //Needs to be calculated.
     var max = 0;
-    if (vertexData.predecessors.length) {
-      for (var i = 0; i < vertexData.predecessors.length; i++) {
-        var pred = vertexData.predecessors[i];
+    if (workData.predecessors.length) {
+      for (var i = 0; i < workData.predecessors.length; i++) {
+        var pred = workData.predecessors[i];
         var predId = String(pred.get(anychart.enums.DataField.ID));
-        var predVertexData = this.verticesMap_[predId];
-        if (predVertexData.level < 0)
+        var predWorkData = this.worksMap_[predId];
+        if (predWorkData.level < 0)
           this.calculateLevel_(predId);
-        max = Math.max(max, this.verticesMap_[predId].level);
+        max = Math.max(max, this.worksMap_[predId].level);
       }
       max++;
     }
     if (!this.levels_[max])
       this.levels_[max] = [];
     this.levels_[max].push(id);
-    vertexData.level = max;
+    workData.level = max;
   }
 };
 
@@ -349,12 +427,11 @@ anychart.charts.Pert.prototype.calculateActivities_ = function() {
  * @private
  */
 anychart.charts.Pert.prototype.calculateActivity_ = function(id) {
-  var vertexData = this.verticesMap_[id];
-  var item = vertexData.item;
+  var workData = this.worksMap_[id];
+  var item = workData.item;
 
-
-  if (!this.activitiesMap_.hasOwnProperty(id)) {
-    this.activitiesMap_[id] = /** @type {anychart.charts.Pert.Activity} */ ({});
+  if (!(id in this.activitiesMap_)) {
+    this.activitiesMap_[id] = /** @type {anychart.charts.Pert.ActivityData} */ ({});
   }
 
   var activity = this.activitiesMap_[id];
@@ -371,8 +448,8 @@ anychart.charts.Pert.prototype.calculateActivity_ = function(id) {
   //Calculating earliest start and earliest finish.
   if (!goog.isDef(activity.earliestStart)) {
     var max = 0;
-    for (i = 0; i < vertexData.predecessors.length; i++) {
-      var pred = vertexData.predecessors[i];
+    for (i = 0; i < workData.predecessors.length; i++) {
+      var pred = workData.predecessors[i];
       var predId = String(pred.get(anychart.enums.DataField.ID));
       var predActivity = this.activitiesMap_[predId];
       if (!goog.isDef(predActivity) || !goog.isDef(predActivity.earliestFinish))
@@ -388,10 +465,10 @@ anychart.charts.Pert.prototype.calculateActivity_ = function(id) {
   //Calculating latest start and finish.
   if (!goog.isDef(activity.latestFinish)) {
     var val;
-    if (vertexData.successors.length) {
+    if (workData.successors.length) {
       val = Infinity;
-      for (i = 0; i < vertexData.successors.length; i++) {
-        var succ = vertexData.successors[i];
+      for (i = 0; i < workData.successors.length; i++) {
+        var succ = workData.successors[i];
         var succId = String(succ.get(anychart.enums.DataField.ID));
         var succActivity = this.activitiesMap_[succId];
         if (!goog.isDef(succActivity) || !goog.isDef(succActivity.latestStart))
@@ -419,6 +496,343 @@ anychart.charts.Pert.prototype.calculateActivity_ = function(id) {
 };
 
 
+///**
+// * Creates milestone.
+// * @param {string|boolean} workIdOrStartFinish - Work id or boolean value. If "false", will create finish milestone,
+// *  if "true" - creates start milestone.
+// * @param {boolean=} opt_isStart - Whether milestone is start milestone for given activity.
+// * @return {anychart.charts.Pert.Milestone} - Resulting milestone object. Also puts it to this.milestones_.
+// * @private
+// */
+//anychart.charts.Pert.prototype.createMilestone_ = function(workIdOrStartFinish, opt_isStart) {
+//  var id;
+//  var name = '';
+//  var work;
+//  if (goog.isBoolean(workIdOrStartFinish)) {
+//    id = workIdOrStartFinish ? 's' : 'f';
+//    name = workIdOrStartFinish ? 'St' : 'Fin';
+//  } else {
+//    var add = opt_isStart ? '_s' : '_f';
+//    name = opt_isStart ? 'Start: ' : 'Finish: '; //TODO (A.Kudryavtsev): Hardcoded!!! So bad.
+//    work = /** @type {anychart.charts.Pert.Work} */ (this.worksMap_[workIdOrStartFinish]);
+//    name += work.item.get(anychart.enums.DataField.NAME);
+//    id = workIdOrStartFinish + add;
+//  }
+//
+//  var level = 0, i = 0;
+//  var pred, predId, predMilestone;
+//
+//  if (id in this.milestonesMap_) return this.milestonesMap_[id];
+//
+//  var result = /** @type {anychart.charts.Pert.Milestone} */ ({
+//    label: name,
+//    id: id,
+//    xIndex: 0,
+//    yIndex: 0,
+//    successors: [],
+//    predecessors: [],
+//    mSuccessors: [],
+//    mPredecessors: [],
+//    level: -1
+//  });
+//
+//
+//  //TODO (A.Kudryavtsev): Calculate predecessors id here!!!
+//
+//  if (work) {
+//    var source = opt_isStart ? work.successors : work.predecessors;
+//    if (source.length > 1) {
+//      var uid = '';
+//      for (i = 0; i < work.predecessors.length; i++) {
+//        pred = work.predecessors[i];
+//        uid += this.hash_('v', pred);
+//      }
+//      if (uid in this.milestonesUIDMap_) {
+//        return this.milestonesUIDMap_[uid];
+//      } else {
+//        this.milestonesUIDMap_[uid] = result;
+//      }
+//    }
+//  }
+//
+//  this.milestonesMap_[id] = result;
+//
+//
+//  if (goog.isBoolean(workIdOrStartFinish)) {
+//    if (workIdOrStartFinish) {
+//      //Creating start milestone.
+//      this.startMilestone_ = result;
+//      for (i = 0; i < this.startActivities_.length; i++) {
+//        var stActivity = this.startActivities_[i];
+//        result.successors.push(stActivity);
+//      }
+//      result.level = level;
+//      this.xFill_ = this.milestones_.length;
+//      //this.milestones_[this.xFill_][0] = result;
+//      //TODO (A.Kudryavtsev): Add mSuccessors somehow here?
+//    } else {
+//      //Creating finish milestone.
+//      this.finishMilestone_ = result;
+//      for (i = 0; i < this.finishActivities_.length; i++) {
+//        var finActivity = this.finishActivities_[i];
+//        //level = Math.max(level, finActivity.level);
+//        result.predecessors.push(finActivity);
+//        var actId = String(finActivity.get(anychart.enums.DataField.ID));
+//        predMilestone = this.createMilestone_(actId, true);
+//        result.mPredecessors.push(predMilestone);
+//      }
+//      this.milestones_[0][0] = result;
+//    }
+//    result.level = level;
+//  } else {
+//
+//
+//
+//
+//    //if (work.successors.length) {
+//    //  for (i = 0; i < work.successors.length; i++) {
+//    //    var succ = work.successors[i];
+//    //    var succId = String(succ.get(anychart.enums.DataField.ID));
+//    //    var succMilestone = this.createMilestone_(succId, true);
+//    //    result.successors.push(succ);
+//    //    result.mSuccessors.push(succMilestone);
+//    //  }
+//    //} else {
+//    //  //this.finishMilestone_ here exists anyway.
+//    //  result.mSuccessors.push(this.finishMilestone_);
+//    //}
+//
+//    if (work.predecessors.length) {
+//      if (work.predecessors.length == 1) {
+//        pred = work.predecessors[0];
+//        predId = String(pred.get(anychart.enums.DataField.ID));
+//        predMilestone = this.createMilestone_(predId, false);
+//        if (!goog.array.contains(result.mPredecessors, predMilestone))
+//          result.mPredecessors.push(predMilestone);
+//        if (!goog.array.contains(predMilestone.mSuccessors, result))
+//          predMilestone.mSuccessors.push(result);
+//
+//      } else {
+//        for (i = 0; i < work.predecessors.length; i++) {
+//          pred = work.predecessors[i];
+//          predId = String(pred.get(anychart.enums.DataField.ID));
+//          predMilestone = this.createMilestone_(predId, true);
+//          result.mPredecessors.push(predMilestone);
+//        }
+//      }
+//    } else {
+//      if (!this.startMilestone_) this.createMilestone_(true);
+//      result.mPredecessors.push(this.startMilestone_);
+//    }
+//  }
+//
+//  return this.milestonesMap_[id];
+//};
+
+
+/**
+ * Creates milestone.
+ * @param {string|boolean} workIdOrStartFinish - Work id or boolean value. If "false", will create finish milestone,
+ *  if "true" - creates start milestone.
+ * @param {boolean=} opt_isStart - Whether milestone is start milestone for given activity.
+ * @return {anychart.charts.Pert.Milestone} - Resulting milestone object. Also puts it to this.milestones_.
+ * @private
+ */
+anychart.charts.Pert.prototype.createMilestone_ = function(workIdOrStartFinish, opt_isStart) {
+  //TODO (A.Kudryavtsev): REWORKING.
+  var milestone, i, j, activity, id, work, hash, predecessor;
+  var predId, predWork;
+
+  if (goog.isBoolean(workIdOrStartFinish)) { //creating start or finish milestone.
+    if (workIdOrStartFinish) { //create start milestone.
+      if (this.startMilestone_) return this.startMilestone_;
+      milestone = this.createEmptyMilestone_();
+      this.startMilestone_ = milestone;
+      for (i = 0; i < this.startActivities_.length; i++) {
+        activity = this.startActivities_[i];
+        id = String(activity.get(anychart.enums.DataField.ID));
+        work = this.worksMap_[id];
+        work.startMilestone = this.startMilestone_;
+        this.startMilestone_.successors.push(activity);
+        hash = this.hash_('m', this.startMilestone_);
+        this.milestonesMap_[hash] = this.startMilestone_;
+        this.startMilestone_.id = hash;
+        this.startMilestone_.label = 'Start'; //TODO (A.Kudryavtsev): Hardcoded.
+        //TODO (A.Kudryavtsev): Don't forget to add work finish milestone.
+        //TODO (A.Kudryavtsev): Add xIndex and yIndex to this.startMilestone_.
+      }
+
+    } else { //create finish milestone.
+      if (this.finishMilestone_) return this.finishMilestone_;
+      milestone = this.createEmptyMilestone_();
+      this.finishMilestone_ = milestone;
+      for (i = 0; i < this.finishActivities_.length; i++) {
+        activity = this.finishActivities_[i];
+        id = String(activity.get(anychart.enums.DataField.ID));
+        work = this.worksMap_[id];
+        work.finishMilestone = this.finishMilestone_;
+        this.finishMilestone_.predecessors.push(activity);
+        hash = this.hash_('m', this.finishMilestone_);
+        this.finishMilestone_.id = hash;
+        this.finishMilestone_.label = 'Finish'; //TODO (A.Kudryavtsev): Hardcoded.
+        this.finishMilestone_.xIndex = 0;
+        this.finishMilestone_.yIndex = 0;
+        this.milestonesMap_[hash] = this.finishMilestone_;
+
+        if (!work.startMilestone)
+          work.startMilestone = this.createMilestone_(id, true);
+
+        this.addMilestoneSuccessors_(this.finishMilestone_, work.startMilestone);
+      }
+    }
+  } else { //creating milestone by work id.
+    work = /** @type {anychart.charts.Pert.Work} */ (this.worksMap_[workIdOrStartFinish]);
+    if (opt_isStart) {
+      if (work.startMilestone) return work.startMilestone;
+    } else {
+      if (work.finishMilestone) return work.finishMilestone;
+    }
+
+    milestone = this.createEmptyMilestone_();
+    hash = this.hash_('m', milestone);
+    this.milestonesMap_[hash] = milestone;
+    milestone.id = hash;
+
+    if (opt_isStart) { //creating start milestone.
+      work.startMilestone = milestone;
+      goog.array.insert(work.startMilestone.successors, work.item);
+      milestone.label = 'Start: ' + work.item.get(anychart.enums.DataField.NAME); //TODO (A.Kudryavtsev): Hardcoded.
+
+      if (work.predecessors.length) {
+        if (work.predecessors.length == 1) {
+          predecessor = work.predecessors[0];
+          predId = String(predecessor.get(anychart.enums.DataField.ID));
+          predWork = this.worksMap_[predId];
+          predWork.finishMilestone = milestone;
+          goog.array.insert(milestone.predecessors, predecessor);
+          predWork.startMilestone = this.createMilestone_(predId, true);
+          this.addMilestoneSuccessors_(milestone, predWork.startMilestone);
+        } else {
+          for (j = 0; j < work.predecessors.length; j++) {
+            predecessor = work.predecessors[j];
+            predId = String(predecessor.get(anychart.enums.DataField.ID));
+            predWork = this.worksMap_[predId];
+
+            if (predWork.successors.length > 1) { //NOTE: One successor is current work.
+              for (var k = 0; k < predWork.successors.length; k++) {
+                var predWorkSuccessor = predWork.successors[k];
+                if (predWorkSuccessor != predWork.item) {
+                  var predWorkSuccessorId = String(predWorkSuccessor.get(anychart.enums.DataField.ID));
+                  var successorWork = this.worksMap_[predWorkSuccessorId];
+                  successorWork.startMilestone = this.createMilestone_(predWorkSuccessorId, true);
+                  predWork.finishMilestone = this.createMilestone_(predId, false);
+                  if (successorWork.startMilestone != predWork.finishMilestone)
+                    this.addMilestoneSuccessors_(successorWork.startMilestone, predWork.finishMilestone);
+                }
+              }
+            } else { //Multiple successors (> 1).
+              predWork.finishMilestone = this.createMilestone_(predId, false);
+              this.addMilestoneSuccessors_(milestone, predWork.finishMilestone);
+            }
+
+          }
+        }
+      } else {
+        work.startMilestone = /** @type {anychart.charts.Pert.Milestone} */ (this.startMilestone_);
+      }
+    } else { //creating finish milestone.
+      work.finishMilestone = milestone;
+      goog.array.insert(milestone.predecessors, work);
+      milestone.label = 'Finish: ' + work.item.get(anychart.enums.DataField.NAME);
+
+      if (work.predecessors.length) {
+        work.startMilestone = this.createMilestone_(workIdOrStartFinish, true);
+      } else {
+        this.startMilestone_ = this.createMilestone_(true);
+        work.startMilestone = this.startMilestone_;
+        this.addMilestoneSuccessors_(work.finishMilestone, work.startMilestone);
+      }
+      goog.array.insert(work.startMilestone.successors, work.item);
+
+    }
+  }
+  return milestone;
+};
+
+
+/**
+ * Adds mSuccessor and mPredecessor.
+ * @param {anychart.charts.Pert.Milestone} successorMilestone - Successor milestone.
+ * @param {anychart.charts.Pert.Milestone} predecessorMilestone - Predecessor milestone.
+ * @private
+ */
+anychart.charts.Pert.prototype.addMilestoneSuccessors_ = function(successorMilestone, predecessorMilestone) {
+  goog.array.insert(successorMilestone.mPredecessors, predecessorMilestone);
+  goog.array.insert(predecessorMilestone.mSuccessors, successorMilestone);
+};
+
+
+/**
+ * Creates empty milestone object.
+ * @return {anychart.charts.Pert.Milestone} - Empty object.
+ * @private
+ */
+anychart.charts.Pert.prototype.createEmptyMilestone_ = function() {
+  return /** @type {anychart.charts.Pert.Milestone} */ ({
+    label: '',
+    id: '',
+    xIndex: NaN,
+    yIndex: NaN,
+    successors: [],
+    predecessors: [],
+    mSuccessors: [],
+    mPredecessors: [],
+    level: -1
+  });
+};
+
+
+///**
+// * Calculates milestone uid.
+// * @param {string} workId - Related work id.
+// * @param {boolean=} opt_isStart - Whether milestone is start.
+// * @return {string} - UID.
+// * @private
+// */
+//anychart.charts.Pert.prototype.getMilestoneUid_ = function(workId, opt_isStart) {
+//  var work = this.worksMap_[workId];
+//  var source = opt_isStart ? work.successors : work.predecessors;
+//  var add = opt_isStart ? '_s' : '_f';
+//
+//  var uid = '';
+//  if (source.length > 1) {
+//    for (var i = 0; i < source.length; i++) {
+//      var pred = source[i];
+//      uid += this.hash_('v', pred);
+//    }
+//  }
+//  return uid || workId + add;
+//};
+
+
+/**
+ * Calculates milestones.
+ * @private
+ */
+anychart.charts.Pert.prototype.calculateMilestones_ = function() {
+  this.milestones_.length = 0;
+  this.milestones_ = [];
+  this.milestonesMap_ = {};
+  this.createMilestone_(false);
+
+  //debug
+  //for (var i in this.milestonesMap_) {
+  //  var mil = this.milestonesMap_[i];
+  //  console.log(mil.label);
+  //}
+};
+
+
 //----------------------------------------------------------------------------------------------------------------------
 //
 //  Drawing
@@ -434,8 +848,20 @@ anychart.charts.Pert.prototype.drawContent = function(bounds) {
   }
 
   if (this.hasInvalidationState(anychart.ConsistencyState.BOUNDS)) {
-
+    //TODO (A.Kudryavtsev): rewritten shit!!!
   }
+};
+
+
+/**
+ * Generates uid with prefix.
+ * @param {string} prefix - UID prefix.
+ * @param {Object} value - Value.
+ * @return {string} - UID with prefix.
+ * @private
+ */
+anychart.charts.Pert.prototype.hash_ = function(prefix, value) {
+  return prefix + goog.getUid(value);
 };
 
 
@@ -448,7 +874,7 @@ anychart.charts.Pert.prototype.drawContent = function(bounds) {
 anychart.charts.Pert.prototype.disposeInternal = function() {
   this.startActivities_.length = 0;
   this.finishActivities_.length = 0;
-  delete this.verticesMap_;
+  delete this.worksMap_;
   delete this.data_;
 
   goog.base(this, 'disposeInternal');

@@ -437,8 +437,8 @@ anychart.data.Tree.prototype.addData = function(data, opt_fillMethodOrCsvMapping
   if (goog.typeOf(opt_csvSettingsOrDeps) == 'array') {
     this.dispatchEvents_ = false;
 
-    for (var i = 0; i < opt_fillMethodOrCsvMapping.length; i++) {
-      var dependency = opt_fillMethodOrCsvMapping[i];
+    for (var i = 0; i < opt_csvSettingsOrDeps.length; i++) {
+      var dependency = opt_csvSettingsOrDeps[i];
       if (goog.typeOf(dependency) == 'object') {
         var from = dependency[anychart.enums.DataField.FROM];
         var to = dependency[anychart.enums.DataField.TO];
