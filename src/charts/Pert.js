@@ -699,11 +699,11 @@ anychart.charts.Pert.prototype.createMilestone_ = function(workIdOrStartFinish, 
     milestone.id = hash;
 
     if (opt_isStart) { //creating start milestone.
-      work.startMilestone = milestone;
-      goog.array.insert(work.startMilestone.successors, work.item);
-      milestone.label = 'Start: ' + work.item.get(anychart.enums.DataField.NAME); //TODO (A.Kudryavtsev): Hardcoded.
-
       if (work.predecessors.length) {
+        work.startMilestone = milestone;
+        goog.array.insert(work.startMilestone.successors, work.item);
+        milestone.label = 'Start: ' + work.item.get(anychart.enums.DataField.NAME); //TODO (A.Kudryavtsev): Hardcoded.
+
         if (work.predecessors.length == 1) {
           predecessor = work.predecessors[0];
           predId = String(predecessor.get(anychart.enums.DataField.ID));
@@ -737,16 +737,24 @@ anychart.charts.Pert.prototype.createMilestone_ = function(workIdOrStartFinish, 
 
           }
         }
-      } else {
-        work.startMilestone = /** @type {anychart.charts.Pert.Milestone} */ (this.startMilestone_);
+      } else { //Has no predecessors.
+        work.startMilestone = this.createMilestone_(true);
+        delete this.milestonesMap_[hash];
+        work.finishMilestone = this.createMilestone_(workIdOrStartFinish, false);
+        if (work.startMilestone != work.finishMilestone) {
+          this.addMilestoneSuccessors_(work.finishMilestone, work.startMilestone);
+          goog.array.insert(work.startMilestone.successors, work.item);
+        }
+        return work.startMilestone;
       }
     } else { //creating finish milestone.
       work.finishMilestone = milestone;
-      goog.array.insert(milestone.predecessors, work);
+      goog.array.insert(milestone.predecessors, work.item);
       milestone.label = 'Finish: ' + work.item.get(anychart.enums.DataField.NAME);
 
       if (work.predecessors.length) {
         work.startMilestone = this.createMilestone_(workIdOrStartFinish, true);
+        this.addMilestoneSuccessors_(work.finishMilestone, work.startMilestone);
       } else {
         this.startMilestone_ = this.createMilestone_(true);
         work.startMilestone = this.startMilestone_;

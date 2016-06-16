@@ -1,30 +1,63 @@
+///////// data
+//var data = [
+//  {id: 'A', duration: 3, name: 'A'},
+//  {id: 'B', duration: 2, name: 'B'},
+//  {id: 'C', duration: 10, name: 'C'},
+//  {id: 'D', duration: 2, name: 'D'},
+//  {id: 'E', duration: 4, name: 'E'},
+//  {id: 'F', duration: 5, name: 'F'},
+//  {id: 'G', duration: 2, name: 'G'},
+//  {id: 'H', duration: 1, name: 'H'},
+//  {id: 'I', duration: 7, name: 'I'}
+//];
+//
+//var deps = [
+//  {from: 'A', to: 'F'},
+//  {from: 'B', to: 'F'},
+//  {from: 'C', to: 'F'},
+//  {from: 'D', to: 'G'},
+//  {from: 'E', to: 'G'},
+//  {from: 'F', to: 'H'},
+//  {from: 'F', to: 'I'},
+//  {from: 'G', to: 'I'}
+//];
 
+
+///////// 6 parallel works data
+//var data = [
+//  {id: 'A', name: 'A', duration: 3},
+//  {id: 'B', name: 'B', duration: 4},
+//  {id: 'C', name: 'C', duration: 3},
+//  {id: 'D', name: 'D', duration: 1},
+//  {id: 'E', name: 'E', duration: 3},
+//  {id: 'F', name: 'F', duration: 3}
+//];
+
+
+///////// data wikipedia data
+//var data = [
+//  {id: 'A', name: 'A', duration: 3},
+//  {id: 'B', name: 'B', duration: 4},
+//  {id: 'C', name: 'C', duration: 3, dependsOn: ['B']},
+//  {id: 'D', name: 'D', duration: 1, dependsOn: ['A']},
+//  {id: 'E', name: 'E', duration: 3, dependsOn: ['A']},
+//  {id: 'F', name: 'F', duration: 3, dependsOn: ['D']}
+//];
+
+
+///////// data wikipedia data
 var data = [
-  {id: 'A', duration: 3, name: 'A'},
-  {id: 'B', duration: 2, name: 'B'},
-  {id: 'C', duration: 10, name: 'C'},
-  {id: 'D', duration: 2, name: 'D'},
-  {id: 'E', duration: 4, name: 'E'},
-  {id: 'F', duration: 5, name: 'F'},
-  {id: 'G', duration: 2, name: 'G'},
-  {id: 'H', duration: 1, name: 'H'},
-  {id: 'I', duration: 7, name: 'I'}
-];
-
-var deps = [
-  {from: 'A', to: 'F'},
-  {from: 'B', to: 'F'},
-  {from: 'C', to: 'F'},
-  {from: 'D', to: 'G'},
-  {from: 'E', to: 'G'},
-  {from: 'F', to: 'H'},
-  {from: 'F', to: 'I'},
-  {from: 'G', to: 'I'}
+  {id: 'A', name: 'A', duration: 3},
+  {id: 'B', name: 'B', duration: 4},
+  {id: 'C', name: 'C', duration: 3, dependsOn: ['A', 'B']},
+  {id: 'D', name: 'D', duration: 1, dependsOn: ['C']},
+  {id: 'E', name: 'E', duration: 3, dependsOn: ['C']}
 ];
 
 
 anychart.onDocumentReady(function() {
-  var treeData = anychart.data.tree(data, anychart.enums.TreeFillingMethod.AS_TABLE, deps);
+  //var treeData = anychart.data.tree(data, anychart.enums.TreeFillingMethod.AS_TABLE, deps);
+  var treeData = anychart.data.tree(data, anychart.enums.TreeFillingMethod.AS_TABLE);
   chart = anychart.pert();
   chart.container('container');
   chart.title('Pert 1');
@@ -33,9 +66,46 @@ anychart.onDocumentReady(function() {
 
   chart.draw();
 
+  debugInfo();
   //recalc();
 });
 
+
+function debugInfo() {
+  var milestonesMap = chart.milestonesMap_;
+  for (var i in milestonesMap) {
+    var j;
+    var field;
+    var mil = milestonesMap[i];
+    var res = i + ', ' + mil.label + '\nmSuccessors: ';
+
+    for (j = 0; j < mil.mSuccessors.length; j++) {
+      field = mil.mSuccessors[j];
+      res += field.label + '; ';
+    }
+
+    res += '\nmPredecessors: ';
+    for (j = 0; j < mil.mPredecessors.length; j++) {
+      field = mil.mPredecessors[j];
+      res += field.label + '; ';
+    }
+
+    res += '\nsuccessors: ';
+    for (j = 0; j < mil.successors.length; j++) {
+      field = mil.successors[j];
+      res += field.get('name') + '; ';
+    }
+
+    res += '\npredecessors: ';
+    for (j = 0; j < mil.predecessors.length; j++) {
+      field = mil.predecessors[j];
+      res += field.get('name') + '; ';
+    }
+
+    console.log(res);
+  }
+  console.log('\n\n');
+}
 
 
 
