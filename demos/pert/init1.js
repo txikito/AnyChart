@@ -45,7 +45,7 @@
 //];
 
 
-///////// data wikipedia data
+///////// data one more
 var data = [
   {id: 'A', name: 'A', duration: 3},
   {id: 'B', name: 'B', duration: 4},
