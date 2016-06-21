@@ -3877,6 +3877,9 @@ goog.provide('anychart.themes.defaultTheme');
         } else {
           return Number(this['duration']);
         }
+      },
+      'background': {
+        'zIndex': 0
       }
     },
 

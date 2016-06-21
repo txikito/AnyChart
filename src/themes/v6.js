@@ -5918,6 +5918,9 @@ goog.provide('anychart.themes.v6');
         } else {
           return Number(this['duration']);
         }
+      },
+      'background': {
+        'zIndex': 0
       }
     },
 

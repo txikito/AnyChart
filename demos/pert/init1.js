@@ -1,16 +1,16 @@
-///////// data
-//var data = [
-//  {id: 'A', duration: 3, name: 'A'},
-//  {id: 'B', duration: 2, name: 'B'},
-//  {id: 'C', duration: 10, name: 'C'},
-//  {id: 'D', duration: 2, name: 'D'},
-//  {id: 'E', duration: 4, name: 'E'},
-//  {id: 'F', duration: 5, name: 'F'},
-//  {id: 'G', duration: 2, name: 'G'},
-//  {id: 'H', duration: 1, name: 'H'},
-//  {id: 'I', duration: 7, name: 'I'}
-//];
-//
+/////// data
+var data = [
+  {id: 'A', duration: 3, name: 'A'},
+  {id: 'B', duration: 2, name: 'B'},
+  {id: 'C', duration: 10, name: 'C'},
+  {id: 'D', duration: 2, name: 'D'},
+  {id: 'E', duration: 4, name: 'E'},
+  {id: 'F', duration: 5, name: 'F', dependsOn: ['A', 'B', 'C']},
+  {id: 'G', duration: 2, name: 'G', dependsOn: ['D', 'E']},
+  {id: 'H', duration: 1, name: 'H', dependsOn: ['F']},
+  {id: 'I', duration: 7, name: 'I', dependsOn: ['F', 'G']}
+];
+
 //var deps = [
 //  {from: 'A', to: 'F'},
 //  {from: 'B', to: 'F'},
@@ -41,18 +41,18 @@
 //  {id: 'C', name: 'C', duration: 3, dependsOn: ['B']},
 //  {id: 'D', name: 'D', duration: 1, dependsOn: ['A']},
 //  {id: 'E', name: 'E', duration: 3, dependsOn: ['A']},
-//  {id: 'F', name: 'F', duration: 3, dependsOn: ['D']}
+//  {id: 'F', name: 'F', duration: 5, dependsOn: ['D']}
 //];
 
 
 ///////// data one more
-var data = [
-  {id: 'A', name: 'A', duration: 3},
-  {id: 'B', name: 'B', duration: 4},
-  {id: 'C', name: 'C', duration: 3, dependsOn: ['A', 'B']},
-  {id: 'D', name: 'D', duration: 1, dependsOn: ['C']},
-  {id: 'E', name: 'E', duration: 3, dependsOn: ['C']}
-];
+//var data = [
+//  {id: 'A', name: 'A', duration: 3},
+//  {id: 'B', name: 'B', duration: 4},
+//  {id: 'C', name: 'C', duration: 3, dependsOn: ['A', 'B']},
+//  {id: 'D', name: 'D', duration: 1, dependsOn: ['C']},
+//  {id: 'E', name: 'E', duration: 3, dependsOn: ['C']}
+//];
 
 
 anychart.onDocumentReady(function() {
@@ -66,7 +66,7 @@ anychart.onDocumentReady(function() {
 
   chart.draw();
 
-  debugInfo();
+  //debugInfo();
   //recalc();
 });
 
