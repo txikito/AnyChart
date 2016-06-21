@@ -101,32 +101,11 @@ anychart.charts.Pert = function() {
   this.milestones_ = [];
 
   /**
-   * Index of filled columns in this.milestones_.
-   * @type {number}
-   * @private
-   */
-  this.xFill_ = 0;
-
-  /**
-   * Index of filled rows in this.milestones_.
-   * @type {number}
-   * @private
-   */
-  this.yFill_ = 0;
-
-  /**
    * Milestones map.
    * @type {Object.<string, anychart.charts.Pert.Milestone>}
    * @private
    */
   this.milestonesMap_ = {};
-
-  /**
-   * Work usage map.
-   * @type {Object.<string, anychart.charts.Pert.WorkUsage>}
-   * @private
-   */
-  this.workUsageMap_ = {};
 
 };
 goog.inherits(anychart.charts.Pert, anychart.core.SeparateChart);
@@ -190,18 +169,6 @@ anychart.charts.Pert.Milestone;
  * }}
  */
 anychart.charts.Pert.Work;
-
-
-/**
- * TODO (A.Kudryavtsev): Describe.
- * @typedef {{
- *    startMilestone: anychart.charts.Pert.Milestone,
- *    startMutable: boolean,
- *    finishMilestone: anychart.charts.Pert.Milestone,
- *    finishMutable: boolean
- * }}
- */
-anychart.charts.Pert.WorkUsage;
 
 
 /**
@@ -516,6 +483,191 @@ anychart.charts.Pert.prototype.calculateActivity_ = function(id) {
 };
 
 
+///**
+// * Creates milestone.
+// * @param {string|boolean} workIdOrStartFinish - Work id or boolean value. If "false", will create finish milestone,
+// *  if "true" - creates start milestone.
+// * @param {boolean=} opt_isStart - Whether milestone is start milestone for given activity.
+// * @return {anychart.charts.Pert.Milestone} - Resulting milestone object. Also puts it to this.milestones_.
+// * @private
+// */
+//anychart.charts.Pert.prototype.createMilestone_ = function(workIdOrStartFinish, opt_isStart) {
+//  var milestone, i, j, activity, id, work, hash, workHash, predecessor;
+//  var predId, predWork, workUsage;
+//
+//  if (goog.isBoolean(workIdOrStartFinish)) { //creating this.startMilestone_ or this.finishMilestone_ milestone.
+//    if (workIdOrStartFinish) { //create this.startMilestone_.
+//      if (this.startMilestone_) return this.startMilestone_;
+//      milestone = this.createEmptyMilestone_();
+//      this.startMilestone_ = milestone;
+//      for (i = 0; i < this.startActivities_.length; i++) {
+//        activity = this.startActivities_[i];
+//        id = String(activity.get(anychart.enums.DataField.ID));
+//        work = this.worksMap_[id];
+//        work.startMilestone = this.startMilestone_;
+//        goog.array.insert(this.startMilestone_.successors, activity);
+//        hash = this.hash_('m', this.startMilestone_);
+//        this.milestonesMap_[hash] = this.startMilestone_;
+//        this.startMilestone_.id = hash;
+//        this.startMilestone_.label = 'Start'; //TODO (A.Kudryavtsev): Hardcoded.
+//        work.finishMilestone = this.createMilestone_(id, false);
+//        this.addMilestoneSuccessors_(work.finishMilestone, this.startMilestone_);
+//        goog.array.insert(work.finishMilestone.predecessors, activity);
+//      }
+//
+//    } else { //create this.finishMilestone_.
+//      if (this.finishMilestone_) return this.finishMilestone_;
+//      milestone = this.createEmptyMilestone_();
+//      this.finishMilestone_ = milestone;
+//      hash = this.hash_('m', this.finishMilestone_);
+//      this.finishMilestone_.id = hash;
+//      this.finishMilestone_.label = 'Finish'; //TODO (A.Kudryavtsev): Hardcoded.
+//      this.finishMilestone_.xIndex = 0;
+//      this.finishMilestone_.yIndex = 0;
+//      this.milestonesMap_[hash] = this.finishMilestone_;
+//
+//      for (i = 0; i < this.finishActivities_.length; i++) {
+//        activity = this.finishActivities_[i];
+//        id = String(activity.get(anychart.enums.DataField.ID));
+//        work = this.worksMap_[id];
+//        workHash = this.hash_('w', work);
+//        workUsage = this.workUsageMap_[workHash];
+//
+//        work.startMilestone = this.createMilestone_(id, true);
+//
+//        if (workUsage) {
+//          if (workUsage.finishMutable) {
+//            //Вставить промежуточный майлстоун и поменять финиш
+//            workUsage.finishMutable = false;
+//          } else {
+//            work.finishMilestone = this.createMilestone_(id, false);
+//
+//          }
+//        } else {
+//          workUsage = this.createEmptyWorkUsage_();
+//          this.workUsageMap_[workHash] = workUsage;
+//          workUsage.startMilestone = work.startMilestone;
+//          workUsage.finishMilestone = this.finishMilestone_;
+//        }
+//
+//        //work.finishMilestone = this.createMilestone_(id, false);
+//
+//        if (work.finishMilestone == this.finishMilestone_) {
+//          goog.array.insert(work.finishMilestone.predecessors, work.item);
+//        } else {
+//          this.addMilestoneSuccessors_(this.finishMilestone_, work.finishMilestone);
+//        }
+//
+//        this.addMilestoneSuccessors_(work.finishMilestone, work.startMilestone);
+//        goog.array.insert(work.startMilestone.successors, work.item);
+//      }
+//    }
+//  } else { //creating milestone by work id.
+//    work = /** @type {anychart.charts.Pert.Work} */ (this.worksMap_[workIdOrStartFinish]);
+//    if (opt_isStart) {
+//      if (work.startMilestone) return work.startMilestone;
+//    } else {
+//      if (work.finishMilestone) return work.finishMilestone;
+//    }
+//
+//    milestone = this.createEmptyMilestone_();
+//    hash = this.hash_('m', milestone);
+//    this.milestonesMap_[hash] = milestone;
+//    milestone.id = hash;
+//
+//    if (opt_isStart) { //creating start milestone.
+//      if (work.predecessors.length) {
+//        if (work.predecessors.length == 1) {
+//          predecessor = work.predecessors[0];
+//          predId = String(predecessor.get(anychart.enums.DataField.ID));
+//          predWork = this.worksMap_[predId];
+//
+//          if (predWork.successors.length > 1) { //Predecessor has multiple successors.
+//            predWork.finishMilestone = this.createMilestone_(predId, false);
+//            predWork.finishMilestone.label = 'Finish: ' + predWork.item.get(anychart.enums.DataField.NAME); //TODO (A.Kudryavtsev): Hardcoded.
+//            goog.array.insert(predWork.finishMilestone.successors, work.item);
+//            work.startMilestone = predWork.finishMilestone;
+//            goog.array.insert(work.startMilestone.predecessors, predWork.item);
+//            this.addMilestoneSuccessors_(predWork.finishMilestone, work.startMilestone);
+//            delete this.milestonesMap_[hash];
+//            return predWork.finishMilestone;
+//          } else { //Predecessor has single successor.
+//            work.startMilestone = milestone;
+//            goog.array.insert(work.startMilestone.successors, work.item);
+//            milestone.label = 'Start: ' + work.item.get(anychart.enums.DataField.NAME); //TODO (A.Kudryavtsev): Hardcoded.
+//            predWork.finishMilestone = milestone;
+//            goog.array.insert(milestone.predecessors, predecessor);
+//            predWork.startMilestone = this.createMilestone_(predId, true);
+//            this.addMilestoneSuccessors_(milestone, predWork.startMilestone);
+//          }
+//        } else { //Has multiple predecessors.
+//          for (j = 0; j < work.predecessors.length; j++) {
+//            predecessor = work.predecessors[j];
+//            predId = String(predecessor.get(anychart.enums.DataField.ID));
+//            predWork = this.worksMap_[predId];
+//
+//            if (predWork.successors.length > 1) { //NOTE: One successor is current work.
+//              for (var k = 0; k < predWork.successors.length; k++) {
+//                var predWorkSuccessor = predWork.successors[k];
+//                if (predWorkSuccessor != predWork.item) {
+//                  var predWorkSuccessorId = String(predWorkSuccessor.get(anychart.enums.DataField.ID));
+//                  var successorWork = this.worksMap_[predWorkSuccessorId];
+//                  successorWork.startMilestone = this.createMilestone_(predWorkSuccessorId, true);
+//                  predWork.finishMilestone = this.createMilestone_(predId, false);
+//                  this.addMilestoneSuccessors_(successorWork.startMilestone, predWork.finishMilestone);
+//                }
+//              }
+//            } else { //Multiple successors (> 1).
+//              predWork.finishMilestone = this.createMilestone_(predId, false);
+//              this.addMilestoneSuccessors_(milestone, predWork.finishMilestone);
+//            }
+//
+//          }
+//        }
+//      } else { //Work has no predecessors.
+//        work.startMilestone = this.createMilestone_(true);
+//        delete this.milestonesMap_[hash];
+//        work.finishMilestone = this.createMilestone_(workIdOrStartFinish, false);
+//        if (this.addMilestoneSuccessors_(work.finishMilestone, work.startMilestone)) {
+//          goog.array.insert(work.startMilestone.successors, work.item);
+//        }
+//        return work.startMilestone;
+//      }
+//    } else { //creating finish milestone.
+//      if (work.successors.length) {
+//        work.finishMilestone = milestone;
+//        goog.array.insert(milestone.predecessors, work.item);
+//        milestone.label = 'Finish: ' + work.item.get(anychart.enums.DataField.NAME);
+//
+//        if (work.predecessors.length) {
+//          work.startMilestone = this.createMilestone_(workIdOrStartFinish, true);
+//        } else {
+//          this.startMilestone_ = this.createMilestone_(true);
+//          work.startMilestone = this.startMilestone_;
+//        }
+//        this.addMilestoneSuccessors_(work.finishMilestone, work.startMilestone);
+//        goog.array.insert(work.startMilestone.successors, work.item);
+//      } else { //work doesn't have successors.
+//        //Here we decide what finish milestone to choose: new one or this.finish milestone.
+//
+//        if (work.predecessors.length) {
+//          work.startMilestone = this.createMilestone_(workIdOrStartFinish, true);
+//        } else {
+//          this.startMilestone_ = this.createMilestone_(true);
+//          work.startMilestone = this.startMilestone_;
+//        }
+//
+//      }
+//
+//
+//
+//
+//    }
+//  }
+//  return milestone;
+//};
+
+
 /**
  * Creates milestone.
  * @param {string|boolean} workIdOrStartFinish - Work id or boolean value. If "false", will create finish milestone,
@@ -526,196 +678,17 @@ anychart.charts.Pert.prototype.calculateActivity_ = function(id) {
  */
 anychart.charts.Pert.prototype.createMilestone_ = function(workIdOrStartFinish, opt_isStart) {
   var milestone, i, j, activity, id, work, hash, workHash, predecessor;
-  var predId, predWork, workUsage;
+  var predId, predWork;
 
   if (goog.isBoolean(workIdOrStartFinish)) { //creating this.startMilestone_ or this.finishMilestone_ milestone.
     if (workIdOrStartFinish) { //create this.startMilestone_.
       if (this.startMilestone_) return this.startMilestone_;
+
       milestone = this.createEmptyMilestone_();
       this.startMilestone_ = milestone;
-      for (i = 0; i < this.startActivities_.length; i++) {
-        activity = this.startActivities_[i];
-        id = String(activity.get(anychart.enums.DataField.ID));
-        work = this.worksMap_[id];
-        work.startMilestone = this.startMilestone_;
-        goog.array.insert(this.startMilestone_.successors, activity);
-        hash = this.hash_('m', this.startMilestone_);
-        this.milestonesMap_[hash] = this.startMilestone_;
-        this.startMilestone_.id = hash;
-        this.startMilestone_.label = 'Start'; //TODO (A.Kudryavtsev): Hardcoded.
-        work.finishMilestone = this.createMilestone_(id, false);
-        this.addMilestoneSuccessors_(work.finishMilestone, this.startMilestone_);
-        goog.array.insert(work.finishMilestone.predecessors, activity);
-      }
-
-    } else { //create this.finishMilestone_.
-      if (this.finishMilestone_) return this.finishMilestone_;
-      milestone = this.createEmptyMilestone_();
-      this.finishMilestone_ = milestone;
-      hash = this.hash_('m', this.finishMilestone_);
-      this.finishMilestone_.id = hash;
-      this.finishMilestone_.label = 'Finish'; //TODO (A.Kudryavtsev): Hardcoded.
-      this.finishMilestone_.xIndex = 0;
-      this.finishMilestone_.yIndex = 0;
-      this.milestonesMap_[hash] = this.finishMilestone_;
-
-      for (i = 0; i < this.finishActivities_.length; i++) {
-        activity = this.finishActivities_[i];
-        id = String(activity.get(anychart.enums.DataField.ID));
-        work = this.worksMap_[id];
-        workHash = this.hash_('w', work);
-        workUsage = this.workUsageMap_[workHash];
-
-        work.startMilestone = this.createMilestone_(id, true);
-
-        if (workUsage) {
-          if (workUsage.finishMutable) {
-            //Вставить промежуточный майлстоун и поменять финиш
-            workUsage.finishMutable = false;
-          } else {
-            work.finishMilestone = this.createMilestone_(id, false);
-
-          }
-        } else {
-          workUsage = this.createEmptyWorkUsage_();
-          this.workUsageMap_[workHash] = workUsage;
-          workUsage.startMilestone = work.startMilestone;
-          workUsage.finishMilestone = this.finishMilestone_;
-        }
-
-        //work.finishMilestone = this.createMilestone_(id, false);
-
-        if (work.finishMilestone == this.finishMilestone_) {
-          goog.array.insert(work.finishMilestone.predecessors, work.item);
-        } else {
-          this.addMilestoneSuccessors_(this.finishMilestone_, work.finishMilestone);
-        }
-
-        this.addMilestoneSuccessors_(work.finishMilestone, work.startMilestone);
-        goog.array.insert(work.startMilestone.successors, work.item);
-      }
-    }
-  } else { //creating milestone by work id.
-    work = /** @type {anychart.charts.Pert.Work} */ (this.worksMap_[workIdOrStartFinish]);
-    if (opt_isStart) {
-      if (work.startMilestone) return work.startMilestone;
-    } else {
-      if (work.finishMilestone) return work.finishMilestone;
-    }
-
-    milestone = this.createEmptyMilestone_();
-    hash = this.hash_('m', milestone);
-    this.milestonesMap_[hash] = milestone;
-    milestone.id = hash;
-
-    if (opt_isStart) { //creating start milestone.
-      if (work.predecessors.length) {
-        if (work.predecessors.length == 1) {
-          predecessor = work.predecessors[0];
-          predId = String(predecessor.get(anychart.enums.DataField.ID));
-          predWork = this.worksMap_[predId];
-
-          if (predWork.successors.length > 1) { //Predecessor has multiple successors.
-            predWork.finishMilestone = this.createMilestone_(predId, false);
-            predWork.finishMilestone.label = 'Finish: ' + predWork.item.get(anychart.enums.DataField.NAME); //TODO (A.Kudryavtsev): Hardcoded.
-            goog.array.insert(predWork.finishMilestone.successors, work.item);
-            work.startMilestone = predWork.finishMilestone;
-            goog.array.insert(work.startMilestone.predecessors, predWork.item);
-            this.addMilestoneSuccessors_(predWork.finishMilestone, work.startMilestone);
-            delete this.milestonesMap_[hash];
-            return predWork.finishMilestone;
-          } else { //Predecessor has single successor.
-            work.startMilestone = milestone;
-            goog.array.insert(work.startMilestone.successors, work.item);
-            milestone.label = 'Start: ' + work.item.get(anychart.enums.DataField.NAME); //TODO (A.Kudryavtsev): Hardcoded.
-            predWork.finishMilestone = milestone;
-            goog.array.insert(milestone.predecessors, predecessor);
-            predWork.startMilestone = this.createMilestone_(predId, true);
-            this.addMilestoneSuccessors_(milestone, predWork.startMilestone);
-          }
-        } else { //Has multiple predecessors.
-          for (j = 0; j < work.predecessors.length; j++) {
-            predecessor = work.predecessors[j];
-            predId = String(predecessor.get(anychart.enums.DataField.ID));
-            predWork = this.worksMap_[predId];
-
-            if (predWork.successors.length > 1) { //NOTE: One successor is current work.
-              for (var k = 0; k < predWork.successors.length; k++) {
-                var predWorkSuccessor = predWork.successors[k];
-                if (predWorkSuccessor != predWork.item) {
-                  var predWorkSuccessorId = String(predWorkSuccessor.get(anychart.enums.DataField.ID));
-                  var successorWork = this.worksMap_[predWorkSuccessorId];
-                  successorWork.startMilestone = this.createMilestone_(predWorkSuccessorId, true);
-                  predWork.finishMilestone = this.createMilestone_(predId, false);
-                  this.addMilestoneSuccessors_(successorWork.startMilestone, predWork.finishMilestone);
-                }
-              }
-            } else { //Multiple successors (> 1).
-              predWork.finishMilestone = this.createMilestone_(predId, false);
-              this.addMilestoneSuccessors_(milestone, predWork.finishMilestone);
-            }
-
-          }
-        }
-      } else { //Work has no predecessors.
-        work.startMilestone = this.createMilestone_(true);
-        delete this.milestonesMap_[hash];
-        work.finishMilestone = this.createMilestone_(workIdOrStartFinish, false);
-        if (this.addMilestoneSuccessors_(work.finishMilestone, work.startMilestone)) {
-          goog.array.insert(work.startMilestone.successors, work.item);
-        }
-        return work.startMilestone;
-      }
-    } else { //creating finish milestone.
-      if (work.successors.length) {
-        work.finishMilestone = milestone;
-        goog.array.insert(milestone.predecessors, work.item);
-        milestone.label = 'Finish: ' + work.item.get(anychart.enums.DataField.NAME);
-
-        if (work.predecessors.length) {
-          work.startMilestone = this.createMilestone_(workIdOrStartFinish, true);
-        } else {
-          this.startMilestone_ = this.createMilestone_(true);
-          work.startMilestone = this.startMilestone_;
-        }
-        this.addMilestoneSuccessors_(work.finishMilestone, work.startMilestone);
-        goog.array.insert(work.startMilestone.successors, work.item);
-      } else { //work doesn't have successors.
-        //Here we decide what finish milestone to choose: new one or this.finish milestone.
-
-        if (work.predecessors.length) {
-          work.startMilestone = this.createMilestone_(workIdOrStartFinish, true);
-        } else {
-          this.startMilestone_ = this.createMilestone_(true);
-          work.startMilestone = this.startMilestone_;
-        }
-
-      }
+      milestone.label = 'Start'; //TODO (A.Kudryavtsev): Hardcoded.
 
 
-
-
-    }
-  }
-  return milestone;
-};
-
-
-/**
- * Creates milestone.
- * @param {string|boolean} workIdOrStartFinish - Work id or boolean value. If "false", will create finish milestone,
- *  if "true" - creates start milestone.
- * @param {boolean=} opt_isStart - Whether milestone is start milestone for given activity.
- * @return {anychart.charts.Pert.Milestone} - Resulting milestone object. Also puts it to this.milestones_.
- * @private
- */
-anychart.charts.Pert.prototype.createMilestone_ = function(workIdOrStartFinish, opt_isStart) {
-  var milestone, i, j, activity, id, work, hash, workHash, predecessor;
-  var predId, predWork, workUsage;
-
-  if (goog.isBoolean(workIdOrStartFinish)) { //creating this.startMilestone_ or this.finishMilestone_ milestone.
-    if (workIdOrStartFinish) { //create this.startMilestone_.
-      
     } else {//create this.finishMilestone_.
 
     }
@@ -742,13 +715,14 @@ anychart.charts.Pert.prototype.addMilestoneSuccessors_ = function(successorMiles
 
 
 /**
- * Creates empty milestone object.
+ * Creates empty milestone object. Also registers milestone in milestones map.
+ * @param {string=} opt_label - Optional label.
  * @return {anychart.charts.Pert.Milestone} - Empty object.
  * @private
  */
-anychart.charts.Pert.prototype.createEmptyMilestone_ = function() {
-  return /** @type {anychart.charts.Pert.Milestone} */ ({
-    label: '',
+anychart.charts.Pert.prototype.createEmptyMilestone_ = function(opt_label) {
+  var result = /** @type {anychart.charts.Pert.Milestone} */ ({
+    label: opt_label || '',
     id: '',
     xIndex: NaN,
     yIndex: NaN,
@@ -758,19 +732,183 @@ anychart.charts.Pert.prototype.createEmptyMilestone_ = function() {
     mPredecessors: [],
     level: -1
   });
+  var hash = this.hash_('m', result);
+  this.milestonesMap_[hash] = result;
+  result.id = hash;
+  return result;
 };
 
 
 /**
- * Creates empty work usage object.
- * @return {anychart.charts.Pert.WorkUsage} - Empty object.
+ * Creates ALL milestones (Also unnecessary milestones).
+ * First passage.
  * @private
  */
-anychart.charts.Pert.prototype.createEmptyWorkUsage_ = function() {
-  return /** @type {anychart.charts.Pert.WorkUsage} */ ({
-    startMutable: true,
-    finishMutable: true
-  });
+anychart.charts.Pert.prototype.createAllMilestones_ = function() {
+  this.startMilestone_ = this.createEmptyMilestone_('Start'); //TODO (A.Kudryavtsev): Hardcoded.
+  this.finishMilestone_ = this.createEmptyMilestone_('Finish'); //TODO (A.Kudryavtsev): Hardcoded.
+  var i;
+
+  for (var id in this.worksMap_) {
+    var work = this.worksMap_[id];
+
+    if (!work.startMilestone)
+      work.startMilestone = this.createEmptyMilestone_('Start: ' + work.item.get(anychart.enums.DataField.NAME)); //TODO (A.Kudryavtsev): Hardcoded.
+
+    if (!work.finishMilestone)
+      work.finishMilestone = this.createEmptyMilestone_('Finish: ' + work.item.get(anychart.enums.DataField.NAME)); //TODO (A.Kudryavtsev): Hardcoded.
+
+    goog.array.insert(work.startMilestone.successors, work.item);
+    goog.array.insert(work.finishMilestone.predecessors, work.item);
+
+    if (work.successors.length) {
+      for (i = 0; i < work.successors.length; i++) {
+        var succ = work.successors[i];
+        var succId = String(succ.get(anychart.enums.DataField.ID));
+        var succWork = this.worksMap_[succId];
+        if (!succWork.startMilestone)
+          succWork.startMilestone = this.createEmptyMilestone_('Start: ' + succWork.item.get(anychart.enums.DataField.NAME));
+        if (!succWork.finishMilestone)
+          succWork.finishMilestone = this.createEmptyMilestone_('Finish: ' + succWork.item.get(anychart.enums.DataField.NAME));
+        this.addMilestoneSuccessors_(succWork.startMilestone, work.finishMilestone);
+      }
+    } else {
+      this.addMilestoneSuccessors_(this.finishMilestone_, work.finishMilestone);
+    }
+
+    if (work.predecessors.length) {
+      for (i = 0; i < work.predecessors.length; i++) {
+        var pred = work.predecessors[i];
+        var predId = String(pred.get(anychart.enums.DataField.ID));
+        var predWork = this.worksMap_[predId];
+        if (!predWork.startMilestone)
+          predWork.startMilestone = this.createEmptyMilestone_('Start: ' + predWork.item.get(anychart.enums.DataField.NAME));
+        if (!succWork.finishMilestone)
+          predWork.finishMilestone = this.createEmptyMilestone_('Finish: ' + predWork.item.get(anychart.enums.DataField.NAME));
+        this.addMilestoneSuccessors_(work.startMilestone, predWork.finishMilestone);
+      }
+    } else {
+      this.addMilestoneSuccessors_(work.startMilestone, this.startMilestone_);
+    }
+  }
+};
+
+
+/**
+ * Clears unnecessary milestones.
+ * Second and third passage.
+ * @private
+ */
+anychart.charts.Pert.prototype.clearExcessiveMilestones_ = function() {
+  var uid, i, j, mSucc, mPred, milestone;
+  var succId, succWork, predId, predWork, cantBeShortenedMap, milestoneToRemove, rem;
+
+  var removeList = [];
+
+  //First passage.
+  for (uid in this.milestonesMap_) {
+    milestone = this.milestonesMap_[uid];
+    cantBeShortenedMap = {};
+
+    for (i = 0; i < milestone.mSuccessors.length; i++) {
+      mSucc = milestone.mSuccessors[i];
+
+      if (mSucc.successors.length == 1 && mSucc.mPredecessors.length < 2 && !mSucc.predecessors.length) {
+        succId = String(mSucc.successors[0].get(anychart.enums.DataField.ID));
+        succWork = this.worksMap_[succId];
+        var succFinishMilestone = succWork.finishMilestone;
+        for (j = 0; j < milestone.mSuccessors.length; j++) {
+          if (i != j) { //not same.
+            var anotherSucc = milestone.mSuccessors[j];
+            if (anotherSucc.successors.length == 1) {
+              var anotherSuccId = String(anotherSucc.successors[0].get(anychart.enums.DataField.ID));
+              var anotherSuccWork = this.worksMap_[anotherSuccId];
+              var anotherSuccFinishMilestone = anotherSuccWork.finishMilestone;
+              if (anotherSuccFinishMilestone == succFinishMilestone) {
+                cantBeShortenedMap[succFinishMilestone.id] = succFinishMilestone;
+              }
+            }
+          }
+        }
+      } else {
+        cantBeShortenedMap[mSucc.id] = mSucc;
+      }
+    }
+
+    removeList.length = 0;
+    for (i = 0; i < milestone.mSuccessors.length; i++) {
+      mSucc = milestone.mSuccessors[i];
+      if (!(mSucc.id in cantBeShortenedMap)) {
+        succId = String(mSucc.successors[0].get(anychart.enums.DataField.ID));
+        succWork = this.worksMap_[succId];
+        milestoneToRemove = succWork.startMilestone;
+        succWork.startMilestone = milestone;
+        goog.array.insert(milestone.successors, succWork.item);
+        removeList.push(milestoneToRemove);
+      }
+    }
+
+    for (i = 0; i < removeList.length; i++) {
+      rem = removeList[i];
+      goog.array.remove(milestone.mSuccessors, rem);
+      console.log('1st Deleted: ', rem);
+      delete this.milestonesMap_[rem.id];
+    }
+  }
+
+  //Second passage.
+  for (uid in this.milestonesMap_) {
+    milestone = this.milestonesMap_[uid];
+    cantBeShortenedMap = {};
+
+    for (i = 0; i < milestone.mPredecessors.length; i++) {
+      mPred = milestone.mPredecessors[i];
+
+      if (mPred.predecessors.length == 1 && mPred.mSuccessors.length < 2 && !mPred.successors.length) {
+        predId = String(mPred.predecessors[0].get(anychart.enums.DataField.ID));
+        predWork = this.worksMap_[predId];
+        var predStartMilestone = predWork.startMilestone;
+        for (j = 0; j < milestone.mPredecessors.length; j++) {
+          if (i != j) { //not same.
+            var anotherPred = milestone.mPredecessors[j];
+            if (anotherPred.predecessors.length == 1) {
+              var anotherPredId = String(anotherPred.predecessors[0].get(anychart.enums.DataField.ID));
+              var anotherPredWork = this.worksMap_[anotherPredId];
+              var anotherPredStartMilestone = anotherPredWork.startMilestone;
+              if (anotherPredStartMilestone == predStartMilestone) {
+                cantBeShortenedMap[mPred.id] = mPred;
+              }
+            }
+          }
+        }
+      } else {
+        cantBeShortenedMap[mPred.id] = mPred;
+      }
+    }
+
+    removeList.length = 0;
+    for (i = 0; i < milestone.mPredecessors.length; i++) {
+      mPred = milestone.mPredecessors[i];
+      if (!(mPred.id in cantBeShortenedMap)) {
+        predId = String(mPred.predecessors[0].get(anychart.enums.DataField.ID));
+        predWork = this.worksMap_[predId];
+        milestoneToRemove = predWork.finishMilestone;
+        predWork.finishMilestone = milestone;
+        goog.array.insert(milestone.predecessors, predWork.item);
+        removeList.push(milestoneToRemove);
+      }
+    }
+
+    for (i = 0; i < removeList.length; i++) {
+      rem = removeList[i];
+      goog.array.remove(milestone.mPredecessors, rem);
+      console.log('2nd Deleted: ', rem);
+      delete this.milestonesMap_[rem.id];
+    }
+
+
+  }
+
 };
 
 
@@ -782,8 +920,11 @@ anychart.charts.Pert.prototype.calculateMilestones_ = function() {
   this.milestones_.length = 0;
   this.milestones_ = [];
   this.milestonesMap_ = {};
-  this.workUsageMap_ = {};
-  this.createMilestone_(false);
+  this.createAllMilestones_();
+  this.clearExcessiveMilestones_();
+
+
+  //this.createMilestone_(false);
 
   //debug
   //for (var i in this.milestonesMap_) {
