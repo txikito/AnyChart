@@ -46,13 +46,13 @@ var data = [
 
 
 ///////// data one more
-//var data = [
-//  {id: 'A', name: 'A', duration: 3},
-//  {id: 'B', name: 'B', duration: 4},
-//  {id: 'C', name: 'C', duration: 3, dependsOn: ['A', 'B']},
-//  {id: 'D', name: 'D', duration: 1, dependsOn: ['C']},
-//  {id: 'E', name: 'E', duration: 3, dependsOn: ['C']}
-//];
+var data = [
+  {id: 'A', name: 'A', duration: 3},
+  {id: 'B', name: 'B', duration: 4},
+  {id: 'C', name: 'C', duration: 3, dependsOn: ['A', 'B']},
+  {id: 'D', name: 'D', duration: 1, dependsOn: ['C']},
+  {id: 'E', name: 'E', duration: 3, dependsOn: ['C']}
+];
 
 
 anychart.onDocumentReady(function() {
@@ -61,9 +61,7 @@ anychart.onDocumentReady(function() {
   chart = anychart.pert();
   chart.container('container');
   chart.title('Pert 1');
-  chart.bounds(0, 0, '100%', '100%');
   chart.data(treeData);
-
   chart.draw();
 
   //debugInfo();
