@@ -524,7 +524,9 @@ anychart.themes.merging.mergingMap_ = [
       'map.defaultSeriesSettings.base.labels',
       'treeMap.headers',
       'treeMap.labels',
-      'pert.labels'
+      'pert.milestones.labels',
+      'pert.tasks.upperLabels',
+      'pert.tasks.lowerLabels'
     ]
   },
   {

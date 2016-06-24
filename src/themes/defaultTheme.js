@@ -3880,6 +3880,23 @@ goog.provide('anychart.themes.defaultTheme');
       },
       'background': {
         'zIndex': 0
+      },
+      'milestones': {
+        'shape': 'circle',
+        'labels': {
+          'enabled': true,
+          'anchor': 'leftTop',
+          'vAlign': 'middle',
+          'hAlign': 'center'
+        }
+      },
+      'tasks': {
+        'upperLabels': {
+          'enabled': true
+        },
+        'lowerLabels': {
+          'enabled': true
+        }
       }
     },
 

@@ -262,6 +262,10 @@ anychart.ConsistencyState = {
   //---------------------------------- PERT CHART (SEPARATE CHART) ----------------------------------
   PERT_DATA: 1 << 11,
   PERT_CALCULATIONS: 1 << 12,
+  PERT_MILESTONES_LABELS: 1 << 13,
+  PERT_MILESTONES_APPEARANCE: 1 << 14,
+  PERT_ACTIVITIES_LABELS: 1 << 15,
+  PERT_ACTIVITIES_APPEARANCE: 1 << 16,
   /**
    * Combination of all states.
    */
@@ -283,7 +287,9 @@ anychart.Signal = {
   NEED_UPDATE_LEGEND: 1 << 6,
   NEED_UPDATE_COLOR_RANGE: 1 << 7,
   NEED_UPDATE_FULL_RANGE_ITEMS: 1 << 8,
-  NEED_UPDATE_TICK_DEPENDENT: 1 << 9
+  NEED_UPDATE_TICK_DEPENDENT: 1 << 9,
+  NEEDS_REDRAW_LABELS: 1 << 10,
+  NEEDS_REDRAW_APPEARANCE: 1 << 11
 };
 
 

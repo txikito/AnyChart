@@ -1,7 +1,10 @@
 goog.provide('anychart.charts.Pert');
 
 goog.require('anychart.core.SeparateChart');
+goog.require('anychart.core.pert.Milestones');
+goog.require('anychart.core.pert.Tasks');
 goog.require('anychart.core.utils.PertPointContextProvider');
+goog.require('anychart.core.utils.TypedLayer');
 goog.require('anychart.data.Tree');
 goog.require('goog.array');
 
@@ -98,7 +101,7 @@ anychart.charts.Pert = function() {
    * @type {Array.<Array.<anychart.charts.Pert.Milestone>>}
    * @private
    */
-  this.milestones_ = [];
+  this.milestonesLocation_ = [];
 
   /**
    * Milestones map.
@@ -107,24 +110,65 @@ anychart.charts.Pert = function() {
    */
   this.milestonesMap_ = {};
 
+  /**
+   * Milestones layer.
+   * @type {anychart.core.utils.TypedLayer}
+   * @private
+   */
+  this.milestonesLayer_ = null;
+
+  /**
+   * Activities layer.
+   * @type {anychart.core.utils.TypedLayer}
+   * @private
+   */
+  this.activitiesLayer_ = null;
+
+  /**
+   * Labels layer.
+   * @type {acgraph.vector.Layer}
+   * @private
+   */
+  this.labelsLayer_ = null;
+
+  /**
+   * Base layer.
+   * @type {acgraph.vector.Layer}
+   * @private
+   */
+  this.baseLayer_ = null;
+
+  /**
+   * Milestones settings object.
+   * @type {anychart.core.pert.Milestones}
+   * @private
+   */
+  this.milestones_ = null;
+
+  /**
+   * Tasks settings object.
+   * @type {anychart.core.pert.Tasks}
+   * @private
+   */
+  this.tasks_ = null;
+
 };
 goog.inherits(anychart.charts.Pert, anychart.core.SeparateChart);
 
 
 /**
- * Cell pixel width.
+ * Base layer z-index.
  * @type {number}
- * @private
  */
-anychart.charts.Pert.CELL_PIXEL_WIDTH_ = 75;
+anychart.charts.Pert.BASE_LAYER_Z_INDEX = 2;
 
 
 /**
- * Cell pixel height.
+ * Cell pixel size.
  * @type {number}
  * @private
  */
-anychart.charts.Pert.CELL_PIXEL_HEIGHT_ = 35;
+anychart.charts.Pert.CELL_PIXEL_SIZE_ = 80;
 
 
 /**
@@ -132,7 +176,7 @@ anychart.charts.Pert.CELL_PIXEL_HEIGHT_ = 35;
  * @type {number}
  * @private
  */
-anychart.charts.Pert.CELL_PIXEL_VERTICAL_SPACE_ = 40;
+anychart.charts.Pert.CELL_PIXEL_VERTICAL_SPACE_ = 20;
 
 
 /**
@@ -204,7 +248,11 @@ anychart.charts.Pert.prototype.SUPPORTED_SIGNALS = anychart.core.SeparateChart.p
 anychart.charts.Pert.prototype.SUPPORTED_CONSISTENCY_STATES =
     anychart.core.SeparateChart.prototype.SUPPORTED_CONSISTENCY_STATES |
     anychart.ConsistencyState.PERT_DATA |
-    anychart.ConsistencyState.PERT_CALCULATIONS;
+    anychart.ConsistencyState.PERT_CALCULATIONS |
+    anychart.ConsistencyState.PERT_ACTIVITIES_APPEARANCE |
+    anychart.ConsistencyState.PERT_ACTIVITIES_LABELS |
+    anychart.ConsistencyState.PERT_MILESTONES_APPEARANCE |
+    anychart.ConsistencyState.PERT_MILESTONES_LABELS;
 
 
 /** @inheritDoc */
@@ -724,12 +772,12 @@ anychart.charts.Pert.prototype.clearExcessiveMilestones_ = function() {
 anychart.charts.Pert.prototype.placeMilestone_ = function(milestone) {
   var i, yIndex;
   var xIndex = milestone.xIndex + 1;
-  if ((milestone.mSuccessors.length || milestone.successors.length) && !goog.isArray(this.milestones_[xIndex])) {
-    this.milestones_[xIndex] = [];
+  if ((milestone.mSuccessors.length || milestone.successors.length) && !goog.isArray(this.milestonesLocation_[xIndex])) {
+    this.milestonesLocation_[xIndex] = [];
   }
 
   for (i = 0; i < milestone.successors.length; i++) {
-    yIndex = this.milestones_[xIndex].length + i;
+    yIndex = this.milestonesLocation_[xIndex].length + i;
     var succ = milestone.successors[i];
     var succId = String(succ.get(anychart.enums.DataField.ID));
     var succWork = this.worksMap_[succId];
@@ -738,12 +786,12 @@ anychart.charts.Pert.prototype.placeMilestone_ = function(milestone) {
 
     if (isNaN(succFinMilestone.xIndex)) {
       succFinMilestone.xIndex = xIndex;
-      goog.array.insert(this.milestones_[xIndex], succFinMilestone);
+      goog.array.insert(this.milestonesLocation_[xIndex], succFinMilestone);
     } else {
       if (xIndex > succFinMilestone.xIndex) {
-        goog.array.remove(this.milestones_[succFinMilestone.xIndex], succFinMilestone);
-        goog.array.insert(this.milestones_[xIndex], succFinMilestone);
-        //goog.array.insertBefore(this.milestones_[xIndex], void 0, succFinMilestone);
+        goog.array.remove(this.milestonesLocation_[succFinMilestone.xIndex], succFinMilestone);
+        goog.array.insert(this.milestonesLocation_[xIndex], succFinMilestone);
+        //goog.array.insertBefore(this.milestonesLocation_[xIndex], void 0, succFinMilestone);
 
         succFinMilestone.xIndex = xIndex;
       }
@@ -754,17 +802,17 @@ anychart.charts.Pert.prototype.placeMilestone_ = function(milestone) {
 
 
   for (i = 0; i < milestone.mSuccessors.length; i++) {
-    yIndex = this.milestones_[xIndex].length + i;
+    yIndex = this.milestonesLocation_[xIndex].length + i;
     var mSucc = milestone.mSuccessors[i];
 
     if (isNaN(mSucc.xIndex)) {
       mSucc.xIndex = xIndex;
-      goog.array.insert(this.milestones_[xIndex], mSucc);
+      goog.array.insert(this.milestonesLocation_[xIndex], mSucc);
     } else {
       if (xIndex > mSucc.xIndex) {
-        goog.array.remove(this.milestones_[mSucc.xIndex], mSucc);
-        goog.array.insert(this.milestones_[xIndex], mSucc);
-        //goog.array.insertBefore(this.milestones_[xIndex], void 0, mSucc);
+        goog.array.remove(this.milestonesLocation_[mSucc.xIndex], mSucc);
+        goog.array.insert(this.milestonesLocation_[xIndex], mSucc);
+        //goog.array.insertBefore(this.milestonesLocation_[xIndex], void 0, mSucc);
         mSucc.xIndex = xIndex;
       }
     }
@@ -779,17 +827,97 @@ anychart.charts.Pert.prototype.placeMilestone_ = function(milestone) {
  * @private
  */
 anychart.charts.Pert.prototype.calculateMilestones_ = function() {
-  this.milestones_.length = 0;
-  this.milestones_ = [];
+  this.milestonesLocation_.length = 0;
+  this.milestonesLocation_ = [];
   this.milestonesMap_ = {};
   this.createAllMilestones_();
   this.clearExcessiveMilestones_();
 
   this.startMilestone_.xIndex = 0;
   this.startMilestone_.yIndex = 0;
-  this.milestones_[0] = [this.startMilestone_];
+  this.milestonesLocation_[0] = [this.startMilestone_];
 
   this.placeMilestone_(this.startMilestone_);
+};
+
+
+/**
+ * Gets/sets milestones settings object.
+ * @param {Object=} opt_value - Settings object.
+ * @return {anychart.charts.Pert|anychart.core.pert.Milestones} - Chart itself or milestones settings object.
+ */
+anychart.charts.Pert.prototype.milestones = function(opt_value) {
+  if (!this.milestones_) {
+    this.milestones_ = new anychart.core.pert.Milestones();
+    this.milestones_.listenSignals(this.onMilestonesSignal_, this);
+  }
+
+  if (goog.isDef(opt_value)) {
+    this.milestones_.setup(opt_value);
+    return this;
+  }
+  return this.milestones_;
+};
+
+
+/**
+ * Listener for milestones invalidation.
+ * @param {anychart.SignalEvent} event - Signal event.
+ * @private
+ */
+anychart.charts.Pert.prototype.onMilestonesSignal_ = function(event) {
+  var state = 0;
+  if (event.hasSignal(anychart.Signal.NEEDS_REDRAW_LABELS)) {
+    state |= anychart.ConsistencyState.PERT_MILESTONES_LABELS;
+  }
+
+  if (event.hasSignal(anychart.Signal.NEEDS_REDRAW_APPEARANCE)) {
+    state |= anychart.ConsistencyState.PERT_MILESTONES_APPEARANCE;
+  }
+
+  if (event.hasSignal(anychart.Signal.NEEDS_REDRAW)) {
+    state |= anychart.ConsistencyState.BOUNDS;
+  }
+
+  this.invalidate(state, anychart.Signal.NEEDS_REDRAW);
+};
+
+
+/**
+ * Gets/sets tasks settings object.
+ * @param {Object=} opt_value - Settings object.
+ * @return {anychart.charts.Pert|anychart.core.pert.Tasks} - Chart itself or tasks settings object.
+ */
+anychart.charts.Pert.prototype.tasks = function(opt_value) {
+  if (!this.tasks_) {
+    this.tasks_ = new anychart.core.pert.Tasks();
+    this.tasks_.listenSignals(this.onTasksSignal_, this);
+  }
+
+  if (goog.isDef(opt_value)) {
+    this.tasks_.setup(opt_value);
+    return this;
+  }
+  return this.tasks_;
+};
+
+
+/**
+ * Listener for tasks invalidation.
+ * @param {anychart.SignalEvent} event - Signal event.
+ * @private
+ */
+anychart.charts.Pert.prototype.onTasksSignal_ = function(event) {
+  var state = 0;
+  if (event.hasSignal(anychart.Signal.NEEDS_REDRAW_LABELS)) {
+    state |= anychart.ConsistencyState.PERT_ACTIVITIES_LABELS;
+  }
+
+  if (event.hasSignal(anychart.Signal.NEEDS_REDRAW_APPEARANCE)) {
+    state |= anychart.ConsistencyState.PERT_ACTIVITIES_APPEARANCE;
+  }
+
+  this.invalidate(state, anychart.Signal.NEEDS_REDRAW);
 };
 
 
@@ -807,38 +935,93 @@ anychart.charts.Pert.prototype.drawContent = function(bounds) {
     this.markConsistent(anychart.ConsistencyState.PERT_CALCULATIONS);
   }
 
+  if (!this.baseLayer_) { //Dom init.
+    this.baseLayer_ = this.rootElement.layer();
+    this.registerDisposable(this.baseLayer_);
+
+    this.activitiesLayer_ = new anychart.core.utils.TypedLayer(function() {
+      return acgraph.path();
+    }, function(child) {
+      (/** @type {acgraph.vector.Path} */ (child)).clear();
+    });
+    this.activitiesLayer_.zIndex(1); //TODO (A.Kudryavtsev): hardcoded.
+    this.activitiesLayer_.parent(this.baseLayer_);
+
+    this.milestonesLayer_ = new anychart.core.utils.TypedLayer(function() {
+      return acgraph.path();
+    }, function(child) {
+      (/** @type {acgraph.vector.Path} */ (child)).clear();
+    });
+    this.milestonesLayer_.zIndex(2); //TODO (A.Kudryavtsev): hardcoded.
+    this.milestonesLayer_.parent(this.baseLayer_);
+
+    this.labelsLayer_ = this.baseLayer_.layer();
+    this.labelsLayer_.zIndex(3); //TODO (A.Kudryavtsev): hardcoded.
+
+    this.milestones().labelsContainer(this.labelsLayer_);
+    this.tasks().labelsContainer(this.labelsLayer_);
+  }
+
   if (this.hasInvalidationState(anychart.ConsistencyState.BOUNDS)) {
+    this.activitiesLayer_.clear();
+    this.milestonesLayer_.clear();
+    this.milestones().clearLabels();
+    this.milestones().suspendSignalsDispatching();
+    this.tasks().clearLabels();
+
+
     var i, j;
-    var l = acgraph.layer();
     var add = 0;
-    l.parent(this.rootElement);
     var left = bounds.left;
-    for (i = 0; i < this.milestones_.length; i++) {
-      var milVertical = this.milestones_[i];
+    for (i = 0; i < this.milestonesLocation_.length; i++) {
+      var milVertical = this.milestonesLocation_[i];
       if (milVertical) {
         var top = bounds.top + add;
 
         for (j = 0; j < milVertical.length; j++) {
           var milestone = milVertical[j];
           if (milestone) {
-            var milPath = l.path().fill('none');
-            milPath.moveTo(left, top)
-                .lineTo(left + anychart.charts.Pert.CELL_PIXEL_WIDTH_, top)
-                .lineTo(left + anychart.charts.Pert.CELL_PIXEL_WIDTH_, top + anychart.charts.Pert.CELL_PIXEL_HEIGHT_)
-                .lineTo(left, top + anychart.charts.Pert.CELL_PIXEL_HEIGHT_)
-                .close();
+            var milPath = this.milestonesLayer_.genNextChild();
 
-            var label = l.text(left + 2, top + 2, milestone.label);
+            switch (this.milestones().shape()) {
+              case anychart.enums.MilestoneShape.RHOMBUS:
+                milPath.moveTo(left, top + anychart.charts.Pert.CELL_PIXEL_SIZE_ / 2)
+                    .lineTo(left + anychart.charts.Pert.CELL_PIXEL_SIZE_ / 2, top)
+                    .lineTo(left + anychart.charts.Pert.CELL_PIXEL_SIZE_, top + anychart.charts.Pert.CELL_PIXEL_SIZE_ / 2)
+                    .lineTo(left + anychart.charts.Pert.CELL_PIXEL_SIZE_ / 2, top + anychart.charts.Pert.CELL_PIXEL_SIZE_)
+                    .close();
+                break;
+              case anychart.enums.MilestoneShape.RECTANGLE:
+                milPath.moveTo(left, top)
+                    .lineTo(left + anychart.charts.Pert.CELL_PIXEL_SIZE_, top)
+                    .lineTo(left + anychart.charts.Pert.CELL_PIXEL_SIZE_, top + anychart.charts.Pert.CELL_PIXEL_SIZE_)
+                    .lineTo(left, top + anychart.charts.Pert.CELL_PIXEL_SIZE_)
+                    .close();
+                break;
+              case anychart.enums.MilestoneShape.CIRCLE:
+              default:
+                var radius = anychart.charts.Pert.CELL_PIXEL_SIZE_ / 2;
+                milPath.moveTo(left + radius + radius, top + radius)
+                    .arcTo(radius, radius, 0, 360);
+            }
+
+            var label = this.milestones().labels().add({'value': milestone.label}, {'value': {'x': left, 'y': top}});
+            label.width(anychart.charts.Pert.CELL_PIXEL_SIZE_);
+            label.height(anychart.charts.Pert.CELL_PIXEL_SIZE_);
+
             milestone.left = left;
             milestone.top = top;
 
           }
-          top += (anychart.charts.Pert.CELL_PIXEL_HEIGHT_ + anychart.charts.Pert.CELL_PIXEL_VERTICAL_SPACE_);
+          top += (anychart.charts.Pert.CELL_PIXEL_SIZE_ + anychart.charts.Pert.CELL_PIXEL_VERTICAL_SPACE_);
         }
       }
-      left += (anychart.charts.Pert.CELL_PIXEL_WIDTH_ + anychart.charts.Pert.CELL_PIXEL_HORIZONTAL_SPACE_);
+      left += (anychart.charts.Pert.CELL_PIXEL_SIZE_ + anychart.charts.Pert.CELL_PIXEL_HORIZONTAL_SPACE_);
       add += 20; //TODO (A.Kudryavtsev): :'(
     }
+
+    this.milestones().labels().resumeSignalsDispatching(false);
+    this.milestones().labels().draw();
 
     for (var id in this.milestonesMap_) {
       var mil = this.milestonesMap_[id];
@@ -848,7 +1031,7 @@ anychart.charts.Pert.prototype.drawContent = function(bounds) {
         var activity = this.activitiesMap_[succId];
         var succWork = this.worksMap_[succId];
         var destMilestone = succWork.finishMilestone;
-        var path = l.path();
+        var path = this.activitiesLayer_.genNextChild();
         var stroke = 'blue';
         if (!activity.slack) {
           stroke = '2 red';
@@ -856,8 +1039,8 @@ anychart.charts.Pert.prototype.drawContent = function(bounds) {
           succWork.finishMilestone.isCritical = true;
         }
         path.stroke(stroke);
-        path.moveTo(mil.left + anychart.charts.Pert.CELL_PIXEL_WIDTH_, mil.top + anychart.charts.Pert.CELL_PIXEL_HEIGHT_ / 2)
-            .lineTo(destMilestone.left, destMilestone.top + anychart.charts.Pert.CELL_PIXEL_HEIGHT_ / 2);
+        path.moveTo(mil.left + anychart.charts.Pert.CELL_PIXEL_SIZE_, mil.top + anychart.charts.Pert.CELL_PIXEL_SIZE_ / 2)
+            .lineTo(destMilestone.left, destMilestone.top + anychart.charts.Pert.CELL_PIXEL_SIZE_ / 2);
       }
 
 
@@ -867,7 +1050,7 @@ anychart.charts.Pert.prototype.drawContent = function(bounds) {
       var mil = this.milestonesMap_[id];
       for (i = 0; i < mil.mSuccessors.length; i++) {
         var mSucc = mil.mSuccessors[i];
-        var path = l.path();
+        var path = this.activitiesLayer_.genNextChild();
 
         var stroke = {'dash': '2 2', 'color': 'grey'};
 
@@ -878,8 +1061,8 @@ anychart.charts.Pert.prototype.drawContent = function(bounds) {
 
         path.stroke(stroke);
 
-        path.moveTo(mil.left + anychart.charts.Pert.CELL_PIXEL_WIDTH_, mil.top + anychart.charts.Pert.CELL_PIXEL_HEIGHT_ / 2)
-            .lineTo(mSucc.left, mSucc.top + anychart.charts.Pert.CELL_PIXEL_HEIGHT_ / 2);
+        path.moveTo(mil.left + anychart.charts.Pert.CELL_PIXEL_SIZE_, mil.top + anychart.charts.Pert.CELL_PIXEL_SIZE_ / 2)
+            .lineTo(mSucc.left, mSucc.top + anychart.charts.Pert.CELL_PIXEL_SIZE_ / 2);
       }
     }
   }
@@ -910,6 +1093,8 @@ anychart.charts.Pert.prototype.disposeInternal = function() {
   delete this.worksMap_;
   delete this.data_;
 
+  goog.disposeAll(this.milestones(), this.tasks());
+
   goog.base(this, 'disposeInternal');
 };
 
@@ -917,6 +1102,13 @@ anychart.charts.Pert.prototype.disposeInternal = function() {
 /** @inheritDoc */
 anychart.charts.Pert.prototype.serialize = function() {
   var json = goog.base(this, 'serialize');
+
+  if (this.data_)
+    json['data'] = this.data_.serializeWithoutMeta();
+
+  json['milestones'] = this.milestones().serialize();
+  json['tasks'] = this.tasks().serialize();
+
   return json;
 };
 
@@ -924,5 +1116,10 @@ anychart.charts.Pert.prototype.serialize = function() {
 /** @inheritDoc */
 anychart.charts.Pert.prototype.setupByJSON = function(config) {
   goog.base(this, 'setupByJSON', config);
+
+  if ('data' in config) this.data(anychart.data.Tree.fromJson(config['data']));
+  if ('milestones' in config) this.milestones().setupByJSON(config['milestones']);
+  if ('tasks' in config) this.tasks().setupByJSON(config['tasks']);
+
   this.expectedTimeCalculator(config['expectedTimeCalculator']);
 };

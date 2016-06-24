@@ -4903,6 +4903,22 @@ anychart.enums.normalizePaperSizeCaption = function(paperSize) {
 };
 
 
+//----------------------------------------------------------------------------------------------------------------------
+//
+//  Pert enums
+//
+//----------------------------------------------------------------------------------------------------------------------
+/**
+ * A enum for milestones shape.
+ * @enum {string}
+ */
+anychart.enums.MilestoneShape = {
+  CIRCLE: 'circle',
+  RHOMBUS: 'rhombus',
+  RECTANGLE: 'rectangle'
+};
+
+
 // DVF-1826
 // goog.exportSymbol('anychart.enums.XGroupingMode.FIRST', anychart.enums.XGroupingMode.FIRST);
 // goog.exportSymbol('anychart.enums.XGroupingMode.LAST', anychart.enums.XGroupingMode.LAST);
@@ -5525,3 +5541,7 @@ goog.exportSymbol('anychart.enums.Statistics.Y_VALUE', anychart.enums.Statistics
 goog.exportSymbol('anychart.enums.ChartDataExportMode.RAW', anychart.enums.ChartDataExportMode.RAW);
 goog.exportSymbol('anychart.enums.ChartDataExportMode.SPECIFIC', anychart.enums.ChartDataExportMode.SPECIFIC);
 goog.exportSymbol('anychart.enums.ChartDataExportMode.GROUPED', anychart.enums.ChartDataExportMode.GROUPED);
+
+goog.exportSymbol('anychart.enums.MilestoneShape.CIRCLE', anychart.enums.MilestoneShape.CIRCLE);
+goog.exportSymbol('anychart.enums.MilestoneShape.RHOMBUS', anychart.enums.MilestoneShape.RHOMBUS);
+goog.exportSymbol('anychart.enums.MilestoneShape.RECTANGLE', anychart.enums.MilestoneShape.RECTANGLE);
