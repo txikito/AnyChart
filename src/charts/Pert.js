@@ -1,6 +1,7 @@
 goog.provide('anychart.charts.Pert');
 
 goog.require('anychart.core.SeparateChart');
+goog.require('anychart.core.pert.CriticalPath');
 goog.require('anychart.core.pert.Milestones');
 goog.require('anychart.core.pert.Tasks');
 goog.require('anychart.core.utils.PertPointContextProvider');
@@ -152,6 +153,13 @@ anychart.charts.Pert = function() {
    */
   this.tasks_ = null;
 
+  /**
+   * Critical path settings object.
+   * @type {null}
+   * @private
+   */
+  this.criticalPath_ = null;
+
 };
 goog.inherits(anychart.charts.Pert, anychart.core.SeparateChart);
 
@@ -214,7 +222,8 @@ anychart.charts.Pert.ActivityData;
  *    yIndex: number,
  *    isCritical: boolean,
  *    left: number,
- *    top: number
+ *    top: number,
+ *    isSelected: boolean
  * }}
  */
 anychart.charts.Pert.Milestone;
@@ -228,7 +237,9 @@ anychart.charts.Pert.Milestone;
  *    predecessors: Array.<anychart.data.Tree.DataItem>,
  *    level: number,
  *    startMilestone: anychart.charts.Pert.Milestone,
- *    finishMilestone: anychart.charts.Pert.Milestone
+ *    finishMilestone: anychart.charts.Pert.Milestone,
+ *    isCritical: boolean,
+ *    isSelected: boolean
  * }}
  */
 anychart.charts.Pert.Work;
@@ -339,6 +350,118 @@ anychart.charts.Pert.prototype.getAllSeries = function() {
 
 //----------------------------------------------------------------------------------------------------------------------
 //
+//  Mouse interactivity.
+//
+//----------------------------------------------------------------------------------------------------------------------
+/**
+ * Getter for tooltip settings.
+ * @param {(Object|boolean|null)=} opt_value - Tooltip settings.
+ * @return {!(anychart.charts.Pert|anychart.core.ui.Tooltip)} - Tooltip instance or self for method chaining.
+ */
+anychart.charts.Pert.prototype.tooltip = function(opt_value) {
+  if (!this.tooltip_) {
+    this.tooltip_ = new anychart.core.ui.Tooltip();
+    this.registerDisposable(this.tooltip_);
+    this.tooltip_.listenSignals(this.onTooltipSignal_, this);
+  }
+  if (goog.isDef(opt_value)) {
+    this.tooltip_.setup(opt_value);
+    return this;
+  } else {
+    return this.tooltip_;
+  }
+};
+
+
+/**
+ * Tooltip invalidation handler.
+ * @param {anychart.SignalEvent} event - Event object.
+ * @private
+ */
+anychart.charts.Pert.prototype.onTooltipSignal_ = function(event) {
+  var tooltip = /** @type {anychart.core.ui.Tooltip} */(this.tooltip());
+  tooltip.redraw();
+};
+
+
+/** @inheritDoc */
+anychart.charts.Pert.prototype.handleMouseOverAndMove = function(event) {
+  var domTarget = event['domTarget'];
+  var tooltip = /** @type {anychart.core.ui.Tooltip} */(this.tooltip());
+
+  var renderTooltip = false;
+  var fill, stroke, source;
+  if (goog.isDefAndNotNull(domTarget.attr('m_id'))) {
+    renderTooltip = true;
+    var milestone = this.milestonesMap_[domTarget.attr('m_id')];
+    source = milestone.isCritical ? this.criticalPath().milestones() : this.milestones();
+    fill = milestone.isSelected ? source.selectFill() : source.hoverFill();
+    stroke = milestone.isSelected ? source.selectStroke() : source.hoverStroke();
+    domTarget.fill(fill).stroke(stroke);
+
+  } else if (goog.isDefAndNotNull(domTarget.attr('w_id'))) {
+    renderTooltip = true;
+    var work = this.worksMap_[domTarget.attr('w_id')];
+    source = work.isCritical ? this.criticalPath().tasks() : this.tasks();
+    fill = work.isSelected ? source.selectFill() : source.hoverFill();
+    stroke = work.isSelected ? source.selectStroke() : source.hoverStroke();
+    domTarget.fill(fill).stroke(stroke);
+  } else if (goog.isDefAndNotNull(domTarget.attr('d_crit'))) {
+    renderTooltip = true;
+    var isCrit = domTarget.attr('d_crit') == 'true';
+    source = isCrit ? this.criticalPath().tasks() : this.tasks();
+    fill = source.hoverDummyFill();
+    stroke = source.hoverDummyStroke();
+  }
+
+  if (renderTooltip) {
+    domTarget.fill(fill).stroke(stroke);
+
+    var position = tooltip.isFloating() ?
+        new acgraph.math.Coordinate(event['clientX'], event['clientY']) :
+        new acgraph.math.Coordinate(0, 0);
+
+    //var formatProvider = this.createFormatProvider(event['item'], event['period'], event['periodIndex']);
+    var formatProvider = {};
+    tooltip.show(formatProvider, position);
+  } else {
+    tooltip.hide();
+  }
+};
+
+
+/** @inheritDoc */
+anychart.core.Chart.prototype.handleMouseOut = function(event) {
+  var domTarget = event['domTarget'];
+  var fill, stroke, source;
+  var render = false;
+
+  if (goog.isDefAndNotNull(domTarget.attr('m_id'))) {
+    render = true;
+    var milestone = this.milestonesMap_[domTarget.attr('m_id')];
+    source = milestone.isCritical ? this.criticalPath().milestones() : this.milestones();
+    fill = milestone.isSelected ? source.selectFill() : source.fill();
+    stroke = milestone.isSelected ? source.selectStroke() : source.stroke();
+  } else if (goog.isDefAndNotNull(domTarget.attr('w_id'))) {
+    render = true;
+    var work = this.worksMap_[domTarget.attr('w_id')];
+    source = work.isCritical ? this.criticalPath().tasks() : this.tasks();
+    fill = work.isSelected ? source.selectFill() : source.fill();
+    stroke = work.isSelected ? source.selectStroke() : source.stroke();
+  } else if (goog.isDefAndNotNull(domTarget.attr('d_crit'))) {
+    render = true;
+    var isCrit = domTarget.attr('d_crit') == 'true';
+    source = isCrit ? this.criticalPath().tasks() : this.tasks();
+    fill = source.dummyFill();
+    stroke = source.dummyStroke();
+  }
+
+  if (render) domTarget.fill(fill).stroke(stroke);
+};
+
+
+//----------------------------------------------------------------------------------------------------------------------
+//
 //  Calculations.
 //
 //----------------------------------------------------------------------------------------------------------------------
@@ -375,7 +498,8 @@ anychart.charts.Pert.prototype.calculate = function() {
             item: item,
             successors: [],
             predecessors: [],
-            level: -1
+            level: -1,
+            isCritical: false
           };
           this.finishActivities_.push(item); //Has no successors - add.
         }
@@ -398,7 +522,8 @@ anychart.charts.Pert.prototype.calculate = function() {
                   item: found,
                   successors: [item],
                   predecessors: [],
-                  level: -1
+                  level: -1,
+                  isCritical: false
                 };
                 goog.array.remove(this.finishActivities_, found); //Has successor - remove.
                 this.worksMap_[id].predecessors.push(found);
@@ -608,6 +733,7 @@ anychart.charts.Pert.prototype.createAllMilestones_ = function() {
 
   for (var id in this.worksMap_) {
     var work = this.worksMap_[id];
+    var activity = this.activitiesMap_[id];
 
     if (!work.startMilestone)
       work.startMilestone = this.createEmptyMilestone_('Start: ' + work.item.get(anychart.enums.DataField.NAME)); //TODO (A.Kudryavtsev): Hardcoded.
@@ -617,6 +743,12 @@ anychart.charts.Pert.prototype.createAllMilestones_ = function() {
 
     goog.array.insert(work.startMilestone.successors, work.item);
     goog.array.insert(work.finishMilestone.predecessors, work.item);
+
+    if (!activity.slack) {
+      work.isCritical = true;
+      work.startMilestone.isCritical = true;
+      work.finishMilestone.isCritical = true;
+    }
 
     if (work.successors.length) {
       for (i = 0; i < work.successors.length; i++) {
@@ -921,6 +1053,26 @@ anychart.charts.Pert.prototype.onTasksSignal_ = function(event) {
 };
 
 
+/**
+ * Gets/sets critical path settings object.
+ * @param {Object=} opt_value - Settings object.
+ * @return {anychart.charts.Pert|anychart.core.pert.Tasks} - Chart itself or critical path settings object.
+ */
+anychart.charts.Pert.prototype.criticalPath = function(opt_value) {
+  if (!this.criticalPath_) {
+    this.criticalPath_ = new anychart.core.pert.CriticalPath();
+    this.criticalPath_.milestones().listenSignals(this.onMilestonesSignal_, this);
+    this.criticalPath_.tasks().listenSignals(this.onTasksSignal_, this);
+  }
+
+  if (goog.isDef(opt_value)) {
+    this.criticalPath_.setup(opt_value);
+    return this;
+  }
+  return this.criticalPath_;
+};
+
+
 //----------------------------------------------------------------------------------------------------------------------
 //
 //  Drawing
@@ -943,6 +1095,8 @@ anychart.charts.Pert.prototype.drawContent = function(bounds) {
       return acgraph.path();
     }, function(child) {
       (/** @type {acgraph.vector.Path} */ (child)).clear();
+      (/** @type {acgraph.vector.Path} */ (child)).attr('a_crit', null);
+      (/** @type {acgraph.vector.Path} */ (child)).attr('d_crit', null);
     });
     this.activitiesLayer_.zIndex(1); //TODO (A.Kudryavtsev): hardcoded.
     this.activitiesLayer_.parent(this.baseLayer_);
@@ -951,6 +1105,7 @@ anychart.charts.Pert.prototype.drawContent = function(bounds) {
       return acgraph.path();
     }, function(child) {
       (/** @type {acgraph.vector.Path} */ (child)).clear();
+      (/** @type {acgraph.vector.Path} */ (child)).attr('m_crit', null);
     });
     this.milestonesLayer_.zIndex(2); //TODO (A.Kudryavtsev): hardcoded.
     this.milestonesLayer_.parent(this.baseLayer_);
@@ -962,13 +1117,15 @@ anychart.charts.Pert.prototype.drawContent = function(bounds) {
     this.tasks().labelsContainer(this.labelsLayer_);
   }
 
+  if (!this.tooltip().container()) {
+    this.tooltip().container(/** @type {acgraph.vector.ILayer} */(this.container()));
+  }
+
   if (this.hasInvalidationState(anychart.ConsistencyState.BOUNDS)) {
     this.activitiesLayer_.clear();
     this.milestonesLayer_.clear();
     this.milestones().clearLabels();
-    this.milestones().suspendSignalsDispatching();
     this.tasks().clearLabels();
-
 
     var i, j;
     var add = 0;
@@ -1005,6 +1162,12 @@ anychart.charts.Pert.prototype.drawContent = function(bounds) {
                     .arcTo(radius, radius, 0, 360);
             }
 
+            milPath.attr('m_crit', !!milestone.isCritical);
+            milPath.attr('m_id', milestone.id);
+            var fill = milestone.isCritical ? this.criticalPath().milestones().fill() : this.milestones().fill();
+            var stroke = milestone.isCritical ? this.criticalPath().milestones().stroke() : this.milestones().stroke();
+            milPath.fill(fill).stroke(stroke);
+
             var label = this.milestones().labels().add({'value': milestone.label}, {'value': {'x': left, 'y': top}});
             label.width(anychart.charts.Pert.CELL_PIXEL_SIZE_);
             label.height(anychart.charts.Pert.CELL_PIXEL_SIZE_);
@@ -1028,19 +1191,28 @@ anychart.charts.Pert.prototype.drawContent = function(bounds) {
       for (i = 0; i < mil.successors.length; i++) {
         var succ = mil.successors[i];
         var succId = String(succ.get(anychart.enums.DataField.ID));
-        var activity = this.activitiesMap_[succId];
+        //var activity = this.activitiesMap_[succId];
         var succWork = this.worksMap_[succId];
         var destMilestone = succWork.finishMilestone;
         var path = this.activitiesLayer_.genNextChild();
-        var stroke = 'blue';
-        if (!activity.slack) {
-          stroke = '2 red';
-          succWork.startMilestone.isCritical = true;
-          succWork.finishMilestone.isCritical = true;
-        }
+
+        var isCrit = (mil.isCritical && destMilestone.isCritical);
+        var stroke = isCrit ? this.criticalPath().tasks().stroke() :
+            this.tasks().stroke();
+
         path.stroke(stroke);
+        path.attr('a_crit', isCrit);
+        path.attr('w_id', succId);
+        //path.moveTo(mil.left + anychart.charts.Pert.CELL_PIXEL_SIZE_, mil.top + anychart.charts.Pert.CELL_PIXEL_SIZE_ / 2)
+        //    .lineTo(destMilestone.left, destMilestone.top + anychart.charts.Pert.CELL_PIXEL_SIZE_ / 2);
         path.moveTo(mil.left + anychart.charts.Pert.CELL_PIXEL_SIZE_, mil.top + anychart.charts.Pert.CELL_PIXEL_SIZE_ / 2)
-            .lineTo(destMilestone.left, destMilestone.top + anychart.charts.Pert.CELL_PIXEL_SIZE_ / 2);
+            .curveTo(
+                mil.left + anychart.charts.Pert.CELL_PIXEL_SIZE_ + anychart.charts.Pert.CELL_PIXEL_HORIZONTAL_SPACE_ / 2,
+                mil.top + anychart.charts.Pert.CELL_PIXEL_SIZE_ / 2,
+                mil.left + anychart.charts.Pert.CELL_PIXEL_SIZE_ + anychart.charts.Pert.CELL_PIXEL_HORIZONTAL_SPACE_ / 2,
+                destMilestone.top + anychart.charts.Pert.CELL_PIXEL_SIZE_ / 2,
+                destMilestone.left,
+                destMilestone.top + anychart.charts.Pert.CELL_PIXEL_SIZE_ / 2);
       }
 
 
@@ -1052,19 +1224,31 @@ anychart.charts.Pert.prototype.drawContent = function(bounds) {
         var mSucc = mil.mSuccessors[i];
         var path = this.activitiesLayer_.genNextChild();
 
-        var stroke = {'dash': '2 2', 'color': 'grey'};
+        var isCrit = (mil.isCritical && mSucc.isCritical);
 
-        if (mil.isCritical && mSucc.isCritical) {
-          stroke['color'] = 'red';
-          stroke['thickness'] = 2;
-        }
+        var source = isCrit ? this.criticalPath().tasks() : this.tasks();
+        path.stroke(source.dummyStroke()).fill(source.dummyFill());
+        path.attr('d_crit', isCrit);
 
-        path.stroke(stroke);
+        //path.moveTo(mil.left + anychart.charts.Pert.CELL_PIXEL_SIZE_, mil.top + anychart.charts.Pert.CELL_PIXEL_SIZE_ / 2)
+        //    .lineTo(mSucc.left, mSucc.top + anychart.charts.Pert.CELL_PIXEL_SIZE_ / 2);
 
         path.moveTo(mil.left + anychart.charts.Pert.CELL_PIXEL_SIZE_, mil.top + anychart.charts.Pert.CELL_PIXEL_SIZE_ / 2)
-            .lineTo(mSucc.left, mSucc.top + anychart.charts.Pert.CELL_PIXEL_SIZE_ / 2);
+            .curveTo(
+                mil.left + anychart.charts.Pert.CELL_PIXEL_SIZE_ + anychart.charts.Pert.CELL_PIXEL_HORIZONTAL_SPACE_ / 2,
+                mil.top + anychart.charts.Pert.CELL_PIXEL_SIZE_ / 2,
+                mil.left + anychart.charts.Pert.CELL_PIXEL_SIZE_ + anychart.charts.Pert.CELL_PIXEL_HORIZONTAL_SPACE_ / 2,
+                mSucc.top + anychart.charts.Pert.CELL_PIXEL_SIZE_ / 2,
+                mSucc.left,
+                mSucc.top + anychart.charts.Pert.CELL_PIXEL_SIZE_ / 2);
       }
     }
+  }
+
+  if (this.hasInvalidationState(anychart.ConsistencyState.PERT_MILESTONES_LABELS)) {
+    this.milestones().labels().draw();
+    this.tasks().labels().draw();
+    this.markConsistent(anychart.ConsistencyState.PERT_MILESTONES_LABELS);
   }
 };
 
@@ -1093,7 +1277,7 @@ anychart.charts.Pert.prototype.disposeInternal = function() {
   delete this.worksMap_;
   delete this.data_;
 
-  goog.disposeAll(this.milestones(), this.tasks());
+  goog.disposeAll(this.milestones(), this.tasks(), this.criticalPath());
 
   goog.base(this, 'disposeInternal');
 };
@@ -1108,6 +1292,7 @@ anychart.charts.Pert.prototype.serialize = function() {
 
   json['milestones'] = this.milestones().serialize();
   json['tasks'] = this.tasks().serialize();
+  json['criticalPath'] = this.criticalPath().serialize();
 
   return json;
 };
@@ -1120,6 +1305,17 @@ anychart.charts.Pert.prototype.setupByJSON = function(config) {
   if ('data' in config) this.data(anychart.data.Tree.fromJson(config['data']));
   if ('milestones' in config) this.milestones().setupByJSON(config['milestones']);
   if ('tasks' in config) this.tasks().setupByJSON(config['tasks']);
+  if ('criticalPath' in config) this.criticalPath().setupByJSON(config['criticalPath']);
 
   this.expectedTimeCalculator(config['expectedTimeCalculator']);
 };
+
+
+//exports
+anychart.charts.Pert.prototype['tasks'] = anychart.charts.Pert.prototype.tasks;
+anychart.charts.Pert.prototype['milestones'] = anychart.charts.Pert.prototype.milestones;
+anychart.charts.Pert.prototype['criticalPath'] = anychart.charts.Pert.prototype.criticalPath;
+anychart.charts.Pert.prototype['data'] = anychart.charts.Pert.prototype.data;
+anychart.charts.Pert.prototype['getType'] = anychart.charts.Pert.prototype.getType;
+anychart.charts.Pert.prototype['expectedTimeCalculator'] = anychart.charts.Pert.prototype.expectedTimeCalculator;
+

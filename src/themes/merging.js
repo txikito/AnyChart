@@ -526,7 +526,10 @@ anychart.themes.merging.mergingMap_ = [
       'treeMap.labels',
       'pert.milestones.labels',
       'pert.tasks.upperLabels',
-      'pert.tasks.lowerLabels'
+      'pert.tasks.lowerLabels',
+      'pert.criticalPath.milestones.labels',
+      'pert.criticalPath.tasks.upperLabels',
+      'pert.criticalPath.tasks.lowerLabels'
     ]
   },
   {

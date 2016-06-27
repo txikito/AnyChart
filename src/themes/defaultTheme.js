@@ -3864,6 +3864,22 @@ goog.provide('anychart.themes.defaultTheme');
     },
 
     'pert': {
+      'tooltip': {
+        /**
+         * @this {*}
+         * @return {*}
+         */
+        'titleFormatter': function() {
+          return 'Tooltip title';
+        },
+        /**
+         * @this {*}
+         * @return {*}
+         */
+        'textFormatter': function() {
+          return 'Tooltip text';
+        }
+      },
       /**
        * @this {*}
        * @return {*}
@@ -3887,15 +3903,141 @@ goog.provide('anychart.themes.defaultTheme');
           'enabled': true,
           'anchor': 'leftTop',
           'vAlign': 'middle',
-          'hAlign': 'center'
-        }
+          'hAlign': 'center',
+          'fontColor': '#fff',
+          'disablePointerEvents': true
+        },
+        'hoverLabels': {
+          'fontWeight': 'bold'
+        },
+        'selectLabels': {
+          'fontWeight': 'bold'
+        },
+        'fill': {
+          'color': '#64b5f6',
+          'opacity': 0.8
+        },
+        'hoverFill': defaultHoverColor,
+        'selectFill': defaultSelectColor,
+        'stroke': 'none',
+        'hoverStroke': 'none',
+        'selectStroke': 'none'
       },
       'tasks': {
+        'fill': 'none',
+        'hoverFill': 'none',
+        'selectFill': 'none',
+        'stroke': 'grey',
+        'hoverStroke': {
+          'color': 'grey',
+          'thickness': 2
+        },
+        'selectStroke': defaultSelectColor,
+        'dummyFill': 'none',
+        'hoverDummyFill': 'none',
+        'selectDummyFill': 'none',
+        'dummyStroke': {
+          'color': 'grey',
+          'dash': '4 2'
+        },
+        'hoverDummyStroke': {
+          'color': 'grey',
+          'dash': '4 2',
+          'thickness': 2
+        },
+        'selectDummyStroke': {
+          'color': defaultSelectColor,
+          'dash': '4 2'
+        },
         'upperLabels': {
           'enabled': true
         },
+        'selectUpperLabels': {
+          'fontWeight': 'bold'
+        },
+        'hoverUpperLabels': {
+          'fontWeight': 'bold'
+        },
         'lowerLabels': {
           'enabled': true
+        },
+        'hoverLowerLabels': {
+          'fontWeight': 'bold'
+        },
+        'selectLowerLabels': {
+          'fontWeight': 'bold'
+        }
+      },
+      'criticalPath': {
+        'milestones': {
+          'shape': 'circle',
+          'labels': {
+            'enabled': true,
+            'anchor': 'leftTop',
+            'vAlign': 'middle',
+            'hAlign': 'center',
+            'fontWeight': 'bold'
+          },
+          'hoverLabels': {
+            'fontWeight': 'bold'
+          },
+          'selectLabels': {
+            'fontWeight': 'bold'
+          },
+          'fill': {
+            'color': '#ef6c00',
+            'opacity': 0.8
+          },
+          'hoverFill': defaultHoverColor,
+          'selectFill': defaultSelectColor,
+          'stroke': 'none',
+          'hoverStroke': 'none',
+          'selectStroke': 'none'
+        },
+        'tasks': {
+          'fill': 'none',
+          'hoverFill': 'none',
+          'selectFill': 'none',
+          'stroke': '#ef6c00',
+          'hoverStroke': {
+            'color': '#ef6c00',
+            'thickness': 2
+          },
+          'selectStroke': defaultSelectColor,
+          'dummyFill': 'none',
+          'hoverDummyFill': 'none',
+          'selectDummyFill': 'none',
+          'dummyStroke': {
+            'color': '#ef6c00',
+            'dash': '4 2'
+          },
+          'hoverDummyStroke': {
+            'color': '#ef6c00',
+            'dash': '4 2',
+            'thickness': 2
+          },
+          'selectDummyStroke': {
+            'color': defaultSelectColor,
+            'dash': '4 2'
+          },
+          'upperLabels': {
+            'enabled': true
+          },
+          'selectUpperLabels': {
+            'fontWeight': 'bold'
+          },
+          'hoverUpperLabels': {
+            'fontWeight': 'bold'
+          },
+          'lowerLabels': {
+            'enabled': true
+          },
+          'hoverLowerLabels': {
+            'fontWeight': 'bold'
+          },
+          'selectLowerLabels': {
+            'fontWeight': 'bold'
+          }
         }
       }
     },

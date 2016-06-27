@@ -221,7 +221,7 @@ anychart.core.pert.PertVisualElements.prototype.hoverStroke = function(opt_strok
     var stroke = goog.isFunction(opt_strokeOrFill) ?
         opt_strokeOrFill :
         acgraph.vector.normalizeStroke.apply(null, arguments);
-    if (stroke != this.hoverStroke) {
+    if (stroke != this.hoverStroke_) {
       this.hoverStroke_ = stroke;
       this.dispatchSignal(anychart.Signal.NEEDS_REDRAW_APPEARANCE);
     }

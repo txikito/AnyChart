@@ -1,15 +1,15 @@
 /////// data
-var data = [
-  {id: 'A', duration: 3, name: 'A'},
-  {id: 'B', duration: 2, name: 'B'},
-  {id: 'C', duration: 10, name: 'C'},
-  {id: 'D', duration: 2, name: 'D'},
-  {id: 'E', duration: 4, name: 'E'},
-  {id: 'F', duration: 5, name: 'F', dependsOn: ['A', 'B', 'C']},
-  {id: 'G', duration: 2, name: 'G', dependsOn: ['D', 'E']},
-  {id: 'H', duration: 1, name: 'H', dependsOn: ['F']},
-  {id: 'I', duration: 7, name: 'I', dependsOn: ['F', 'G']}
-];
+//var data = [
+//  {id: 'A', duration: 3, name: 'A'},
+//  {id: 'B', duration: 2, name: 'B'},
+//  {id: 'C', duration: 10, name: 'C'},
+//  {id: 'D', duration: 2, name: 'D'},
+//  {id: 'E', duration: 4, name: 'E'},
+//  {id: 'F', duration: 5, name: 'F', dependsOn: ['A', 'B', 'C']},
+//  {id: 'G', duration: 2, name: 'G', dependsOn: ['D', 'E']},
+//  {id: 'H', duration: 1, name: 'H', dependsOn: ['F']},
+//  {id: 'I', duration: 7, name: 'I', dependsOn: ['F', 'G']}
+//];
 
 //var deps = [
 //  {from: 'A', to: 'F'},
