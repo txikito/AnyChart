@@ -1196,7 +1196,7 @@ anychart.charts.Pert.prototype.drawContent = function(bounds) {
         var destMilestone = succWork.finishMilestone;
         var path = this.activitiesLayer_.genNextChild();
 
-        var isCrit = (mil.isCritical && destMilestone.isCritical);
+        var isCrit = (mil.isCritical && destMilestone.isCritical && succWork.isCritical);
         var stroke = isCrit ? this.criticalPath().tasks().stroke() :
             this.tasks().stroke();
 
@@ -1205,11 +1205,13 @@ anychart.charts.Pert.prototype.drawContent = function(bounds) {
         path.attr('w_id', succId);
         //path.moveTo(mil.left + anychart.charts.Pert.CELL_PIXEL_SIZE_, mil.top + anychart.charts.Pert.CELL_PIXEL_SIZE_ / 2)
         //    .lineTo(destMilestone.left, destMilestone.top + anychart.charts.Pert.CELL_PIXEL_SIZE_ / 2);
+
+        var dWidth = (destMilestone.left - mil.left - anychart.charts.Pert.CELL_PIXEL_HORIZONTAL_SPACE_) / 2;
         path.moveTo(mil.left + anychart.charts.Pert.CELL_PIXEL_SIZE_, mil.top + anychart.charts.Pert.CELL_PIXEL_SIZE_ / 2)
             .curveTo(
-                mil.left + anychart.charts.Pert.CELL_PIXEL_SIZE_ + anychart.charts.Pert.CELL_PIXEL_HORIZONTAL_SPACE_ / 2,
+                mil.left + anychart.charts.Pert.CELL_PIXEL_SIZE_ + dWidth,
                 mil.top + anychart.charts.Pert.CELL_PIXEL_SIZE_ / 2,
-                mil.left + anychart.charts.Pert.CELL_PIXEL_SIZE_ + anychart.charts.Pert.CELL_PIXEL_HORIZONTAL_SPACE_ / 2,
+                mil.left + anychart.charts.Pert.CELL_PIXEL_SIZE_ + dWidth,
                 destMilestone.top + anychart.charts.Pert.CELL_PIXEL_SIZE_ / 2,
                 destMilestone.left,
                 destMilestone.top + anychart.charts.Pert.CELL_PIXEL_SIZE_ / 2);
@@ -1233,11 +1235,12 @@ anychart.charts.Pert.prototype.drawContent = function(bounds) {
         //path.moveTo(mil.left + anychart.charts.Pert.CELL_PIXEL_SIZE_, mil.top + anychart.charts.Pert.CELL_PIXEL_SIZE_ / 2)
         //    .lineTo(mSucc.left, mSucc.top + anychart.charts.Pert.CELL_PIXEL_SIZE_ / 2);
 
+        var dWidth = (mSucc.left - mil.left - anychart.charts.Pert.CELL_PIXEL_HORIZONTAL_SPACE_) / 2;
         path.moveTo(mil.left + anychart.charts.Pert.CELL_PIXEL_SIZE_, mil.top + anychart.charts.Pert.CELL_PIXEL_SIZE_ / 2)
             .curveTo(
-                mil.left + anychart.charts.Pert.CELL_PIXEL_SIZE_ + anychart.charts.Pert.CELL_PIXEL_HORIZONTAL_SPACE_ / 2,
+                mil.left + anychart.charts.Pert.CELL_PIXEL_SIZE_ + dWidth,
                 mil.top + anychart.charts.Pert.CELL_PIXEL_SIZE_ / 2,
-                mil.left + anychart.charts.Pert.CELL_PIXEL_SIZE_ + anychart.charts.Pert.CELL_PIXEL_HORIZONTAL_SPACE_ / 2,
+                mil.left + anychart.charts.Pert.CELL_PIXEL_SIZE_ + dWidth,
                 mSucc.top + anychart.charts.Pert.CELL_PIXEL_SIZE_ / 2,
                 mSucc.left,
                 mSucc.top + anychart.charts.Pert.CELL_PIXEL_SIZE_ / 2);
