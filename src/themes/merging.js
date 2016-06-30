@@ -579,7 +579,11 @@ anychart.themes.merging.mergingMap_ = [
       'chart.defaultSeriesSettings.base.tooltip',
       'pieFunnelPyramidBase.tooltip',
       'defaultDataGrid.tooltip',
-      'ganttBase.timeline.tooltip'
+      'ganttBase.timeline.tooltip',
+      'pert.milestones.tooltip',
+      'pert.tasks.tooltip',
+      'pert.criticalPath.milestones.tooltip',
+      'pert.criticalPath.tasks.tooltip'
     ]
   },
   {

@@ -3865,20 +3865,7 @@ goog.provide('anychart.themes.defaultTheme');
 
     'pert': {
       'tooltip': {
-        /**
-         * @this {*}
-         * @return {*}
-         */
-        'titleFormatter': function() {
-          return 'Tooltip title';
-        },
-        /**
-         * @this {*}
-         * @return {*}
-         */
-        'textFormatter': function() {
-          return 'Tooltip text';
-        }
+        'enabled': false
       },
       /**
        * @this {*}
@@ -3905,10 +3892,23 @@ goog.provide('anychart.themes.defaultTheme');
           'vAlign': 'middle',
           'hAlign': 'center',
           'fontColor': '#fff',
-          'disablePointerEvents': true
+          'disablePointerEvents': true,
+          /**
+           * @this {*}
+           * @return {*}
+           */
+          'textFormatter': function() {
+            if (this['creator']) {
+              var name = this['creator'].get('name');
+              return this['isStart'] ? 'Start: ' + name : 'Finish: ' + name;
+            } else {
+              return this['isStart'] ? 'Start' : 'Finish';
+            }
+          }
         },
         'hoverLabels': {
-          'fontWeight': 'bold'
+          'fontWeight': 'bold',
+          'fontOpacity': 1
         },
         'selectLabels': {
           'fontWeight': 'bold'
@@ -3921,8 +3921,42 @@ goog.provide('anychart.themes.defaultTheme');
         'selectFill': defaultSelectColor,
         'stroke': 'none',
         'hoverStroke': 'none',
-        'selectStroke': 'none'
+        'selectStroke': 'none',
+        'tooltip': {
+          'title': {
+            'enabled': true
+          },
+          /**
+           * @this {*}
+           * @return {*}
+           */
+          'titleFormatter': function() {
+            return 'Event';
+          },
+          /**
+           * @this {*}
+           * @return {*}
+           */
+          'textFormatter': function() {
+            var result = '';
+            var i = 0;
+            if (this['successors'] && this['successors'].length) {
+              result += '\nSuccessors:';
+              for (i = 0; i < this['successors'].length; i++) {
+                result += '\n - ' + this['successors'][i].get('name');
+              }
+            }
+            if (this['predecessors'] && this['predecessors'].length) {
+              result += '\nPredecessors:';
+              for (i = 0; i < this['predecessors'].length; i++) {
+                result += '\n - ' + this['predecessors'][i].get('name');
+              }
+            }
+            return result;
+          }
+        }
       },
+
       'tasks': {
         'fill': 'none',
         'hoverFill': 'none',
@@ -3950,24 +3984,87 @@ goog.provide('anychart.themes.defaultTheme');
           'dash': '4 2'
         },
         'upperLabels': {
-          'enabled': true
+          'enabled': true,
+          'anchor': 'centerBottom',
+          'vAlign': 'bottom',
+          'hAlign': 'center',
+          'fontSize': 10,
+          'fontOpacity': 0.8,
+          'padding': {
+            'top': 1,
+            'right': 0,
+            'bottom': 1,
+            'left': 0
+          },
+          'disablePointerEvents': true,
+          /**
+           * @this {*}
+           * @return {*}
+           */
+          'textFormatter': function() {
+            return this['name'];
+          }
         },
         'selectUpperLabels': {
           'fontWeight': 'bold'
         },
         'hoverUpperLabels': {
-          'fontWeight': 'bold'
+          'fontWeight': 'bold',
+          'fontOpacity': 1
         },
         'lowerLabels': {
-          'enabled': true
+          'enabled': true,
+          'anchor': 'centerTop',
+          'vAlign': 'top',
+          'hAlign': 'center',
+          'fontSize': 10,
+          'fontOpacity': 0.8,
+          'fontColor': '#aaa',
+          'padding': {
+            'top': 1,
+            'right': 0,
+            'bottom': 1,
+            'left': 0
+          },
+          'disablePointerEvents': true,
+          /**
+           * @this {*}
+           * @return {*}
+           */
+          'textFormatter': function() {
+            return 'Duration: ' + this['duration'];
+          }
         },
         'hoverLowerLabels': {
-          'fontWeight': 'bold'
+          'fontWeight': 'bold',
+          'fontOpacity': 1
         },
         'selectLowerLabels': {
           'fontWeight': 'bold'
+        },
+        'tooltip': {
+          'title': {
+            'enabled': true
+          },
+          /**
+           * @this {*}
+           * @return {*}
+           */
+          'titleFormatter': function() {
+            return this['name'];
+          },
+          /**
+           * @this {*}
+           * @return {*}
+           */
+          'textFormatter': function() {
+            return 'Earliest start: ' + this['earliestStart'] + '\nEarliest finish: ' + this['earliestFinish'] +
+                '\nLatest start: ' + this['latestStart'] + '\nLatest finish: ' + this['latestFinish'] +
+                '\nDuration: ' + this['duration'] + '\nSlack: ' + this['slack'];
+          }
         }
       },
+
       'criticalPath': {
         'milestones': {
           'shape': 'circle',
@@ -3976,10 +4073,24 @@ goog.provide('anychart.themes.defaultTheme');
             'anchor': 'leftTop',
             'vAlign': 'middle',
             'hAlign': 'center',
-            'fontColor': '#fff'
+            'fontColor': '#fff',
+            'disablePointerEvents': true,
+            /**
+             * @this {*}
+             * @return {*}
+             */
+            'textFormatter': function() {
+              if (this['creator']) {
+                var name = this['creator'].get('name');
+                return this['isStart'] ? 'Start: ' + name : 'Finish: ' + name;
+              } else {
+                return this['isStart'] ? 'Start' : 'Finish';
+              }
+            }
           },
           'hoverLabels': {
-            'fontWeight': 'bold'
+            'fontWeight': 'bold',
+            'fontOpacity': 1
           },
           'selectLabels': {
             'fontWeight': 'bold'
@@ -3992,7 +4103,40 @@ goog.provide('anychart.themes.defaultTheme');
           'selectFill': defaultSelectColor,
           'stroke': 'none',
           'hoverStroke': 'none',
-          'selectStroke': 'none'
+          'selectStroke': 'none',
+          'tooltip': {
+            'title': {
+              'enabled': true
+            },
+            /**
+             * @this {*}
+             * @return {*}
+             */
+            'titleFormatter': function() {
+              return 'Event on critical path';
+            },
+            /**
+             * @this {*}
+             * @return {*}
+             */
+            'textFormatter': function() {
+              var result = '';
+              var i = 0;
+              if (this['successors'] && this['successors'].length) {
+                result += '\nSuccessors:';
+                for (i = 0; i < this['successors'].length; i++) {
+                  result += '\n - ' + this['successors'][i].get('name');
+                }
+              }
+              if (this['predecessors'] && this['predecessors'].length) {
+                result += '\nPredecessors:';
+                for (i = 0; i < this['predecessors'].length; i++) {
+                  result += '\n - ' + this['predecessors'][i].get('name');
+                }
+              }
+              return result;
+            }
+          }
         },
         'tasks': {
           'fill': 'none',
@@ -4021,22 +4165,86 @@ goog.provide('anychart.themes.defaultTheme');
             'dash': '4 2'
           },
           'upperLabels': {
-            'enabled': true
+            'enabled': true,
+            'anchor': 'centerBottom',
+            'vAlign': 'bottom',
+            'hAlign': 'center',
+            'fontSize': 10,
+            'fontOpacity': 0.8,
+            'fontColor': 'red',
+            'padding': {
+              'top': 1,
+              'right': 0,
+              'bottom': 1,
+              'left': 0
+            },
+            'disablePointerEvents': true,
+            /**
+             * @this {*}
+             * @return {*}
+             */
+            'textFormatter': function() {
+              return 'Crit.: ' + this['name'];
+            }
           },
           'selectUpperLabels': {
             'fontWeight': 'bold'
           },
           'hoverUpperLabels': {
-            'fontWeight': 'bold'
+            'fontWeight': 'bold',
+            'fontOpacity': 1
           },
           'lowerLabels': {
-            'enabled': true
+            'enabled': true,
+            'anchor': 'centerTop',
+            'vAlign': 'top',
+            'hAlign': 'center',
+            'fontSize': 10,
+            'fontOpacity': 0.8,
+            'fontColor': '#f99',
+            'padding': {
+              'top': 1,
+              'right': 0,
+              'bottom': 1,
+              'left': 0
+            },
+            'disablePointerEvents': true,
+            /**
+             * @this {*}
+             * @return {*}
+             */
+            'textFormatter': function() {
+              return 'Duration: ' + this['duration'];
+            }
           },
           'hoverLowerLabels': {
-            'fontWeight': 'bold'
+            'fontWeight': 'bold',
+            'fontOpacity': 1
           },
           'selectLowerLabels': {
             'fontWeight': 'bold'
+          },
+          'tooltip': {
+            'title': {
+              'enabled': true
+            },
+            /**
+             * @this {*}
+             * @return {*}
+             */
+            'titleFormatter': function() {
+              return 'Critical: ' + this['name'];
+            },
+            /**
+             * @this {*}
+             * @return {*}
+             */
+            'textFormatter': function() {
+              return 'Earliest start: ' + this['earliestStart'] + '\nEarliest finish: ' + this['earliestFinish'] +
+                  '\nLatest start: ' + this['latestStart'] + '\nLatest finish: ' + this['latestFinish'] +
+                  '\nDuration: ' + this['duration'] + '\nSlack: ' + this['slack'];
+            }
+            //'textFormatter': 'Earliest start: {%EarliestStart}\nEarliest finish: {%EarliestFinish}\nLatest start: {%LatestStart}\nLatest finish: {%LatestFinish}\nDuration: {%Duration}\nSlack: {%Slack}'
           }
         }
       }

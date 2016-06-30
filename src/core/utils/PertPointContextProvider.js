@@ -42,6 +42,8 @@ anychart.core.utils.PertPointContextProvider.prototype.applyReferenceValues = fu
   if (this.work) {
     this['item'] = this.work.item;
 
+    this[anychart.enums.DataField.NAME] = this['item'].get(anychart.enums.DataField.NAME);
+
     var pessimistic = this.work.item.get(anychart.enums.DataField.PESSIMISTIC);
     if (goog.isDef(pessimistic))
       this[anychart.enums.DataField.PESSIMISTIC] = +pessimistic;
@@ -57,6 +59,9 @@ anychart.core.utils.PertPointContextProvider.prototype.applyReferenceValues = fu
     var duration = this.work.item.get(anychart.enums.DataField.DURATION);
     if (goog.isDef(duration))
       this[anychart.enums.DataField.DURATION] = +duration;
+
+    this['successors'] = this.work.successors;
+    this['predecessors'] = this.work.predecessors;
   }
 
   if (this.activityData) {
@@ -64,13 +69,19 @@ anychart.core.utils.PertPointContextProvider.prototype.applyReferenceValues = fu
     this['earliestFinish'] = this.activityData.earliestFinish;
     this['latestStart'] = this.activityData.latestStart;
     this['latestFinish'] = this.activityData.latestFinish;
-    this[anychart.enums.DataField.DURATION] = this.activityData.duration;
+    if (!goog.isDef(this[anychart.enums.DataField.DURATION]))
+      this[anychart.enums.DataField.DURATION] = this.activityData.duration;
     this['slack'] = this.activityData.slack;
   }
 
   if (this.milestone) {
     this['label'] = this.milestone.label;
-
+    this['successors'] = this.milestone.successors;
+    this['predecessors'] = this.milestone.predecessors;
+    this['isCritical'] = this.milestone.isCritical;
+    if (this.milestone.creator)
+      this['creator'] = this.milestone.creator.item;
+    this['isStart'] = this.milestone.isStart;
   }
 };
 
