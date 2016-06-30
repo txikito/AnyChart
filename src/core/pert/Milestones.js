@@ -7,7 +7,7 @@ goog.require('anychart.core.pert.PertVisualElements');
 /**
  * Pert milestones settings collector.
  * @constructor
- * @extends {anychart.core.Base}
+ * @extends {anychart.core.pert.PertVisualElements}
  */
 anychart.core.pert.Milestones = function() {
   anychart.core.pert.Milestones.base(this, 'constructor');

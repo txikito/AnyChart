@@ -19,9 +19,14 @@ anychart.core.utils.PertPointContextProvider = function(chart) {
   this.chartInternal = chart;
 
   /**
-   * @type {anychart.data.Tree.DataItem}
+   * @type {anychart.charts.Pert.Work}
    */
-  this.currentItem = null;
+  this.work = null;
+
+  /**
+   * @type {anychart.charts.Pert.Milestone}
+   */
+  this.milestone = null;
 
   /**
    * @type {anychart.charts.Pert.ActivityData|null|undefined}
@@ -34,22 +39,22 @@ goog.inherits(anychart.core.utils.PertPointContextProvider, anychart.core.utils.
 
 /** @inheritDoc */
 anychart.core.utils.PertPointContextProvider.prototype.applyReferenceValues = function() {
-  if (this.currentItem) {
-    this['item'] = this.currentItem;
+  if (this.work) {
+    this['item'] = this.work.item;
 
-    var pessimistic = this.currentItem.get(anychart.enums.DataField.PESSIMISTIC);
+    var pessimistic = this.work.item.get(anychart.enums.DataField.PESSIMISTIC);
     if (goog.isDef(pessimistic))
       this[anychart.enums.DataField.PESSIMISTIC] = +pessimistic;
 
-    var optimistic = this.currentItem.get(anychart.enums.DataField.OPTIMISTIC);
+    var optimistic = this.work.item.get(anychart.enums.DataField.OPTIMISTIC);
     if (goog.isDef(optimistic))
       this[anychart.enums.DataField.OPTIMISTIC] = +optimistic;
 
-    var mostLikely = this.currentItem.get(anychart.enums.DataField.MOST_LIKELY);
+    var mostLikely = this.work.item.get(anychart.enums.DataField.MOST_LIKELY);
     if (goog.isDef(mostLikely))
       this[anychart.enums.DataField.MOST_LIKELY] = +mostLikely;
 
-    var duration = this.currentItem.get(anychart.enums.DataField.DURATION);
+    var duration = this.work.item.get(anychart.enums.DataField.DURATION);
     if (goog.isDef(duration))
       this[anychart.enums.DataField.DURATION] = +duration;
   }
@@ -61,6 +66,11 @@ anychart.core.utils.PertPointContextProvider.prototype.applyReferenceValues = fu
     this['latestFinish'] = this.activityData.latestFinish;
     this[anychart.enums.DataField.DURATION] = this.activityData.duration;
     this['slack'] = this.activityData.slack;
+  }
+
+  if (this.milestone) {
+    this['label'] = this.milestone.label;
+
   }
 };
 
@@ -88,7 +98,7 @@ anychart.core.utils.PertPointContextProvider.prototype.getStat = function(opt_ke
  * @return {*}
  */
 anychart.core.utils.PertPointContextProvider.prototype.getDataValue = function(key) {
-  return this.currentItem ? this.currentItem.get(key) : void 0;
+  return this.work.item ? this.work.item.get(key) : void 0;
 };
 
 

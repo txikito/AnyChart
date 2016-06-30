@@ -262,10 +262,8 @@ anychart.ConsistencyState = {
   //---------------------------------- PERT CHART (SEPARATE CHART) ----------------------------------
   PERT_DATA: 1 << 11,
   PERT_CALCULATIONS: 1 << 12,
-  PERT_MILESTONES_LABELS: 1 << 13,
-  PERT_MILESTONES_APPEARANCE: 1 << 14,
-  PERT_ACTIVITIES_LABELS: 1 << 15,
-  PERT_ACTIVITIES_APPEARANCE: 1 << 16,
+  PERT_LABELS: 1 << 13,
+  PERT_APPEARANCE: 1 << 14,
   /**
    * Combination of all states.
    */

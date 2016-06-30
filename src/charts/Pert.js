@@ -223,7 +223,9 @@ anychart.charts.Pert.ActivityData;
  *    isCritical: boolean,
  *    left: number,
  *    top: number,
- *    isSelected: boolean
+ *    isSelected: boolean,
+ *    relatedPath: acgraph.vector.Path,
+ *    relatedLabel: anychart.core.ui.LabelsFactory.Label
  * }}
  */
 anychart.charts.Pert.Milestone;
@@ -239,7 +241,10 @@ anychart.charts.Pert.Milestone;
  *    startMilestone: anychart.charts.Pert.Milestone,
  *    finishMilestone: anychart.charts.Pert.Milestone,
  *    isCritical: boolean,
- *    isSelected: boolean
+ *    isSelected: boolean,
+ *    relatedPath: acgraph.vector.Path,
+ *    upperLabel: anychart.core.ui.LabelsFactory.Label,
+ *    lowerLabel: anychart.core.ui.LabelsFactory.Label
  * }}
  */
 anychart.charts.Pert.Work;
@@ -260,10 +265,8 @@ anychart.charts.Pert.prototype.SUPPORTED_CONSISTENCY_STATES =
     anychart.core.SeparateChart.prototype.SUPPORTED_CONSISTENCY_STATES |
     anychart.ConsistencyState.PERT_DATA |
     anychart.ConsistencyState.PERT_CALCULATIONS |
-    anychart.ConsistencyState.PERT_ACTIVITIES_APPEARANCE |
-    anychart.ConsistencyState.PERT_ACTIVITIES_LABELS |
-    anychart.ConsistencyState.PERT_MILESTONES_APPEARANCE |
-    anychart.ConsistencyState.PERT_MILESTONES_LABELS;
+    anychart.ConsistencyState.PERT_APPEARANCE |
+    anychart.ConsistencyState.PERT_LABELS;
 
 
 /** @inheritDoc */
@@ -274,15 +277,17 @@ anychart.charts.Pert.prototype.getType = function() {
 
 /**
  * Creates format provider and applies reference values.
- * @param {anychart.data.Tree.DataItem} item - Data item.
+ * @param {anychart.charts.Pert.Work=} opt_work - Work data.
  * @param {anychart.charts.Pert.ActivityData=} opt_activityData - Activity data.
+ * @param {anychart.charts.Pert.Milestone=} opt_milestone - Milestone data.
  * @return {anychart.core.utils.PertPointContextProvider} - Format provider.
  */
-anychart.charts.Pert.prototype.createFormatProvider = function(item, opt_activityData) {
+anychart.charts.Pert.prototype.createFormatProvider = function(opt_work, opt_activityData, opt_milestone) {
   if (!this.formatProvider_)
     this.formatProvider_ = new anychart.core.utils.PertPointContextProvider(this);
-  this.formatProvider_.currentItem = item;
+  this.formatProvider_.work = opt_work;
   this.formatProvider_.activityData = opt_activityData;
+  this.formatProvider_.milestone = opt_milestone;
   this.formatProvider_.applyReferenceValues();
   return this.formatProvider_;
 };
@@ -388,20 +393,30 @@ anychart.charts.Pert.prototype.onTooltipSignal_ = function(event) {
 anychart.charts.Pert.prototype.handleMouseOverAndMove = function(event) {
   var domTarget = event['domTarget'];
   var tooltip = /** @type {anychart.core.ui.Tooltip} */(this.tooltip());
+  var label;
 
   var renderTooltip = false;
   var fill, stroke, source;
+  var work, activity, milestone;
   if (goog.isDefAndNotNull(domTarget.attr('m_id'))) {
     renderTooltip = true;
-    var milestone = this.milestonesMap_[domTarget.attr('m_id')];
+    milestone = this.milestonesMap_[domTarget.attr('m_id')];
     source = milestone.isCritical ? this.criticalPath().milestones() : this.milestones();
     fill = milestone.isSelected ? source.selectFill() : source.hoverFill();
     stroke = milestone.isSelected ? source.selectStroke() : source.hoverStroke();
     domTarget.fill(fill).stroke(stroke);
 
+    label = milestone.relatedLabel;
+    if (label) {
+      label.currentLabelsFactory(milestone.isSelected ? source.selectLabels() : source.hoverLabels());
+      this.milestones().labels().draw();
+    }
+
   } else if (goog.isDefAndNotNull(domTarget.attr('w_id'))) {
     renderTooltip = true;
-    var work = this.worksMap_[domTarget.attr('w_id')];
+    var wId = domTarget.attr('w_id');
+    work = this.worksMap_[wId];
+    activity = this.activitiesMap_[wId];
     source = work.isCritical ? this.criticalPath().tasks() : this.tasks();
     fill = work.isSelected ? source.selectFill() : source.hoverFill();
     stroke = work.isSelected ? source.selectStroke() : source.hoverStroke();
@@ -421,8 +436,7 @@ anychart.charts.Pert.prototype.handleMouseOverAndMove = function(event) {
         new acgraph.math.Coordinate(event['clientX'], event['clientY']) :
         new acgraph.math.Coordinate(0, 0);
 
-    //var formatProvider = this.createFormatProvider(event['item'], event['period'], event['periodIndex']);
-    var formatProvider = {};
+    var formatProvider = this.createFormatProvider(work, activity, milestone);
     tooltip.show(formatProvider, position);
   } else {
     tooltip.hide();
@@ -435,6 +449,7 @@ anychart.core.Chart.prototype.handleMouseOut = function(event) {
   var domTarget = event['domTarget'];
   var fill, stroke, source;
   var render = false;
+  var label;
 
   if (goog.isDefAndNotNull(domTarget.attr('m_id'))) {
     render = true;
@@ -442,6 +457,12 @@ anychart.core.Chart.prototype.handleMouseOut = function(event) {
     source = milestone.isCritical ? this.criticalPath().milestones() : this.milestones();
     fill = milestone.isSelected ? source.selectFill() : source.fill();
     stroke = milestone.isSelected ? source.selectStroke() : source.stroke();
+
+    label = milestone.relatedLabel;
+    if (label) {
+      label.currentLabelsFactory(milestone.isSelected ? source.selectLabels() : source.labels());
+      this.milestones().labels().draw();
+    }
   } else if (goog.isDefAndNotNull(domTarget.attr('w_id'))) {
     render = true;
     var work = this.worksMap_[domTarget.attr('w_id')];
@@ -616,7 +637,7 @@ anychart.charts.Pert.prototype.calculateActivity_ = function(id) {
   var activity = this.activitiesMap_[id];
 
   if (!goog.isDef(activity.duration)) {
-    var formatProvider = this.createFormatProvider(item);
+    var formatProvider = this.createFormatProvider(workData, activity);
     activity.duration = this.expectedTimeCalculator_.call(formatProvider, formatProvider);
   }
 
@@ -1000,11 +1021,11 @@ anychart.charts.Pert.prototype.milestones = function(opt_value) {
 anychart.charts.Pert.prototype.onMilestonesSignal_ = function(event) {
   var state = 0;
   if (event.hasSignal(anychart.Signal.NEEDS_REDRAW_LABELS)) {
-    state |= anychart.ConsistencyState.PERT_MILESTONES_LABELS;
+    state |= anychart.ConsistencyState.PERT_LABELS;
   }
 
   if (event.hasSignal(anychart.Signal.NEEDS_REDRAW_APPEARANCE)) {
-    state |= anychart.ConsistencyState.PERT_MILESTONES_APPEARANCE;
+    state |= anychart.ConsistencyState.PERT_APPEARANCE;
   }
 
   if (event.hasSignal(anychart.Signal.NEEDS_REDRAW)) {
@@ -1042,11 +1063,11 @@ anychart.charts.Pert.prototype.tasks = function(opt_value) {
 anychart.charts.Pert.prototype.onTasksSignal_ = function(event) {
   var state = 0;
   if (event.hasSignal(anychart.Signal.NEEDS_REDRAW_LABELS)) {
-    state |= anychart.ConsistencyState.PERT_ACTIVITIES_LABELS;
+    state |= anychart.ConsistencyState.PERT_LABELS;
   }
 
   if (event.hasSignal(anychart.Signal.NEEDS_REDRAW_APPEARANCE)) {
-    state |= anychart.ConsistencyState.PERT_ACTIVITIES_APPEARANCE;
+    state |= anychart.ConsistencyState.PERT_APPEARANCE;
   }
 
   this.invalidate(state, anychart.Signal.NEEDS_REDRAW);
@@ -1078,6 +1099,50 @@ anychart.charts.Pert.prototype.criticalPath = function(opt_value) {
 //  Drawing
 //
 //----------------------------------------------------------------------------------------------------------------------
+/**
+ * Milestone layer appearance callback.
+ * @param {acgraph.vector.Element} element - Element.
+ * @param {number} index - Index.
+ * @private
+ */
+anychart.charts.Pert.prototype.milestonesLayerAppearanceCallback_ = function(element, index) {
+  var fill, stroke;
+
+  if (goog.isDefAndNotNull(element.attr('m_id'))) {
+    var milestone = this.milestonesMap_[element.attr('m_id')];
+    fill = milestone.isCritical ? this.criticalPath().milestones().fill() : this.milestones().fill();
+    stroke = milestone.isCritical ? this.criticalPath().milestones().stroke() : this.milestones().stroke();
+    /** @type {acgraph.vector.Path} */ (element).fill(fill).stroke(stroke);
+  }
+};
+
+
+/**
+ * Work layer appearance callback.
+ * @param {acgraph.vector.Element} element - Element.
+ * @param {number} index - Index.
+ * @private
+ */
+anychart.charts.Pert.prototype.worksLayerAppearanceCallback_ = function(element, index) {
+  var fill, stroke;
+
+  if (goog.isDefAndNotNull(element.attr('w_id'))) {
+    var work = this.worksMap_[element.attr('w_id')];
+    source = work.isCritical ? this.criticalPath().tasks() : this.tasks();
+    fill = work.isSelected ? source.selectFill() : source.fill();
+    stroke = work.isSelected ? source.selectStroke() : source.stroke();
+    /** @type {acgraph.vector.Path} */ (element).fill(fill).stroke(stroke);
+  } else if (goog.isDefAndNotNull(element.attr('d_crit'))) {
+    var attrVal = element.attr('d_crit');
+    var isCrit = (attrVal == 'true') || (attrVal === true); //Rendered and not rendered cases.
+    source = isCrit ? this.criticalPath().tasks() : this.tasks();
+    fill = source.dummyFill();
+    stroke = source.dummyStroke();
+    /** @type {acgraph.vector.Path} */ (element).fill(fill).stroke(stroke);
+  }
+};
+
+
 /** @inheritDoc */
 anychart.charts.Pert.prototype.drawContent = function(bounds) {
   this.calculate();
@@ -1164,13 +1229,13 @@ anychart.charts.Pert.prototype.drawContent = function(bounds) {
 
             milPath.attr('m_crit', !!milestone.isCritical);
             milPath.attr('m_id', milestone.id);
-            var fill = milestone.isCritical ? this.criticalPath().milestones().fill() : this.milestones().fill();
-            var stroke = milestone.isCritical ? this.criticalPath().milestones().stroke() : this.milestones().stroke();
-            milPath.fill(fill).stroke(stroke);
+            milestone.relatedPath = milPath;
+
 
             var label = this.milestones().labels().add({'value': milestone.label}, {'value': {'x': left, 'y': top}});
             label.width(anychart.charts.Pert.CELL_PIXEL_SIZE_);
             label.height(anychart.charts.Pert.CELL_PIXEL_SIZE_);
+            milestone.relatedLabel = label;
 
             milestone.left = left;
             milestone.top = top;
@@ -1225,11 +1290,7 @@ anychart.charts.Pert.prototype.drawContent = function(bounds) {
       for (i = 0; i < mil.mSuccessors.length; i++) {
         var mSucc = mil.mSuccessors[i];
         var path = this.activitiesLayer_.genNextChild();
-
         var isCrit = (mil.isCritical && mSucc.isCritical);
-
-        var source = isCrit ? this.criticalPath().tasks() : this.tasks();
-        path.stroke(source.dummyStroke()).fill(source.dummyFill());
         path.attr('d_crit', isCrit);
 
         //path.moveTo(mil.left + anychart.charts.Pert.CELL_PIXEL_SIZE_, mil.top + anychart.charts.Pert.CELL_PIXEL_SIZE_ / 2)
@@ -1248,10 +1309,17 @@ anychart.charts.Pert.prototype.drawContent = function(bounds) {
     }
   }
 
-  if (this.hasInvalidationState(anychart.ConsistencyState.PERT_MILESTONES_LABELS)) {
+  if (this.hasInvalidationState(anychart.ConsistencyState.PERT_APPEARANCE)) {
+    this.milestonesLayer_.forEachChild(this.milestonesLayerAppearanceCallback_, this);
+    this.activitiesLayer_.forEachChild(this.worksLayerAppearanceCallback_, this);
+    this.markConsistent(anychart.ConsistencyState.PERT_APPEARANCE);
+  }
+
+  if (this.hasInvalidationState(anychart.ConsistencyState.PERT_LABELS)) {
     this.milestones().labels().draw();
-    this.tasks().labels().draw();
-    this.markConsistent(anychart.ConsistencyState.PERT_MILESTONES_LABELS);
+    this.tasks().upperLabels().draw();
+    this.tasks().lowerLabels().draw();
+    this.markConsistent(anychart.ConsistencyState.PERT_LABELS);
   }
 };
 

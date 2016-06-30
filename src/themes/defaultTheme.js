@@ -3976,7 +3976,7 @@ goog.provide('anychart.themes.defaultTheme');
             'anchor': 'leftTop',
             'vAlign': 'middle',
             'hAlign': 'center',
-            'fontWeight': 'bold'
+            'fontColor': '#fff'
           },
           'hoverLabels': {
             'fontWeight': 'bold'
