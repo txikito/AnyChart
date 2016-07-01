@@ -1,5 +1,6 @@
 goog.provide('anychart.charts.Pert');
 
+goog.require('acgraph.math.Coordinate');
 goog.require('anychart.core.SeparateChart');
 goog.require('anychart.core.pert.CriticalPath');
 goog.require('anychart.core.pert.Milestones');
@@ -155,10 +156,27 @@ anychart.charts.Pert = function() {
 
   /**
    * Critical path settings object.
-   * @type {null}
+   * @type {anychart.core.pert.CriticalPath}
    * @private
    */
   this.criticalPath_ = null;
+
+  /**
+   * Selected works.
+   * @type {Array.<anychart.charts.Pert.Work>}
+   * @private
+   */
+  this.selectedWorks_ = [];
+
+  /**
+   * Selected milestones.
+   * @type {Array.<anychart.charts.Pert.Milestone>}
+   * @private
+   */
+  this.selectedMilestones_ = [];
+
+  this.bindHandlersToComponent(this, this.handleMouseOverAndMove, this.handleMouseOut, this.clickHandler_,
+      this.handleMouseOverAndMove, this.handleAll_, this.handleMouseDown);
 
 };
 goog.inherits(anychart.charts.Pert, anychart.core.SeparateChart);
@@ -328,6 +346,17 @@ anychart.charts.Pert.prototype.data = function(opt_data, opt_fillMethod, opt_dep
 
 
 /**
+ * @inheritDoc
+ */
+anychart.charts.Pert.prototype.resizeHandler = function(evt) {
+  if (this.bounds().dependsOnContainerSize()) {
+    this.invalidate(anychart.ConsistencyState.ALL & ~(anychart.ConsistencyState.CHART_ANIMATION | anychart.ConsistencyState.PERT_DATA),
+        anychart.Signal.NEEDS_REDRAW | anychart.Signal.BOUNDS_CHANGED);
+  }
+};
+
+
+/**
  * Listener for data invalidation.
  * @param {anychart.SignalEvent} event - Invalidation event.
  * @private
@@ -401,7 +430,7 @@ anychart.charts.Pert.prototype.handleMouseOverAndMove = function(event) {
 
     label = milestone.relatedLabel;
     if (label) {
-      label.currentLabelsFactory(milestone.isSelected ? source.selectLabels() : source.hoverLabels());
+      label.currentLabelsFactory(/** @type {anychart.core.ui.LabelsFactory} */ (milestone.isSelected ? source.selectLabels() : source.hoverLabels()));
       source.labels().draw();
     }
 
@@ -414,8 +443,8 @@ anychart.charts.Pert.prototype.handleMouseOverAndMove = function(event) {
     stroke = work.isSelected ? source.selectStroke() : source.hoverStroke();
     domTarget.fill(fill).stroke(stroke);
 
-    work.upperLabel.currentLabelsFactory(work.isSelected ? source.selectUpperLabels() : source.hoverUpperLabels());
-    work.lowerLabel.currentLabelsFactory(work.isSelected ? source.selectLowerLabels() : source.hoverLowerLabels());
+    work.upperLabel.currentLabelsFactory(/** @type {anychart.core.ui.LabelsFactory} */ (work.isSelected ? source.selectUpperLabels() : source.hoverUpperLabels()));
+    work.lowerLabel.currentLabelsFactory(/** @type {anychart.core.ui.LabelsFactory} */ (work.isSelected ? source.selectLowerLabels() : source.hoverLowerLabels()));
     source.upperLabels().draw();
     source.lowerLabels().draw();
 
@@ -432,12 +461,15 @@ anychart.charts.Pert.prototype.handleMouseOverAndMove = function(event) {
     domTarget.fill(fill).stroke(stroke);
   }
 
-  this.hideOtherTooltips_(tooltip);
+  this.hideOtherTooltips_(/** @type {anychart.core.ui.Tooltip} */ (tooltip));
 };
 
 
-/** @inheritDoc */
-anychart.core.Chart.prototype.handleMouseOut = function(event) {
+/**
+ * Handler for mouseOut event.
+ * @param {anychart.core.MouseEvent} event Event object.
+ */
+anychart.charts.Pert.prototype.handleMouseOut = function(event) {
   var domTarget = event['domTarget'];
   var fill, stroke, source;
   var render = false;
@@ -452,18 +484,18 @@ anychart.core.Chart.prototype.handleMouseOut = function(event) {
 
     label = milestone.relatedLabel;
     if (label) {
-      label.currentLabelsFactory(milestone.isSelected ? source.selectLabels() : source.labels());
+      label.currentLabelsFactory(/** @type {anychart.core.ui.LabelsFactory} */ (milestone.isSelected ? source.selectLabels() : source.labels()));
       source.labels().draw();
     }
   } else if (goog.isDefAndNotNull(domTarget.attr('w_id'))) {
     render = true;
-    var work = this.worksMap_[domTarget.attr('w_id')];
+    var work = this.worksMap_[/** @type {string} */ (domTarget.attr('w_id'))];
     source = work.isCritical ? this.criticalPath().tasks() : this.tasks();
     fill = work.isSelected ? source.selectFill() : source.fill();
     stroke = work.isSelected ? source.selectStroke() : source.stroke();
 
-    work.upperLabel.currentLabelsFactory(work.isSelected ? source.selectUpperLabels() : source.upperLabels());
-    work.lowerLabel.currentLabelsFactory(work.isSelected ? source.selectLowerLabels() : source.lowerLabels());
+    work.upperLabel.currentLabelsFactory(/** @type {anychart.core.ui.LabelsFactory} */ (work.isSelected ? source.selectUpperLabels() : source.upperLabels()));
+    work.lowerLabel.currentLabelsFactory(/** @type {anychart.core.ui.LabelsFactory} */ (work.isSelected ? source.selectLowerLabels() : source.lowerLabels()));
     source.upperLabels().draw();
     source.lowerLabels().draw();
 
@@ -476,6 +508,90 @@ anychart.core.Chart.prototype.handleMouseOut = function(event) {
   }
 
   if (render) domTarget.fill(fill).stroke(stroke);
+};
+
+
+/**
+ * Handler for mouseOut event.
+ * @param {anychart.core.MouseEvent} event Event object.
+ * @private
+ */
+anychart.charts.Pert.prototype.handleAll_ = function(event) {
+  if (event['type'] == acgraph.events.EventType.DBLCLICK) {
+    console.log(event);
+
+  }
+
+};
+
+
+/**
+ * Handler for click event.
+ * @param {anychart.core.MouseEvent} event - Event object.
+ * @private
+ */
+anychart.charts.Pert.prototype.clickHandler_ = function(event) {
+  var ctrl = event.metaKey || event.ctrlKey;
+  var i = 0;
+  var milestone, work;
+
+  var domTarget = /** @type {acgraph.vector.Element} */ (event.domTarget);
+  if (domTarget instanceof acgraph.vector.Element) {
+    if (goog.isDefAndNotNull(domTarget.attr('m_id'))) {
+      milestone = this.milestonesMap_[/** @type {string} */ (domTarget.attr('m_id'))];
+    } else if (goog.isDefAndNotNull(domTarget.attr('w_id'))) {
+      work = this.worksMap_[/** @type {string} */ (domTarget.attr('w_id'))];
+    }
+
+    if (milestone || work) {
+      if (ctrl) {
+        if (milestone) {
+          milestone.isSelected = !milestone.isSelected;
+          if (milestone.isSelected) {
+            goog.array.insert(this.selectedMilestones_, milestone);
+          } else {
+            goog.array.remove(this.selectedMilestones_, milestone);
+          }
+        }
+        if (work) {
+          work.isSelected = !work.isSelected;
+          if (work.isSelected) {
+            goog.array.insert(this.selectedWorks_, work);
+          } else {
+            goog.array.remove(this.selectedWorks_, work);
+          }
+        }
+      } else {
+        for (i = 0; i < this.selectedMilestones_.length; i++) {
+          this.selectedMilestones_[i].isSelected = false;
+        }
+        for (i = 0; i < this.selectedWorks_.length; i++) {
+          this.selectedWorks_[i].isSelected = false;
+        }
+        this.selectedMilestones_.length = 0;
+        this.selectedWorks_.length = 0;
+        if (milestone) {
+          milestone.isSelected = true;
+          this.selectedMilestones_.push(milestone);
+        }
+        if (work) {
+          work.isSelected = true;
+          this.selectedWorks_.push(work);
+        }
+      }
+    } else {
+      for (i = 0; i < this.selectedMilestones_.length; i++) {
+        this.selectedMilestones_[i].isSelected = false;
+      }
+      for (i = 0; i < this.selectedWorks_.length; i++) {
+        this.selectedWorks_[i].isSelected = false;
+      }
+      this.selectedMilestones_.length = 0;
+      this.selectedWorks_.length = 0;
+    }
+    this.invalidate(anychart.ConsistencyState.PERT_APPEARANCE, anychart.Signal.NEEDS_REDRAW);
+
+  }
 };
 
 
@@ -492,7 +608,7 @@ anychart.core.Chart.prototype.handleMouseOut = function(event) {
 anychart.charts.Pert.prototype.expectedTimeCalculator = function(opt_value) {
   if (goog.isDef(opt_value)) {
     this.expectedTimeCalculator_ = opt_value;
-    this.invalidate(anychart.ConsistencyState.PERT_CALCULATIONS);
+    this.invalidate(anychart.ConsistencyState.PERT_CALCULATIONS, anychart.Signal.NEEDS_REDRAW);
     return this;
   }
   return this.expectedTimeCalculator_;
@@ -948,8 +1064,6 @@ anychart.charts.Pert.prototype.placeMilestone_ = function(milestone) {
       if (xIndex > succFinMilestone.xIndex) {
         goog.array.remove(this.milestonesLocation_[succFinMilestone.xIndex], succFinMilestone);
         goog.array.insert(this.milestonesLocation_[xIndex], succFinMilestone);
-        //goog.array.insertBefore(this.milestonesLocation_[xIndex], void 0, succFinMilestone);
-
         succFinMilestone.xIndex = xIndex;
       }
     }
@@ -1081,7 +1195,7 @@ anychart.charts.Pert.prototype.onTasksSignal_ = function(event) {
 /**
  * Gets/sets critical path settings object.
  * @param {Object=} opt_value - Settings object.
- * @return {anychart.charts.Pert|anychart.core.pert.Tasks} - Chart itself or critical path settings object.
+ * @return {anychart.charts.Pert|anychart.core.pert.CriticalPath} - Chart itself or critical path settings object.
  */
 anychart.charts.Pert.prototype.criticalPath = function(opt_value) {
   if (!this.criticalPath_) {
@@ -1113,10 +1227,14 @@ anychart.charts.Pert.prototype.milestonesLayerAppearanceCallback_ = function(ele
   var fill, stroke;
 
   if (goog.isDefAndNotNull(element.attr('m_id'))) {
-    var milestone = this.milestonesMap_[element.attr('m_id')];
-    fill = milestone.isCritical ? this.criticalPath().milestones().fill() : this.milestones().fill();
-    stroke = milestone.isCritical ? this.criticalPath().milestones().stroke() : this.milestones().stroke();
+    var milestone = this.milestonesMap_[/** @type {string} */ (element.attr('m_id'))];
+    var source = milestone.isCritical ? this.criticalPath().milestones() : this.milestones();
+
+    fill = /** @type {acgraph.vector.Fill} */ (milestone.isSelected ? source.selectFill() : source.fill());
+    stroke = /** @type {acgraph.vector.Stroke} */ (milestone.isSelected ? source.selectStroke() : source.stroke());
     /** @type {acgraph.vector.Path} */ (element).fill(fill).stroke(stroke);
+
+    milestone.relatedLabel.currentLabelsFactory(/** @type {anychart.core.ui.LabelsFactory} */ (milestone.isSelected ? source.selectLabels() : source.labels()));
   }
 };
 
@@ -1131,17 +1249,20 @@ anychart.charts.Pert.prototype.worksLayerAppearanceCallback_ = function(element,
   var fill, stroke;
 
   if (goog.isDefAndNotNull(element.attr('w_id'))) {
-    var work = this.worksMap_[element.attr('w_id')];
-    source = work.isCritical ? this.criticalPath().tasks() : this.tasks();
-    fill = work.isSelected ? source.selectFill() : source.fill();
-    stroke = work.isSelected ? source.selectStroke() : source.stroke();
+    var work = this.worksMap_[/** @type {string} */ (element.attr('w_id'))];
+    var source = work.isCritical ? this.criticalPath().tasks() : this.tasks();
+    fill = /** @type {acgraph.vector.Fill} */ (work.isSelected ? source.selectFill() : source.fill());
+    stroke = /** @type {acgraph.vector.Stroke} */ (work.isSelected ? source.selectStroke() : source.stroke());
     /** @type {acgraph.vector.Path} */ (element).fill(fill).stroke(stroke);
+
+    work.upperLabel.currentLabelsFactory(/** @type {anychart.core.ui.LabelsFactory} */ (work.isSelected ? source.selectUpperLabels() : source.upperLabels()));
+    work.lowerLabel.currentLabelsFactory(/** @type {anychart.core.ui.LabelsFactory} */ (work.isSelected ? source.selectLowerLabels() : source.lowerLabels()));
   } else if (goog.isDefAndNotNull(element.attr('d_crit'))) {
     var attrVal = element.attr('d_crit');
     var isCrit = (attrVal == 'true') || (attrVal === true); //Rendered and not rendered cases.
     source = isCrit ? this.criticalPath().tasks() : this.tasks();
-    fill = source.dummyFill();
-    stroke = source.dummyStroke();
+    fill = /** @type {acgraph.vector.Fill} */ (source.dummyFill());
+    stroke = /** @type {acgraph.vector.Stroke} */ (source.dummyStroke());
     /** @type {acgraph.vector.Path} */ (element).fill(fill).stroke(stroke);
   }
 };
@@ -1208,8 +1329,9 @@ anychart.charts.Pert.prototype.drawContent = function(bounds) {
     this.activitiesLayer_.clear();
     this.milestonesLayer_.clear();
     this.milestones().clearLabels();
-    this.criticalPath().milestones().clearLabels();
     this.tasks().clearLabels();
+    this.criticalPath().milestones().clearLabels();
+    this.criticalPath().tasks().clearLabels();
 
     var i, j;
     var add = 0;
@@ -1248,7 +1370,7 @@ anychart.charts.Pert.prototype.drawContent = function(bounds) {
 
             milPath.attr('m_crit', !!milestone.isCritical);
             milPath.attr('m_id', milestone.id);
-            milestone.relatedPath = milPath;
+            milestone.relatedPath = /** @type {acgraph.vector.Path} */ (milPath);
 
             var labelContextProvider = this.createFormatProvider(true, void 0, void 0, milestone);
             var labelsSource = milestone.isCritical ? this.criticalPath().milestones() : this.milestones();
@@ -1307,14 +1429,24 @@ anychart.charts.Pert.prototype.drawContent = function(bounds) {
         var labelsSource = isCrit ? this.criticalPath().tasks() : this.tasks();
 
         var labelContextProvider = this.createFormatProvider(true, succWork, activity, void 0);
-        var upperLabel = labelsSource.upperLabels().add(labelContextProvider, {'value': {'x': labelLeft, 'y': labelTop}});
+        var upperLabel = labelsSource.upperLabels().add(labelContextProvider, {
+          'value': {
+            'x': labelLeft,
+            'y': labelTop
+          }
+        });
         upperLabel.width(destMilestone.left - mil.left);
         upperLabel.height(anychart.charts.Pert.CELL_PIXEL_SIZE_);
         succWork.upperLabel = upperLabel;
         upperLabel.rotation(angle);
 
 
-        var lowerLabel = labelsSource.lowerLabels().add(labelContextProvider, {'value': {'x': labelLeft, 'y': labelTop}});
+        var lowerLabel = labelsSource.lowerLabels().add(labelContextProvider, {
+          'value': {
+            'x': labelLeft,
+            'y': labelTop
+          }
+        });
         upperLabel.width(destMilestone.left - mil.left);
         upperLabel.height(anychart.charts.Pert.CELL_PIXEL_SIZE_);
         succWork.lowerLabel = lowerLabel;
@@ -1346,11 +1478,15 @@ anychart.charts.Pert.prototype.drawContent = function(bounds) {
         //        mSucc.top + anychart.charts.Pert.CELL_PIXEL_SIZE_ / 2);
       }
     }
+
+    //Colorize created DOM structure.
+    this.invalidate(anychart.ConsistencyState.PERT_APPEARANCE | anychart.ConsistencyState.PERT_LABELS);
   }
 
   if (this.hasInvalidationState(anychart.ConsistencyState.PERT_APPEARANCE)) {
     this.milestonesLayer_.forEachChild(this.milestonesLayerAppearanceCallback_, this);
     this.activitiesLayer_.forEachChild(this.worksLayerAppearanceCallback_, this);
+    this.invalidate(anychart.ConsistencyState.PERT_LABELS);
     this.markConsistent(anychart.ConsistencyState.PERT_APPEARANCE);
   }
 

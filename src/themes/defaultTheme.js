@@ -3966,7 +3966,11 @@ goog.provide('anychart.themes.defaultTheme');
           'color': 'grey',
           'thickness': 2
         },
-        'selectStroke': defaultSelectColor,
+        'selectStroke': {
+          'color': '#333',
+          'thickness': 2,
+          'opacity': 0.85
+        },
         'dummyFill': 'none',
         'hoverDummyFill': 'none',
         'selectDummyFill': 'none',
@@ -3980,7 +3984,7 @@ goog.provide('anychart.themes.defaultTheme');
           'thickness': 2
         },
         'selectDummyStroke': {
-          'color': defaultSelectColor,
+          'color': '#333',
           'dash': '4 2'
         },
         'upperLabels': {
@@ -4006,7 +4010,8 @@ goog.provide('anychart.themes.defaultTheme');
           }
         },
         'selectUpperLabels': {
-          'fontWeight': 'bold'
+          'fontWeight': 'bold',
+          'fontSize': 12
         },
         'hoverUpperLabels': {
           'fontWeight': 'bold',
@@ -4147,7 +4152,11 @@ goog.provide('anychart.themes.defaultTheme');
             'color': '#ef6c00',
             'thickness': 2
           },
-          'selectStroke': defaultSelectColor,
+          'selectStroke': {
+            'color': '#333',
+            'thickness': 2,
+            'opactity': 0.85
+          },
           'dummyFill': 'none',
           'hoverDummyFill': 'none',
           'selectDummyFill': 'none',
@@ -4161,7 +4170,7 @@ goog.provide('anychart.themes.defaultTheme');
             'thickness': 2
           },
           'selectDummyStroke': {
-            'color': defaultSelectColor,
+            'color': '#333',
             'dash': '4 2'
           },
           'upperLabels': {
@@ -4188,7 +4197,8 @@ goog.provide('anychart.themes.defaultTheme');
             }
           },
           'selectUpperLabels': {
-            'fontWeight': 'bold'
+            'fontWeight': 'bold',
+            'fontSize': 12
           },
           'hoverUpperLabels': {
             'fontWeight': 'bold',

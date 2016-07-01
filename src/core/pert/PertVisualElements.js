@@ -120,7 +120,7 @@ anychart.core.pert.PertVisualElements.prototype.fill = function(opt_fillOrColorO
         opt_fillOrColorOrKeys :
         acgraph.vector.normalizeFill.apply(null, arguments);
     if (fill != this.fill_) {
-      this.fill_ = fill;
+      this.fill_ = /** @type {acgraph.vector.Fill} */ (fill);
       this.dispatchSignal(anychart.Signal.NEEDS_REDRAW_APPEARANCE);
     }
     return this;
@@ -146,7 +146,7 @@ anychart.core.pert.PertVisualElements.prototype.hoverFill = function(opt_fillOrC
         opt_fillOrColorOrKeys :
         acgraph.vector.normalizeFill.apply(null, arguments);
     if (fill != this.hoverFill_) {
-      this.hoverFill_ = fill;
+      this.hoverFill_ = /** @type {acgraph.vector.Fill} */ (fill);
       this.dispatchSignal(anychart.Signal.NEEDS_REDRAW_APPEARANCE);
     }
     return this;
@@ -172,7 +172,7 @@ anychart.core.pert.PertVisualElements.prototype.selectFill = function(opt_fillOr
         opt_fillOrColorOrKeys :
         acgraph.vector.normalizeFill.apply(null, arguments);
     if (fill != this.selectFill_) {
-      this.selectFill_ = fill;
+      this.selectFill_ = /** @type {acgraph.vector.Fill} */ (fill);
       this.dispatchSignal(anychart.Signal.NEEDS_REDRAW_APPEARANCE);
     }
     return this;
@@ -197,7 +197,7 @@ anychart.core.pert.PertVisualElements.prototype.stroke = function(opt_strokeOrFi
         opt_strokeOrFill :
         acgraph.vector.normalizeStroke.apply(null, arguments);
     if (stroke != this.stroke_) {
-      this.stroke_ = stroke;
+      this.stroke_ = /** @type {acgraph.vector.Stroke} */ (stroke);
       this.dispatchSignal(anychart.Signal.NEEDS_REDRAW_APPEARANCE);
     }
     return this;
@@ -222,7 +222,7 @@ anychart.core.pert.PertVisualElements.prototype.hoverStroke = function(opt_strok
         opt_strokeOrFill :
         acgraph.vector.normalizeStroke.apply(null, arguments);
     if (stroke != this.hoverStroke_) {
-      this.hoverStroke_ = stroke;
+      this.hoverStroke_ = /** @type {acgraph.vector.Stroke} */ (stroke);
       this.dispatchSignal(anychart.Signal.NEEDS_REDRAW_APPEARANCE);
     }
     return this;
@@ -247,7 +247,7 @@ anychart.core.pert.PertVisualElements.prototype.selectStroke = function(opt_stro
         opt_strokeOrFill :
         acgraph.vector.normalizeStroke.apply(null, arguments);
     if (stroke != this.selectStroke_) {
-      this.selectStroke_ = stroke;
+      this.selectStroke_ = /** @type {acgraph.vector.Stroke} */ (stroke);
       this.dispatchSignal(anychart.Signal.NEEDS_REDRAW_APPEARANCE);
     }
     return this;

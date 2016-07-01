@@ -1,6 +1,7 @@
 goog.provide('anychart.core.pert.Tasks');
 
 goog.require('anychart.core.pert.PertVisualElements');
+goog.require('anychart.core.ui.LabelsFactory');
 
 
 
@@ -38,7 +39,7 @@ anychart.core.pert.Tasks = function() {
    * @type {acgraph.vector.Fill}
    * @private
    */
-  this.dummyfill_;
+  this.dummyFill_;
 
   /**
    * @type {acgraph.vector.Fill}
@@ -97,13 +98,13 @@ anychart.core.pert.Tasks.prototype.dummyFill = function(opt_fillOrColorOrKeys, o
     var fill = goog.isFunction(opt_fillOrColorOrKeys) ?
         opt_fillOrColorOrKeys :
         acgraph.vector.normalizeFill.apply(null, arguments);
-    if (fill != this.fill_) {
-      this.fill_ = fill;
+    if (fill != this.dummyFill_) {
+      this.dummyFill_ = /** @type {acgraph.vector.Fill} */ (fill);
       this.dispatchSignal(anychart.Signal.NEEDS_REDRAW_APPEARANCE);
     }
     return this;
   }
-  return this.fill_;
+  return this.dummyFill_;
 };
 
 
@@ -124,7 +125,7 @@ anychart.core.pert.Tasks.prototype.hoverDummyFill = function(opt_fillOrColorOrKe
         opt_fillOrColorOrKeys :
         acgraph.vector.normalizeFill.apply(null, arguments);
     if (fill != this.hoverDummyFill_) {
-      this.hoverDummyFill_ = fill;
+      this.hoverDummyFill_ = /** @type {acgraph.vector.Fill} */ (fill);
       this.dispatchSignal(anychart.Signal.NEEDS_REDRAW_APPEARANCE);
     }
     return this;
@@ -150,7 +151,7 @@ anychart.core.pert.Tasks.prototype.selectDummyFill = function(opt_fillOrColorOrK
         opt_fillOrColorOrKeys :
         acgraph.vector.normalizeFill.apply(null, arguments);
     if (fill != this.selectDummyFill_) {
-      this.selectDummyFill_ = fill;
+      this.selectDummyFill_ = /** @type {acgraph.vector.Fill} */ (fill);
       this.dispatchSignal(anychart.Signal.NEEDS_REDRAW_APPEARANCE);
     }
     return this;
@@ -175,7 +176,7 @@ anychart.core.pert.Tasks.prototype.dummyStroke = function(opt_strokeOrFill, opt_
         opt_strokeOrFill :
         acgraph.vector.normalizeStroke.apply(null, arguments);
     if (stroke != this.dummyStroke_) {
-      this.dummyStroke_ = stroke;
+      this.dummyStroke_ = /** @type {acgraph.vector.Stroke} */ (stroke);
       this.dispatchSignal(anychart.Signal.NEEDS_REDRAW_APPEARANCE);
     }
     return this;
@@ -200,7 +201,7 @@ anychart.core.pert.Tasks.prototype.hoverDummyStroke = function(opt_strokeOrFill,
         opt_strokeOrFill :
         acgraph.vector.normalizeStroke.apply(null, arguments);
     if (stroke != this.hoverDummyStroke_) {
-      this.hoverDummyStroke_ = stroke;
+      this.hoverDummyStroke_ = /** @type {acgraph.vector.Stroke} */ (stroke);
       this.dispatchSignal(anychart.Signal.NEEDS_REDRAW_APPEARANCE);
     }
     return this;
@@ -225,7 +226,7 @@ anychart.core.pert.Tasks.prototype.selectDummyStroke = function(opt_strokeOrFill
         opt_strokeOrFill :
         acgraph.vector.normalizeStroke.apply(null, arguments);
     if (stroke != this.selectDummyStroke_) {
-      this.selectDummyStroke_ = stroke;
+      this.selectDummyStroke_ = /** @type {acgraph.vector.Stroke} */ (stroke);
       this.dispatchSignal(anychart.Signal.NEEDS_REDRAW_APPEARANCE);
     }
     return this;
@@ -237,7 +238,7 @@ anychart.core.pert.Tasks.prototype.selectDummyStroke = function(opt_strokeOrFill
 /**
  * Gets or sets lower labels settings.
  * @param {(Object|boolean|null)=} opt_value - Labels settings.
- * @return {!(anychart.core.ui.LabelsFactory|anychart.core.pert.Tasks)} - Labels instance or itself for chaining call.
+ * @return {anychart.core.ui.LabelsFactory|anychart.core.pert.Tasks} - Labels instance or itself for chaining call.
  */
 anychart.core.pert.Tasks.prototype.lowerLabels = function(opt_value) {
   if (!this.lowerLabels_) {
@@ -259,12 +260,12 @@ anychart.core.pert.Tasks.prototype.lowerLabels = function(opt_value) {
 /**
  * Gets or sets select lower labels settings.
  * @param {(Object|boolean|null)=} opt_value - Labels settings.
- * @return {!(anychart.core.ui.LabelsFactory|anychart.core.pert.Tasks)} - Labels instance or itself for chaining call.
+ * @return {anychart.core.ui.LabelsFactory|anychart.core.pert.Tasks} - Labels instance or itself for chaining call.
  */
 anychart.core.pert.Tasks.prototype.selectLowerLabels = function(opt_value) {
   if (!this.selectLowerLabels_) {
     this.selectLowerLabels_ = new anychart.core.ui.LabelsFactory();
-    this.selectLowerLabels_.listenSignals(this.labelsInvalidated_, this);
+    this.selectLowerLabels_.listenSignals(this.labelsInvalidated, this);
     this.registerDisposable(this.selectLowerLabels_);
   }
 
@@ -281,12 +282,12 @@ anychart.core.pert.Tasks.prototype.selectLowerLabels = function(opt_value) {
 /**
  * Gets or sets hover lower labels settings.
  * @param {(Object|boolean|null)=} opt_value - Labels settings.
- * @return {!(anychart.core.ui.LabelsFactory|anychart.core.pert.Tasks)} - Labels instance or itself for chaining call.
+ * @return {anychart.core.ui.LabelsFactory|anychart.core.pert.Tasks} - Labels instance or itself for chaining call.
  */
 anychart.core.pert.Tasks.prototype.hoverLowerLabels = function(opt_value) {
   if (!this.hoverLowerLabels_) {
     this.hoverLowerLabels_ = new anychart.core.ui.LabelsFactory();
-    this.hoverLowerLabels_.listenSignals(this.labelsInvalidated_, this);
+    this.hoverLowerLabels_.listenSignals(this.labelsInvalidated, this);
     this.registerDisposable(this.hoverLowerLabels_);
   }
 
@@ -303,30 +304,30 @@ anychart.core.pert.Tasks.prototype.hoverLowerLabels = function(opt_value) {
 /**
  * Gets or sets upper labels settings.
  * @param {(Object|boolean|null)=} opt_value - Labels settings.
- * @return {!(anychart.core.ui.LabelsFactory|anychart.core.pert.Tasks)} - Labels instance or itself for chaining call.
+ * @return {anychart.core.ui.LabelsFactory|anychart.core.pert.Tasks} - Labels instance or itself for chaining call.
  */
 anychart.core.pert.Tasks.prototype.upperLabels = function(opt_value) {
-  return this.labels(opt_value);
+  return /** @type {anychart.core.ui.LabelsFactory|anychart.core.pert.Tasks} */ (this.labels(opt_value));
 };
 
 
 /**
  * Gets or sets select upper labels settings.
  * @param {(Object|boolean|null)=} opt_value - Labels settings.
- * @return {!(anychart.core.ui.LabelsFactory|anychart.core.pert.Tasks)} - Labels instance or itself for chaining call.
+ * @return {anychart.core.ui.LabelsFactory|anychart.core.pert.Tasks} - Labels instance or itself for chaining call.
  */
 anychart.core.pert.Tasks.prototype.selectUpperLabels = function(opt_value) {
-  return this.selectLabels(opt_value);
+  return /** @type {anychart.core.ui.LabelsFactory|anychart.core.pert.Tasks} */ (this.selectLabels(opt_value));
 };
 
 
 /**
  * Gets or sets hover labels settings.
  * @param {(Object|boolean|null)=} opt_value - Labels settings.
- * @return {!(anychart.core.ui.LabelsFactory|anychart.core.pert.Tasks)} - Labels instance or itself for chaining call.
+ * @return {anychart.core.ui.LabelsFactory|anychart.core.pert.Tasks} - Labels instance or itself for chaining call.
  */
 anychart.core.pert.Tasks.prototype.hoverUpperLabels = function(opt_value) {
-  return this.hoverLabels(opt_value);
+  return /** @type {anychart.core.ui.LabelsFactory|anychart.core.pert.Tasks} */ (this.hoverLabels(opt_value));
 };
 
 
@@ -336,7 +337,7 @@ anychart.core.pert.Tasks.prototype.hoverUpperLabels = function(opt_value) {
 anychart.core.pert.Tasks.prototype.labelsContainer = function(opt_value) {
   anychart.core.pert.Tasks.base(this, 'labelsContainer', opt_value);
   var container = anychart.core.pert.Tasks.base(this, 'labelsContainer');
-  if (container) this.lowerLabels().container(container);
+  if (container) this.lowerLabels().container(/** @type {acgraph.vector.ILayer} */ (container));
   return container;
 };
 

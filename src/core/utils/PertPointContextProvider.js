@@ -19,12 +19,12 @@ anychart.core.utils.PertPointContextProvider = function(chart) {
   this.chartInternal = chart;
 
   /**
-   * @type {anychart.charts.Pert.Work}
+   * @type {anychart.charts.Pert.Work|null|undefined}
    */
   this.work = null;
 
   /**
-   * @type {anychart.charts.Pert.Milestone}
+   * @type {anychart.charts.Pert.Milestone|null|undefined}
    */
   this.milestone = null;
 
