@@ -127,6 +127,13 @@ anychart.charts.Pert = function() {
   this.activitiesLayer_ = null;
 
   /**
+   * Interactivity layer. Contains invisible paths to simplify mouse navigation.
+   * @type {anychart.core.utils.TypedLayer}
+   * @private
+   */
+  this.interactivityLayer_ = null;
+
+  /**
    * Labels layer.
    * @type {acgraph.vector.Layer}
    * @private
@@ -176,7 +183,7 @@ anychart.charts.Pert = function() {
   this.selectedMilestones_ = [];
 
   this.bindHandlersToComponent(this, this.handleMouseOverAndMove, this.handleMouseOut, this.clickHandler_,
-      this.handleMouseOverAndMove, this.handleAll_, this.handleMouseDown);
+      this.handleMouseOverAndMove, null, this.handleMouseDown);
 
 };
 goog.inherits(anychart.charts.Pert, anychart.core.SeparateChart);
@@ -220,7 +227,8 @@ anychart.charts.Pert.CELL_PIXEL_HORIZONTAL_SPACE_ = 80;
  *    latestStart: number,
  *    latestFinish: number,
  *    duration: number,
- *    slack: number
+ *    slack: number,
+ *    variance: number
  * }}
  */
 anychart.charts.Pert.ActivityData;
@@ -254,6 +262,7 @@ anychart.charts.Pert.Milestone;
 /**
  * Work is actually a wrapper over a TreeDataItem.
  * @typedef {{
+ *    id: string,
  *    item: anychart.data.Tree.DataItem,
  *    successors: Array.<anychart.data.Tree.DataItem>,
  *    predecessors: Array.<anychart.data.Tree.DataItem>,
@@ -380,7 +389,6 @@ anychart.charts.Pert.prototype.createLegendItemsProvider = function(sourceMode, 
 
 /** @inheritDoc */
 anychart.charts.Pert.prototype.getAllSeries = function() {
-  //TODO (A.Kudryavtsev): Implement.
   return [];
 };
 
@@ -439,9 +447,9 @@ anychart.charts.Pert.prototype.handleMouseOverAndMove = function(event) {
     work = this.worksMap_[wId];
     activity = this.activitiesMap_[wId];
     source = work.isCritical ? this.criticalPath().tasks() : this.tasks();
-    fill = work.isSelected ? source.selectFill() : source.hoverFill();
-    stroke = work.isSelected ? source.selectStroke() : source.hoverStroke();
-    domTarget.fill(fill).stroke(stroke);
+    fill = /** @type {acgraph.vector.Fill} */ (work.isSelected ? source.selectFill() : source.hoverFill());
+    stroke = /** @type {acgraph.vector.Stroke} */ (work.isSelected ? source.selectStroke() : source.hoverStroke());
+    work.relatedPath.fill(fill).stroke(stroke);
 
     work.upperLabel.currentLabelsFactory(/** @type {anychart.core.ui.LabelsFactory} */ (work.isSelected ? source.selectUpperLabels() : source.hoverUpperLabels()));
     work.lowerLabel.currentLabelsFactory(/** @type {anychart.core.ui.LabelsFactory} */ (work.isSelected ? source.selectLowerLabels() : source.hoverLowerLabels()));
@@ -472,11 +480,9 @@ anychart.charts.Pert.prototype.handleMouseOverAndMove = function(event) {
 anychart.charts.Pert.prototype.handleMouseOut = function(event) {
   var domTarget = event['domTarget'];
   var fill, stroke, source;
-  var render = false;
   var label;
 
   if (goog.isDefAndNotNull(domTarget.attr('m_id'))) {
-    render = true;
     var milestone = this.milestonesMap_[domTarget.attr('m_id')];
     source = milestone.isCritical ? this.criticalPath().milestones() : this.milestones();
     fill = milestone.isSelected ? source.selectFill() : source.fill();
@@ -487,12 +493,13 @@ anychart.charts.Pert.prototype.handleMouseOut = function(event) {
       label.currentLabelsFactory(/** @type {anychart.core.ui.LabelsFactory} */ (milestone.isSelected ? source.selectLabels() : source.labels()));
       source.labels().draw();
     }
+    domTarget.fill(fill).stroke(stroke);
   } else if (goog.isDefAndNotNull(domTarget.attr('w_id'))) {
-    render = true;
     var work = this.worksMap_[/** @type {string} */ (domTarget.attr('w_id'))];
     source = work.isCritical ? this.criticalPath().tasks() : this.tasks();
-    fill = work.isSelected ? source.selectFill() : source.fill();
-    stroke = work.isSelected ? source.selectStroke() : source.stroke();
+    fill = /** @type {acgraph.vector.Fill} */ (work.isSelected ? source.selectFill() : source.fill());
+    stroke = /** @type {acgraph.vector.Stroke} */ (work.isSelected ? source.selectStroke() : source.stroke());
+    work.relatedPath.fill(fill).stroke(stroke);
 
     work.upperLabel.currentLabelsFactory(/** @type {anychart.core.ui.LabelsFactory} */ (work.isSelected ? source.selectUpperLabels() : source.upperLabels()));
     work.lowerLabel.currentLabelsFactory(/** @type {anychart.core.ui.LabelsFactory} */ (work.isSelected ? source.selectLowerLabels() : source.lowerLabels()));
@@ -500,26 +507,11 @@ anychart.charts.Pert.prototype.handleMouseOut = function(event) {
     source.lowerLabels().draw();
 
   } else if (goog.isDefAndNotNull(domTarget.attr('d_crit'))) {
-    render = true;
     var isCrit = domTarget.attr('d_crit') == 'true';
     source = isCrit ? this.criticalPath().tasks() : this.tasks();
     fill = source.dummyFill();
     stroke = source.dummyStroke();
-  }
-
-  if (render) domTarget.fill(fill).stroke(stroke);
-};
-
-
-/**
- * Handler for mouseOut event.
- * @param {anychart.core.MouseEvent} event Event object.
- * @private
- */
-anychart.charts.Pert.prototype.handleAll_ = function(event) {
-  if (event['type'] == acgraph.events.EventType.DBLCLICK) {
-    console.log(event);
-
+    domTarget.fill(fill).stroke(stroke);
   }
 
 };
@@ -535,7 +527,7 @@ anychart.charts.Pert.prototype.clickHandler_ = function(event) {
   var i = 0;
   var milestone, work;
 
-  var domTarget = /** @type {acgraph.vector.Element} */ (event.domTarget);
+  var domTarget = /** @type {acgraph.vector.Element} */ (event['domTarget']);
   if (domTarget instanceof acgraph.vector.Element) {
     if (goog.isDefAndNotNull(domTarget.attr('m_id'))) {
       milestone = this.milestonesMap_[/** @type {string} */ (domTarget.attr('m_id'))];
@@ -589,9 +581,58 @@ anychart.charts.Pert.prototype.clickHandler_ = function(event) {
       this.selectedMilestones_.length = 0;
       this.selectedWorks_.length = 0;
     }
-    this.invalidate(anychart.ConsistencyState.PERT_APPEARANCE, anychart.Signal.NEEDS_REDRAW);
 
+    this.dispatchEvent(this.makeInteractivityEvent_());
+    this.invalidate(anychart.ConsistencyState.PERT_APPEARANCE, anychart.Signal.NEEDS_REDRAW);
   }
+};
+
+
+/**
+ * Creates selected item event object.
+ * @return {Object}
+ * @private
+ */
+anychart.charts.Pert.prototype.makeInteractivityEvent_ = function() {
+  var eventObject = {
+    'type': anychart.enums.EventType.POINTS_SELECT,
+    'selectedTasks': [],
+    'selectedMilestones': []
+  };
+  var i;
+
+  for (i = 0; i < this.selectedWorks_.length; i++) {
+    var work = this.selectedWorks_[i];
+    var activity = this.activitiesMap_[work.id];
+    var wrappedWork = {
+      'item': work.item,
+      'name': work.item.get(anychart.enums.DataField.NAME),
+      'successors': work.successors,
+      'predecessors': work.predecessors,
+      'earliestStart': activity.earliestStart,
+      'earliestFinish': activity.earliestFinish,
+      'latestStart': activity.latestStart,
+      'latestFinish': activity.latestFinish,
+      'duration': activity.duration,
+      'slack': activity.slack,
+      'variance': activity.variance
+    };
+    eventObject.selectedTasks.push(wrappedWork);
+  }
+
+  for (i = 0; i < this.selectedMilestones_.length; i++) {
+    var mil = this.selectedMilestones_[i];
+    var wrappedMilestone = {
+      'successors': mil.successors,
+      'predecessors': mil.predecessors,
+      'isCritical': mil.isCritical,
+      'isStart': mil.isStart
+    };
+    if (mil.creator) wrappedMilestone['creator'] = mil.creator.item;
+    eventObject.selectedMilestones.push(wrappedMilestone);
+  }
+
+  return eventObject;
 };
 
 
@@ -630,6 +671,7 @@ anychart.charts.Pert.prototype.calculate = function() {
 
         if (!(id in this.worksMap_)) {
           this.worksMap_[id] = {
+            id: id,
             item: item,
             successors: [],
             predecessors: [],
@@ -654,6 +696,7 @@ anychart.charts.Pert.prototype.calculate = function() {
               if (found) {
                 var foundId = String(found.get(anychart.enums.DataField.ID));
                 this.worksMap_[foundId] = {
+                  id: foundId,
                   item: found,
                   successors: [item],
                   predecessors: [],
@@ -731,6 +774,14 @@ anychart.charts.Pert.prototype.calculateActivities_ = function() {
       this.calculateActivity_(String(this.startActivities_[i].get(anychart.enums.DataField.ID)));
     }
   } //TODO (A.Kudryavtsev): Else warning.
+
+  var sum = 0;
+  for (var key in this.activitiesMap_) {
+    var act = this.activitiesMap_[key];
+    if (!act.slack) sum += act.variance;
+  }
+  this.statistics[anychart.enums.Statistics.PERT_CHART_CRITICAL_PATH_STANDARD_DEVIATION] = Math.sqrt(sum);
+
   this.markConsistent(anychart.ConsistencyState.PERT_CALCULATIONS);
 };
 
@@ -745,6 +796,11 @@ anychart.charts.Pert.prototype.calculateActivity_ = function(id) {
 
   if (!(id in this.activitiesMap_)) {
     this.activitiesMap_[id] = /** @type {anychart.charts.Pert.ActivityData} */ ({});
+
+    var opt = Number(workData.item.get(anychart.enums.DataField.OPTIMISTIC));
+    var pess = Number(workData.item.get(anychart.enums.DataField.PESSIMISTIC));
+    //Can be NaN
+    this.activitiesMap_[id].variance = Math.pow(((pess - opt) / 6), 2);
   }
 
   var activity = this.activitiesMap_[id];
@@ -800,6 +856,7 @@ anychart.charts.Pert.prototype.calculateActivity_ = function(id) {
         var finActivityEF = this.activitiesMap_[finId].earliestFinish;
         val = Math.max(val, finActivityEF);
       }
+      this.statistics[anychart.enums.Statistics.PERT_CHART_PROJECT_DURATION] = val;
     }
     activity.latestFinish = val;
     activity.latestStart = val - duration;
@@ -834,7 +891,7 @@ anychart.charts.Pert.prototype.addMilestoneSuccessors_ = function(successorMiles
  */
 anychart.charts.Pert.prototype.createEmptyMilestone_ = function(creator, isStart, opt_label) {
   var result = /** @type {anychart.charts.Pert.Milestone} */ ({
-    label: opt_label || '',
+    label: opt_label || '', //Internal info.
     id: '',
     xIndex: NaN,
     yIndex: NaN,
@@ -862,9 +919,9 @@ anychart.charts.Pert.prototype.createEmptyMilestone_ = function(creator, isStart
  * @private
  */
 anychart.charts.Pert.prototype.createAllMilestones_ = function() {
-  this.startMilestone_ = this.createEmptyMilestone_(null, true, 'Start'); //TODO (A.Kudryavtsev): Hardcoded.
+  this.startMilestone_ = this.createEmptyMilestone_(null, true, 'Start');
   this.startMilestone_.isCritical = true;
-  this.finishMilestone_ = this.createEmptyMilestone_(null, false, 'Finish'); //TODO (A.Kudryavtsev): Hardcoded.
+  this.finishMilestone_ = this.createEmptyMilestone_(null, false, 'Finish');
   this.finishMilestone_.isCritical = true;
 
   var i;
@@ -874,11 +931,11 @@ anychart.charts.Pert.prototype.createAllMilestones_ = function() {
     var activity = this.activitiesMap_[id];
 
     if (!work.startMilestone) {
-      work.startMilestone = this.createEmptyMilestone_(work, true, 'Start: ' + work.item.get(anychart.enums.DataField.NAME)); //TODO (A.Kudryavtsev): Hardcoded.
+      work.startMilestone = this.createEmptyMilestone_(work, true, 'Start: ' + work.item.get(anychart.enums.DataField.NAME));
     }
 
     if (!work.finishMilestone) {
-      work.finishMilestone = this.createEmptyMilestone_(work, false, 'Finish: ' + work.item.get(anychart.enums.DataField.NAME)); //TODO (A.Kudryavtsev): Hardcoded.
+      work.finishMilestone = this.createEmptyMilestone_(work, false, 'Finish: ' + work.item.get(anychart.enums.DataField.NAME));
       work.finishMilestone.creator = work;
     }
 
@@ -1083,7 +1140,6 @@ anychart.charts.Pert.prototype.placeMilestone_ = function(milestone) {
       if (xIndex > mSucc.xIndex) {
         goog.array.remove(this.milestonesLocation_[mSucc.xIndex], mSucc);
         goog.array.insert(this.milestonesLocation_[xIndex], mSucc);
-        //goog.array.insertBefore(this.milestonesLocation_[xIndex], void 0, mSucc);
         mSucc.xIndex = xIndex;
       }
     }
@@ -1287,9 +1343,24 @@ anychart.charts.Pert.prototype.drawContent = function(bounds) {
       (/** @type {acgraph.vector.Path} */ (child)).clear();
       (/** @type {acgraph.vector.Path} */ (child)).attr('a_crit', null);
       (/** @type {acgraph.vector.Path} */ (child)).attr('d_crit', null);
+      (/** @type {acgraph.vector.Path} */ (child)).attr('w_id', null);
     });
-    this.activitiesLayer_.zIndex(1); //TODO (A.Kudryavtsev): hardcoded.
+    this.activitiesLayer_.zIndex(1);
     this.activitiesLayer_.parent(this.baseLayer_);
+
+    this.interactivityLayer_ = new anychart.core.utils.TypedLayer(function() {
+      var path = acgraph.path();
+      path.attr('ac_interact', true);
+      path.fill('none').stroke({'color': '#fff', 'opacity': 0.0001, 'thickness': 6});
+      return path;
+    }, function(child) {
+      (/** @type {acgraph.vector.Path} */ (child)).clear();
+      (/** @type {acgraph.vector.Path} */ (child)).attr('a_crit', null);
+      (/** @type {acgraph.vector.Path} */ (child)).attr('d_crit', null);
+      (/** @type {acgraph.vector.Path} */ (child)).attr('w_id', null);
+    });
+    this.interactivityLayer_.zIndex(2);
+    this.interactivityLayer_.parent(this.baseLayer_);
 
     this.milestonesLayer_ = new anychart.core.utils.TypedLayer(function() {
       return acgraph.path();
@@ -1297,11 +1368,11 @@ anychart.charts.Pert.prototype.drawContent = function(bounds) {
       (/** @type {acgraph.vector.Path} */ (child)).clear();
       (/** @type {acgraph.vector.Path} */ (child)).attr('m_crit', null);
     });
-    this.milestonesLayer_.zIndex(2); //TODO (A.Kudryavtsev): hardcoded.
+    this.milestonesLayer_.zIndex(3);
     this.milestonesLayer_.parent(this.baseLayer_);
 
     this.labelsLayer_ = this.baseLayer_.layer();
-    this.labelsLayer_.zIndex(3); //TODO (A.Kudryavtsev): hardcoded.
+    this.labelsLayer_.zIndex(4);
 
     this.milestones().labelsContainer(this.labelsLayer_);
     this.criticalPath().milestones().labelsContainer(this.labelsLayer_);
@@ -1327,6 +1398,7 @@ anychart.charts.Pert.prototype.drawContent = function(bounds) {
 
   if (this.hasInvalidationState(anychart.ConsistencyState.BOUNDS)) {
     this.activitiesLayer_.clear();
+    this.interactivityLayer_.clear();
     this.milestonesLayer_.clear();
     this.milestones().clearLabels();
     this.tasks().clearLabels();
@@ -1399,6 +1471,7 @@ anychart.charts.Pert.prototype.drawContent = function(bounds) {
         var succWork = this.worksMap_[succId];
         var destMilestone = succWork.finishMilestone;
         var path = this.activitiesLayer_.genNextChild();
+        var interactPath = this.interactivityLayer_.genNextChild();
 
         var isCrit = (mil.isCritical && destMilestone.isCritical && succWork.isCritical);
         var stroke = isCrit ? this.criticalPath().tasks().stroke() :
@@ -1407,18 +1480,22 @@ anychart.charts.Pert.prototype.drawContent = function(bounds) {
         path.stroke(stroke);
         path.attr('a_crit', isCrit);
         path.attr('w_id', succId);
+        succWork.relatedPath = /** @type {acgraph.vector.Path} */ (path);
+
+        interactPath.attr('a_crit', isCrit);
+        interactPath.attr('w_id', succId);
 
         var startLeft = mil.left + anychart.charts.Pert.CELL_PIXEL_SIZE_;
         var startTop = mil.top + anychart.charts.Pert.CELL_PIXEL_SIZE_ / 2;
         var finLeft = destMilestone.left;
         var finTop = destMilestone.top + anychart.charts.Pert.CELL_PIXEL_SIZE_ / 2;
 
-
         var dWidth = (destMilestone.left - mil.left - anychart.charts.Pert.CELL_PIXEL_HORIZONTAL_SPACE_) / 2;
         //path.moveTo(startLeft, startTop)
         //    .curveTo(startLeft + dWidth, startTop, startLeft + dWidth, finTop, finLeft, finTop);
 
         path.moveTo(startLeft, startTop).lineTo(finLeft, finTop);
+        interactPath.moveTo(startLeft, startTop).lineTo(finLeft, finTop);
 
 
         var angle = Math.atan((finTop - startTop) / (finLeft - startLeft));
@@ -1461,11 +1538,18 @@ anychart.charts.Pert.prototype.drawContent = function(bounds) {
       for (i = 0; i < mil.mSuccessors.length; i++) {
         var mSucc = mil.mSuccessors[i];
         var path = this.activitiesLayer_.genNextChild();
+        var interactPath = this.interactivityLayer_.genNextChild();
         var isCrit = (mil.isCritical && mSucc.isCritical);
         path.attr('d_crit', isCrit);
+        interactPath.attr('d_crit', isCrit);
 
-        path.moveTo(mil.left + anychart.charts.Pert.CELL_PIXEL_SIZE_, mil.top + anychart.charts.Pert.CELL_PIXEL_SIZE_ / 2)
-            .lineTo(mSucc.left, mSucc.top + anychart.charts.Pert.CELL_PIXEL_SIZE_ / 2);
+        var startLeft = mil.left + anychart.charts.Pert.CELL_PIXEL_SIZE_;
+        var startTop = mil.top + anychart.charts.Pert.CELL_PIXEL_SIZE_ / 2;
+        var finLeft = mSucc.left;
+        var finTop = mSucc.top + anychart.charts.Pert.CELL_PIXEL_SIZE_ / 2;
+
+        path.moveTo(startLeft, startTop).lineTo(finLeft, finTop);
+        interactPath.moveTo(startLeft, startTop).lineTo(finLeft, finTop);
 
         //var dWidth = (mSucc.left - mil.left - anychart.charts.Pert.CELL_PIXEL_HORIZONTAL_SPACE_) / 2;
         //path.moveTo(mil.left + anychart.charts.Pert.CELL_PIXEL_SIZE_, mil.top + anychart.charts.Pert.CELL_PIXEL_SIZE_ / 2)
@@ -1524,6 +1608,7 @@ anychart.charts.Pert.prototype.disposeInternal = function() {
   this.startActivities_.length = 0;
   this.finishActivities_.length = 0;
   delete this.worksMap_;
+  delete this.activitiesMap_;
   delete this.data_;
 
   goog.disposeAll(this.milestones(), this.tasks(), this.criticalPath());

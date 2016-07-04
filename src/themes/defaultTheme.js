@@ -3907,7 +3907,7 @@ goog.provide('anychart.themes.defaultTheme');
           }
         },
         'hoverLabels': {
-          'fontWeight': 'bold',
+          'fontColor': '#ff0',
           'fontOpacity': 1
         },
         'selectLabels': {
@@ -4063,9 +4063,11 @@ goog.provide('anychart.themes.defaultTheme');
            * @return {*}
            */
           'textFormatter': function() {
-            return 'Earliest start: ' + this['earliestStart'] + '\nEarliest finish: ' + this['earliestFinish'] +
+            var result = 'Earliest start: ' + this['earliestStart'] + '\nEarliest finish: ' + this['earliestFinish'] +
                 '\nLatest start: ' + this['latestStart'] + '\nLatest finish: ' + this['latestFinish'] +
                 '\nDuration: ' + this['duration'] + '\nSlack: ' + this['slack'];
+            if (!isNaN(this['variance'])) result += '\nStandard deviation: ' + Math.round(this['variance'] * 100) / 100;
+            return result;
           }
         }
       },
@@ -4094,7 +4096,7 @@ goog.provide('anychart.themes.defaultTheme');
             }
           },
           'hoverLabels': {
-            'fontWeight': 'bold',
+            'fontColor': '#f90',
             'fontOpacity': 1
           },
           'selectLabels': {
@@ -4250,9 +4252,11 @@ goog.provide('anychart.themes.defaultTheme');
              * @return {*}
              */
             'textFormatter': function() {
-              return 'Earliest start: ' + this['earliestStart'] + '\nEarliest finish: ' + this['earliestFinish'] +
+              var result = 'Earliest start: ' + this['earliestStart'] + '\nEarliest finish: ' + this['earliestFinish'] +
                   '\nLatest start: ' + this['latestStart'] + '\nLatest finish: ' + this['latestFinish'] +
                   '\nDuration: ' + this['duration'] + '\nSlack: ' + this['slack'];
+              if (!isNaN(this['variance'])) result += '\nStandard deviation: ' + Math.round(this['variance'] * 100) / 100;
+              return result;
             }
             //'textFormatter': 'Earliest start: {%EarliestStart}\nEarliest finish: {%EarliestFinish}\nLatest start: {%LatestStart}\nLatest finish: {%LatestFinish}\nDuration: {%Duration}\nSlack: {%Slack}'
           }

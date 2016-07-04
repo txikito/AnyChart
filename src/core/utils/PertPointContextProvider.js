@@ -72,10 +72,11 @@ anychart.core.utils.PertPointContextProvider.prototype.applyReferenceValues = fu
     if (!goog.isDef(this[anychart.enums.DataField.DURATION]))
       this[anychart.enums.DataField.DURATION] = this.activityData.duration;
     this['slack'] = this.activityData.slack;
+    this['variance'] = this.activityData.variance;
   }
 
   if (this.milestone) {
-    this['label'] = this.milestone.label;
+    //this['label'] = this.milestone.label;
     this['successors'] = this.milestone.successors;
     this['predecessors'] = this.milestone.predecessors;
     this['isCritical'] = this.milestone.isCritical;

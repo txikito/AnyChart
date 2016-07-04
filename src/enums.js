@@ -3908,6 +3908,14 @@ anychart.enums.StringToken = {
    */
   OPEN: '%Open',
   /**
+   PERT chart statistics - standard deviation for critical path.
+   */
+  PERT_CHART_CRITICAL_PATH_STANDARD_DEVIATION: '%PertChartCriticalPathStandardDeviation',
+  /**
+   PERT chart statistics - project duration.
+   */
+  PERT_CHART_PROJECT_DURATION: '%PertChartProjectDuration',
+  /**
    The range of this point (RangeEnd - RangeStart).
    */
   RANGE: '%Range',
@@ -4454,6 +4462,14 @@ anychart.enums.Statistics = {
    Points count.
    */
   POINTS_COUNT: 'pointsCount',
+  /**
+   PERT chart statistics - Standard deviation for critical path.
+   */
+  PERT_CHART_CRITICAL_PATH_STANDARD_DEVIATION: 'pertChartCriticalPathStandardDeviation',
+  /**
+   PERT chart statistics - duration of project.
+   */
+  PERT_CHART_PROJECT_DURATION: 'pertChartProjectDuration',
   /**
    The range of this point (RangeEnd - RangeStart).
    */
@@ -5329,6 +5345,8 @@ goog.exportSymbol('anychart.enums.StringToken.INDEX', anychart.enums.StringToken
 goog.exportSymbol('anychart.enums.StringToken.LOW', anychart.enums.StringToken.LOW);
 goog.exportSymbol('anychart.enums.StringToken.NAME', anychart.enums.StringToken.NAME);
 goog.exportSymbol('anychart.enums.StringToken.OPEN', anychart.enums.StringToken.OPEN);
+goog.exportSymbol('anychart.enums.StringToken.PERT_CHART_CRITICAL_PATH_STANDARD_DEVIATION', anychart.enums.StringToken.PERT_CHART_CRITICAL_PATH_STANDARD_DEVIATION);
+goog.exportSymbol('anychart.enums.StringToken.PERT_CHART_PROJECT_DURATION', anychart.enums.StringToken.PERT_CHART_PROJECT_DURATION);
 goog.exportSymbol('anychart.enums.StringToken.RANGE', anychart.enums.StringToken.RANGE);
 goog.exportSymbol('anychart.enums.StringToken.RANGE_END', anychart.enums.StringToken.RANGE_END);
 goog.exportSymbol('anychart.enums.StringToken.RANGE_START', anychart.enums.StringToken.RANGE_START);
@@ -5463,6 +5481,8 @@ goog.exportSymbol('anychart.enums.Statistics.NAME', anychart.enums.Statistics.NA
 goog.exportSymbol('anychart.enums.Statistics.MAX', anychart.enums.Statistics.MAX);
 goog.exportSymbol('anychart.enums.Statistics.MIN', anychart.enums.Statistics.MIN);
 goog.exportSymbol('anychart.enums.Statistics.OPEN', anychart.enums.Statistics.OPEN);
+goog.exportSymbol('anychart.enums.Statistics.PERT_CHART_CRITICAL_PATH_STANDARD_DEVIATION', anychart.enums.Statistics.PERT_CHART_CRITICAL_PATH_STANDARD_DEVIATION);
+goog.exportSymbol('anychart.enums.Statistics.PERT_CHART_PROJECT_DURATION', anychart.enums.Statistics.PERT_CHART_PROJECT_DURATION);
 goog.exportSymbol('anychart.enums.Statistics.POINTS_COUNT', anychart.enums.Statistics.POINTS_COUNT);
 goog.exportSymbol('anychart.enums.Statistics.RANGE', anychart.enums.Statistics.RANGE);
 goog.exportSymbol('anychart.enums.Statistics.RANGE_END', anychart.enums.Statistics.RANGE_END);
