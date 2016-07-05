@@ -1619,16 +1619,17 @@ anychart.charts.Pert.prototype.disposeInternal = function() {
 
 /** @inheritDoc */
 anychart.charts.Pert.prototype.serialize = function() {
-  var json = goog.base(this, 'serialize');
+  var json = anychart.charts.Pert.base(this, 'serialize');
+  json['type'] = this.getType();
 
   if (this.data_)
-    json['data'] = this.data_.serializeWithoutMeta();
+    json['treeData'] = this.data_.serializeWithoutMeta();
 
   json['milestones'] = this.milestones().serialize();
   json['tasks'] = this.tasks().serialize();
   json['criticalPath'] = this.criticalPath().serialize();
 
-  return json;
+  return {'chart': json};
 };
 
 
@@ -1636,7 +1637,7 @@ anychart.charts.Pert.prototype.serialize = function() {
 anychart.charts.Pert.prototype.setupByJSON = function(config) {
   goog.base(this, 'setupByJSON', config);
 
-  if ('data' in config) this.data(anychart.data.Tree.fromJson(config['data']));
+  if ('treeData' in config) this.data(anychart.data.Tree.fromJson(config['treeData']));
   if ('milestones' in config) this.milestones().setupByJSON(config['milestones']);
   if ('tasks' in config) this.tasks().setupByJSON(config['tasks']);
   if ('criticalPath' in config) this.criticalPath().setupByJSON(config['criticalPath']);
