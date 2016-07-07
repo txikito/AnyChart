@@ -617,7 +617,7 @@ anychart.charts.Pert.prototype.makeInteractivityEvent_ = function() {
       'slack': activity.slack,
       'variance': activity.variance
     };
-    eventObject.selectedTasks.push(wrappedWork);
+    eventObject['selectedTasks'].push(wrappedWork);
   }
 
   for (i = 0; i < this.selectedMilestones_.length; i++) {
@@ -629,7 +629,7 @@ anychart.charts.Pert.prototype.makeInteractivityEvent_ = function() {
       'isStart': mil.isStart
     };
     if (mil.creator) wrappedMilestone['creator'] = mil.creator.item;
-    eventObject.selectedMilestones.push(wrappedMilestone);
+    eventObject['selectedMilestones'].push(wrappedMilestone);
   }
 
   return eventObject;
