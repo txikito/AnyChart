@@ -41,17 +41,17 @@ anychart.core.pert.Tasks = function() {
    */
   this.dummyFill_;
 
-  /**
-   * @type {acgraph.vector.Fill}
-   * @private
-   */
-  this.hoverDummyFill_;
-
-  /**
-   * @type {acgraph.vector.Fill}
-   * @private
-   */
-  this.selectDummyFill_;
+  ///**
+  // * @type {acgraph.vector.Fill}
+  // * @private
+  // */
+  //this.hoverDummyFill_;
+  //
+  ///**
+  // * @type {acgraph.vector.Fill}
+  // * @private
+  // */
+  //this.selectDummyFill_;
 
   /**
    * @type {acgraph.vector.Stroke}
@@ -59,17 +59,17 @@ anychart.core.pert.Tasks = function() {
    */
   this.dummyStroke_;
 
-  /**
-   * @type {acgraph.vector.Stroke}
-   * @private
-   */
-  this.hoverDummyStroke_;
-
-  /**
-   * @type {acgraph.vector.Stroke}
-   * @private
-   */
-  this.selectDummyStroke_;
+  ///**
+  // * @type {acgraph.vector.Stroke}
+  // * @private
+  // */
+  //this.hoverDummyStroke_;
+  //
+  ///**
+  // * @type {acgraph.vector.Stroke}
+  // * @private
+  // */
+  //this.selectDummyStroke_;
 };
 goog.inherits(anychart.core.pert.Tasks, anychart.core.pert.PertVisualElements);
 
@@ -84,22 +84,20 @@ anychart.core.pert.Tasks.prototype.SUPPORTED_SIGNALS =
 
 /**
  * Getter/setter for dummy fill.
- * @param {(!acgraph.vector.Fill|!Array.<(acgraph.vector.GradientKey|string)>|Function|null)=} opt_fillOrColorOrKeys .
+ * @param {(!acgraph.vector.Fill|!Array.<(acgraph.vector.GradientKey|string)>|null)=} opt_fillOrColorOrKeys .
  * @param {number=} opt_opacityOrAngleOrCx .
  * @param {(number|boolean|!anychart.math.Rect|!{left:number,top:number,width:number,height:number})=} opt_modeOrCy .
  * @param {(number|!anychart.math.Rect|!{left:number,top:number,width:number,height:number}|null)=} opt_opacityOrMode .
  * @param {number=} opt_opacity .
  * @param {number=} opt_fx .
  * @param {number=} opt_fy .
- * @return {acgraph.vector.Fill|anychart.core.pert.Tasks|Function} .
+ * @return {acgraph.vector.Fill|anychart.core.pert.Tasks} .
  */
 anychart.core.pert.Tasks.prototype.dummyFill = function(opt_fillOrColorOrKeys, opt_opacityOrAngleOrCx, opt_modeOrCy, opt_opacityOrMode, opt_opacity, opt_fx, opt_fy) {
   if (goog.isDef(opt_fillOrColorOrKeys)) {
-    var fill = goog.isFunction(opt_fillOrColorOrKeys) ?
-        opt_fillOrColorOrKeys :
-        acgraph.vector.normalizeFill.apply(null, arguments);
-    if (fill != this.dummyFill_) {
-      this.dummyFill_ = /** @type {acgraph.vector.Fill} */ (fill);
+    var val = acgraph.vector.normalizeFill.apply(null, arguments);
+    if (!anychart.color.equals(/** @type {acgraph.vector.Fill} */ (this.dummyFill_), val)) {
+      this.dummyFill_ = /** @type {acgraph.vector.Fill} */ (val);
       this.dispatchSignal(anychart.Signal.NEEDS_REDRAW_APPEARANCE);
     }
     return this;
@@ -108,75 +106,69 @@ anychart.core.pert.Tasks.prototype.dummyFill = function(opt_fillOrColorOrKeys, o
 };
 
 
-/**
- * Getter/setter for hoverDummyFill.
- * @param {(!acgraph.vector.Fill|!Array.<(acgraph.vector.GradientKey|string)>|Function|null)=} opt_fillOrColorOrKeys .
- * @param {number=} opt_opacityOrAngleOrCx .
- * @param {(number|boolean|!anychart.math.Rect|!{left:number,top:number,width:number,height:number})=} opt_modeOrCy .
- * @param {(number|!anychart.math.Rect|!{left:number,top:number,width:number,height:number}|null)=} opt_opacityOrMode .
- * @param {number=} opt_opacity .
- * @param {number=} opt_fx .
- * @param {number=} opt_fy .
- * @return {acgraph.vector.Fill|anychart.core.pert.Tasks|Function} .
- */
-anychart.core.pert.Tasks.prototype.hoverDummyFill = function(opt_fillOrColorOrKeys, opt_opacityOrAngleOrCx, opt_modeOrCy, opt_opacityOrMode, opt_opacity, opt_fx, opt_fy) {
-  if (goog.isDef(opt_fillOrColorOrKeys)) {
-    var fill = goog.isFunction(opt_fillOrColorOrKeys) ?
-        opt_fillOrColorOrKeys :
-        acgraph.vector.normalizeFill.apply(null, arguments);
-    if (fill != this.hoverDummyFill_) {
-      this.hoverDummyFill_ = /** @type {acgraph.vector.Fill} */ (fill);
-      this.dispatchSignal(anychart.Signal.NEEDS_REDRAW_APPEARANCE);
-    }
-    return this;
-  }
-  return this.hoverDummyFill_;
-};
-
-
-/**
- * Getter/setter for selectDummyFill.
- * @param {(!acgraph.vector.Fill|!Array.<(acgraph.vector.GradientKey|string)>|Function|null)=} opt_fillOrColorOrKeys .
- * @param {number=} opt_opacityOrAngleOrCx .
- * @param {(number|boolean|!anychart.math.Rect|!{left:number,top:number,width:number,height:number})=} opt_modeOrCy .
- * @param {(number|!anychart.math.Rect|!{left:number,top:number,width:number,height:number}|null)=} opt_opacityOrMode .
- * @param {number=} opt_opacity .
- * @param {number=} opt_fx .
- * @param {number=} opt_fy .
- * @return {acgraph.vector.Fill|anychart.core.pert.Tasks|Function} .
- */
-anychart.core.pert.Tasks.prototype.selectDummyFill = function(opt_fillOrColorOrKeys, opt_opacityOrAngleOrCx, opt_modeOrCy, opt_opacityOrMode, opt_opacity, opt_fx, opt_fy) {
-  if (goog.isDef(opt_fillOrColorOrKeys)) {
-    var fill = goog.isFunction(opt_fillOrColorOrKeys) ?
-        opt_fillOrColorOrKeys :
-        acgraph.vector.normalizeFill.apply(null, arguments);
-    if (fill != this.selectDummyFill_) {
-      this.selectDummyFill_ = /** @type {acgraph.vector.Fill} */ (fill);
-      this.dispatchSignal(anychart.Signal.NEEDS_REDRAW_APPEARANCE);
-    }
-    return this;
-  }
-  return this.selectDummyFill_;
-};
+///**
+// * Getter/setter for hoverDummyFill.
+// * @param {(!acgraph.vector.Fill|!Array.<(acgraph.vector.GradientKey|string)>|null)=} opt_fillOrColorOrKeys .
+// * @param {number=} opt_opacityOrAngleOrCx .
+// * @param {(number|boolean|!anychart.math.Rect|!{left:number,top:number,width:number,height:number})=} opt_modeOrCy .
+// * @param {(number|!anychart.math.Rect|!{left:number,top:number,width:number,height:number}|null)=} opt_opacityOrMode .
+// * @param {number=} opt_opacity .
+// * @param {number=} opt_fx .
+// * @param {number=} opt_fy .
+// * @return {acgraph.vector.Fill|anychart.core.pert.Tasks} .
+// */
+//anychart.core.pert.Tasks.prototype.hoverDummyFill = function(opt_fillOrColorOrKeys, opt_opacityOrAngleOrCx, opt_modeOrCy, opt_opacityOrMode, opt_opacity, opt_fx, opt_fy) {
+//  if (goog.isDef(opt_fillOrColorOrKeys)) {
+//    var val = acgraph.vector.normalizeFill.apply(null, arguments);
+//    if (!anychart.color.equals(/** @type {acgraph.vector.Fill} */ (this.hoverDummyFill_), val)) {
+//      this.hoverDummyFill_ = /** @type {acgraph.vector.Fill} */ (val);
+//      this.dispatchSignal(anychart.Signal.NEEDS_REDRAW_APPEARANCE);
+//    }
+//    return this;
+//  }
+//  return this.hoverDummyFill_;
+//};
+//
+//
+///**
+// * Getter/setter for selectDummyFill.
+// * @param {(!acgraph.vector.Fill|!Array.<(acgraph.vector.GradientKey|string)>|null)=} opt_fillOrColorOrKeys .
+// * @param {number=} opt_opacityOrAngleOrCx .
+// * @param {(number|boolean|!anychart.math.Rect|!{left:number,top:number,width:number,height:number})=} opt_modeOrCy .
+// * @param {(number|!anychart.math.Rect|!{left:number,top:number,width:number,height:number}|null)=} opt_opacityOrMode .
+// * @param {number=} opt_opacity .
+// * @param {number=} opt_fx .
+// * @param {number=} opt_fy .
+// * @return {acgraph.vector.Fill|anychart.core.pert.Tasks} .
+// */
+//anychart.core.pert.Tasks.prototype.selectDummyFill = function(opt_fillOrColorOrKeys, opt_opacityOrAngleOrCx, opt_modeOrCy, opt_opacityOrMode, opt_opacity, opt_fx, opt_fy) {
+//  if (goog.isDef(opt_fillOrColorOrKeys)) {
+//    var val = acgraph.vector.normalizeFill.apply(null, arguments);
+//    if (!anychart.color.equals(/** @type {acgraph.vector.Fill} */ (this.selectDummyFill_), val)) {
+//      this.selectDummyFill_ = /** @type {acgraph.vector.Fill} */ (val);
+//      this.dispatchSignal(anychart.Signal.NEEDS_REDRAW_APPEARANCE);
+//    }
+//    return this;
+//  }
+//  return this.selectDummyFill_;
+//};
 
 
 /**
  * Getter/setter for dummy stroke settings.
- * @param {(acgraph.vector.Stroke|acgraph.vector.ColoredFill|string|Function|null)=} opt_strokeOrFill Fill settings
+ * @param {(acgraph.vector.Stroke|acgraph.vector.ColoredFill|string|null)=} opt_strokeOrFill Fill settings
  *    or stroke settings.
  * @param {number=} opt_thickness [1] Line thickness.
  * @param {string=} opt_dashpattern Controls the pattern of dashes and gaps used to stroke paths.
  * @param {acgraph.vector.StrokeLineJoin=} opt_lineJoin Line join style.
  * @param {acgraph.vector.StrokeLineCap=} opt_lineCap Line cap style.
- * @return {anychart.core.pert.Tasks|acgraph.vector.Stroke|Function} .
+ * @return {anychart.core.pert.Tasks|acgraph.vector.Stroke} .
  */
 anychart.core.pert.Tasks.prototype.dummyStroke = function(opt_strokeOrFill, opt_thickness, opt_dashpattern, opt_lineJoin, opt_lineCap) {
   if (goog.isDef(opt_strokeOrFill)) {
-    var stroke = goog.isFunction(opt_strokeOrFill) ?
-        opt_strokeOrFill :
-        acgraph.vector.normalizeStroke.apply(null, arguments);
-    if (stroke != this.dummyStroke_) {
-      this.dummyStroke_ = /** @type {acgraph.vector.Stroke} */ (stroke);
+    var val = acgraph.vector.normalizeStroke.apply(null, arguments);
+    if (!anychart.color.equals(/** @type {acgraph.vector.Stroke} */ (this.dummyStroke_), val)) {
+      this.dummyStroke_ = /** @type {acgraph.vector.Stroke} */ (val);
       this.dispatchSignal(anychart.Signal.NEEDS_REDRAW_APPEARANCE);
     }
     return this;
@@ -185,54 +177,50 @@ anychart.core.pert.Tasks.prototype.dummyStroke = function(opt_strokeOrFill, opt_
 };
 
 
-/**
- * Getter/setter for hover dummy stroke settings.
- * @param {(acgraph.vector.Stroke|acgraph.vector.ColoredFill|string|Function|null)=} opt_strokeOrFill Fill settings
- *    or stroke settings.
- * @param {number=} opt_thickness [1] Line thickness.
- * @param {string=} opt_dashpattern Controls the pattern of dashes and gaps used to stroke paths.
- * @param {acgraph.vector.StrokeLineJoin=} opt_lineJoin Line join style.
- * @param {acgraph.vector.StrokeLineCap=} opt_lineCap Line cap style.
- * @return {anychart.core.pert.Tasks|acgraph.vector.Stroke|Function} .
- */
-anychart.core.pert.Tasks.prototype.hoverDummyStroke = function(opt_strokeOrFill, opt_thickness, opt_dashpattern, opt_lineJoin, opt_lineCap) {
-  if (goog.isDef(opt_strokeOrFill)) {
-    var stroke = goog.isFunction(opt_strokeOrFill) ?
-        opt_strokeOrFill :
-        acgraph.vector.normalizeStroke.apply(null, arguments);
-    if (stroke != this.hoverDummyStroke_) {
-      this.hoverDummyStroke_ = /** @type {acgraph.vector.Stroke} */ (stroke);
-      this.dispatchSignal(anychart.Signal.NEEDS_REDRAW_APPEARANCE);
-    }
-    return this;
-  }
-  return this.hoverDummyStroke_;
-};
-
-
-/**
- * Getter/setter for select dummy stroke settings.
- * @param {(acgraph.vector.Stroke|acgraph.vector.ColoredFill|string|Function|null)=} opt_strokeOrFill Fill settings
- *    or stroke settings.
- * @param {number=} opt_thickness - Line thickness.
- * @param {string=} opt_dashpattern Controls the pattern of dashes and gaps used to stroke paths.
- * @param {acgraph.vector.StrokeLineJoin=} opt_lineJoin Line join style.
- * @param {acgraph.vector.StrokeLineCap=} opt_lineCap Line cap style.
- * @return {anychart.core.pert.Tasks|acgraph.vector.Stroke|Function} .
- */
-anychart.core.pert.Tasks.prototype.selectDummyStroke = function(opt_strokeOrFill, opt_thickness, opt_dashpattern, opt_lineJoin, opt_lineCap) {
-  if (goog.isDef(opt_strokeOrFill)) {
-    var stroke = goog.isFunction(opt_strokeOrFill) ?
-        opt_strokeOrFill :
-        acgraph.vector.normalizeStroke.apply(null, arguments);
-    if (stroke != this.selectDummyStroke_) {
-      this.selectDummyStroke_ = /** @type {acgraph.vector.Stroke} */ (stroke);
-      this.dispatchSignal(anychart.Signal.NEEDS_REDRAW_APPEARANCE);
-    }
-    return this;
-  }
-  return this.selectDummyStroke_;
-};
+///**
+// * Getter/setter for hover dummy stroke settings.
+// * @param {(acgraph.vector.Stroke|acgraph.vector.ColoredFill|string|null)=} opt_strokeOrFill Fill settings
+// *    or stroke settings.
+// * @param {number=} opt_thickness [1] Line thickness.
+// * @param {string=} opt_dashpattern Controls the pattern of dashes and gaps used to stroke paths.
+// * @param {acgraph.vector.StrokeLineJoin=} opt_lineJoin Line join style.
+// * @param {acgraph.vector.StrokeLineCap=} opt_lineCap Line cap style.
+// * @return {anychart.core.pert.Tasks|acgraph.vector.Stroke} .
+// */
+//anychart.core.pert.Tasks.prototype.hoverDummyStroke = function(opt_strokeOrFill, opt_thickness, opt_dashpattern, opt_lineJoin, opt_lineCap) {
+//  if (goog.isDef(opt_strokeOrFill)) {
+//    var val = acgraph.vector.normalizeStroke.apply(null, arguments);
+//    if (!anychart.color.equals(/** @type {acgraph.vector.Stroke} */ (this.hoverDummyStroke_), val)) {
+//      this.hoverDummyStroke_ = /** @type {acgraph.vector.Stroke} */ (val);
+//      this.dispatchSignal(anychart.Signal.NEEDS_REDRAW_APPEARANCE);
+//    }
+//    return this;
+//  }
+//  return this.hoverDummyStroke_;
+//};
+//
+//
+///**
+// * Getter/setter for select dummy stroke settings.
+// * @param {(acgraph.vector.Stroke|acgraph.vector.ColoredFill|string|null)=} opt_strokeOrFill Fill settings
+// *    or stroke settings.
+// * @param {number=} opt_thickness - Line thickness.
+// * @param {string=} opt_dashpattern Controls the pattern of dashes and gaps used to stroke paths.
+// * @param {acgraph.vector.StrokeLineJoin=} opt_lineJoin Line join style.
+// * @param {acgraph.vector.StrokeLineCap=} opt_lineCap Line cap style.
+// * @return {anychart.core.pert.Tasks|acgraph.vector.Stroke} .
+// */
+//anychart.core.pert.Tasks.prototype.selectDummyStroke = function(opt_strokeOrFill, opt_thickness, opt_dashpattern, opt_lineJoin, opt_lineCap) {
+//  if (goog.isDef(opt_strokeOrFill)) {
+//    var val = acgraph.vector.normalizeStroke.apply(null, arguments);
+//    if (!anychart.color.equals(/** @type {acgraph.vector.Stroke} */ (this.selectDummyStroke_), val)) {
+//      this.selectDummyStroke_ = /** @type {acgraph.vector.Stroke} */ (val);
+//      this.dispatchSignal(anychart.Signal.NEEDS_REDRAW_APPEARANCE);
+//    }
+//    return this;
+//  }
+//  return this.selectDummyStroke_;
+//};
 
 
 /**
@@ -365,11 +353,11 @@ anychart.core.pert.Tasks.prototype.serialize = function() {
   delete json['hoverLabels'];
 
   json['dummyFill'] = anychart.color.serialize(/** @type {acgraph.vector.Fill}*/(this.dummyFill()));
-  json['hoverDummyFill'] = anychart.color.serialize(/** @type {acgraph.vector.Fill}*/(this.hoverDummyFill()));
-  json['selectDummyFill'] = anychart.color.serialize(/** @type {acgraph.vector.Fill}*/(this.selectDummyFill()));
+  //json['hoverDummyFill'] = anychart.color.serialize(/** @type {acgraph.vector.Fill}*/(this.hoverDummyFill()));
+  //json['selectDummyFill'] = anychart.color.serialize(/** @type {acgraph.vector.Fill}*/(this.selectDummyFill()));
   json['dummyStroke'] = anychart.color.serialize(/** @type {acgraph.vector.Stroke}*/(this.dummyStroke()));
-  json['hoverDummyStroke'] = anychart.color.serialize(/** @type {acgraph.vector.Stroke}*/(this.hoverDummyStroke()));
-  json['selectDummyStroke'] = anychart.color.serialize(/** @type {acgraph.vector.Stroke}*/(this.selectDummyStroke()));
+  //json['hoverDummyStroke'] = anychart.color.serialize(/** @type {acgraph.vector.Stroke}*/(this.hoverDummyStroke()));
+  //json['selectDummyStroke'] = anychart.color.serialize(/** @type {acgraph.vector.Stroke}*/(this.selectDummyStroke()));
 
 
   json['lowerLabels'] = this.lowerLabels().serialize();
@@ -391,11 +379,11 @@ anychart.core.pert.Tasks.prototype.setupByJSON = function(config) {
   this.selectLowerLabels(config['selectLowerLabels']);
 
   this.dummyFill(config['dummyFill']);
-  this.hoverDummyFill(config['hoverDummyFill']);
-  this.selectDummyFill(config['selectDummyFill']);
+  //this.hoverDummyFill(config['hoverDummyFill']);
+  //this.selectDummyFill(config['selectDummyFill']);
   this.dummyStroke(config['dummyStroke']);
-  this.hoverDummyStroke(config['hoverDummyStroke']);
-  this.selectDummyStroke(config['selectDummyStroke']);
+  //this.hoverDummyStroke(config['hoverDummyStroke']);
+  //this.selectDummyStroke(config['selectDummyStroke']);
 };
 
 
@@ -408,11 +396,11 @@ anychart.core.pert.Tasks.prototype['hoverStroke'] = anychart.core.pert.Tasks.pro
 anychart.core.pert.Tasks.prototype['selectStroke'] = anychart.core.pert.Tasks.prototype.selectStroke;
 
 anychart.core.pert.Tasks.prototype['dummyFill'] = anychart.core.pert.Tasks.prototype.dummyFill;
-anychart.core.pert.Tasks.prototype['hoverDummyFill'] = anychart.core.pert.Tasks.prototype.hoverDummyFill;
-anychart.core.pert.Tasks.prototype['selectDummyFill'] = anychart.core.pert.Tasks.prototype.selectDummyFill;
+//anychart.core.pert.Tasks.prototype['hoverDummyFill'] = anychart.core.pert.Tasks.prototype.hoverDummyFill;
+//anychart.core.pert.Tasks.prototype['selectDummyFill'] = anychart.core.pert.Tasks.prototype.selectDummyFill;
 anychart.core.pert.Tasks.prototype['dummyStroke'] = anychart.core.pert.Tasks.prototype.dummyStroke;
-anychart.core.pert.Tasks.prototype['hoverDummyStroke'] = anychart.core.pert.Tasks.prototype.hoverDummyStroke;
-anychart.core.pert.Tasks.prototype['selectDummyStroke'] = anychart.core.pert.Tasks.prototype.selectDummyStroke;
+//anychart.core.pert.Tasks.prototype['hoverDummyStroke'] = anychart.core.pert.Tasks.prototype.hoverDummyStroke;
+//anychart.core.pert.Tasks.prototype['selectDummyStroke'] = anychart.core.pert.Tasks.prototype.selectDummyStroke;
 
 anychart.core.pert.Tasks.prototype['upperLabels'] = anychart.core.pert.Tasks.prototype.upperLabels;
 anychart.core.pert.Tasks.prototype['selectUpperLabels'] = anychart.core.pert.Tasks.prototype.selectUpperLabels;

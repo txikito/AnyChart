@@ -2205,11 +2205,7 @@
             <xsd:element name="hover_stroke" type="Stroke" minOccurs="0" maxOccurs="1"/>
             <xsd:element name="select_stroke" type="Stroke" minOccurs="0" maxOccurs="1"/>
             <xsd:element name="dummy_fill" type="Fill" minOccurs="0" maxOccurs="1"/>
-            <xsd:element name="hover_dummy_fill" type="Fill" minOccurs="0" maxOccurs="1"/>
-            <xsd:element name="select_dummy_fill" type="Fill" minOccurs="0" maxOccurs="1"/>
             <xsd:element name="dummy_stroke" type="Stroke" minOccurs="0" maxOccurs="1"/>
-            <xsd:element name="hover_dummy_stroke" type="Stroke" minOccurs="0" maxOccurs="1"/>
-            <xsd:element name="select_dummy_stroke" type="Stroke" minOccurs="0" maxOccurs="1"/>
 
             <xsd:element name="upper_labels" type="core.LabelsFactory" minOccurs="0" maxOccurs="1"/>
             <xsd:element name="hover_upper_labels" type="core.LabelsFactory" minOccurs="0" maxOccurs="1"/>
@@ -2227,11 +2223,7 @@
         <xsd:attribute name="hover_stroke" type="xsd:string"/>
         <xsd:attribute name="select_stroke" type="xsd:string"/>
         <xsd:attribute name="dummy_fill" type="xsd:string"/>
-        <xsd:attribute name="hover_dummy_fill" type="xsd:string"/>
-        <xsd:attribute name="select_dummy_fill" type="xsd:string"/>
         <xsd:attribute name="dummy_stroke" type="xsd:string"/>
-        <xsd:attribute name="hover_dummy_stroke" type="xsd:string"/>
-        <xsd:attribute name="select_dummy_stroke" type="xsd:string"/>
         <xsd:attribute name="upper_labels" type="simple.BoolOrNull" default="true"/>
         <xsd:attribute name="hover_upper_labels" type="simple.BoolOrNull" default="true"/>
         <xsd:attribute name="select_upper_labels" type="simple.BoolOrNull" default="true"/>

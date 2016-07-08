@@ -414,6 +414,7 @@ anychart.charts.Pert.prototype.hideOtherTooltips_ = function(opt_exception) {
 /** @inheritDoc */
 anychart.charts.Pert.prototype.handleMouseOverAndMove = function(event) {
   var domTarget = event['domTarget'];
+
   var label;
 
   var fill, stroke, source;
@@ -423,52 +424,60 @@ anychart.charts.Pert.prototype.handleMouseOverAndMove = function(event) {
   var pos = new acgraph.math.Coordinate(event['clientX'], event['clientY']);
   var zeroPos = new acgraph.math.Coordinate(0, 0);
   var formatProvider;
+  var tag = domTarget.tag;
 
-  if (goog.isDefAndNotNull(domTarget.attr('m_id'))) {
-    milestone = this.milestonesMap_[domTarget.attr('m_id')];
-    source = milestone.isCritical ? this.criticalPath().milestones() : this.milestones();
-    fill = milestone.isSelected ? source.selectFill() : source.hoverFill();
-    stroke = milestone.isSelected ? source.selectStroke() : source.hoverStroke();
-    domTarget.fill(fill).stroke(stroke);
+  if (tag) {
+    if (goog.isDefAndNotNull(tag['m'])) {
+      milestone = tag['m'];
+      source = milestone.isCritical ? this.criticalPath().milestones() : this.milestones();
+      fill = milestone.isSelected ? source.selectFill() : source.hoverFill();
+      stroke = milestone.isSelected ? source.selectStroke() : source.hoverStroke();
+      domTarget.fill(fill).stroke(stroke);
 
-    tooltip = source.tooltip();
-    formatProvider = this.createFormatProvider(false, void 0, void 0, milestone);
-    position = tooltip.isFloating() ? pos : zeroPos;
-    tooltip.show(formatProvider, position);
+      tooltip = source.tooltip();
+      formatProvider = this.createFormatProvider(false, void 0, void 0, milestone);
+      position = tooltip.isFloating() ? pos : zeroPos;
+      tooltip.show(formatProvider, position);
 
-    label = milestone.relatedLabel;
-    if (label) {
-      label.currentLabelsFactory(/** @type {anychart.core.ui.LabelsFactory} */ (milestone.isSelected ? source.selectLabels() : source.hoverLabels()));
-      source.labels().draw();
+      label = milestone.relatedLabel;
+      if (label) {
+        var lf = /** @type {anychart.core.ui.LabelsFactory} */ (milestone.isSelected ? source.selectLabels() : source.hoverLabels());
+        var labelEnabled = !!lf.enabled();
+        label.currentLabelsFactory(lf);
+        label.enabled(labelEnabled);
+        label.draw();
+      }
+
+    } else if (goog.isDefAndNotNull(tag['w'])) {
+      work = tag['w'];
+      activity = this.activitiesMap_[work.id];
+      source = work.isCritical ? this.criticalPath().tasks() : this.tasks();
+      fill = /** @type {acgraph.vector.Fill} */ (work.isSelected ? source.selectFill() : source.hoverFill());
+      stroke = /** @type {acgraph.vector.Stroke} */ (work.isSelected ? source.selectStroke() : source.hoverStroke());
+      work.relatedPath.fill(fill).stroke(stroke);
+
+      var upperLf = /** @type {anychart.core.ui.LabelsFactory} */ (work.isSelected ? source.selectUpperLabels() : source.hoverUpperLabels());
+      var lowerLf = /** @type {anychart.core.ui.LabelsFactory} */ (work.isSelected ? source.selectLowerLabels() : source.hoverLowerLabels());
+      work.upperLabel.currentLabelsFactory(upperLf);
+      work.upperLabel.enabled(!!upperLf.enabled());
+      work.upperLabel.draw();
+      work.lowerLabel.currentLabelsFactory(lowerLf);
+      work.lowerLabel.enabled(!!lowerLf.enabled());
+      work.lowerLabel.draw();
+
+      tooltip = source.tooltip();
+      formatProvider = this.createFormatProvider(false, work, activity, void 0);
+      position = tooltip.isFloating() ? pos : zeroPos;
+      tooltip.show(formatProvider, position);
     }
-
-  } else if (goog.isDefAndNotNull(domTarget.attr('w_id'))) {
-    var wId = domTarget.attr('w_id');
-    work = this.worksMap_[wId];
-    activity = this.activitiesMap_[wId];
-    source = work.isCritical ? this.criticalPath().tasks() : this.tasks();
-    fill = /** @type {acgraph.vector.Fill} */ (work.isSelected ? source.selectFill() : source.hoverFill());
-    stroke = /** @type {acgraph.vector.Stroke} */ (work.isSelected ? source.selectStroke() : source.hoverStroke());
-    work.relatedPath.fill(fill).stroke(stroke);
-
-    work.upperLabel.currentLabelsFactory(/** @type {anychart.core.ui.LabelsFactory} */ (work.isSelected ? source.selectUpperLabels() : source.hoverUpperLabels()));
-    work.lowerLabel.currentLabelsFactory(/** @type {anychart.core.ui.LabelsFactory} */ (work.isSelected ? source.selectLowerLabels() : source.hoverLowerLabels()));
-    source.upperLabels().draw();
-    source.lowerLabels().draw();
-
-    tooltip = source.tooltip();
-    formatProvider = this.createFormatProvider(false, work, activity, void 0);
-    position = tooltip.isFloating() ? pos : zeroPos;
-    tooltip.show(formatProvider, position);
-
-  } else if (goog.isDefAndNotNull(domTarget.attr('d_crit'))) {
-    var isCrit = domTarget.attr('d_crit') == 'true';
-    source = isCrit ? this.criticalPath().tasks() : this.tasks();
-    fill = source.hoverDummyFill();
-    stroke = source.hoverDummyStroke();
-    domTarget.fill(fill).stroke(stroke);
+    //else if (goog.isDefAndNotNull(tag['d'])) {
+    //  var isCrit = tag['d'];
+    //  source = isCrit ? this.criticalPath().tasks() : this.tasks();
+    //  fill = source.hoverDummyFill();
+    //  stroke = source.hoverDummyStroke();
+    //  domTarget.fill(fill).stroke(stroke);
+    //}
   }
-
   this.hideOtherTooltips_(/** @type {anychart.core.ui.Tooltip} */ (tooltip));
 };
 
@@ -481,39 +490,49 @@ anychart.charts.Pert.prototype.handleMouseOut = function(event) {
   var domTarget = event['domTarget'];
   var fill, stroke, source;
   var label;
+  var tag = domTarget.tag;
 
-  if (goog.isDefAndNotNull(domTarget.attr('m_id'))) {
-    var milestone = this.milestonesMap_[domTarget.attr('m_id')];
-    source = milestone.isCritical ? this.criticalPath().milestones() : this.milestones();
-    fill = milestone.isSelected ? source.selectFill() : source.fill();
-    stroke = milestone.isSelected ? source.selectStroke() : source.stroke();
+  if (tag) {
+    if (goog.isDefAndNotNull(tag['m'])) {
+      var milestone = tag['m'];
+      source = milestone.isCritical ? this.criticalPath().milestones() : this.milestones();
+      fill = milestone.isSelected ? source.selectFill() : source.fill();
+      stroke = milestone.isSelected ? source.selectStroke() : source.stroke();
 
-    label = milestone.relatedLabel;
-    if (label) {
-      label.currentLabelsFactory(/** @type {anychart.core.ui.LabelsFactory} */ (milestone.isSelected ? source.selectLabels() : source.labels()));
-      source.labels().draw();
+      label = milestone.relatedLabel;
+      if (label) {
+        var lf = /** @type {anychart.core.ui.LabelsFactory} */ (milestone.isSelected ? source.selectLabels() : source.labels());
+        var labelEnabled = !!lf.enabled();
+        label.currentLabelsFactory(lf);
+        label.enabled(labelEnabled);
+        label.draw();
+      }
+      domTarget.fill(fill).stroke(stroke);
+    } else if (goog.isDefAndNotNull(tag['w'])) {
+      var work = tag['w'];
+      source = work.isCritical ? this.criticalPath().tasks() : this.tasks();
+      fill = /** @type {acgraph.vector.Fill} */ (work.isSelected ? source.selectFill() : source.fill());
+      stroke = /** @type {acgraph.vector.Stroke} */ (work.isSelected ? source.selectStroke() : source.stroke());
+      work.relatedPath.fill(fill).stroke(stroke);
+
+      var upperLf = /** @type {anychart.core.ui.LabelsFactory} */ (work.isSelected ? source.selectUpperLabels() : source.upperLabels());
+      var lowerLf = /** @type {anychart.core.ui.LabelsFactory} */ (work.isSelected ? source.selectLowerLabels() : source.lowerLabels());
+      work.upperLabel.currentLabelsFactory(upperLf);
+      work.upperLabel.enabled(!!upperLf.enabled());
+      work.upperLabel.draw();
+      work.lowerLabel.currentLabelsFactory(lowerLf);
+      work.lowerLabel.enabled(!!lowerLf.enabled());
+      work.lowerLabel.draw();
+
     }
-    domTarget.fill(fill).stroke(stroke);
-  } else if (goog.isDefAndNotNull(domTarget.attr('w_id'))) {
-    var work = this.worksMap_[/** @type {string} */ (domTarget.attr('w_id'))];
-    source = work.isCritical ? this.criticalPath().tasks() : this.tasks();
-    fill = /** @type {acgraph.vector.Fill} */ (work.isSelected ? source.selectFill() : source.fill());
-    stroke = /** @type {acgraph.vector.Stroke} */ (work.isSelected ? source.selectStroke() : source.stroke());
-    work.relatedPath.fill(fill).stroke(stroke);
-
-    work.upperLabel.currentLabelsFactory(/** @type {anychart.core.ui.LabelsFactory} */ (work.isSelected ? source.selectUpperLabels() : source.upperLabels()));
-    work.lowerLabel.currentLabelsFactory(/** @type {anychart.core.ui.LabelsFactory} */ (work.isSelected ? source.selectLowerLabels() : source.lowerLabels()));
-    source.upperLabels().draw();
-    source.lowerLabels().draw();
-
-  } else if (goog.isDefAndNotNull(domTarget.attr('d_crit'))) {
-    var isCrit = domTarget.attr('d_crit') == 'true';
-    source = isCrit ? this.criticalPath().tasks() : this.tasks();
-    fill = source.dummyFill();
-    stroke = source.dummyStroke();
-    domTarget.fill(fill).stroke(stroke);
+    //else if (goog.isDefAndNotNull(tag['d'])) {
+    //  var isCrit = tag['d'];
+    //  source = isCrit ? this.criticalPath().tasks() : this.tasks();
+    //  fill = source.dummyFill();
+    //  stroke = source.dummyStroke();
+    //  domTarget.fill(fill).stroke(stroke);
+    //}
   }
-
 };
 
 
@@ -528,11 +547,14 @@ anychart.charts.Pert.prototype.clickHandler_ = function(event) {
   var milestone, work;
 
   var domTarget = /** @type {acgraph.vector.Element} */ (event['domTarget']);
-  if (domTarget instanceof acgraph.vector.Element) {
-    if (goog.isDefAndNotNull(domTarget.attr('m_id'))) {
-      milestone = this.milestonesMap_[/** @type {string} */ (domTarget.attr('m_id'))];
-    } else if (goog.isDefAndNotNull(domTarget.attr('w_id'))) {
-      work = this.worksMap_[/** @type {string} */ (domTarget.attr('w_id'))];
+  var tag = domTarget.tag;
+  if ((domTarget instanceof acgraph.vector.Element)) {
+    if (tag) {
+      if (goog.isDefAndNotNull(tag['m'])) {
+        milestone = tag['m'];
+      } else if (goog.isDefAndNotNull(tag['w'])) {
+        work = tag['w'];
+      }
     }
 
     if (milestone || work) {
@@ -1281,16 +1303,23 @@ anychart.charts.Pert.prototype.criticalPath = function(opt_value) {
  */
 anychart.charts.Pert.prototype.milestonesLayerAppearanceCallback_ = function(element, index) {
   var fill, stroke;
+  var tag = element.tag;
 
-  if (goog.isDefAndNotNull(element.attr('m_id'))) {
-    var milestone = this.milestonesMap_[/** @type {string} */ (element.attr('m_id'))];
-    var source = milestone.isCritical ? this.criticalPath().milestones() : this.milestones();
+  if (tag) {
+    if (goog.isDefAndNotNull(tag['m'])) {
+      var milestone = tag['m'];
+      var source = milestone.isCritical ? this.criticalPath().milestones() : this.milestones();
 
-    fill = /** @type {acgraph.vector.Fill} */ (milestone.isSelected ? source.selectFill() : source.fill());
-    stroke = /** @type {acgraph.vector.Stroke} */ (milestone.isSelected ? source.selectStroke() : source.stroke());
-    /** @type {acgraph.vector.Path} */ (element).fill(fill).stroke(stroke);
+      fill = /** @type {acgraph.vector.Fill} */ (milestone.isSelected ? source.selectFill() : source.fill());
+      stroke = /** @type {acgraph.vector.Stroke} */ (milestone.isSelected ? source.selectStroke() : source.stroke());
+      /** @type {acgraph.vector.Path} */ (element).fill(fill).stroke(stroke);
 
-    milestone.relatedLabel.currentLabelsFactory(/** @type {anychart.core.ui.LabelsFactory} */ (milestone.isSelected ? source.selectLabels() : source.labels()));
+      var lf = /** @type {anychart.core.ui.LabelsFactory} */ (milestone.isSelected ? source.selectLabels() : source.labels());
+      var labelEnabled = !!lf.enabled();
+      milestone.relatedLabel.currentLabelsFactory(lf);
+      milestone.relatedLabel.enabled(labelEnabled);
+      milestone.relatedLabel.draw();
+    }
   }
 };
 
@@ -1303,23 +1332,31 @@ anychart.charts.Pert.prototype.milestonesLayerAppearanceCallback_ = function(ele
  */
 anychart.charts.Pert.prototype.worksLayerAppearanceCallback_ = function(element, index) {
   var fill, stroke;
+  var tag = element.tag;
 
-  if (goog.isDefAndNotNull(element.attr('w_id'))) {
-    var work = this.worksMap_[/** @type {string} */ (element.attr('w_id'))];
-    var source = work.isCritical ? this.criticalPath().tasks() : this.tasks();
-    fill = /** @type {acgraph.vector.Fill} */ (work.isSelected ? source.selectFill() : source.fill());
-    stroke = /** @type {acgraph.vector.Stroke} */ (work.isSelected ? source.selectStroke() : source.stroke());
-    /** @type {acgraph.vector.Path} */ (element).fill(fill).stroke(stroke);
+  if (tag) {
+    if (goog.isDefAndNotNull(tag['w'])) {
+      var work = tag['w'];
+      var source = work.isCritical ? this.criticalPath().tasks() : this.tasks();
+      fill = /** @type {acgraph.vector.Fill} */ (work.isSelected ? source.selectFill() : source.fill());
+      stroke = /** @type {acgraph.vector.Stroke} */ (work.isSelected ? source.selectStroke() : source.stroke());
+      /** @type {acgraph.vector.Path} */ (element).fill(fill).stroke(stroke);
 
-    work.upperLabel.currentLabelsFactory(/** @type {anychart.core.ui.LabelsFactory} */ (work.isSelected ? source.selectUpperLabels() : source.upperLabels()));
-    work.lowerLabel.currentLabelsFactory(/** @type {anychart.core.ui.LabelsFactory} */ (work.isSelected ? source.selectLowerLabels() : source.lowerLabels()));
-  } else if (goog.isDefAndNotNull(element.attr('d_crit'))) {
-    var attrVal = element.attr('d_crit');
-    var isCrit = (attrVal == 'true') || (attrVal === true); //Rendered and not rendered cases.
-    source = isCrit ? this.criticalPath().tasks() : this.tasks();
-    fill = /** @type {acgraph.vector.Fill} */ (source.dummyFill());
-    stroke = /** @type {acgraph.vector.Stroke} */ (source.dummyStroke());
-    /** @type {acgraph.vector.Path} */ (element).fill(fill).stroke(stroke);
+      var upperLf = /** @type {anychart.core.ui.LabelsFactory} */ (work.isSelected ? source.selectUpperLabels() : source.upperLabels());
+      var lowerLf = /** @type {anychart.core.ui.LabelsFactory} */ (work.isSelected ? source.selectLowerLabels() : source.lowerLabels());
+      work.upperLabel.currentLabelsFactory(upperLf);
+      work.upperLabel.enabled(!!upperLf.enabled());
+      work.upperLabel.draw();
+      work.lowerLabel.currentLabelsFactory(lowerLf);
+      work.lowerLabel.enabled(!!lowerLf.enabled());
+      work.lowerLabel.draw();
+    } else if (goog.isDefAndNotNull(tag['d'])) {
+      var isCrit = tag['d']; //Rendered and not rendered cases.
+      source = isCrit ? this.criticalPath().tasks() : this.tasks();
+      fill = /** @type {acgraph.vector.Fill} */ (source.dummyFill());
+      stroke = /** @type {acgraph.vector.Stroke} */ (source.dummyStroke());
+      /** @type {acgraph.vector.Path} */ (element).fill(fill).stroke(stroke);
+    }
   }
 };
 
@@ -1341,23 +1378,18 @@ anychart.charts.Pert.prototype.drawContent = function(bounds) {
       return acgraph.path();
     }, function(child) {
       (/** @type {acgraph.vector.Path} */ (child)).clear();
-      (/** @type {acgraph.vector.Path} */ (child)).attr('a_crit', null);
-      (/** @type {acgraph.vector.Path} */ (child)).attr('d_crit', null);
-      (/** @type {acgraph.vector.Path} */ (child)).attr('w_id', null);
+      (/** @type {acgraph.vector.Path} */ (child)).tag = void 0;
     });
     this.activitiesLayer_.zIndex(1);
     this.activitiesLayer_.parent(this.baseLayer_);
 
     this.interactivityLayer_ = new anychart.core.utils.TypedLayer(function() {
       var path = acgraph.path();
-      path.attr('ac_interact', true);
       path.fill('none').stroke({'color': '#fff', 'opacity': 0.0001, 'thickness': 6});
       return path;
     }, function(child) {
       (/** @type {acgraph.vector.Path} */ (child)).clear();
-      (/** @type {acgraph.vector.Path} */ (child)).attr('a_crit', null);
-      (/** @type {acgraph.vector.Path} */ (child)).attr('d_crit', null);
-      (/** @type {acgraph.vector.Path} */ (child)).attr('w_id', null);
+      (/** @type {acgraph.vector.Path} */ (child)).tag = void 0;
     });
     this.interactivityLayer_.zIndex(2);
     this.interactivityLayer_.parent(this.baseLayer_);
@@ -1366,7 +1398,6 @@ anychart.charts.Pert.prototype.drawContent = function(bounds) {
       return acgraph.path();
     }, function(child) {
       (/** @type {acgraph.vector.Path} */ (child)).clear();
-      (/** @type {acgraph.vector.Path} */ (child)).attr('m_crit', null);
     });
     this.milestonesLayer_.zIndex(3);
     this.milestonesLayer_.parent(this.baseLayer_);
@@ -1440,8 +1471,7 @@ anychart.charts.Pert.prototype.drawContent = function(bounds) {
                     .arcTo(radius, radius, 0, 360);
             }
 
-            milPath.attr('m_crit', !!milestone.isCritical);
-            milPath.attr('m_id', milestone.id);
+            milPath.tag = {'m': milestone};
             milestone.relatedPath = /** @type {acgraph.vector.Path} */ (milPath);
 
             var labelContextProvider = this.createFormatProvider(true, void 0, void 0, milestone);
@@ -1478,12 +1508,10 @@ anychart.charts.Pert.prototype.drawContent = function(bounds) {
             this.tasks().stroke();
 
         path.stroke(stroke);
-        path.attr('a_crit', isCrit);
-        path.attr('w_id', succId);
+        path.tag = {'w': succWork};
         succWork.relatedPath = /** @type {acgraph.vector.Path} */ (path);
 
-        interactPath.attr('a_crit', isCrit);
-        interactPath.attr('w_id', succId);
+        interactPath.tag = {'w': succWork};
 
         var startLeft = mil.left + anychart.charts.Pert.CELL_PIXEL_SIZE_;
         var startTop = mil.top + anychart.charts.Pert.CELL_PIXEL_SIZE_ / 2;
@@ -1540,8 +1568,8 @@ anychart.charts.Pert.prototype.drawContent = function(bounds) {
         var path = this.activitiesLayer_.genNextChild();
         var interactPath = this.interactivityLayer_.genNextChild();
         var isCrit = (mil.isCritical && mSucc.isCritical);
-        path.attr('d_crit', isCrit);
-        interactPath.attr('d_crit', isCrit);
+        path.tag = {'d': isCrit};
+        interactPath.tag = {'d': isCrit};
 
         var startLeft = mil.left + anychart.charts.Pert.CELL_PIXEL_SIZE_;
         var startTop = mil.top + anychart.charts.Pert.CELL_PIXEL_SIZE_ / 2;

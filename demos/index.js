@@ -13,9 +13,8 @@ anychart.onDocumentReady(function () {
 
   var currentMilestones = chart.milestones();
 
-  currentMilestones.selectLabels({fontColor: "green"});
   // Disable selectLabels.
-//            currentMilestones.selectLabels(false);
+  currentMilestones.selectLabels(false);
 
   chart.title("Disable milestones selectLabels.");
   chart.container("container");
