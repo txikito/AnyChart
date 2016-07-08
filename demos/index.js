@@ -16,6 +16,7 @@ anychart.onDocumentReady(function () {
   // Disable selectLabels.
   currentMilestones.selectLabels(false);
 
+
   chart.title("Disable milestones selectLabels.");
   chart.container("container");
   chart.draw();

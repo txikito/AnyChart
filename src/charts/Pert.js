@@ -280,6 +280,20 @@ anychart.charts.Pert.Work;
 
 
 /**
+ * Arrow height.
+ * @type {number}
+ */
+anychart.charts.Pert.ARROW_HEIGHT = 10;
+
+
+/**
+ * Arrow half bottom.
+ * @type {number}
+ */
+anychart.charts.Pert.ARROW_BOTTOM = 3;
+
+
+/**
  * Supported signals.
  * @type {number}
  */
@@ -1494,6 +1508,8 @@ anychart.charts.Pert.prototype.drawContent = function(bounds) {
 
     for (var id in this.milestonesMap_) {
       var mil = this.milestonesMap_[id];
+
+      //Drawing real works.
       for (i = 0; i < mil.successors.length; i++) {
         var succ = mil.successors[i];
         var succId = String(succ.get(anychart.enums.DataField.ID));
@@ -1522,12 +1538,28 @@ anychart.charts.Pert.prototype.drawContent = function(bounds) {
         //path.moveTo(startLeft, startTop)
         //    .curveTo(startLeft + dWidth, startTop, startLeft + dWidth, finTop, finLeft, finTop);
 
-        path.moveTo(startLeft, startTop).lineTo(finLeft, finTop);
+        var angle = Math.atan((finTop - startTop) / (finLeft - startLeft));
+        var arrowCoords = this.getArrowRotation_(startLeft, startTop, finLeft, finTop);
+
+        var pathLeft = finLeft - anychart.charts.Pert.ARROW_HEIGHT * Math.cos(angle);
+        var pathTop = finTop - anychart.charts.Pert.ARROW_HEIGHT * Math.sin(angle);
+
+        var left1 = arrowCoords[0];
+        var top1 = arrowCoords[1];
+
+        var left2 = arrowCoords[2];
+        var top2 = arrowCoords[3];
+
+        path.moveTo(startLeft, startTop)
+            .lineTo(pathLeft, pathTop)
+            .moveTo(pathLeft, pathTop)
+            .lineTo(left1, top1)
+            .lineTo(finLeft, finTop)
+            .lineTo(left2, top2)
+            .close();
         interactPath.moveTo(startLeft, startTop).lineTo(finLeft, finTop);
 
-
-        var angle = Math.atan((finTop - startTop) / (finLeft - startLeft));
-        angle = angle * 180 / Math.PI;
+        var degAngle = angle * 180 / Math.PI;
 
         var labelLeft = destMilestone.left - dWidth;
         var labelTop = (destMilestone.top + mil.top + anychart.charts.Pert.CELL_PIXEL_SIZE_) / 2;
@@ -1543,7 +1575,7 @@ anychart.charts.Pert.prototype.drawContent = function(bounds) {
         upperLabel.width(destMilestone.left - mil.left);
         upperLabel.height(anychart.charts.Pert.CELL_PIXEL_SIZE_);
         succWork.upperLabel = upperLabel;
-        upperLabel.rotation(angle);
+        upperLabel.rotation(degAngle);
 
 
         var lowerLabel = labelsSource.lowerLabels().add(labelContextProvider, {
@@ -1555,14 +1587,11 @@ anychart.charts.Pert.prototype.drawContent = function(bounds) {
         upperLabel.width(destMilestone.left - mil.left);
         upperLabel.height(anychart.charts.Pert.CELL_PIXEL_SIZE_);
         succWork.lowerLabel = lowerLabel;
-        lowerLabel.rotation(angle);
+        lowerLabel.rotation(degAngle);
 
       }
-    }
 
-
-    for (var id in this.milestonesMap_) {
-      var mil = this.milestonesMap_[id];
+      //Drawing dummy.
       for (i = 0; i < mil.mSuccessors.length; i++) {
         var mSucc = mil.mSuccessors[i];
         var path = this.activitiesLayer_.genNextChild();
@@ -1576,7 +1605,26 @@ anychart.charts.Pert.prototype.drawContent = function(bounds) {
         var finLeft = mSucc.left;
         var finTop = mSucc.top + anychart.charts.Pert.CELL_PIXEL_SIZE_ / 2;
 
-        path.moveTo(startLeft, startTop).lineTo(finLeft, finTop);
+        var angle = Math.atan((finTop - startTop) / (finLeft - startLeft));
+        var arrowCoords = this.getArrowRotation_(startLeft, startTop, finLeft, finTop);
+
+        var pathLeft = finLeft - anychart.charts.Pert.ARROW_HEIGHT * Math.cos(angle);
+        var pathTop = finTop - anychart.charts.Pert.ARROW_HEIGHT * Math.sin(angle);
+
+        var left1 = arrowCoords[0];
+        var top1 = arrowCoords[1];
+
+        var left2 = arrowCoords[2];
+        var top2 = arrowCoords[3];
+
+        path.moveTo(startLeft, startTop)
+            .lineTo(pathLeft, pathTop)
+            .moveTo(pathLeft, pathTop)
+            .lineTo(left1, top1)
+            .lineTo(finLeft, finTop)
+            .lineTo(left2, top2)
+            .close();
+
         interactPath.moveTo(startLeft, startTop).lineTo(finLeft, finTop);
 
         //var dWidth = (mSucc.left - mil.left - anychart.charts.Pert.CELL_PIXEL_HORIZONTAL_SPACE_) / 2;
@@ -1623,6 +1671,34 @@ anychart.charts.Pert.prototype.drawContent = function(bounds) {
  */
 anychart.charts.Pert.prototype.hash_ = function(prefix, value) {
   return prefix + goog.getUid(value);
+};
+
+
+/**
+ * Gets arrow rotation coordinates.
+ * @param {number} x1 - x1 coordinate.
+ * @param {number} y1 - y1coordinate.
+ * @param {number} x2 - x2 coordinate.
+ * @param {number} y2 - y2 coordinate.
+ * @return {Array.<number>} - Array like [arrowLeft1, attowTop1, arrowLeft2, arrowTop2].
+ * @private
+ */
+anychart.charts.Pert.prototype.getArrowRotation_ = function(x1, y1, x2, y2) {
+  var angle = Math.atan((y2 - y1) / (x2 - x1));
+  var arrowAngle = Math.atan(anychart.charts.Pert.ARROW_BOTTOM / anychart.charts.Pert.ARROW_HEIGHT);
+
+  var hypotenuse = Math.sqrt(anychart.charts.Pert.ARROW_BOTTOM * anychart.charts.Pert.ARROW_BOTTOM +
+      anychart.charts.Pert.ARROW_HEIGHT * anychart.charts.Pert.ARROW_HEIGHT);
+
+  var angleDiff = angle - arrowAngle;
+  var left1 = x2 - hypotenuse * Math.cos(angleDiff);
+  var top1 = y2 - hypotenuse * Math.sin(angleDiff);
+
+  var angleSum = angle + arrowAngle;
+  var left2 = x2 - hypotenuse * Math.cos(angleSum);
+  var top2 = y2 - hypotenuse * Math.sin(angleSum);
+
+  return [left1, top1, left2, top2];
 };
 
 
