@@ -938,7 +938,8 @@ anychart.themes.merging.mergingMap_ = [
       'choropleth',
       'bubbleMap',
       'connector',
-      'markerMap'
+      'markerMap',
+      'seatMap'
     ]
   },
   {

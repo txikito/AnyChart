@@ -5189,7 +5189,13 @@
         {"$ref": "#/definitions/anychart.core.utils.Interactivity"}
       ],
       "properties": {
-        "mouseWheel": {
+        "zoomOnMouseWheel": {
+          "type": "boolean"
+        },
+        "keyboardZoomAndMove": {
+          "type": "boolean"
+        },
+        "zoomOnDoubleClick": {
           "type": "boolean"
         },
         "drag": {
