@@ -35,7 +35,6 @@ anychart.charts.Pert = function() {
    */
   this.worksMap_ = {};
 
-
   /**
    * Activity data map.
    * Contains calculated values as earliestStart, earliestFinish, latestStart, latestFinish, duration, slack.
@@ -44,7 +43,6 @@ anychart.charts.Pert = function() {
    */
   this.activitiesMap_ = {};
 
-
   /**
    * Levels data.
    * Contains IDs of activities by levels.
@@ -52,7 +50,6 @@ anychart.charts.Pert = function() {
    * @private
    */
   this.levels_ = [];
-
 
   /**
    * Start activities.
@@ -182,6 +179,27 @@ anychart.charts.Pert = function() {
    */
   this.selectedMilestones_ = [];
 
+  /**
+   * Edges map.
+   * @type {Object.<string, anychart.charts.Pert.Edge>}
+   * @private
+   */
+  this.edgesMap_ = {};
+
+  /**
+   * Paths data.
+   * @type {Array.<Array.<anychart.charts.Pert.Milestone>>}
+   * @private
+   */
+  this.paths_ = [];
+
+  /**
+   * Max paths level.
+   * @type {number}
+   * @private
+   */
+  this.maxLevel_ = 0;
+
   this.bindHandlersToComponent(this, this.handleMouseOverAndMove, this.handleMouseOut, this.clickHandler_,
       this.handleMouseOverAndMove, null, this.handleMouseDown);
 
@@ -189,6 +207,119 @@ anychart.charts.Pert = function() {
 goog.inherits(anychart.charts.Pert, anychart.core.SeparateChart);
 
 
+/**
+ * Supported signals.
+ * @type {number}
+ */
+anychart.charts.Pert.prototype.SUPPORTED_SIGNALS = anychart.core.SeparateChart.prototype.SUPPORTED_SIGNALS;
+
+
+/**
+ * Supported consistency states.
+ * @type {number}
+ */
+anychart.charts.Pert.prototype.SUPPORTED_CONSISTENCY_STATES =
+    anychart.core.SeparateChart.prototype.SUPPORTED_CONSISTENCY_STATES |
+    anychart.ConsistencyState.PERT_DATA |
+    anychart.ConsistencyState.PERT_CALCULATIONS |
+    anychart.ConsistencyState.PERT_APPEARANCE |
+    anychart.ConsistencyState.PERT_LABELS;
+
+
+//region -- Type definitions.
+//----------------------------------------------------------------------------------------------------------------------
+//
+//  Type definitions.
+//
+//----------------------------------------------------------------------------------------------------------------------
+/**
+ * @typedef {{
+ *    earliestStart: number,
+ *    earliestFinish: number,
+ *    latestStart: number,
+ *    latestFinish: number,
+ *    duration: number,
+ *    slack: number,
+ *    variance: number
+ * }}
+ */
+anychart.charts.Pert.ActivityData;
+
+
+/**
+ * @typedef {{
+ *    id: string,
+ *    label: string,
+ *    successors: Array.<anychart.data.Tree.DataItem>,
+ *    predecessors: Array.<anychart.data.Tree.DataItem>,
+ *    mSuccessors: Array.<anychart.charts.Pert.Milestone>,
+ *    mPredecessors: Array.<anychart.charts.Pert.Milestone>,
+ *    level: number,
+ *    xIndex: number,
+ *    yIndex: number,
+ *    isCritical: boolean,
+ *    left: number,
+ *    top: number,
+ *    isSelected: boolean,
+ *    relatedPath: acgraph.vector.Path,
+ *    relatedLabel: anychart.core.ui.LabelsFactory.Label,
+ *    isStart: boolean,
+ *    creator: ?anychart.charts.Pert.Work,
+ *    flag: boolean,
+ *    flagPlotted: boolean,
+ *    edges: anychart.charts.Pert.Edge
+ * }}
+ */
+anychart.charts.Pert.Milestone;
+
+
+/**
+ * Work is actually a wrapper over a TreeDataItem.
+ * @typedef {{
+ *    id: string,
+ *    item: anychart.data.Tree.DataItem,
+ *    successors: Array.<anychart.data.Tree.DataItem>,
+ *    predecessors: Array.<anychart.data.Tree.DataItem>,
+ *    level: number,
+ *    startMilestone: anychart.charts.Pert.Milestone,
+ *    finishMilestone: anychart.charts.Pert.Milestone,
+ *    isCritical: boolean,
+ *    isSelected: boolean,
+ *    relatedPath: acgraph.vector.Path,
+ *    upperLabel: anychart.core.ui.LabelsFactory.Label,
+ *    lowerLabel: anychart.core.ui.LabelsFactory.Label
+ * }}
+ */
+anychart.charts.Pert.Work;
+
+
+/**
+ * Edge data.
+ * @typedef {{
+ *    from: anychart.charts.Pert.Milestone,
+ *    to: anychart.charts.Pert.Milestone,
+ *    flag: boolean,
+ *    flagPlotted: boolean,
+ *    work: ?anychart.charts.Pert.Work,
+ *    id: string,
+ *    isCritical: boolean
+ * }}
+ */
+anychart.charts.Pert.Edge;
+
+
+/**
+ * Edge data.
+ * @typedef {{
+ *    vertices: Object.<string, anychart.charts.Pert.Milestone>,
+ *    edges: Object.<string, anychart.charts.Pert.Edge>
+ * }}
+ */
+anychart.charts.Pert.Segment;
+//endregion
+
+
+//region -- Static constants.
 /**
  * Base layer z-index.
  * @type {number}
@@ -219,66 +350,6 @@ anychart.charts.Pert.CELL_PIXEL_VERTICAL_SPACE_ = 20;
  */
 anychart.charts.Pert.CELL_PIXEL_HORIZONTAL_SPACE_ = 80;
 
-
-/**
- * @typedef {{
- *    earliestStart: number,
- *    earliestFinish: number,
- *    latestStart: number,
- *    latestFinish: number,
- *    duration: number,
- *    slack: number,
- *    variance: number
- * }}
- */
-anychart.charts.Pert.ActivityData;
-
-
-/**
- * TODO (A.Kudryavtsev): Describe fields!
- * @typedef {{
- *    id: string,
- *    label: string,
- *    successors: Array.<anychart.data.Tree.DataItem>,
- *    predecessors: Array.<anychart.data.Tree.DataItem>,
- *    mSuccessors: Array.<anychart.charts.Pert.Milestone>,
- *    mPredecessors: Array.<anychart.charts.Pert.Milestone>,
- *    level: number,
- *    xIndex: number,
- *    yIndex: number,
- *    isCritical: boolean,
- *    left: number,
- *    top: number,
- *    isSelected: boolean,
- *    relatedPath: acgraph.vector.Path,
- *    relatedLabel: anychart.core.ui.LabelsFactory.Label,
- *    isStart: boolean,
- *    creator: (anychart.charts.Pert.Work|null)
- * }}
- */
-anychart.charts.Pert.Milestone;
-
-
-/**
- * Work is actually a wrapper over a TreeDataItem.
- * @typedef {{
- *    id: string,
- *    item: anychart.data.Tree.DataItem,
- *    successors: Array.<anychart.data.Tree.DataItem>,
- *    predecessors: Array.<anychart.data.Tree.DataItem>,
- *    level: number,
- *    startMilestone: anychart.charts.Pert.Milestone,
- *    finishMilestone: anychart.charts.Pert.Milestone,
- *    isCritical: boolean,
- *    isSelected: boolean,
- *    relatedPath: acgraph.vector.Path,
- *    upperLabel: anychart.core.ui.LabelsFactory.Label,
- *    lowerLabel: anychart.core.ui.LabelsFactory.Label
- * }}
- */
-anychart.charts.Pert.Work;
-
-
 /**
  * Arrow height.
  * @type {number}
@@ -291,27 +362,10 @@ anychart.charts.Pert.ARROW_HEIGHT = 10;
  * @type {number}
  */
 anychart.charts.Pert.ARROW_BOTTOM = 3;
+//endregion
 
 
-/**
- * Supported signals.
- * @type {number}
- */
-anychart.charts.Pert.prototype.SUPPORTED_SIGNALS = anychart.core.SeparateChart.prototype.SUPPORTED_SIGNALS;
-
-
-/**
- * Supported consistency states.
- * @type {number}
- */
-anychart.charts.Pert.prototype.SUPPORTED_CONSISTENCY_STATES =
-    anychart.core.SeparateChart.prototype.SUPPORTED_CONSISTENCY_STATES |
-    anychart.ConsistencyState.PERT_DATA |
-    anychart.ConsistencyState.PERT_CALCULATIONS |
-    anychart.ConsistencyState.PERT_APPEARANCE |
-    anychart.ConsistencyState.PERT_LABELS;
-
-
+//region -- Type and context provider.
 /** @inheritDoc */
 anychart.charts.Pert.prototype.getType = function() {
   return anychart.enums.ChartTypes.PERT;
@@ -335,8 +389,10 @@ anychart.charts.Pert.prototype.createFormatProvider = function(opt_force, opt_wo
   this.formatProvider_.applyReferenceValues();
   return this.formatProvider_;
 };
+//endregion
 
 
+//region -- Data.
 //----------------------------------------------------------------------------------------------------------------------
 //
 //  Data.
@@ -387,8 +443,10 @@ anychart.charts.Pert.prototype.resizeHandler = function(evt) {
 anychart.charts.Pert.prototype.dataInvalidated_ = function(event) {
   this.invalidate(anychart.ConsistencyState.PERT_DATA, anychart.Signal.NEEDS_REDRAW);
 };
+//endregion
 
 
+//region -- Abstract methods.
 //----------------------------------------------------------------------------------------------------------------------
 //
 //  Abstract methods implementation.
@@ -405,8 +463,10 @@ anychart.charts.Pert.prototype.createLegendItemsProvider = function(sourceMode, 
 anychart.charts.Pert.prototype.getAllSeries = function() {
   return [];
 };
+//endregion
 
 
+//region -- Mouse interactivty.
 //----------------------------------------------------------------------------------------------------------------------
 //
 //  Mouse interactivity.
@@ -670,8 +730,10 @@ anychart.charts.Pert.prototype.makeInteractivityEvent_ = function() {
 
   return eventObject;
 };
+//endregion
 
 
+//region -- Calculations.
 //----------------------------------------------------------------------------------------------------------------------
 //
 //  Calculations.
@@ -752,6 +814,7 @@ anychart.charts.Pert.prototype.calculate = function() {
       this.calculateLevels_();
       this.calculateActivities_();
       this.calculateMilestones_();
+      this.calculateGamma_();
 
     }
     this.markConsistent(anychart.ConsistencyState.PERT_DATA);
@@ -940,7 +1003,10 @@ anychart.charts.Pert.prototype.createEmptyMilestone_ = function(creator, isStart
     left: 0,
     top: 0,
     isStart: isStart,
-    creator: creator
+    creator: creator,
+    flag: false,
+    flagPlotted: false,
+    edges: []
   });
   var hash = this.hash_('m', result);
   this.milestonesMap_[hash] = result;
@@ -967,11 +1033,11 @@ anychart.charts.Pert.prototype.createAllMilestones_ = function() {
     var activity = this.activitiesMap_[id];
 
     if (!work.startMilestone) {
-      work.startMilestone = this.createEmptyMilestone_(work, true, 'Start: ' + work.item.get(anychart.enums.DataField.NAME));
+      work.startMilestone = this.createEmptyMilestone_(work, true, 'S' + work.item.get(anychart.enums.DataField.NAME));
     }
 
     if (!work.finishMilestone) {
-      work.finishMilestone = this.createEmptyMilestone_(work, false, 'Finish: ' + work.item.get(anychart.enums.DataField.NAME));
+      work.finishMilestone = this.createEmptyMilestone_(work, false, 'F' + work.item.get(anychart.enums.DataField.NAME));
       work.finishMilestone.creator = work;
     }
 
@@ -990,9 +1056,9 @@ anychart.charts.Pert.prototype.createAllMilestones_ = function() {
         var succId = String(succ.get(anychart.enums.DataField.ID));
         var succWork = this.worksMap_[succId];
         if (!succWork.startMilestone)
-          succWork.startMilestone = this.createEmptyMilestone_(succWork, true, 'Start: ' + succWork.item.get(anychart.enums.DataField.NAME));
+          succWork.startMilestone = this.createEmptyMilestone_(succWork, true, 'S' + succWork.item.get(anychart.enums.DataField.NAME));
         if (!succWork.finishMilestone)
-          succWork.finishMilestone = this.createEmptyMilestone_(succWork, false, 'Finish: ' + succWork.item.get(anychart.enums.DataField.NAME));
+          succWork.finishMilestone = this.createEmptyMilestone_(succWork, false, 'F' + succWork.item.get(anychart.enums.DataField.NAME));
         this.addMilestoneSuccessors_(succWork.startMilestone, work.finishMilestone);
       }
     } else {
@@ -1028,15 +1094,17 @@ anychart.charts.Pert.prototype.clearExcessiveMilestones_ = function() {
 
   var removeList = [];
 
-  //First passage.
+  //First passage. Clearing structure like Mil -> dummy -> Mil -> Work -> Mil.
   for (uid in this.milestonesMap_) {
     milestone = this.milestonesMap_[uid];
     cantBeShortenedMap = {};
 
+    //if (milestone.label == 'Finish: SD') debugger;
     for (i = 0; i < milestone.mSuccessors.length; i++) {
       mSucc = milestone.mSuccessors[i];
 
       if (mSucc.successors.length == 1 && mSucc.mPredecessors.length < 2 && !mSucc.predecessors.length) {
+        //if (mSucc.successors.length == 1 && !mSucc.predecessors.length) {
         succId = String(mSucc.successors[0].get(anychart.enums.DataField.ID));
         succWork = this.worksMap_[succId];
         var succFinishMilestone = succWork.finishMilestone;
@@ -1078,7 +1146,7 @@ anychart.charts.Pert.prototype.clearExcessiveMilestones_ = function() {
     }
   }
 
-  //Second passage.
+  //Second passage. Clearing structure like Mil -> Work -> Mil -> dummy -> Mil.
   for (uid in this.milestonesMap_) {
     milestone = this.milestonesMap_[uid];
     cantBeShortenedMap = {};
@@ -1087,6 +1155,7 @@ anychart.charts.Pert.prototype.clearExcessiveMilestones_ = function() {
       mPred = milestone.mPredecessors[i];
 
       if (mPred.predecessors.length == 1 && mPred.mSuccessors.length < 2 && !mPred.successors.length) {
+        //if (mPred.predecessors.length == 1 && mPred.mSuccessors.length < 2 && !mPred.successors.length) {
         predId = String(mPred.predecessors[0].get(anychart.enums.DataField.ID));
         predWork = this.worksMap_[predId];
         var predStartMilestone = predWork.startMilestone;
@@ -1127,6 +1196,28 @@ anychart.charts.Pert.prototype.clearExcessiveMilestones_ = function() {
       delete this.milestonesMap_[rem.id];
     }
   }
+
+  //Third passage. Clearing structures like Mil (not this.startMil or this.finishMil) without predecessors but with mPreds.
+  // var shortenList = [];
+  // for (uid in this.milestonesMap_) {
+  //   milestone = this.milestonesMap_[uid];
+  //   if (!milestone.successors.length) {
+  //     for (i = 0; i < milestone.mSuccessors.length; i++) {
+  //       mSucc = milestone.mSuccessors[i];
+  //       if (!mSucc.predecessors.length) {
+  //         shortenList.push(mSucc);
+  //       }
+  //     }
+  //   }
+  // }
+  //
+  // for (i = 0; i < shortenList.length; i++) {
+  //   var shortenMil = shortenList[i];
+  //
+  //
+  //   goog.array.remove(milestone.mPredecessors, rem);
+  //   delete this.milestonesMap_[rem.id];
+  // }
 };
 
 
@@ -1204,6 +1295,365 @@ anychart.charts.Pert.prototype.calculateMilestones_ = function() {
 };
 
 
+/**
+ * Calculates data for customized gamma-algorithm.
+ * @private
+ */
+anychart.charts.Pert.prototype.calculateGamma_ = function() {
+  this.prepareGamma_();
+  this.buildPaths_();
+  var faces = this.gamma_();
+
+  // console.log('FACES:');
+  // for (var i = 0; i < faces.length; i++) {
+  //   var face = faces[i];
+  //   var res = '';
+  //   for (var j = 0; j < face.length; j++) {
+  //     var milestone = face[j];
+  //     var add = (j == face.length - 1 ? '' : ' -> ');
+  //     res += milestone.label + add;
+  //   }
+  //   console.log(res);
+  // }
+};
+
+
+/**
+ * Creates edge and registers it into this.edgesMap_.
+ * @param {anychart.charts.Pert.Milestone} from - From-milestone.
+ * @param {anychart.charts.Pert.Milestone} to - To-milestone.
+ * @return {anychart.charts.Pert.Edge} - Edge.
+ * @private
+ */
+anychart.charts.Pert.prototype.createEdge_ = function(from, to) {
+  var edge = {
+    from: from,
+    to: to,
+    flag: false,
+    flagPlotted: false,
+    work: null,
+    id: '',
+    isCritical: false
+  };
+
+  var hash = this.hash_('e', edge);
+  edge.id = hash;
+  this.edgesMap_[hash] = edge;
+  goog.array.insert(from.edges, edge);
+  goog.array.insert(to.edges, edge);
+  return edge;
+};
+
+
+/**
+ * Preparing data form gamma-algorithm implementation.
+ * @private
+ */
+anychart.charts.Pert.prototype.prepareGamma_ = function() {
+  this.edgesMap_ = {};
+  var edge;
+  for (var i in this.milestonesMap_) {
+    var mil = this.milestonesMap_[i];
+    var j;
+    for (j = 0; j < mil.successors.length; j++) {
+      var succ = mil.successors[j];
+      var succId = String(succ.get(anychart.enums.DataField.ID));
+      var work = this.worksMap_[succId];
+      edge = this.createEdge_(mil, work.finishMilestone);
+      edge.work = work;
+      edge.isCritical = work.isCritical;
+    }
+
+    for (j = 0; j < mil.mSuccessors.length; j++) {
+      var mSucc = mil.mSuccessors[j];
+      edge = this.createEdge_(mil, mSucc);
+      edge.isCritical = mil.isCritical && mSucc.isCritical;
+    }
+  }
+};
+
+
+/**
+ * Building paths of graph.
+ * @private
+ */
+anychart.charts.Pert.prototype.buildPaths_ = function() {
+  /*
+    TODO (A.Kudryavtsev):
+    Please, note: when this algorithm is implemented,
+    we probable have to delete unnecessary methods
+     - anychart.charts.Pert.prototype.calculateLevels_
+     - anychart.charts.Pert.prototype.calculateLevel_
+   */
+  this.paths_.length = 0;
+  this.startMilestone_.level = 0;
+  var stack = [this.startMilestone_];
+
+  var path = [];
+  while (stack.length) {
+    var mil = stack.pop();
+    var level = mil.level;
+    if (path.length > level)
+      path.length = level;
+    path.push(mil);
+
+    if (mil == this.finishMilestone_)
+      this.paths_.push(path.slice(0));
+
+    var j, lev;
+    for (j = mil.successors.length; j--;) {
+      var succ = mil.successors[j];
+      var succId = String(succ.get(anychart.enums.DataField.ID));
+      var succWork = this.worksMap_[succId];
+      var succMil = succWork.finishMilestone;
+      lev = level + 1;
+      succMil.level = Math.max(lev, succMil.level);
+      this.maxLevel_ = Math.max(succMil.level, this.maxLevel_);
+      stack.push(succMil);
+    }
+    for (j = mil.mSuccessors.length; j--;) {
+      var mSucc = mil.mSuccessors[j];
+      lev = level + 1;
+      mSucc.level = Math.max(lev, mSucc.level);
+      this.maxLevel_ = Math.max(mSucc.level, this.maxLevel_);
+      stack.push(mSucc);
+    }
+  }
+};
+
+
+/**
+ * Customized gamma-algorithm implementation.
+ * @return {Array.<Array.<anychart.charts.Pert.Milestone>>} - Faces.
+ * @private
+ */
+anychart.charts.Pert.prototype.gamma_ = function() {
+  this.startMilestone_.flagPlotted = this.finishMilestone_.flagPlotted = true;
+  var currFlag = false;
+  var segments = this.createSegments_(currFlag);
+
+  // at this point all vertices except start and finish are flagged true
+  var faces = [[this.startMilestone_, this.finishMilestone_]];
+  var next;
+
+  while (next = this.getNextSegmentAndFace_(segments, faces)) {
+    this.plotSegment_(segments, faces, next[0], next[1]);
+    segments = this.createSegments_(currFlag = !currFlag);
+  }
+  return faces;
+};
+
+
+/**
+ * Creates segments.
+ * @param {boolean} currentFalseFlag - Current false flag.
+ * @return {Array.<anychart.charts.Pert.Segment>}
+ * @private
+ */
+anychart.charts.Pert.prototype.createSegments_ = function(currentFalseFlag) {
+  var i, j, edge;
+  var segments = [];
+
+  for (i in this.edgesMap_) {
+    edge = this.edgesMap_[i];
+    if (!edge.flagPlotted && edge.flag == currentFalseFlag) {
+      edge.flag = !currentFalseFlag;
+      var segment = {
+        vertices: {},
+        edges: {}
+      };
+      segment.vertices[edge.from.id] = edge.from;
+      segment.vertices[edge.to.id] = edge.to;
+      segment.edges[edge.id] = edge;
+      var stack = [];
+      if (!edge.from.flagPlotted && edge.from.flag == currentFalseFlag) {
+        edge.from.flag = !currentFalseFlag;
+        stack.push(edge.from);
+      }
+
+      if (!edge.to.flagPlotted && edge.to.flag == currentFalseFlag) {
+        edge.to.flag = !currentFalseFlag;
+        stack.push(edge.to);
+      }
+
+      while (stack.length) {
+        var startMil = stack.pop();
+        for (j = 0; j < startMil.edges.length; j++) {
+          edge = startMil.edges[j];
+          if (!edge.flagPlotted && edge.flag == currentFalseFlag) {
+            edge.flag = !currentFalseFlag;
+            segment.edges[edge.id] = edge;
+            var finishMil = edge.from == startMil ? edge.to : edge.from;
+            if (!finishMil.flagPlotted && finishMil.flag == currentFalseFlag) {
+              finishMil.flag = !currentFalseFlag;
+              stack.push(finishMil);
+            }
+            segment.vertices[finishMil.id] = finishMil;
+          }
+        }
+      }
+      segments.push(segment);
+    }
+    edge.flag = !currentFalseFlag;
+  }
+
+  for (i in this.milestonesMap_) {
+    this.milestonesMap_[i].flag = !currentFalseFlag;
+  }
+
+  return segments;
+};
+
+
+/**
+ * Gets next segment and face.
+ * @param {Array.<anychart.charts.Pert.Segment>} segments - Segments.
+ * @param {Array.<anychart.charts.Pert.Milestone>} faces - Faces.
+ * @return {Array.<number>} - An index of the segment, that should be plotted next and an index of the face to plot to.
+ * @private
+ */
+anychart.charts.Pert.prototype.getNextSegmentAndFace_ = function(segments, faces) {
+  var i, j, k;
+  var result = null;
+  var minFacesCount = Infinity;
+  for (i = 0; i < segments.length; i++) {
+    var segment = segments[i];
+    var facesCount = 0;
+    var firstFace = -1;
+    for (j = 0; j < faces.length; j++) {
+      var face = faces[j];
+      var containedInFace = true;
+      for (k in segment.vertices) {
+        var mil = segment.vertices[k];
+        if (mil.flagPlotted) { // contact vertex
+          if (face.indexOf(mil) < 0) { // if we have found a contact vertex that is not in the face - exit the cycle
+            containedInFace = false;
+            break;
+          }
+        }
+      }
+      if (containedInFace) { // if the face contains all contact vertices, increasing the counter
+        facesCount++;
+        if (firstFace < 0) // if it was the first acceptable face - memorize it
+          firstFace = j;
+        if (facesCount >= minFacesCount) // if there is a segment with less faces count - exit the cycle
+          break;
+      }
+    }
+    if (!facesCount)
+      throw 'non planar!';
+    if (facesCount < minFacesCount) {
+      result = [i, firstFace];
+      minFacesCount = facesCount;
+    }
+  }
+  // we return an index of the segment, that should be plotted next and an index of the face to plot to
+  return result;
+};
+
+
+/**
+ * Plots segments.
+ * @param {Array.<anychart.charts.Pert.Segment>} segments - Segments.
+ * @param {Array.<Array.<anychart.charts.Pert.Milestone>>} faces - Faces.
+ * @param {number} segmentIndex - Segments index.
+ * @param {number} faceIndex - Face index.
+ * @private
+ */
+anychart.charts.Pert.prototype.plotSegment_ = function(segments, faces, segmentIndex, faceIndex) {
+  var milestone;
+  var segment = segments[segmentIndex];
+  var leftMost = null;
+  for (var i in segment.edges) {
+    milestone = segment.edges[i].from;
+    if (milestone.flagPlotted) { // contact
+      if (!leftMost || leftMost.level > milestone.level) {
+        leftMost = milestone;
+      }
+    }
+  }
+  //if (leftMost == null) debugger;
+  var path = [leftMost];
+  milestone = leftMost;
+  while (milestone) {
+    var edges = milestone.edges;
+    var next = null;
+    for (i = 0; i < edges.length; i++) {
+      var edge = edges[i];
+      if (edge.from == milestone && !edge.flagPlotted) { // looking for outgoing edges only, that are not plotted yet
+        edge.flagPlotted = true;
+        var finMilestone = edge.to;
+        path.push(finMilestone);
+        if (!finMilestone.flagPlotted) {
+          finMilestone.flagPlotted = true;
+          next = finMilestone;
+        }
+        break;
+      }
+    }
+    milestone = next;
+  }
+  var face = faces[faceIndex];
+  var cutResult = this.cutFace_(face, path);
+  faces.splice(faceIndex, 1, cutResult[0], cutResult[1]);
+};
+
+
+/**
+ * Cuts face.
+ * @param {Array.<anychart.charts.Pert.Milestone>} face - Face.
+ * @param {Array.<anychart.charts.Pert.Milestone>} path - Path.
+ * @return {Array.<Array.<string>>} - Cut face.
+ * @private
+ */
+anychart.charts.Pert.prototype.cutFace_ = function(face, path) {
+  var v1 = path[0];
+  var v2 = path[path.length - 1];
+  var index1 = face.indexOf(v1);
+  var index2 = face.indexOf(v2);
+  var min, max, inverted;
+  if (index1 < index2) {
+    min = index1;
+    max = index2;
+    inverted = false;
+  } else {
+    min = index2;
+    max = index1;
+    inverted = true;
+  }
+  var i;
+
+  var face1 = face.slice(0, min);
+  if (inverted) {
+    for (i = path.length; i--;) {
+      face1.push(path[i]);
+    }
+  } else {
+    face1.push.apply(face1, path);
+  }
+  face1.push.apply(face1, face.slice(max + 1));
+
+  var face2 = face.slice(min + 1, max);
+  if (inverted) {
+    face2.push.apply(face2, path);
+  } else {
+    for (i = path.length; i--;) {
+      face2.push(path[i]);
+    }
+  }
+  return [face1, face2];
+};
+
+
+//endregion
+
+
+//region -- Visual settings for tasks and milestones.
+//----------------------------------------------------------------------------------------------------------------------
+//
+//  Visual settings for tasks and milestones.
+//
+//----------------------------------------------------------------------------------------------------------------------
 /**
  * Gets/sets milestones settings object.
  * @param {Object=} opt_value - Settings object.
@@ -1302,8 +1752,10 @@ anychart.charts.Pert.prototype.criticalPath = function(opt_value) {
   }
   return this.criticalPath_;
 };
+//endregion
 
 
+//region -- Drawing.
 //----------------------------------------------------------------------------------------------------------------------
 //
 //  Drawing
@@ -1660,8 +2112,15 @@ anychart.charts.Pert.prototype.drawContent = function(bounds) {
     this.markConsistent(anychart.ConsistencyState.PERT_LABELS);
   }
 };
+//endregion
 
 
+//region -- Util methods.
+//----------------------------------------------------------------------------------------------------------------------
+//
+//  Utils
+//
+//----------------------------------------------------------------------------------------------------------------------
 /**
  * Generates uid with prefix.
  * @param {string} prefix - UID prefix.
@@ -1700,8 +2159,10 @@ anychart.charts.Pert.prototype.getArrowRotation_ = function(x1, y1, x2, y2) {
 
   return [left1, top1, left2, top2];
 };
+//endregion
 
 
+//region -- Disposing, serialization
 //----------------------------------------------------------------------------------------------------------------------
 //
 //  Serialization / deserialization / disposing
@@ -1748,6 +2209,7 @@ anychart.charts.Pert.prototype.setupByJSON = function(config) {
 
   this.expectedTimeCalculator(config['expectedTimeCalculator']);
 };
+//endregion.
 
 
 //exports

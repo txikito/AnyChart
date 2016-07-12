@@ -55,6 +55,25 @@ var data = [
 //];
 
 
+//////// Saukh data
+//var data = [
+//  {id: 'SQ', name: 'SQ'},
+//  {id: 'SA', name: 'SA'},
+//  {id: 'SD', name: 'SD'},
+//  {id: 'SF', name: 'SF'},
+//  {id: 'QB', name: 'QB', dependsOn: ['SQ']},
+//  {id: 'QD', name: 'QD', dependsOn: ['SQ']},
+//  {id: 'AC', name: 'AC', dependsOn: ['SA']},
+//  {id: 'AG', name: 'AG', dependsOn: ['SA']},
+//  {id: 'BD', name: 'BD', dependsOn: ['QB']},
+//  {id: 'DE', name: 'DE', dependsOn: ['SD', 'QD', 'BD']},
+//  {id: 'EF', name: 'EF', dependsOn: ['DE']},
+//  {id: 'DF', name: 'DF', dependsOn: ['SD', 'QD', 'BD']},
+//  {id: 'CF', name: 'CF', dependsOn: ['AC']},
+//  {id: 'GF', name: 'GF', dependsOn: ['AG']}
+//];
+
+
 anychart.onDocumentReady(function() {
   //var treeData = anychart.data.tree(data, anychart.enums.TreeFillingMethod.AS_TABLE, deps);
   var treeData = anychart.data.tree(data, anychart.enums.TreeFillingMethod.AS_TABLE);
