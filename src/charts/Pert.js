@@ -22,174 +22,150 @@ anychart.charts.Pert = function() {
 
   /**
    * Data tree.
-   * @type {anychart.data.Tree}
-   * @private
+   * @private {anychart.data.Tree}
    */
   this.data_ = null;
 
   /**
    * Works map.
    * Allows to determine item's successors and predecessors.
-   * @type {Object.<string, anychart.charts.Pert.Work>}
-   * @private
+   * @private {Object.<string, anychart.charts.Pert.Work>}
    */
   this.worksMap_ = {};
 
   /**
    * Activity data map.
    * Contains calculated values as earliestStart, earliestFinish, latestStart, latestFinish, duration, slack.
-   * @type {Object.<string, anychart.charts.Pert.ActivityData>}
-   * @private
+   * @private {Object.<string, anychart.charts.Pert.ActivityData>}
    */
   this.activitiesMap_ = {};
 
   /**
    * Levels data.
    * Contains IDs of activities by levels.
-   * @type {Array.<Array.<string>>}
-   * @private
+   * @private {Array.<Array.<string>>}
    */
   this.levels_ = [];
 
   /**
    * Start activities.
    * NOTE: activities that do not depend on other activities.
-   * @type {Array.<anychart.data.Tree.DataItem>}
-   * @private
+   * @private {Array.<anychart.data.Tree.DataItem>}
    */
   this.startActivities_ = [];
 
   /**
    * Finish activities.
    * NOTE: activities that are not dependent on other activities.
-   * @type {Array.<anychart.data.Tree.DataItem>}
-   * @private
+   * @private {Array.<anychart.data.Tree.DataItem>}
    */
   this.finishActivities_ = [];
 
   /**
    * Function that calculates expected time.
-   * @type {Function}
-   * @private
+   * @private {Function}
    */
   this.expectedTimeCalculator_ = goog.nullFunction;
 
   /**
    * Format provider.
-   * @type {anychart.core.utils.PertPointContextProvider}
-   * @private
+   * @private {anychart.core.utils.PertPointContextProvider}
    */
   this.formatProvider_ = null;
 
   /**
    * Finish milestone.
-   * @type {?anychart.charts.Pert.Milestone}
-   * @private
+   * @private {?anychart.charts.Pert.Milestone}
    */
   this.finishMilestone_ = null;
 
   /**
    * Start milestone.
-   * @type {?anychart.charts.Pert.Milestone}
-   * @private
+   * @private {?anychart.charts.Pert.Milestone}
    */
   this.startMilestone_ = null;
 
   /**
    * Location of milestone in a grid.
-   * @type {Array.<Array.<anychart.charts.Pert.Milestone>>}
-   * @private
+   * @private {Array.<Array.<anychart.charts.Pert.Milestone>>}
    */
   this.milestonesLocation_ = [];
 
   /**
    * Milestones map.
-   * @type {Object.<string, anychart.charts.Pert.Milestone>}
-   * @private
+   * @private {Object.<string, anychart.charts.Pert.Milestone>}
    */
   this.milestonesMap_ = {};
 
   /**
    * Milestones layer.
-   * @type {anychart.core.utils.TypedLayer}
-   * @private
+   * @private {anychart.core.utils.TypedLayer}
    */
   this.milestonesLayer_ = null;
 
   /**
    * Activities layer.
-   * @type {anychart.core.utils.TypedLayer}
-   * @private
+   * @private {anychart.core.utils.TypedLayer}
    */
   this.activitiesLayer_ = null;
 
   /**
    * Interactivity layer. Contains invisible paths to simplify mouse navigation.
-   * @type {anychart.core.utils.TypedLayer}
-   * @private
+   * @private {anychart.core.utils.TypedLayer}
    */
   this.interactivityLayer_ = null;
 
   /**
    * Labels layer.
-   * @type {acgraph.vector.Layer}
-   * @private
+   * @private {acgraph.vector.Layer}
    */
   this.labelsLayer_ = null;
 
   /**
    * Base layer.
-   * @type {acgraph.vector.Layer}
-   * @private
+   * @private {acgraph.vector.Layer}
    */
   this.baseLayer_ = null;
 
   /**
    * Milestones settings object.
-   * @type {anychart.core.pert.Milestones}
-   * @private
+   * @private {anychart.core.pert.Milestones}
    */
   this.milestones_ = null;
 
   /**
    * Tasks settings object.
-   * @type {anychart.core.pert.Tasks}
-   * @private
+   * @private {anychart.core.pert.Tasks}
    */
   this.tasks_ = null;
 
   /**
    * Critical path settings object.
-   * @type {anychart.core.pert.CriticalPath}
-   * @private
+   * @private {anychart.core.pert.CriticalPath}
    */
   this.criticalPath_ = null;
 
   /**
    * Selected works.
-   * @type {Array.<anychart.charts.Pert.Work>}
-   * @private
+   * @private {Array.<anychart.charts.Pert.Work>}
    */
   this.selectedWorks_ = [];
 
   /**
    * Selected milestones.
-   * @type {Array.<anychart.charts.Pert.Milestone>}
-   * @private
+   * @private {Array.<anychart.charts.Pert.Milestone>}
    */
   this.selectedMilestones_ = [];
 
   /**
    * Edges map.
-   * @type {Object.<string, anychart.charts.Pert.Edge>}
-   * @private
+   * @private {Object.<string, (anychart.charts.Pert.Edge|anychart.charts.Pert.FakeEdge)>}
    */
   this.edgesMap_ = {};
 
   /**
    * Paths data.
-   * @type {Array.<Array.<anychart.charts.Pert.Milestone>>}
-   * @private
+   * @private {Array.<Array.<(anychart.charts.Pert.Milestone|anychart.charts.Pert.FakeMilestone)>>}
    */
   this.paths_ = [];
 
@@ -267,14 +243,38 @@ anychart.charts.Pert.ActivityData;
  *    creator: ?anychart.charts.Pert.Work,
  *    flag: boolean,
  *    flagPlotted: boolean,
- *    edges: anychart.charts.Pert.Edge
+ *    edges: Array.<(anychart.charts.Pert.Edge|anychart.charts.Pert.FakeEdge)>
  * }}
  */
 anychart.charts.Pert.Milestone;
 
 
 /**
- * Work is actually a wrapper over a TreeDataItem.
+ * Fake milestone typedef.
+ * This milestone is used to break an edge to make it look like a broken line.
+ * Used for gamma-algorithm.
+ *
+ * isFake: boolean,
+ * id: string,
+ * label: string,
+ * level: number,
+ * isCritical: boolean,
+ * flag: boolean,
+ * flagPlotted: boolean,
+ * edges: Array.<(anychart.charts.Pert.Edge|anychart.charts.Pert.FakeEdge)> ,
+ * realEdge: anychart.charts.Pert.Edge,
+ * predFakeEdge: anychart.charts.Pert.FakeEdge,
+ * succFakeEdge: anychart.charts.Pert.FakeEdge,
+ * mSuccessors: Array.<(anychart.charts.Pert.Milestone|anychart.charts.Pert.FakeMilestone)>,
+ * mPredecessors: Array.<(anychart.charts.Pert.Milestone|anychart.charts.Pert.FakeMilestone)>,
+ * successors: Array,
+ * predecessors: Array
+ */
+anychart.charts.Pert.FakeMilestone;
+
+
+/**
+ * Work is actually a wrapper for a TreeDataItem.
  * @typedef {{
  *    id: string,
  *    item: anychart.data.Tree.DataItem,
@@ -306,6 +306,25 @@ anychart.charts.Pert.Work;
  * }}
  */
 anychart.charts.Pert.Edge;
+
+
+/**
+ * Fake edge typedef.
+ * Fake edge is actually a part of real edge that connects dummy milestones
+ * or real milestone and fake one.
+ * @typedef {{
+ *    isFake: boolean,
+ *    from: (anychart.charts.Pert.Milestone|anychart.charts.Pert.FakeMilestone),
+ *    to: (anychart.charts.Pert.Milestone|anychart.charts.Pert.FakeMilestone),
+ *    flag: boolean,
+ *    flagPlotted: boolean,
+ *    work: ?anychart.charts.Pert.Work,
+ *    id: string,
+ *    isCritical: boolean,
+ *    realEdge: anychart.charts.Pert.Edge
+ * }}
+ */
+anychart.charts.Pert.FakeEdge;
 
 
 /**
@@ -1302,19 +1321,20 @@ anychart.charts.Pert.prototype.calculateMilestones_ = function() {
 anychart.charts.Pert.prototype.calculateGamma_ = function() {
   this.prepareGamma_();
   this.buildPaths_();
+  this.cutEdges_();
   var faces = this.gamma_();
 
-  // console.log('FACES:');
-  // for (var i = 0; i < faces.length; i++) {
-  //   var face = faces[i];
-  //   var res = '';
-  //   for (var j = 0; j < face.length; j++) {
-  //     var milestone = face[j];
-  //     var add = (j == face.length - 1 ? '' : ' -> ');
-  //     res += milestone.label + add;
-  //   }
-  //   console.log(res);
-  // }
+  console.log('FACES:');
+  for (var i = 0; i < faces.length; i++) {
+    var face = faces[i];
+    var res = '';
+    for (var j = 0; j < face.length; j++) {
+      var milestone = face[j];
+      var add = (j == face.length - 1 ? '' : ' -> ');
+      res += milestone.label + add;
+    }
+    console.log(res);
+  }
 };
 
 
@@ -1423,6 +1443,138 @@ anychart.charts.Pert.prototype.buildPaths_ = function() {
 
 
 /**
+ * Cuts edges.
+ * If level of edge's from-milestone differs from level of edge's
+ * to-milestone for more than 1, we cut an edge inserting fake milestones
+ * and fake edges.
+ * @private
+ */
+anychart.charts.Pert.prototype.cutEdges_ = function() {
+  for (var i in this.edgesMap_) {
+    var edge = this.edgesMap_[i];
+    if (!edge.isFake) {
+      var from = edge.from;
+      var to = edge.to;
+      var diff = to.level - from.level;
+      if (diff > 1) {
+        var previousMilestone = null;
+        var fakeMilestone;
+        var succFakeEdge, predFakeEdge;
+        for (var j = 0; j < diff - 1; j++) {
+          var createPredEdge = !previousMilestone;
+          previousMilestone = previousMilestone || from;
+
+          /** @type {anychart.charts.Pert.FakeMilestone} */
+          fakeMilestone = {
+            isFake: true,
+            id: null,
+            label: ('Fake milestone ' + j),
+            level: (from.level + 1 + j),
+            isCritical: edge.isCritical,
+            flag: false,
+            flagPlotted: false,
+            edges: [],
+            predFakeEdge: null,
+            succFakeEdge: null,
+            mPredecessors: [previousMilestone],
+            mSuccessors: [],
+            realEdge: edge,
+            successors: [],
+            predecessors: []
+          };
+          fakeMilestone.id = this.hash_('fm', fakeMilestone);
+          this.milestonesMap_[fakeMilestone.id] = fakeMilestone;
+
+          if (createPredEdge) {
+            predFakeEdge = {
+              isFake: true,
+              from: previousMilestone,
+              to: fakeMilestone,
+              flag: false,
+              flagPlotted: false,
+              work: edge.work,
+              id: null,
+              isCritical: edge.isCritical,
+              realEdge: edge
+            };
+            predFakeEdge.id = this.hash_('fe', predFakeEdge);
+            this.edgesMap_[predFakeEdge.id] = predFakeEdge;
+          } else {
+            predFakeEdge = previousMilestone.succFakeEdge;
+            predFakeEdge.to = fakeMilestone;
+          }
+
+          /** @type {anychart.charts.Pert.FakeEdge} */
+          succFakeEdge = {
+            isFake: true,
+            from: fakeMilestone,
+            to: null,
+            flag: false,
+            flagPlotted: false,
+            work: edge.work,
+            id: null,
+            isCritical: edge.isCritical,
+            realEdge: edge
+          };
+          succFakeEdge.id = this.hash_('fe', succFakeEdge);
+          this.edgesMap_[succFakeEdge.id] = succFakeEdge;
+
+          fakeMilestone.succFakeEdge = succFakeEdge;
+          fakeMilestone.predFakeEdge = predFakeEdge;
+          fakeMilestone.edges = [succFakeEdge, predFakeEdge];
+
+          if (previousMilestone.isFake) {
+            previousMilestone.mSuccessors.push(fakeMilestone);
+            previousMilestone.succFakeEdge.to = fakeMilestone;
+          } else {
+            if (edge.work) { //real work.
+              goog.array.remove(previousMilestone.successors, edge.work.item);
+              goog.array.remove(to.predecessors, edge.work.item);
+              previousMilestone.mSuccessors.push(fakeMilestone);
+            } else { //dummy connection.
+              goog.array.remove(previousMilestone.mSuccessors, to);
+              goog.array.insert(previousMilestone.edges, fakeMilestone);
+            }
+            goog.array.remove(previousMilestone.edges, edge);
+            goog.array.insert(previousMilestone.edges, predFakeEdge);
+          }
+
+
+
+          // if (previousMilestone.isFake) {
+          //   previousMilestone.succMilestone = fakeMilestone;
+          //   previousMilestone.succFakeEdge.to = fakeMilestone;
+          // } else {
+          //   var indexOfTo = goog.array.indexOf(previousMilestone.mSuccessors, to);
+          //   if (indexOfTo < 0) indexOfTo = 0;
+          //   goog.array.splice(previousMilestone.mSuccessors, indexOfTo, 1, fakeMilestone);
+          //
+          //   var indexOfEdge = goog.array.indexOf(previousMilestone.edges, edge);
+          //   if (indexOfEdge < 0) indexOfEdge = 0;
+          //   goog.array.splice(previousMilestone.edges, indexOfEdge, 1, predFakeEdge);
+          // }
+
+          previousMilestone = fakeMilestone;
+        }
+        succFakeEdge.to = to;
+        // var indexOfFrom = goog.array.indexOf(to.mPredecessors, from);
+        // if (indexOfFrom < 0) indexOfFrom = 0;
+        // goog.array.splice(to.mPredecessors, indexOfFrom, 1, fakeMilestone);
+        goog.array.remove(to.mPredecessors, from);
+        goog.array.insert(to.mPredecessors, fakeMilestone);
+        fakeMilestone.mSuccessors.push(to);
+
+        var indexOfToEdge = goog.array.indexOf(to.edges, edge);
+        if (indexOfToEdge < 0) indexOfToEdge = 0;
+        goog.array.splice(to.edges, indexOfToEdge, 1, succFakeEdge);
+        delete this.edgesMap_[edge.id];
+      }
+    }
+  }
+};
+
+
+/**
  * Customized gamma-algorithm implementation.
  * @return {Array.<Array.<anychart.charts.Pert.Milestone>>} - Faces.
  * @private
@@ -1436,9 +1588,11 @@ anychart.charts.Pert.prototype.gamma_ = function() {
   var faces = [[this.startMilestone_, this.finishMilestone_]];
   var next;
 
+  var i = 0;
   while (next = this.getNextSegmentAndFace_(segments, faces)) {
     this.plotSegment_(segments, faces, next[0], next[1]);
     segments = this.createSegments_(currFlag = !currFlag);
+    console.log(i++);
   }
   return faces;
 };
@@ -1595,7 +1749,7 @@ anychart.charts.Pert.prototype.plotSegment_ = function(segments, faces, segmentI
   }
   var face = faces[faceIndex];
   var cutResult = this.cutFace_(face, path);
-  faces.splice(faceIndex, 1, cutResult[0], cutResult[1]);
+  goog.array.splice(faces, faceIndex, 1, cutResult[0], cutResult[1]);
 };
 
 
