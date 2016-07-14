@@ -42,8 +42,7 @@ anychart.charts.Pert = function() {
 
   /**
    * Levels data.
-   * Contains IDs of activities by levels.
-   * @private {Array.<Array.<string>>}
+   * @private {Array.<Array.<(anychart.charts.Pert.Milestone|anychart.charts.Pert.FakeMilestone)>>}
    */
   this.levels_ = [];
 
@@ -87,7 +86,7 @@ anychart.charts.Pert = function() {
 
   /**
    * Location of milestone in a grid.
-   * @private {Array.<Array.<anychart.charts.Pert.Milestone>>}
+   * @private {Array.<Array.<(anychart.charts.Pert.Milestone|anychart.charts.Pert.FakeMilestone)>>}
    */
   this.milestonesLocation_ = [];
 
@@ -171,10 +170,15 @@ anychart.charts.Pert = function() {
 
   /**
    * Max paths level.
-   * @type {number}
-   * @private
+   * @private {number}
    */
   this.maxLevel_ = 0;
+
+  /**
+   * Faces calculated by gamma-algorithm.
+   * @private {Array.<Array.<(anychart.charts.Pert.Milestone|anychart.charts.Pert.FakeMilestone)>>}
+   */
+  this.faces_ = [];
 
   this.bindHandlersToComponent(this, this.handleMouseOverAndMove, this.handleMouseOut, this.clickHandler_,
       this.handleMouseOverAndMove, null, this.handleMouseDown);
@@ -830,53 +834,12 @@ anychart.charts.Pert.prototype.calculate = function() {
         }
       }
 
-      this.calculateLevels_();
       this.calculateActivities_();
       this.calculateMilestones_();
       this.calculateGamma_();
 
     }
     this.markConsistent(anychart.ConsistencyState.PERT_DATA);
-  }
-};
-
-
-/**
- * Calculates levels.
- * @private
- */
-anychart.charts.Pert.prototype.calculateLevels_ = function() {
-  this.levels_.length = 0;
-  for (var i = 0; i < this.finishActivities_.length; i++) {
-    this.calculateLevel_(String(this.finishActivities_[i].get(anychart.enums.DataField.ID)));
-  }
-};
-
-
-/**
- * Calculates level of activity.
- * @param {string} id - Activity id.
- * @private
- */
-anychart.charts.Pert.prototype.calculateLevel_ = function(id) {
-  var workData = this.worksMap_[id];
-  if (workData.level < 0) { //Needs to be calculated.
-    var max = 0;
-    if (workData.predecessors.length) {
-      for (var i = 0; i < workData.predecessors.length; i++) {
-        var pred = workData.predecessors[i];
-        var predId = String(pred.get(anychart.enums.DataField.ID));
-        var predWorkData = this.worksMap_[predId];
-        if (predWorkData.level < 0)
-          this.calculateLevel_(predId);
-        max = Math.max(max, this.worksMap_[predId].level);
-      }
-      max++;
-    }
-    if (!this.levels_[max])
-      this.levels_[max] = [];
-    this.levels_[max].push(id);
-    workData.level = max;
   }
 };
 
@@ -1240,59 +1203,59 @@ anychart.charts.Pert.prototype.clearExcessiveMilestones_ = function() {
 };
 
 
-/**
- * Putes milestone in s correct location.
- * @param {anychart.charts.Pert.Milestone} milestone - Milestone.
- * @private
- */
-anychart.charts.Pert.prototype.placeMilestone_ = function(milestone) {
-  var i, yIndex;
-  var xIndex = milestone.xIndex + 1;
-  if ((milestone.mSuccessors.length || milestone.successors.length) && !goog.isArray(this.milestonesLocation_[xIndex])) {
-    this.milestonesLocation_[xIndex] = [];
-  }
-
-  for (i = 0; i < milestone.successors.length; i++) {
-    yIndex = this.milestonesLocation_[xIndex].length + i;
-    var succ = milestone.successors[i];
-    var succId = String(succ.get(anychart.enums.DataField.ID));
-    var succWork = this.worksMap_[succId];
-
-    var succFinMilestone = succWork.finishMilestone;
-
-    if (isNaN(succFinMilestone.xIndex)) {
-      succFinMilestone.xIndex = xIndex;
-      goog.array.insert(this.milestonesLocation_[xIndex], succFinMilestone);
-    } else {
-      if (xIndex > succFinMilestone.xIndex) {
-        goog.array.remove(this.milestonesLocation_[succFinMilestone.xIndex], succFinMilestone);
-        goog.array.insert(this.milestonesLocation_[xIndex], succFinMilestone);
-        succFinMilestone.xIndex = xIndex;
-      }
-    }
-
-    this.placeMilestone_(succFinMilestone);
-  }
-
-
-  for (i = 0; i < milestone.mSuccessors.length; i++) {
-    yIndex = this.milestonesLocation_[xIndex].length + i;
-    var mSucc = milestone.mSuccessors[i];
-
-    if (isNaN(mSucc.xIndex)) {
-      mSucc.xIndex = xIndex;
-      goog.array.insert(this.milestonesLocation_[xIndex], mSucc);
-    } else {
-      if (xIndex > mSucc.xIndex) {
-        goog.array.remove(this.milestonesLocation_[mSucc.xIndex], mSucc);
-        goog.array.insert(this.milestonesLocation_[xIndex], mSucc);
-        mSucc.xIndex = xIndex;
-      }
-    }
-
-    this.placeMilestone_(mSucc);
-  }
-};
+// /**
+//  * Putes milestone in s correct location.
+//  * @param {anychart.charts.Pert.Milestone} milestone - Milestone.
+//  * @private
+//  */
+// anychart.charts.Pert.prototype.placeMilestone_ = function(milestone) {
+//   var i, yIndex;
+//   var xIndex = milestone.xIndex + 1;
+//   if ((milestone.mSuccessors.length || milestone.successors.length) && !goog.isArray(this.milestonesLocation_[xIndex])) {
+//     this.milestonesLocation_[xIndex] = [];
+//   }
+//
+//   for (i = 0; i < milestone.successors.length; i++) {
+//     yIndex = this.milestonesLocation_[xIndex].length + i;
+//     var succ = milestone.successors[i];
+//     var succId = String(succ.get(anychart.enums.DataField.ID));
+//     var succWork = this.worksMap_[succId];
+//
+//     var succFinMilestone = succWork.finishMilestone;
+//
+//     if (isNaN(succFinMilestone.xIndex)) {
+//       succFinMilestone.xIndex = xIndex;
+//       goog.array.insert(this.milestonesLocation_[xIndex], succFinMilestone);
+//     } else {
+//       if (xIndex > succFinMilestone.xIndex) {
+//         goog.array.remove(this.milestonesLocation_[succFinMilestone.xIndex], succFinMilestone);
+//         goog.array.insert(this.milestonesLocation_[xIndex], succFinMilestone);
+//         succFinMilestone.xIndex = xIndex;
+//       }
+//     }
+//
+//     this.placeMilestone_(succFinMilestone);
+//   }
+//
+//
+//   for (i = 0; i < milestone.mSuccessors.length; i++) {
+//     yIndex = this.milestonesLocation_[xIndex].length + i;
+//     var mSucc = milestone.mSuccessors[i];
+//
+//     if (isNaN(mSucc.xIndex)) {
+//       mSucc.xIndex = xIndex;
+//       goog.array.insert(this.milestonesLocation_[xIndex], mSucc);
+//     } else {
+//       if (xIndex > mSucc.xIndex) {
+//         goog.array.remove(this.milestonesLocation_[mSucc.xIndex], mSucc);
+//         goog.array.insert(this.milestonesLocation_[xIndex], mSucc);
+//         mSucc.xIndex = xIndex;
+//       }
+//     }
+//
+//     this.placeMilestone_(mSucc);
+//   }
+// };
 
 
 /**
@@ -1301,57 +1264,50 @@ anychart.charts.Pert.prototype.placeMilestone_ = function(milestone) {
  */
 anychart.charts.Pert.prototype.calculateMilestones_ = function() {
   this.milestonesLocation_.length = 0;
-  this.milestonesLocation_ = [];
   this.milestonesMap_ = {};
   this.createAllMilestones_();
   this.clearExcessiveMilestones_();
 
   this.startMilestone_.xIndex = 0;
   this.startMilestone_.yIndex = 0;
-  this.milestonesLocation_[0] = [this.startMilestone_];
-
-  this.placeMilestone_(this.startMilestone_);
 };
 
 
 /**
- * Calculates data for customized gamma-algorithm.
+ * Finds most left milestone in face.
  * @param {Array.<Array.<(anychart.charts.Pert.Milestone|anychart.charts.Pert.FakeMilestone)>>} face - Face.
- * @return {Array.<anychart.charts.Pert.Milestone>} - Most left and most right milestones.
+ * @return {number}
  * @private
  */
-anychart.charts.Pert.prototype.getMostLeftAndRightMilestonesInFace_ = function(face) {
-  var mostLeft = null;
-  var mostRight = null;
+anychart.charts.Pert.prototype.getMostLeftIndex_ = function(face) {
   var minLevel = Infinity;
-  var maxLevel = -Infinity;
+  var index = 0;
   for (var i = 0; i < face.length; i++) {
     var mil = face[i];
+    if (!mil.level) // level is 0.
+      return i;
+
     if (mil.level < minLevel) {
       minLevel = mil.level;
-      mostLeft = mil;
-    }
-    if (mil.level > maxLevel) {
-      maxLevel = mil.level;
-      mostRight = mil;
+      index = i;
     }
   }
-  return [mostLeft, mostRight];
+  return index;
 };
 
 
 /**
- * Checks whether this.startMilestone_ and this.finishMilestone_ are neighbours in face.
+ * Goes by cycle in face and gets milestones symmetrically.
  * @param {Array.<Array.<(anychart.charts.Pert.Milestone|anychart.charts.Pert.FakeMilestone)>>} face - Face.
- * @return {boolean} - Whether this.startMilestone_ and this.finishMilestone_ are neighbours in face.
+ * @param {number} startIndex - Index of most left item in face.
+ * @param {number} offset - Offset from startIndex back and forth.
+ * @return {Array.<(anychart.charts.Pert.Milestone|anychart.charts.Pert.FakeMilestone)>} - [Upper item, Lower item].
  * @private
  */
-anychart.charts.Pert.prototype.startAndFinishAreNeighbours_ = function(face) {
-  var indexOfStart = goog.array.indexOf(face, this.startMilestone_);
-  var indexOfFinish = goog.array.indexOf(face, this.finishMilestone_);
-  if (indexOfStart < 0 || indexOfFinish < 0) return false;
-  var delta = Math.abs(indexOfFinish - indexOfStart);
-  return (delta == 1 || delta == face.length - 1);
+anychart.charts.Pert.prototype.stepInFace_ = function(face, startIndex, offset) {
+  var upperIndex = goog.math.modulo(startIndex + offset, face.length);
+  var lowerIndex = goog.math.modulo(startIndex - offset, face.length);
+  return [face[upperIndex], face[lowerIndex]];
 };
 
 
@@ -1363,56 +1319,9 @@ anychart.charts.Pert.prototype.calculateGamma_ = function() {
   this.prepareGamma_();
   this.buildPaths_();
   this.cutEdges_();
-
   debugger;
-  var faces = this.gamma_();
-
-
-  if (faces.length == 2) {
-    alert('FIXME: draw "Start --> Finish"');
-  } else {
-    for (var i = 0; i < faces.length; i++) {
-      var face = faces[i];
-      if (this.startAndFinishAreNeighbours_(face)) {
-        var res = 'NEIGHBOURS: ';
-        for (var j = 0; j < face.length; j++) {
-          var milestone = face[j];
-          var add = (j == face.length - 1 ? '' : ' -> ');
-          res += milestone.label + add;
-        }
-        console.log(res);
-      } else {
-        // var mostLeftAndRight = this.getMostLeftAndRightMilestonesInFace_(face);
-        // console.log(mostLeftAndRight[0].label, mostLeftAndRight[1].label);
-
-        var res = 'FACES: ';
-        for (var j = 0; j < face.length; j++) {
-          var milestone = face[j];
-          var add = (j == face.length - 1 ? '' : ' -> ');
-          res += milestone.label + add;
-        }
-        console.log(res);
-      }
-      // var res = '';
-      // for (var j = 0; j < face.length; j++) {
-      //   var milestone = face[j];
-      //   var add = (j == face.length - 1 ? '' : ' -> ');
-      //   res += milestone.label + add;
-      // }
-    }
-  }
-
-  // console.log('FACES:');
-  // for (var i = 0; i < faces.length; i++) {
-  //   var face = faces[i];
-  //   var res = '';
-  //   for (var j = 0; j < face.length; j++) {
-  //     var milestone = face[j];
-  //     var add = (j == face.length - 1 ? '' : ' -> ');
-  //     res += milestone.label + add;
-  //   }
-  //   console.log(res);
-  // }
+  this.gamma_();
+  this.calculateLevels_();
 };
 
 
@@ -1617,27 +1526,9 @@ anychart.charts.Pert.prototype.cutEdges_ = function() {
             goog.array.insert(previousMilestone.edges, predFakeEdge);
           }
 
-
-
-          // if (previousMilestone.isFake) {
-          //   previousMilestone.succMilestone = fakeMilestone;
-          //   previousMilestone.succFakeEdge.to = fakeMilestone;
-          // } else {
-          //   var indexOfTo = goog.array.indexOf(previousMilestone.mSuccessors, to);
-          //   if (indexOfTo < 0) indexOfTo = 0;
-          //   goog.array.splice(previousMilestone.mSuccessors, indexOfTo, 1, fakeMilestone);
-          //
-          //   var indexOfEdge = goog.array.indexOf(previousMilestone.edges, edge);
-          //   if (indexOfEdge < 0) indexOfEdge = 0;
-          //   goog.array.splice(previousMilestone.edges, indexOfEdge, 1, predFakeEdge);
-          // }
-
           previousMilestone = fakeMilestone;
         }
         succFakeEdge.to = to;
-        // var indexOfFrom = goog.array.indexOf(to.mPredecessors, from);
-        // if (indexOfFrom < 0) indexOfFrom = 0;
-        // goog.array.splice(to.mPredecessors, indexOfFrom, 1, fakeMilestone);
         goog.array.remove(to.mPredecessors, from);
         goog.array.insert(to.mPredecessors, fakeMilestone);
         fakeMilestone.mSuccessors.push(to);
@@ -1654,10 +1545,10 @@ anychart.charts.Pert.prototype.cutEdges_ = function() {
 
 /**
  * Customized gamma-algorithm implementation.
- * @return {Array.<Array.<anychart.charts.Pert.Milestone>>} - Faces.
  * @private
  */
 anychart.charts.Pert.prototype.gamma_ = function() {
+  this.faces_.length = 0;
   this.startMilestone_.flagPlotted = this.finishMilestone_.flagPlotted = true;
   var currFlag = false;
   var segments = this.createSegments_(currFlag);
@@ -1671,7 +1562,8 @@ anychart.charts.Pert.prototype.gamma_ = function() {
     this.plotSegment_(segments, faces, next[0], next[1]);
     segments = this.createSegments_(currFlag = !currFlag);
   }
-  return faces;
+
+  this.faces_ = faces;
 };
 
 
@@ -1875,6 +1767,60 @@ anychart.charts.Pert.prototype.cutFace_ = function(face, path) {
   return [face1, face2];
 };
 
+
+/**
+ * Calculates levels.
+ * @private
+ */
+anychart.charts.Pert.prototype.calculateLevels_ = function() {
+  this.milestonesLocation_[0] = [this.startMilestone_];
+  this.milestonesLocation_[this.maxLevel_] = [this.finishMilestone_];
+  if (this.faces_.length == 2) {
+    //TODO (A.Kudryavtsev): Implement!!!
+    alert('TWO FACES');
+  } else {
+    for (var i = 0; i < this.faces_.length; i++) {
+      var face = this.faces_[i];
+      var mostLeftIndex = this.getMostLeftIndex_(face);
+      var offset = 0;
+
+      var upper, lower, stepData;
+      while (true) {
+        offset += 1;
+        stepData = this.stepInFace_(face, mostLeftIndex, offset);
+        upper = stepData[0];
+        lower = stepData[1];
+        /*
+          NOTE:
+          (upper != lower && (upper == this.finishMilestone_ || lower == this.finishMilestone_)
+          Condition above literally means that our face is not one of main faces
+          where this.startMilestone_ and this.finishMilestone_ are neighbours.
+         */
+        if ((upper == lower) ||
+            (upper != lower && (upper == this.finishMilestone_ || lower == this.finishMilestone_)))
+          break;
+
+        upper.lowerMilestone = lower;
+        lower.upperMilestone = upper;
+      }
+    }
+
+
+    for (var j in this.milestonesMap_) {
+      var mil = this.milestonesMap_[j];
+      if (mil != this.startMilestone_ && mil != this.finishMilestone_ && !mil.upperMilestone) {
+        var level = mil.level;
+        this.milestonesLocation_[level] = [mil];
+        var child = mil;
+        while (child.lowerMilestone) {
+          this.milestonesLocation_[level].push(child.lowerMilestone);
+          child = child.lowerMilestone;
+        }
+      }
+    }
+    console.log(this.milestonesLocation_);
+  }
+};
 
 //endregion
 
@@ -2134,12 +2080,11 @@ anychart.charts.Pert.prototype.drawContent = function(bounds) {
     this.criticalPath().tasks().clearLabels();
 
     var i, j;
-    var add = 0;
     var left = bounds.left;
     for (i = 0; i < this.milestonesLocation_.length; i++) {
       var milVertical = this.milestonesLocation_[i];
       if (milVertical) {
-        var top = bounds.top + add;
+        var top = bounds.top;
 
         for (j = 0; j < milVertical.length; j++) {
           var milestone = milVertical[j];
@@ -2186,7 +2131,6 @@ anychart.charts.Pert.prototype.drawContent = function(bounds) {
         }
       }
       left += (anychart.charts.Pert.CELL_PIXEL_SIZE_ + anychart.charts.Pert.CELL_PIXEL_HORIZONTAL_SPACE_);
-      add += 30; //TODO (A.Kudryavtsev): :'(
     }
 
     for (var id in this.milestonesMap_) {

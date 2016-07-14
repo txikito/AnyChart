@@ -1,15 +1,15 @@
-/////// data
-var data = [
-  {id: 'A', duration: 3, name: 'A'},
-  {id: 'B', duration: 2, name: 'B'},
-  {id: 'C', duration: 10, name: 'C'},
-  {id: 'D', duration: 2, name: 'D'},
-  {id: 'E', duration: 4, name: 'E'},
-  {id: 'F', duration: 5, name: 'F', dependsOn: ['A', 'B', 'C']},
-  {id: 'G', duration: 2, name: 'G', dependsOn: ['D', 'E']},
-  {id: 'H', duration: 1, name: 'H', dependsOn: ['F']},
-  {id: 'I', duration: 7, name: 'I', dependsOn: ['F', 'G', 'E']}
-];
+///// data
+// var data = [
+//   {id: 'A', duration: 3, name: 'A'},
+//   {id: 'B', duration: 2, name: 'B'},
+//   {id: 'C', duration: 10, name: 'C'},
+//   {id: 'D', duration: 2, name: 'D'},
+//   {id: 'E', duration: 4, name: 'E'},
+//   {id: 'F', duration: 5, name: 'F', dependsOn: ['A', 'B', 'C']},
+//   {id: 'G', duration: 2, name: 'G', dependsOn: ['D', 'E']},
+//   {id: 'H', duration: 1, name: 'H', dependsOn: ['F']},
+//   {id: 'I', duration: 7, name: 'I', dependsOn: ['F', 'G', 'E']}
+// ];
 
 //var deps = [
 //  {from: 'A', to: 'F'},
@@ -34,15 +34,15 @@ var data = [
 //];
 
 
-///////// data wikipedia data
-//var data = [
+/////// data wikipedia data
+// var data = [
 //  {id: 'A', name: 'A', duration: 3},
 //  {id: 'B', name: 'B', duration: 4},
 //  {id: 'C', name: 'C', duration: 3, dependsOn: ['B']},
 //  {id: 'D', name: 'D', duration: 1, dependsOn: ['A']},
 //  {id: 'E', name: 'E', duration: 3, dependsOn: ['A']},
 //  {id: 'F', name: 'F', duration: 5, dependsOn: ['D']}
-//];
+// ];
 
 
 ///////// data one more
@@ -55,8 +55,8 @@ var data = [
 //];
 
 
-//////// Saukh data
-//var data = [
+// //// Saukh data
+// var data = [
 //  {id: 'SQ', name: 'SQ'},
 //  {id: 'SA', name: 'SA'},
 //  {id: 'SD', name: 'SD'},
@@ -71,7 +71,7 @@ var data = [
 //  {id: 'DF', name: 'DF', dependsOn: ['SD', 'QD', 'BD']},
 //  {id: 'CF', name: 'CF', dependsOn: ['AC']},
 //  {id: 'GF', name: 'GF', dependsOn: ['AG']}
-//];
+// ];
 
 
 // ///// cut edges test data
@@ -88,6 +88,15 @@ var data = [
 // var data = [
 //   {id: 'SF', duration: 300, name: 'SF'}
 // ];
+
+
+//// Planar crash data
+var data = [
+  {id: 'A', name: 'A'},
+  {id: 'B', name: 'B'},
+  {id: 'C', name: 'C', dependsOn: ['A', 'B']},
+  {id: 'D', name: 'D', dependsOn: ['A', 'B']}
+];
 
 
 anychart.onDocumentReady(function() {
