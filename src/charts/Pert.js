@@ -1316,25 +1316,103 @@ anychart.charts.Pert.prototype.calculateMilestones_ = function() {
 
 /**
  * Calculates data for customized gamma-algorithm.
+ * @param {Array.<Array.<(anychart.charts.Pert.Milestone|anychart.charts.Pert.FakeMilestone)>>} face - Face.
+ * @return {Array.<anychart.charts.Pert.Milestone>} - Most left and most right milestones.
+ * @private
+ */
+anychart.charts.Pert.prototype.getMostLeftAndRightMilestonesInFace_ = function(face) {
+  var mostLeft = null;
+  var mostRight = null;
+  var minLevel = Infinity;
+  var maxLevel = -Infinity;
+  for (var i = 0; i < face.length; i++) {
+    var mil = face[i];
+    if (mil.level < minLevel) {
+      minLevel = mil.level;
+      mostLeft = mil;
+    }
+    if (mil.level > maxLevel) {
+      maxLevel = mil.level;
+      mostRight = mil;
+    }
+  }
+  return [mostLeft, mostRight];
+};
+
+
+/**
+ * Checks whether this.startMilestone_ and this.finishMilestone_ are neighbours in face.
+ * @param {Array.<Array.<(anychart.charts.Pert.Milestone|anychart.charts.Pert.FakeMilestone)>>} face - Face.
+ * @return {boolean} - Whether this.startMilestone_ and this.finishMilestone_ are neighbours in face.
+ * @private
+ */
+anychart.charts.Pert.prototype.startAndFinishAreNeighbours_ = function(face) {
+  var indexOfStart = goog.array.indexOf(face, this.startMilestone_);
+  var indexOfFinish = goog.array.indexOf(face, this.finishMilestone_);
+  if (indexOfStart < 0 || indexOfFinish < 0) return false;
+  var delta = Math.abs(indexOfFinish - indexOfStart);
+  return (delta == 1 || delta == face.length - 1);
+};
+
+
+/**
+ * Calculates data for customized gamma-algorithm.
  * @private
  */
 anychart.charts.Pert.prototype.calculateGamma_ = function() {
   this.prepareGamma_();
   this.buildPaths_();
   this.cutEdges_();
+
+  debugger;
   var faces = this.gamma_();
 
-  console.log('FACES:');
-  for (var i = 0; i < faces.length; i++) {
-    var face = faces[i];
-    var res = '';
-    for (var j = 0; j < face.length; j++) {
-      var milestone = face[j];
-      var add = (j == face.length - 1 ? '' : ' -> ');
-      res += milestone.label + add;
+
+  if (faces.length == 2) {
+    alert('FIXME: draw "Start --> Finish"');
+  } else {
+    for (var i = 0; i < faces.length; i++) {
+      var face = faces[i];
+      if (this.startAndFinishAreNeighbours_(face)) {
+        var res = 'NEIGHBOURS: ';
+        for (var j = 0; j < face.length; j++) {
+          var milestone = face[j];
+          var add = (j == face.length - 1 ? '' : ' -> ');
+          res += milestone.label + add;
+        }
+        console.log(res);
+      } else {
+        // var mostLeftAndRight = this.getMostLeftAndRightMilestonesInFace_(face);
+        // console.log(mostLeftAndRight[0].label, mostLeftAndRight[1].label);
+
+        var res = 'FACES: ';
+        for (var j = 0; j < face.length; j++) {
+          var milestone = face[j];
+          var add = (j == face.length - 1 ? '' : ' -> ');
+          res += milestone.label + add;
+        }
+        console.log(res);
+      }
+      // var res = '';
+      // for (var j = 0; j < face.length; j++) {
+      //   var milestone = face[j];
+      //   var add = (j == face.length - 1 ? '' : ' -> ');
+      //   res += milestone.label + add;
+      // }
     }
-    console.log(res);
   }
+
+  // console.log('FACES:');
+  // for (var i = 0; i < faces.length; i++) {
+  //   var face = faces[i];
+  //   var res = '';
+  //   for (var j = 0; j < face.length; j++) {
+  //     var milestone = face[j];
+  //     var add = (j == face.length - 1 ? '' : ' -> ');
+  //     res += milestone.label + add;
+  //   }
+  //   console.log(res);
+  // }
 };
 
 
@@ -1533,7 +1611,7 @@ anychart.charts.Pert.prototype.cutEdges_ = function() {
               previousMilestone.mSuccessors.push(fakeMilestone);
             } else { //dummy connection.
               goog.array.remove(previousMilestone.mSuccessors, to);
-              goog.array.insert(previousMilestone.edges, fakeMilestone);
+              goog.array.insert(previousMilestone.mSuccessors, fakeMilestone);
             }
             goog.array.remove(previousMilestone.edges, edge);
             goog.array.insert(previousMilestone.edges, predFakeEdge);
@@ -1592,7 +1670,6 @@ anychart.charts.Pert.prototype.gamma_ = function() {
   while (next = this.getNextSegmentAndFace_(segments, faces)) {
     this.plotSegment_(segments, faces, next[0], next[1]);
     segments = this.createSegments_(currFlag = !currFlag);
-    console.log(i++);
   }
   return faces;
 };

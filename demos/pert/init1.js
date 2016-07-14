@@ -1,15 +1,15 @@
-// /////// data
-// var data = [
-//   {id: 'A', duration: 3, name: 'A'},
-//   {id: 'B', duration: 2, name: 'B'},
-//   {id: 'C', duration: 10, name: 'C'},
-//   {id: 'D', duration: 2, name: 'D'},
-//   {id: 'E', duration: 4, name: 'E'},
-//   {id: 'F', duration: 5, name: 'F', dependsOn: ['A', 'B', 'C']},
-//   {id: 'G', duration: 2, name: 'G', dependsOn: ['D', 'E']},
-//   {id: 'H', duration: 1, name: 'H', dependsOn: ['F']},
-//   {id: 'I', duration: 7, name: 'I', dependsOn: ['F', 'G', 'E']}
-// ];
+/////// data
+var data = [
+  {id: 'A', duration: 3, name: 'A'},
+  {id: 'B', duration: 2, name: 'B'},
+  {id: 'C', duration: 10, name: 'C'},
+  {id: 'D', duration: 2, name: 'D'},
+  {id: 'E', duration: 4, name: 'E'},
+  {id: 'F', duration: 5, name: 'F', dependsOn: ['A', 'B', 'C']},
+  {id: 'G', duration: 2, name: 'G', dependsOn: ['D', 'E']},
+  {id: 'H', duration: 1, name: 'H', dependsOn: ['F']},
+  {id: 'I', duration: 7, name: 'I', dependsOn: ['F', 'G', 'E']}
+];
 
 //var deps = [
 //  {from: 'A', to: 'F'},
@@ -74,14 +74,20 @@
 //];
 
 
-/////// cut edges test data
-var data = [
-  {id: 'SF', duration: 300, name: 'SF'},
-  {id: 'SA', duration: 2, name: 'SA'},
-  {id: 'AB', duration: 10, name: 'AB', dependsOn: ['SA']},
-  {id: 'BC', duration: 10, name: 'BC', dependsOn: ['AB']},
-  {id: 'CF', duration: 10, name: 'CF', dependsOn: ['BC']}
-];
+// ///// cut edges test data
+// var data = [
+//   {id: 'SF', duration: 300, name: 'SF'},
+//   {id: 'SA', duration: 2, name: 'SA'},
+//   {id: 'AB', duration: 10, name: 'AB', dependsOn: ['SA']},
+//   {id: 'BC', duration: 10, name: 'BC', dependsOn: ['AB']},
+//   {id: 'CF', duration: 10, name: 'CF', dependsOn: ['BC']}
+// ];
+
+
+// // two faces case.
+// var data = [
+//   {id: 'SF', duration: 300, name: 'SF'}
+// ];
 
 
 anychart.onDocumentReady(function() {
