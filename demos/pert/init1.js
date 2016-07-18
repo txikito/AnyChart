@@ -1,15 +1,15 @@
-///// data
-// var data = [
-//   {id: 'A', duration: 3, name: 'A'},
-//   {id: 'B', duration: 2, name: 'B'},
-//   {id: 'C', duration: 10, name: 'C'},
-//   {id: 'D', duration: 2, name: 'D'},
-//   {id: 'E', duration: 4, name: 'E'},
-//   {id: 'F', duration: 5, name: 'F', dependsOn: ['A', 'B', 'C']},
-//   {id: 'G', duration: 2, name: 'G', dependsOn: ['D', 'E']},
-//   {id: 'H', duration: 1, name: 'H', dependsOn: ['F']},
-//   {id: 'I', duration: 7, name: 'I', dependsOn: ['F', 'G', 'E']}
-// ];
+/// data
+var data = [
+  {id: 'A', duration: 3, name: 'A'},
+  {id: 'B', duration: 2, name: 'B'},
+  {id: 'C', duration: 10, name: 'C'},
+  {id: 'D', duration: 2, name: 'D'},
+  {id: 'E', duration: 4, name: 'E'},
+  {id: 'F', duration: 5, name: 'F', dependsOn: ['A', 'B', 'C']},
+  {id: 'G', duration: 2, name: 'G', dependsOn: ['D', 'E']},
+  {id: 'H', duration: 1, name: 'H', dependsOn: ['F']},
+  {id: 'I', duration: 7, name: 'I', dependsOn: ['F', 'G', 'E']}
+];
 
 //var deps = [
 //  {from: 'A', to: 'F'},
@@ -84,19 +84,21 @@
 // ];
 
 
-// // two faces case.
+// two faces case.
 // var data = [
-//   {id: 'SF', duration: 300, name: 'SF'}
+//   {id: 'SA', duration: 300, name: 'SA'},
+//   {id: 'AB', duration: 300, name: 'AB', dependsOn: ['SA']},
+//   {id: 'BF', duration: 300, name: 'BF', dependsOn: ['AB']}
 // ];
 
 
-//// Planar crash data
-var data = [
-  {id: 'A', name: 'A'},
-  {id: 'B', name: 'B'},
-  {id: 'C', name: 'C', dependsOn: ['A', 'B']},
-  {id: 'D', name: 'D', dependsOn: ['A', 'B']}
-];
+// //// Planar crash data
+// var data = [
+//   {id: 'A', name: 'A'},
+//   {id: 'B', name: 'B'},
+//   {id: 'C', name: 'C', dependsOn: ['A', 'B']},
+//   {id: 'D', name: 'D', dependsOn: ['A', 'B']}
+// ];
 
 
 anychart.onDocumentReady(function() {
@@ -106,7 +108,20 @@ anychart.onDocumentReady(function() {
   chart.container('container');
   chart.title('Pert 1');
   chart.data(treeData);
+  // chart.milestones().shape(anychart.enums.MilestoneShape.RHOMBUS);
+  // chart.milestones().shape(anychart.enums.MilestoneShape.RHOMBUS);
+
+  // chart.criticalPath().milestones().stroke('black');
+  // chart.milestones().stroke('2 black');
+  // chart.milestones().selectStroke('5 green');
+
+  chart.tasks().selectStroke('2 green');
+  chart.tasks().hoverStroke('yellow');
+  chart.criticalPath().tasks().selectStroke('3 purple');
+  chart.criticalPath().tasks().hoverStroke('5 blue');
+
   chart.draw();
+
 
   //debugInfo();
   //recalc();

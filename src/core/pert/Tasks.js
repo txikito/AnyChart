@@ -323,10 +323,36 @@ anychart.core.pert.Tasks.prototype.hoverUpperLabels = function(opt_value) {
  * @inheritDoc
  */
 anychart.core.pert.Tasks.prototype.labelsContainer = function(opt_value) {
+  //this sets container for upper labels.
   anychart.core.pert.Tasks.base(this, 'labelsContainer', opt_value);
+
   var container = anychart.core.pert.Tasks.base(this, 'labelsContainer');
   if (container) this.lowerLabels().container(/** @type {acgraph.vector.ILayer} */ (container));
   return container;
+};
+
+
+/** @inheritDoc */
+anychart.core.pert.Tasks.prototype.drawLabels = function() {
+  this.lowerLabels().draw();
+
+  //This drawing initializes mouse events on hover-select labels.
+  this.hoverLowerLabels().draw();
+  this.selectLowerLabels().draw();
+
+  //This will draw upper labels.
+  return anychart.core.pert.Tasks.base(this, 'drawLabels');
+};
+
+
+/** @inheritDoc */
+anychart.core.pert.Tasks.prototype.setLabelsParentEventTarget = function(parentEventTarget) {
+  this.lowerLabels().setParentEventTarget(parentEventTarget);
+  this.hoverLowerLabels().setParentEventTarget(parentEventTarget);
+  this.selectLowerLabels().setParentEventTarget(parentEventTarget);
+
+  //This will draw upper labels.
+  return anychart.core.pert.Tasks.base(this, 'setLabelsParentEventTarget', parentEventTarget);
 };
 
 

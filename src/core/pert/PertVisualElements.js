@@ -368,11 +368,38 @@ anychart.core.pert.PertVisualElements.prototype.labelsContainer = function(opt_v
 
 
 /**
+ * Draws labels.
+ * @return {anychart.core.pert.PertVisualElements}
+ */
+anychart.core.pert.PertVisualElements.prototype.drawLabels = function() {
+  this.labels().draw();
+
+  //This drawing initializes mouse events on hover-select labels.
+  this.hoverLabels().draw();
+  this.selectLabels().draw();
+  return this;
+};
+
+
+/**
  * Clears labels.
  * @return {anychart.core.pert.PertVisualElements}
  */
 anychart.core.pert.PertVisualElements.prototype.clearLabels = function() {
   this.labels().clear();
+  return this;
+};
+
+
+/**
+ * Sets all labels parent event target.
+ * @param {goog.events.EventTarget} parentEventTarget - Parent event target.
+ * @return {anychart.core.pert.PertVisualElements}
+ */
+anychart.core.pert.PertVisualElements.prototype.setLabelsParentEventTarget = function(parentEventTarget) {
+  this.labels().setParentEventTarget(parentEventTarget);
+  this.hoverLabels().setParentEventTarget(parentEventTarget);
+  this.selectLabels().setParentEventTarget(parentEventTarget);
   return this;
 };
 

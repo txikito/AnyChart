@@ -373,6 +373,7 @@ anychart.charts.Pert.CELL_PIXEL_VERTICAL_SPACE_ = 20;
  */
 anychart.charts.Pert.CELL_PIXEL_HORIZONTAL_SPACE_ = 80;
 
+
 /**
  * Arrow height.
  * @type {number}
@@ -523,6 +524,12 @@ anychart.charts.Pert.prototype.handleMouseOverAndMove = function(event) {
   var formatProvider;
   var tag = domTarget.tag;
 
+  if (event['target'] instanceof anychart.core.ui.LabelsFactory) {
+    var labelIndex = event['labelIndex'];
+    var l = event['target'].getLabel(labelIndex);
+    tag = l.tag;
+  }
+
   if (tag) {
     if (goog.isDefAndNotNull(tag['m'])) {
       milestone = tag['m'];
@@ -589,6 +596,12 @@ anychart.charts.Pert.prototype.handleMouseOut = function(event) {
   var label;
   var tag = domTarget.tag;
 
+  if (event['target'] instanceof anychart.core.ui.LabelsFactory) {
+    var labelIndex = event['labelIndex'];
+    var l = event['target'].getLabel(labelIndex);
+    tag = l.tag;
+  }
+
   if (tag) {
     if (goog.isDefAndNotNull(tag['m'])) {
       var milestone = tag['m'];
@@ -645,6 +658,13 @@ anychart.charts.Pert.prototype.clickHandler_ = function(event) {
 
   var domTarget = /** @type {acgraph.vector.Element} */ (event['domTarget']);
   var tag = domTarget.tag;
+
+  if (event['target'] instanceof anychart.core.ui.LabelsFactory) {
+    var labelIndex = event['labelIndex'];
+    var l = event['target'].getLabel(labelIndex);
+    tag = l.tag;
+  }
+
   if ((domTarget instanceof acgraph.vector.Element)) {
     if (tag) {
       if (goog.isDefAndNotNull(tag['m'])) {
@@ -1179,83 +1199,7 @@ anychart.charts.Pert.prototype.clearExcessiveMilestones_ = function() {
     }
   }
 
-  //Third passage. Clearing structures like Mil (not this.startMil or this.finishMil) without predecessors but with mPreds.
-  // var shortenList = [];
-  // for (uid in this.milestonesMap_) {
-  //   milestone = this.milestonesMap_[uid];
-  //   if (!milestone.successors.length) {
-  //     for (i = 0; i < milestone.mSuccessors.length; i++) {
-  //       mSucc = milestone.mSuccessors[i];
-  //       if (!mSucc.predecessors.length) {
-  //         shortenList.push(mSucc);
-  //       }
-  //     }
-  //   }
-  // }
-  //
-  // for (i = 0; i < shortenList.length; i++) {
-  //   var shortenMil = shortenList[i];
-  //
-  //
-  //   goog.array.remove(milestone.mPredecessors, rem);
-  //   delete this.milestonesMap_[rem.id];
-  // }
 };
-
-
-// /**
-//  * Putes milestone in s correct location.
-//  * @param {anychart.charts.Pert.Milestone} milestone - Milestone.
-//  * @private
-//  */
-// anychart.charts.Pert.prototype.placeMilestone_ = function(milestone) {
-//   var i, yIndex;
-//   var xIndex = milestone.xIndex + 1;
-//   if ((milestone.mSuccessors.length || milestone.successors.length) && !goog.isArray(this.milestonesLocation_[xIndex])) {
-//     this.milestonesLocation_[xIndex] = [];
-//   }
-//
-//   for (i = 0; i < milestone.successors.length; i++) {
-//     yIndex = this.milestonesLocation_[xIndex].length + i;
-//     var succ = milestone.successors[i];
-//     var succId = String(succ.get(anychart.enums.DataField.ID));
-//     var succWork = this.worksMap_[succId];
-//
-//     var succFinMilestone = succWork.finishMilestone;
-//
-//     if (isNaN(succFinMilestone.xIndex)) {
-//       succFinMilestone.xIndex = xIndex;
-//       goog.array.insert(this.milestonesLocation_[xIndex], succFinMilestone);
-//     } else {
-//       if (xIndex > succFinMilestone.xIndex) {
-//         goog.array.remove(this.milestonesLocation_[succFinMilestone.xIndex], succFinMilestone);
-//         goog.array.insert(this.milestonesLocation_[xIndex], succFinMilestone);
-//         succFinMilestone.xIndex = xIndex;
-//       }
-//     }
-//
-//     this.placeMilestone_(succFinMilestone);
-//   }
-//
-//
-//   for (i = 0; i < milestone.mSuccessors.length; i++) {
-//     yIndex = this.milestonesLocation_[xIndex].length + i;
-//     var mSucc = milestone.mSuccessors[i];
-//
-//     if (isNaN(mSucc.xIndex)) {
-//       mSucc.xIndex = xIndex;
-//       goog.array.insert(this.milestonesLocation_[xIndex], mSucc);
-//     } else {
-//       if (xIndex > mSucc.xIndex) {
-//         goog.array.remove(this.milestonesLocation_[mSucc.xIndex], mSucc);
-//         goog.array.insert(this.milestonesLocation_[xIndex], mSucc);
-//         mSucc.xIndex = xIndex;
-//       }
-//     }
-//
-//     this.placeMilestone_(mSucc);
-//   }
-// };
 
 
 /**
@@ -1319,7 +1263,6 @@ anychart.charts.Pert.prototype.calculateGamma_ = function() {
   this.prepareGamma_();
   this.buildPaths_();
   this.cutEdges_();
-  debugger;
   this.gamma_();
   this.calculateLevels_();
 };
@@ -1385,13 +1328,6 @@ anychart.charts.Pert.prototype.prepareGamma_ = function() {
  * @private
  */
 anychart.charts.Pert.prototype.buildPaths_ = function() {
-  /*
-    TODO (A.Kudryavtsev):
-    Please, note: when this algorithm is implemented,
-    we probable have to delete unnecessary methods
-     - anychart.charts.Pert.prototype.calculateLevels_
-     - anychart.charts.Pert.prototype.calculateLevel_
-   */
   this.paths_.length = 0;
   this.startMilestone_.level = 0;
   var stack = [this.startMilestone_];
@@ -1514,11 +1450,7 @@ anychart.charts.Pert.prototype.cutEdges_ = function() {
             previousMilestone.mSuccessors.push(fakeMilestone);
             previousMilestone.succFakeEdge.to = fakeMilestone;
           } else {
-            if (edge.work) { //real work.
-              goog.array.remove(previousMilestone.successors, edge.work.item);
-              goog.array.remove(to.predecessors, edge.work.item);
-              previousMilestone.mSuccessors.push(fakeMilestone);
-            } else { //dummy connection.
+            if (!edge.work) {
               goog.array.remove(previousMilestone.mSuccessors, to);
               goog.array.insert(previousMilestone.mSuccessors, fakeMilestone);
             }
@@ -1775,10 +1707,7 @@ anychart.charts.Pert.prototype.cutFace_ = function(face, path) {
 anychart.charts.Pert.prototype.calculateLevels_ = function() {
   this.milestonesLocation_[0] = [this.startMilestone_];
   this.milestonesLocation_[this.maxLevel_] = [this.finishMilestone_];
-  if (this.faces_.length == 2) {
-    //TODO (A.Kudryavtsev): Implement!!!
-    alert('TWO FACES');
-  } else {
+  if (this.faces_.length > 2) {
     for (var i = 0; i < this.faces_.length; i++) {
       var face = this.faces_[i];
       var mostLeftIndex = this.getMostLeftIndex_(face);
@@ -1804,21 +1733,19 @@ anychart.charts.Pert.prototype.calculateLevels_ = function() {
         lower.upperMilestone = upper;
       }
     }
+  }
 
-
-    for (var j in this.milestonesMap_) {
-      var mil = this.milestonesMap_[j];
-      if (mil != this.startMilestone_ && mil != this.finishMilestone_ && !mil.upperMilestone) {
-        var level = mil.level;
-        this.milestonesLocation_[level] = [mil];
-        var child = mil;
-        while (child.lowerMilestone) {
-          this.milestonesLocation_[level].push(child.lowerMilestone);
-          child = child.lowerMilestone;
-        }
+  for (var j in this.milestonesMap_) {
+    var mil = this.milestonesMap_[j];
+    if (mil != this.startMilestone_ && mil != this.finishMilestone_ && !mil.upperMilestone) {
+      var level = mil.level;
+      this.milestonesLocation_[level] = [mil];
+      var child = mil;
+      while (child.lowerMilestone) {
+        this.milestonesLocation_[level].push(child.lowerMilestone);
+        child = child.lowerMilestone;
       }
     }
-    console.log(this.milestonesLocation_);
   }
 };
 
@@ -1840,6 +1767,7 @@ anychart.charts.Pert.prototype.milestones = function(opt_value) {
   if (!this.milestones_) {
     this.milestones_ = new anychart.core.pert.Milestones();
     this.milestones_.listenSignals(this.onMilestonesSignal_, this);
+    //Milestones labels don't need to have a parent event target like tasks - labels are inactive.
   }
 
   if (goog.isDef(opt_value)) {
@@ -1882,6 +1810,7 @@ anychart.charts.Pert.prototype.tasks = function(opt_value) {
   if (!this.tasks_) {
     this.tasks_ = new anychart.core.pert.Tasks();
     this.tasks_.listenSignals(this.onTasksSignal_, this);
+    this.tasks_.setLabelsParentEventTarget(this);
   }
 
   if (goog.isDef(opt_value)) {
@@ -1920,7 +1849,7 @@ anychart.charts.Pert.prototype.criticalPath = function(opt_value) {
   if (!this.criticalPath_) {
     this.criticalPath_ = new anychart.core.pert.CriticalPath();
     this.criticalPath_.milestones().listenSignals(this.onMilestonesSignal_, this);
-    this.criticalPath_.tasks().listenSignals(this.onTasksSignal_, this);
+    this.criticalPath_.tasks().setLabelsParentEventTarget(this);
   }
 
   if (goog.isDef(opt_value)) {
@@ -2081,6 +2010,7 @@ anychart.charts.Pert.prototype.drawContent = function(bounds) {
 
     var i, j;
     var left = bounds.left;
+    var str, src, pixelShift, thickness;
     for (i = 0; i < this.milestonesLocation_.length; i++) {
       var milVertical = this.milestonesLocation_[i];
       if (milVertical) {
@@ -2089,40 +2019,44 @@ anychart.charts.Pert.prototype.drawContent = function(bounds) {
         for (j = 0; j < milVertical.length; j++) {
           var milestone = milVertical[j];
           if (milestone) {
-            var milPath = this.milestonesLayer_.genNextChild();
+            if (!milestone.isFake) {
+              var milPath = this.milestonesLayer_.genNextChild();
+              src = milestone.isCritical ? this.criticalPath().milestones() : this.milestones();
+              str = milestone.isSelected ? src.selectStroke() : src.stroke();
+              pixelShift = anychart.utils.extractThickness(str) % 2 == 0 ? 0 : 0.5;
 
-            switch (this.milestones().shape()) {
-              case anychart.enums.MilestoneShape.RHOMBUS:
-                milPath.moveTo(left, top + anychart.charts.Pert.CELL_PIXEL_SIZE_ / 2)
-                    .lineTo(left + anychart.charts.Pert.CELL_PIXEL_SIZE_ / 2, top)
-                    .lineTo(left + anychart.charts.Pert.CELL_PIXEL_SIZE_, top + anychart.charts.Pert.CELL_PIXEL_SIZE_ / 2)
-                    .lineTo(left + anychart.charts.Pert.CELL_PIXEL_SIZE_ / 2, top + anychart.charts.Pert.CELL_PIXEL_SIZE_)
-                    .close();
-                break;
-              case anychart.enums.MilestoneShape.RECTANGLE:
-                milPath.moveTo(left, top)
-                    .lineTo(left + anychart.charts.Pert.CELL_PIXEL_SIZE_, top)
-                    .lineTo(left + anychart.charts.Pert.CELL_PIXEL_SIZE_, top + anychart.charts.Pert.CELL_PIXEL_SIZE_)
-                    .lineTo(left, top + anychart.charts.Pert.CELL_PIXEL_SIZE_)
-                    .close();
-                break;
-              case anychart.enums.MilestoneShape.CIRCLE:
-              default:
-                var radius = anychart.charts.Pert.CELL_PIXEL_SIZE_ / 2;
-                milPath.moveTo(left + radius + radius, top + radius)
-                    .arcTo(radius, radius, 0, 360);
+              switch (this.milestones().shape()) {
+                case anychart.enums.MilestoneShape.RHOMBUS:
+                  milPath.moveTo(left + pixelShift, top + pixelShift + anychart.charts.Pert.CELL_PIXEL_SIZE_ / 2)
+                      .lineTo(left + pixelShift + anychart.charts.Pert.CELL_PIXEL_SIZE_ / 2, top + pixelShift)
+                      .lineTo(left + pixelShift + anychart.charts.Pert.CELL_PIXEL_SIZE_, top + pixelShift + anychart.charts.Pert.CELL_PIXEL_SIZE_ / 2)
+                      .lineTo(left + pixelShift + anychart.charts.Pert.CELL_PIXEL_SIZE_ / 2, top + pixelShift + anychart.charts.Pert.CELL_PIXEL_SIZE_)
+                      .close();
+                  break;
+                case anychart.enums.MilestoneShape.RECTANGLE:
+                  milPath.moveTo(left + pixelShift, top + pixelShift)
+                      .lineTo(left + pixelShift + anychart.charts.Pert.CELL_PIXEL_SIZE_, top + pixelShift)
+                      .lineTo(left + pixelShift + anychart.charts.Pert.CELL_PIXEL_SIZE_, top + pixelShift + anychart.charts.Pert.CELL_PIXEL_SIZE_)
+                      .lineTo(left + pixelShift, top + pixelShift + anychart.charts.Pert.CELL_PIXEL_SIZE_)
+                      .close();
+                  break;
+                case anychart.enums.MilestoneShape.CIRCLE:
+                default:
+                  var radius = anychart.charts.Pert.CELL_PIXEL_SIZE_ / 2;
+                  milPath.moveTo(left + pixelShift + radius + radius, top + pixelShift + radius)
+                      .arcTo(radius, radius, 0, 360);
+              }
+
+              milPath.tag = {'m': milestone};
+              milestone.relatedPath = /** @type {acgraph.vector.Path} */ (milPath);
+
+              var labelContextProvider = this.createFormatProvider(true, void 0, void 0, milestone);
+              var labelsSource = milestone.isCritical ? this.criticalPath().milestones() : this.milestones();
+              var label = labelsSource.labels().add(labelContextProvider, {'value': {'x': left, 'y': top}});
+              label.width(anychart.charts.Pert.CELL_PIXEL_SIZE_);
+              label.height(anychart.charts.Pert.CELL_PIXEL_SIZE_);
+              milestone.relatedLabel = label;
             }
-
-            milPath.tag = {'m': milestone};
-            milestone.relatedPath = /** @type {acgraph.vector.Path} */ (milPath);
-
-            var labelContextProvider = this.createFormatProvider(true, void 0, void 0, milestone);
-            var labelsSource = milestone.isCritical ? this.criticalPath().milestones() : this.milestones();
-            var label = labelsSource.labels().add(labelContextProvider, {'value': {'x': left, 'y': top}});
-            label.width(anychart.charts.Pert.CELL_PIXEL_SIZE_);
-            label.height(anychart.charts.Pert.CELL_PIXEL_SIZE_);
-            milestone.relatedLabel = label;
-
             milestone.left = left;
             milestone.top = top;
 
@@ -2133,136 +2067,145 @@ anychart.charts.Pert.prototype.drawContent = function(bounds) {
       left += (anychart.charts.Pert.CELL_PIXEL_SIZE_ + anychart.charts.Pert.CELL_PIXEL_HORIZONTAL_SPACE_);
     }
 
-    for (var id in this.milestonesMap_) {
-      var mil = this.milestonesMap_[id];
+    for (i in this.edgesMap_) {
+      var edge = this.edgesMap_[i];
+      var from = edge.from;
+      var to = edge.to;
+      var work = edge.work ? edge.work : void 0;
 
-      //Drawing real works.
-      for (i = 0; i < mil.successors.length; i++) {
-        var succ = mil.successors[i];
-        var succId = String(succ.get(anychart.enums.DataField.ID));
-        var activity = this.activitiesMap_[succId];
-        var succWork = this.worksMap_[succId];
-        var destMilestone = succWork.finishMilestone;
-        var path = this.activitiesLayer_.genNextChild();
-        var interactPath = this.interactivityLayer_.genNextChild();
+      var activity = work ? this.activitiesMap_[work.id] : void 0;
+      var path, interactPath;
+      var isCrit = edge.isCritical;
 
-        var isCrit = (mil.isCritical && destMilestone.isCritical && succWork.isCritical);
-        var stroke = isCrit ? this.criticalPath().tasks().stroke() :
-            this.tasks().stroke();
+      if (!from.isFake) { //Ignoring non-start fake edges.
+        path = this.activitiesLayer_.genNextChild();
+        interactPath = this.interactivityLayer_.genNextChild();
+        path.tag = work ? {'w': work} : {'d': isCrit};
+        interactPath.tag = work ? {'w': work} : {'d': isCrit};
 
-        path.stroke(stroke);
-        path.tag = {'w': succWork};
-        succWork.relatedPath = /** @type {acgraph.vector.Path} */ (path);
+        src = edge.isCritical ? this.criticalPath().tasks() : this.tasks();
+        if (work) {
+          str = work.isSelected ? src.selectStroke() : src.stroke();
+          work.relatedPath = /** @type {acgraph.vector.Path} */ (path);
+        } else {
+          str = src.dummyStroke();
+        }
+        pixelShift = anychart.utils.extractThickness(str) % 2 == 0 ? 0 : 0.5;
 
-        interactPath.tag = {'w': succWork};
+        var startLeft = from.left + pixelShift + anychart.charts.Pert.CELL_PIXEL_SIZE_;
+        var startTop = from.top + pixelShift + anychart.charts.Pert.CELL_PIXEL_SIZE_ / 2;
 
-        var startLeft = mil.left + anychart.charts.Pert.CELL_PIXEL_SIZE_;
-        var startTop = mil.top + anychart.charts.Pert.CELL_PIXEL_SIZE_ / 2;
-        var finLeft = destMilestone.left;
-        var finTop = destMilestone.top + anychart.charts.Pert.CELL_PIXEL_SIZE_ / 2;
+        path.moveTo(startLeft, startTop);
+        interactPath.moveTo(startLeft, startTop);
 
-        var dWidth = (destMilestone.left - mil.left - anychart.charts.Pert.CELL_PIXEL_HORIZONTAL_SPACE_) / 2;
-        //path.moveTo(startLeft, startTop)
-        //    .curveTo(startLeft + dWidth, startTop, startLeft + dWidth, finTop, finLeft, finTop);
+        var left, top;
+        var labelLeft, labelTop;
+        var degAngle;
+        var isFirstEdge = true;
 
-        var angle = Math.atan((finTop - startTop) / (finLeft - startLeft));
-        var arrowCoords = this.getArrowRotation_(startLeft, startTop, finLeft, finTop);
+        if (isFirstEdge) {
+          labelLeft = (to.left + pixelShift + from.left + anychart.charts.Pert.CELL_PIXEL_HORIZONTAL_SPACE_) / 2;
+          labelTop = (to.top + pixelShift + from.top + anychart.charts.Pert.CELL_PIXEL_SIZE_) / 2;
+          var angle = Math.atan((to.top - from.top) / anychart.charts.Pert.CELL_PIXEL_HORIZONTAL_SPACE_);
+          degAngle = angle * 180 / Math.PI;
+          isFirstEdge = false;
+        }
 
-        var pathLeft = finLeft - anychart.charts.Pert.ARROW_HEIGHT * Math.cos(angle);
-        var pathTop = finTop - anychart.charts.Pert.ARROW_HEIGHT * Math.sin(angle);
+        if (edge.isFake) {
+          var fakeEdge = edge;
+          var toFakeMilestone = fakeEdge.to;
 
-        var left1 = arrowCoords[0];
-        var top1 = arrowCoords[1];
-
-        var left2 = arrowCoords[2];
-        var top2 = arrowCoords[3];
-
-        path.moveTo(startLeft, startTop)
-            .lineTo(pathLeft, pathTop)
-            .moveTo(pathLeft, pathTop)
-            .lineTo(left1, top1)
-            .lineTo(finLeft, finTop)
-            .lineTo(left2, top2)
-            .close();
-        interactPath.moveTo(startLeft, startTop).lineTo(finLeft, finTop);
-
-        var degAngle = angle * 180 / Math.PI;
-
-        var labelLeft = destMilestone.left - dWidth;
-        var labelTop = (destMilestone.top + mil.top + anychart.charts.Pert.CELL_PIXEL_SIZE_) / 2;
-        var labelsSource = isCrit ? this.criticalPath().tasks() : this.tasks();
-
-        var labelContextProvider = this.createFormatProvider(true, succWork, activity, void 0);
-        var upperLabel = labelsSource.upperLabels().add(labelContextProvider, {
-          'value': {
-            'x': labelLeft,
-            'y': labelTop
+          while (toFakeMilestone.isFake) {
+            left = toFakeMilestone.left + pixelShift + anychart.charts.Pert.CELL_PIXEL_SIZE_ / 2;
+            top = toFakeMilestone.top + pixelShift + anychart.charts.Pert.CELL_PIXEL_SIZE_ / 2;
+            path.lineTo(left, top);
+            interactPath.lineTo(left, top);
+            fakeEdge = toFakeMilestone.succFakeEdge;
+            toFakeMilestone = fakeEdge.to;
+            // if (!toFakeMilestone.isFake) {
+            // //TODO (A.Kudryavtsev): draw arrow!!!
+            // }
           }
-        });
-        upperLabel.width(destMilestone.left - mil.left);
-        upperLabel.height(anychart.charts.Pert.CELL_PIXEL_SIZE_);
-        succWork.upperLabel = upperLabel;
-        upperLabel.rotation(degAngle);
+          var stLeft = left;
+          var stTop = top;
+          var finLeft = toFakeMilestone.left + pixelShift;
+          var finTop = toFakeMilestone.top + pixelShift + anychart.charts.Pert.CELL_PIXEL_SIZE_ / 2;
+
+          var arrowAngle = Math.atan((finTop - stTop) / (finLeft - stLeft));
+          var arrowCoords = this.getArrowRotation_(stLeft, stTop, finLeft, finTop);
+          var pathLeft = finLeft - anychart.charts.Pert.ARROW_HEIGHT * Math.cos(arrowAngle);
+          var pathTop = finTop - anychart.charts.Pert.ARROW_HEIGHT * Math.sin(arrowAngle);
+          var left1 = arrowCoords[0];
+          var top1 = arrowCoords[1];
+          var left2 = arrowCoords[2];
+          var top2 = arrowCoords[3];
 
 
-        var lowerLabel = labelsSource.lowerLabels().add(labelContextProvider, {
-          'value': {
-            'x': labelLeft,
-            'y': labelTop
-          }
-        });
-        upperLabel.width(destMilestone.left - mil.left);
-        upperLabel.height(anychart.charts.Pert.CELL_PIXEL_SIZE_);
-        succWork.lowerLabel = lowerLabel;
-        lowerLabel.rotation(degAngle);
+          path.moveTo(stLeft, stTop)
+              .lineTo(pathLeft, pathTop)
+              .moveTo(pathLeft, pathTop)
+              .lineTo(left1, top1)
+              .lineTo(finLeft, finTop)
+              .lineTo(left2, top2)
+              .close();
 
-      }
+          interactPath.lineTo(finLeft, finTop);
 
-      //Drawing dummy.
-      for (i = 0; i < mil.mSuccessors.length; i++) {
-        var mSucc = mil.mSuccessors[i];
-        var path = this.activitiesLayer_.genNextChild();
-        var interactPath = this.interactivityLayer_.genNextChild();
-        var isCrit = (mil.isCritical && mSucc.isCritical);
-        path.tag = {'d': isCrit};
-        interactPath.tag = {'d': isCrit};
 
-        var startLeft = mil.left + anychart.charts.Pert.CELL_PIXEL_SIZE_;
-        var startTop = mil.top + anychart.charts.Pert.CELL_PIXEL_SIZE_ / 2;
-        var finLeft = mSucc.left;
-        var finTop = mSucc.top + anychart.charts.Pert.CELL_PIXEL_SIZE_ / 2;
+        } else {
+          var finLeft = to.left + pixelShift;
+          var finTop = to.top + pixelShift + anychart.charts.Pert.CELL_PIXEL_SIZE_ / 2;
 
-        var angle = Math.atan((finTop - startTop) / (finLeft - startLeft));
-        var arrowCoords = this.getArrowRotation_(startLeft, startTop, finLeft, finTop);
+          var arrowAngle = Math.atan((finTop - startTop) / (finLeft - startLeft));
+          var arrowCoords = this.getArrowRotation_(startLeft, startTop, finLeft, finTop);
+          var pathLeft = finLeft - anychart.charts.Pert.ARROW_HEIGHT * Math.cos(arrowAngle);
+          var pathTop = finTop - anychart.charts.Pert.ARROW_HEIGHT * Math.sin(arrowAngle);
+          var left1 = arrowCoords[0];
+          var top1 = arrowCoords[1];
+          var left2 = arrowCoords[2];
+          var top2 = arrowCoords[3];
 
-        var pathLeft = finLeft - anychart.charts.Pert.ARROW_HEIGHT * Math.cos(angle);
-        var pathTop = finTop - anychart.charts.Pert.ARROW_HEIGHT * Math.sin(angle);
+          path.moveTo(startLeft, startTop)
+              .lineTo(pathLeft, pathTop)
+              .moveTo(pathLeft, pathTop)
+              .lineTo(left1, top1)
+              .lineTo(finLeft, finTop)
+              .lineTo(left2, top2)
+              .close();
 
-        var left1 = arrowCoords[0];
-        var top1 = arrowCoords[1];
+          interactPath.lineTo(finLeft, finTop);
+        }
 
-        var left2 = arrowCoords[2];
-        var top2 = arrowCoords[3];
 
-        path.moveTo(startLeft, startTop)
-            .lineTo(pathLeft, pathTop)
-            .moveTo(pathLeft, pathTop)
-            .lineTo(left1, top1)
-            .lineTo(finLeft, finTop)
-            .lineTo(left2, top2)
-            .close();
+        if (work) {
+          var labelsSource = isCrit ? this.criticalPath().tasks() : this.tasks();
+          var labelContextProvider = this.createFormatProvider(true, work, activity, void 0);
+          var upperLabel = labelsSource.upperLabels().add(labelContextProvider, {
+            'value': {
+              'x': labelLeft + pixelShift,
+              'y': labelTop + pixelShift
+            }
+          });
+          upperLabel.width(to.left - from.left);
+          upperLabel.height(anychart.charts.Pert.CELL_PIXEL_SIZE_);
+          work.upperLabel = upperLabel;
+          upperLabel.rotation(degAngle);
+          upperLabel.tag = {'w': work};
 
-        interactPath.moveTo(startLeft, startTop).lineTo(finLeft, finTop);
+          var lowerLabel = labelsSource.lowerLabels().add(labelContextProvider, {
+            'value': {
+              'x': labelLeft + pixelShift,
+              'y': labelTop + pixelShift
+            }
+          });
+          lowerLabel.tag = {'w': work};
+          upperLabel.width(to.left - from.left);
+          upperLabel.height(anychart.charts.Pert.CELL_PIXEL_SIZE_);
+          work.lowerLabel = lowerLabel;
+          lowerLabel.rotation(degAngle);
+          lowerLabel.tag = {'w': work};
 
-        //var dWidth = (mSucc.left - mil.left - anychart.charts.Pert.CELL_PIXEL_HORIZONTAL_SPACE_) / 2;
-        //path.moveTo(mil.left + anychart.charts.Pert.CELL_PIXEL_SIZE_, mil.top + anychart.charts.Pert.CELL_PIXEL_SIZE_ / 2)
-        //    .curveTo(
-        //        mil.left + anychart.charts.Pert.CELL_PIXEL_SIZE_ + dWidth,
-        //        mil.top + anychart.charts.Pert.CELL_PIXEL_SIZE_ / 2,
-        //        mil.left + anychart.charts.Pert.CELL_PIXEL_SIZE_ + dWidth,
-        //        mSucc.top + anychart.charts.Pert.CELL_PIXEL_SIZE_ / 2,
-        //        mSucc.left,
-        //        mSucc.top + anychart.charts.Pert.CELL_PIXEL_SIZE_ / 2);
+        }
       }
     }
 
@@ -2278,12 +2221,10 @@ anychart.charts.Pert.prototype.drawContent = function(bounds) {
   }
 
   if (this.hasInvalidationState(anychart.ConsistencyState.PERT_LABELS)) {
-    this.milestones().labels().draw();
-    this.criticalPath().milestones().labels().draw();
-    this.tasks().upperLabels().draw();
-    this.tasks().lowerLabels().draw();
-    this.criticalPath().tasks().upperLabels().draw();
-    this.criticalPath().tasks().lowerLabels().draw();
+    this.milestones().drawLabels();
+    this.tasks().drawLabels();
+    this.criticalPath().milestones().drawLabels();
+    this.criticalPath().tasks().drawLabels();
     this.markConsistent(anychart.ConsistencyState.PERT_LABELS);
   }
 };

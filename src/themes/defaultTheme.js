@@ -3996,7 +3996,6 @@ goog.provide('anychart.themes.defaultTheme');
             'bottom': 1,
             'left': 0
           },
-          'disablePointerEvents': true,
           /**
            * @this {*}
            * @return {*}
@@ -4027,7 +4026,6 @@ goog.provide('anychart.themes.defaultTheme');
             'bottom': 1,
             'left': 0
           },
-          'disablePointerEvents': true,
           /**
            * @this {*}
            * @return {*}
@@ -4185,7 +4183,6 @@ goog.provide('anychart.themes.defaultTheme');
               'bottom': 1,
               'left': 0
             },
-            'disablePointerEvents': true,
             /**
              * @this {*}
              * @return {*}
@@ -4216,7 +4213,6 @@ goog.provide('anychart.themes.defaultTheme');
               'bottom': 1,
               'left': 0
             },
-            'disablePointerEvents': true,
             /**
              * @this {*}
              * @return {*}
