@@ -2197,7 +2197,7 @@
         <xsd:attribute name="labels" type="simple.BoolOrNull" default="true"/>
         <xsd:attribute name="hover_labels" type="simple.BoolOrNull" default="true"/>
         <xsd:attribute name="select_labels" type="simple.BoolOrNull" default="true"/>
-        <xsd:attribute name="shape" type="simple.Text" default="circle"/>
+        <xsd:attribute name="shape" type="xsd:string" default="circle"/>
         <xsd:attribute name="tooltip" type="simple.BoolOrNull" default="true"/>
     </xsd:complexType>
 
