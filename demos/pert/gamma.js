@@ -20,28 +20,53 @@ var data;
 //  ['Q', 'D']
 //];
 
-var vertices = ['Start', 'FA', 'FB', 'FC', 'FD', 'FE', 'SF', 'SG', 'FF', 'SI', 'Finish'];
+// var vertices = ['Start', 'FA', 'FB', 'FC', 'FD', 'FE', 'SF', 'SG', 'FF', 'SI', 'Finish'];
+// var edges = [
+//     ['Start', 'FA'],
+//     ['Start', 'FB'],
+//     ['Start', 'FC'],
+//     ['Start', 'FD'],
+//     ['Start', 'FE'],
+//
+//     ['FA', 'SF'],
+//     ['FB', 'SF'],
+//     ['FC', 'SF'],
+//     ['FD', 'SG'],
+//     ['FE', 'SG'],
+//
+//     ['SF', 'FF'],
+//     ['SG', 'SI'],
+//     ['FE', 'SI'],
+//     ['FF', 'SI'],
+//
+//     ['SI', 'Finish'],
+//     ['FF', 'Finish'] //16
+// ];
+
+var vertices = ['Start', 'abcde', 'pqz', 'p', 'Finish', 'qz', 'mpz', 'z'];
 var edges = [
-    ['Start', 'FA'],
-    ['Start', 'FB'],
-    ['Start', 'FC'],
-    ['Start', 'FD'],
-    ['Start', 'FE'],
+    ['Start', 'abcde'],
+    ['abcde', 'p'],
+    ['abcde', 'pqz'],
+    ['abcde', 'z'],
+    ['abcde', 'mpz'],
 
-    ['FA', 'SF'],
-    ['FB', 'SF'],
-    ['FC', 'SF'],
-    ['FD', 'SG'],
-    ['FE', 'SG'],
+    ['pqz', 'p'],
+    ['pqz', 'qz'],
 
-    ['SF', 'FF'],
-    ['SG', 'SI'],
-    ['FE', 'SI'],
-    ['FF', 'SI'],
+    ['p', 'Finish'],
 
-    ['SI', 'Finish'],
-    ['FF', 'Finish'] //16
+    ['qz', 'Finish'],
+    // ['qz', 'z'],
+
+    ['mpz', 'z'],
+    ['mpz', 'Finish'],
+    ['mpz', 'p'],
+
+    ['z', 'Finish']
+
 ];
+
 
 anychart.onDocumentReady(function() {
   data = prep(vertices, edges);
@@ -64,16 +89,16 @@ anychart.onDocumentReady(function() {
   // console.log(gamma(data));
   // console.log(data);
 
-   // var i;
-   // var v = [];
-   // for (i in data.vertices)
-   //   v.push(data.vertices[i]);
-   // var e = [];
-   // for (i in data.edges)
-   //   e.push(data.edges[i]);
-   // console.log('Vertices\n' + v.map(function(item) { return item.name + ' ' + (2 + Math.max(item.succ.length - 1, 0) + Math.max(item.pred.length - 1, 0)); }).join('\n'));
-   //  console.log('Edges\n' + e.join('\n'));
-   //  console.log('Paths\n' + data.paths.map(function(item) { return item.join('->'); }).join('\n'));
+   var i;
+   var v = [];
+   for (i in data.vertices)
+     v.push(data.vertices[i]);
+   var e = [];
+   for (i in data.edges)
+     e.push(data.edges[i]);
+   console.log('Vertices\n' + v.map(function(item) { return item.name + ' ' + (2 + Math.max(item.succ.length - 1, 0) + Math.max(item.pred.length - 1, 0)); }).join('\n'));
+    console.log('Edges\n' + e.join('\n'));
+    console.log('Paths\n' + data.paths.map(function(item) { return item.join('->'); }).join('\n'));
 
 
    //console.log('Levels\n' + data.levels.map(function(item) { return item.join(','); }).join('\n'));

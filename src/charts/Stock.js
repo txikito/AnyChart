@@ -144,7 +144,7 @@ anychart.charts.Stock.prototype.seriesConfig = (function() {
       // anychart.core.series.Capabilities.ALLOW_INTERACTIVITY |
       // anychart.core.series.Capabilities.ALLOW_POINT_SETTINGS |
       // anychart.core.series.Capabilities.ALLOW_ERROR |
-      // anychart.core.series.Capabilities.SUPPORTS_MARKERS |
+      anychart.core.series.Capabilities.SUPPORTS_MARKERS |
       // anychart.core.series.Capabilities.SUPPORTS_LABELS |
       0);
   res[anychart.enums.StockSeriesType.AREA] = {
@@ -1171,7 +1171,7 @@ anychart.charts.Stock.prototype.highlightAtRatio_ = function(ratio, clientX, cli
     'infoByPlots': goog.array.map(this.plots_, function(plot) {
       return {
         'plot': plot,
-        'infoBySeries': plot ? plot.prepareHighlight(value) : null
+        'infoBySeries': (plot && plot.enabled()) ? plot.prepareHighlight(value) : null
       };
     }),
     'hoveredDate': value

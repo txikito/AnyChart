@@ -3955,7 +3955,12 @@
         "rotation": {
           "type": "number"
         },
-        "anchor": {"$ref": "#/definitions/anychart.enums.Anchor"},
+        "anchor": {
+          "oneOf": [
+            {"$ref": "#/definitions/anychart.enums.Anchor"},
+            {"type": "null"}
+          ]
+        },
         "position": {
           "type": "string"
         },
@@ -3971,6 +3976,7 @@
             "string"
           ]
         },
+        "connectorStroke": {"$ref": "#/definitions/stroke"},
         "padding": {"$ref": "#/definitions/anychart.core.utils.Space"},
         "background": {
           "oneOf": [
@@ -4055,7 +4061,12 @@
         "position": {
           "type": "string"
         },
-        "anchor": {"$ref": "#/definitions/anychart.enums.Anchor"},
+        "anchor": {
+          "oneOf": [
+            {"$ref": "#/definitions/anychart.enums.Anchor"},
+            {"type": "null"}
+          ]
+        },
         "type": {"$ref": "#/definitions/anychart.enums.MarkerType"},
         "rotation": {
           "type": ["number", "null"]
