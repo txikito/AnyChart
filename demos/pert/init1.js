@@ -101,6 +101,14 @@ var data = [
 // ];
 
 
+// //// Planar crash data
+// var data = [
+//   {id: 'A', name: 'A'},
+//   {id: 'B', name: 'B'},
+//   {id: 'C', name: 'C', dependsOn: ['A', 'B']},
+//   {id: 'D', name: 'D', dependsOn: ['A', 'B']}
+// ];
+
 anychart.onDocumentReady(function() {
   //var treeData = anychart.data.tree(data, anychart.enums.TreeFillingMethod.AS_TABLE, deps);
   var treeData = anychart.data.tree(data, anychart.enums.TreeFillingMethod.AS_TABLE);
@@ -115,10 +123,10 @@ anychart.onDocumentReady(function() {
   // chart.milestones().stroke('2 black');
   // chart.milestones().selectStroke('5 green');
 
-  chart.tasks().selectStroke('2 green');
-  chart.tasks().hoverStroke('yellow');
-  chart.criticalPath().tasks().selectStroke('3 purple');
-  chart.criticalPath().tasks().hoverStroke('5 blue');
+  // chart.tasks().selectStroke('2 green');
+  // chart.tasks().hoverStroke('yellow');
+  // chart.criticalPath().tasks().selectStroke('3 purple');
+  // chart.criticalPath().tasks().hoverStroke('5 blue');
 
   chart.draw();
 
