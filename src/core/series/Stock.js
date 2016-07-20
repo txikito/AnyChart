@@ -209,9 +209,10 @@ anychart.core.series.Stock.prototype.data = function(opt_value, opt_mappingSetti
     this.dataSource_ = opt_value;
 
     // creating data table if needed
-    if (goog.isArray(opt_value) || goog.isString(opt_value)) {
+    if (!(opt_value instanceof anychart.data.Table) && !(opt_value instanceof anychart.data.TableMapping)) {
       data = new anychart.data.Table();
-      data.addData(opt_value, false, opt_csvSettings);
+      if (opt_value)
+        data.addData(opt_value, false, opt_csvSettings);
       this.dataToDispose_ = opt_value = data;
     }
 
@@ -279,7 +280,7 @@ anychart.core.series.Stock.prototype.getDetachedIterator = function() {
 /** @inheritDoc */
 anychart.core.series.Stock.prototype.getColorResolutionContext = function(opt_baseColor) {
   return {
-    'sourceColor': opt_baseColor || this.getSeriesOption(anychart.opt.COLOR) || 'blue'
+    'sourceColor': opt_baseColor || this.getOption(anychart.opt.COLOR) || 'blue'
   };
 };
 

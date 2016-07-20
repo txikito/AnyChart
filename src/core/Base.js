@@ -76,6 +76,7 @@ anychart.ConsistencyState = {
   CARTESIAN_SCALE_MAPS: 1 << 21,
   CARTESIAN_Y_SCALES: 1 << 22,
   CARTESIAN_X_SCROLLER: 1 << 23,
+  CARTESIAN_ANNOTATIONS: 1 << 24,
   //---------------------------------- PYRAMID/FUNNEL STATES (CHART) ---------------------------------
   PYRAMID_FUNNEL_LABELS: 1 << 11,
   PYRAMID_FUNNEL_MARKERS: 1 << 12,
@@ -130,6 +131,7 @@ anychart.ConsistencyState = {
   MAP_ZOOM: 1 << 20,
   MAP_GEO_DATA_INDEX: 1 << 21,
   MAP_LABELS: 1 << 22,
+  MAP_CALLOUT: 1 << 23,
   //---------------------------------- HEAT MAP STATES (CHART) ---------------------------------
   HEATMAP_SCALES: 1 << 11,
   HEATMAP_SERIES: 1 << 12,
@@ -150,6 +152,10 @@ anychart.ConsistencyState = {
   SERIES_CLIP: 1 << 11, //
   SERIES_ERROR: 1 << 12, //
   SERIES_OUTLIERS: 1 << 13, //
+  //---------------------------------- AXES STATES (VB) ---------------------------------
+  CALLOUT_TITLE: 1 << 5,
+  CALLOUT_LABELS: 1 << 6,
+  CALLOUT_BACKGROUND: 1 << 7,
   //---------------------------------- AXES STATES (VB) ---------------------------------
   // also combined
   AXIS_TITLE: 1 << 5,
@@ -193,6 +199,7 @@ anychart.ConsistencyState = {
   LABELS_FACTORY_BACKGROUND: 1 << 5,
   LABELS_FACTORY_HANDLERS: 1 << 6,
   LABELS_FACTORY_CLIP: 1 << 7,
+  LABELS_FACTORY_CONNECTOR: 1 << 8,
   //---------------------------------- LEGEND STATES (VB) ---------------------------------
   LEGEND_BACKGROUND: 1 << 5,
   LEGEND_TITLE: 1 << 6,
@@ -248,6 +255,7 @@ anychart.ConsistencyState = {
   STOCK_PLOT_GRIDS: 1 << 9,
   STOCK_PLOT_LEGEND: 1 << 10,
   STOCK_PLOT_PALETTE: 1 << 11,
+  STOCK_PLOT_ANNOTATIONS: 1 << 12,
   //---------------------------------- STOCK DATETIME AXIS (VB) ----------------------------------------
   STOCK_DTAXIS_BACKGROUND: 1 << 5,
   //---------------------------------- STOCK SCROLLER (SCROLLER) ----------------------------------------
@@ -266,6 +274,17 @@ anychart.ConsistencyState = {
   PERT_CALCULATIONS: 1 << 12,
   PERT_LABELS: 1 << 13,
   PERT_APPEARANCE: 1 << 14,
+  //---------------------------------- ANNOTATIONS (VB) ----------------------------------
+  ANNOTATIONS_ANCHORS: 1 << 7,
+  ANNOTATIONS_LAST_POINT: 1 << 8,
+  ANNOTATIONS_SHAPES: 1 << 9,
+  ANNOTATIONS_MARKERS: 1 << 10,
+  ANNOTATIONS_INTERACTIVITY: 1 << 11,
+  ANNOTATIONS_LABELS: 1 << 12,
+  ANNOTATIONS_LEVELS: 1 << 13,
+  //---------------------------------- ANNOTATIONS (VB) ----------------------------------
+  ANNOTATIONS_CONTROLLER_ANNOTATIONS: 1 << 6,
+  ANNOTATIONS_CONTROLLER_DRAWING_MODE: 1 << 7,
   /**
    * Combination of all states.
    */

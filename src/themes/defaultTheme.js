@@ -271,7 +271,6 @@ goog.provide('anychart.themes.defaultTheme');
     },
 
     'defaultLinearColorScale': {'colors': ['#90caf9', '#01579b']},
-    //'defaultLinearColorScale': {'colors': ['#ffd54f', '#ef6c00']}, //todo: delete after final choice
 
     'defaultFontSettings': {
       'fontSize': 13,
@@ -655,6 +654,22 @@ goog.provide('anychart.themes.defaultTheme');
       },
       'minorTicks': {
         'stroke': '#B9B9B9', 'position': 'outside', 'length': 3, 'enabled': false
+      }
+    },
+
+    'defaultCallout': {
+      'enabled': true,
+      'orientation': 'left',
+      'title': {'enabled': false},
+      'padding': {'top': 0, 'right': 0, 'bottom': 0, 'left': 0},
+      'margin': {'top': 0, 'right': 0, 'bottom': 0, 'left': 0},
+      'align': 'center',
+      'labels': {
+        'vAlign': 'center',
+        'hAlign': 'center',
+        'positionFormatter': returnValue,
+        'adjustFontSize': false,
+        'connectorStroke': null
       }
     },
 
@@ -1151,7 +1166,160 @@ goog.provide('anychart.themes.defaultTheme');
       },
       'chartLabels': [],
       'maxBubbleSize': '20%',
-      'minBubbleSize': '5%'
+      'minBubbleSize': '5%',
+      'defaultAnnotationSettings': {
+        'base': {
+          'enabled': true,
+          'fill': returnSourceColor50,
+          'stroke': returnSourceColor,
+          'hoverFill': returnSourceColor70,
+          'hoverStroke': returnDarkenSourceColor,
+          'selectFill': returnSourceColor70,
+          'selectStroke': returnDarkenSourceColor,
+          'markers': {
+            'enabled': false,
+            'size': 5,
+            'type': 'square',
+            'fill': '#ffff66',
+            'stroke': '#333333'
+          },
+          'hoverMarkers': {
+            'enabled': null
+          },
+          'selectMarkers': {
+            'enabled': true
+          },
+          'labels': {
+            'enabled': true,
+            'position': 'centerTop',
+            'anchor': 'centerTop',
+            /**
+             * @return {*}
+             * @this {*}
+             */
+            'textFormatter': function() {
+              return this['level'];
+            }
+          },
+          'hoverLabels': {
+            'enabled': null
+          },
+          'selectLabels': {
+            'enabled': null
+          },
+          'color': '#e06666',
+          'allowEdit': true,
+          'hoverGap': 5
+        },
+        'ray': {},
+        'line': {},
+        'infiniteLine': {},
+        'verticalLine': {},
+        'horizontalLine': {},
+        'rectangle': {},
+        'ellipse': {},
+        'triangle': {},
+        'trendChannel': {},
+        'andrewsPitchfork': {},
+        'fibonacciFan': {
+          'levels': [
+            0,
+            0.382,
+            0.5,
+            0.618,
+            1
+          ],
+          'timeLevels': [
+            0,
+            0.382,
+            0.5,
+            0.618,
+            1
+          ]
+        },
+        'fibonacciArc': {
+          'levels': [
+            0.236,
+            0.382,
+            0.5,
+            0.618,
+            0.764,
+            1
+          ]
+        },
+        'fibonacciRetracement': {
+          'levels': [
+            0,
+            0.236,
+            0.382,
+            0.5,
+            0.618,
+            0.764,
+            1,
+            1.236,
+            1.382,
+            1.5,
+            1.618,
+            1.764,
+            2.618,
+            4.236
+          ],
+          'labels': {
+            'position': 'leftCenter',
+            'anchor': 'rightCenter'
+          }
+        },
+        'fibonacciTimezones': {
+          'levels': [
+            0,
+            1,
+            2,
+            3,
+            5,
+            8,
+            13,
+            21,
+            34,
+            55,
+            89,
+            144,
+            233,
+            377,
+            610,
+            987,
+            1597,
+            2584,
+            4181,
+            6765,
+            10946,
+            17711,
+            28657,
+            46368,
+            75025,
+            121393,
+            196418,
+            317811,
+            514229,
+            832040,
+            1346269,
+            2178309,
+            3524578,
+            5702887,
+            9227465,
+            14930352,
+            24157817,
+            39088169
+          ]
+        },
+        'marker': {
+          'type': 'arrowUp',
+          'size': 20,
+          'anchor': 'top',
+          'offsetX': 0,
+          'offsetY': 0
+        },
+        'label': {}
+      }
     },
 
     'cartesianBase': {
@@ -1269,6 +1437,11 @@ goog.provide('anychart.themes.defaultTheme');
           'padding': {'top': 0, 'right': 0, 'bottom': 5, 'left': 0}
         },
         'scale': 1
+      },
+      'defaultAnnotationSettings': {},
+      'annotations': {
+        'annotationsList': [],
+        'zIndex': 2000
       },
       'xAxes': [{}],
       'yAxes': [{}],
@@ -2284,6 +2457,7 @@ goog.provide('anychart.themes.defaultTheme');
 
     // merge with chart
     'map': {
+      'defaultCalloutSettings': {},
       'defaultSeriesSettings': {
         'base': {
           /**
@@ -2462,6 +2636,7 @@ goog.provide('anychart.themes.defaultTheme');
       'colorRange': {
         'zIndex': 50
       },
+      'callouts': [],
       'unboundRegions': {'enabled': true, 'fill': '#F7F7F7', 'stroke': '#e0e0e0'},
       'legend': {'enabled': false},
       'maxBubbleSize': '20%',
@@ -3375,7 +3550,12 @@ goog.provide('anychart.themes.defaultTheme');
         'maxVisiblePoints': NaN,
         'minPixPerPoint': 1
       },
+      'defaultAnnotationSettings': {},
       'defaultPlotSettings': {
+        'annotations': {
+          'annotationsList': [],
+          'zIndex': 2000
+        },
         'background': {
           'enabled': false
         },
