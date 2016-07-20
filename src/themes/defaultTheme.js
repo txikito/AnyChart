@@ -47,6 +47,15 @@ goog.provide('anychart.themes.defaultTheme');
     return this['name'] || this['getDataValue']('id');
   };
 
+  var returnMilestoneName = function() {
+    if (this['creator']) {
+      var name = this['creator'].get('name');
+      return name[0].toUpperCase();
+    } else {
+      return this['isStart'] ? 'S' : 'F';
+    }
+  };
+
 
   /**
    * @this {*}
@@ -113,7 +122,7 @@ goog.provide('anychart.themes.defaultTheme');
    * @this {*}
    * @return {*}
    */
-  var returnSourceColor60 = function() {
+  var returnSourceColor65 = function() {
     return window['anychart']['color']['setOpacity'](this['sourceColor'], 0.65, true);
   };
 
@@ -169,6 +178,32 @@ goog.provide('anychart.themes.defaultTheme');
    */
   var returnLightenStrokeSourceColor = function() {
     return window['anychart']['color']['setThickness'](window['anychart']['color']['lighten'](this['sourceColor']), 1.5);
+  };
+
+  /**
+   * @this {*}
+   * @return {*}
+   */
+  var returnThickenedStrokeSourceColor = function() {
+    return window['anychart']['color']['setThickness'](this['sourceColor'], 1.5);
+  };
+
+
+  /**
+   * @this {*}
+   * @return {*}
+   */
+  var returnDashedStrokeSourceColor = function() {
+    return {'color': this['sourceColor'], 'dash': '6 4'};
+  };
+
+
+  /**
+   * @this {*}
+   * @return {*}
+   */
+  var returnThickenedDashedStrokeSourceColor = function() {
+    return {'color': this['sourceColor'], 'dash': '6 4', 'thickness': 1.5};
   };
 
 
@@ -857,7 +892,7 @@ goog.provide('anychart.themes.defaultTheme');
             'enabled': true,
             'iconType': 'square'
           },
-          'fill': returnSourceColor60,
+          'fill': returnSourceColor65,
           'hoverFill': returnSourceColor,
           'selectFill': defaultSelectColor,
           'stroke': returnStrokeSourceColor,
@@ -985,8 +1020,8 @@ goog.provide('anychart.themes.defaultTheme');
           }
         },
         'areaLike': {
-          'fill': returnSourceColor60,
-          'hoverFill': returnSourceColor60,
+          'fill': returnSourceColor65,
+          'hoverFill': returnSourceColor65,
           'markers': {
             'position': 'centerTop'
           },
@@ -1005,7 +1040,7 @@ goog.provide('anychart.themes.defaultTheme');
         },
         'barLike': {
           'fill': returnSourceColor85,
-          'hoverFill': returnSourceColor60,
+          'hoverFill': returnSourceColor65,
           'legendItem': {
             'iconStroke': 'none'
           },
@@ -4077,45 +4112,40 @@ goog.provide('anychart.themes.defaultTheme');
           'hAlign': 'center',
           'fontColor': '#fff',
           'disablePointerEvents': true,
-          /**
-           * @this {*}
-           * @return {*}
-           */
-          'textFormatter': function() {
-            if (this['creator']) {
-              var name = this['creator'].get('name');
-              return this['isStart'] ? 'Start: ' + name : 'Finish: ' + name;
-            } else {
-              return this['isStart'] ? 'Start' : 'Finish';
-            }
-          }
+          'textFormatter': returnMilestoneName
         },
         'hoverLabels': {
-          'fontColor': '#ff0',
+          'fontColor': '#fff',
           'fontOpacity': 1
         },
         'selectLabels': {
           'fontWeight': 'bold'
         },
-        'fill': {
-          'color': '#64b5f6',
-          'opacity': 0.8
-        },
-        'hoverFill': defaultHoverColor,
-        'selectFill': defaultSelectColor,
+        'color': '#64b5f6',
+
+        // start fail
+        'fill': {'color': '#64b5f6', 'opacity': 0.85},
         'stroke': 'none',
-        'hoverStroke': 'none',
+        //'fill': returnSourceColor85,
+
+        'hoverFill': '#64b5f6',
+        'hoverStroke': {color: '#64b5f6', thickness: 1.5},
+        //'hoverFill': returnSourceColor,
+        //'hoverStroke': returnThickenedStrokeSourceColor,
+
+        'selectFill': defaultSelectColor,
         'selectStroke': 'none',
+        // end fail
+
         'tooltip': {
-          'title': {
-            'enabled': true
-          },
+          'title': {'enabled': true},
+          'separator': {'enabled': true},
           /**
            * @this {*}
            * @return {*}
            */
           'titleFormatter': function() {
-            return 'Event';
+            return 'Milestone';
           },
           /**
            * @this {*}
@@ -4142,42 +4172,47 @@ goog.provide('anychart.themes.defaultTheme');
       },
 
       'tasks': {
-        'fill': 'none',
-        'hoverFill': 'none',
-        'selectFill': 'none',
-        'stroke': 'grey',
-        'hoverStroke': {
-          'color': 'grey',
-          'thickness': 2
-        },
-        'selectStroke': {
-          'color': '#333',
-          'thickness': 2,
-          'opacity': 0.85
-        },
-        'dummyFill': 'none',
-        'hoverDummyFill': 'none',
-        'selectDummyFill': 'none',
-        'dummyStroke': {
-          'color': 'grey',
-          'dash': '4 2'
-        },
-        'hoverDummyStroke': {
-          'color': 'grey',
-          'dash': '4 2',
-          'thickness': 2
-        },
-        'selectDummyStroke': {
-          'color': '#333',
-          'dash': '4 2'
-        },
+
+        'color': '#64b5f6',
+
+        // start fail
+        'fill': {'color': '#64b5f6', 'opacity': 0.85},
+        'stroke': {'color': '#64b5f6', 'opacity': 0.85},
+        //'fill': returnSourceColor85,
+        //'stroke': returnSourceColor85,
+
+        'hoverFill': '#64b5f6',
+        'hoverStroke': {color: '#64b5f6', thickness: 1.5},
+        //'hoverFill': returnSourceColor,
+        //'hoverStroke': returnThickenedStrokeSourceColor,
+
+        'selectFill': defaultSelectColor,
+        'selectStroke': defaultSelectColor,
+        // end fail
+
+        // start fail
+        'dummyFill': {'color': '#64b5f6', 'opacity': 0.85},
+        'dummyStroke': {'color': '#64b5f6', 'dash': '6 4'},
+        //'dummyFill': returnSourceColor85,
+        //'dummyStroke': returnDashedStrokeSourceColor,
+
+        'hoverDummyFill': '#64b5f6',
+        'hoverDummyStroke': {'color': '#64b5f6', 'dash': '6 4', 'thickness': 1.5},
+        //'hoverDummyFill': returnSourceColor,
+        //'hoverDummyStroke': returnThickenedDashedStrokeSourceColor,
+
+        'selectDummyFill': defaultSelectColor,
+        'selectDummyStroke': {'color': defaultSelectSolidColor, 'opacity': 0.85, 'dash': '6 4'},
+        // end fail
+
         'upperLabels': {
           'enabled': true,
           'anchor': 'centerBottom',
           'vAlign': 'bottom',
           'hAlign': 'center',
-          'fontSize': 10,
-          'fontOpacity': 0.8,
+          'fontSize': 12,
+          'fontOpacity': 1,
+          'contColor': '#333',
           'padding': {
             'top': 1,
             'right': 0,
@@ -4192,22 +4227,17 @@ goog.provide('anychart.themes.defaultTheme');
             return this['name'];
           }
         },
-        'selectUpperLabels': {
-          'fontWeight': 'bold',
-          'fontSize': 12
-        },
-        'hoverUpperLabels': {
-          'fontWeight': 'bold',
-          'fontOpacity': 1
-        },
+        'hoverUpperLabels': {'fontSize': 13, 'offsetY': 1},
+        'selectUpperLabels': {'fontSize': 13, 'offsetY': 1, 'fontWeight': 'bold'},
+
         'lowerLabels': {
           'enabled': true,
           'anchor': 'centerTop',
           'vAlign': 'top',
           'hAlign': 'center',
-          'fontSize': 10,
-          'fontOpacity': 0.8,
-          'fontColor': '#aaa',
+          'fontSize': 12,
+          'fontOpacity': 1,
+          'contColor': '#333',
           'padding': {
             'top': 1,
             'right': 0,
@@ -4219,20 +4249,14 @@ goog.provide('anychart.themes.defaultTheme');
            * @return {*}
            */
           'textFormatter': function() {
-            return 'Duration: ' + this['duration'];
+            return 't: ' + this['duration'];
           }
         },
-        'hoverLowerLabels': {
-          'fontWeight': 'bold',
-          'fontOpacity': 1
-        },
-        'selectLowerLabels': {
-          'fontWeight': 'bold'
-        },
+        'hoverLowerLabels': {'fontSize': 13, 'offsetY': -1},
+        'selectLowerLabels': {'fontSize': 13, 'offsetY': -1, 'fontWeight': 'bold'},
         'tooltip': {
-          'title': {
-            'enabled': true
-          },
+          'title': {'enabled': true},
+          'separator': {'enabled': true},
           /**
            * @this {*}
            * @return {*}
@@ -4256,6 +4280,7 @@ goog.provide('anychart.themes.defaultTheme');
 
       'criticalPath': {
         'milestones': {
+          'color': '#ef6c00',
           'shape': 'circle',
           'size': 80,
           'labels': {
@@ -4265,21 +4290,10 @@ goog.provide('anychart.themes.defaultTheme');
             'hAlign': 'center',
             'fontColor': '#fff',
             'disablePointerEvents': true,
-            /**
-             * @this {*}
-             * @return {*}
-             */
-            'textFormatter': function() {
-              if (this['creator']) {
-                var name = this['creator'].get('name');
-                return this['isStart'] ? 'Start: ' + name : 'Finish: ' + name;
-              } else {
-                return this['isStart'] ? 'Start' : 'Finish';
-              }
-            }
+            'textFormatter': returnMilestoneName
           },
           'hoverLabels': {
-            'fontColor': '#f90',
+            'fontColor': '#fff',
             'fontOpacity': 1
           },
           'selectLabels': {
@@ -4303,7 +4317,7 @@ goog.provide('anychart.themes.defaultTheme');
              * @return {*}
              */
             'titleFormatter': function() {
-              return 'Event on critical path';
+              return 'Critical Milestone';
             },
             /**
              * @this {*}
@@ -4377,7 +4391,7 @@ goog.provide('anychart.themes.defaultTheme');
              * @return {*}
              */
             'textFormatter': function() {
-              return 'Crit.: ' + this['name'];
+              return this['name'];
             }
           },
           'selectUpperLabels': {
@@ -4407,7 +4421,7 @@ goog.provide('anychart.themes.defaultTheme');
              * @return {*}
              */
             'textFormatter': function() {
-              return 'Duration: ' + this['duration'];
+              return 't: ' + this['duration'];
             }
           },
           'hoverLowerLabels': {
