@@ -1,6 +1,7 @@
 goog.provide('anychart.core.pert.Milestones');
 
 goog.require('anychart.core.pert.PertVisualElements');
+goog.require('anychart.utils');
 
 
 
@@ -18,6 +19,13 @@ anychart.core.pert.Milestones = function() {
    * @private
    */
   this.shape_ = anychart.enums.MilestoneShape.CIRCLE;
+
+  /**
+   * Milestone size.
+   * @type {number|string}
+   * @private
+   */
+  this.size_ = 80;
 };
 goog.inherits(anychart.core.pert.Milestones, anychart.core.pert.PertVisualElements);
 
@@ -36,10 +44,29 @@ anychart.core.pert.Milestones.prototype.SUPPORTED_SIGNALS =
  * @param {(anychart.enums.MilestoneShape|string)=} opt_value - Value to be set.
  * @return {anychart.core.pert.Milestones|anychart.enums.MilestoneShape|string} - Current value or itself for method chaining.
  */
+anychart.core.pert.Milestones.prototype.size = function(opt_value) {
+  if (goog.isDef(opt_value)) {
+    opt_value = /** @type {number|string} */ (anychart.utils.normalizeNumberOrPercent(opt_value, 80));
+    if (this.size_ != opt_value) {
+      this.size_ = opt_value;
+      this.dispatchSignal(anychart.Signal.NEEDS_REDRAW);
+    }
+    return this;
+  }
+  return this.size_;
+};
+
+
+/**
+ * Sets milestones shape.
+ * @param {(anychart.enums.MilestoneShape|string)=} opt_value - Value to be set.
+ * @return {anychart.core.pert.Milestones|anychart.enums.MilestoneShape|string} - Current value or itself for method chaining.
+ */
 anychart.core.pert.Milestones.prototype.shape = function(opt_value) {
   if (goog.isDef(opt_value)) {
-    if (this.shape_ != opt_value) {
-      this.shape_ = opt_value;
+    var val = anychart.enums.normalizeMilestoneShape(opt_value);
+    if (this.shape_ != val) {
+      this.shape_ = val;
       this.dispatchSignal(anychart.Signal.NEEDS_REDRAW);
     }
     return this;
@@ -52,6 +79,7 @@ anychart.core.pert.Milestones.prototype.shape = function(opt_value) {
 anychart.core.pert.Milestones.prototype.serialize = function() {
   var json = anychart.core.pert.Milestones.base(this, 'serialize');
   json['shape'] = this.shape_;
+  json['size'] = this.size_;
   return json;
 };
 
@@ -60,6 +88,7 @@ anychart.core.pert.Milestones.prototype.serialize = function() {
 anychart.core.pert.Milestones.prototype.setupByJSON = function(config) {
   anychart.core.pert.Milestones.base(this, 'setupByJSON', config);
   this.shape(config['shape']);
+  this.size(config['size']);
 };
 
 

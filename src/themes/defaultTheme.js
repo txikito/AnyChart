@@ -4048,6 +4048,8 @@ goog.provide('anychart.themes.defaultTheme');
       'tooltip': {
         'enabled': false
       },
+      'horizontalSpacing' : 160,
+      'verticalSpacing': 100,
       /**
        * @this {*}
        * @return {*}
@@ -4067,6 +4069,7 @@ goog.provide('anychart.themes.defaultTheme');
       },
       'milestones': {
         'shape': 'circle',
+        'size': 80,
         'labels': {
           'enabled': true,
           'anchor': 'leftTop',
@@ -4254,6 +4257,7 @@ goog.provide('anychart.themes.defaultTheme');
       'criticalPath': {
         'milestones': {
           'shape': 'circle',
+          'size': 80,
           'labels': {
             'enabled': true,
             'anchor': 'leftTop',

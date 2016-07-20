@@ -116,6 +116,12 @@ anychart.onDocumentReady(function() {
   chart.container('container');
   chart.title('Pert 1');
   chart.data(treeData);
+
+  chart.milestones().shape('rhomb');
+  chart.criticalPath().milestones().shape('rect');
+
+  chart.milestones().size(30);
+  chart.criticalPath().milestones().size(50);
   // chart.milestones().shape(anychart.enums.MilestoneShape.RHOMBUS);
   // chart.milestones().shape(anychart.enums.MilestoneShape.RHOMBUS);
 
