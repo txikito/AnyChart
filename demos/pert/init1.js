@@ -92,21 +92,23 @@ var data = [
 // ];
 
 
-// //// Planar crash data
+//// Planar crash data
+var data = [
+  {id: 'A', name: 'A'},
+  {id: 'B', name: 'B'},
+  {id: 'C', name: 'C', dependsOn: ['A', 'B']},
+  {id: 'D', name: 'D', dependsOn: ['A', 'B']}
+];
+
+
+// //// Planar crash data #2
 // var data = [
 //   {id: 'A', name: 'A'},
 //   {id: 'B', name: 'B'},
-//   {id: 'C', name: 'C', dependsOn: ['A', 'B']},
-//   {id: 'D', name: 'D', dependsOn: ['A', 'B']}
-// ];
-
-
-// //// Planar crash data
-// var data = [
-//   {id: 'A', name: 'A'},
-//   {id: 'B', name: 'B'},
-//   {id: 'C', name: 'C', dependsOn: ['A', 'B']},
-//   {id: 'D', name: 'D', dependsOn: ['A', 'B']}
+//   {id: 'C', name: 'C'},
+//   {id: 'D', name: 'D', dependsOn: ['A', 'B']},
+//   {id: 'E', name: 'E', dependsOn: ['A', 'B', 'C']},
+//   {id: 'F', name: 'F', dependsOn: ['B', 'C']}
 // ];
 
 anychart.onDocumentReady(function() {

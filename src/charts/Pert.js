@@ -1701,8 +1701,10 @@ anychart.charts.Pert.prototype.getNextSegmentAndFace_ = function(segments, faces
           break;
       }
     }
+    // if (!facesCount)
+    //   throw 'non planar!';
     if (!facesCount)
-      throw 'non planar!';
+      console.log(face);
     if (facesCount < minFacesCount) {
       result = [i, firstFace];
       minFacesCount = facesCount;
@@ -1755,8 +1757,10 @@ anychart.charts.Pert.prototype.plotSegment_ = function(segments, faces, segmentI
     milestone = next;
   }
   var face = faces[faceIndex];
-  var cutResult = this.cutFace_(face, path);
-  goog.array.splice(faces, faceIndex, 1, cutResult[0], cutResult[1]);
+  if (face) {
+    var cutResult = this.cutFace_(face, path);
+    goog.array.splice(faces, faceIndex, 1, cutResult[0], cutResult[1]);
+  }
 };
 
 
