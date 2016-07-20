@@ -58,7 +58,12 @@ anychart.enums.ChartTypes = {
  * @enum {string}
  */
 anychart.enums.GaugeTypes = {
-  CIRCULAR: 'circular'
+  CIRCULAR: 'circular',
+  LINEAR: 'linearGauge',
+  BULLET: 'bullet',
+  THERMOMETER: 'thermometerGauge',
+  TANK: 'tankGauge',
+  LED: 'ledGauge'
 };
 
 
@@ -887,6 +892,8 @@ anychart.enums.MarkerType = {
    *      .triangleDown(stage.width()/2, stage.height()/2, stage.height()/2-5);
    */
   TRIANGLE_DOWN: 'triangleDown',
+  TRIANGLE_RIGHT: 'triangleRight',
+  TRIANGLE_LEFT: 'triangleLeft',
   /**
    * @illustration
    * stage.width(200)
@@ -977,6 +984,10 @@ anychart.enums.normalizeMarkerType = function(type, opt_default) {
       return anychart.enums.MarkerType.TRIANGLE_UP;
     case 'triangledown':
       return anychart.enums.MarkerType.TRIANGLE_DOWN;
+    case 'triangleleft':
+      return anychart.enums.MarkerType.TRIANGLE_LEFT;
+    case 'triangleright':
+      return anychart.enums.MarkerType.TRIANGLE_RIGHT;
     case 'cross':
       return anychart.enums.MarkerType.CROSS;
     case 'diagonalcross':
@@ -1034,6 +1045,10 @@ anychart.enums.normalizeAnyMarkerType = function(type) {
       return anychart.enums.MarkerType.TRIANGLE_UP;
     case 'triangledown':
       return anychart.enums.MarkerType.TRIANGLE_DOWN;
+    case 'triangleleft':
+      return anychart.enums.MarkerType.TRIANGLE_LEFT;
+    case 'triangleright':
+      return anychart.enums.MarkerType.TRIANGLE_RIGHT;
     case 'cross':
       return anychart.enums.MarkerType.CROSS;
     case 'diagonalcross':
@@ -1871,7 +1886,11 @@ anychart.enums.EventType = {
   // Annotation events
   ANNOTATION_SELECT: 'annotationSelect',
   ANNOTATION_UNSELECT: 'annotationUnselect',
-  ANNOTATION_DRAWING_FINISH: 'annotationDrawingFinish'
+  ANNOTATION_DRAWING_FINISH: 'annotationDrawingFinish',
+
+  // UI events
+  CLOSE: 'close',
+  COMPLETE: 'complete'
 };
 
 
@@ -2392,6 +2411,60 @@ anychart.enums.normalizeSparklineSeriesType = function(value, opt_default) {
 
 //----------------------------------------------------------------------------------------------------------------------
 //
+//  LinearGaugePointerTypes
+//
+//----------------------------------------------------------------------------------------------------------------------
+/**
+ * List of all linear gauge pointers type.
+ * @enum {string}
+ */
+anychart.enums.LinearGaugePointerType = {
+  BAR: 'bar',
+  RANGE_BAR: 'rangeBar',
+  MARKER: 'marker',
+  THERMOMETER: 'thermometer',
+  TANK: 'tank',
+  LED: 'led'
+};
+
+
+/**
+ * Normalizes linear gauge pointers type.
+ * @param {*} value Pointer's type to normalize.
+ * @param {anychart.enums.LinearGaugePointerType=} opt_default Custom default value (defaults to BAR).
+ * @return {anychart.enums.LinearGaugePointerType}
+ */
+anychart.enums.normalizeLinearGaugePointerType = function(value, opt_default) {
+  value = (String(value)).toLowerCase();
+  switch (value) {
+    case 'bar':
+    case 'b':
+      return anychart.enums.LinearGaugePointerType.BAR;
+    case 'rangebar':
+    case 'range':
+    case 'rb':
+    case 'r':
+      return anychart.enums.LinearGaugePointerType.RANGE_BAR;
+    case 'marker':
+    case 'm':
+      return anychart.enums.LinearGaugePointerType.MARKER;
+    case 'thermometer':
+    case 'ther':
+    case 'th':
+      return anychart.enums.LinearGaugePointerType.THERMOMETER;
+    case 'tank':
+    case 't':
+      return anychart.enums.LinearGaugePointerType.TANK;
+    case 'led':
+    case 'l':
+      return anychart.enums.LinearGaugePointerType.LED;
+  }
+  return opt_default || anychart.enums.LinearGaugePointerType.BAR;
+};
+
+
+//----------------------------------------------------------------------------------------------------------------------
+//
 //  Gantt specific data item field.
 //
 //----------------------------------------------------------------------------------------------------------------------
@@ -2631,6 +2704,36 @@ anychart.enums.normalizeScatterSeriesType = function(value, opt_default) {
       return anychart.enums.ScatterSeriesType.MARKER;
   }
   return opt_default || anychart.enums.ScatterSeriesType.LINE;
+};
+
+
+//----------------------------------------------------------------------------------------------------------------------
+//
+//  HeatMapSeriesType
+//
+//----------------------------------------------------------------------------------------------------------------------
+/**
+ * List of all series types.
+ * @enum {string}
+ */
+anychart.enums.HeatMapSeriesType = {
+  HEAT_MAP: 'heatMap'
+};
+
+
+/**
+ * Normalizes scatter series type.
+ * @param {*} value Series type to normalize.
+ * @param {anychart.enums.HeatMapSeriesType=} opt_default Custom default value (defaults to heatMap).
+ * @return {anychart.enums.HeatMapSeriesType}
+ */
+anychart.enums.normalizeHeatMapSeriesType = function(value, opt_default) {
+  value = (String(value)).toLowerCase();
+  switch (value) {
+    case 'heatmap':
+      return anychart.enums.HeatMapSeriesType.HEAT_MAP;
+  }
+  return opt_default || anychart.enums.HeatMapSeriesType.HEAT_MAP;
 };
 
 
@@ -4053,6 +4156,14 @@ anychart.enums.StringToken = {
    */
   SERIES_LAST_Y_VALUE: '%SeriesLastYValue',
   /**
+   Series min value.
+   */
+  SERIES_MIN: '%SeriesMin',
+  /**
+   Series max value.
+   */
+  SERIES_MAX: '%SeriesMax',
+  /**
    The name of this series.
    */
   SERIES_NAME: '%SeriesName',
@@ -4946,6 +5057,33 @@ anychart.enums.PropertyHandlerType = {
 //endregion
 
 
+/**
+ * Accessibility mode.
+ * @enum {string}
+ */
+anychart.enums.A11yMode = {
+  CHART_ELEMENTS: 'chartElements',
+  DATA_TABLE: 'dataTable'
+};
+
+
+/**
+ * Normalizes a11y mode.
+ * @param {anychart.enums.A11yMode|string} mode - A11y mode.
+ * @return {anychart.enums.A11yMode} - Normalized mode.
+ */
+anychart.enums.normalizeA11yMode = function(mode) {
+  var value = (String(mode)).toLowerCase();
+  switch (value) {
+    case 'chartelements':
+      return anychart.enums.A11yMode.CHART_ELEMENTS;
+    case 'datatable':
+      return anychart.enums.A11yMode.DATA_TABLE;
+  }
+  return anychart.enums.A11yMode.CHART_ELEMENTS;
+};
+
+
 //region Annotations
 //----------------------------------------------------------------------------------------------------------------------
 //
@@ -5218,6 +5356,8 @@ goog.exportSymbol('anychart.enums.MarkerType.SQUARE', anychart.enums.MarkerType.
 goog.exportSymbol('anychart.enums.MarkerType.TRIANGLE_UP', anychart.enums.MarkerType.TRIANGLE_UP);
 goog.exportSymbol('anychart.enums.MarkerType.DIAMOND', anychart.enums.MarkerType.DIAMOND);
 goog.exportSymbol('anychart.enums.MarkerType.TRIANGLE_DOWN', anychart.enums.MarkerType.TRIANGLE_DOWN);
+goog.exportSymbol('anychart.enums.MarkerType.TRIANGLE_LEFT', anychart.enums.MarkerType.TRIANGLE_LEFT);
+goog.exportSymbol('anychart.enums.MarkerType.TRIANGLE_RIGHT', anychart.enums.MarkerType.TRIANGLE_RIGHT);
 goog.exportSymbol('anychart.enums.MarkerType.CROSS', anychart.enums.MarkerType.CROSS);
 goog.exportSymbol('anychart.enums.MarkerType.DIAGONAL_CROSS', anychart.enums.MarkerType.DIAGONAL_CROSS);
 goog.exportSymbol('anychart.enums.MarkerType.STAR4', anychart.enums.MarkerType.STAR4);
@@ -5361,6 +5501,13 @@ goog.exportSymbol('anychart.enums.SparklineSeriesType.AREA', anychart.enums.Spar
 goog.exportSymbol('anychart.enums.SparklineSeriesType.LINE', anychart.enums.SparklineSeriesType.LINE);
 goog.exportSymbol('anychart.enums.SparklineSeriesType.COLUMN', anychart.enums.SparklineSeriesType.COLUMN);
 goog.exportSymbol('anychart.enums.SparklineSeriesType.WIN_LOSS', anychart.enums.SparklineSeriesType.WIN_LOSS);
+
+goog.exportSymbol('anychart.enums.LinearGaugePointerType.BAR', anychart.enums.LinearGaugePointerType.BAR);
+goog.exportSymbol('anychart.enums.LinearGaugePointerType.RANGE_BAR', anychart.enums.LinearGaugePointerType.RANGE_BAR);
+goog.exportSymbol('anychart.enums.LinearGaugePointerType.THERMOMETER', anychart.enums.LinearGaugePointerType.THERMOMETER);
+goog.exportSymbol('anychart.enums.LinearGaugePointerType.MARKER', anychart.enums.LinearGaugePointerType.MARKER);
+goog.exportSymbol('anychart.enums.LinearGaugePointerType.TANK', anychart.enums.LinearGaugePointerType.TANK);
+goog.exportSymbol('anychart.enums.LinearGaugePointerType.LED', anychart.enums.LinearGaugePointerType.LED);
 
 goog.exportSymbol('anychart.enums.GanttDataFields.ACTUAL', anychart.enums.GanttDataFields.ACTUAL);
 goog.exportSymbol('anychart.enums.GanttDataFields.ACTUAL_START', anychart.enums.GanttDataFields.ACTUAL_START);
@@ -5573,6 +5720,8 @@ goog.exportSymbol('anychart.enums.StringToken.SERIES_FIRST_X_VALUE', anychart.en
 goog.exportSymbol('anychart.enums.StringToken.SERIES_FIRST_Y_VALUE', anychart.enums.StringToken.SERIES_FIRST_Y_VALUE);
 goog.exportSymbol('anychart.enums.StringToken.SERIES_LAST_X_VALUE', anychart.enums.StringToken.SERIES_LAST_X_VALUE);
 goog.exportSymbol('anychart.enums.StringToken.SERIES_LAST_Y_VALUE', anychart.enums.StringToken.SERIES_LAST_Y_VALUE);
+goog.exportSymbol('anychart.enums.StringToken.SERIES_MIN', anychart.enums.StringToken.SERIES_MIN);
+goog.exportSymbol('anychart.enums.StringToken.SERIES_MAX', anychart.enums.StringToken.SERIES_MAX);
 goog.exportSymbol('anychart.enums.StringToken.SERIES_NAME', anychart.enums.StringToken.SERIES_NAME);
 goog.exportSymbol('anychart.enums.StringToken.SERIES_POINT_COUNT', anychart.enums.StringToken.SERIES_POINT_COUNT);
 goog.exportSymbol('anychart.enums.StringToken.SERIES_X_AVERAGE', anychart.enums.StringToken.SERIES_X_AVERAGE);
@@ -5854,3 +6003,6 @@ goog.exportSymbol('anychart.enums.AnnotationTypes.FIBONACCI_ARC', anychart.enums
 goog.exportSymbol('anychart.enums.AnnotationTypes.FIBONACCI_RETRACEMENT', anychart.enums.AnnotationTypes.FIBONACCI_RETRACEMENT);
 goog.exportSymbol('anychart.enums.AnnotationTypes.FIBONACCI_TIMEZONES', anychart.enums.AnnotationTypes.FIBONACCI_TIMEZONES);
 goog.exportSymbol('anychart.enums.AnnotationTypes.MARKER', anychart.enums.AnnotationTypes.MARKER);
+
+goog.exportSymbol('anychart.enums.A11yMode.CHART_ELEMENTS', anychart.enums.A11yMode.CHART_ELEMENTS);
+goog.exportSymbol('anychart.enums.A11yMode.DATA_TABLE', anychart.enums.A11yMode.DATA_TABLE);

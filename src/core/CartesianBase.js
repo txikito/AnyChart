@@ -867,6 +867,22 @@ anychart.core.CartesianBase.prototype.yAxis = function(opt_indexOrValue, opt_val
 
 
 /**
+ * @return {number} Number of series.
+ */
+anychart.core.CartesianBase.prototype.getXAxesCount = function() {
+  return this.xAxes_.length;
+};
+
+
+/**
+ * @return {number} Number of series.
+ */
+anychart.core.CartesianBase.prototype.getYAxesCount = function() {
+  return this.yAxes_.length;
+};
+
+
+/**
  * Listener for axes invalidation.
  * @param {anychart.SignalEvent} event Invalidation event.
  * @private
@@ -1869,6 +1885,9 @@ anychart.core.CartesianBase.prototype.seriesInvalidated = function(event) {
   var state = 0;
   if (event.hasSignal(anychart.Signal.NEEDS_REDRAW)) {
     state = anychart.ConsistencyState.CARTESIAN_SERIES;
+  }
+  if (event.hasSignal(anychart.Signal.NEEDS_UPDATE_A11Y)) {
+    state = anychart.ConsistencyState.A11Y;
   }
   if (event.hasSignal(anychart.Signal.DATA_CHANGED)) {
     state |= anychart.ConsistencyState.CARTESIAN_SERIES | anychart.ConsistencyState.CARTESIAN_ANNOTATIONS;
