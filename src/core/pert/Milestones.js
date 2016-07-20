@@ -40,15 +40,15 @@ anychart.core.pert.Milestones.prototype.SUPPORTED_SIGNALS =
 
 
 /**
- * Sets milestones shape.
- * @param {(anychart.enums.MilestoneShape|string)=} opt_value - Value to be set.
- * @return {anychart.core.pert.Milestones|anychart.enums.MilestoneShape|string} - Current value or itself for method chaining.
+ * Sets milestones size.
+ * @param {(number|string)=} opt_value - Value to be set.
+ * @return {anychart.core.pert.Milestones|number|string} - Current value or itself for method chaining.
  */
 anychart.core.pert.Milestones.prototype.size = function(opt_value) {
   if (goog.isDef(opt_value)) {
-    opt_value = /** @type {number|string} */ (anychart.utils.normalizeNumberOrPercent(opt_value, 80));
-    if (this.size_ != opt_value) {
-      this.size_ = opt_value;
+    var val = /** @type {number|string} */ (anychart.utils.normalizeNumberOrPercent(opt_value, 80));
+    if (this.size_ != val) {
+      this.size_ = val;
       this.dispatchSignal(anychart.Signal.NEEDS_REDRAW);
     }
     return this;
@@ -104,3 +104,4 @@ anychart.core.pert.Milestones.prototype['selectLabels'] = anychart.core.pert.Mil
 anychart.core.pert.Milestones.prototype['hoverLabels'] = anychart.core.pert.Milestones.prototype.hoverLabels;
 anychart.core.pert.Milestones.prototype['tooltip'] = anychart.core.pert.Milestones.prototype.tooltip;
 anychart.core.pert.Milestones.prototype['shape'] = anychart.core.pert.Milestones.prototype.shape;
+anychart.core.pert.Milestones.prototype['size'] = anychart.core.pert.Milestones.prototype.size;

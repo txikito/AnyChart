@@ -269,7 +269,8 @@ anychart.charts.Pert.ActivityData;
  *    upperMilestone: (anychart.charts.Pert.Milestone|anychart.charts.Pert.FakeMilestone),
  *    lowerMilestone: (anychart.charts.Pert.Milestone|anychart.charts.Pert.FakeMilestone),
  *    brokenTo: Array.<anychart.charts.Pert.Milestone>,
- *    parent: ?anychart.charts.Pert.Milestone
+ *    parent: ?anychart.charts.Pert.Milestone,
+ *    radius: number
  * }}
  */
 anychart.charts.Pert.Milestone;
@@ -1530,7 +1531,8 @@ anychart.charts.Pert.prototype.cutEdges_ = function() {
             mSuccessors: [],
             realEdge: edge,
             successors: [],
-            predecessors: []
+            predecessors: [],
+            radius: 0
           };
           fakeMilestone.id = this.hash_('fm', fakeMilestone);
           this.milestonesMap_[fakeMilestone.id] = /** @type {(anychart.charts.Pert.Milestone|anychart.charts.Pert.FakeMilestone)} */ (fakeMilestone);
@@ -2174,19 +2176,23 @@ anychart.charts.Pert.prototype.drawContent = function(bounds) {
     this.criticalPath().tasks().clearLabels();
 
     var verticalStep = anychart.utils.normalizeSize(this.verticalSpacing_, bounds.height);
-    var horizontalStep = anychart.utils.normalizeSize(this.horizontalSpacing_, bounds.height);
+    var horizontalStep = anychart.utils.normalizeSize(this.horizontalSpacing_, bounds.width);
 
     var i, j;
     var left, top;
-    left = bounds.left;
     var str, src, pixelShift;
     var critSource, size;
     var fullSize = (this.maxLevel_ >= this.maxLevelHeight_) ? bounds.width : bounds.height;
 
+    var critSize = anychart.utils.normalizeSize(/** @type {string|number} */ (this.criticalPath().milestones().size()), fullSize);
+    var normSize = anychart.utils.normalizeSize(/** @type {string|number} */ (this.milestones().size()), fullSize);
+    var maxSize = Math.max(normSize, critSize);
+    left = bounds.left + maxSize / 2;
+
     for (i = 0; i < this.milestonesLocation_.length; i++) {
       var milVertical = this.milestonesLocation_[i];
       if (milVertical) {
-        top = bounds.top;
+        top = bounds.top + maxSize / 2;
 
         for (j = 0; j < milVertical.length; j++) {
           var milestone = milVertical[j];
@@ -2199,27 +2205,28 @@ anychart.charts.Pert.prototype.drawContent = function(bounds) {
 
               critSource = milestone.isCritical ? this.criticalPath().milestones() : this.milestones();
               size = anychart.utils.normalizeSize(/** @type {string|number} */ (critSource.size()), fullSize);
+              var halfSize = Math.round(size / 2);
+              milestone.radius = halfSize;
 
               switch (critSource.shape()) {
                 case anychart.enums.MilestoneShape.RHOMBUS:
-                  milPath.moveTo(left + pixelShift, top + pixelShift + size / 2)
-                      .lineTo(left + pixelShift + size / 2, top + pixelShift)
-                      .lineTo(left + pixelShift + size, top + pixelShift + size / 2)
-                      .lineTo(left + pixelShift + size / 2, top + pixelShift + size)
+                  milPath.moveTo(left + pixelShift - halfSize, top + pixelShift)
+                      .lineTo(left + pixelShift, top + pixelShift - halfSize)
+                      .lineTo(left + pixelShift + halfSize, top + pixelShift)
+                      .lineTo(left + pixelShift, top + pixelShift + halfSize)
                       .close();
                   break;
                 case anychart.enums.MilestoneShape.RECTANGLE:
-                  milPath.moveTo(left + pixelShift, top + pixelShift)
-                      .lineTo(left + pixelShift + size, top + pixelShift)
-                      .lineTo(left + pixelShift + size, top + pixelShift + size)
-                      .lineTo(left + pixelShift, top + pixelShift + size)
+                  milPath.moveTo(left + pixelShift - halfSize, top + pixelShift - halfSize)
+                      .lineTo(left + pixelShift + halfSize, top + pixelShift - halfSize)
+                      .lineTo(left + pixelShift + halfSize, top + pixelShift + halfSize)
+                      .lineTo(left + pixelShift - halfSize, top + pixelShift + halfSize)
                       .close();
                   break;
                 case anychart.enums.MilestoneShape.CIRCLE:
                 default:
-                  var radius = size / 2;
-                  milPath.moveTo(left + pixelShift + radius + radius, top + pixelShift + radius)
-                      .arcTo(radius, radius, 0, 360);
+                  milPath.moveTo(left + pixelShift + halfSize, top + pixelShift)
+                      .arcTo(halfSize, halfSize, 0, 360);
               }
 
               milPath.tag = {'m': milestone};
@@ -2227,7 +2234,7 @@ anychart.charts.Pert.prototype.drawContent = function(bounds) {
 
               var labelContextProvider = this.createFormatProvider(true, void 0, void 0, /** @type {anychart.charts.Pert.Milestone} */ (milestone));
               var labelsSource = milestone.isCritical ? this.criticalPath().milestones() : this.milestones();
-              var label = labelsSource.labels().add(labelContextProvider, {'value': {'x': left, 'y': top}});
+              var label = labelsSource.labels().add(labelContextProvider, {'value': {'x': left - halfSize, 'y': top - halfSize}});
               label.width(size);
               label.height(size);
               milestone.relatedLabel = label;
@@ -2267,15 +2274,8 @@ anychart.charts.Pert.prototype.drawContent = function(bounds) {
         }
         pixelShift = anychart.utils.extractThickness(/** @type {acgraph.vector.Stroke} */ (str)) % 2 == 0 ? 0 : 0.5;
 
-        var fromSource = from.isCritical ? this.criticalPath().milestones() : this.milestones();
-        var fromSize = anychart.utils.normalizeSize(/** @type {string|number} */ (fromSource.size()), fullSize);
-
-        var toSource = to.isCritical ? this.criticalPath().milestones() : this.milestones();
-        var toSize = anychart.utils.normalizeSize(/** @type {string|number} */ (toSource.size()), fullSize);
-
-
-        var startLeft = from.left + pixelShift + fromSize;
-        var startTop = from.top + pixelShift + fromSize / 2;
+        var startLeft = from.left + pixelShift + (from.radius || 0);
+        var startTop = from.top + pixelShift;
 
         path.moveTo(startLeft, startTop);
         interactPath.moveTo(startLeft, startTop);
@@ -2285,9 +2285,9 @@ anychart.charts.Pert.prototype.drawContent = function(bounds) {
         var isFirstEdge = true;
 
         if (isFirstEdge) {
-          labelLeft = (startLeft + to.left + pixelShift) / 2;
-          labelTop = (to.top + startTop + pixelShift) / 2;
-          var angle = Math.atan((to.top + toSize - from.top - fromSize) / (to.left + toSize - from.left - fromSize));
+          labelLeft = (startLeft + to.left - to.radius) / 2;
+          labelTop = (to.top + startTop) / 2;
+          var angle = Math.atan((to.top - from.top) / (to.left - to.radius - from.left - from.radius));
           degAngle = angle * 180 / Math.PI;
           isFirstEdge = false;
         }
@@ -2297,20 +2297,17 @@ anychart.charts.Pert.prototype.drawContent = function(bounds) {
           var toFakeMilestone = fakeEdge.to;
 
           while (toFakeMilestone.isFake) {
-            left = toFakeMilestone.left + pixelShift + anychart.charts.Pert.CELL_PIXEL_SIZE_ / 2;
-            top = toFakeMilestone.top + pixelShift + anychart.charts.Pert.CELL_PIXEL_SIZE_ / 2;
+            left = toFakeMilestone.left + pixelShift;
+            top = toFakeMilestone.top + pixelShift;
             path.lineTo(left, top);
             interactPath.lineTo(left, top);
             fakeEdge = toFakeMilestone.succFakeEdge;
             toFakeMilestone = fakeEdge.to;
-            // if (!toFakeMilestone.isFake) {
-            // //TODO (A.Kudryavtsev): draw arrow!!!
-            // }
           }
           var stLeft = left;
           var stTop = top;
-          var finLeft = toFakeMilestone.left + pixelShift;
-          var finTop = toFakeMilestone.top + pixelShift + anychart.charts.Pert.CELL_PIXEL_SIZE_ / 2;
+          var finLeft = toFakeMilestone.left + pixelShift - (toFakeMilestone.radius || 0);
+          var finTop = toFakeMilestone.top + pixelShift;
 
           var arrowAngle = Math.atan((finTop - stTop) / (finLeft - stLeft));
           var arrowCoords = this.getArrowRotation_(stLeft, /** @type {number} */ (stTop), finLeft, finTop);
@@ -2320,7 +2317,6 @@ anychart.charts.Pert.prototype.drawContent = function(bounds) {
           var top1 = arrowCoords[1];
           var left2 = arrowCoords[2];
           var top2 = arrowCoords[3];
-
 
           path.moveTo(stLeft, stTop)
               .lineTo(pathLeft, pathTop)
@@ -2332,10 +2328,9 @@ anychart.charts.Pert.prototype.drawContent = function(bounds) {
 
           interactPath.lineTo(finLeft, finTop);
 
-
         } else {
-          var finLeft = to.left + pixelShift;
-          var finTop = to.top + pixelShift + anychart.charts.Pert.CELL_PIXEL_SIZE_ / 2;
+          var finLeft = to.left + pixelShift - (to.radius || 0);
+          var finTop = to.top + pixelShift;
 
           var arrowAngle = Math.atan((finTop - startTop) / (finLeft - startLeft));
           var arrowCoords = this.getArrowRotation_(startLeft, startTop, finLeft, finTop);
@@ -2357,8 +2352,12 @@ anychart.charts.Pert.prototype.drawContent = function(bounds) {
           interactPath.lineTo(finLeft, finTop);
         }
 
-
         if (work) {
+          var w = to.left - to.radius - from.left - from.radius;
+          var h = to.top - from.top;
+
+          var hyp = Math.sqrt(Math.pow(w, 2) + Math.pow(h, 2));
+
           var labelsSource = isCrit ? this.criticalPath().tasks() : this.tasks();
           var labelContextProvider = this.createFormatProvider(true, work, activity, void 0);
           var upperLabel = labelsSource.upperLabels().add(labelContextProvider, {
@@ -2367,8 +2366,9 @@ anychart.charts.Pert.prototype.drawContent = function(bounds) {
               'y': labelTop + pixelShift
             }
           });
-          upperLabel.width(to.left - from.left);
-          upperLabel.height(anychart.charts.Pert.CELL_PIXEL_SIZE_);
+
+          upperLabel.width(hyp);
+          upperLabel.height(maxSize / 2);
           work.upperLabel = upperLabel;
           upperLabel.rotation(degAngle);
           upperLabel.tag = {'w': work};
@@ -2380,8 +2380,8 @@ anychart.charts.Pert.prototype.drawContent = function(bounds) {
             }
           });
           lowerLabel.tag = {'w': work};
-          upperLabel.width(to.left - from.left);
-          upperLabel.height(anychart.charts.Pert.CELL_PIXEL_SIZE_);
+          lowerLabel.width(hyp);
+          lowerLabel.height(maxSize / 2);
           work.lowerLabel = lowerLabel;
           lowerLabel.rotation(degAngle);
           lowerLabel.tag = {'w': work};
@@ -2522,4 +2522,6 @@ anychart.charts.Pert.prototype['criticalPath'] = anychart.charts.Pert.prototype.
 anychart.charts.Pert.prototype['data'] = anychart.charts.Pert.prototype.data;
 anychart.charts.Pert.prototype['getType'] = anychart.charts.Pert.prototype.getType;
 anychart.charts.Pert.prototype['expectedTimeCalculator'] = anychart.charts.Pert.prototype.expectedTimeCalculator;
+anychart.charts.Pert.prototype['verticalSpacing'] = anychart.charts.Pert.prototype.verticalSpacing;
+anychart.charts.Pert.prototype['horizontalSpacing'] = anychart.charts.Pert.prototype.horizontalSpacing;
 
