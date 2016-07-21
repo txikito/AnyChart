@@ -220,15 +220,15 @@ anychart.core.map.series.Marker.prototype.startDrawing = function() {
   goog.base(this, 'startDrawing');
   if (this.isConsistent() || !this.enabled()) return;
 
-  this.marker_.suspendSignalsDispatching();
-  this.marker_.clear();
-
   if (this.hasInvalidationState(anychart.ConsistencyState.Z_INDEX)) {
     /** @type {acgraph.vector.Element} */(this.rootLayer).zIndex(/** @type {number} */(this.zIndex()));
     this.markConsistent(anychart.ConsistencyState.Z_INDEX);
   }
 
   if (this.hasInvalidationState(anychart.ConsistencyState.APPEARANCE)) {
+    this.marker_.suspendSignalsDispatching();
+    this.marker_.clear();
+
     this.marker_.fill(this.getFinalFill(false, anychart.PointState.NORMAL));
     this.marker_.stroke(this.getFinalStroke(false, anychart.PointState.NORMAL));
     this.marker_.type(/** @type {anychart.enums.MarkerType} */(this.type()));
@@ -384,7 +384,8 @@ anychart.core.map.series.Marker.prototype.createPositionProvider = function(posi
     y = txCoords[1];
 
   if (isNaN(x) || isNaN(y)) {
-    var prop = iterator.meta('regionProperties');
+    var features = iterator.meta('features');
+    var prop = features && features.length ? features[0]['properties'] : null;
     if (prop) {
       iterator.meta('regionId', id);
       var pos = this.getPositionByRegion()['value'];
@@ -559,7 +560,7 @@ anychart.core.map.series.Marker.prototype.serialize = function() {
   var json = goog.base(this, 'serialize');
 
   if (goog.isFunction(this.type())) {
-    anychart.utils.warning(
+    anychart.core.reporting.warning(
         anychart.enums.WarningCode.CANT_SERIALIZE_FUNCTION,
         null,
         ['Marker type']
@@ -569,7 +570,7 @@ anychart.core.map.series.Marker.prototype.serialize = function() {
   }
 
   if (goog.isFunction(this.hoverType())) {
-    anychart.utils.warning(
+    anychart.core.reporting.warning(
         anychart.enums.WarningCode.CANT_SERIALIZE_FUNCTION,
         null,
         ['Marker hoverType']
@@ -579,7 +580,7 @@ anychart.core.map.series.Marker.prototype.serialize = function() {
   }
 
   if (goog.isFunction(this.selectType())) {
-    anychart.utils.warning(
+    anychart.core.reporting.warning(
         anychart.enums.WarningCode.CANT_SERIALIZE_FUNCTION,
         null,
         ['Marker selectType']

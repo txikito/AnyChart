@@ -29,6 +29,7 @@ anychart.core.ui.LegendItem = function() {
    * @private
    */
   this.textElement_ = this.layer_.text();
+  this.textElement_.attr('aria-hidden', 'true');
   this.registerDisposable(this.textElement_);
 
   /**
@@ -191,7 +192,7 @@ anychart.core.ui.LegendItem.prototype.drawIconMarker_ = function(path, size) {
   if (this.iconMarkerType_) {
     this.applyMarkerFillAndStroke_(this.hovered_);
     var type = (/** @type {anychart.core.ui.LegendItem} */(this)).iconMarkerType_;
-    var markerDrawer = goog.isString(type) ? anychart.enums.getMarkerDrawer(type) : type;
+    var markerDrawer = goog.isString(type) ? anychart.utils.getMarkerDrawer(type) : type;
     markerDrawer.call(this, this.marker_, size / 2, size / 2, size / 6);
   }
 };
@@ -424,7 +425,7 @@ anychart.core.ui.LegendItem.prototype.getIconDrawer = function(opt_iconType) {
     case anychart.enums.LegendItemIconType.ARROWHEAD:
     case anychart.enums.LegendItemIconType.V_LINE:
       opt_iconType = anychart.enums.normalizeMarkerType(opt_iconType);
-      mDrawer = anychart.enums.getMarkerDrawer(opt_iconType);
+      mDrawer = anychart.utils.getMarkerDrawer(opt_iconType);
       drawer = function(path, size) {
         return mDrawer(path, size / 2, size / 2, size / 2);
       };
@@ -736,12 +737,12 @@ anychart.core.ui.LegendItem.prototype.sourceUid = function(opt_value) {
 
 /**
  * Getter/setter for legend item source key.
- * @param {number=} opt_value source key.
- * @return {(number|anychart.core.ui.LegendItem)} Source key or self for chaining.
+ * @param {*=} opt_value source key.
+ * @return {(*|anychart.core.ui.LegendItem)} Source key or self for chaining.
  */
 anychart.core.ui.LegendItem.prototype.sourceKey = function(opt_value) {
   if (goog.isDef(opt_value)) {
-    this.sourceKey_ = anychart.utils.toNumber(opt_value);
+    this.sourceKey_ = opt_value;
     return this;
   }
   return this.sourceKey_;
@@ -1012,7 +1013,7 @@ anychart.core.ui.LegendItem.prototype.draw = function() {
   }
 
   // if it is not changed - nothing will happen
-  this.layer_.cursor(/** @type {anychart.enums.Cursor} */(this.hoverCursor()));
+  this.layer_.cursor(/** @type {acgraph.vector.Cursor} */(this.hoverCursor()));
 
   var needHatch = goog.isDef(this.iconHatchFill_) && (!anychart.utils.isNone(this.iconHatchFill_) && !this.hatch_);
   if (needHatch) {

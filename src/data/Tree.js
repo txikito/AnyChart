@@ -1,6 +1,7 @@
 goog.provide('anychart.data.Tree');
 
 goog.require('anychart.core.Base');
+goog.require('anychart.core.reporting');
 goog.require('anychart.data.Traverser');
 goog.require('anychart.data.csv.Parser');
 goog.require('anychart.data.csv.TreeItemsProcessor');
@@ -26,15 +27,27 @@ goog.require('goog.object');
  *      'value': 15
  *    };
  *  </code>.
- * @param {Object=} opt_csvSettings - CSV settings object. Should fields like
+ * @param {(Object|Array.<anychart.data.Tree.Dependency>)=} opt_csvSettingsOrDeps - CSV settings object or dependencies data.
+ *  If is CSV settings object, should fields like
  *  rowsSeparator - string or undefined, if it is undefined, it will not be set.
  *  columnsSeparator - string or undefined, if it is undefined, it will not be set.
  *  ignoreTrailingSpaces - boolean or undefined, if it is undefined, it will not be set.
  *  ignoreFirstRow - boolean or undefined, if it is undefined, it will not be set.
+ *
+ *  If is dependencies data, should take an array like this:
+ *   <code>
+ *     var dependencies = [
+ *      {from: 0, to: 3}, //ids
+ *      {from: 0, to: 4},
+ *      {from: 1, to: 2},
+ *      {from: 4, to: 5}
+ *     ];
+ *   </code>
+ *  In current implementation (3 Jun 2016), just adds (and overrides if exists) field 'dependsOn' to data item.
  * @constructor
  * @extends {anychart.core.Base}
  */
-anychart.data.Tree = function(opt_data, opt_fillMethodOrCsvMapping, opt_csvSettings) {
+anychart.data.Tree = function(opt_data, opt_fillMethodOrCsvMapping, opt_csvSettingsOrDeps) {
   goog.base(this);
 
 
@@ -85,7 +98,7 @@ anychart.data.Tree = function(opt_data, opt_fillMethodOrCsvMapping, opt_csvSetti
   this.createIndexOn(anychart.enums.GanttDataFields.ID, true); //Silent ID indexing.
 
   //Filling with data.
-  if (opt_data) this.addData(opt_data, opt_fillMethodOrCsvMapping, opt_csvSettings);
+  if (opt_data) this.addData(opt_data, opt_fillMethodOrCsvMapping, opt_csvSettingsOrDeps);
 
 };
 goog.inherits(anychart.data.Tree, anychart.core.Base);
@@ -149,6 +162,15 @@ anychart.data.Tree.ChangeEvent;
  * }}
  */
 anychart.data.Tree.SerializedDataItem;
+
+
+/**
+ * @typedef {{
+ *    from: (string|number),
+ *    to: (string|number)
+ * }}
+ */
+anychart.data.Tree.Dependency;
 
 
 /**
@@ -275,12 +297,12 @@ anychart.data.Tree.prototype.fillAsParentPointer_ = function(data) {
           found = (searchResult instanceof anychart.data.Tree.DataItem) ? searchResult : searchResult[0];
           goog.array.insertAt(uitems, found, pos);
           found.meta('nc', true);
-          anychart.utils.warning(anychart.enums.WarningCode.DUPLICATED_DATA_ITEM, null, [id]);
+          anychart.core.reporting.warning(anychart.enums.WarningCode.DUPLICATED_DATA_ITEM, null, [id]);
         } else {
           goog.array.insertAt(uitems, dataItem, pos);
         }
       } else {
-        anychart.utils.warning(anychart.enums.WarningCode.REFERENCE_IS_NOT_UNIQUE, null, [id]);
+        anychart.core.reporting.warning(anychart.enums.WarningCode.REFERENCE_IS_NOT_UNIQUE, null, [id]);
       }
     }
   }
@@ -299,7 +321,7 @@ anychart.data.Tree.prototype.fillAsParentPointer_ = function(data) {
           found.addChildWithoutIndexing(tdi);
         } else {
           this.roots_.push(tdi);
-          anychart.utils.warning(anychart.enums.WarningCode.MISSING_PARENT_ID, null, [parentId]);
+          anychart.core.reporting.warning(anychart.enums.WarningCode.MISSING_PARENT_ID, null, [parentId]);
         }
         this.indexBranch_(tdi);
       } else {
@@ -318,7 +340,7 @@ anychart.data.Tree.prototype.fillAsParentPointer_ = function(data) {
     for (i = 0; i < tdis.length; i++) {
       tdi = tdis[i]; //Tree data item.
       if (!tdi.meta('nc'))
-        anychart.utils.warning(
+        anychart.core.reporting.warning(
             anychart.enums.WarningCode.CYCLE_REFERENCE,
             null,
             [tdi.get(anychart.enums.GanttDataFields.ID), tdi.getParent().get(anychart.enums.GanttDataFields.ID)]
@@ -347,23 +369,35 @@ anychart.data.Tree.prototype.fillAsParentPointer_ = function(data) {
  *      'value': 15
  *    };
  *  </code>.
- * @param {Object=} opt_csvSettings - CSV settings object. Should fields like
+ * @param {(Object|Array.<anychart.data.Tree.Dependency>)=} opt_csvSettingsOrDeps - CSV settings object or dependencies data.
+ *  If is CSV settings object, should fields like
  *  rowsSeparator - string or undefined, if it is undefined, it will not be set.
  *  columnsSeparator - string or undefined, if it is undefined, it will not be set.
  *  ignoreTrailingSpaces - boolean or undefined, if it is undefined, it will not be set.
  *  ignoreFirstRow - boolean or undefined, if it is undefined, it will not be set.
+ *
+ *  If is dependencies data, should take an array like this:
+ *   <code>
+ *     var dependencies = [
+ *      {from: 0, to: 3}, //ids
+ *      {from: 0, to: 4},
+ *      {from: 1, to: 2},
+ *      {from: 4, to: 5}
+ *     ];
+ *   </code>
+ *  In current implementation (3 Jun 2016), just adds (and overrides if exists) field 'dependsOn' to data item.
  * @return {anychart.data.Tree} - Itself for method chaining.
  */
-anychart.data.Tree.prototype.addData = function(data, opt_fillMethodOrCsvMapping, opt_csvSettings) {
+anychart.data.Tree.prototype.addData = function(data, opt_fillMethodOrCsvMapping, opt_csvSettingsOrDeps) {
   var fillingMethod = anychart.enums.TreeFillingMethod.AS_TREE;
 
   if (goog.isString(data)) {
     var parser = new anychart.data.csv.Parser();
-    if (goog.isObject(opt_csvSettings)) {
-      parser.rowsSeparator(/** @type {string|undefined} */(opt_csvSettings['rowsSeparator'])); // if it is undefined, it will not be set.
-      parser.columnsSeparator(/** @type {string|undefined} */(opt_csvSettings['columnsSeparator'])); // if it is undefined, it will not be set.
-      parser.ignoreTrailingSpaces(/** @type {boolean|undefined} */(opt_csvSettings['ignoreTrailingSpaces'])); // if it is undefined, it will not be set.
-      parser.ignoreFirstRow(/** @type {boolean|undefined} */(opt_csvSettings['ignoreFirstRow'])); // if it is undefined, it will not be set.
+    if (goog.typeOf(opt_csvSettingsOrDeps) == 'object') {
+      parser.rowsSeparator(/** @type {string|undefined} */(opt_csvSettingsOrDeps['rowsSeparator'])); // if it is undefined, it will not be set.
+      parser.columnsSeparator(/** @type {string|undefined} */(opt_csvSettingsOrDeps['columnsSeparator'])); // if it is undefined, it will not be set.
+      parser.ignoreTrailingSpaces(/** @type {boolean|undefined} */(opt_csvSettingsOrDeps['ignoreTrailingSpaces'])); // if it is undefined, it will not be set.
+      parser.ignoreFirstRow(/** @type {boolean|undefined} */(opt_csvSettingsOrDeps['ignoreFirstRow'])); // if it is undefined, it will not be set.
     }
 
     var itemsProcessor = new anychart.data.csv.TreeItemsProcessor();
@@ -399,6 +433,35 @@ anychart.data.Tree.prototype.addData = function(data, opt_fillMethodOrCsvMapping
       this.fillAsTree_(data);
       break;
   }
+
+  if (goog.typeOf(opt_csvSettingsOrDeps) == 'array') {
+    this.dispatchEvents_ = false;
+
+    for (var i = 0; i < opt_csvSettingsOrDeps.length; i++) {
+      var dependency = opt_csvSettingsOrDeps[i];
+      if (goog.typeOf(dependency) == 'object') {
+        var from = dependency[anychart.enums.DataField.FROM];
+        var to = dependency[anychart.enums.DataField.TO];
+
+        if ((goog.isString(from) || goog.isNumber(from)) && (goog.isString(to) || goog.isNumber(to))) {
+          var dependent = this.find(anychart.enums.GanttDataFields.ID, to)[0];
+          if (dependent) {
+            var dependsOn = dependent.get(anychart.enums.DataField.DEPENDS_ON);
+            if (goog.isDef(dependsOn)) {
+              if (goog.typeOf(dependsOn) == 'array') {
+                dependent.set(anychart.enums.DataField.DEPENDS_ON, dependsOn.length, from);
+              }
+            } else {
+              dependent.set(anychart.enums.DataField.DEPENDS_ON, [from]);
+            }
+          }
+        }
+      }
+    }
+
+    this.dispatchEvents_ = true;
+  }
+
   this.resumeSignalsDispatching(true);
   return this;
 };
@@ -635,6 +698,33 @@ anychart.data.Tree.prototype.search = function(soughtField, valueOrEvaluator, op
 anychart.data.Tree.prototype.searchItems = function(soughtField, valueOrEvaluator, opt_comparisonFnOrEvaluatorContext) {
   var result = this.search(soughtField, valueOrEvaluator, opt_comparisonFnOrEvaluatorContext);
   return result ? (goog.isArray(result) ? result : [result]) : [];
+};
+
+
+/**
+ * Simple searcher. Searches using default comparison function anychart.utils.compareAsc().
+ * NOTE: Can't compare complex values as objects or arrays.
+ * TODO (A.Kudryavtsev): This method is added and not exported for inner usage.
+ * @param {string} field - Sought field.
+ * @param {*} value - Value to be found. If value is complex (object or array) will get incorrect result.
+ * @return {Array.<anychart.data.Tree.DataItem>} - If nothing is found, empty array will be returned.
+ */
+anychart.data.Tree.prototype.find = function(field, value) {
+  var i, result;
+  var isStringIndex = this.isStringIndex_[field];
+  if (this.index_[field]) { //Fast search: index exists.
+    var resultIndex = goog.array.binarySearch(this.index_[field], {key: isStringIndex ? '' + value : value}, this.comparisonFunction_);
+    result = resultIndex >= 0 ? this.index_[field][resultIndex].value : [];
+    return (goog.isArray(result)) ? result : [result];
+  } else { //Slow search without indexes: full passage.
+    result = [];
+    if (!this.traverserToArrayCache_) this.traverserToArrayCache_ = this.defaultTraverser_.toArray();
+    for (i = 0; i < this.traverserToArrayCache_.length; i++) {
+      if (!anychart.utils.compareAsc(this.traverserToArrayCache_[i].get(field), value))
+        result.push(this.traverserToArrayCache_[i]);
+    }
+    return result;
+  }
 };
 
 
@@ -1121,7 +1211,7 @@ anychart.data.Tree.DataItem.prototype.set = function(var_args) {
       for (i = 1; i < iter.length - reduce; i++) {
         item = iter[i];
         if (!goog.isNumber(item) && !goog.isString(item)) {
-          anychart.utils.warning(anychart.enums.WarningCode.DATA_ITEM_SET_PATH);
+          anychart.core.reporting.warning(anychart.enums.WarningCode.DATA_ITEM_SET_PATH);
           return this;
         }
       }
@@ -1136,7 +1226,7 @@ anychart.data.Tree.DataItem.prototype.set = function(var_args) {
               curr = parent[item];
               prevItem = item;
             } else {
-              anychart.utils.warning(anychart.enums.WarningCode.DATA_ITEM_SET_PATH);
+              anychart.core.reporting.warning(anychart.enums.WarningCode.DATA_ITEM_SET_PATH);
               return this; //Incorrect input.
             }
           } else {
@@ -1152,7 +1242,7 @@ anychart.data.Tree.DataItem.prototype.set = function(var_args) {
               curr = parent[item];
               prevItem = item;
             } else {
-              anychart.utils.warning(anychart.enums.WarningCode.DATA_ITEM_SET_PATH);
+              anychart.core.reporting.warning(anychart.enums.WarningCode.DATA_ITEM_SET_PATH);
               return this; //Incorrect input.
             }
           } else {
@@ -1162,7 +1252,7 @@ anychart.data.Tree.DataItem.prototype.set = function(var_args) {
             prevItem = item;
           }
         } else {
-          anychart.utils.warning(anychart.enums.WarningCode.DATA_ITEM_SET_PATH);
+          anychart.core.reporting.warning(anychart.enums.WarningCode.DATA_ITEM_SET_PATH);
           return this; //Incorrect input.
         }
       }
@@ -1186,7 +1276,7 @@ anychart.data.Tree.DataItem.prototype.set = function(var_args) {
         }
       }
     } else {
-      anychart.utils.warning(anychart.enums.WarningCode.DATA_ITEM_SET_PATH);
+      anychart.core.reporting.warning(anychart.enums.WarningCode.DATA_ITEM_SET_PATH);
     }
 
   }

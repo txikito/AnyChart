@@ -1,11 +1,15 @@
 goog.provide('anychart.utils');
 
+goog.require('acgraph.vector.primitives');
+goog.require('anychart.core.reporting');
 goog.require('anychart.core.utils.TooltipsContainer');
+goog.require('anychart.data.csv.Parser');
 goog.require('anychart.enums');
 goog.require('anychart.math');
 goog.require('goog.array');
 goog.require('goog.date.Interval');
 goog.require('goog.date.UtcDateTime');
+goog.require('goog.dom');
 goog.require('goog.dom.xml');
 goog.require('goog.i18n.DateTimeFormat');
 goog.require('goog.json.hybrid');
@@ -15,14 +19,6 @@ goog.require('goog.json.hybrid');
  @namespace
  @name anychart.utils
  */
-
-
-/**
- * Last info code.
- * @type {number}
- * @private
- */
-anychart.utils.lastInfoCode_ = -1;
 
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -169,9 +165,7 @@ anychart.utils.checkIfParent = function(parent, target) {
 anychart.utils.hash = function(value) {
   // Prefix each type with a single character representing the type to
   // prevent conflicting keys (e.g. true and 'true').
-  return goog.isObject(value) ?
-      'o' + goog.getUid(value) :
-      (typeof value).charAt(0) + value;
+  return goog.isObject(value) ? 'o' + goog.getUid(value) : (typeof value).charAt(0) + value;
 };
 
 
@@ -188,7 +182,7 @@ anychart.utils.normalizeSize = function(value, opt_containerSize, opt_invert) {
   var result = goog.isNumber(value) ?
       value :
       (!isNaN(opt_containerSize) && anychart.utils.isPercent(value) ?
-          opt_containerSize * parseFloat(value) / 100 :
+      opt_containerSize * parseFloat(value) / 100 :
           parseFloat(value));
   return (opt_invert && !isNaN(opt_containerSize)) ? opt_containerSize - result : result;
 };
@@ -320,11 +314,9 @@ anychart.utils.normalizeToNaturalNumber = function(value, opt_default, opt_allow
     value = parseFloat(value);
   value = Math.round(value);
   // value > 0 also checks for NaN, because NaN > 0 == false.
-  opt_default = goog.isDef(opt_default) ? opt_default : opt_allowZero ? 0 : 1;
-  if (opt_allowZero)
-    return value >= 0 ? value : opt_default;
-  else
-    return value > 0 ? value : opt_default;
+  return ((value > 0) || (opt_allowZero && value == 0)) ?
+      value :
+      (goog.isDef(opt_default) ? opt_default : opt_allowZero ? 0 : 1);
 };
 
 
@@ -357,7 +349,7 @@ anychart.utils.normalizeTimestamp = function(value) {
  * @deprecated Deprecated since 7.9.0. Use anychart.format.dateTime instead.
  */
 anychart.utils.defaultDateFormatter = function(timestamp) {
-  anychart.utils.warning(anychart.enums.WarningCode.DEPRECATED, null, ['anychart.utils.defaultDateFormatter', 'anychart.format.dateTime']);
+  anychart.core.reporting.warning(anychart.enums.WarningCode.DEPRECATED, null, ['anychart.utils.defaultDateFormatter', 'anychart.format.dateTime']);
   if (goog.isNumber(timestamp) || goog.isString(timestamp)) {
     var formatter = new goog.i18n.DateTimeFormat('yyyy.MM.dd');
     return formatter.format(new goog.date.UtcDateTime(new Date(+timestamp)));
@@ -376,7 +368,7 @@ anychart.utils.defaultDateFormatter = function(timestamp) {
 anychart.utils.getCoordinateByAnchor = function(bounds, anchor) {
   var x = bounds.left;
   var y = bounds.top;
-  switch (anchor) {
+  switch (anychart.enums.normalizeAnchor(anchor)) {
     case anychart.enums.Anchor.LEFT_TOP:
       break;
     case anychart.enums.Anchor.LEFT_CENTER:
@@ -504,6 +496,8 @@ anychart.utils.alignDateLeft = function(date, interval, flagDateValue) {
   } else if (interval.months) {
     months = anychart.utils.alignLeft(months, interval.months);
     return Date.UTC(years, months);
+  } else if (interval.days && interval.days % 7 == 0) { // weeks
+    return anychart.utils.alignLeft(dateObj.getTime(), interval.days * 1000 * 60 * 60 * 24, Date.UTC(2000, 0, 2));
   } else if (interval.days) {
     days = anychart.utils.alignLeft(days, interval.days);
     return Date.UTC(years, months, days);
@@ -957,7 +951,7 @@ anychart.utils.json2xml = function(json, opt_rootNodeName, opt_returnAsXmlNode) 
   var root = anychart.utils.json2xml_(json, opt_rootNodeName || 'anychart', result);
   if (root) {
     if (!opt_rootNodeName)
-      root.setAttribute('xmlns', 'http://anychart.com/schemas/7.10.0/xml-schema.xsd');
+      root.setAttribute('xmlns', 'http://anychart.com/schemas/7.10.1/xml-schema.xsd');
     result.appendChild(root);
   }
   return opt_returnAsXmlNode ? result : goog.dom.xml.serialize(result);
@@ -1025,17 +1019,6 @@ anychart.utils.json2xml_ = function(json, rootNodeName, doc) {
 
 
 /**
- * Prettify name of paper size.
- * @param {acgraph.vector.PaperSize} paperSize - Paper size.
- * @return {string} - Prettified name of paper size.
- */
-anychart.utils.normalizePaperSizeCaption = function(paperSize) {
-  if (paperSize == acgraph.vector.PaperSize.US_LETTER) return 'US Letter';
-  return goog.string.toTitleCase(paperSize);
-};
-
-
-/**
  * Unescapes strings escapes by goog.string.escapeString() method.
  * @param {string} str String to unescape.
  * @return {string} Unescaped string.
@@ -1081,6 +1064,8 @@ anychart.utils.getNodeNames_ = function(arrayPropName) {
   switch (arrayPropName) {
     case 'series':
       return ['series_list', 'series'];
+    case 'annotationsList':
+      return ['annotations_list', 'annotation'];
     case 'keys':
       return ['keys', 'key'];
     case 'data':
@@ -1109,6 +1094,12 @@ anychart.utils.getNodeNames_ = function(arrayPropName) {
       return ['needle_pointers', 'pointer'];
     case 'knobs':
       return ['knob_pointers', 'pointer'];
+    case 'pointers':
+      return ['pointers', 'pointer'];
+    case 'scaleBars':
+      return ['scale_bars', 'scale_bar'];
+    case 'points':
+      return ['points', 'point'];
     case 'scales':
       return ['scales', 'scale'];
     case 'colorScales':
@@ -1154,6 +1145,8 @@ anychart.utils.getArrayPropName_ = function(nodeName) {
   switch (nodeName) {
     case 'seriesList':
       return ['series', 'series'];
+    case 'annotationsList':
+      return ['annotationsList', 'annotation'];
     case 'keys':
       return ['keys', 'key'];
     case 'data':
@@ -1182,6 +1175,12 @@ anychart.utils.getArrayPropName_ = function(nodeName) {
       return ['needles', 'pointer'];
     case 'knobPointers':
       return ['knobs', 'pointer'];
+    case 'pointers':
+      return ['pointers', 'pointer'];
+    case 'scaleBars':
+      return ['scaleBars', 'scaleBar'];
+    case 'points':
+      return ['points', 'point'];
     case 'scales':
       return ['scales', 'scale'];
     case 'explicit':
@@ -1327,263 +1326,6 @@ anychart.utils.getSalt = function() {
 };
 
 
-//----------------------------------------------------------------------------------------------------------------------
-//  Errors and Warnings.
-//----------------------------------------------------------------------------------------------------------------------
-/**
- * Log en error by code.
- * @param {anychart.enums.ErrorCode} code Error internal code,. @see anychart.enums.ErrorCode.
- * @param {*=} opt_exception Exception.
- * @param {Array.<*>=} opt_descArgs Description message arguments.
- */
-anychart.utils.error = function(code, opt_exception, opt_descArgs) {
-  anychart.utils.callLog_(
-      'error',
-      ('Error: ' + code + '\nDescription: ' + anychart.utils.getErrorDescription(code, opt_descArgs)),
-      (opt_exception || '')
-  );
-};
-
-
-/**
- * @param {anychart.enums.ErrorCode} code Warning code.
- * @param {Array.<*>=} opt_arguments Message arguments.
- * @return {string}
- */
-anychart.utils.getErrorDescription = function(code, opt_arguments) {
-  switch (code) {
-    case anychart.enums.ErrorCode.CONTAINER_NOT_SET:
-      return 'Container is not set or can not be properly recognized. Use container() method to set it.';
-
-    case anychart.enums.ErrorCode.SCALE_NOT_SET:
-      return 'Scale is not set. Use scale() method to set it.';
-
-    case anychart.enums.ErrorCode.WRONG_TABLE_CONTENTS:
-      return 'Table.contents() accepts only an Array of Arrays as it\'s first argument.';
-
-    case anychart.enums.ErrorCode.NO_FEATURE_IN_MODULE:
-      return 'Feature "' + opt_arguments[0] + '" is not supported in this module. See modules list for details.';
-
-    case anychart.enums.ErrorCode.INCORRECT_SCALE_TYPE:
-      return 'Scatter chart scales should be only scatter type (linear, log).';
-
-    case anychart.enums.ErrorCode.EMPTY_CONFIG:
-      return 'Empty config passed to anychart.fromJson() or anychart.fromXml() method.';
-
-    case anychart.enums.ErrorCode.NO_LEGEND_IN_CHART:
-      return 'Bullet and Sparkline charts do not support Legend. Please use anychart.ui.Legend component for a group of charts instead.';
-
-    case anychart.enums.ErrorCode.NO_LEGEND_IN_STOCK:
-      return 'Stock chart itself doesn\'t support legend - stock plots do. So use stock.plot().legend() instead.';
-
-    case anychart.enums.ErrorCode.NO_CREDITS_IN_CHART:
-      return 'Bullet and Sparkline charts do not support Credits.';
-
-    case anychart.enums.ErrorCode.INVALID_GEO_JSON_OBJECT:
-      return 'Invalid GeoJSON object:';
-
-    case anychart.enums.ErrorCode.CSV_DOUBLE_QUOTE_IN_SEPARATOR:
-      return 'Double quotes in separator are not allowed.';
-
-    case anychart.enums.ErrorCode.CSV_PARSING_FAILED:
-      return 'CSV parsing failed.';
-
-    case anychart.enums.ErrorCode.TABLE_MAPPING_DIFFERENT_TABLE:
-      return 'Cannot create a computer on the table with the mapping of another table.';
-
-    case anychart.enums.ErrorCode.TABLE_FIELD_NAME_DUPLICATE:
-      return 'Cannot create computed field "' + opt_arguments[0] + '" - field name should be unique for the table';
-
-    case anychart.enums.ErrorCode.TABLE_COMPUTER_OUTPUT_FIELD_DUPLICATE:
-      return 'Cannot create output field "' + opt_arguments[0] + '" on the computer - field with this name already exists';
-
-    default:
-      return 'Unknown error occurred. Please, contact support team at http://support.anychart.com/.\n' +
-          'We will be very grateful for your report.';
-  }
-};
-
-
-/**
- * Logs an info.
- * @param {anychart.enums.InfoCode|string} codeOrMsg Info internal code,. @see anychart.enums.InfoCode.
- * @param {Array.<*>=} opt_descArgs Description message arguments.
- */
-anychart.utils.info = function(codeOrMsg, opt_descArgs) {
-  if (anychart.DEVELOP) {
-    if (goog.isNumber(codeOrMsg)) {
-      if (anychart.utils.lastInfoCode_ != codeOrMsg) {
-        anychart.utils.lastInfoCode_ = /** @type {number} */ (codeOrMsg);
-        anychart.utils.callLog_(
-            'info',
-            ('Info: ' + codeOrMsg + '\nDescription: ' + anychart.utils.getInfoDescription(codeOrMsg, opt_descArgs)),
-            ''
-        );
-      }
-    } else {
-      anychart.utils.callLog_('info', codeOrMsg, '');
-    }
-  }
-};
-
-
-/**
- * @param {anychart.enums.InfoCode} code Warning code.
- * @param {Array.<*>=} opt_arguments Message arguments.
- * @return {string}
- */
-anychart.utils.getInfoDescription = function(code, opt_arguments) {
-  switch (code) {
-    case anychart.enums.InfoCode.BULLET_TOO_MUCH_RANGES:
-      return 'It is not recommended to use more than 5 ranges in Bullet Chart. Currently there are \'' + opt_arguments[0] + '\' ranges.\nExpert opinion at http://cdn.anychart.com/warning/1.html';
-
-    case anychart.enums.InfoCode.BULLET_TOO_MUCH_MEASURES:
-      return 'It is not recommended to use more than 2 markers in Bullet Chart. Currently there are \'' + opt_arguments[0] + '\' markers.\nExpert opinion at http://cdn.anychart.com/warning/2.html';
-
-    case anychart.enums.InfoCode.PIE_TOO_MUCH_POINTS:
-      return 'It is not recommended to use more then 5 - 7 points in Pie Chart. Currently there are \'' + opt_arguments[0] + '\' points.\nExpert opinion at http://cdn.anychart.com/warning/3.html';
-
-    default:
-      return 'We think we can help you improve your data visualization, please contact us at http://support.anychart.com/.';
-  }
-};
-
-
-/**
- * Log en warning by code.
- * @param {anychart.enums.WarningCode} code Warning internal code,. @see anychart.enums.WarningCode.
- * @param {*=} opt_exception Exception.
- * @param {Array.<*>=} opt_descArgs Description message arguments.
- * @param {boolean=} opt_forceProd
- */
-anychart.utils.warning = function(code, opt_exception, opt_descArgs, opt_forceProd) {
-  if (anychart.DEVELOP || opt_forceProd) {
-    anychart.utils.callLog_(
-        'warn',
-        ('Warning: ' + code + '\nDescription: ' + anychart.utils.getWarningDescription(code, opt_descArgs)),
-        (opt_exception || '')
-    );
-  }
-};
-
-
-/**
- * @param {anychart.enums.WarningCode} code Warning code.
- * @param {Array.<*>=} opt_arguments Message arguments.
- * @return {string}
- */
-anychart.utils.getWarningDescription = function(code, opt_arguments) {
-  switch (code) {
-    case anychart.enums.WarningCode.DUPLICATED_DATA_ITEM:
-      return 'Data item with ID=\'' + opt_arguments[0] + '\' already exists in the tree and will be used as the parent for all related data items.';
-
-    case anychart.enums.WarningCode.REFERENCE_IS_NOT_UNIQUE:
-      return 'Data item with ID=\'' + opt_arguments[0] + '\' is not unique. First met object will be used.';
-
-    case anychart.enums.WarningCode.MISSING_PARENT_ID:
-      return 'One of the data items was looking for the parent with ID=\'' + opt_arguments[0] + '\', but did not find it. Please check the data.' +
-          '\nPLEASE NOTE: this data item will be added as the root to avoid loss of information.';
-
-    case anychart.enums.WarningCode.CYCLE_REFERENCE:
-      return 'Data item {ID=\'' + opt_arguments[0] + '\', PARENT=\'' + opt_arguments[1] + '\'} belongs to a cycle and will not be added to the tree.';
-
-    case anychart.enums.WarningCode.NOT_MAPPED_FIELD:
-      return 'Can not set value for the \'' + opt_arguments[0] + '\' field to an array row if it is not mapped.';
-
-    case anychart.enums.WarningCode.COMPLEX_VALUE_TO_DEFAULT_FIELD:
-      return 'Setting complex value to the default \'' + opt_arguments[0] + '\' field changes row behaviour.';
-
-    case anychart.enums.WarningCode.NOT_OBJECT_OR_ARRAY:
-      return 'Can not set value for the \'' + opt_arguments[0] + '\' field to a row that is not an object or an array.';
-
-    case anychart.enums.WarningCode.CANT_SERIALIZE_FUNCTION:
-      return 'We can not serialize \'' + opt_arguments[0] + '\' function, please reset it manually.';
-
-    case anychart.enums.WarningCode.DG_INCORRECT_METHOD_USAGE:
-      return 'Data grid incorrect method \'' + opt_arguments[0] + '()\' usage: You use not standalone data grid. Perform all operations ' +
-          'on data grid using the controller, but not directly. In current case, use \'' + opt_arguments[1] + '()\' instead. ' +
-          opt_arguments[2];
-
-    case anychart.enums.WarningCode.NOT_FOUND:
-      //TODO (A.Kudryavtsev): Make another suggestion what to do.
-      return opt_arguments[0] + ' with id=\'' + opt_arguments[1] + '\' is not found in data tree. Please check what you are looking for.';
-
-    case anychart.enums.WarningCode.GANTT_FIT_TO_TASK:
-      return 'Can not fit gantt chart timeline to task with id \'' + opt_arguments[0] + '\' because both fields \'' +
-          anychart.enums.GanttDataFields.ACTUAL_START + '\' and \'' + anychart.enums.GanttDataFields.ACTUAL_END +
-          '\' must be correctly specified in data item.';
-
-    case anychart.enums.WarningCode.SERIES_DOESNT_SUPPORT_ERROR:
-      return 'Series type "' + opt_arguments[0] + '" does not support error settings - ' +
-          'only Area, Bar, Column, Line, Marker, Spline, SplineArea, StepLine and StepLineArea do.';
-
-    case anychart.enums.WarningCode.TOOLBAR_CONTAINER:
-      return 'Toolbar container is not specified. Please set a container using toolbar.container() method.';
-
-    case anychart.enums.WarningCode.TOOLBAR_METHOD_IS_NOT_DEFINED:
-      return 'Target chart has not method ' + opt_arguments[0] + '(). PLease make sure that you use correct instance of chart.';
-
-    case anychart.enums.WarningCode.TOOLBAR_CHART_IS_NOT_SET:
-      return 'No chart is assigned for toolbar. Please set a target chart using toolbar.target() method.';
-
-    case anychart.enums.WarningCode.DEPRECATED:
-      return 'Method ' + opt_arguments[0] + ' is deprecated. Use ' + opt_arguments[1] + ' instead.';
-
-    case anychart.enums.WarningCode.DATA_ITEM_SET_PATH:
-      return 'Incorrect arguments passed to treeDataItem.set() method. You try to set a value by path in complex structure, ' +
-          'but path contains errors (It can be not string and not numeric values, or invalid path in existing structure, ' +
-          'or incorrect number of path\'s elements etc). Please, see the documentation for treeDataItem.set() method and ' +
-          'carefully check your data.';
-
-    case anychart.enums.WarningCode.TABLE_ALREADY_IN_TRANSACTION:
-      return 'Table is already in transaction mode. Calling startTransaction() multiple times does nothing.';
-
-    case anychart.enums.WarningCode.STOCK_WRONG_MAPPING:
-      return 'Wrong mapping passed to ' + opt_arguments[0] + ' series - required "' + opt_arguments[1] + "' field is missing.";
-
-    case anychart.enums.WarningCode.SCALE_TYPE_NOT_SUPPORTED:
-      return 'Scale type "' + opt_arguments[0] + '" is not supported - only ' + opt_arguments[1] + ' is.';
-
-    case anychart.enums.WarningCode.PARSE_DATETIME:
-      return 'Could not parse date time value "' + opt_arguments[0] + '".' + (!!opt_arguments[1] ?
-              ('Symbols parsed: ' + opt_arguments[1]) : '');
-
-    case anychart.enums.WarningCode.IMMUTABLE_MARKER_SCALE:
-      return 'Scale is immutable for this type of axis marker and scale will not be set.';
-
-    case anychart.enums.WarningCode.IMMUTABLE_MARKER_LAYOUT:
-      return 'Layout is immutable for this type of axis marker and layout will not be set.';
-
-    case anychart.enums.WarningCode.TREEMAP_MANY_ROOTS:
-      return 'There should be only one root in tree map data. First node has been taken as root.';
-
-    case anychart.enums.WarningCode.FEATURE_ID_NOT_FOUND:
-      return 'Feature with id "' + opt_arguments[0] + '" not found';
-
-    default:
-      return 'Unknown error. Please, contact support team at http://support.anychart.com/.\n' +
-          'We will be very grateful for your report!';
-  }
-};
-
-
-/**
- * @param {string} name Log function name.
- * @param {string} message Message text.
- * @param {*=} opt_exception Exception.
- * @private
- */
-anychart.utils.callLog_ = function(name, message, opt_exception) {
-  var console = goog.global['console'];
-  if (console) {
-    var log = console[name] || console['log'];
-    if (typeof log != 'object') {
-      log.call(console, message, opt_exception);
-    }
-  }
-};
-
-
 /**
  * Caches of static datetime formatter.
  * @type {Object.<string, goog.i18n.DateTimeFormat>}
@@ -1608,7 +1350,7 @@ anychart.utils.UTCTimeZoneCache_;
  * @deprecated Deprecated since 7.9.0. Use anychart.format.dateTime instead.
  */
 anychart.utils.formatDateTime = function(date, pattern) {
-  anychart.utils.warning(anychart.enums.WarningCode.DEPRECATED, null, ['anychart.utils.formatDateTime', 'anychart.format.dateTime']);
+  anychart.core.reporting.warning(anychart.enums.WarningCode.DEPRECATED, null, ['anychart.utils.formatDateTime', 'anychart.format.dateTime']);
   /** @type {goog.i18n.DateTimeFormat} */
   var formatter;
   if (pattern in anychart.utils.formatDateTimeCache_)
@@ -1646,6 +1388,41 @@ anychart.utils.getKeys = function(obj) {
       res[i++] = key;
   }
   return res;
+};
+
+
+/**
+ * Returns interval range.
+ * @param {anychart.enums.Interval} unit
+ * @param {number} count
+ * @return {number}
+ */
+anychart.utils.getIntervalRange = function(unit, count) {
+  switch (unit) {
+    case anychart.enums.Interval.YEAR:
+      return count * 1000 * 60 * 60 * 24 * 365.25;
+    case anychart.enums.Interval.SEMESTER:
+      return count * 1000 * 60 * 60 * 24 * 365.25 / 2;
+    case anychart.enums.Interval.QUARTER:
+      return count * 1000 * 60 * 60 * 24 * 365.25 / 4;
+    case anychart.enums.Interval.MONTH:
+      return count * 1000 * 60 * 60 * 24 * 365.25 / 12;
+    case anychart.enums.Interval.THIRD_OF_MONTH:
+      return count * 1000 * 60 * 60 * 24 * 365.25 / 36;
+    case anychart.enums.Interval.WEEK:
+      return count * 1000 * 60 * 60 * 24 * 7;
+    case anychart.enums.Interval.DAY:
+      return count * 1000 * 60 * 60 * 24;
+    case anychart.enums.Interval.HOUR:
+      return count * 1000 * 60 * 60;
+    case anychart.enums.Interval.MINUTE:
+      return count * 1000 * 60;
+    case anychart.enums.Interval.SECOND:
+      return count * 1000;
+    case anychart.enums.Interval.MILLISECOND:
+    default:
+      return count;
+  }
 };
 
 
@@ -1704,9 +1481,440 @@ anychart.utils.estimateInterval = function(interval) {
 };
 
 
+/**
+ * @type {Array.<number>}
+ */
+anychart.utils.PENTAGON_COS = [
+  1 + Math.cos((2 / 5 - .5) * Math.PI),
+  1 + Math.cos((4 / 5 - .5) * Math.PI),
+  1 + Math.cos((6 / 5 - .5) * Math.PI),
+  1 + Math.cos((8 / 5 - .5) * Math.PI),
+  1 + Math.cos(1.5 * Math.PI)];
+
+
+/**
+ * @type {Array.<number>}
+ */
+anychart.utils.PENTAGON_SIN = [
+  1 + Math.sin((2 / 5 - .5) * Math.PI),
+  1 + Math.sin((4 / 5 - .5) * Math.PI),
+  1 + Math.sin((6 / 5 - .5) * Math.PI),
+  1 + Math.sin((8 / 5 - .5) * Math.PI),
+  1 + Math.sin(1.5 * Math.PI)];
+
+
+/**
+ * Method to get marker drawer.
+ * @param {*} type Marker type.
+ * @return {function(!acgraph.vector.Path, number, number, number, number=):!acgraph.vector.Path} Marker drawer.
+ */
+anychart.utils.getMarkerDrawer = function(type) {
+  type = (String(type)).toLowerCase();
+  switch (type) {
+    case 'arrowhead':
+      return function(path, x, y, radius) {
+        var p1x = x + radius / 2;
+        var p1y = y;
+        var p2x = x - radius / 2;
+        var p2y = y - radius / 3;
+        var p3x = x - radius / 2;
+        var p3y = y + radius / 3;
+
+        path
+            .moveTo(p1x, p1y)
+            .lineTo(p2x, p2y)
+            .lineTo(p3x, p3y)
+            .close();
+
+        return path;
+      };
+    case 'star4':
+      return acgraph.vector.primitives.star4;
+    case 'star6':
+      return acgraph.vector.primitives.star6;
+    case 'star7':
+      return acgraph.vector.primitives.star7;
+    case 'star10':
+      return acgraph.vector.primitives.star10;
+    case 'diamond':
+      return acgraph.vector.primitives.diamond;
+    case 'triangleup':
+      return acgraph.vector.primitives.triangleUp;
+    case 'triangledown':
+      return acgraph.vector.primitives.triangleDown;
+    case 'triangleright':
+      return acgraph.vector.primitives.triangleRight;
+    case 'triangleleft':
+      return acgraph.vector.primitives.triangleLeft;
+    case 'cross':
+      return acgraph.vector.primitives.cross;
+    case 'diagonalcross':
+      return acgraph.vector.primitives.diagonalCross;
+    case 'circle':
+      return function(path, x, y, radius) {
+        return acgraph.vector.primitives.pie(path, x, y, radius, 0, 360);
+      };
+    case 'trapezium':
+      return function(path, x, y, radius) {
+        var d = radius / 3;
+        var halfW = radius / 2;
+        var halfL = radius / 2;
+        var left = x - halfW;
+        var top = y - halfL;
+
+        path.moveTo(left + d, top + radius);
+        path.lineTo(left + radius - d, top + radius);
+        path.lineTo(left + radius, top);
+        path.lineTo(left, top);
+        path.close();
+
+        return path;
+      };
+    case 'pentagon':
+      return function(path, x, y, radius) {
+        x -= radius;
+        y -= radius;
+        var pentagonCos = anychart.utils.PENTAGON_COS;
+        var pentagonSin = anychart.utils.PENTAGON_SIN;
+        path.moveTo(x + radius * pentagonCos[0], y + radius * pentagonSin[0]);
+        for (var i = 1; i < 5; i++)
+          path.lineTo(x + radius * pentagonCos[i], y + radius * pentagonSin[i]);
+        path.lineTo(x + radius * pentagonCos[0], y + radius * pentagonSin[0]);
+        path.close();
+
+        return path;
+      };
+    case 'square':
+      return (
+          /**
+           * @param {!acgraph.vector.Path} path
+           * @param {number} x
+           * @param {number} y
+           * @param {number} size
+           * @param {number=} opt_strokeThickness
+           * @return {!acgraph.vector.Path}
+           */
+          (function(path, x, y, size, opt_strokeThickness) {
+            var left = x - size;
+            var top = y - size;
+            var right = x + size;
+            var bottom = y + size;
+
+            if (goog.isDef(opt_strokeThickness)) {
+              opt_strokeThickness = opt_strokeThickness || 0;
+              left = anychart.utils.applyPixelShift(left, opt_strokeThickness);
+              top = anychart.utils.applyPixelShift(top, opt_strokeThickness);
+              right = anychart.utils.applyPixelShift(right, opt_strokeThickness);
+              bottom = anychart.utils.applyPixelShift(bottom, opt_strokeThickness);
+            }
+
+            path
+                .moveTo(left, top)
+                .lineTo(right, top)
+                .lineTo(right, bottom)
+                .lineTo(left, bottom)
+                .lineTo(left, top)
+                .close();
+
+            return path;
+          }));
+    case 'vline':
+    case 'line':
+      return (
+          /**
+           * @param {!acgraph.vector.Path} path
+           * @param {number} x
+           * @param {number} y
+           * @param {number} size
+           * @param {number=} opt_strokeThickness
+           * @return {!acgraph.vector.Path}
+           */
+          (function(path, x, y, size, opt_strokeThickness) {
+            opt_strokeThickness = opt_strokeThickness || 0;
+            var height = size * 2;
+            var width = height / 2;
+
+            var halfW = width / 2;
+            var halfL = height / 2;
+
+            var left = x - halfW;
+            var top = y - halfL;
+            var right = left + width;
+            var bottom = top + height;
+
+            if (goog.isDef(opt_strokeThickness)) {
+              opt_strokeThickness = opt_strokeThickness || 0;
+              left = anychart.utils.applyPixelShift(left, opt_strokeThickness);
+              top = anychart.utils.applyPixelShift(top, opt_strokeThickness);
+              right = anychart.utils.applyPixelShift(right, opt_strokeThickness);
+              bottom = anychart.utils.applyPixelShift(bottom, opt_strokeThickness);
+            }
+
+            path
+                .moveTo(left, top)
+                .lineTo(right, top)
+                .lineTo(right, bottom)
+                .lineTo(left, bottom)
+                .lineTo(left, top)
+                .close();
+
+            return path;
+          }));
+    case 'arrowup':
+      return (
+          /**
+           * @param {!acgraph.vector.Path} path
+           * @param {number} x
+           * @param {number} y
+           * @param {number} size
+           * @param {number=} opt_strokeThickness
+           * @return {!acgraph.vector.Path}
+           */
+          (function(path, x, y, size, opt_strokeThickness) {
+            var halfSize = size / 2;
+            var quarterSize = halfSize / 2;
+            var xphs = x + halfSize;
+            var xmhs = x - halfSize;
+            var yphs = y + halfSize;
+            var ymhs = y - halfSize;
+            var xpqs = x + quarterSize;
+            var xmqs = x - quarterSize;
+            // var ypqs = y + quarterSize;
+            // var ymqs = y - quarterSize;
+            if (goog.isDef(opt_strokeThickness)) {
+              opt_strokeThickness = opt_strokeThickness || 0;
+              xphs = anychart.utils.applyPixelShift(xphs, opt_strokeThickness);
+              xmhs = anychart.utils.applyPixelShift(xmhs, opt_strokeThickness);
+              yphs = anychart.utils.applyPixelShift(yphs, opt_strokeThickness);
+              ymhs = anychart.utils.applyPixelShift(ymhs, opt_strokeThickness);
+              xpqs = anychart.utils.applyPixelShift(xpqs, opt_strokeThickness);
+              xmqs = anychart.utils.applyPixelShift(xmqs, opt_strokeThickness);
+              // ypqs = anychart.utils.applyPixelShift(ypqs, opt_strokeThickness);
+              // ymqs = anychart.utils.applyPixelShift(ymqs, opt_strokeThickness);
+              x = anychart.utils.applyPixelShift(x, opt_strokeThickness);
+              y = anychart.utils.applyPixelShift(y, opt_strokeThickness);
+            }
+            path.moveTo(x, ymhs);
+            path.lineTo(xphs, y,
+                xpqs, y,
+                xpqs, yphs,
+                xmqs, yphs,
+                xmqs, y,
+                xmhs, y);
+            path.close();
+            return path;
+          }));
+    case 'arrowdown':
+      return (
+          /**
+           * @param {!acgraph.vector.Path} path
+           * @param {number} x
+           * @param {number} y
+           * @param {number} size
+           * @param {number=} opt_strokeThickness
+           * @return {!acgraph.vector.Path}
+           */
+          (function(path, x, y, size, opt_strokeThickness) {
+            var halfSize = size / 2;
+            var quarterSize = halfSize / 2;
+            var xphs = x + halfSize;
+            var xmhs = x - halfSize;
+            var yphs = y + halfSize;
+            var ymhs = y - halfSize;
+            var xpqs = x + quarterSize;
+            var xmqs = x - quarterSize;
+            // var ypqs = y + quarterSize;
+            // var ymqs = y - quarterSize;
+            if (goog.isDef(opt_strokeThickness)) {
+              opt_strokeThickness = opt_strokeThickness || 0;
+              xphs = anychart.utils.applyPixelShift(xphs, opt_strokeThickness);
+              xmhs = anychart.utils.applyPixelShift(xmhs, opt_strokeThickness);
+              yphs = anychart.utils.applyPixelShift(yphs, opt_strokeThickness);
+              ymhs = anychart.utils.applyPixelShift(ymhs, opt_strokeThickness);
+              xpqs = anychart.utils.applyPixelShift(xpqs, opt_strokeThickness);
+              xmqs = anychart.utils.applyPixelShift(xmqs, opt_strokeThickness);
+              // ypqs = anychart.utils.applyPixelShift(ypqs, opt_strokeThickness);
+              // ymqs = anychart.utils.applyPixelShift(ymqs, opt_strokeThickness);
+              x = anychart.utils.applyPixelShift(x, opt_strokeThickness);
+              y = anychart.utils.applyPixelShift(y, opt_strokeThickness);
+            }
+            path.moveTo(x, yphs);
+            path.lineTo(xphs, y,
+                xpqs, y,
+                xpqs, ymhs,
+                xmqs, ymhs,
+                xmqs, y,
+                xmhs, y);
+            path.close();
+            return path;
+          }));
+    case 'arrowleft':
+      return (
+          /**
+           * @param {!acgraph.vector.Path} path
+           * @param {number} x
+           * @param {number} y
+           * @param {number} size
+           * @param {number=} opt_strokeThickness
+           * @return {!acgraph.vector.Path}
+           */
+          (function(path, x, y, size, opt_strokeThickness) {
+            var halfSize = size / 2;
+            var quarterSize = halfSize / 2;
+            var xphs = x + halfSize;
+            var xmhs = x - halfSize;
+            var yphs = y + halfSize;
+            var ymhs = y - halfSize;
+            // var xpqs = x + quarterSize;
+            // var xmqs = x - quarterSize;
+            var ypqs = y + quarterSize;
+            var ymqs = y - quarterSize;
+            if (goog.isDef(opt_strokeThickness)) {
+              opt_strokeThickness = opt_strokeThickness || 0;
+              xphs = anychart.utils.applyPixelShift(xphs, opt_strokeThickness);
+              xmhs = anychart.utils.applyPixelShift(xmhs, opt_strokeThickness);
+              yphs = anychart.utils.applyPixelShift(yphs, opt_strokeThickness);
+              ymhs = anychart.utils.applyPixelShift(ymhs, opt_strokeThickness);
+              // xpqs = anychart.utils.applyPixelShift(xpqs, opt_strokeThickness);
+              // xmqs = anychart.utils.applyPixelShift(xmqs, opt_strokeThickness);
+              ypqs = anychart.utils.applyPixelShift(ypqs, opt_strokeThickness);
+              ymqs = anychart.utils.applyPixelShift(ymqs, opt_strokeThickness);
+              x = anychart.utils.applyPixelShift(x, opt_strokeThickness);
+              y = anychart.utils.applyPixelShift(y, opt_strokeThickness);
+            }
+            path.moveTo(xmhs, y);
+            path.lineTo(x, yphs,
+                x, ypqs,
+                xphs, ypqs,
+                xphs, ymqs,
+                x, ymqs,
+                x, ymhs);
+            path.close();
+            return path;
+          }));
+    case 'arrowright':
+      return (
+          /**
+           * @param {!acgraph.vector.Path} path
+           * @param {number} x
+           * @param {number} y
+           * @param {number} size
+           * @param {number=} opt_strokeThickness
+           * @return {!acgraph.vector.Path}
+           */
+          (function(path, x, y, size, opt_strokeThickness) {
+            var halfSize = size / 2;
+            var quarterSize = halfSize / 2;
+            var xphs = x + halfSize;
+            var xmhs = x - halfSize;
+            var yphs = y + halfSize;
+            var ymhs = y - halfSize;
+            // var xpqs = x + quarterSize;
+            // var xmqs = x - quarterSize;
+            var ypqs = y + quarterSize;
+            var ymqs = y - quarterSize;
+            if (goog.isDef(opt_strokeThickness)) {
+              opt_strokeThickness = opt_strokeThickness || 0;
+              xphs = anychart.utils.applyPixelShift(xphs, opt_strokeThickness);
+              xmhs = anychart.utils.applyPixelShift(xmhs, opt_strokeThickness);
+              yphs = anychart.utils.applyPixelShift(yphs, opt_strokeThickness);
+              ymhs = anychart.utils.applyPixelShift(ymhs, opt_strokeThickness);
+              // xpqs = anychart.utils.applyPixelShift(xpqs, opt_strokeThickness);
+              // xmqs = anychart.utils.applyPixelShift(xmqs, opt_strokeThickness);
+              ypqs = anychart.utils.applyPixelShift(ypqs, opt_strokeThickness);
+              ymqs = anychart.utils.applyPixelShift(ymqs, opt_strokeThickness);
+              x = anychart.utils.applyPixelShift(x, opt_strokeThickness);
+              y = anychart.utils.applyPixelShift(y, opt_strokeThickness);
+            }
+            path.moveTo(xphs, y);
+            path.lineTo(x, yphs,
+                x, ypqs,
+                xmhs, ypqs,
+                xmhs, ymqs,
+                x, ymqs,
+                x, ymhs);
+            path.close();
+            return path;
+          }));
+    default:
+      return acgraph.vector.primitives.star5;
+  }
+};
+
+
+/**
+ * Creates HTML Table by csv.
+ * @param {string} csv - Source csv string.
+ * @param {string=} opt_title - Title to be set.
+ * @param {boolean=} opt_asString - Whether to represent table as string.
+ * @param {Object=} opt_csvSettings - CSV settings.
+ * @return {?Element} - HTML table instance or null if got some parse errors.
+ */
+anychart.utils.htmlTableFromCsv = function(csv, opt_title, opt_asString, opt_csvSettings) {
+  var parser = new anychart.data.csv.Parser();
+  var allowHeader = true;
+  if (goog.isObject(opt_csvSettings)) {
+    parser.rowsSeparator(/** @type {string|undefined} */(opt_csvSettings['rowsSeparator']));
+    parser.columnsSeparator(/** @type {string|undefined} */(opt_csvSettings['columnsSeparator']));
+    parser.ignoreTrailingSpaces(/** @type {boolean|undefined} */(opt_csvSettings['ignoreTrailingSpaces']));
+    allowHeader = !(opt_csvSettings['ignoreFirstRow']);
+    parser.ignoreFirstRow(allowHeader);
+  }
+
+  var result = parser.parse(csv);
+  if (result) {
+    var table = goog.dom.createDom('table');
+
+    if (opt_title) {
+      var caption = goog.dom.createDom('caption');
+      goog.dom.append(caption, opt_title);
+      goog.dom.appendChild(table, caption);
+    }
+
+    var thead, theadTr;
+    if (allowHeader) {
+      thead = goog.dom.createDom('thead');
+      theadTr = goog.dom.createDom('tr');
+      goog.dom.appendChild(thead, theadTr);
+    }
+
+    var tbody = goog.dom.createDom('tbody');
+
+    for (var i = 0; i < result.length; i++) {
+      var rows = result[i];
+      var j, row;
+
+      if (i || !allowHeader) {
+        var tbodyTr = goog.dom.createDom('tr');
+        for (j = 0; j < rows.length; j++) {
+          row = rows[j];
+          var el = goog.dom.createDom(j ? 'td' : 'th');
+          goog.dom.append(el, row);
+          goog.dom.appendChild(tbodyTr, el);
+        }
+        goog.dom.appendChild(tbody, tbodyTr);
+      } else if (allowHeader) {
+        for (j = 0; j < rows.length; j++) {
+          row = rows[j];
+          var theadTh = goog.dom.createDom('th');
+          goog.dom.append(theadTh, row);
+          goog.dom.appendChild(/** @type {!Element} */ (theadTr), theadTh);
+        }
+      }
+    }
+
+    if (allowHeader) goog.dom.appendChild(table, /** @type {!Element} */ (thead));
+    goog.dom.appendChild(table, tbody);
+    return table;
+  }
+  return null;
+};
+
+
 //exports
 goog.exportSymbol('anychart.utils.xml2json', anychart.utils.xml2json);
 goog.exportSymbol('anychart.utils.json2xml', anychart.utils.json2xml);
 goog.exportSymbol('anychart.utils.defaultDateFormatter', anychart.utils.defaultDateFormatter);
 goog.exportSymbol('anychart.utils.formatDateTime', anychart.utils.formatDateTime);
 goog.exportSymbol('anychart.utils.hideTooltips', anychart.utils.hideTooltips);
+goog.exportSymbol('anychart.utils.htmlTableFromCsv', anychart.utils.htmlTableFromCsv);

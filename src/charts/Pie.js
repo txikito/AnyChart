@@ -3,6 +3,7 @@ goog.require('acgraph.math.Coordinate');
 goog.require('anychart.color');
 goog.require('anychart.core.PiePoint');
 goog.require('anychart.core.SeparateChart');
+goog.require('anychart.core.reporting');
 goog.require('anychart.core.ui.CircularLabelsFactory');
 goog.require('anychart.core.ui.Tooltip');
 goog.require('anychart.core.utils.IInteractiveSeries');
@@ -450,6 +451,7 @@ anychart.charts.Pie.prototype.redefineView_ = function() {
       anychart.ConsistencyState.APPEARANCE |
       anychart.ConsistencyState.PIE_LABELS |
       anychart.ConsistencyState.CHART_LEGEND |
+      anychart.ConsistencyState.A11Y |
       anychart.ConsistencyState.PIE_DATA,
       anychart.Signal.NEEDS_REDRAW |
       anychart.Signal.DATA_CHANGED
@@ -1438,7 +1440,7 @@ anychart.charts.Pie.prototype.drawContent = function(bounds) {
   var rowsCount = iterator.getRowsCount();
 
   if (rowsCount > 7) {
-    anychart.utils.info(anychart.enums.InfoCode.PIE_TOO_MUCH_POINTS, [rowsCount]);
+    anychart.core.reporting.info(anychart.enums.InfoCode.PIE_TOO_MUCH_POINTS, [rowsCount]);
   }
 
   if (!this.tooltip().container()) {
@@ -1730,21 +1732,25 @@ anychart.charts.Pie.prototype.prepare3DSlice_ = function() {
   });
 
   if (Math.abs(sweep) != 360) {
-    this.sides3D_.push({
-      index: index,
-      type: anychart.charts.Pie.Side3DType.START,
-      angle: start,
-      ex: ex,
-      ey: ey
-    });
+    if (this.hasStartSide_(start)) {
+      this.sides3D_.push({
+        index: index,
+        type: anychart.charts.Pie.Side3DType.START,
+        angle: start,
+        ex: ex,
+        ey: ey
+      });
+    }
 
-    this.sides3D_.push({
-      index: index,
-      type: anychart.charts.Pie.Side3DType.END,
-      angle: end,
-      ex: ex,
-      ey: ey
-    });
+    if (this.hasEndSide_(end)) {
+      this.sides3D_.push({
+        index: index,
+        type: anychart.charts.Pie.Side3DType.END,
+        angle: end,
+        ex: ex,
+        ey: ey
+      });
+    }
   }
 
   var len1;
@@ -2144,6 +2150,37 @@ anychart.charts.Pie.prototype.colorize3DPath_ = function(pathName, pointState) {
 
 
 /**
+ * Checks slice for having start side.
+ * @param {number} startAngle Start angle.
+ * @return {boolean} Whether slice have start side or not.
+ * @private
+ */
+anychart.charts.Pie.prototype.hasStartSide_ = function(startAngle) {
+  startAngle = goog.math.toRadians(startAngle);
+  var startCos = anychart.math.round(Math.cos(startAngle), 7);
+  var startSin = anychart.math.round(Math.sin(startAngle), 7);
+
+  var startQuadrant = this.getQuadrant_(startCos, startSin);
+  return ((!(startCos == 0 && Math.abs(startSin) == 1) && startQuadrant == 3) || startQuadrant == 2);
+};
+
+
+/**
+ * Checks slice for having end side.
+ * @param {number} endAngle Start angle.
+ * @return {boolean} Whether slice have end side or not.
+ * @private
+ */
+anychart.charts.Pie.prototype.hasEndSide_ = function(endAngle) {
+  endAngle = goog.math.toRadians(endAngle);
+  var endCos = anychart.math.round(Math.cos(endAngle), 7);
+  var endSin = anychart.math.round(Math.sin(endAngle), 7);
+  var endQuadrant = this.getQuadrant_(endCos, endSin);
+  return ((!(endCos == 0 && Math.abs(endSin) == 1) && endQuadrant == 1) || endQuadrant == 4);
+};
+
+
+/**
  * True if slice has front side.
  * @param {number} startAngle
  * @param {number} endAngle
@@ -2187,7 +2224,7 @@ anychart.charts.Pie.prototype.hasFrontSide_ = function(startAngle, endAngle) {
  * @private
  */
 anychart.charts.Pie.prototype.hasBackSide_ = function(startAngle, endAngle) {
-  if (startAngle == endAngle) return false;
+  if (startAngle == endAngle || this.innerRadiusValue_ == 0) return false;
 
   startAngle = goog.math.toRadians(startAngle);
   endAngle = goog.math.toRadians(endAngle);
@@ -2832,6 +2869,7 @@ anychart.charts.Pie.prototype.dataInvalidated_ = function(event) {
         anychart.ConsistencyState.PIE_LABELS |
         anychart.ConsistencyState.APPEARANCE |
         anychart.ConsistencyState.CHART_LEGEND |
+        anychart.ConsistencyState.A11Y |
         anychart.ConsistencyState.PIE_DATA,
         anychart.Signal.NEEDS_REDRAW |
         anychart.Signal.DATA_CHANGED
@@ -3081,7 +3119,17 @@ anychart.charts.Pie.prototype.makePointEvent = function(event) {
 
 /** @inheritDoc */
 anychart.charts.Pie.prototype.getPoint = function(index) {
-  return new anychart.core.PiePoint(this, index);
+  var point = new anychart.core.PiePoint(this, index);
+  var iter = this.getIterator();
+  var value;
+  if (iter.select(index) &&
+      point.exists() &&
+      !this.isMissing_(value = /** @type {number} */(point.get('value')))) {
+
+    point.statistics[anychart.enums.Statistics.Y_PERCENT_OF_TOTAL] = value / /** @type {number} */(this.getStat(anychart.enums.Statistics.SUM)) * 100;
+  }
+
+  return point;
 };
 
 
@@ -3517,6 +3565,7 @@ anychart.charts.Pie.prototype.calculate = function() {
 anychart.charts.Pie.prototype.createFormatProvider = function(opt_force) {
   if (!this.pointProvider_ || opt_force)
     this.pointProvider_ = new anychart.core.utils.PointContextProvider(this, ['x', 'value', 'name']);
+  this.pointProvider_.pointInternal = this.getPoint(this.getIterator().getIndex());
   this.pointProvider_.applyReferenceValues();
   return this.pointProvider_;
 };
@@ -4128,7 +4177,7 @@ anychart.charts.Pie.prototype.serialize = function() {
   // The values of group() function can be function or null or 'none'. So we don't serialize it anyway.
   //if (goog.isFunction(this['group'])) {
   //  if (goog.isFunction(this.group())) {
-  //    anychart.utils.warning(
+  //    anychart.core.reporting.warning(
   //        anychart.enums.WarningCode.CANT_SERIALIZE_FUNCTION,
   //        null,
   //        ['Pie group']
@@ -4139,7 +4188,7 @@ anychart.charts.Pie.prototype.serialize = function() {
   //}
   if (goog.isFunction(this['innerRadius'])) {
     if (goog.isFunction(this.innerRadius())) {
-      anychart.utils.warning(
+      anychart.core.reporting.warning(
           anychart.enums.WarningCode.CANT_SERIALIZE_FUNCTION,
           null,
           ['Pie innerRadius']
@@ -4150,7 +4199,7 @@ anychart.charts.Pie.prototype.serialize = function() {
   }
   if (goog.isFunction(this['connectorStroke'])) {
     if (goog.isFunction(this.connectorStroke())) {
-      anychart.utils.warning(
+      anychart.core.reporting.warning(
           anychart.enums.WarningCode.CANT_SERIALIZE_FUNCTION,
           null,
           ['Pie connectorStroke']
@@ -4161,7 +4210,7 @@ anychart.charts.Pie.prototype.serialize = function() {
   }
   if (goog.isFunction(this['fill'])) {
     if (goog.isFunction(this.fill())) {
-      anychart.utils.warning(
+      anychart.core.reporting.warning(
           anychart.enums.WarningCode.CANT_SERIALIZE_FUNCTION,
           null,
           ['Pie fill']
@@ -4172,7 +4221,7 @@ anychart.charts.Pie.prototype.serialize = function() {
   }
   if (goog.isFunction(this['hoverFill'])) {
     if (goog.isFunction(this.hoverFill())) {
-      anychart.utils.warning(
+      anychart.core.reporting.warning(
           anychart.enums.WarningCode.CANT_SERIALIZE_FUNCTION,
           null,
           ['Pie hoverFill']
@@ -4183,7 +4232,7 @@ anychart.charts.Pie.prototype.serialize = function() {
   }
   if (goog.isFunction(this['stroke'])) {
     if (goog.isFunction(this.stroke())) {
-      anychart.utils.warning(
+      anychart.core.reporting.warning(
           anychart.enums.WarningCode.CANT_SERIALIZE_FUNCTION,
           null,
           ['Pie stroke']
@@ -4194,7 +4243,7 @@ anychart.charts.Pie.prototype.serialize = function() {
   }
   if (goog.isFunction(this['hoverStroke'])) {
     if (goog.isFunction(this.hoverStroke())) {
-      anychart.utils.warning(
+      anychart.core.reporting.warning(
           anychart.enums.WarningCode.CANT_SERIALIZE_FUNCTION,
           null,
           ['Pie hoverStroke']
@@ -4205,7 +4254,7 @@ anychart.charts.Pie.prototype.serialize = function() {
   }
   if (goog.isFunction(this['hatchFill'])) {
     if (goog.isFunction(this.hatchFill())) {
-      anychart.utils.warning(
+      anychart.core.reporting.warning(
           anychart.enums.WarningCode.CANT_SERIALIZE_FUNCTION,
           null,
           ['Pie hatchFill']
@@ -4216,7 +4265,7 @@ anychart.charts.Pie.prototype.serialize = function() {
   }
   if (goog.isFunction(this['hoverHatchFill'])) {
     if (goog.isFunction(this.hoverHatchFill())) {
-      anychart.utils.warning(
+      anychart.core.reporting.warning(
           anychart.enums.WarningCode.CANT_SERIALIZE_FUNCTION,
           null,
           ['Pie hoverHatchFill']

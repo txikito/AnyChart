@@ -405,6 +405,34 @@ anychart.opt.ZERO_MISSING = 'zeroMissing';
 
 
 /**
+ * Constant replacer for "prevValue" string.
+ * @const {string}
+ */
+anychart.opt.PREV_VALUE = 'prevValue';
+
+
+/**
+ * Constant replacer for "nextValue" string.
+ * @const {string}
+ */
+anychart.opt.NEXT_VALUE = 'nextValue';
+
+
+/**
+ * Constant replacer for "prevZero" string.
+ * @const {string}
+ */
+anychart.opt.PREV_ZERO = 'prevZero';
+
+
+/**
+ * Constant replacer for "nextZero" string.
+ * @const {string}
+ */
+anychart.opt.NEXT_ZERO = 'nextZero';
+
+
+/**
  * Constant replacer for "stackedValue" string.
  * @const {string}
  */
@@ -416,6 +444,34 @@ anychart.opt.STACKED_VALUE = 'stackedValue';
  * @const {string}
  */
 anychart.opt.STACKED_ZERO = 'stackedZero';
+
+
+/**
+ * Constant replacer for "stackedValuePrev" string.
+ * @const {string}
+ */
+anychart.opt.STACKED_VALUE_PREV = 'stackedValuePrev';
+
+
+/**
+ * Constant replacer for "stackedZeroPrev" string.
+ * @const {string}
+ */
+anychart.opt.STACKED_ZERO_PREV = 'stackedZeroPrev';
+
+
+/**
+ * Constant replacer for "stackedValueNext" string.
+ * @const {string}
+ */
+anychart.opt.STACKED_VALUE_NEXT = 'stackedValueNext';
+
+
+/**
+ * Constant replacer for "stackedZeroNext" string.
+ * @const {string}
+ */
+anychart.opt.STACKED_ZERO_NEXT = 'stackedZeroNext';
 
 
 /**
@@ -584,13 +640,6 @@ anychart.opt.SECONDARY_SHAPES = 'secondaryShapes';
  * @const {string}
  */
 anychart.opt.MISSING = 'missing';
-
-
-/**
- * Constant replacer for "artificial" string.
- * @const {string}
- */
-anychart.opt.ARTIFICIAL = 'artificial';
 
 
 /**
@@ -1231,13 +1280,6 @@ anychart.opt.WEIGHTS = 'weights';
 
 
 /**
- * Constant replacer for "excluded" string.
- * @const {string}
- */
-anychart.opt.EXCLUDED = 'excluded';
-
-
-/**
  * Constant replacer for "hasPointMarker" string.
  * @const {string}
  */
@@ -1256,3 +1298,136 @@ anychart.opt.HAS_POINT_LABEL = 'hasPointLabel';
  * @const {string}
  */
 anychart.opt.HAS_POINT_OUTLIER = 'hasPointOutlier';
+
+
+/**
+ * Constant replacer for "hoverGap" string.
+ * @const {string}
+ */
+anychart.opt.HOVER_GAP = 'hoverGap';
+
+
+/**
+ * Constant replacer for "xAnchor" string.
+ * @const {string}
+ */
+anychart.opt.X_ANCHOR = 'xAnchor';
+
+
+/**
+ * Constant replacer for "valueAnchor" string.
+ * @const {string}
+ */
+anychart.opt.VALUE_ANCHOR = 'valueAnchor';
+
+
+/**
+ * Constant replacer for "secondXAnchor" string.
+ * @const {string}
+ */
+anychart.opt.SECOND_X_ANCHOR = 'secondXAnchor';
+
+
+/**
+ * Constant replacer for "secondValueAnchor" string.
+ * @const {string}
+ */
+anychart.opt.SECOND_VALUE_ANCHOR = 'secondValueAnchor';
+
+
+/**
+ * Constant replacer for "thirdXAnchor" string.
+ * @const {string}
+ */
+anychart.opt.THIRD_X_ANCHOR = 'thirdXAnchor';
+
+
+/**
+ * Constant replacer for "thirdValueAnchor" string.
+ * @const {string}
+ */
+anychart.opt.THIRD_VALUE_ANCHOR = 'thirdValueAnchor';
+
+
+/**
+ * Constant replacer for "allowEdit" string.
+ * @const {string}
+ */
+anychart.opt.ALLOW_EDIT = 'allowEdit';
+
+
+/**
+ * Constant replacer for "annotationsList" string.
+ * @const {string}
+ */
+anychart.opt.ANNOTATIONS_LIST = 'annotationsList';
+
+
+/**
+ * Constant replacer for "anchor" string.
+ * @const {string}
+ */
+anychart.opt.ANCHOR = 'anchor';
+
+
+/**
+ * Constant replacer for "offsetX" string.
+ * @const {string}
+ */
+anychart.opt.OFFSET_X = 'offsetX';
+
+
+/**
+ * Constant replacer for "offsetY" string.
+ * @const {string}
+ */
+anychart.opt.OFFSET_Y = 'offsetY';
+
+
+/**
+ * Constant replacer for "markerType" string.
+ * @const {string}
+ */
+anychart.opt.MARKER_TYPE = 'markerType';
+
+
+/**
+ * Constant replacer for "trend" string.
+ * @const {string}
+ */
+anychart.opt.TREND = 'trend';
+
+
+/**
+ * Constant replacer for "hoverTrend" string.
+ * @const {string}
+ */
+anychart.opt.HOVER_TREND = 'hoverTrend';
+
+
+/**
+ * Constant replacer for "selectTrend" string.
+ * @const {string}
+ */
+anychart.opt.SELECT_TREND = 'selectTrend';
+
+
+/**
+ * Constant replacer for "grid" string.
+ * @const {string}
+ */
+anychart.opt.GRID = 'grid';
+
+
+/**
+ * Constant replacer for "hoverGrid" string.
+ * @const {string}
+ */
+anychart.opt.HOVER_GRID = 'hoverGrid';
+
+
+/**
+ * Constant replacer for "selectGrid" string.
+ * @const {string}
+ */
+anychart.opt.SELECT_GRID = 'selectGrid';

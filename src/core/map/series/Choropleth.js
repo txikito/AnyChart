@@ -1,7 +1,9 @@
+//region --- Requiring and Providing
 goog.provide('anychart.core.map.series.Choropleth');
 goog.require('anychart.core.ChoroplethPoint');
 goog.require('anychart.core.map.series.BaseWithMarkers');
 goog.require('anychart.core.utils.TypedLayer');
+//endregion
 
 
 
@@ -24,6 +26,7 @@ goog.inherits(anychart.core.map.series.Choropleth, anychart.core.map.series.Base
 anychart.core.map.series.Base.SeriesTypesMap[anychart.enums.MapSeriesType.CHOROPLETH] = anychart.core.map.series.Choropleth;
 
 
+//region --- Class constants
 /**
  * Supported signals.
  * @type {number}
@@ -42,12 +45,87 @@ anychart.core.map.series.Choropleth.prototype.SUPPORTED_CONSISTENCY_STATES =
     anychart.ConsistencyState.MAP_COLOR_SCALE;
 
 
+//endregion
+//region --- Class properties
+/**
+ * @type {anychart.core.utils.TypedLayer}
+ * @protected
+ */
+anychart.core.map.series.Choropleth.prototype.hatchFillRootElement = null;
+
+
+/** @inheritDoc */
+anychart.core.map.series.Choropleth.prototype.needsUpdateMapAppearance = function() {
+  return true;
+};
+
+
+//endregion
+//region --- Getters
 /** @inheritDoc */
 anychart.core.map.series.Choropleth.prototype.getType = function() {
   return anychart.enums.MapSeriesType.CHOROPLETH;
 };
 
 
+/** @inheritDoc */
+anychart.core.map.series.Choropleth.prototype.getPoint = function(index) {
+  return new anychart.core.ChoroplethPoint(this, index);
+};
+
+
+//endregion
+//region --- Check functions
+/** @inheritDoc */
+anychart.core.map.series.Choropleth.prototype.isDiscreteBased = function() {
+  return true;
+};
+
+
+/** @inheritDoc */
+anychart.core.map.series.Choropleth.prototype.isChoropleth = function() {
+  return true;
+};
+
+
+/** @inheritDoc */
+anychart.core.map.series.Choropleth.prototype.needDrawHatchFill = function() {
+  return !!(this.hatchFill() || this.hoverHatchFill() || this.selectHatchFill());
+};
+
+
+//endregion
+//region --- Interactivity
+/** @inheritDoc */
+anychart.core.map.series.Choropleth.prototype.updateOnZoomOrMove = function() {
+  var tx = this.map.getMapLayer().getFullTransformation();
+  var hatchFill = this.hatchFillRootElement;
+  if (hatchFill) {
+    hatchFill.setTransformationMatrix(tx.getScaleX(), tx.getShearX(), tx.getShearY(), tx.getScaleY(), tx.getTranslateX(), tx.getTranslateY());
+  }
+
+  return anychart.core.map.series.Choropleth.base(this, 'updateOnZoomOrMove');
+};
+
+
+/** @inheritDoc */
+anychart.core.map.series.Choropleth.prototype.applyAppearanceToPoint = function(pointState) {
+  this.colorizeShape(pointState);
+  this.applyHatchFill(pointState);
+  this.drawMarker(pointState);
+  this.drawLabel(pointState);
+};
+
+
+/** @inheritDoc */
+anychart.core.map.series.Choropleth.prototype.applyAppearanceToSeries = function(pointState) {
+  this.colorizeShape(pointState);
+  this.applyHatchFill(pointState);
+};
+
+
+//endregion
+//region --- Color scale
 //----------------------------------------------------------------------------------------------------------------------
 //
 //  Color scale.
@@ -85,6 +163,8 @@ anychart.core.map.series.Choropleth.prototype.colorScaleInvalidated_ = function(
 };
 
 
+//endregion
+//region --- Providers
 /** @inheritDoc */
 anychart.core.map.series.Choropleth.prototype.createFormatProvider = function(opt_force) {
   this.pointProvider = goog.base(this, 'createFormatProvider', opt_force);
@@ -112,19 +192,8 @@ anychart.core.map.series.Choropleth.prototype.createFormatProvider = function(op
 };
 
 
-/** @inheritDoc */
-anychart.core.map.series.Choropleth.prototype.createPositionProvider = function(position) {
-  return this.getPositionByRegion();
-};
-
-
-/**
- * @type {anychart.core.utils.TypedLayer}
- * @protected
- */
-anychart.core.map.series.Choropleth.prototype.hatchFillRootElement = null;
-
-
+//endregion
+//region --- Layering
 /** @inheritDoc */
 anychart.core.map.series.Choropleth.prototype.rootTypedLayerInitializer = function() {
   var path = acgraph.path();
@@ -133,23 +202,48 @@ anychart.core.map.series.Choropleth.prototype.rootTypedLayerInitializer = functi
 };
 
 
+//endregion
+//region --- Coloring
 /** @inheritDoc */
 anychart.core.map.series.Choropleth.prototype.normalizeColor = function(color, var_args) {
   var fill;
   if (goog.isFunction(color)) {
+    var iterator = this.getIterator();
     var sourceColor = arguments.length > 1 ?
         this.normalizeColor.apply(this, goog.array.slice(arguments, 1)) :
         this.color();
+
+    var scaledColor;
+    if (this.colorScale()) {
+      var refVale = this.referenceValueNames[1];
+      var value = /** @type {number} */(iterator.get(refVale));
+      scaledColor = this.colorScale().valueToColor(value);
+    }
+
+    var feature = iterator.meta('currentPointElement');
+    var features = iterator.meta('features');
+    var point = features && features.length ? features[0] : null;
+    var properties = point ? point['properties'] : null;
+    var attributes = feature ? feature['attrs'] : null;
+    var domElement = feature ? feature['domElement'] : null;
+
     var scope = {
-      'index': this.getIterator().getIndex(),
+      'index': iterator.getIndex(),
       'sourceColor': sourceColor,
-      'iterator': this.getIterator(),
+      'scaledColor': scaledColor,
+      'iterator': iterator,
       'colorScale': this.colorScale_,
-      'referenceValueNames': this.referenceValueNames
+      'referenceValueNames': this.referenceValueNames,
+      'properties': properties,
+      'attributes': attributes,
+      'element': domElement
     };
+
     fill = color.call(scope);
-  } else
+  } else {
     fill = color;
+  }
+
   return fill;
 };
 
@@ -161,11 +255,26 @@ anychart.core.map.series.Choropleth.prototype.normalizeColor = function(color, v
  * @protected
  */
 anychart.core.map.series.Choropleth.prototype.colorizeShape = function(pointState) {
-  var shape = /** @type {acgraph.vector.Shape} */(this.getIterator().meta('regionShape'));
-  if (goog.isDef(shape)) {
-    shape.visible(true);
-    shape.stroke(this.getFinalStroke(true, pointState));
-    shape.fill(this.getFinalFill(true, pointState));
+  var features = this.getIterator().meta('features');
+  if (!features)
+    return;
+
+  for (var i = 0, len = features.length; i < len; i++) {
+    var feature = features[i];
+    if (goog.isDef(feature.domElement)) {
+      this.map.featureTraverser(feature, function(shape) {
+        var element = shape.domElement;
+        if (!element)
+          return;
+
+        this.getIterator().meta('currentPointElement', shape);
+        element.visible(true);
+        if (element instanceof acgraph.vector.Shape) {
+          element.stroke(this.getFinalStroke(true, pointState));
+          element.fill(this.getFinalFill(true, pointState));
+        }
+      }, this);
+    }
   }
 };
 
@@ -177,15 +286,24 @@ anychart.core.map.series.Choropleth.prototype.colorizeShape = function(pointStat
  * @protected
  */
 anychart.core.map.series.Choropleth.prototype.applyHatchFill = function(pointState) {
-  var hatchFillShape = /** @type {acgraph.vector.Shape} */(this.getIterator().meta('hatchFillShape'));
-  if (goog.isDefAndNotNull(hatchFillShape)) {
-    hatchFillShape
+  if (!this.hatchFillRootElement)
+    return;
+
+  var hatchFillElements = this.getIterator().meta('hatchFillElements');
+  if (!hatchFillElements)
+    return;
+
+  for (var i = 0, len = hatchFillElements.length; i < len; i++) {
+    var hatchFillElement = hatchFillElements[i];
+    hatchFillElement
         .stroke(null)
         .fill(this.getFinalHatchFill(true, pointState));
   }
 };
 
 
+//endregion
+//region --- Drawing
 /** @inheritDoc */
 anychart.core.map.series.Choropleth.prototype.remove = function() {
   this.invalidate(anychart.ConsistencyState.APPEARANCE, anychart.Signal.NEEDS_REDRAW);
@@ -194,26 +312,181 @@ anychart.core.map.series.Choropleth.prototype.remove = function() {
 
 
 /** @inheritDoc */
+anychart.core.map.series.Choropleth.prototype.getMiddlePoint = function() {
+  var middleX, middleY, middlePoint, midX, midY, txCoords;
+  var iterator = this.getIterator();
+  var features = iterator.meta('features');
+  var feature = features && features.length ? features[0] : null;
+
+  if (!feature)
+    return {'value': {'x': 0, 'y': 0}};
+
+  var pointGeoProp = /** @type {Object}*/(feature['properties']);
+
+  var middleXYModeGeoSettings = pointGeoProp && pointGeoProp['middleXYMode'];
+  var middleXYModeDataSettings = iterator.get('middleXYMode');
+
+  var middleXYMode = goog.isDef(middleXYModeDataSettings) ?
+      middleXYModeDataSettings : middleXYModeGeoSettings ?
+      middleXYModeGeoSettings : anychart.enums.MapPointMiddlePositionMode.RELATIVE;
+
+  if (middleXYMode == anychart.enums.MapPointMiddlePositionMode.RELATIVE) {
+    middlePoint = this.getPositionByRegion();
+  } else if (middleXYMode == anychart.enums.MapPointMiddlePositionMode.ABSOLUTE) {
+    midX = iterator.get('middle-x');
+    midY = iterator.get('middle-y');
+    middleX = /** @type {number}*/(goog.isDef(midX) ? midX : pointGeoProp ? pointGeoProp['middle-x'] : 0);
+    middleY = /** @type {number}*/(goog.isDef(midY) ? midY : pointGeoProp ? pointGeoProp['middle-y'] : 0);
+
+    middleX = anychart.utils.toNumber(middleX);
+    middleY = anychart.utils.toNumber(middleY);
+
+    txCoords = this.map.scale().transform(middleX, middleY);
+
+    middlePoint = {'value': {'x': txCoords[0], 'y': txCoords[1]}};
+  } else {
+    middlePoint = {'value': {'x': 0, 'y': 0}};
+  }
+
+  return middlePoint;
+};
+
+
+/** @inheritDoc */
+anychart.core.map.series.Choropleth.prototype.createPositionProvider = function(position) {
+  var iterator = this.getIterator();
+  var features = iterator.meta('features');
+  var feature = features && features.length ? features[0] : null;
+  var middlePoint, midX, midY, txCoords;
+  if (feature) {
+    middlePoint = this.getMiddlePoint();
+
+    var dataLabel = iterator.get('label');
+    var dataLabelPositionMode, dataLabelXPos, dataLabelYPos;
+    if (dataLabel) {
+      dataLabelPositionMode = dataLabel['positionMode'];
+      dataLabelXPos = dataLabel['x'];
+      dataLabelYPos = dataLabel['y'];
+    }
+
+    var pointGeoProp = /** @type {Object}*/(feature['properties']);
+    var geoLabel = pointGeoProp && pointGeoProp['label'];
+    var geoLabelPositionMode, geoLabelXPos, geoLabelYPos;
+    if (geoLabel) {
+      geoLabelPositionMode = geoLabel && geoLabel['positionMode'];
+      geoLabelXPos = dataLabel['x'];
+      geoLabelYPos = dataLabel['y'];
+    }
+
+    var positionMode = dataLabelPositionMode || geoLabelPositionMode || anychart.enums.MapPointOutsidePositionMode.RELATIVE;
+    var x = goog.isDef(dataLabelXPos) ? dataLabelXPos : geoLabelXPos;
+    var y = goog.isDef(dataLabelYPos) ? dataLabelYPos : geoLabelYPos;
+
+    var labelPoint;
+    if (goog.isDef(x) && goog.isDef(y)) {
+      iterator.meta('positionMode', positionMode);
+
+      midX = middlePoint['value']['x'];
+      midY = middlePoint['value']['y'];
+
+      if (positionMode == anychart.enums.MapPointOutsidePositionMode.RELATIVE) {
+        x = anychart.utils.normalizeNumberOrPercent(x);
+        y = anychart.utils.normalizeNumberOrPercent(y);
+
+        x = anychart.utils.isPercent(x) ? parseFloat(x) / 100 : x;
+        y = anychart.utils.isPercent(y) ? parseFloat(y) / 100 : y;
+
+        var shape = feature.domElement;
+        if (shape) {
+          var bounds = shape.getAbsoluteBounds();
+          x = bounds.left + bounds.width * x;
+          y = bounds.top + bounds.height * y;
+        } else {
+          x = 0;
+          y = 0;
+        }
+      } else if (positionMode == anychart.enums.MapPointOutsidePositionMode.ABSOLUTE) {
+        txCoords = this.map.scale().transform(parseFloat(x), parseFloat(y));
+        x = txCoords[0];
+        y = txCoords[1];
+      } else if (positionMode == anychart.enums.MapPointOutsidePositionMode.OFFSET) {
+        var angle = goog.math.toRadians(parseFloat(x) - 90);
+        var r = parseFloat(y);
+
+        x = midX + r * Math.cos(angle);
+        y = midY + r * Math.sin(angle);
+      }
+
+      var horizontal = Math.sqrt(Math.pow(midX - x, 2));
+      var vertical = Math.sqrt(Math.pow(midY - y, 2));
+      var connectorAngle = anychart.math.round(goog.math.toDegrees(Math.atan(vertical / horizontal)), 7);
+
+      if (midX < x && midY < y) {
+        connectorAngle = connectorAngle - 180;
+      } else if (midX < x && midY > y) {
+        connectorAngle = 180 - connectorAngle;
+      } else if (midX > x && midY > y) {
+        //connectorAngle = connectorAngle;
+      } else if (midX > x && midY < y) {
+        connectorAngle = -connectorAngle;
+      }
+
+      var anchor = this.getAnchorForLabel(goog.math.standardAngle(connectorAngle - 90));
+      iterator.meta('labelAnchor', anchor);
+      iterator.meta('markerAnchor', anchor);
+
+      labelPoint = {'value': {'x': x, 'y': y}};
+    } else {
+      iterator.meta('labelAnchor', anychart.enums.Anchor.CENTER);
+      iterator.meta('markerAnchor', anychart.enums.Anchor.CENTER);
+    }
+  } else {
+    middlePoint = {'value': {'x': 0, 'y': 0}};
+  }
+
+  if (labelPoint) {
+    labelPoint['connectorPoint'] = middlePoint;
+    return labelPoint;
+  } else {
+    return middlePoint;
+  }
+};
+
+
+/** @inheritDoc */
 anychart.core.map.series.Choropleth.prototype.calculate = function() {
-  if (this.hasInvalidationState(anychart.ConsistencyState.SERIES_DATA | anychart.ConsistencyState.MAP_COLOR_SCALE)) {
+  if (this.hasInvalidationState(anychart.ConsistencyState.SERIES_DATA) ||
+      this.hasInvalidationState(anychart.ConsistencyState.MAP_COLOR_SCALE)) {
+
+    this.seriesPoints.length = 0;
     var iterator = this.getResetIterator();
+    var index = this.map.getIndexedGeoData();
+    var seriesIndex;
+    if (index)
+      seriesIndex = index[this.geoIdField()];
+
     while (iterator.advance()) {
       if (this.hasInvalidationState(anychart.ConsistencyState.SERIES_DATA)) {
-        var name = iterator.get(this.referenceValueNames[0]);
-        if (!name || !goog.isString(name))
+        if (!seriesIndex)
           continue;
 
-        for (var i = 0, len = this.geoData.length; i < len; i++) {
-          var geom = this.geoData[i];
-          if (!geom) continue;
-          var prop = geom['properties'];
-          if (prop[this.getFinalGeoIdField()] == name) {
-            //todo (blackart) Don't remove it for the time.
-            if (geom.domElement) this.bindHandlersToGraphics(geom.domElement);
-            iterator.meta('regionShape', geom.domElement).meta('regionProperties', prop);
-            break;
+        var name = iterator.get(this.referenceValueNames[0]);
+        if (!name || !(goog.isString(name) || goog.isArray(name)))
+          continue;
+
+        name = goog.isArray(name) ? name : [name];
+
+        iterator.meta('features', undefined);
+        var features = [];
+        for (var j = 0, len_ = name.length; j < len_; j++) {
+          var id = name[j];
+          var point = seriesIndex[id];
+          if (point) {
+            features.push(point);
+            this.seriesPoints[iterator.getIndex()] = id;
           }
         }
+        iterator.meta('features', features);
       }
 
       if (this.hasInvalidationState(anychart.ConsistencyState.MAP_COLOR_SCALE)) {
@@ -222,20 +495,13 @@ anychart.core.map.series.Choropleth.prototype.calculate = function() {
           this.colorScale_.extendDataRange(value);
       }
     }
+
+    if (this.hasInvalidationState(anychart.ConsistencyState.MAP_COLOR_SCALE)) {
+      if (this.colorScale_)
+        this.colorScale_.finishAutoCalc();
+    }
     this.markConsistent(anychart.ConsistencyState.MAP_COLOR_SCALE);
   }
-};
-
-
-/** @inheritDoc */
-anychart.core.map.series.Choropleth.prototype.updateOnZoomOrMove = function() {
-  var tx = this.map.getMapLayer().getFullTransformation();
-  var hatchFill = this.hatchFillRootElement;
-  if (hatchFill) {
-    hatchFill.setTransformationMatrix(tx.getScaleX(), tx.getShearX(), tx.getShearY(), tx.getScaleY(), tx.getTranslateX(), tx.getTranslateY());
-  }
-
-  return anychart.core.map.series.Choropleth.base(this, 'updateOnZoomOrMove');
 };
 
 
@@ -261,38 +527,45 @@ anychart.core.map.series.Choropleth.prototype.startDrawing = function() {
 
 /** @inheritDoc */
 anychart.core.map.series.Choropleth.prototype.drawPoint = function(pointState) {
-  var iterator = this.getIterator();
-  var shape;
+  var features = this.getIterator().meta('features');
+  var feature, i, len;
+  if (!features || !features.length)
+    return;
 
-  if (this.hasInvalidationState(anychart.ConsistencyState.APPEARANCE)) {
-    shape = /** @type {acgraph.vector.Shape} */(iterator.meta('regionShape'));
-    if (goog.isDef(shape)) {
-      var properties = /** @type {Object}*/(iterator.meta('regionProperties'));
-      var midX = iterator.get('middle-x');
-      var midY = iterator.get('middle-y');
-      var middleX = /** @type {number}*/(goog.isDef(midX) ? midX : properties['middle-x']);
-      var middleY = /** @type {number}*/(goog.isDef(midY) ? midY : properties['middle-y']);
-      var shapeBounds = shape.getBounds();
-      var x = shapeBounds.left + shapeBounds.width * middleX;
-      var y = shapeBounds.top + shapeBounds.height * middleY;
-
-
-      this.colorizeShape(pointState | this.state.getSeriesState());
-      iterator.meta('shape', iterator.meta('regionShape')).meta('x', x).meta('value', y);
-      this.makeInteractive(/** @type {acgraph.vector.Element} */(iterator.meta('regionShape')));
+  if (this.hasInvalidationState(anychart.ConsistencyState.BOUNDS)) {
+    for (i = 0, len = features.length; i < len; i++) {
+      feature = features[i];
+      if (goog.isDef(feature.domElement)) {
+        this.bindHandlersToGraphics(feature.domElement);
+        this.makeInteractive(/** @type {acgraph.vector.Element} */(feature.domElement));
+      }
     }
   }
 
+  if (this.hasInvalidationState(anychart.ConsistencyState.APPEARANCE)) {
+    this.colorizeShape(pointState | this.state.getSeriesState());
+  }
+
   if (this.hasInvalidationState(anychart.ConsistencyState.SERIES_HATCH_FILL)) {
-    var hatchFillShape = this.hatchFillRootElement ?
-        /** @type {!acgraph.vector.Path} */(this.hatchFillRootElement.genNextChild()) :
-        null;
-    iterator.meta('hatchFillShape', hatchFillShape);
-    shape = /** @type {acgraph.vector.Shape} */(iterator.meta('regionShape'));
-    if (goog.isDef(shape) && hatchFillShape) {
-      hatchFillShape.deserialize(shape.serialize());
+    if (this.hatchFillRootElement) {
+      var hatchFillElements = [];
+      for (i = 0, len = features.length; i < len; i++) {
+        feature = features[i];
+        if (goog.isDef(feature.domElement)) {
+          this.map.featureTraverser(feature, function(shape) {
+            var element = shape.domElement;
+            if (!element)
+              return;
+
+            var hatchFillElement = /** @type {!acgraph.vector.Path} */(this.hatchFillRootElement.genNextChild());
+            hatchFillElements.push(hatchFillElement);
+            hatchFillElement.deserialize(element.serialize());
+          }, this);
+        }
+      }
+      this.getIterator().meta('hatchFillElements', hatchFillElements);
+      this.applyHatchFill(pointState | this.state.getSeriesState());
     }
-    this.applyHatchFill(pointState | this.state.getSeriesState());
   }
 
   goog.base(this, 'drawPoint', pointState);
@@ -309,45 +582,9 @@ anychart.core.map.series.Choropleth.prototype.draw = function() {
 };
 
 
-/** @inheritDoc */
-anychart.core.map.series.Choropleth.prototype.isDiscreteBased = function() {
-  return true;
-};
-
-
-/** @inheritDoc */
-anychart.core.map.series.Choropleth.prototype.isChoropleth = function() {
-  return true;
-};
-
-
-/** @inheritDoc */
-anychart.core.map.series.Choropleth.prototype.needDrawHatchFill = function() {
-  return !!(this.hatchFill() || this.hoverHatchFill() || this.selectHatchFill());
-};
-
-
-/** @inheritDoc */
-anychart.core.map.series.Choropleth.prototype.applyAppearanceToPoint = function(pointState) {
-  this.colorizeShape(pointState);
-  this.applyHatchFill(pointState);
-  this.drawMarker(pointState);
-  this.drawLabel(pointState);
-};
-
-
-/** @inheritDoc */
-anychart.core.map.series.Choropleth.prototype.applyAppearanceToSeries = function(pointState) {
-  this.colorizeShape(pointState);
-  this.applyHatchFill(pointState);
-};
-
-
-/** @inheritDoc */
-anychart.core.map.series.Choropleth.prototype.getPoint = function(index) {
-  return new anychart.core.ChoroplethPoint(this, index);
-};
-
-
+//endregion
+//region --- Exports
+//exports
 anychart.core.map.series.Choropleth.prototype['colorScale'] = anychart.core.map.series.Choropleth.prototype.colorScale;
 anychart.core.map.series.Choropleth.prototype['getPoint'] = anychart.core.map.series.Choropleth.prototype.getPoint;
+//endregion

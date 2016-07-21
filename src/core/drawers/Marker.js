@@ -21,14 +21,14 @@ anychart.core.drawers.Marker = function(series) {
    */
   this.typeGetter_ = anychart.core.series.Base.getSettingsResolver(
       [anychart.opt.TYPE, anychart.opt.HOVER_TYPE, anychart.opt.SELECT_TYPE],
-      anychart.core.series.Base.markerTypeNormalizer);
+      anychart.core.settings.markerTypeNormalizer);
   /**
    * @type {function(anychart.core.series.Base, anychart.data.IRowInfo, number):*}
    * @private
    */
   this.sizeGetter_ = anychart.core.series.Base.getSettingsResolver(
       [anychart.opt.MARKER_SIZE, anychart.opt.HOVER_MARKER_SIZE, anychart.opt.SELECT_MARKER_SIZE],
-      anychart.core.series.Base.numberNormalizer,
+      anychart.core.settings.numberNormalizer,
       [anychart.opt.SIZE, anychart.opt.HOVER_SIZE, anychart.opt.SELECT_SIZE]);
 };
 goog.inherits(anychart.core.drawers.Marker, anychart.core.drawers.Base);
@@ -47,6 +47,7 @@ anychart.core.drawers.Marker.prototype.flags = (
     // anychart.core.drawers.Capabilities.USES_STROKE_AS_FILL |
     // anychart.core.drawers.Capabilities.SUPPORTS_CONNECTING_MISSING |
     // anychart.core.drawers.Capabilities.SUPPORTS_STACK |
+    // anychart.core.drawers.Capabilities.SUPPORTS_COMPARISON |
     anychart.core.drawers.Capabilities.SUPPORTS_ERROR |
     // anychart.core.drawers.Capabilities.SUPPORTS_OUTLIERS |
     anychart.core.drawers.Capabilities.IS_DISCRETE_BASED |
@@ -91,7 +92,7 @@ anychart.core.drawers.Marker.prototype.drawPoint_ = function(point, state, shape
   var y = /** @type {number} */(point.meta(anychart.opt.VALUE));
   var type = /** @type {anychart.enums.MarkerType|Function} */(this.typeGetter_(this.series, point, state));
   var size = /** @type {number} */(this.sizeGetter_(this.series, point, state));
-  var drawer = goog.isFunction(type) ? type : anychart.enums.getMarkerDrawer(type);
+  var drawer = goog.isFunction(type) ? type : anychart.utils.getMarkerDrawer(type);
 
   drawer(shapes[anychart.opt.PATH], x, y, size);
   drawer(shapes[anychart.opt.HATCH_FILL], x, y, size);

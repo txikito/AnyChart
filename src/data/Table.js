@@ -1,5 +1,6 @@
 goog.provide('anychart.data.Table');
 goog.require('anychart.core.Base');
+goog.require('anychart.core.reporting');
 goog.require('anychart.core.utils.IIntervalGenerator');
 goog.require('anychart.data.TableAggregatedStorage');
 goog.require('anychart.data.TableComputer');
@@ -195,7 +196,7 @@ anychart.data.Table.prototype.createComputer = function(opt_mappingSettingsOrMap
   if (opt_mappingSettingsOrMapping instanceof anychart.data.TableMapping) {
     mapping = /** @type {anychart.data.TableMapping} */(opt_mappingSettingsOrMapping);
     if (mapping.getTable() != this) {
-      anychart.utils.error(anychart.enums.ErrorCode.TABLE_MAPPING_DIFFERENT_TABLE);
+      anychart.core.reporting.error(anychart.enums.ErrorCode.TABLE_MAPPING_DIFFERENT_TABLE);
       return null;
     }
   } else {
@@ -233,7 +234,7 @@ anychart.data.Table.prototype.deregisterComputer = function(computer) {
         }
       }
     }
-    this.reusableComputedColumns_.sort();
+    goog.array.sort(this.reusableComputedColumns_);
     for (i = 0; i < itemsToRemove.length; i++)
       delete this.computedColumnsAliases_[itemsToRemove[i]];
 
@@ -296,12 +297,12 @@ anychart.data.Table.prototype.registerComputedField = function(computer, opt_nam
   }
   if (goog.isString(opt_name)) {
     if (opt_name in this.computedColumnsAliases_) {
-      anychart.utils.error(anychart.enums.ErrorCode.TABLE_FIELD_NAME_DUPLICATE, undefined, [opt_name]);
+      anychart.core.reporting.error(anychart.enums.ErrorCode.TABLE_FIELD_NAME_DUPLICATE, undefined, [opt_name]);
       return NaN;
     }
     this.computedColumnsAliases_[opt_name] = nextIndex;
   }
-  this.computerRightMostFields_[computer.getIndex()] = Math.max(this.computerRightMostFields_[computer.getIndex()], nextIndex);
+  this.computerRightMostFields_[computer.getIndex()] = Math.max(this.computerRightMostFields_[computer.getIndex()], ~nextIndex);
   if (indexReused)
     this.reusableComputedColumns_.shift();
   else

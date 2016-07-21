@@ -29,12 +29,27 @@ goog.require('anychart.utils');
  *     .container(stage);
  *  MMarker.draw({x: 100, y: 30});
  *  MMarker.draw({x: 200, y: 50});
+ * @param {boolean=} opt_isNonInteractive
+ * @param {boolean=} opt_crispEdges
  * @constructor
  * @extends {anychart.core.VisualBase}
  */
-anychart.core.ui.MarkersFactory = function() {
+anychart.core.ui.MarkersFactory = function(opt_isNonInteractive, opt_crispEdges) {
   this.suspendSignalsDispatching();
   goog.base(this);
+
+
+  /**
+   * If the markers factory should try to draw markers crisply by passing an additional param to the drawers.
+   * @type {boolean}
+   */
+  this.crispEdges = !!opt_crispEdges;
+
+  /**
+   * If the markers factory is allowed to listen and intercept events.
+   * @type {boolean}
+   */
+  this.isInteractive = !opt_isNonInteractive;
 
   /**
    * Elements pool.
@@ -558,7 +573,7 @@ anychart.core.ui.MarkersFactory.prototype.measure = function(positionProvider) {
   var offsetY = /** @type {number} */(this.offsetY());
 
   drawer = goog.isString(type) ?
-      anychart.enums.getMarkerDrawer(type) :
+      anychart.utils.getMarkerDrawer(type) :
       type;
 
   this.measureMarkerElement_.clear();
@@ -709,7 +724,8 @@ anychart.core.ui.MarkersFactory.prototype.createMarker = function() {
 anychart.core.ui.MarkersFactory.prototype.draw = function() {
   if (!this.layer_) {
     this.layer_ = acgraph.layer();
-    this.bindHandlersToGraphics(this.layer_);
+    if (this.isInteractive)
+      this.bindHandlersToGraphics(this.layer_);
     this.registerDisposable(this.layer_);
   }
   this.layer_.disablePointerEvents(/** @type {boolean} */(this.disablePointerEvents()));
@@ -1366,7 +1382,7 @@ anychart.core.ui.MarkersFactory.Marker.prototype.draw = function() {
     }
 
     var drawer = goog.isString(settings['type']) ?
-        anychart.enums.getMarkerDrawer(settings['type']) :
+        anychart.utils.getMarkerDrawer(settings['type']) :
         settings['type'];
 
     //define parent bounds
@@ -1381,7 +1397,11 @@ anychart.core.ui.MarkersFactory.Marker.prototype.draw = function() {
 
     var anchor = /** @type {anychart.enums.Anchor} */(anychart.enums.normalizeAnchor(settings['anchor']));
 
-    drawer.call(this, this.markerElement_, 0, 0, settings['size']);
+    var strokeThickness = anychart.utils.extractThickness(/** @type {acgraph.vector.Stroke} */(settings['stroke']));
+    if (this.parentMarkersFactory_ && this.parentMarkersFactory_.crispEdges)
+      drawer.call(this, this.markerElement_, 0, 0, settings['size'], strokeThickness);
+    else
+      drawer.call(this, this.markerElement_, 0, 0, settings['size']);
     var markerBounds = this.markerElement_.getBoundsWithoutTransform();
 
     var positionProvider = this.positionProvider();
@@ -1403,7 +1423,10 @@ anychart.core.ui.MarkersFactory.Marker.prototype.draw = function() {
     markerBounds.top = position.y + markerBounds.height / 2;
 
     this.markerElement_.clear();
-    drawer.call(this, this.markerElement_, markerBounds.left, markerBounds.top, settings['size']);
+    if (this.parentMarkersFactory_ && this.parentMarkersFactory_.crispEdges)
+      drawer.call(this, this.markerElement_, markerBounds.left, markerBounds.top, settings['size'], strokeThickness);
+    else
+      drawer.call(this, this.markerElement_, markerBounds.left, markerBounds.top, settings['size']);
 
     this.markerElement_.fill(settings['fill']);
     this.markerElement_.stroke(settings['stroke']);

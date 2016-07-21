@@ -4,6 +4,7 @@ goog.require('anychart.core.Chart');
 goog.require('anychart.core.axes.Linear');
 goog.require('anychart.core.axisMarkers.Range');
 goog.require('anychart.core.bullet.Marker');
+goog.require('anychart.core.reporting');
 goog.require('anychart.data.Set');
 goog.require('anychart.enums');
 goog.require('anychart.palettes');
@@ -473,7 +474,7 @@ anychart.charts.Bullet.prototype.calculate = function() {
 
 
 /** @inheritDoc */
-anychart.charts.Bullet.prototype.draw = function() {
+anychart.charts.Bullet.prototype.drawInternal = function() {
   //we must update layout before draw
   var isHorizontal = this.isHorizontal();
   var title = this.title();
@@ -486,7 +487,7 @@ anychart.charts.Bullet.prototype.draw = function() {
     axis.setDefaultOrientation(anychart.enums.Orientation.LEFT);
     title.setDefaultOrientation(anychart.enums.Orientation.BOTTOM);
   }
-  return goog.base(this, 'draw');
+  return anychart.charts.Bullet.base(this, 'drawInternal');
 };
 
 
@@ -543,7 +544,7 @@ anychart.charts.Bullet.prototype.drawContent = function(bounds) {
       }
     }
     if (count > 5) {
-      anychart.utils.info(anychart.enums.InfoCode.BULLET_TOO_MUCH_RANGES, [count]);
+      anychart.core.reporting.info(anychart.enums.InfoCode.BULLET_TOO_MUCH_RANGES, [count]);
     }
     this.markConsistent(anychart.ConsistencyState.BULLET_AXES_MARKERS);
   }
@@ -577,7 +578,7 @@ anychart.charts.Bullet.prototype.createMarkers_ = function() {
 
   var rowsCount = iterator.getRowsCount();
   if (rowsCount > 2) {
-    anychart.utils.info(anychart.enums.InfoCode.BULLET_TOO_MUCH_MEASURES, [rowsCount]);
+    anychart.core.reporting.info(anychart.enums.InfoCode.BULLET_TOO_MUCH_MEASURES, [rowsCount]);
   }
 
   while (iterator.advance()) {
@@ -804,6 +805,5 @@ anychart.charts.Bullet.prototype['markerPalette'] = anychart.charts.Bullet.proto
 anychart.charts.Bullet.prototype['scale'] = anychart.charts.Bullet.prototype.scale;//doc|ex
 anychart.charts.Bullet.prototype['axis'] = anychart.charts.Bullet.prototype.axis;//doc|ex
 anychart.charts.Bullet.prototype['range'] = anychart.charts.Bullet.prototype.range;//doc|ex
-anychart.charts.Bullet.prototype['draw'] = anychart.charts.Bullet.prototype.draw;//inherited
 anychart.charts.Bullet.prototype['isHorizontal'] = anychart.charts.Bullet.prototype.isHorizontal;//doc
 anychart.charts.Bullet.prototype['getType'] = anychart.charts.Bullet.prototype.getType;//doc

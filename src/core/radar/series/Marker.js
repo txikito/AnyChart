@@ -1,6 +1,7 @@
 goog.provide('anychart.core.radar.series.Marker');
 goog.require('acgraph');
 goog.require('anychart.core.radar.series.Base');
+goog.require('anychart.core.reporting');
 goog.require('anychart.core.ui.MarkersFactory');
 goog.require('anychart.enums');
 
@@ -487,7 +488,7 @@ anychart.core.radar.series.Marker.prototype.serialize = function() {
   var json = goog.base(this, 'serialize');
 
   if (goog.isFunction(this.type())) {
-    anychart.utils.warning(
+    anychart.core.reporting.warning(
         anychart.enums.WarningCode.CANT_SERIALIZE_FUNCTION,
         null,
         ['Marker type']
@@ -497,7 +498,7 @@ anychart.core.radar.series.Marker.prototype.serialize = function() {
   }
 
   if (goog.isFunction(this.hoverType())) {
-    anychart.utils.warning(
+    anychart.core.reporting.warning(
         anychart.enums.WarningCode.CANT_SERIALIZE_FUNCTION,
         null,
         ['Marker hoverType']
@@ -507,7 +508,7 @@ anychart.core.radar.series.Marker.prototype.serialize = function() {
   }
 
   if (goog.isFunction(this.selectType())) {
-    anychart.utils.warning(
+    anychart.core.reporting.warning(
         anychart.enums.WarningCode.CANT_SERIALIZE_FUNCTION,
         null,
         ['Marker selectType']
@@ -559,3 +560,4 @@ anychart.core.radar.series.Marker.prototype['selectType'] = anychart.core.radar.
 anychart.core.radar.series.Marker.prototype['hatchFill'] = anychart.core.radar.series.Marker.prototype.hatchFill;//inherited
 anychart.core.radar.series.Marker.prototype['hoverHatchFill'] = anychart.core.radar.series.Marker.prototype.hoverHatchFill;//inherited
 anychart.core.radar.series.Marker.prototype['selectHatchFill'] = anychart.core.radar.series.Marker.prototype.selectHatchFill;//inherited
+anychart.core.radar.series.Marker.prototype['getType'] = anychart.core.radar.series.Marker.prototype.getType;

@@ -17,6 +17,7 @@ goog.require('anychart.core.drawers.Spline');
 goog.require('anychart.core.drawers.SplineArea');
 goog.require('anychart.core.drawers.StepArea');
 goog.require('anychart.core.drawers.StepLine');
+goog.require('anychart.core.reporting');
 goog.require('anychart.core.series.Base');
 goog.require('anychart.core.utils.StockHighlightContextProvider');
 goog.require('anychart.data.Table');
@@ -62,6 +63,13 @@ anychart.core.series.Stock = function(chart, plot, type, config) {
    * @private
    */
   this.highlightedRow_ = null;
+
+  /**
+   * A flag to mark, that the series is in highlight. The highlightedRow_ prop is not enough, because of DVF-2226.
+   * @type {boolean}
+   * @private
+   */
+  this.inHighlight_ = false;
 
   /**
    * Currently last point.
@@ -129,6 +137,33 @@ anychart.core.series.Stock.prototype.getPostLastPoint = function() {
 anychart.core.series.Stock.prototype.getMainChart = function() {
   return /** @type {anychart.charts.Stock} */(this.chart);
 };
+
+
+/**
+ * Setups comparison zero.
+ */
+anychart.core.series.Stock.prototype.updateComparisonZero = function() {
+  /** @type {?anychart.data.TableSelectable.RowProxy} */
+  var row;
+  var scale = this.yScale();
+  if (this.supportsComparison() && (scale instanceof anychart.scales.Linear)) {
+    var mode = /** @type {anychart.enums.ScaleComparisonMode} */(scale.comparisonMode());
+    if (mode != anychart.enums.ScaleComparisonMode.NONE) {
+      var changesFrom = /** @type {anychart.enums.ScaleCompareWithMode|number} */(scale.compareWith());
+      if (changesFrom == anychart.enums.ScaleCompareWithMode.FIRST_VISIBLE) {
+        row = this.data_.getFirstVisibleRow();
+      } else {
+        row = this.data_.getRowFromMainStorage(
+            changesFrom == anychart.enums.ScaleCompareWithMode.SERIES_START ?
+                undefined :
+                /** @type {number} */(changesFrom));
+      }
+    }
+  }
+  // if we have found a row to get value from - we cast it to number
+  // if anything went wrong - we get 0 value and fail to make a comparison, which is a good result
+  this.comparisonZero = Number(row && row.get(anychart.opt.VALUE)) || 0;
+};
 //endregion
 
 
@@ -174,9 +209,10 @@ anychart.core.series.Stock.prototype.data = function(opt_value, opt_mappingSetti
     this.dataSource_ = opt_value;
 
     // creating data table if needed
-    if (goog.isArray(opt_value) || goog.isString(opt_value)) {
+    if (!(opt_value instanceof anychart.data.Table) && !(opt_value instanceof anychart.data.TableMapping)) {
       data = new anychart.data.Table();
-      data.addData(opt_value, false, opt_csvSettings);
+      if (opt_value)
+        data.addData(opt_value, false, opt_csvSettings);
       this.dataToDispose_ = opt_value = data;
     }
 
@@ -244,7 +280,7 @@ anychart.core.series.Stock.prototype.getDetachedIterator = function() {
 /** @inheritDoc */
 anychart.core.series.Stock.prototype.getColorResolutionContext = function(opt_baseColor) {
   return {
-    'sourceColor': opt_baseColor || this.getSeriesOption(anychart.opt.COLOR) || 'blue'
+    'sourceColor': opt_baseColor || this.getOption(anychart.opt.COLOR) || 'blue'
   };
 };
 
@@ -273,7 +309,7 @@ anychart.core.series.Stock.prototype.retrieveDataColumns = function() {
   for (var i = 0; i < fields.length; i++) {
     var column = this.data_.getFieldColumn(fields[i]);
     if (!goog.isString(column) && isNaN(column)) {
-      anychart.utils.warning(anychart.enums.WarningCode.STOCK_WRONG_MAPPING, undefined, [this.seriesType(), fields[i]]);
+      anychart.core.reporting.warning(anychart.enums.WarningCode.STOCK_WRONG_MAPPING, undefined, [this.seriesType(), fields[i]]);
       return null;
     }
     res.push(column);
@@ -290,24 +326,25 @@ anychart.core.series.Stock.prototype.getScaleReferenceValues = function() {
   var columns = this.retrieveDataColumns();
   var res = [];
   if (columns) {
+    var yScale = /** @type {anychart.scales.Base} */(this.yScale());
     var i, len = columns.length;
     for (i = 0; i < len; i++) {
       var column = columns[i];
-      res.push(this.data_.getColumnMin(column));
-      res.push(this.data_.getColumnMax(column));
+      res.push(yScale.applyComparison(this.data_.getColumnMin(column), this.comparisonZero));
+      res.push(yScale.applyComparison(this.data_.getColumnMax(column), this.comparisonZero));
     }
 
     var row = this.data_.getPreFirstRow();
     if (row) {
       for (i = 0; i < len; i++) {
-        res.push(row.getColumn(columns[i]));
+        res.push(yScale.applyComparison(row.getColumn(columns[i]), this.comparisonZero));
       }
     }
 
     row = this.data_.getPostLastRow();
     if (row) {
       for (i = 0; i < len; i++) {
-        res.push(row.getColumn(columns[i]));
+        res.push(yScale.applyComparison(row.getColumn(columns[i]), this.comparisonZero));
       }
     }
   }
@@ -336,7 +373,7 @@ anychart.core.series.Stock.prototype.prepareHighlight = function(value) {
  * Updates last row. Used in plot.
  */
 anychart.core.series.Stock.prototype.updateLastRow = function() {
-  this.lastRow_ = this.data_.getLastRow();
+  this.lastRow_ = this.data_.getLastVisibleRow();
 };
 
 
@@ -346,6 +383,7 @@ anychart.core.series.Stock.prototype.updateLastRow = function() {
  */
 anychart.core.series.Stock.prototype.highlight = function(value) {
   this.highlightedRow_ = this.prepareHighlight(value);
+  this.inHighlight_ = true;
 };
 
 
@@ -354,6 +392,7 @@ anychart.core.series.Stock.prototype.highlight = function(value) {
  */
 anychart.core.series.Stock.prototype.removeHighlight = function() {
   this.highlightedRow_ = null;
+  this.inHighlight_ = false;
 };
 
 
@@ -426,7 +465,7 @@ anychart.core.series.Stock.prototype.createLegendContextProvider = function() {
  * @return {?anychart.data.TableSelectable.RowProxy}
  */
 anychart.core.series.Stock.prototype.getCurrentPoint = function() {
-  return this.highlightedRow_ || this.lastRow_;
+  return this.inHighlight_ ? this.highlightedRow_ : this.lastRow_;
 };
 //endregion
 

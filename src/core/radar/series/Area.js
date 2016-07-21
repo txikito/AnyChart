@@ -198,10 +198,12 @@ anychart.core.radar.series.Area.prototype.finalizeDrawing = function() {
         this.path.lineTo(this.firstDrawnPoint.x, this.firstDrawnPoint.y);
         this.strokePath.lineTo(this.firstDrawnPoint.x, this.firstDrawnPoint.y);
 
-        if (this.firstMissings) goog.array.extend(this.zeroesStack, this.firstMissings);
+        if (this.zeroesStack) {
+          if (this.firstMissings) goog.array.extend(this.zeroesStack, this.firstMissings);
 
-        if (this.yScale().stackMode() != anychart.enums.ScaleStackMode.NONE)
-          this.zeroesStack.push(this.firstDrawnZeroPoint.x, this.firstDrawnZeroPoint.y, false);
+          if (this.yScale().stackMode() != anychart.enums.ScaleStackMode.NONE)
+            this.zeroesStack.push(this.firstDrawnZeroPoint.x, this.firstDrawnZeroPoint.y, false);
+        }
       }
     }
   }
@@ -269,3 +271,4 @@ anychart.core.radar.series.Area.prototype['selectStroke'] = anychart.core.radar.
 anychart.core.radar.series.Area.prototype['hatchFill'] = anychart.core.radar.series.Area.prototype.hatchFill;//inherited
 anychart.core.radar.series.Area.prototype['hoverHatchFill'] = anychart.core.radar.series.Area.prototype.hoverHatchFill;//inherited
 anychart.core.radar.series.Area.prototype['selectHatchFill'] = anychart.core.radar.series.Area.prototype.selectHatchFill;//inherited
+anychart.core.radar.series.Area.prototype['getType'] = anychart.core.radar.series.Area.prototype.getType;

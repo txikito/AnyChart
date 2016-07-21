@@ -1,9 +1,7 @@
 goog.provide('anychart.ui.toolbar.Toolbar');
 
-goog.require('anychart.utils');
-goog.require('goog.ui.ContainerRenderer');
+goog.require('anychart.core.reporting');
 goog.require('goog.ui.Toolbar');
-goog.require('goog.ui.ToolbarRenderer');
 
 goog.forwardDeclare('anychart.core.Chart');
 
@@ -21,8 +19,7 @@ goog.forwardDeclare('anychart.core.Chart');
  * @extends {goog.ui.Toolbar}
  */
 anychart.ui.toolbar.Toolbar = function() {
-  anychart.ui.toolbar.Toolbar.base(this, 'constructor',
-      /** @type {goog.ui.ToolbarRenderer} */ (goog.ui.ContainerRenderer.getCustomRenderer(goog.ui.ToolbarRenderer, 'anychart-toolbar')));
+  anychart.ui.toolbar.Toolbar.base(this, 'constructor');
 
   /**
    * Container.
@@ -82,7 +79,7 @@ anychart.ui.toolbar.Toolbar.prototype.draw = function() {
   if (this.container_) {
     this.render(this.container_);
   } else {
-    anychart.utils.warning(anychart.enums.WarningCode.TOOLBAR_CONTAINER);
+    anychart.core.reporting.warning(anychart.enums.WarningCode.TOOLBAR_CONTAINER);
   }
   return this;
 };
@@ -94,7 +91,7 @@ anychart.ui.toolbar.Toolbar.prototype.draw = function() {
  * @deprecated Use anychart.ui.ganttToolbar() instead.
  */
 anychart.toolbar = function() {
-  anychart.utils.warning(anychart.enums.WarningCode.DEPRECATED, null, ['anychart.toolbar()', 'anychart.ui.ganttToolbar()'], true);
+  anychart.core.reporting.warning(anychart.enums.WarningCode.DEPRECATED, null, ['anychart.toolbar()', 'anychart.ui.ganttToolbar()'], true);
   return new anychart.ui.toolbar.Toolbar();
 };
 

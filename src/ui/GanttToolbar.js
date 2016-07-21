@@ -1,16 +1,16 @@
 goog.provide('anychart.ui.GanttToolbar');
 
-goog.require('acgraph.vector');
-
+goog.require('anychart.core.reporting');
+goog.require('anychart.enums');
 goog.require('anychart.ui.menu.Item');
 goog.require('anychart.ui.menu.Menu');
-goog.require('anychart.ui.menu.Separator');
 goog.require('anychart.ui.menu.SubMenu');
-goog.require('anychart.ui.toolbar.Button');
 goog.require('anychart.ui.toolbar.MenuButton');
 goog.require('anychart.ui.toolbar.Separator');
 goog.require('anychart.ui.toolbar.Toolbar');
-goog.require('anychart.utils');
+
+goog.require('goog.ui.MenuSeparator');
+goog.require('goog.ui.ToolbarButton');
 
 
 
@@ -24,18 +24,18 @@ anychart.ui.GanttToolbar = function() {
   // --------- PRINTING ----------
   /**
    * Supported print paper sizes.
-   * @type {Array.<acgraph.vector.PaperSize>}
+   * @type {Array.<anychart.enums.PaperSize>}
    * @private
    */
   this.printPaperSizes_ = [
-    acgraph.vector.PaperSize.US_LETTER,
-    acgraph.vector.PaperSize.A0,
-    acgraph.vector.PaperSize.A1,
-    acgraph.vector.PaperSize.A2,
-    acgraph.vector.PaperSize.A3,
-    acgraph.vector.PaperSize.A4,
-    acgraph.vector.PaperSize.A5,
-    acgraph.vector.PaperSize.A6
+    anychart.enums.PaperSize.US_LETTER,
+    anychart.enums.PaperSize.A0,
+    anychart.enums.PaperSize.A1,
+    anychart.enums.PaperSize.A2,
+    anychart.enums.PaperSize.A3,
+    anychart.enums.PaperSize.A4,
+    anychart.enums.PaperSize.A5,
+    anychart.enums.PaperSize.A6
   ];
 
   /**
@@ -52,7 +52,7 @@ anychart.ui.GanttToolbar = function() {
   });
 
   this.printMenu_.addChild(this.switchPageOrientation_, true);
-  this.printMenu_.addChild(new anychart.ui.menu.Separator(), true);
+  this.printMenu_.addChild(new goog.ui.MenuSeparator(), true);
 
   this.printButton_ = new anychart.ui.toolbar.MenuButton('Print', this.printMenu_);
   this.printButton_.addClassName(anychart.ui.GanttToolbar.CssClass.PRINT);
@@ -98,17 +98,17 @@ anychart.ui.GanttToolbar = function() {
   // --------- ZOOM IN, ZOOM OUT, FIT ALL ----------
   this.addChild(new anychart.ui.toolbar.Separator(), true);
 
-  var zoomInButton = new anychart.ui.toolbar.Button('Zoom In');
+  var zoomInButton = new goog.ui.ToolbarButton('Zoom In');
   zoomInButton.addClassName(anychart.ui.GanttToolbar.CssClass.ZOOM_IN);
   zoomInButton.setModel({func: 'zoomIn'});
   this.addChild(zoomInButton, true);
 
-  var zoomOutButton = new anychart.ui.toolbar.Button('Zoom Out');
+  var zoomOutButton = new goog.ui.ToolbarButton('Zoom Out');
   zoomOutButton.addClassName(anychart.ui.GanttToolbar.CssClass.ZOOM_OUT);
   zoomOutButton.setModel({func: 'zoomOut'});
   this.addChild(zoomOutButton, true);
 
-  var fitAllButton = new anychart.ui.toolbar.Button('Fit All');
+  var fitAllButton = new goog.ui.ToolbarButton('Fit All');
   fitAllButton.addClassName(anychart.ui.GanttToolbar.CssClass.FIT_ALL);
   fitAllButton.setModel({func: 'fitAll'});
   this.addChild(fitAllButton, true);
@@ -116,12 +116,12 @@ anychart.ui.GanttToolbar = function() {
   // --------- EXPAND/COLLAPSE ----------
   this.addChild(new anychart.ui.toolbar.Separator(), true);
 
-  var expandAllButton = new anychart.ui.toolbar.Button('Expand All');
+  var expandAllButton = new goog.ui.ToolbarButton('Expand All');
   expandAllButton.addClassName(anychart.ui.GanttToolbar.CssClass.EXPAND_ALL);
   expandAllButton.setModel({func: 'expandAll'});
   this.addChild(expandAllButton, true);
 
-  var collapseAllButton = new anychart.ui.toolbar.Button('Collapse All');
+  var collapseAllButton = new goog.ui.ToolbarButton('Collapse All');
   collapseAllButton.addClassName(anychart.ui.GanttToolbar.CssClass.COLLAPSE_ALL);
   collapseAllButton.setModel({func: 'collapseAll'});
   this.addChild(collapseAllButton, true);
@@ -195,10 +195,10 @@ anychart.ui.GanttToolbar.prototype.handleAction_ = function(e) {
       if (goog.isFunction(fn)) {
         fn.apply(chart, args);
       } else {
-        anychart.utils.warning(anychart.enums.WarningCode.TOOLBAR_METHOD_IS_NOT_DEFINED, null, [funcName]);
+        anychart.core.reporting.warning(anychart.enums.WarningCode.TOOLBAR_METHOD_IS_NOT_DEFINED, null, [funcName]);
       }
     } else {
-      anychart.utils.warning(anychart.enums.WarningCode.TOOLBAR_CHART_IS_NOT_SET);
+      anychart.core.reporting.warning(anychart.enums.WarningCode.TOOLBAR_CHART_IS_NOT_SET);
     }
   }
 };
@@ -207,8 +207,8 @@ anychart.ui.GanttToolbar.prototype.handleAction_ = function(e) {
 /**
  * Sets print paper sizes.
  * NOTE: In current implementation (21 May 2015) sizes must be set before draw() is called.
- * @param {Array.<acgraph.vector.PaperSize>=} opt_value - Array of supported print paper sizes.
- * @return {anychart.ui.GanttToolbar|Array.<acgraph.vector.PaperSize>} - Current target or itself for method chaining.
+ * @param {Array.<anychart.enums.PaperSize>=} opt_value - Array of supported print paper sizes.
+ * @return {anychart.ui.GanttToolbar|Array.<anychart.enums.PaperSize>} - Current target or itself for method chaining.
  */
 anychart.ui.GanttToolbar.prototype.printPaperSizes = function(opt_value) {
   if (goog.isDef(opt_value)) {
@@ -228,7 +228,7 @@ anychart.ui.GanttToolbar.prototype.draw = function() {
     var sizes = this.printPaperSizes();
     for (var i = 0; i < sizes.length; i++) {
       var size = sizes[i];
-      var printItem = new anychart.ui.menu.Item('Landscape, ' + anychart.utils.normalizePaperSizeCaption(size));
+      var printItem = new anychart.ui.menu.Item('Landscape, ' + anychart.enums.normalizePaperSizeCaption(size));
       printItem.setModel({func: 'print', args: [size]});
       printItem.addClassName(anychart.ui.GanttToolbar.CssClass.PRINT + '-' + size);
       this.printMenu_.addChild(printItem, true);
@@ -256,7 +256,7 @@ anychart.ui.ganttToolbar = function() {
  * @deprecated Use anychart.ui.ganttToolbar() instead.
  */
 anychart.ganttToolbar = function() {
-  anychart.utils.warning(anychart.enums.WarningCode.DEPRECATED, null, ['anychart.ganttToolbar()', 'anychart.ui.ganttToolbar()'], true);
+  anychart.core.reporting.warning(anychart.enums.WarningCode.DEPRECATED, null, ['anychart.ganttToolbar()', 'anychart.ui.ganttToolbar()'], true);
   return new anychart.ui.GanttToolbar();
 };
 

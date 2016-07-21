@@ -38,6 +38,7 @@ anychart.core.drawers.SplineArea.prototype.flags = (
     // anychart.core.drawers.Capabilities.USES_STROKE_AS_FILL |
     anychart.core.drawers.Capabilities.SUPPORTS_CONNECTING_MISSING |
     anychart.core.drawers.Capabilities.SUPPORTS_STACK |
+    anychart.core.drawers.Capabilities.SUPPORTS_COMPARISON |
     anychart.core.drawers.Capabilities.SUPPORTS_ERROR |
     // anychart.core.drawers.Capabilities.SUPPORTS_OUTLIERS |
     // anychart.core.drawers.Capabilities.IS_DISCRETE_BASED |
@@ -71,6 +72,21 @@ anychart.core.drawers.SplineArea.prototype.startDrawing = function(shapeManager)
   this.backwardPaths_ = [
     /** @type {acgraph.vector.Path} */(shapes[anychart.opt.FILL]),
     /** @type {acgraph.vector.Path} */(shapes[anychart.opt.HATCH_FILL])];
+};
+
+
+/** @inheritDoc */
+anychart.core.drawers.SplineArea.prototype.drawMissingPoint = function(point, state) {
+  if (this.connectMissing) {
+    if (this.series.planIsStacked()) {
+      var x = /** @type {number} */(point.meta(anychart.opt.X));
+      var zero = /** @type {number} */(point.meta(anychart.opt.ZERO));
+      var zeroMissing = /** @type {boolean} */(point.meta(anychart.opt.ZERO_MISSING));
+      this.zeroesStack.push(x, zero, zeroMissing);
+    }
+  } else {
+    this.finalizeSegment();
+  }
 };
 
 

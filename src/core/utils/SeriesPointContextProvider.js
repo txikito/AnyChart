@@ -7,11 +7,11 @@ goog.require('anychart.enums');
 
 /**
  * Series point context provider.
- * @implements {anychart.core.utils.IContextProvider}
  * @param {(anychart.core.series.Base|anychart.core.SeriesBase|anychart.core.sparkline.series.Base|anychart.core.gauge.pointers.Base)} series Series.
  * @param {Array.<string>} referenceValueNames Reference value names to be applied.
  * @param {boolean} addErrorInfo Whether to add error info to a provider.
  * @extends {anychart.core.utils.BaseContextProvider}
+ * @implements {anychart.core.utils.IContextProvider}
  * @constructor
  */
 anychart.core.utils.SeriesPointContextProvider = function(series, referenceValueNames, addErrorInfo) {
@@ -19,7 +19,7 @@ anychart.core.utils.SeriesPointContextProvider = function(series, referenceValue
 
   this.seriesInternal = series;
 
-  this.chartInternal = series.getChart();
+  this.chartInternal = series.getChart && series.getChart();
 
   /**
    * @type {(anychart.core.series.Base|anychart.core.SeriesBase|anychart.core.sparkline.series.Base|anychart.core.gauge.pointers.Base)}
@@ -55,15 +55,15 @@ anychart.core.utils.SeriesPointContextProvider.prototype.applyReferenceValues = 
  */
 anychart.core.utils.SeriesPointContextProvider.prototype.applyReferenceValuesInternal = function(point) {
   var value;
-  this['index'] = point.getIndex();
+  this['index'] = point ? point.getIndex() : NaN;
 
   //TODO (A.Kudryavtsev): Do we need to add point from chart (not from series)?
   this.pointInternal = this.seriesInternal.getPoint ? this.seriesInternal.getPoint(this['index']) : null;
 
-  this['x'] = point.getX(); // redundant for all series except Cartesian
+  this['x'] = point ? point.getX() : undefined; // redundant for all series except Cartesian
   for (var i = 0; i < this.referenceValueNames.length; i++) {
     value = this.referenceValueNames[i];
-    this[value] = point.get(value);
+    this[value] = point ? point.get(value) : undefined;
   }
   if (this['series'].name)
     this['seriesName'] = this['series'].name() || 'Series ' + this['series'].getIndex();

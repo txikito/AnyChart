@@ -3,13 +3,17 @@ goog.provide('anychart.core.CartesianBase');
 goog.require('anychart'); // otherwise we can't use anychart.chartTypesMap object.
 goog.require('anychart.animations');
 goog.require('anychart.core.IChart');
+goog.require('anychart.core.IChartWithAnnotations');
 goog.require('anychart.core.IPlot');
 goog.require('anychart.core.SeparateChart');
+goog.require('anychart.core.annotations.ChartController');
+goog.require('anychart.core.annotations.PlotController');
 goog.require('anychart.core.axes.Linear');
 goog.require('anychart.core.axisMarkers.Line');
 goog.require('anychart.core.axisMarkers.Range');
 goog.require('anychart.core.axisMarkers.Text');
 goog.require('anychart.core.grids.Linear');
+goog.require('anychart.core.reporting');
 goog.require('anychart.core.series.Cartesian');
 goog.require('anychart.core.ui.ChartScroller');
 goog.require('anychart.core.ui.Crosshair');
@@ -30,6 +34,7 @@ goog.require('goog.array');
  * @extends {anychart.core.SeparateChart}
  * @implements {anychart.core.utils.IZoomableChart}
  * @implements {anychart.core.IChart}
+ * @implements {anychart.core.IChartWithAnnotations}
  * @implements {anychart.core.IPlot}
  * @constructor
  * @param {boolean=} opt_barChartMode If true, sets the chart to Bar Chart mode, swapping default chart elements
@@ -208,7 +213,8 @@ anychart.core.CartesianBase.prototype.SUPPORTED_CONSISTENCY_STATES =
     anychart.ConsistencyState.CARTESIAN_GRIDS |
     anychart.ConsistencyState.CARTESIAN_CROSSHAIR |
     anychart.ConsistencyState.CARTESIAN_X_SCROLLER |
-    anychart.ConsistencyState.CARTESIAN_ZOOM;
+    anychart.ConsistencyState.CARTESIAN_ZOOM |
+    anychart.ConsistencyState.CARTESIAN_ANNOTATIONS;
 
 
 /**
@@ -857,6 +863,22 @@ anychart.core.CartesianBase.prototype.yAxis = function(opt_indexOrValue, opt_val
   } else {
     return axis;
   }
+};
+
+
+/**
+ * @return {number} Number of series.
+ */
+anychart.core.CartesianBase.prototype.getXAxesCount = function() {
+  return this.xAxes_.length;
+};
+
+
+/**
+ * @return {number} Number of series.
+ */
+anychart.core.CartesianBase.prototype.getYAxesCount = function() {
+  return this.yAxes_.length;
 };
 
 
@@ -1676,7 +1698,7 @@ anychart.core.CartesianBase.prototype.getConfigByType = function(type) {
   if (config && (config.drawerType in anychart.core.drawers.AvailableDrawers)) {
     res = [type, config];
   } else {
-    anychart.utils.error(anychart.enums.ErrorCode.NO_FEATURE_IN_MODULE, null, [type + ' series']);
+    anychart.core.reporting.error(anychart.enums.ErrorCode.NO_FEATURE_IN_MODULE, null, [type + ' series']);
     res = null;
   }
   return res;
@@ -1864,12 +1886,16 @@ anychart.core.CartesianBase.prototype.seriesInvalidated = function(event) {
   if (event.hasSignal(anychart.Signal.NEEDS_REDRAW)) {
     state = anychart.ConsistencyState.CARTESIAN_SERIES;
   }
+  if (event.hasSignal(anychart.Signal.NEEDS_UPDATE_A11Y)) {
+    state = anychart.ConsistencyState.A11Y;
+  }
   if (event.hasSignal(anychart.Signal.DATA_CHANGED)) {
-    state |= anychart.ConsistencyState.CARTESIAN_SERIES;
+    state |= anychart.ConsistencyState.CARTESIAN_SERIES | anychart.ConsistencyState.CARTESIAN_ANNOTATIONS;
     this.invalidateSeries();
     if (this.legend().itemsSourceMode() == anychart.enums.LegendItemsSourceMode.CATEGORIES) {
       state |= anychart.ConsistencyState.CHART_LEGEND;
     }
+    this.annotations().invalidateAnnotations();
   }
   if (event.hasSignal(anychart.Signal.NEEDS_RECALCULATION)) {
     state |= anychart.ConsistencyState.CARTESIAN_SCALES |
@@ -2020,9 +2046,11 @@ anychart.core.CartesianBase.prototype.makeScaleMaps = function() {
     }
     if (changed) {
       this.invalidateSeries();
+      this.annotations().invalidateAnnotations();
       this.invalidate(
           anychart.ConsistencyState.CARTESIAN_SERIES |
           anychart.ConsistencyState.CARTESIAN_SCALES |
+          anychart.ConsistencyState.CARTESIAN_ANNOTATIONS |
           anychart.ConsistencyState.CARTESIAN_Y_SCALES);
     }
     anychart.core.Base.resumeSignalsDispatchingFalse(this.series_);
@@ -2230,8 +2258,9 @@ anychart.core.CartesianBase.prototype.calculateXScales = function() {
           for (j = 0; j < seriesExcludes.length; j++) {
             var index = seriesExcludes[j];
             excludesMap[index] = true;
-            drawingPlan.data[index].meta[anychart.opt.EXCLUDED] = true;
-            drawingPlan.data[index].meta[anychart.opt.MISSING] = true;
+            drawingPlan.data[index].meta[anychart.opt.MISSING] = anychart.core.series.mixPointAbsenceReason(
+                drawingPlan.data[index].meta[anychart.opt.MISSING],
+                anychart.core.series.PointAbsenceReason.EXCLUDED_POINT);
           }
         }
       }
@@ -2240,7 +2269,8 @@ anychart.core.CartesianBase.prototype.calculateXScales = function() {
           for (var i = 0; i < drawingPlans.length; i++) {
             var drawingPlan = drawingPlans[i];
             var meta = drawingPlan.data[+index].meta;
-            if (!meta[anychart.opt.EXCLUDED] && !meta[anychart.opt.ARTIFICIAL])
+            if (!anychart.core.series.filterPointAbsenceReason(meta[anychart.opt.MISSING],
+                anychart.core.series.PointAbsenceReason.EXCLUDED_OR_ARTIFICIAL))
               return false;
           }
           return true;
@@ -2287,7 +2317,8 @@ anychart.core.CartesianBase.prototype.calculateXScales = function() {
             if (drawingPlan.hasPointXErrors) {
               iterator = drawingPlan.series.getResetIterator();
               while (iterator.advance()) { // we need iterator to make error work :(
-                if (!iterator.meta(anychart.opt.MISSING)) {
+                if (!anychart.core.series.filterPointAbsenceReason(iterator.meta(anychart.opt.MISSING),
+                    anychart.core.series.PointAbsenceReason.ANY_BUT_RANGE)) {
                   error = drawingPlan.series.error().getErrorValues(true);
                   val = iterator.get(anychart.opt.X);
                   xScale.extendDataRange(val - error[0], val + error[1]);
@@ -2401,8 +2432,14 @@ anychart.core.CartesianBase.prototype.calculateYScales = function() {
           stack = [];
           for (j = firstIndex; j <= lastIndex; j++) {
             stack.push({
+              prevPositive: 0,
               positive: 0,
+              nextPositive: 0,
+              prevNegative: 0,
               negative: 0,
+              nextNegative: 0,
+              prevMissing: false,
+              nextMissing: false,
               missing: false
             });
           }
@@ -2420,9 +2457,8 @@ anychart.core.CartesianBase.prototype.calculateYScales = function() {
               point = data[j];
               stackVal = stack[j - firstIndex];
               point.meta[anychart.opt.STACKED_MISSING] = stackVal.missing;
-              if (point.meta[anychart.opt.MISSING]) {
-                point.meta['stackedPositiveZero'] = stackVal.positive;
-                point.meta['stackedNegativeZero'] = stackVal.negative;
+              if (anychart.core.series.filterPointAbsenceReason(point.meta[anychart.opt.MISSING],
+                  anychart.core.series.PointAbsenceReason.ANY_BUT_RANGE)) {
                 stackVal.missing = true;
               } else {
                 val = +point.data[anychart.opt.VALUE];
@@ -2430,13 +2466,70 @@ anychart.core.CartesianBase.prototype.calculateYScales = function() {
                   point.meta[anychart.opt.STACKED_ZERO] = stackVal.positive;
                   stackVal.positive += val;
                   point.meta[anychart.opt.STACKED_VALUE] = stackVal.positive;
+                  if (!yScalePercentStacked) {
+                    if (!stackVal.prevMissing) {
+                      point.meta[anychart.opt.STACKED_ZERO_PREV] = point.meta[anychart.opt.STACKED_VALUE_PREV] = NaN;
+                    } else {
+                      point.meta[anychart.opt.STACKED_ZERO_PREV] = stackVal.prevPositive;
+                      point.meta[anychart.opt.STACKED_VALUE_PREV] = stackVal.prevPositive + val;
+                    }
+                    if (!stackVal.nextMissing) {
+                      point.meta[anychart.opt.STACKED_ZERO_NEXT] = point.meta[anychart.opt.STACKED_VALUE_NEXT] = NaN;
+                    } else {
+                      point.meta[anychart.opt.STACKED_ZERO_NEXT] = stackVal.nextPositive;
+                      point.meta[anychart.opt.STACKED_VALUE_NEXT] = stackVal.nextPositive + val;
+                    }
+                  }
                 } else {
                   point.meta[anychart.opt.STACKED_ZERO] = stackVal.negative;
                   stackVal.negative += val;
                   point.meta[anychart.opt.STACKED_VALUE] = stackVal.negative;
+                  if (!yScalePercentStacked) {
+                    if (!stackVal.prevMissing) {
+                      point.meta[anychart.opt.STACKED_ZERO_PREV] = point.meta[anychart.opt.STACKED_VALUE_PREV] = NaN;
+                    } else {
+                      point.meta[anychart.opt.STACKED_ZERO_PREV] = stackVal.prevNegative;
+                      point.meta[anychart.opt.STACKED_VALUE_PREV] = stackVal.prevNegative + val;
+                    }
+                    if (!stackVal.nextMissing) {
+                      point.meta[anychart.opt.STACKED_ZERO_NEXT] = point.meta[anychart.opt.STACKED_VALUE_NEXT] = NaN;
+                    } else {
+                      point.meta[anychart.opt.STACKED_ZERO_NEXT] = stackVal.nextNegative;
+                      point.meta[anychart.opt.STACKED_VALUE_NEXT] = stackVal.nextNegative + val;
+                    }
+                  }
                 }
-                if (!yScalePercentStacked)
+                if (!yScalePercentStacked) {
+                  yScale.extendDataRange(point.meta[anychart.opt.STACKED_VALUE_PREV]);
                   yScale.extendDataRange(point.meta[anychart.opt.STACKED_VALUE]);
+                  yScale.extendDataRange(point.meta[anychart.opt.STACKED_VALUE_NEXT]);
+                  point = data[j - 1];
+                  if (point) {
+                    if (anychart.core.series.filterPointAbsenceReason(point.meta[anychart.opt.MISSING],
+                        anychart.core.series.PointAbsenceReason.ANY_BUT_RANGE)) {
+                      stackVal.prevMissing = true;
+                    } else {
+                      if (val >= 0) {
+                        stackVal.prevPositive += val;
+                      } else {
+                        stackVal.prevNegative += val;
+                      }
+                    }
+                  }
+                  point = data[j + 1];
+                  if (point) {
+                    if (anychart.core.series.filterPointAbsenceReason(point.meta[anychart.opt.MISSING],
+                        anychart.core.series.PointAbsenceReason.ANY_BUT_RANGE)) {
+                      stackVal.nextMissing = true;
+                    } else {
+                      if (val >= 0) {
+                        stackVal.nextPositive += val;
+                      } else {
+                        stackVal.nextNegative += val;
+                      }
+                    }
+                  }
+                }
                 stackVal.missing = false;
               }
             }
@@ -2445,7 +2538,8 @@ anychart.core.CartesianBase.prototype.calculateYScales = function() {
             var k;
             for (j = firstIndex; j <= lastIndex; j++) {
               point = data[j];
-              if (!point.meta[anychart.opt.MISSING]) {
+              if (!anychart.core.series.filterPointAbsenceReason(point.meta[anychart.opt.MISSING],
+                  anychart.core.series.PointAbsenceReason.ANY_BUT_RANGE)) {
                 for (k = 0; k < names.length; k++) {
                   yScale.extendDataRange(point.data[names[k]]);
                 }
@@ -2455,7 +2549,8 @@ anychart.core.CartesianBase.prototype.calculateYScales = function() {
               for (j = firstIndex; j <= lastIndex; j++) {
                 point = data[j];
                 var outliers = point.data[anychart.opt.OUTLIERS];
-                if (!point.meta[anychart.opt.MISSING] && goog.isArray(outliers)) {
+                if (!anychart.core.series.filterPointAbsenceReason(point.meta[anychart.opt.MISSING],
+                    anychart.core.series.PointAbsenceReason.ANY_BUT_RANGE) && goog.isArray(outliers)) {
                   for (k = 0; k < outliers.length; k++) {
                     yScale.extendDataRange(outliers[k]);
                   }
@@ -2467,7 +2562,8 @@ anychart.core.CartesianBase.prototype.calculateYScales = function() {
                 drawingPlan.hasPointYErrors)) {
               var iterator = drawingPlan.series.getResetIterator();
               while (iterator.advance()) { // we need iterator to make error work :(
-                if (!iterator.meta(anychart.opt.MISSING)) {
+                if (!anychart.core.series.filterPointAbsenceReason(iterator.meta(anychart.opt.MISSING),
+                    anychart.core.series.PointAbsenceReason.ANY_BUT_RANGE)) {
                   var error = drawingPlan.series.error().getErrorValues(false);
                   val = anychart.utils.toNumber(iterator.get(anychart.opt.VALUE));
                   yScale.extendDataRange(val - error[0], val + error[1]);
@@ -2484,7 +2580,8 @@ anychart.core.CartesianBase.prototype.calculateYScales = function() {
             for (j = firstIndex; j <= lastIndex; j++) {
               point = data[j];
               stackVal = stack[j - firstIndex];
-              if (point.meta[anychart.opt.MISSING]) {
+              if (anychart.core.series.filterPointAbsenceReason(point.meta[anychart.opt.MISSING],
+                  anychart.core.series.PointAbsenceReason.ANY_BUT_RANGE)) {
                 point.meta['stackedPositiveZero'] = (point.meta['stackedPositiveZero'] / stackVal.positive * 100) || 0;
                 point.meta['stackedNegativeZero'] = (point.meta['stackedNegativeZero'] / stackVal.negative * 100) || 0;
               } else {
@@ -2555,11 +2652,12 @@ anychart.core.CartesianBase.prototype.calculateYScales = function() {
         var seriesRangeMax = -Infinity;
         var seriesSum = 0;
 
-        for (var d = 0; d < len; d++) { //iteratind by points in series.
+        for (var d = 0; d < len; d++) { //iterating by points in series.
           var pointObj = plan.data[d];
           var pointVal = NaN;
 
-          if (!pointObj.meta[anychart.opt.MISSING]) {
+          if (!anychart.core.series.filterPointAbsenceReason(pointObj.meta[anychart.opt.MISSING],
+              anychart.core.series.PointAbsenceReason.ANY_BUT_RANGE)) {
             pointsCount++;
             totalPointsCount++;
             if (isRangeSeries) {
@@ -3267,7 +3365,8 @@ anychart.core.CartesianBase.prototype.calculate = function() {
     }
     this.xScroller().setRangeInternal(this.xZoom().getStartRatio(), this.xZoom().getEndRatio());
     this.markConsistent(anychart.ConsistencyState.CARTESIAN_ZOOM);
-    this.invalidate(anychart.ConsistencyState.CARTESIAN_Y_SCALES | anychart.ConsistencyState.CARTESIAN_X_SCROLLER);
+    this.invalidate(anychart.ConsistencyState.CARTESIAN_Y_SCALES | anychart.ConsistencyState.CARTESIAN_X_SCROLLER |
+        anychart.ConsistencyState.CARTESIAN_ANNOTATIONS);
   }
   this.calculateYScales();
   anychart.performance.end('Cartesian.calculate()');
@@ -3281,6 +3380,9 @@ anychart.core.CartesianBase.prototype.calculate = function() {
  * @param {anychart.math.Rect} bounds Bounds of cartesian content area.
  */
 anychart.core.CartesianBase.prototype.drawContent = function(bounds) {
+  this.annotations();
+  this.annotationsChartController_.ready(true);
+
   var i, count;
 
   this.xScroller().suspendSignalsDispatching();
@@ -3327,11 +3429,13 @@ anychart.core.CartesianBase.prototype.drawContent = function(bounds) {
     this.dataBounds = this.getBoundsWithoutAxes(this.getContentAreaBounds(bounds));
 
     this.invalidateSeries();
+    this.annotations().invalidateAnnotations();
     this.invalidate(anychart.ConsistencyState.CARTESIAN_AXES |
         anychart.ConsistencyState.CARTESIAN_GRIDS |
         anychart.ConsistencyState.CARTESIAN_AXES_MARKERS |
         anychart.ConsistencyState.CARTESIAN_SERIES |
         anychart.ConsistencyState.CARTESIAN_X_SCROLLER |
+        anychart.ConsistencyState.CARTESIAN_ANNOTATIONS |
         anychart.ConsistencyState.CARTESIAN_CROSSHAIR);
   }
 
@@ -3447,6 +3551,16 @@ anychart.core.CartesianBase.prototype.drawContent = function(bounds) {
     this.markConsistent(anychart.ConsistencyState.CARTESIAN_CROSSHAIR);
   }
 
+  if (this.hasInvalidationState(anychart.ConsistencyState.CARTESIAN_ANNOTATIONS)) {
+    var annotations = this.annotations();
+    annotations.suspendSignalsDispatching();
+    annotations.parentBounds(this.dataBounds);
+    annotations.container(this.rootElement);
+    annotations.draw();
+    annotations.resumeSignalsDispatching(false);
+    this.markConsistent(anychart.ConsistencyState.CARTESIAN_ANNOTATIONS);
+  }
+
   this.xScroller().resumeSignalsDispatching(false);
   anychart.core.Base.resumeSignalsDispatchingFalse(this.series_, this.xAxes_, this.yAxes_);
 };
@@ -3484,6 +3598,72 @@ anychart.core.CartesianBase.prototype.invalidateSeries = function() {
   for (var i = this.series_.length; i--;)
     this.series_[i].invalidate(anychart.ConsistencyState.SERIES_COLOR);
 };
+
+
+//region Annotations
+//----------------------------------------------------------------------------------------------------------------------
+//
+//  Annotations
+//
+//----------------------------------------------------------------------------------------------------------------------
+/**
+ * Annotations plot-level controller.
+ * @param {Array.<anychart.enums.AnnotationTypes|anychart.core.annotations.AnnotationJSONFormat>=} opt_annotationsList
+ * @return {anychart.core.CartesianBase|anychart.core.annotations.PlotController}
+ */
+anychart.core.CartesianBase.prototype.annotations = function(opt_annotationsList) {
+  if (!this.annotationsPlotController_) {
+    /**
+     * @type {anychart.core.annotations.ChartController}
+     * @private
+     */
+    this.annotationsChartController_ = new anychart.core.annotations.ChartController(this);
+    /**
+     * @type {anychart.core.annotations.PlotController}
+     * @private
+     */
+    this.annotationsPlotController_ = new anychart.core.annotations.PlotController(this.annotationsChartController_, this);
+    this.annotationsPlotController_.listenSignals(this.annotationsInvalidated_, this);
+    this.registerDisposable(this.annotationsPlotController_);
+  }
+  if (goog.isDef(opt_annotationsList)) {
+    this.annotationsPlotController_.setup(opt_annotationsList);
+    return this;
+  }
+  return this.annotationsPlotController_;
+};
+
+
+/**
+ * Background invalidation handler.
+ * @param {anychart.SignalEvent} e
+ * @private
+ */
+anychart.core.CartesianBase.prototype.annotationsInvalidated_ = function(e) {
+  this.invalidate(anychart.ConsistencyState.CARTESIAN_ANNOTATIONS, anychart.Signal.NEEDS_REDRAW);
+};
+
+
+/**
+ * Getter/Setter for default annotation settings.
+ * @param {Object=} opt_value
+ * @return {Object}
+ */
+anychart.core.CartesianBase.prototype.defaultAnnotationSettings = function(opt_value) {
+  if (goog.isDef(opt_value)) {
+    this.defaultAnnotationSettings_ = opt_value;
+    return this;
+  }
+  return this.defaultAnnotationSettings_;
+};
+
+
+/** @inheritDoc */
+anychart.core.CartesianBase.prototype.onMouseDown = function(event) {
+  this.annotations().unselect();
+  anychart.core.CartesianBase.base(this, 'onMouseDown', event);
+};
+//endregion
 
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -3720,6 +3900,10 @@ anychart.core.CartesianBase.prototype.doAnimation = function() {
 };
 
 
+/** @inheritDoc */
+anychart.core.CartesianBase.prototype.onInteractivitySignal = function() {};
+
+
 //----------------------------------------------------------------------------------------------------------------------
 //
 //  Setup
@@ -3765,6 +3949,11 @@ anychart.core.CartesianBase.prototype.setupByJSON = function(config) {
 
   if ('defaultRangeMarkerSettings' in config)
     this.defaultRangeMarkerSettings(config['defaultRangeMarkerSettings']);
+
+  if ('defaultAnnotationSettings' in config)
+    this.defaultAnnotationSettings(config['defaultAnnotationSettings']);
+
+  this.annotations(config['annotations']);
 
   var i, json, scale;
   var grids = config['grids'];

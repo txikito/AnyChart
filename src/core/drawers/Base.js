@@ -41,6 +41,7 @@ anychart.core.drawers.Base.prototype.flags = (
     //anychart.core.drawers.Capabilities.NEEDS_SIZE_SCALE |
     //anychart.core.drawers.Capabilities.SUPPORTS_CONNECTING_MISSING |
     //anychart.core.drawers.Capabilities.SUPPORTS_STACK |
+    //anychart.core.drawers.Capabilities.SUPPORTS_COMPARISON |
     //anychart.core.drawers.Capabilities.SUPPORTS_ERROR |
     //anychart.core.drawers.Capabilities.SUPPORTS_OUTLIERS |
     //anychart.core.drawers.Capabilities.IS_DISCRETE_BASED |
@@ -58,6 +59,15 @@ anychart.core.drawers.Base.prototype.flags = (
  * @type {Array.<string>}
  */
 anychart.core.drawers.Base.prototype.yValueNames = ([anychart.opt.VALUE]);
+
+
+/**
+ * Returns reference value names. Needed to include bubble size.
+ * @return {Array.<string>}
+ */
+anychart.core.drawers.Base.prototype.getReferenceNames = function() {
+  return this.yValueNames;
+};
 
 
 /**
@@ -83,7 +93,7 @@ anychart.core.drawers.Base.prototype.startDrawing = function(shapeManager) {
    * @protected
    */
   this.connectMissing = !!(this.flags & anychart.core.drawers.Capabilities.SUPPORTS_CONNECTING_MISSING) &&
-          !!this.series.getSeriesOption(anychart.opt.CONNECT_MISSING_POINTS);
+          !!this.series.getOption(anychart.opt.CONNECT_MISSING_POINTS);
   /**
    * Series state.
    * @type {anychart.PointState|number}

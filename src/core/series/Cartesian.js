@@ -239,7 +239,13 @@ anychart.core.series.Cartesian.prototype.getPointState = function(index) {
 
 /** @inheritDoc */
 anychart.core.series.Cartesian.prototype.getSeriesState = function() {
-  return this.state.getSeriesState();
+  var state = this.state.getSeriesState();
+  if (state || this.isDiscreteBased() || this.hoverMode() != anychart.enums.HoverMode.SINGLE) return state;
+  if (this.state.hasPointState(anychart.PointState.SELECT))
+    return anychart.PointState.SELECT;
+  else if (this.state.hasPointState(anychart.PointState.HOVER))
+    return anychart.PointState.HOVER;
+  return anychart.PointState.NORMAL;
 };
 //endregion
 
@@ -253,9 +259,13 @@ anychart.core.series.Cartesian.prototype.getSeriesState = function() {
 /** @inheritDoc */
 anychart.core.series.Cartesian.prototype.prepareData = function() {
   var iterator = this.getDetachedIterator();
+  var indexes = [];
   while (iterator.advance()) {
     if (iterator.get('selected'))
-      this.state.setPointState(anychart.PointState.SELECT, iterator.getIndex());
+      indexes.push(iterator.getIndex());
+  }
+  if (indexes.length) {
+    this.selectPoint(indexes);
   }
   anychart.core.series.Cartesian.base(this, 'prepareData');
 };
@@ -270,7 +280,7 @@ anychart.core.series.Cartesian.prototype.prepareData = function() {
 //----------------------------------------------------------------------------------------------------------------------
 /** @inheritDoc */
 anychart.core.series.Cartesian.prototype.getColorResolutionContext = function(opt_baseColor) {
-  var source = opt_baseColor || this.getSeriesOption(anychart.opt.COLOR) || 'blue';
+  var source = opt_baseColor || this.getOption(anychart.opt.COLOR) || 'blue';
   if (this.supportsPointSettings()) {
     var iterator = this.getIterator();
     return {
@@ -581,9 +591,7 @@ anychart.core.series.Cartesian.prototype.planIsXScaleInverted = function() {
 /** @inheritDoc */
 anychart.core.series.Cartesian.prototype.isPointVisible = function(point) {
   var index = point.getIndex();
-  return !point.meta(anychart.opt.ARTIFICIAL) &&
-      !point.meta(anychart.opt.EXCLUDED) &&
-      (!this.drawingPlan || index >= this.drawingPlan.firstIndex && index <= this.drawingPlan.lastIndex);
+  return (index >= this.drawingPlan.firstIndex && index <= this.drawingPlan.lastIndex);
 };
 //endregion
 
@@ -631,8 +639,11 @@ anychart.core.series.Cartesian.prototype.getDrawingData_ = function(data, dataPu
       val = iterator.get(name);
       pointData[name] = val;
     }
-    if (this.isSizeBased())
-      missing = missing || isNaN(pointData[anychart.opt.SIZE]);
+    if (this.isSizeBased()) {
+      var size = Number(pointData[anychart.opt.SIZE]);
+      if (isNaN(size) || (size < 0 && !this.getOption(anychart.opt.DISPLAY_NEGATIVE)))
+        missing = true;
+    }
     if (this.supportsError()) {
       if (anychart.core.utils.Error.supportsErrorForScale(/** @type {anychart.scales.Base} */(this.xScale()))) {
         for (i = 0, len = this.xErrorNames.length; i < len; i++) {
@@ -657,7 +668,7 @@ anychart.core.series.Cartesian.prototype.getDrawingData_ = function(data, dataPu
       pointData[opt_nameField] = iterator.get(opt_nameField);
 
     var meta = {};
-    meta[anychart.opt.MISSING] = missing;
+    meta[anychart.opt.MISSING] = missing ? anychart.core.series.PointAbsenceReason.VALUE_FIELD_MISSING : 0;
     meta[anychart.opt.RAW_INDEX] = iterator.getIndex();
 
     if (!missing) {
@@ -825,8 +836,7 @@ anychart.core.series.Cartesian.prototype.getOrdinalDrawingPlan = function(xHashM
  */
 anychart.core.series.Cartesian.makeMissingPoint = function(x) {
   var meta = {};
-  meta[anychart.opt.MISSING] = true;
-  meta[anychart.opt.ARTIFICIAL] = true;
+  meta[anychart.opt.MISSING] = anychart.core.series.PointAbsenceReason.ARTIFICIAL_POINT;
   return {
     data: {'x': x},
     meta: meta
@@ -996,13 +1006,9 @@ anychart.core.series.Cartesian.prototype.selectionMode = function(opt_value) {
  */
 anychart.core.series.Cartesian.prototype.hoverMode = function(opt_value) {
   if (goog.isDef(opt_value)) {
-    opt_value = anychart.enums.normalizeHoverMode(opt_value);
-    if (opt_value != this.hoverMode_) {
-      this.hoverMode_ = opt_value;
-    }
     return this;
   }
-  return /** @type {anychart.enums.HoverMode}*/(this.hoverMode_);
+  return /** @type {anychart.enums.HoverMode} */((/** @type {anychart.core.CartesianBase}*/(this.chart)).interactivity().hoverMode());
 };
 
 
@@ -1314,6 +1320,9 @@ anychart.core.series.Cartesian.prototype.getPoint = function(index) {
 
   var val = /** @type {number} */ (isRangeSeries ? (/** @type {number} */ (point.get(anychart.opt.HIGH)) - /** @type {number} */ (point.get(anychart.opt.LOW))) :
       point.get(anychart.opt.VALUE));
+
+  point.statistics[anychart.enums.Statistics.INDEX] = index;
+  if (goog.isDef(val)) point.statistics[anychart.enums.Statistics.VALUE] = val;
 
   var size = /** @type {number} */ (point.get(anychart.opt.SIZE)); //Bubble.
   var v;

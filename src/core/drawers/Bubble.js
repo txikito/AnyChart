@@ -31,6 +31,7 @@ anychart.core.drawers.Bubble.prototype.flags = (
     // anychart.core.drawers.Capabilities.USES_STROKE_AS_FILL |
     // anychart.core.drawers.Capabilities.SUPPORTS_CONNECTING_MISSING |
     // anychart.core.drawers.Capabilities.SUPPORTS_STACK |
+    // anychart.core.drawers.Capabilities.SUPPORTS_COMPARISON |
     // anychart.core.drawers.Capabilities.SUPPORTS_ERROR |
     // anychart.core.drawers.Capabilities.SUPPORTS_OUTLIERS |
     anychart.core.drawers.Capabilities.IS_DISCRETE_BASED |
@@ -42,6 +43,22 @@ anychart.core.drawers.Bubble.prototype.flags = (
     // anychart.core.drawers.Capabilities.IS_LINE_BASED |
     // anychart.core.drawers.Capabilities.IS_RANGE_BASED |
     0);
+
+
+/**
+ * Reference list that are required by this drawer.
+ * @type {Array.<string>}
+ */
+anychart.core.drawers.Bubble.prototype.referenceNames = ([anychart.opt.VALUE, anychart.opt.SIZE]);
+
+
+/**
+ * Returns reference value names. Needed to include bubble size.
+ * @return {Array.<string>}
+ */
+anychart.core.drawers.Bubble.prototype.getReferenceNames = function() {
+  return this.referenceNames;
+};
 
 
 /** @inheritDoc */

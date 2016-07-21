@@ -3,6 +3,7 @@ goog.require('acgraph');
 goog.require('anychart.color');
 goog.require('anychart.core.VisualBase');
 goog.require('anychart.core.axes.Ticks');
+goog.require('anychart.core.reporting');
 goog.require('anychart.core.ui.LabelsFactory');
 goog.require('anychart.core.ui.Title');
 goog.require('anychart.core.utils.AxisLabelsContextProvider');
@@ -550,6 +551,8 @@ anychart.core.axes.Linear.prototype.scaleInvalidated_ = function(event) {
   if (event.hasSignal(anychart.Signal.NEEDS_REAPPLICATION)) {
     this.dropStaggeredLabelsCache_();
     this.dropBoundsCache();
+    this.labels().dropCallsCache();
+    this.minorLabels().dropCallsCache();
     this.invalidate(this.ALL_VISUAL_STATES, anychart.Signal.NEEDS_REDRAW | anychart.Signal.BOUNDS_CHANGED);
   }
 };
@@ -703,7 +706,7 @@ anychart.core.axes.Linear.prototype.getOverlappedLabels_ = function(opt_bounds) 
                 else
                   bounds3 = null;
 
-                if (!(anychart.math.checkRectIntersection(bounds1, bounds2) ||
+                if (bounds1 && !(anychart.math.checkRectIntersection(bounds1, bounds2) ||
                     anychart.math.checkRectIntersection(bounds1, bounds3))) {
                   tempRatio = scale.transform(scaleTicksArr[k]);
                   if ((tempRatio <= 0 && this.drawFirstLabel()) || (tempRatio >= 1 && this.drawLastLabel()))
@@ -1206,21 +1209,32 @@ anychart.core.axes.Linear.prototype.getRemainingBounds = function() {
 
 
 /**
+ * Calculates size.
+ * @param {number} parentSize Parent size.
+ * @param {number} length Length.
+ * @param {anychart.math.Rect} parentBounds Parent bounds.
+ * @return {number} Calculated size.
+ */
+anychart.core.axes.Linear.prototype.calculateSize = function(parentSize, length, parentBounds) {
+  return this.width_ ?
+      anychart.utils.normalizeSize(this.width_, parentSize) :
+      this.getSize(parentBounds, length);
+};
+
+
+/**
  * Gets axis pixel bounds.
  * @return {anychart.math.Rect} Pixel bounds.
  */
 anychart.core.axes.Linear.prototype.getPixelBounds = function() {
   if (!this.pixelBounds || this.hasInvalidationState(anychart.ConsistencyState.BOUNDS)) {
     var parentBounds = /** @type {anychart.math.Rect} */(this.parentBounds());
-
     if (parentBounds) {
       var parentLength, parentSize;
-
       parentBounds.top = Math.round(parentBounds.top);
       parentBounds.left = Math.round(parentBounds.left);
       parentBounds.width = Math.round(parentBounds.width);
       parentBounds.height = Math.round(parentBounds.height);
-
       if (this.isHorizontal()) {
         parentLength = parentBounds.width;
         parentSize = parentBounds.height;
@@ -1230,9 +1244,7 @@ anychart.core.axes.Linear.prototype.getPixelBounds = function() {
       }
 
       var length = this.getLength(parentLength);
-      var size = this.width_ ?
-          anychart.utils.normalizeSize(this.width_, parentSize) :
-          this.getSize(parentBounds, length);
+      var size = this.calculateSize(parentSize, length, parentBounds);
 
       var x, y;
       var padding = this.padding();
@@ -1727,7 +1739,7 @@ anychart.core.axes.Linear.prototype.draw = function() {
   var scale = /** @type {anychart.scales.Linear|anychart.scales.Ordinal} */(this.scale());
 
   if (!scale) {
-    anychart.utils.error(anychart.enums.ErrorCode.SCALE_NOT_SET);
+    anychart.core.reporting.error(anychart.enums.ErrorCode.SCALE_NOT_SET);
     return this;
   }
 
@@ -2000,6 +2012,8 @@ anychart.core.axes.Linear.prototype.setupByJSON = function(config) {
 anychart.core.axes.Linear.prototype.disposeInternal = function() {
   goog.base(this, 'disposeInternal');
 
+  if (this.internalScale)
+    this.internalScale.unlistenSignals(this.scaleInvalidated_, this);
   delete this.internalScale;
   this.labelsBounds_ = null;
   this.minorLabelsBounds_ = null;

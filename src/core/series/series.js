@@ -8,11 +8,11 @@ goog.require('anychart.enums');
  * @enum {number}
  */
 anychart.core.series.Capabilities = {
-  ALLOW_INTERACTIVITY: 1 << 16,
-  ALLOW_POINT_SETTINGS: 1 << 17,
-  ALLOW_ERROR: 1 << 18,
-  SUPPORTS_MARKERS: 1 << 19,
-  SUPPORTS_LABELS: 1 << 20,
+  ALLOW_INTERACTIVITY: 1 << 17,
+  ALLOW_POINT_SETTINGS: 1 << 18,
+  ALLOW_ERROR: 1 << 19,
+  SUPPORTS_MARKERS: 1 << 20,
+  SUPPORTS_LABELS: 1 << 21,
   /**
    * Combination of all states.
    */
@@ -37,15 +37,43 @@ anychart.core.series.TypeConfig;
 
 
 /**
- * Series property descriptor.
- * @typedef {{
- *    handler: number,
- *    propName: string,
- *    normalizer: Function,
- *    capabilityCheck: (anychart.core.series.Capabilities|number),
- *    consistency: (anychart.ConsistencyState|number),
- *    signal: number
- * }}
+ * Series points missing flag enum.
+ * @enum {number}
  */
-anychart.core.series.PropertyDescriptor;
+anychart.core.series.PointAbsenceReason = {
+  // required value field is undefined or not valid due to scale
+  VALUE_FIELD_MISSING: 1 << 0,
+  // point is artificial
+  ARTIFICIAL_POINT: 1 << 1,
+  // point is excluded
+  EXCLUDED_POINT: 1 << 2,
+  // X value is out of visible range or SIZE is negative for bubble
+  OUT_OF_RANGE: 1 << 3,
+
+  EXCLUDED_OR_ARTIFICIAL: (1 << 1) | (1 << 2),
+  ANY_BUT_RANGE: (1 << 0) | (1 << 1) | (1 << 2)
+};
+
+
+/**
+ * Checks if the passed missingState is really missing. Can also check if the missingState is missing because of the
+ * passed reason.
+ * @param {number|anychart.core.series.PointAbsenceReason|undefined|*} missingState
+ * @param {anychart.core.series.PointAbsenceReason|number} reasonFilter
+ * @return {boolean} If the point is still missing.
+ */
+anychart.core.series.filterPointAbsenceReason = function(missingState, reasonFilter) {
+  return !!((Number(missingState) || 0) & (reasonFilter || 0xff));
+};
+
+
+/**
+ * Returns clarified mix of passed missing reasons.
+ * @param {number|anychart.core.series.PointAbsenceReason|undefined|*} reason1
+ * @param {number|anychart.core.series.PointAbsenceReason|undefined|*} reason2
+ * @return {number}
+ */
+anychart.core.series.mixPointAbsenceReason = function(reason1, reason2) {
+  return (Number(reason1) || 0) | (Number(reason2) || 0);
+};
 

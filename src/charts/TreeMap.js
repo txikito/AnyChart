@@ -1,6 +1,7 @@
 goog.provide('anychart.charts.TreeMap');
 goog.require('anychart.core.SeparateChart');
 goog.require('anychart.core.TreeMapPoint');
+goog.require('anychart.core.reporting');
 goog.require('anychart.core.ui.ColorRange');
 goog.require('anychart.core.ui.LabelsFactory');
 goog.require('anychart.core.ui.MarkersFactory');
@@ -890,11 +891,10 @@ anychart.charts.TreeMap.NodeType = {
 /**
  * Checks value for missing.
  * Point is missing when it's undefined or its number value less or equal to zero.
- * @param {*} value Value to check.
+ * @param {number} value Value to check.
  * @return {boolean} Whether value is missing.
  */
 anychart.charts.TreeMap.prototype.isMissing = function(value) {
-  value = anychart.utils.toNumber(value);
   return isNaN(value) || value <= 0;
 };
 
@@ -932,12 +932,12 @@ anychart.charts.TreeMap.prototype.calculateNodeSize = function(node, depth) {
     value = node.get(anychart.charts.TreeMap.DataFields.VALUE);
     size = node.get(anychart.charts.TreeMap.DataFields.SIZE);
 
+    value = anychart.utils.toNumber(value);
     if (this.isMissing(value)) {
       node.meta(anychart.charts.TreeMap.DataFields.MISSING, true);
       size = value = 0;
     } else {
-      value = anychart.utils.normalizeToNaturalNumber(value, 0, true);
-      size = anychart.utils.normalizeToNaturalNumber(size, 0, true) || value;
+      size = anychart.utils.toNumber(size) || value;
       if (size == 0)
         node.meta(anychart.charts.TreeMap.DataFields.MISSING, true);
     }
@@ -1760,11 +1760,11 @@ anychart.charts.TreeMap.prototype.createTooltipContextProvider = function() {
 
 /**
  * Creates position provider for point.
- * @param {anychart.math.Rect} bounds Point bounds.
  * @param {anychart.enums.Anchor} anchor Label anchor.
  * @return {*} Position provider.
  */
-anychart.charts.TreeMap.prototype.createPositionProvider = function(bounds, anchor) {
+anychart.charts.TreeMap.prototype.createPositionProvider = function(anchor) {
+  var bounds = /** @type {anychart.math.Rect} */ (this.getIterator().meta(anychart.charts.TreeMap.DataFields.POINT_BOUNDS));
   anchor = anychart.enums.normalizeAnchor(anchor);
   return {
     'value': anychart.utils.getCoordinateByAnchor(bounds, anchor)
@@ -2044,7 +2044,7 @@ anychart.charts.TreeMap.prototype.configureLabel = function(pointState, isHeader
 
   if (isDraw) {
     var anchor = this.getLabelsAnchor(pointState, isHeader);
-    var positionProvider = this.createPositionProvider(bounds, anchor);
+    var positionProvider = this.createPositionProvider(anchor);
     var formatProvider = this.createFormatProvider();
     if (label) {
       factory.dropCallsCache(index);
@@ -2493,10 +2493,6 @@ anychart.charts.TreeMap.prototype.drawNode_ = function(node, bounds, depth) {
       contentBounds = this.getBoundsForContent_(bounds, pointBounds);
       node.meta(anychart.charts.TreeMap.DataFields.POINT_BOUNDS, pointBounds);
       node.meta(anychart.charts.TreeMap.DataFields.CONTENT_BOUNDS, contentBounds);
-      // this kind of thing need for tooltip's positionMode=point
-      // because it uses iterator.meta('x').meta('y') to calculate
-      // tooltip's coordinate
-      node.meta('x', pointBounds.left).meta('y', pointBounds.top);
     }
     if (type == anychart.charts.TreeMap.NodeType.RECT || type == anychart.charts.TreeMap.NodeType.TRANSIENT) {
       pointBounds = bounds.clone();
@@ -2564,7 +2560,7 @@ anychart.charts.TreeMap.prototype.ensureDataPrepared = function() {
       var numChildren = data.numChildren();
       // more than one root node
       if (numChildren > 1)
-        anychart.utils.warning(anychart.enums.WarningCode.TREEMAP_MANY_ROOTS);
+        anychart.core.reporting.warning(anychart.enums.WarningCode.TREEMAP_MANY_ROOTS);
       // no data case
       else if (numChildren == 0)
         return;
@@ -2861,7 +2857,7 @@ anychart.charts.TreeMap.prototype.serialize = function() {
   json['type'] = this.getType();
 
   if (goog.isFunction(this.fill())) {
-    anychart.utils.warning(
+    anychart.core.reporting.warning(
         anychart.enums.WarningCode.CANT_SERIALIZE_FUNCTION,
         null,
         ['Series fill']
@@ -2871,7 +2867,7 @@ anychart.charts.TreeMap.prototype.serialize = function() {
   }
 
   if (goog.isFunction(this.hoverFill())) {
-    anychart.utils.warning(
+    anychart.core.reporting.warning(
         anychart.enums.WarningCode.CANT_SERIALIZE_FUNCTION,
         null,
         ['Series hoverFill']
@@ -2881,7 +2877,7 @@ anychart.charts.TreeMap.prototype.serialize = function() {
   }
 
   if (goog.isFunction(this.selectFill())) {
-    anychart.utils.warning(
+    anychart.core.reporting.warning(
         anychart.enums.WarningCode.CANT_SERIALIZE_FUNCTION,
         null,
         ['Series selectFill']
@@ -2891,7 +2887,7 @@ anychart.charts.TreeMap.prototype.serialize = function() {
   }
 
   if (goog.isFunction(this.stroke())) {
-    anychart.utils.warning(
+    anychart.core.reporting.warning(
         anychart.enums.WarningCode.CANT_SERIALIZE_FUNCTION,
         null,
         ['Series stroke']
@@ -2901,7 +2897,7 @@ anychart.charts.TreeMap.prototype.serialize = function() {
   }
 
   if (goog.isFunction(this.hoverStroke())) {
-    anychart.utils.warning(
+    anychart.core.reporting.warning(
         anychart.enums.WarningCode.CANT_SERIALIZE_FUNCTION,
         null,
         ['Series hoverStroke']
@@ -2911,7 +2907,7 @@ anychart.charts.TreeMap.prototype.serialize = function() {
   }
 
   if (goog.isFunction(this.selectStroke())) {
-    anychart.utils.warning(
+    anychart.core.reporting.warning(
         anychart.enums.WarningCode.CANT_SERIALIZE_FUNCTION,
         null,
         ['Series selectStroke']
@@ -2921,7 +2917,7 @@ anychart.charts.TreeMap.prototype.serialize = function() {
   }
 
   if (goog.isFunction(this.hatchFill())) {
-    anychart.utils.warning(
+    anychart.core.reporting.warning(
         anychart.enums.WarningCode.CANT_SERIALIZE_FUNCTION,
         null,
         ['Series hatchFill']
@@ -2931,7 +2927,7 @@ anychart.charts.TreeMap.prototype.serialize = function() {
   }
 
   if (goog.isFunction(this.hoverHatchFill())) {
-    anychart.utils.warning(
+    anychart.core.reporting.warning(
         anychart.enums.WarningCode.CANT_SERIALIZE_FUNCTION,
         null,
         ['Series hoverHatchFill']
@@ -2942,7 +2938,7 @@ anychart.charts.TreeMap.prototype.serialize = function() {
   }
 
   if (goog.isFunction(this.selectHatchFill())) {
-    anychart.utils.warning(
+    anychart.core.reporting.warning(
         anychart.enums.WarningCode.CANT_SERIALIZE_FUNCTION,
         null,
         ['Series selectHatchFill']
@@ -3143,6 +3139,8 @@ anychart.charts.TreeMap.prototype.toCsv = function(chartDataExportMode, opt_csvS
 
 
 //exports
+anychart.charts.TreeMap.prototype['getType'] = anychart.charts.TreeMap.prototype.getType;
+
 anychart.charts.TreeMap.prototype['data'] = anychart.charts.TreeMap.prototype.data;
 anychart.charts.TreeMap.prototype['maxDepth'] = anychart.charts.TreeMap.prototype.maxDepth;
 anychart.charts.TreeMap.prototype['hintDepth'] = anychart.charts.TreeMap.prototype.hintDepth;

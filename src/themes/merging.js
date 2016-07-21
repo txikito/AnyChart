@@ -514,6 +514,7 @@ anychart.themes.merging.mergingMap_ = [
     targets: [
       'defaultAxis.labels',
       'defaultAxis.minorLabels',
+      'chart.defaultAnnotationSettings.base.labels',
       'chart.defaultSeriesSettings.base.labels',
       'pieFunnelPyramidBase.labels',
       'ganttBase.timeline.labels',
@@ -523,7 +524,14 @@ anychart.themes.merging.mergingMap_ = [
       'heatMap.labels',
       'map.defaultSeriesSettings.base.labels',
       'treeMap.headers',
-      'treeMap.labels'
+      'treeMap.labels',
+      'linearGauge.defaultPointerSettings.base.label',
+      'pert.milestones.labels',
+      'pert.tasks.upperLabels',
+      'pert.tasks.lowerLabels',
+      'pert.criticalPath.milestones.labels',
+      'pert.criticalPath.tasks.upperLabels',
+      'pert.criticalPath.tasks.lowerLabels'
     ]
   },
   {
@@ -538,6 +546,7 @@ anychart.themes.merging.mergingMap_ = [
   {
     defaultObj: 'defaultMarkerFactory',
     targets: [
+      'chart.defaultAnnotationSettings.base.markers',
       'chart.defaultSeriesSettings.base.markers',
       'pieFunnelPyramidBase.markers',
       'ganttBase.timeline.markers',
@@ -573,7 +582,11 @@ anychart.themes.merging.mergingMap_ = [
       'chart.defaultSeriesSettings.base.tooltip',
       'pieFunnelPyramidBase.tooltip',
       'defaultDataGrid.tooltip',
-      'ganttBase.timeline.tooltip'
+      'ganttBase.timeline.tooltip',
+      'pert.milestones.tooltip',
+      'pert.tasks.tooltip',
+      'pert.criticalPath.milestones.tooltip',
+      'pert.criticalPath.tasks.tooltip'
     ]
   },
   {
@@ -681,6 +694,7 @@ anychart.themes.merging.mergingMap_ = [
       'stock.defaultPlotSettings.xAxis',
       'stock.scroller.xAxis',
       'defaultColorRange',
+      'linearGauge.defaultAxisSettings',
       'standalones.linearAxis',
       'standalones.polarAxis',
       'standalones.radarAxis',
@@ -692,6 +706,12 @@ anychart.themes.merging.mergingMap_ = [
     targets: [
       'map.colorRange',
       'treeMap.colorRange'
+    ]
+  },
+  {
+    defaultObj: 'defaultCallout',
+    targets: [
+      'map.defaultCalloutSettings'
     ]
   },
   {
@@ -720,7 +740,9 @@ anychart.themes.merging.mergingMap_ = [
       'ganttBase',
       'stock',
       'stock.defaultPlotSettings',
-      'treeMap'
+      'treeMap',
+      'linearGauge',
+      'pert'
     ]
   },
   {
@@ -746,6 +768,27 @@ anychart.themes.merging.mergingMap_ = [
   {
     defaultObj: 'pie',
     targets: ['pie3d']
+  },
+  {
+    defaultObj: 'cartesianBase.defaultAnnotationSettings.base',
+    targets: [
+      'cartesianBase.defaultAnnotationSettings.ray',
+      'cartesianBase.defaultAnnotationSettings.line',
+      'cartesianBase.defaultAnnotationSettings.infiniteLine',
+      'cartesianBase.defaultAnnotationSettings.verticalLine',
+      'cartesianBase.defaultAnnotationSettings.horizontalLine',
+      'cartesianBase.defaultAnnotationSettings.rectangle',
+      'cartesianBase.defaultAnnotationSettings.ellipse',
+      'cartesianBase.defaultAnnotationSettings.triangle',
+      'cartesianBase.defaultAnnotationSettings.trendChannel',
+      'cartesianBase.defaultAnnotationSettings.andrewsPitchfork',
+      'cartesianBase.defaultAnnotationSettings.fibonacciFan',
+      'cartesianBase.defaultAnnotationSettings.fibonacciArc',
+      'cartesianBase.defaultAnnotationSettings.fibonacciRetracement',
+      'cartesianBase.defaultAnnotationSettings.fibonacciTimezones',
+      'cartesianBase.defaultAnnotationSettings.marker',
+      'cartesianBase.defaultAnnotationSettings.label'
+    ]
   },
   {
     defaultObj: 'cartesianBase.defaultSeriesSettings.base',
@@ -927,7 +970,29 @@ anychart.themes.merging.mergingMap_ = [
       'choropleth',
       'bubbleMap',
       'connector',
-      'markerMap'
+      'markerMap',
+      'seatMap'
+    ]
+  },
+  {
+    defaultObj: 'stock.defaultAnnotationSettings.base',
+    targets: [
+      'stock.defaultAnnotationSettings.ray',
+      'stock.defaultAnnotationSettings.line',
+      'stock.defaultAnnotationSettings.infiniteLine',
+      'stock.defaultAnnotationSettings.verticalLine',
+      'stock.defaultAnnotationSettings.horizontalLine',
+      'stock.defaultAnnotationSettings.rectangle',
+      'stock.defaultAnnotationSettings.ellipse',
+      'stock.defaultAnnotationSettings.triangle',
+      'stock.defaultAnnotationSettings.trendChannel',
+      'stock.defaultAnnotationSettings.andrewsPitchfork',
+      'stock.defaultAnnotationSettings.fibonacciFan',
+      'stock.defaultAnnotationSettings.fibonacciArc',
+      'stock.defaultAnnotationSettings.fibonacciRetracement',
+      'stock.defaultAnnotationSettings.fibonacciTimezones',
+      'stock.defaultAnnotationSettings.marker',
+      'stock.defaultAnnotationSettings.label'
     ]
   },
   {
@@ -1033,6 +1098,26 @@ anychart.themes.merging.mergingMap_ = [
     targets: [
       'stock.grouping',
       'stock.scrollerGrouping'
+    ]
+  },
+  {
+    defaultObj: 'linearGauge.defaultPointerSettings.base',
+    targets: [
+      'linearGauge.defaultPointerSettings.bar',
+      'linearGauge.defaultPointerSettings.rangeBar',
+      'linearGauge.defaultPointerSettings.marker',
+      'linearGauge.defaultPointerSettings.tank',
+      'linearGauge.defaultPointerSettings.thermometer',
+      'linearGauge.defaultPointerSettings.led'
+    ]
+  },
+  {
+    defaultObj: 'linearGauge',
+    targets: [
+      'bulletGauge',
+      'thermometerGauge',
+      'tankGauge',
+      'ledGauge'
     ]
   }
 ];
@@ -1201,7 +1286,10 @@ anychart.themes.merging.multipleEntities_ = {
   'gauge.markers': 'gauge.defaultPointerSettings',
   'gauge.needles': 'gauge.defaultPointerSettings',
   'gauge.knobs': 'gauge.defaultPointerSettings',
-  'gauge.ranges': 'gauge.defaultRangeSettings'
+  'gauge.ranges': 'gauge.defaultRangeSettings',
+  'gauge.axes': 'gauge.defaultAxisSettings',
+  'gauge.scaleBars': 'gauge.defaultScaleBarSettings',
+  'map.callouts': 'map.defaultCalloutSettings'
 };
 
 
@@ -1211,7 +1299,8 @@ anychart.themes.merging.multipleEntities_ = {
  * @private
  */
 anychart.themes.merging.scaleEntities_ = [
-  'chart.scales'
+  'chart.scales',
+  'gauge.scales'
 ];
 
 
@@ -1224,5 +1313,14 @@ anychart.themes.merging.typedEntities_ = {
   'chart.series': {
     defaults: 'chart.defaultSeriesSettings',
     typeDescriptor: 'seriesType'
+  },
+  'gauge.pointers': {
+    defaults: 'gauge.defaultPointerSettings',
+    typeDescriptor: 'pointerType'
+  },
+  // this part is for own annotation serialization
+  'annotationsList': {
+    defaults: 'defaultAnnotationSettings',
+    typeDescriptor: 'type'
   }
 };

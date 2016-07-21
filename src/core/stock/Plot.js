@@ -1,9 +1,11 @@
 goog.provide('anychart.core.stock.Plot');
 goog.require('anychart.core.IPlot');
 goog.require('anychart.core.VisualBaseWithBounds');
+goog.require('anychart.core.annotations.PlotController');
 goog.require('anychart.core.axes.Linear');
 goog.require('anychart.core.axes.StockDateTime');
 goog.require('anychart.core.grids.Stock');
+goog.require('anychart.core.reporting');
 goog.require('anychart.core.series.Stock');
 goog.require('anychart.core.stock.indicators');
 goog.require('anychart.core.ui.Background');
@@ -138,6 +140,7 @@ anychart.core.stock.Plot.prototype.SUPPORTED_CONSISTENCY_STATES =
     anychart.ConsistencyState.STOCK_PLOT_SERIES |
     anychart.ConsistencyState.STOCK_PLOT_BACKGROUND |
     anychart.ConsistencyState.STOCK_PLOT_PALETTE |
+    anychart.ConsistencyState.STOCK_PLOT_ANNOTATIONS |
     anychart.ConsistencyState.STOCK_PLOT_LEGEND;
 
 
@@ -675,7 +678,7 @@ anychart.core.stock.Plot.prototype.createSeriesByType = function(type, opt_data,
             anychart.core.stock.Plot.ZINDEX_SERIES) + inc;
 
     series.autoIndex(index);
-    series.data(opt_data, opt_mappingSettings, opt_csvSettings);
+    series.data(opt_data || null, opt_mappingSettings, opt_csvSettings);
     series.setAutoZIndex(seriesZIndex);
     series.clip(true);
     series.setAutoColor(this.palette().itemAt(index));
@@ -768,6 +771,8 @@ anychart.core.stock.Plot.prototype.invalidateRedrawable = function(doInvalidateB
       this.series_[i].invalidate(state);
   }
 
+  this.annotations().invalidateAnnotations();
+
   for (i = 0; i < this.yAxes_.length; i++) {
     var axis = this.yAxes_[i];
     if (axis) {
@@ -798,6 +803,7 @@ anychart.core.stock.Plot.prototype.invalidateRedrawable = function(doInvalidateB
     this.legend_.invalidate(state);
 
   this.invalidate(anychart.ConsistencyState.STOCK_PLOT_SERIES |
+      anychart.ConsistencyState.STOCK_PLOT_ANNOTATIONS |
       anychart.ConsistencyState.STOCK_PLOT_AXES |
       anychart.ConsistencyState.STOCK_PLOT_DT_AXIS |
       anychart.ConsistencyState.STOCK_PLOT_GRIDS |
@@ -876,7 +882,7 @@ anychart.core.stock.Plot.prototype.yScale = function(opt_value) {
       opt_value = anychart.scales.ScatterBase.fromString(opt_value, false);
     }
     if (!(opt_value instanceof anychart.scales.ScatterBase)) {
-      anychart.utils.error(anychart.enums.ErrorCode.INCORRECT_SCALE_TYPE);
+      anychart.core.reporting.error(anychart.enums.ErrorCode.INCORRECT_SCALE_TYPE, undefined, ['Scatter chart scales']);
       return this;
     }
     if (this.yScale_ != opt_value) {
@@ -1184,7 +1190,28 @@ anychart.core.stock.Plot.prototype.draw = function() {
     this.markConsistent(anychart.ConsistencyState.STOCK_PLOT_SERIES);
   }
 
+  if (this.hasInvalidationState(anychart.ConsistencyState.STOCK_PLOT_ANNOTATIONS)) {
+    var annotations = this.annotations();
+    annotations.suspendSignalsDispatching();
+    annotations.parentBounds(this.seriesBounds_);
+    annotations.container(this.rootLayer_);
+    annotations.draw();
+    annotations.resumeSignalsDispatching(false);
+    this.markConsistent(anychart.ConsistencyState.STOCK_PLOT_ANNOTATIONS);
+  }
+
   this.resumeSignalsDispatching(false);
+
+  // this is a debug code and should remain until we finally decide what to do with auto gaps
+  // if (!this.__zeroPath)
+  //   this.__zeroPath = this.container().getStage().rect().zIndex(1000).stroke('3 red');
+  // var s = this.getSeriesAt(0);
+  // var b = this.seriesBounds_;
+  // var l = this.chart_.xScale().transform(this.chart_.dataController_.getFirstSelectedKey());
+  // var r = this.chart_.xScale().transform(this.chart_.dataController_.getLastSelectedKey());
+  // var tmp = s.applyRatioToBounds(l, true);
+  // this.__zeroPath.setY(b.top).setHeight(b.height).setX(tmp).setWidth(s.applyRatioToBounds(r, true) - tmp);
+
 
   return this;
 };
@@ -1325,15 +1352,15 @@ anychart.core.stock.Plot.prototype.updateLegend_ = function(opt_seriesBounds, op
     var grouping = /** @type {anychart.core.stock.Grouping} */(this.chart_.grouping());
     var context = {
       'value': opt_titleValue,
-      'dataIntervalUnit': grouping.getCurrentDataInterval().unit,
-      'dataIntervalUnitCount': grouping.getCurrentDataInterval().count,
+      'dataIntervalUnit': grouping.getCurrentDataInterval()['unit'],
+      'dataIntervalUnitCount': grouping.getCurrentDataInterval()['count'],
       'isGrouped': grouping.isGrouped()
     };
     legend.title().text(formatter.call(context, context));
   }
   if (!legend.itemsSource())
     legend.itemsSource(this);
-  legend.invalidate(anychart.ConsistencyState.APPEARANCE);
+  legend.invalidate(anychart.ConsistencyState.APPEARANCE | anychart.ConsistencyState.LEGEND_RECREATE_ITEMS);
   legend.draw();
   legend.resumeSignalsDispatching(false);
 };
@@ -1558,6 +1585,7 @@ anychart.core.stock.Plot.prototype.initDragger_ = function(e) {
  * @private
  */
 anychart.core.stock.Plot.prototype.dragStartHandler_ = function(e) {
+  this.chart_.annotations().unselect();
   var res;
   if (res = this.chart_.askDragStart())
     goog.style.setStyle(document['body'], 'cursor', acgraph.vector.Cursor.EW_RESIZE);
@@ -1607,7 +1635,44 @@ anychart.core.stock.Plot.prototype.handlePlotMouseOut_ = function(e) {
 //endregion
 
 
+//region Annotations
+//----------------------------------------------------------------------------------------------------------------------
+//
+//  Annotations
+//
+//----------------------------------------------------------------------------------------------------------------------
+/**
+ * Annotations plot-level controller.
+ * @param {(boolean|Array.<anychart.enums.AnnotationTypes|anychart.core.annotations.AnnotationJSONFormat>)=} opt_value
+ * @return {anychart.core.stock.Plot|anychart.core.annotations.PlotController}
+ */
+anychart.core.stock.Plot.prototype.annotations = function(opt_value) {
+  if (!this.annotations_) {
+    this.annotations_ = new anychart.core.annotations.PlotController(
+        /** @type {!anychart.core.annotations.ChartController} */(this.chart_.annotations()), this);
+    this.annotations_.listenSignals(this.annotationsInvalidated_, this);
+    this.annotations_.setParentEventTarget(this);
+  }
+  if (goog.isDef(opt_value)) {
+    this.annotations_.setup(opt_value);
+    return this;
+  }
+  return this.annotations_;
+};
+//endregion
+
+
 //region Invalidation handlers
+/**
+ * Background invalidation handler.
+ * @param {anychart.SignalEvent} e
+ * @private
+ */
+anychart.core.stock.Plot.prototype.annotationsInvalidated_ = function(e) {
+  this.invalidate(anychart.ConsistencyState.STOCK_PLOT_ANNOTATIONS, anychart.Signal.NEEDS_REDRAW);
+};
+
+
 /**
  * Background invalidation handler.
  * @param {anychart.SignalEvent} e
@@ -1789,6 +1854,9 @@ anychart.core.stock.Plot.prototype.paletteInvalidated_ = function(event) {
 //----------------------------------------------------------------------------------------------------------------------
 /** @inheritDoc */
 anychart.core.stock.Plot.prototype.disposeInternal = function() {
+  goog.dispose(this.annotations_);
+  this.annotations_ = null;
+
   goog.dispose(this.background_);
   this.background_ = null;
 
@@ -1805,6 +1873,10 @@ anychart.core.stock.Plot.prototype.disposeInternal = function() {
   this.xAxis_ = null;
 
   delete this.chart_;
+  delete this.defaultSeriesSettings_;
+  delete this.defaultGridSettings_;
+  delete this.defaultMinorGridSettings_;
+  delete this.defaultYAxisSettings_;
 
   goog.disposeAll(this.palette_, this.markerPalette_, this.hatchFillPalette_);
   this.palette_ = this.markerPalette_ = this.hatchFillPalette_ = null;
@@ -2068,6 +2140,8 @@ anychart.core.stock.Plot.prototype.setupByJSON = function(config) {
   if ('defaultSeriesSettings' in config)
     this.defaultSeriesSettings(config['defaultSeriesSettings']);
 
+  this.annotations(config['annotations']);
+
   var series = config['series'];
   if (goog.isArray(series)) {
     for (i = 0; i < series.length; i++) {
@@ -2186,3 +2260,4 @@ anychart.core.stock.Plot.prototype['sma'] = anychart.core.stock.Plot.prototype.s
 anychart.core.stock.Plot.prototype['palette'] = anychart.core.stock.Plot.prototype.palette;
 // anychart.core.stock.Plot.prototype['markerPalette'] = anychart.core.stock.Plot.prototype.markerPalette;
 anychart.core.stock.Plot.prototype['hatchFillPalette'] = anychart.core.stock.Plot.prototype.hatchFillPalette;
+anychart.core.stock.Plot.prototype['annotations'] = anychart.core.stock.Plot.prototype.annotations;
