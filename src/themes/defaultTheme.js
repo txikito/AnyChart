@@ -4549,21 +4549,17 @@ goog.provide('anychart.themes.defaultTheme');
         'selectLabels': {
           'fontWeight': 'bold'
         },
+
         'color': '#64b5f6',
 
-        // start fail
-        'fill': {'color': '#64b5f6', 'opacity': 0.85},
+        'fill': returnSourceColor85,
         'stroke': 'none',
-        //'fill': returnSourceColor85,
 
-        'hoverFill': '#64b5f6',
-        'hoverStroke': {color: '#64b5f6', thickness: 1.5},
-        //'hoverFill': returnSourceColor,
-        //'hoverStroke': returnThickenedStrokeSourceColor,
+        'hoverFill': returnLightenSourceColor,
+        'hoverStroke': returnThickenedStrokeSourceColor,
 
         'selectFill': defaultSelectColor,
-        'selectStroke': 'none',
-        // end fail
+        'selectStroke': defaultSelectColor,
 
         'tooltip': {
           'title': {'enabled': true},
@@ -4600,38 +4596,19 @@ goog.provide('anychart.themes.defaultTheme');
       },
 
       'tasks': {
-
         'color': '#64b5f6',
 
-        // start fail
-        'fill': {'color': '#64b5f6', 'opacity': 0.85},
-        'stroke': {'color': '#64b5f6', 'opacity': 0.85},
-        //'fill': returnSourceColor85,
-        //'stroke': returnSourceColor85,
+        'fill': returnSourceColor85,
+        'stroke': returnSourceColor85,
 
-        'hoverFill': '#64b5f6',
-        'hoverStroke': {color: '#64b5f6', thickness: 1.5},
-        //'hoverFill': returnSourceColor,
-        //'hoverStroke': returnThickenedStrokeSourceColor,
+        'hoverFill': returnLightenSourceColor,
+        'hoverStroke': returnThickenedStrokeSourceColor,
 
         'selectFill': defaultSelectColor,
         'selectStroke': defaultSelectColor,
-        // end fail
 
-        // start fail
-        'dummyFill': {'color': '#64b5f6', 'opacity': 0.85},
-        'dummyStroke': {'color': '#64b5f6', 'dash': '6 4'},
-        //'dummyFill': returnSourceColor85,
-        //'dummyStroke': returnDashedStrokeSourceColor,
-
-        'hoverDummyFill': '#64b5f6',
-        'hoverDummyStroke': {'color': '#64b5f6', 'dash': '6 4', 'thickness': 1.5},
-        //'hoverDummyFill': returnSourceColor,
-        //'hoverDummyStroke': returnThickenedDashedStrokeSourceColor,
-
-        'selectDummyFill': defaultSelectColor,
-        'selectDummyStroke': {'color': defaultSelectSolidColor, 'opacity': 0.85, 'dash': '6 4'},
-        // end fail
+        'dummyFill': returnSourceColor85,
+        'dummyStroke': returnDashedStrokeSourceColor,
 
         'upperLabels': {
           'enabled': true,
@@ -4727,15 +4704,16 @@ goog.provide('anychart.themes.defaultTheme');
           'selectLabels': {
             'fontWeight': 'bold'
           },
-          'fill': {
-            'color': '#ef6c00',
-            'opacity': 0.8
-          },
-          'hoverFill': defaultHoverColor,
-          'selectFill': defaultSelectColor,
+
+          'fill': returnSourceColor85,
           'stroke': 'none',
-          'hoverStroke': 'none',
-          'selectStroke': 'none',
+
+          'hoverFill': returnLightenSourceColor,
+          'hoverStroke': returnThickenedStrokeSourceColor,
+
+          'selectFill': defaultSelectColor,
+          'selectStroke': defaultSelectColor,
+
           'tooltip': {
             'title': {
               'enabled': true
@@ -4771,35 +4749,20 @@ goog.provide('anychart.themes.defaultTheme');
           }
         },
         'tasks': {
-          'fill': 'none',
-          'hoverFill': 'none',
-          'selectFill': 'none',
-          'stroke': '#ef6c00',
-          'hoverStroke': {
-            'color': '#ef6c00',
-            'thickness': 2
-          },
-          'selectStroke': {
-            'color': '#333',
-            'thickness': 2,
-            'opactity': 0.85
-          },
-          'dummyFill': 'none',
-          'hoverDummyFill': 'none',
-          'selectDummyFill': 'none',
-          'dummyStroke': {
-            'color': '#ef6c00',
-            'dash': '4 2'
-          },
-          'hoverDummyStroke': {
-            'color': '#ef6c00',
-            'dash': '4 2',
-            'thickness': 2
-          },
-          'selectDummyStroke': {
-            'color': '#333',
-            'dash': '4 2'
-          },
+          'color': '#ef6c00',
+
+          'fill': returnSourceColor85,
+          'stroke': returnSourceColor85,
+
+          'hoverFill': returnLightenSourceColor,
+          'hoverStroke': returnThickenedStrokeSourceColor,
+
+          'selectFill': defaultSelectColor,
+          'selectStroke': defaultSelectColor,
+
+          'dummyFill': returnSourceColor85,
+          'dummyStroke': returnDashedStrokeSourceColor,
+
           'upperLabels': {
             'enabled': true,
             'anchor': 'centerBottom',

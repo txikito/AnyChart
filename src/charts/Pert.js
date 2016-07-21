@@ -318,6 +318,7 @@ anychart.charts.Pert.FakeMilestone;
  *    isCritical: boolean,
  *    isSelected: boolean,
  *    relatedPath: acgraph.vector.Path,
+ *    arrowPath: acgraph.vector.Path,
  *    upperLabel: anychart.core.ui.LabelsFactory.Label,
  *    lowerLabel: anychart.core.ui.LabelsFactory.Label,
  *    depLeft: Array.<string>,
@@ -381,30 +382,6 @@ anychart.charts.Pert.Segment;
  * @type {number}
  */
 anychart.charts.Pert.BASE_LAYER_Z_INDEX = 2;
-
-
-// /**
-//  * Cell pixel size.
-//  * @type {number}
-//  * @private
-//  */
-// anychart.charts.Pert.CELL_PIXEL_SIZE_ = 80;
-//
-//
-// /**
-//  * Cell pixel vertical space.
-//  * @type {number}
-//  * @private
-//  */
-// anychart.charts.Pert.CELL_PIXEL_VERTICAL_SPACE_ = 20;
-//
-//
-// /**
-//  * Cell pixel horizontal space.
-//  * @type {number}
-//  * @private
-//  */
-// anychart.charts.Pert.CELL_PIXEL_HORIZONTAL_SPACE_ = 80;
 
 
 /**
@@ -556,6 +533,7 @@ anychart.charts.Pert.prototype.handleMouseOverAndMove = function(event) {
   var zeroPos = new acgraph.math.Coordinate(0, 0);
   var formatProvider;
   var tag = domTarget.tag;
+  var state = anychart.PointState.NORMAL;
 
   if (event['target'] instanceof anychart.core.ui.LabelsFactory) {
     var labelIndex = event['labelIndex'];
@@ -566,13 +544,16 @@ anychart.charts.Pert.prototype.handleMouseOverAndMove = function(event) {
   if (tag) {
     if (goog.isDefAndNotNull(tag['m'])) {
       milestone = tag['m'];
+      formatProvider = this.createFormatProvider(false, void 0, void 0, milestone);
+
       source = milestone.isCritical ? this.criticalPath().milestones() : this.milestones();
-      fill = milestone.isSelected ? source.selectFill() : source.hoverFill();
-      stroke = milestone.isSelected ? source.selectStroke() : source.hoverStroke();
+      state = milestone.isSelected ? anychart.PointState.SELECT : anychart.PointState.HOVER;
+
+      fill = source.getFinalFill(state, formatProvider);
+      stroke = source.getFinalStroke(state, formatProvider);
       domTarget.fill(fill).stroke(stroke);
 
       tooltip = source.tooltip();
-      formatProvider = this.createFormatProvider(false, void 0, void 0, milestone);
       position = tooltip.isFloating() ? pos : zeroPos;
       tooltip.show(formatProvider, position);
 
@@ -588,10 +569,16 @@ anychart.charts.Pert.prototype.handleMouseOverAndMove = function(event) {
     } else if (goog.isDefAndNotNull(tag['w'])) {
       work = tag['w'];
       activity = this.activitiesMap_[work.id];
+      formatProvider = this.createFormatProvider(false, work, activity, void 0);
+
+      state = work.isSelected ? anychart.PointState.SELECT : anychart.PointState.HOVER;
       source = work.isCritical ? this.criticalPath().tasks() : this.tasks();
-      fill = /** @type {acgraph.vector.Fill} */ (work.isSelected ? source.selectFill() : source.hoverFill());
-      stroke = /** @type {acgraph.vector.Stroke} */ (work.isSelected ? source.selectStroke() : source.hoverStroke());
-      work.relatedPath.fill(fill).stroke(stroke);
+
+      fill = source.getFinalFill(state, formatProvider);
+      stroke = source.getFinalStroke(state, formatProvider);
+
+      work.relatedPath.stroke(stroke);
+      work.arrowPath.fill(fill).stroke(stroke);
 
       var upperLf = /** @type {anychart.core.ui.LabelsFactory} */ (work.isSelected ? source.selectUpperLabels() : source.hoverUpperLabels());
       var lowerLf = /** @type {anychart.core.ui.LabelsFactory} */ (work.isSelected ? source.selectLowerLabels() : source.hoverLowerLabels());
@@ -603,7 +590,6 @@ anychart.charts.Pert.prototype.handleMouseOverAndMove = function(event) {
       work.lowerLabel.draw();
 
       tooltip = source.tooltip();
-      formatProvider = this.createFormatProvider(false, work, activity, void 0);
       position = tooltip.isFloating() ? pos : zeroPos;
       tooltip.show(formatProvider, position);
     }
@@ -627,7 +613,9 @@ anychart.charts.Pert.prototype.handleMouseOut = function(event) {
   var domTarget = event['domTarget'];
   var fill, stroke, source;
   var label;
+  var formatProvider;
   var tag = domTarget.tag;
+  var state = anychart.PointState.NORMAL;
 
   if (event['target'] instanceof anychart.core.ui.LabelsFactory) {
     var labelIndex = event['labelIndex'];
@@ -639,8 +627,11 @@ anychart.charts.Pert.prototype.handleMouseOut = function(event) {
     if (goog.isDefAndNotNull(tag['m'])) {
       var milestone = tag['m'];
       source = milestone.isCritical ? this.criticalPath().milestones() : this.milestones();
-      fill = milestone.isSelected ? source.selectFill() : source.fill();
-      stroke = milestone.isSelected ? source.selectStroke() : source.stroke();
+      formatProvider = this.createFormatProvider(false, void 0, void 0, milestone);
+      state = milestone.isSelected ? anychart.PointState.SELECT : anychart.PointState.NORMAL;
+
+      fill = source.getFinalFill(state, formatProvider);
+      stroke = source.getFinalStroke(state, formatProvider);
 
       label = milestone.relatedLabel;
       if (label) {
@@ -653,10 +644,17 @@ anychart.charts.Pert.prototype.handleMouseOut = function(event) {
       domTarget.fill(fill).stroke(stroke);
     } else if (goog.isDefAndNotNull(tag['w'])) {
       var work = tag['w'];
+      var activity = this.activitiesMap_[work.id];
+
+      formatProvider = this.createFormatProvider(false, work, activity, void 0);
+      state = work.isSelected ? anychart.PointState.SELECT : anychart.PointState.NORMAL;
+
       source = work.isCritical ? this.criticalPath().tasks() : this.tasks();
-      fill = /** @type {acgraph.vector.Fill} */ (work.isSelected ? source.selectFill() : source.fill());
-      stroke = /** @type {acgraph.vector.Stroke} */ (work.isSelected ? source.selectStroke() : source.stroke());
-      work.relatedPath.fill(fill).stroke(stroke);
+      fill = source.getFinalFill(state, formatProvider);
+      stroke = source.getFinalStroke(state, formatProvider);
+
+      work.relatedPath.stroke(stroke);
+      work.arrowPath.fill(fill).stroke(stroke);
 
       var upperLf = /** @type {anychart.core.ui.LabelsFactory} */ (work.isSelected ? source.selectUpperLabels() : source.upperLabels());
       var lowerLf = /** @type {anychart.core.ui.LabelsFactory} */ (work.isSelected ? source.selectLowerLabels() : source.lowerLabels());
@@ -2041,7 +2039,6 @@ anychart.charts.Pert.prototype.criticalPath = function(opt_value) {
  * @private
  */
 anychart.charts.Pert.prototype.milestonesLayerAppearanceCallback_ = function(element, index) {
-  var fill, stroke;
   var tag = element.tag;
 
   if (tag) {
@@ -2049,8 +2046,12 @@ anychart.charts.Pert.prototype.milestonesLayerAppearanceCallback_ = function(ele
       var milestone = tag['m'];
       var source = milestone.isCritical ? this.criticalPath().milestones() : this.milestones();
 
-      fill = /** @type {acgraph.vector.Fill} */ (milestone.isSelected ? source.selectFill() : source.fill());
-      stroke = /** @type {acgraph.vector.Stroke} */ (milestone.isSelected ? source.selectStroke() : source.stroke());
+      var formatProvider = this.createFormatProvider(false, void 0, void 0, milestone);
+      var state = milestone.isSelected ? anychart.PointState.SELECT : anychart.PointState.NORMAL;
+
+      var fill = source.getFinalFill(state, formatProvider);
+      var stroke = source.getFinalStroke(state, formatProvider);
+
       /** @type {acgraph.vector.Path} */ (element).fill(fill).stroke(stroke);
 
       var lf = /** @type {anychart.core.ui.LabelsFactory} */ (milestone.isSelected ? source.selectLabels() : source.labels());
@@ -2071,15 +2072,24 @@ anychart.charts.Pert.prototype.milestonesLayerAppearanceCallback_ = function(ele
  */
 anychart.charts.Pert.prototype.worksLayerAppearanceCallback_ = function(element, index) {
   var fill, stroke;
+  var formatProvider;
   var tag = element.tag;
 
   if (tag) {
     if (goog.isDefAndNotNull(tag['w'])) {
       var work = tag['w'];
+      var activity = this.activitiesMap_[work.id];
+
       var source = work.isCritical ? this.criticalPath().tasks() : this.tasks();
-      fill = /** @type {acgraph.vector.Fill} */ (work.isSelected ? source.selectFill() : source.fill());
-      stroke = /** @type {acgraph.vector.Stroke} */ (work.isSelected ? source.selectStroke() : source.stroke());
-      /** @type {acgraph.vector.Path} */ (element).fill(fill).stroke(stroke);
+
+      formatProvider = this.createFormatProvider(false, work, activity, void 0);
+      var state = work.isSelected ? anychart.PointState.SELECT : anychart.PointState.NORMAL;
+
+      fill = source.getFinalFill(state, formatProvider);
+      stroke = source.getFinalStroke(state, formatProvider);
+
+      /** @type {acgraph.vector.Path} */ (element).stroke(stroke);
+      if (tag['a']) /** @type {acgraph.vector.Path} */ (element).fill(fill);
 
       var upperLf = /** @type {anychart.core.ui.LabelsFactory} */ (work.isSelected ? source.selectUpperLabels() : source.upperLabels());
       var lowerLf = /** @type {anychart.core.ui.LabelsFactory} */ (work.isSelected ? source.selectLowerLabels() : source.lowerLabels());
@@ -2092,9 +2102,13 @@ anychart.charts.Pert.prototype.worksLayerAppearanceCallback_ = function(element,
     } else if (goog.isDefAndNotNull(tag['d'])) {
       var isCrit = tag['d']; //Rendered and not rendered cases.
       source = isCrit ? this.criticalPath().tasks() : this.tasks();
-      fill = /** @type {acgraph.vector.Fill} */ (source.dummyFill());
-      stroke = /** @type {acgraph.vector.Stroke} */ (source.dummyStroke());
-      /** @type {acgraph.vector.Path} */ (element).fill(fill).stroke(stroke);
+      formatProvider = this.createFormatProvider(false, void 0, void 0, void 0);
+
+      fill = source.getFinalDummyFill(formatProvider);
+      stroke = source.getFinalDummyStroke(formatProvider);
+
+      /** @type {acgraph.vector.Path} */ (element).stroke(stroke);
+      if (tag['a']) /** @type {acgraph.vector.Path} */ (element).fill(fill);
     }
   }
 };
@@ -2256,21 +2270,28 @@ anychart.charts.Pert.prototype.drawContent = function(bounds) {
       var work = edge.work ? edge.work : void 0;
 
       var activity = work ? this.activitiesMap_[work.id] : void 0;
-      var path, interactPath;
+      var path, interactPath, arrowPath;
       var isCrit = edge.isCritical;
 
       if (!from.isFake) { //Ignoring non-start fake edges.
         path = this.activitiesLayer_.genNextChild();
+        arrowPath = this.activitiesLayer_.genNextChild();
         interactPath = this.interactivityLayer_.genNextChild();
         path.tag = work ? {'w': work} : {'d': isCrit};
+        arrowPath.tag = work ? {'w': work} : {'d': isCrit};
+        arrowPath.tag['a'] = true;
         interactPath.tag = work ? {'w': work} : {'d': isCrit};
 
         src = edge.isCritical ? this.criticalPath().tasks() : this.tasks();
+        var formatProvider = this.createFormatProvider(false, work, activity, void 0);
+
         if (work) {
-          str = work.isSelected ? src.selectStroke() : src.stroke();
+          var state = work.isSelected ? anychart.PointState.SELECT : anychart.PointState.NORMAL;
+          str = src.getFinalStroke(state, formatProvider);
           work.relatedPath = /** @type {acgraph.vector.Path} */ (path);
+          work.arrowPath = /** @type {acgraph.vector.Path} */ (arrowPath);
         } else {
-          str = src.dummyStroke();
+          str = src.getFinalDummyStroke(formatProvider);
         }
         pixelShift = anychart.utils.extractThickness(/** @type {acgraph.vector.Stroke} */ (str)) % 2 == 0 ? 0 : 0.5;
 
@@ -2319,8 +2340,9 @@ anychart.charts.Pert.prototype.drawContent = function(bounds) {
           var top2 = arrowCoords[3];
 
           path.moveTo(stLeft, stTop)
-              .lineTo(pathLeft, pathTop)
-              .moveTo(pathLeft, pathTop)
+              .lineTo(pathLeft, pathTop);
+
+          arrowPath.moveTo(pathLeft, pathTop)
               .lineTo(left1, top1)
               .lineTo(finLeft, finTop)
               .lineTo(left2, top2)
@@ -2342,8 +2364,9 @@ anychart.charts.Pert.prototype.drawContent = function(bounds) {
           var top2 = arrowCoords[3];
 
           path.moveTo(startLeft, startTop)
-              .lineTo(pathLeft, pathTop)
-              .moveTo(pathLeft, pathTop)
+              .lineTo(pathLeft, pathTop);
+
+          arrowPath.moveTo(pathLeft, pathTop)
               .lineTo(left1, top1)
               .lineTo(finLeft, finTop)
               .lineTo(left2, top2)

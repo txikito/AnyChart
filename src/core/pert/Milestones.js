@@ -93,12 +93,16 @@ anychart.core.pert.Milestones.prototype.setupByJSON = function(config) {
 
 
 //exports
+anychart.core.pert.Milestones.prototype['color'] = anychart.core.pert.Milestones.prototype.color;
+
 anychart.core.pert.Milestones.prototype['fill'] = anychart.core.pert.Milestones.prototype.fill;
 anychart.core.pert.Milestones.prototype['hoverFill'] = anychart.core.pert.Milestones.prototype.hoverFill;
 anychart.core.pert.Milestones.prototype['selectFill'] = anychart.core.pert.Milestones.prototype.selectFill;
+
 anychart.core.pert.Milestones.prototype['stroke'] = anychart.core.pert.Milestones.prototype.stroke;
 anychart.core.pert.Milestones.prototype['hoverStroke'] = anychart.core.pert.Milestones.prototype.hoverStroke;
 anychart.core.pert.Milestones.prototype['selectStroke'] = anychart.core.pert.Milestones.prototype.selectStroke;
+
 anychart.core.pert.Milestones.prototype['labels'] = anychart.core.pert.Milestones.prototype.labels;
 anychart.core.pert.Milestones.prototype['selectLabels'] = anychart.core.pert.Milestones.prototype.selectLabels;
 anychart.core.pert.Milestones.prototype['hoverLabels'] = anychart.core.pert.Milestones.prototype.hoverLabels;
