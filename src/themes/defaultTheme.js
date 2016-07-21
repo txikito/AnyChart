@@ -4511,8 +4511,8 @@ goog.provide('anychart.themes.defaultTheme');
       'tooltip': {
         'enabled': false
       },
-      'horizontalSpacing' : 160,
-      'verticalSpacing': 100,
+      'horizontalSpacing' : '15%',
+      'verticalSpacing': '25%',
       /**
        * @this {*}
        * @return {*}
@@ -4532,7 +4532,7 @@ goog.provide('anychart.themes.defaultTheme');
       },
       'milestones': {
         'shape': 'circle',
-        'size': 80,
+        'size': '5%',
         'labels': {
           'enabled': true,
           'anchor': 'leftTop',
@@ -4687,7 +4687,7 @@ goog.provide('anychart.themes.defaultTheme');
         'milestones': {
           'color': '#ef6c00',
           'shape': 'circle',
-          'size': 80,
+          'size': '5%',
           'labels': {
             'enabled': true,
             'anchor': 'leftTop',
