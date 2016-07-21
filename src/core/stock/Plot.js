@@ -882,7 +882,7 @@ anychart.core.stock.Plot.prototype.yScale = function(opt_value) {
       opt_value = anychart.scales.ScatterBase.fromString(opt_value, false);
     }
     if (!(opt_value instanceof anychart.scales.ScatterBase)) {
-      anychart.core.reporting.error(anychart.enums.ErrorCode.INCORRECT_SCALE_TYPE);
+      anychart.core.reporting.error(anychart.enums.ErrorCode.INCORRECT_SCALE_TYPE, undefined, ['Scatter chart scales']);
       return this;
     }
     if (this.yScale_ != opt_value) {
@@ -1352,15 +1352,15 @@ anychart.core.stock.Plot.prototype.updateLegend_ = function(opt_seriesBounds, op
     var grouping = /** @type {anychart.core.stock.Grouping} */(this.chart_.grouping());
     var context = {
       'value': opt_titleValue,
-      'dataIntervalUnit': grouping.getCurrentDataInterval().unit,
-      'dataIntervalUnitCount': grouping.getCurrentDataInterval().count,
+      'dataIntervalUnit': grouping.getCurrentDataInterval()['unit'],
+      'dataIntervalUnitCount': grouping.getCurrentDataInterval()['count'],
       'isGrouped': grouping.isGrouped()
     };
     legend.title().text(formatter.call(context, context));
   }
   if (!legend.itemsSource())
     legend.itemsSource(this);
-  legend.invalidate(anychart.ConsistencyState.APPEARANCE);
+  legend.invalidate(anychart.ConsistencyState.APPEARANCE | anychart.ConsistencyState.LEGEND_RECREATE_ITEMS);
   legend.draw();
   legend.resumeSignalsDispatching(false);
 };

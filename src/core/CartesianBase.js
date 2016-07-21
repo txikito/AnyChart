@@ -867,6 +867,22 @@ anychart.core.CartesianBase.prototype.yAxis = function(opt_indexOrValue, opt_val
 
 
 /**
+ * @return {number} Number of series.
+ */
+anychart.core.CartesianBase.prototype.getXAxesCount = function() {
+  return this.xAxes_.length;
+};
+
+
+/**
+ * @return {number} Number of series.
+ */
+anychart.core.CartesianBase.prototype.getYAxesCount = function() {
+  return this.yAxes_.length;
+};
+
+
+/**
  * Listener for axes invalidation.
  * @param {anychart.SignalEvent} event Invalidation event.
  * @private
@@ -1870,6 +1886,9 @@ anychart.core.CartesianBase.prototype.seriesInvalidated = function(event) {
   if (event.hasSignal(anychart.Signal.NEEDS_REDRAW)) {
     state = anychart.ConsistencyState.CARTESIAN_SERIES;
   }
+  if (event.hasSignal(anychart.Signal.NEEDS_UPDATE_A11Y)) {
+    state = anychart.ConsistencyState.A11Y;
+  }
   if (event.hasSignal(anychart.Signal.DATA_CHANGED)) {
     state |= anychart.ConsistencyState.CARTESIAN_SERIES | anychart.ConsistencyState.CARTESIAN_ANNOTATIONS;
     this.invalidateSeries();
@@ -2413,8 +2432,14 @@ anychart.core.CartesianBase.prototype.calculateYScales = function() {
           stack = [];
           for (j = firstIndex; j <= lastIndex; j++) {
             stack.push({
+              prevPositive: 0,
               positive: 0,
+              nextPositive: 0,
+              prevNegative: 0,
               negative: 0,
+              nextNegative: 0,
+              prevMissing: false,
+              nextMissing: false,
               missing: false
             });
           }
@@ -2434,8 +2459,6 @@ anychart.core.CartesianBase.prototype.calculateYScales = function() {
               point.meta[anychart.opt.STACKED_MISSING] = stackVal.missing;
               if (anychart.core.series.filterPointAbsenceReason(point.meta[anychart.opt.MISSING],
                   anychart.core.series.PointAbsenceReason.ANY_BUT_RANGE)) {
-                point.meta['stackedPositiveZero'] = stackVal.positive;
-                point.meta['stackedNegativeZero'] = stackVal.negative;
                 stackVal.missing = true;
               } else {
                 val = +point.data[anychart.opt.VALUE];
@@ -2443,13 +2466,70 @@ anychart.core.CartesianBase.prototype.calculateYScales = function() {
                   point.meta[anychart.opt.STACKED_ZERO] = stackVal.positive;
                   stackVal.positive += val;
                   point.meta[anychart.opt.STACKED_VALUE] = stackVal.positive;
+                  if (!yScalePercentStacked) {
+                    if (!stackVal.prevMissing) {
+                      point.meta[anychart.opt.STACKED_ZERO_PREV] = point.meta[anychart.opt.STACKED_VALUE_PREV] = NaN;
+                    } else {
+                      point.meta[anychart.opt.STACKED_ZERO_PREV] = stackVal.prevPositive;
+                      point.meta[anychart.opt.STACKED_VALUE_PREV] = stackVal.prevPositive + val;
+                    }
+                    if (!stackVal.nextMissing) {
+                      point.meta[anychart.opt.STACKED_ZERO_NEXT] = point.meta[anychart.opt.STACKED_VALUE_NEXT] = NaN;
+                    } else {
+                      point.meta[anychart.opt.STACKED_ZERO_NEXT] = stackVal.nextPositive;
+                      point.meta[anychart.opt.STACKED_VALUE_NEXT] = stackVal.nextPositive + val;
+                    }
+                  }
                 } else {
                   point.meta[anychart.opt.STACKED_ZERO] = stackVal.negative;
                   stackVal.negative += val;
                   point.meta[anychart.opt.STACKED_VALUE] = stackVal.negative;
+                  if (!yScalePercentStacked) {
+                    if (!stackVal.prevMissing) {
+                      point.meta[anychart.opt.STACKED_ZERO_PREV] = point.meta[anychart.opt.STACKED_VALUE_PREV] = NaN;
+                    } else {
+                      point.meta[anychart.opt.STACKED_ZERO_PREV] = stackVal.prevNegative;
+                      point.meta[anychart.opt.STACKED_VALUE_PREV] = stackVal.prevNegative + val;
+                    }
+                    if (!stackVal.nextMissing) {
+                      point.meta[anychart.opt.STACKED_ZERO_NEXT] = point.meta[anychart.opt.STACKED_VALUE_NEXT] = NaN;
+                    } else {
+                      point.meta[anychart.opt.STACKED_ZERO_NEXT] = stackVal.nextNegative;
+                      point.meta[anychart.opt.STACKED_VALUE_NEXT] = stackVal.nextNegative + val;
+                    }
+                  }
                 }
-                if (!yScalePercentStacked)
+                if (!yScalePercentStacked) {
+                  yScale.extendDataRange(point.meta[anychart.opt.STACKED_VALUE_PREV]);
                   yScale.extendDataRange(point.meta[anychart.opt.STACKED_VALUE]);
+                  yScale.extendDataRange(point.meta[anychart.opt.STACKED_VALUE_NEXT]);
+                  point = data[j - 1];
+                  if (point) {
+                    if (anychart.core.series.filterPointAbsenceReason(point.meta[anychart.opt.MISSING],
+                        anychart.core.series.PointAbsenceReason.ANY_BUT_RANGE)) {
+                      stackVal.prevMissing = true;
+                    } else {
+                      if (val >= 0) {
+                        stackVal.prevPositive += val;
+                      } else {
+                        stackVal.prevNegative += val;
+                      }
+                    }
+                  }
+                  point = data[j + 1];
+                  if (point) {
+                    if (anychart.core.series.filterPointAbsenceReason(point.meta[anychart.opt.MISSING],
+                        anychart.core.series.PointAbsenceReason.ANY_BUT_RANGE)) {
+                      stackVal.nextMissing = true;
+                    } else {
+                      if (val >= 0) {
+                        stackVal.nextPositive += val;
+                      } else {
+                        stackVal.nextNegative += val;
+                      }
+                    }
+                  }
+                }
                 stackVal.missing = false;
               }
             }

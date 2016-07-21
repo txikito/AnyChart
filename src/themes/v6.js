@@ -30,6 +30,24 @@ goog.provide('anychart.themes.v6');
 
 
   /**
+   * @const {string}
+   */
+  var VALUE_TOKEN_DECIMALS_COUNT_2 = '{%Value}{decimalsCount:2}';
+
+
+  /**
+   * @const {string}
+   */
+  var VALUE_TOKEN_DECIMALS_COUNT_10 = '{%Value}{decimalsCount:10}';
+
+
+  /**
+   * @const {string}
+   */
+  var Y_PERCENT_OF_TOTAL_TOKEN = '{%YPercentOfTotal}{decimalsCount:1,zeroFillDecimals:true}';
+
+
+  /**
    * @this {*}
    * @return {*}
    */
@@ -47,13 +65,211 @@ goog.provide('anychart.themes.v6');
   };
 
 
+  /**
+   * @this {*}
+   * @return {*}
+   */
+  var chartA11yTitleFormatter = function() {
+    var chart = this['chart'];
+    var title = chart['title']();
+    var titleText = title && title['enabled']() && title['text']() ? title['text']() : '';
+    var type = chart['getType']();
+    var typeText = type || 'Anychart ';
+    return typeText + ' chart ' + (titleText ? ' entitled ' + titleText : '');
+  };
+
+
+  /**
+   * @this {*}
+   * @return {*}
+   */
+  var pieA11yTitleFormatter = function() {
+    var chart = this['chart'];
+    var res = chartA11yTitleFormatter.apply(this);
+    res += ', with ' + chart['getStat']('count') + ' points. ';
+    res += 'Min value is ' + chart['getStat']('min') + ', max value is ' + chart['getStat']('max') + '.';
+    return res;
+  };
+
+
+  /**
+   * @this {*}
+   * @return {*}
+   */
+  var bulletA11yTitleFormatter = function() {
+    var res = chartA11yTitleFormatter.apply(this);
+    return res + '. ';
+  };
+
+
+  /**
+   * @this {*}
+   * @return {*}
+   */
+  var cartesianBaseA11yTitleFormatter = function() {
+    var chart = this['chart'];
+    var res = chartA11yTitleFormatter.call(this);
+    var seriesLength = chart['getSeriesCount']();
+
+    var seriesMap = {};
+    for (var i = 0; i < seriesLength; i++) {
+      var ser = chart['getSeriesAt'](i);
+      var type = ser['seriesType']();
+      if (seriesMap.hasOwnProperty(type)) {
+        seriesMap[type] += 1;
+      } else {
+        seriesMap[type] = 1;
+      }
+    }
+
+    res += ', with ';
+    for (var key in seriesMap) {
+      res += seriesMap[key] + ' ' + key + ' series, ';
+    }
+    res += '. ';
+
+    var yScale = chart['yScale']();
+    var xScale = chart['xScale']();
+    var xType = xScale['getType']();
+    var yType = yScale['getType']();
+
+    if (yType == 'ordinal') { //By xml-scheme, enums.ScaleTypes
+      var yVals = yScale['values']();
+      res += 'Y-scale with ' + yVals.length + ' categories: ';
+      for (var y = 0; y < yVals.length; y++) {
+        res += yVals[y] + ', ';
+      }
+      res += '. ';
+    } else if (yType == 'dateTime') {
+      res += 'Y-scale minimum value is ' + window['anychart']['format']['dateTime'](yScale['minimum']()) +
+          ' , maximum value is ' + window['anychart']['format']['dateTime'](yScale['maximum']()) + '. ';
+    } else { // log/linear.
+      res += 'Y-scale minimum value is ' + yScale['minimum']() + ' , maximum value is ' + yScale['maximum']() + '. ';
+    }
+
+    if (xType == 'ordinal') {
+      var xVals = xScale['values']();
+      res += 'X-scale with ' + xVals.length + ' categories: ';
+      for (var x = 0; x < xVals.length; x++) {
+        res += xVals[x] + ', ';
+      }
+      res += '. ';
+    } else if (xType == 'dateTime') {
+      res += 'X-scale minimum value is ' + window['anychart']['format']['dateTime'](xScale['minimum']()) +
+          ' , maximum value is ' + window['anychart']['format']['dateTime'](xScale['maximum']()) + '. ';
+    } else { // log/linear.
+      res += 'X-scale minimum value is ' + xScale['minimum']() + ' , maximum value is ' + xScale['maximum']() + '. ';
+    }
+
+    return res;
+  };
+
+
+  /**
+   * @this {*}
+   * @return {*}
+   */
+  var stockBaseA11yTitleFormatter = function() {
+    var chart = this['chart'];
+    var res = chartA11yTitleFormatter.call(this);
+    var seriesLength = chart['getSeriesCount']();
+
+    var seriesMap = {};
+    for (var i = 0; i < seriesLength; i++) {
+      var ser = chart['getSeriesAt'](i);
+      var type = ser['seriesType']();
+      if (seriesMap.hasOwnProperty(type)) {
+        seriesMap[type] += 1;
+      } else {
+        seriesMap[type] = 1;
+      }
+    }
+
+    res += ', with ';
+    for (var key in seriesMap) {
+      res += seriesMap[key] + ' ' + key + ' series, ';
+    }
+    res += '. ';
+
+    var xScale = chart['xScale']();
+
+    res += 'X-scale minimum value is ' + window['anychart']['format']['dateTime'](xScale['getMinimum']()) +
+        ' , maximum value is ' + window['anychart']['format']['dateTime'](xScale['getMaximum']()) + '. ';
+
+    return res;
+  };
+
+
+  /**
+   * @this {*}
+   * @return {*}
+   */
+  var scatterA11yTitleFormatter = function() {
+    var chart = this['chart'];
+    var res = chartA11yTitleFormatter.call(this);
+    var seriesLength = chart['getSeriesCount']();
+
+    var seriesMap = {};
+    for (var i = 0; i < seriesLength; i++) {
+      var ser = chart['getSeriesAt'](i);
+      var type = ser['getType']();
+      if (seriesMap.hasOwnProperty(type)) {
+        seriesMap[type] += 1;
+      } else {
+        seriesMap[type] = 1;
+      }
+    }
+
+    res += ', with ';
+    for (var key in seriesMap) {
+      res += seriesMap[key] + ' ' + key + ' series, ';
+    }
+    res += '. ';
+
+    var yScale = chart['yScale']();
+    var xScale = chart['xScale']();
+    var xType = xScale['getType']();
+    var yType = yScale['getType']();
+
+    if (yType == 'ordinal') { //By xml-scheme, enums.ScaleTypes
+      var yVals = yScale['values']();
+      res += 'Y-scale with ' + yVals.length + ' categories: ';
+      for (var y = 0; y < yVals.length; y++) {
+        res += yVals[y] + ', ';
+      }
+      res += '. ';
+    } else if (yType == 'dateTime') {
+      res += 'Y-scale minimum value is ' + window['anychart']['format']['dateTime'](yScale['minimum']()) +
+          ' , maximum value is ' + window['anychart']['format']['dateTime'](yScale['maximum']()) + '. ';
+    } else { // log/linear.
+      res += 'Y-scale minimum value is ' + yScale['minimum']() + ' , maximum value is ' + yScale['maximum']() + '. ';
+    }
+
+    if (xType == 'ordinal') {
+      var xVals = xScale['values']();
+      res += 'X-scale with ' + xVals.length + ' categories: ';
+      for (var x = 0; x < xVals.length; x++) {
+        res += xVals[x] + ', ';
+      }
+      res += '. ';
+    } else if (xType == 'dateTime') {
+      res += 'X-scale minimum value is ' + window['anychart']['format']['dateTime'](xScale['minimum']()) +
+          ' , maximum value is ' + window['anychart']['format']['dateTime'](xScale['maximum']()) + '. ';
+    } else { // log/linear.
+      res += 'X-scale minimum value is ' + xScale['minimum']() + ' , maximum value is ' + xScale['maximum']() + '. ';
+    }
+
+    return res;
+  };
+
+
   window['anychart'] = window['anychart'] || {};
   window['anychart']['themes'] = window['anychart']['themes'] || {};
   window['anychart']['themes']['v6'] = {
     // default font settings
     'defaultFontSettings': {
       'fontSize': 10,
-      'fontFamily': 'Verdana',
+      'fontFamily': 'Verdana, Helvetica, Arial, sans-serif',
       'fontColor': '#222',
       'textDirection': 'ltr',
       'fontOpacity': 1,
@@ -107,7 +323,7 @@ goog.provide('anychart.themes.v6');
       'enabled': true,
 
       'fontSize': 11,
-      'fontFamily': 'Tahoma',
+      'fontFamily': 'Tahoma, Geneva, sans-serif',
       'fontColor': '#222',
       'fontWeight': 'bold',
 
@@ -147,7 +363,7 @@ goog.provide('anychart.themes.v6');
         'bottom': 2,
         'left': 4
       },
-      'fontFamily': 'Arial',
+      'fontFamily': 'Arial, Helvetica, sans-serif',
       'fontSize': 11,
       'fontColor': '#000',
       'rotation': 0,
@@ -162,13 +378,7 @@ goog.provide('anychart.themes.v6');
         'stroke': {'keys': ['0 #DDDDDD 1', '1 #D0D0D0 1'], 'angle': '90'},
         'fill': {'keys': ['0 #FFFFFF 1', '0.5 #F3F3F3 1', '1 #FFFFFF 1'], 'angle': '90'}
       },
-      /**
-       * @this {*}
-       * @return {*}
-       */
-      'textFormatter': function() {
-        return this['value'];
-      },
+      'textFormatter': returnValue,
       /**
        * @this {*}
        * @return {*}
@@ -202,7 +412,7 @@ goog.provide('anychart.themes.v6');
       'title': {
         'enabled': false,
         'fontSize': 10,
-        'fontFamily': 'Verdana',
+        'fontFamily': 'Verdana, Helvetica, Arial, sans-serif',
         'fontColor': '#232323',
         'fontWeight': 'bold',
         'vAlign': 'top',
@@ -247,7 +457,7 @@ goog.provide('anychart.themes.v6');
       'content': {
         'enabled': true,
         'fontSize': 10,
-        'fontFamily': 'Verdana',
+        'fontFamily': 'Verdana, Helvetica, Arial, sans-serif',
         'fontColor': '#232323',
         'fontWeight': 'bold',
         'vAlign': 'top',
@@ -279,7 +489,7 @@ goog.provide('anychart.themes.v6');
         'zIndex': 1
       },
       'fontSize': 10,
-      'fontFamily': 'Verdana',
+      'fontFamily': 'Verdana, Helvetica, Arial, sans-serif',
       'fontColor': '#232323',
       'fontWeight': 'bold',
       'vAlign': 'top',
@@ -370,7 +580,7 @@ goog.provide('anychart.themes.v6');
         'maxFontSize': 72,
         'anchor': 'center',
         'padding': {'top': 1, 'right': 2, 'bottom': 1, 'left': 2},
-        'fontFamily': 'Tahoma',
+        'fontFamily': 'Tahoma, Geneva, sans-serif',
         'fontSize': 11,
         'textWrap': 'noWrap',
         'background': {
@@ -378,13 +588,7 @@ goog.provide('anychart.themes.v6');
           'stroke': {'keys': ['#ddd', '#d0d0d0'], 'angle': '90'},
           'fill': {'keys': ['#fff', '#f3f3f3', '#fff'], 'angle': '90'}
         },
-        /**
-         * @this {*}
-         * @return {*}
-         */
-        'textFormatter': function() {
-          return (this['value']);
-        },
+        'textFormatter': returnValue,
         /**
          * @this {*}
          * @return {*}
@@ -408,7 +612,7 @@ goog.provide('anychart.themes.v6');
           'bottom': 0,
           'left': 1
         },
-        'fontFamily': 'Tahoma',
+        'fontFamily': 'Tahoma, Geneva, sans-serif',
         'fontSize': 11,
         'textWrap': 'noWrap',
         'background': {
@@ -575,7 +779,7 @@ goog.provide('anychart.themes.v6');
       'legend': {
         'enabled': false,
         'fontSize': '11',
-        'fontFamily': 'Tahoma',
+        'fontFamily': 'Tahoma, Geneva, sans-serif',
         'itemsLayout': 'horizontal',
         'itemsSpacing': 15,
         'iconSize': 13,
@@ -611,7 +815,7 @@ goog.provide('anychart.themes.v6');
         'title': {
           'enabled': false,
           'fontSize': '10',
-          'fontFamily': 'Verdana',
+          'fontFamily': 'Verdana, Helvetica, Arial, sans-serif',
           'text': 'Legend title',
           'background': {
             'enabled': false,
@@ -727,7 +931,7 @@ goog.provide('anychart.themes.v6');
       'defaultLabelSettings': {
         'enabled': true,
         'fontSize': 11,
-        'fontFamily': 'Tahoma',
+        'fontFamily': 'Tahoma, Geneva, sans-serif',
         'fontWeight': 'bold',
         'textWrap': 'byLetter',
 
@@ -802,6 +1006,11 @@ goog.provide('anychart.themes.v6');
         'textFormatter': function() {
           return this['formattedValues'].join('\n');
         }
+      },
+      'a11y': {
+        'enabled': true,
+        'titleFormatter': chartA11yTitleFormatter,
+        'mode': 'chartElements'
       }
     },
 
@@ -858,7 +1067,7 @@ goog.provide('anychart.themes.v6');
 
           'labels': {
             'enabled': false,
-            'fontFamily': 'Arial',
+            'fontFamily': 'Arial, Helvetica, sans-serif',
             'fontSize': 11,
 
             'background': {
@@ -877,13 +1086,7 @@ goog.provide('anychart.themes.v6');
             'rotation': 0,
             'width': null,
             'height': null,
-            /**
-             * @this {*}
-             * @return {*}
-             */
-            'textFormatter': function() {
-              return this['value'];
-            },
+            'textFormatter': VALUE_TOKEN_DECIMALS_COUNT_2,
             /**
              * @this {*}
              * @return {*}
@@ -972,7 +1175,11 @@ goog.provide('anychart.themes.v6');
           // cartesian.barsPadding() and cartesian.barGroupsPadding()
           //'pointWidth': '90%',
           //'xPointPosition': 0.5
-          'connectMissingPoints': false
+          'connectMissingPoints': false,
+          'a11y': {
+            'enabled': true,
+            'titleFormatter': 'Series named {%SeriesName} with {%SeriesPointsCount} points. Min value is {%SeriesYMin}, max value is {%SeriesYMax}'
+          }
         },
         'area': {
           'labels': {
@@ -1676,6 +1883,9 @@ goog.provide('anychart.themes.v6');
           'text': 'X-Axis'
         },
         'width': null,
+        'labels': {
+          'textFormatter': VALUE_TOKEN_DECIMALS_COUNT_10
+        },
         'scale': 0
       },
       'defaultYAxisSettings': {
@@ -1689,6 +1899,9 @@ goog.provide('anychart.themes.v6');
           'enabled': true
         },
         'width': null,
+        'labels': {
+          'textFormatter': VALUE_TOKEN_DECIMALS_COUNT_10
+        },
         'scale': 1
       },
       'defaultLineMarkerSettings': {
@@ -1710,7 +1923,7 @@ goog.provide('anychart.themes.v6');
         'enabled': true,
 
         'fontSize': 11,
-        'fontFamily': 'Tahoma',
+        'fontFamily': 'Tahoma, Geneva, sans-serif',
         'fontColor': '#222222',
         'fontWeight': 'bold',
 
@@ -1827,7 +2040,7 @@ goog.provide('anychart.themes.v6');
           },
           'enabled': true,
           'fontSize': 11,
-          'fontFamily': 'Tahoma',
+          'fontFamily': 'Tahoma, Geneva, sans-serif',
           'fontColor': '#fff',
           'fontWeight': 400,
           'textWrap': 'byLetter',
@@ -1872,7 +2085,7 @@ goog.provide('anychart.themes.v6');
           },
           'enabled': true,
           'fontSize': 11,
-          'fontFamily': 'Tahoma',
+          'fontFamily': 'Tahoma, Geneva, sans-serif',
           'fontColor': '#fff',
           'fontWeight': 400,
           'textWrap': 'byLetter',
@@ -1932,6 +2145,9 @@ goog.provide('anychart.themes.v6');
           'hoverStroke': '#545f69'
         },
         'zIndex': 35
+      },
+      'a11y': {
+        'titleFormatter': cartesianBaseA11yTitleFormatter
       }
     },
 
@@ -2569,6 +2785,9 @@ goog.provide('anychart.themes.v6');
           'hoverStroke': '#545f69'
         },
         'zIndex': 35
+      },
+      'a11y': {
+        'titleFormatter': chartA11yTitleFormatter
       }
     },
     'treeMap': {
@@ -2952,6 +3171,10 @@ goog.provide('anychart.themes.v6');
               return this['valuePrefix'] + parseFloat(this['value']).toFixed(2) + this['valuePostfix'];
             }
           }
+        },
+        'a11y': {
+          'enabled': true,
+          'titleFormatter': 'Series named {%SeriesName} with {%SeriesPointsCount} points. Min value is {%SeriesYMin}, max value is {%SeriesYMax}'
         }
       },
 
@@ -3022,7 +3245,7 @@ goog.provide('anychart.themes.v6');
         'enabled': true,
 
         'fontSize': 11,
-        'fontFamily': 'Tahoma',
+        'fontFamily': 'Tahoma, Geneva, sans-serif',
         'fontColor': '#222222',
         'fontWeight': 'bold',
 
@@ -3149,7 +3372,7 @@ goog.provide('anychart.themes.v6');
           },
           'enabled': true,
           'fontSize': 11,
-          'fontFamily': 'Tahoma',
+          'fontFamily': 'Tahoma, Geneva, sans-serif',
           'fontColor': '#fff',
           'fontWeight': 400,
           'textWrap': 'byLetter',
@@ -3192,7 +3415,7 @@ goog.provide('anychart.themes.v6');
           },
           'enabled': true,
           'fontSize': 11,
-          'fontFamily': 'Tahoma',
+          'fontFamily': 'Tahoma, Geneva, sans-serif',
           'fontColor': '#fff',
           'fontWeight': 400,
           'textWrap': 'byLetter',
@@ -3224,6 +3447,9 @@ goog.provide('anychart.themes.v6');
           },
           'rotation': 0
         }
+      },
+      'a11y': {
+        'titleFormatter': scatterA11yTitleFormatter
       }
     },
 
@@ -3322,6 +3548,9 @@ goog.provide('anychart.themes.v6');
         'enabled': true,
         'text': 'Chart title',
         'rotation': 0
+      },
+      'a11y': {
+        'titleFormatter': bulletA11yTitleFormatter
       }
     },
 
@@ -3380,7 +3609,7 @@ goog.provide('anychart.themes.v6');
         'enabled': true,
         'fontSize': 13,
         'fontColor': null,
-        'fontFamily': 'Arial',
+        'fontFamily': 'Arial, Helvetica, sans-serif',
         'background': {
           'enabled': false
         },
@@ -3398,13 +3627,7 @@ goog.provide('anychart.themes.v6');
         'width': null,
         'height': null,
         'autoRotate': false,
-        /**
-         * @this {*}
-         * @return {*}
-         */
-        'textFormatter': function() {
-          return (this['value'] * 100 / this['getStat']('sum')).toFixed(1) + '%';
-        },
+        'textFormatter': Y_PERCENT_OF_TOTAL_TOKEN + '%',
         /**
          * @this {*}
          * @return {*}
@@ -3461,6 +3684,9 @@ goog.provide('anychart.themes.v6');
             return (this['value']) + '\n' + this['valuePrefix'] + this['meta']['pointValue'] + this['valuePostfix'];
           }
         }
+      },
+      'a11y': {
+        'titleFormatter': pieA11yTitleFormatter
       }
     },
 
@@ -3574,7 +3800,7 @@ goog.provide('anychart.themes.v6');
       'labels': {
         'enabled': true,
         'fontSize': 13,
-        'fontFamily': 'Arial',
+        'fontFamily': 'Arial, Helvetica, sans-serif',
         'fontColor': null,
         'disablePointerEvents': false,
 
@@ -3886,6 +4112,10 @@ goog.provide('anychart.themes.v6');
               return this['valuePrefix'] + parseFloat(this['value']).toFixed(2) + this['valuePostfix'];
             }
           }
+        },
+        'a11y': {
+          'enabled': true,
+          'titleFormatter': 'Series named {%SeriesName} with {%SeriesPointsCount} points. Min value is {%SeriesYMin}, max value is {%SeriesYMax}'
         }
       },
       'defaultGridSettings': {
@@ -3971,7 +4201,10 @@ goog.provide('anychart.themes.v6');
       ],
       'xScale': 0,
       'yScale': 1,
-      'background': {'enabled': true, 'fill': {'keys': ['#fff', '#f3f3f3', '#fff'], 'angle': 90}, 'stroke': null}
+      'background': {'enabled': true, 'fill': {'keys': ['#fff', '#f3f3f3', '#fff'], 'angle': 90}, 'stroke': null},
+      'a11y': {
+        'titleFormatter': scatterA11yTitleFormatter
+      }
     },
 
     // merge with chart
@@ -4250,7 +4483,10 @@ goog.provide('anychart.themes.v6');
       ],
       'xScale': 0,
       'yScale': 1,
-      'background': {'enabled': true, 'fill': {'keys': ['#fff', '#f3f3f3', '#fff'], 'angle': 90}, 'stroke': null}
+      'background': {'enabled': true, 'fill': {'keys': ['#fff', '#f3f3f3', '#fff'], 'angle': 90}, 'stroke': null},
+      'a11y': {
+        'titleFormatter': scatterA11yTitleFormatter
+      }
     },
 
     // merge with chart
@@ -4370,7 +4606,7 @@ goog.provide('anychart.themes.v6');
         'enabled': true,
 
         'fontSize': 11,
-        'fontFamily': 'Tahoma',
+        'fontFamily': 'Tahoma, Geneva, sans-serif',
         'fontColor': '#222222',
         'fontWeight': 'bold',
 
@@ -4744,6 +4980,9 @@ goog.provide('anychart.themes.v6');
         },
         'choropleth': {},
         'bubble': {
+          'a11y': {
+            'titleFormatter': chartA11yTitleFormatter
+          },
           'displayNegative': false,
           /**
            * @this {*}
@@ -5901,6 +6140,410 @@ goog.provide('anychart.themes.v6');
         'textFormatter': function() {
           return this['formattedValues'].join('\n');
         }
+      },
+      'a11y': {
+        'titleFormatter': chartA11yTitleFormatter
+      }
+    },
+
+    'pert': {
+      'tooltip': {
+        'enabled': false
+      },
+      /**
+       * @this {*}
+       * @return {*}
+       */
+      'expectedTimeCalculator': function() {
+        if (this['duration'] === void 0) {
+          var pessimistic = this['pessimistic'];
+          var optimistic = this['optimistic'];
+          var mostLikely = this['mostLikely'];
+          return Math.round(((optimistic + 4 * mostLikely + pessimistic) / 6) * 100) / 100; //Round to 2 digits after floating point.
+        } else {
+          return Number(this['duration']);
+        }
+      },
+      'background': {
+        'zIndex': 0
+      },
+      'milestones': {
+        'shape': 'circle',
+        'labels': {
+          'enabled': true,
+          'anchor': 'leftTop',
+          'vAlign': 'middle',
+          'hAlign': 'center',
+          'fontColor': '#fff',
+          'disablePointerEvents': true,
+          /**
+           * @this {*}
+           * @return {*}
+           */
+          'textFormatter': function() {
+            if (this['creator']) {
+              var name = this['creator'].get('name');
+              return this['isStart'] ? 'Start: ' + name : 'Finish: ' + name;
+            } else {
+              return this['isStart'] ? 'Start' : 'Finish';
+            }
+          }
+        },
+        'hoverLabels': {
+          'fontColor': '#ff0',
+          'fontOpacity': 1
+        },
+        'selectLabels': {
+          'fontWeight': 'bold'
+        },
+        'fill': {
+          'color': '#64b5f6',
+          'opacity': 0.8
+        },
+        'hoverFill': '#757575',
+        'selectFill': '#333',
+        'stroke': 'none',
+        'hoverStroke': 'none',
+        'selectStroke': 'none',
+        'tooltip': {
+          'title': {
+            'enabled': true
+          },
+          /**
+           * @this {*}
+           * @return {*}
+           */
+          'titleFormatter': function() {
+            return 'Event';
+          },
+          /**
+           * @this {*}
+           * @return {*}
+           */
+          'textFormatter': function() {
+            var result = '';
+            var i = 0;
+            if (this['successors'] && this['successors'].length) {
+              result += '\nSuccessors:';
+              for (i = 0; i < this['successors'].length; i++) {
+                result += '\n - ' + this['successors'][i].get('name');
+              }
+            }
+            if (this['predecessors'] && this['predecessors'].length) {
+              result += '\nPredecessors:';
+              for (i = 0; i < this['predecessors'].length; i++) {
+                result += '\n - ' + this['predecessors'][i].get('name');
+              }
+            }
+            return result;
+          }
+        }
+      },
+
+      'tasks': {
+        'fill': 'none',
+        'hoverFill': 'none',
+        'selectFill': 'none',
+        'stroke': 'grey',
+        'hoverStroke': {
+          'color': 'grey',
+          'thickness': 2
+        },
+        'selectStroke': {
+          'color': '#333',
+          'thickness': 2,
+          'opacity': 0.85
+        },
+        'dummyFill': 'none',
+        'hoverDummyFill': 'none',
+        'selectDummyFill': 'none',
+        'dummyStroke': {
+          'color': 'grey',
+          'dash': '4 2'
+        },
+        'hoverDummyStroke': {
+          'color': 'grey',
+          'dash': '4 2',
+          'thickness': 2
+        },
+        'selectDummyStroke': {
+          'color': '#333',
+          'dash': '4 2'
+        },
+        'upperLabels': {
+          'enabled': true,
+          'anchor': 'centerBottom',
+          'vAlign': 'bottom',
+          'hAlign': 'center',
+          'fontSize': 10,
+          'fontOpacity': 0.8,
+          'padding': {
+            'top': 1,
+            'right': 0,
+            'bottom': 1,
+            'left': 0
+          },
+          'disablePointerEvents': true,
+          /**
+           * @this {*}
+           * @return {*}
+           */
+          'textFormatter': function() {
+            return this['name'];
+          }
+        },
+        'selectUpperLabels': {
+          'fontWeight': 'bold',
+          'fontSize': 12
+        },
+        'hoverUpperLabels': {
+          'fontWeight': 'bold',
+          'fontOpacity': 1
+        },
+        'lowerLabels': {
+          'enabled': true,
+          'anchor': 'centerTop',
+          'vAlign': 'top',
+          'hAlign': 'center',
+          'fontSize': 10,
+          'fontOpacity': 0.8,
+          'fontColor': '#aaa',
+          'padding': {
+            'top': 1,
+            'right': 0,
+            'bottom': 1,
+            'left': 0
+          },
+          'disablePointerEvents': true,
+          /**
+           * @this {*}
+           * @return {*}
+           */
+          'textFormatter': function() {
+            return 'Duration: ' + this['duration'];
+          }
+        },
+        'hoverLowerLabels': {
+          'fontWeight': 'bold',
+          'fontOpacity': 1
+        },
+        'selectLowerLabels': {
+          'fontWeight': 'bold'
+        },
+        'tooltip': {
+          'title': {
+            'enabled': true
+          },
+          /**
+           * @this {*}
+           * @return {*}
+           */
+          'titleFormatter': function() {
+            return this['name'];
+          },
+          /**
+           * @this {*}
+           * @return {*}
+           */
+          'textFormatter': function() {
+            var result = 'Earliest start: ' + this['earliestStart'] + '\nEarliest finish: ' + this['earliestFinish'] +
+                '\nLatest start: ' + this['latestStart'] + '\nLatest finish: ' + this['latestFinish'] +
+                '\nDuration: ' + this['duration'] + '\nSlack: ' + this['slack'];
+            if (!isNaN(this['variance'])) result += '\nStandard deviation: ' + Math.round(this['variance'] * 100) / 100;
+            return result;
+          }
+        }
+      },
+
+      'criticalPath': {
+        'milestones': {
+          'shape': 'circle',
+          'labels': {
+            'enabled': true,
+            'anchor': 'leftTop',
+            'vAlign': 'middle',
+            'hAlign': 'center',
+            'fontColor': '#fff',
+            'disablePointerEvents': true,
+            /**
+             * @this {*}
+             * @return {*}
+             */
+            'textFormatter': function() {
+              if (this['creator']) {
+                var name = this['creator'].get('name');
+                return this['isStart'] ? 'Start: ' + name : 'Finish: ' + name;
+              } else {
+                return this['isStart'] ? 'Start' : 'Finish';
+              }
+            }
+          },
+          'hoverLabels': {
+            'fontColor': '#f90',
+            'fontOpacity': 1
+          },
+          'selectLabels': {
+            'fontWeight': 'bold'
+          },
+          'fill': {
+            'color': '#ef6c00',
+            'opacity': 0.8
+          },
+          'hoverFill': '#757575',
+          'selectFill': '#333',
+          'stroke': 'none',
+          'hoverStroke': 'none',
+          'selectStroke': 'none',
+          'tooltip': {
+            'title': {
+              'enabled': true
+            },
+            /**
+             * @this {*}
+             * @return {*}
+             */
+            'titleFormatter': function() {
+              return 'Event on critical path';
+            },
+            /**
+             * @this {*}
+             * @return {*}
+             */
+            'textFormatter': function() {
+              var result = '';
+              var i = 0;
+              if (this['successors'] && this['successors'].length) {
+                result += '\nSuccessors:';
+                for (i = 0; i < this['successors'].length; i++) {
+                  result += '\n - ' + this['successors'][i].get('name');
+                }
+              }
+              if (this['predecessors'] && this['predecessors'].length) {
+                result += '\nPredecessors:';
+                for (i = 0; i < this['predecessors'].length; i++) {
+                  result += '\n - ' + this['predecessors'][i].get('name');
+                }
+              }
+              return result;
+            }
+          }
+        },
+        'tasks': {
+          'fill': 'none',
+          'hoverFill': 'none',
+          'selectFill': 'none',
+          'stroke': '#ef6c00',
+          'hoverStroke': {
+            'color': '#ef6c00',
+            'thickness': 2
+          },
+          'selectStroke': {
+            'color': '#333',
+            'thickness': 2,
+            'opactity': 0.85
+          },
+          'dummyFill': 'none',
+          'hoverDummyFill': 'none',
+          'selectDummyFill': 'none',
+          'dummyStroke': {
+            'color': '#ef6c00',
+            'dash': '4 2'
+          },
+          'hoverDummyStroke': {
+            'color': '#ef6c00',
+            'dash': '4 2',
+            'thickness': 2
+          },
+          'selectDummyStroke': {
+            'color': '#333',
+            'dash': '4 2'
+          },
+          'upperLabels': {
+            'enabled': true,
+            'anchor': 'centerBottom',
+            'vAlign': 'bottom',
+            'hAlign': 'center',
+            'fontSize': 10,
+            'fontOpacity': 0.8,
+            'fontColor': 'red',
+            'padding': {
+              'top': 1,
+              'right': 0,
+              'bottom': 1,
+              'left': 0
+            },
+            'disablePointerEvents': true,
+            /**
+             * @this {*}
+             * @return {*}
+             */
+            'textFormatter': function() {
+              return 'Crit.: ' + this['name'];
+            }
+          },
+          'selectUpperLabels': {
+            'fontWeight': 'bold',
+            'fontSize': 12
+          },
+          'hoverUpperLabels': {
+            'fontWeight': 'bold',
+            'fontOpacity': 1
+          },
+          'lowerLabels': {
+            'enabled': true,
+            'anchor': 'centerTop',
+            'vAlign': 'top',
+            'hAlign': 'center',
+            'fontSize': 10,
+            'fontOpacity': 0.8,
+            'fontColor': '#f99',
+            'padding': {
+              'top': 1,
+              'right': 0,
+              'bottom': 1,
+              'left': 0
+            },
+            'disablePointerEvents': true,
+            /**
+             * @this {*}
+             * @return {*}
+             */
+            'textFormatter': function() {
+              return 'Duration: ' + this['duration'];
+            }
+          },
+          'hoverLowerLabels': {
+            'fontWeight': 'bold',
+            'fontOpacity': 1
+          },
+          'selectLowerLabels': {
+            'fontWeight': 'bold'
+          },
+          'tooltip': {
+            'title': {
+              'enabled': true
+            },
+            /**
+             * @this {*}
+             * @return {*}
+             */
+            'titleFormatter': function() {
+              return 'Critical: ' + this['name'];
+            },
+            /**
+             * @this {*}
+             * @return {*}
+             */
+            'textFormatter': function() {
+              var result = 'Earliest start: ' + this['earliestStart'] + '\nEarliest finish: ' + this['earliestFinish'] +
+                  '\nLatest start: ' + this['latestStart'] + '\nLatest finish: ' + this['latestFinish'] +
+                  '\nDuration: ' + this['duration'] + '\nSlack: ' + this['slack'];
+              if (!isNaN(this['variance'])) result += '\nStandard deviation: ' + Math.round(this['variance'] * 100) / 100;
+              return result;
+            }
+            //'textFormatter': 'Earliest start: {%EarliestStart}\nEarliest finish: {%EarliestFinish}\nLatest start: {%LatestStart}\nLatest finish: {%LatestFinish}\nDuration: {%Duration}\nSlack: {%Slack}'
+          }
+        }
       }
     },
 
@@ -6314,7 +6957,7 @@ goog.provide('anychart.themes.v6');
       'label': {
         'enabled': true,
         'fontSize': 11,
-        'fontFamily': 'Tahoma',
+        'fontFamily': 'Tahoma, Geneva, sans-serif',
         'fontWeight': 'bold',
         'textWrap': 'byLetter',
         'text': 'Label text',
@@ -6388,7 +7031,7 @@ goog.provide('anychart.themes.v6');
         },
         'title': {
           'enabled': true,
-          'fontFamily': 'Verdana',
+          'fontFamily': 'Verdana, Helvetica, Arial, sans-serif',
           'fontSize': 10,
           'fontColor': '#232323',
           'text': 'Legend Title',
@@ -6575,7 +7218,7 @@ goog.provide('anychart.themes.v6');
       'textAxisMarker': {
         'enabled': true,
         'fontSize': 11,
-        'fontFamily': 'Tahoma',
+        'fontFamily': 'Tahoma, Geneva, sans-serif',
         'fontWeight': 'bold',
         'value': 0,
         'anchor': 'center',
