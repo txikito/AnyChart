@@ -1,34 +1,15 @@
-anychart.onDocumentLoad(function() {
-  var chart;
-  var dataSet1 = anychart.data.set([
-    {id: "CA", name: "Canada", value: "A1"},
-    {id: "IT", name: "Italy", value: "A1"}
-  ]);
-  var dataSet2 = anychart.data.set([
-    {id: "CA.NS", size:8, value:111},
-    {id: "CA.ON", size:8, value:100},
-    {id: "CA.PE", size:2, value:101}
-  ]);
-  var dataSet3 = anychart.data.set([
-    {id: "IT.MO", size:8, value:111},
-    {id: "IT.RN", size:2, value:101}
-  ]);
-  var map1 = anychart.map();
-  var map2 = anychart.map();
-
-  map1.geoData('anychart.maps.italy');
-  map2.geoData('anychart.maps.canada');
-  map1.choropleth(dataSet3);
-  map2.choropleth(dataSet2);
-
-  chart = anychart.map();
-  chart.interactivity().selectionMode(anychart.enums.SelectionMode.DRILL_DOWN);
-  chart.geoData('anychart.maps.world');
-  chart.legend(true);
-  chart.choropleth(dataSet1);
-  chart.drillDownMap({
-    'IT': map1,
-    'CA': map2
-  });
-  chart.container('container').draw();
+anychart.onDocumentReady(function() {
+  chart1 = anychart.radar();
+  chart1.title().text('Markers lefttop (with settings markers)');
+  chart1.area([
+    {x: 0, y: '4', marker: {fill: 'red', size: 7}},
+    {x: 1, y: 10, marker: {fill: 'green', stroke: '3 red', size: 7}},
+    {x: 2, y: -1, marker: {fill: 'yellow', type: 'star5', size: 7}},
+    {x: 3, y: 10, marker: {fill: 'blue', offsetX: 8, size: 7}},
+    {x: 4, y: 4, marker: {fill: 'gray', offsetY: -10, size: 7}}
+  ])
+      .markers()
+      .enabled(true)
+      .anchor('lefttop');
+  chart1.container('container').draw();
 });

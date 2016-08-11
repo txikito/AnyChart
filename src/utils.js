@@ -951,7 +951,7 @@ anychart.utils.json2xml = function(json, opt_rootNodeName, opt_returnAsXmlNode) 
   var root = anychart.utils.json2xml_(json, opt_rootNodeName || 'anychart', result);
   if (root) {
     if (!opt_rootNodeName)
-      root.setAttribute('xmlns', 'http://anychart.com/schemas/7.10.1/xml-schema.xsd');
+      root.setAttribute('xmlns', 'http://anychart.com/schemas/7.11.0/xml-schema.xsd');
     result.appendChild(root);
   }
   return opt_returnAsXmlNode ? result : goog.dom.xml.serialize(result);
@@ -1130,6 +1130,8 @@ anychart.utils.getNodeNames_ = function(arrayPropName) {
       return ['inverted_list', 'inverted'];
     case 'drillTo':
       return ['drill_to', 'item'];
+    case 'extraClassNames':
+      return ['extra_class_names', 'class_name'];
   }
   return null;
 };
@@ -1211,6 +1213,8 @@ anychart.utils.getArrayPropName_ = function(nodeName) {
       return ['colorScales', 'scale'];
     case 'drillTo':
       return ['drillTo', 'item'];
+    case 'extraClassNames':
+      return ['extraClassNames', 'className'];
   }
   return null;
 };
@@ -1911,7 +1915,17 @@ anychart.utils.htmlTableFromCsv = function(csv, opt_title, opt_asString, opt_csv
 };
 
 
+/**
+ * It's super hidden name for isValidKey method.
+ * @return {boolean}
+ */
+anychart.utils.printUtilsBoolean = function() {
+  return anychart.isValidKey();
+};
+
+
 //exports
+goog.exportSymbol('anychart.utils.printUtilsBoolean', anychart.utils.printUtilsBoolean);
 goog.exportSymbol('anychart.utils.xml2json', anychart.utils.xml2json);
 goog.exportSymbol('anychart.utils.json2xml', anychart.utils.json2xml);
 goog.exportSymbol('anychart.utils.defaultDateFormatter', anychart.utils.defaultDateFormatter);

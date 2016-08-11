@@ -1,6 +1,6 @@
 {
   "$schema": "http://json-schema.org/draft-04/schema",
-  "description": "AnyChart 7 JSON schema, version 7.10.1",
+  "description": "AnyChart 7 JSON schema, version 7.11.0",
   "type": "object",
   "properties": {
     "chart": {
@@ -1910,33 +1910,16 @@
         "tasks": {"$ref": "#/definitions/tasks"},
         "criticalPath": {"$ref": "#/definitions/criticalPath"},
 
-
-
-        "stroke": {"$ref": "#/definitions/stroke"},
-        "hoverStroke": {"$ref": "#/definitions/stroke"},
-        "selectStroke": {"$ref": "#/definitions/stroke"},
-
-        "fill": {"$ref": "#/definitions/fill"},
-        "hoverFill": {"$ref": "#/definitions/fill"},
-        "selectFill": {"$ref": "#/definitions/fill"},
-
-        "hatchFill": {"$ref": "#/definitions/hatchFillSet"},
-        "hoverHatchFill": {"$ref": "#/definitions/hatchFillSet"},
-        "selectHatchFill": {"$ref": "#/definitions/hatchFillSet"},
-
-        "labelsDisplayMode": {"$ref": "#/definitions/anychart.enums.LabelsDisplayMode"},
-        "headersDisplayMode": {"$ref": "#/definitions/anychart.enums.LabelsDisplayMode"},
-        "maxDepth": {"type": "number"},
-        "hintDepth": {"type": "number"},
-        "hintOpacity": {"type": "number"},
-        "maxHeadersHeight": {"type": ["number", "string"]},
-        "sort": {"type": "string"},
-
-        "colorScale": {
-          "oneOf": [
-            {"type": ["string", "number"]},
-            {"$ref": "#/definitions/anychart.scales.OrdinalColor"},
-            {"$ref": "#/definitions/anychart.scales.LinearColor"}
+        "horizontalSpacing": {
+          "type":[
+            "number",
+            "string"
+          ]
+        },
+        "verticalSpacing": {
+          "type":[
+            "number",
+            "string"
           ]
         }
       },
@@ -2275,7 +2258,8 @@
               {"$ref": "#/definitions/disable"},
               {"$ref": "#/definitions/anychart.core.map.series.Choropleth"},
               {"$ref": "#/definitions/anychart.core.map.series.Bubble"},
-              {"$ref": "#/definitions/anychart.core.map.series.Connector"}
+              {"$ref": "#/definitions/anychart.core.map.series.Connector"},
+              {"$ref": "#/definitions/anychart.core.map.series.Marker"}
             ]
           }
         },
@@ -3303,6 +3287,9 @@
         },
         "radius": {
           "type": ["string", "number", "null"]
+        },
+        "cornersRounding": {
+          "type": ["string", "number"]
         },
         "overlapMode": {"$ref": "#/definitions/anychart.enums.LabelsOverlapMode"},
         "labels": {
@@ -4880,6 +4867,9 @@
         "radius": {
           "type": ["string", "number", "null"]
         },
+        "cornersRounding": {
+          "type": ["string", "number"]
+        },
         "axisIndex": {
           "type": "number"
         },
@@ -5505,6 +5495,12 @@
       "properties": {
         "enabled": {
           "type": "boolean"
+        },
+        "extraClassNames": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
         }
       }
     },
@@ -5542,7 +5538,10 @@
             {"$ref": "#/definitions/anychart.core.ui.Tooltip"}
           ]
         },
-        "shape": {"type": "string"}
+        "shape": {"type": "string"},
+        "size": {
+          "type": ["string", "number"]
+        }
       }
     },
 

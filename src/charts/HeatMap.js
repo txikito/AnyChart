@@ -2103,12 +2103,17 @@ anychart.charts.HeatMap.prototype.selectMarkers = function(opt_value) {
 
 /**
  * Getter/setter for mapping.
- * @param {?(anychart.data.View|anychart.data.Set|Array|string)=} opt_value Value to set.
+ * @param {?(anychart.data.View|anychart.data.Set|anychart.data.TableData|Array|string)=} opt_value Value to set.
  * @param {Object.<string, (string|boolean)>=} opt_csvSettings If CSV string is passed, you can pass CSV parser settings here as a hash map.
  * @return {(!anychart.charts.HeatMap|!anychart.data.View)} Returns itself if used as a setter or the mapping if used as a getter.
  */
 anychart.charts.HeatMap.prototype.data = function(opt_value, opt_csvSettings) {
   if (goog.isDef(opt_value)) {
+    // handle HTML table data
+    if (opt_value) {
+      if (opt_value['caption']) this.title(opt_value['caption']);
+      if (opt_value['rows']) opt_value = opt_value['rows'];
+    }
     this.series_.data(opt_value, opt_csvSettings);
     return this;
   }
@@ -2577,8 +2582,14 @@ anychart.charts.HeatMap.prototype.serialize = function() {
   json['data'] = this.data().serialize();
 
   json['labels'] = this.labels().serialize();
-  json['hoverLabels'] = this.hoverLabels().serialize();
-  json['selectLabels'] = this.selectLabels().serialize();
+  json['hoverLabels'] = this.hoverLabels().getChangedSettings();
+  json['selectLabels'] = this.selectLabels().getChangedSettings();
+  if (goog.isNull(json['hoverLabels']['enabled'])) {
+    delete json['hoverLabels']['enabled'];
+  }
+  if (goog.isNull(json['selectLabels']['enabled'])) {
+    delete json['selectLabels']['enabled'];
+  }
 
   json['markers'] = this.markers().serialize();
   json['hoverMarkers'] = this.hoverMarkers().serialize();

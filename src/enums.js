@@ -30,8 +30,6 @@ anychart.enums.ChartTypes = {
   COLUMN_3D: 'column3d',
   FINANCIAL: 'financial',
   FUNNEL: 'funnel',
-  GANTT_RESOURCE: 'ganttResource',
-  GANTT_PROJECT: 'ganttProject',
   LINE: 'line',
   MARKER: 'marker',
   PIE: 'pie',
@@ -40,11 +38,13 @@ anychart.enums.ChartTypes = {
   PYRAMID: 'pyramid',
   RADAR: 'radar',
   SCATTER: 'scatter',
-  STOCK: 'stock',
   SPARKLINE: 'sparkline',
   HEAT_MAP: 'heatMap',
   TREE_MAP: 'treeMap',
-  PERT: 'pert'
+  STOCK: 'stock',
+  PERT: 'pert',
+  GANTT_RESOURCE: 'ganttResource',
+  GANTT_PROJECT: 'ganttProject'
 };
 
 
@@ -5257,6 +5257,25 @@ anychart.enums.MilestoneShape = {
 };
 
 
+/**
+ * Normalizes milestone type string to a enum.
+ * @param {*} value
+ * @return {anychart.enums.MilestoneShape}
+ */
+anychart.enums.normalizeMilestoneShape = function(value) {
+  value = String(value).toLowerCase();
+  switch (value) {
+    case 'rhomb':
+    case 'rhombus':
+      return anychart.enums.MilestoneShape.RHOMBUS;
+    case 'rect':
+    case 'rectangle':
+      return anychart.enums.MilestoneShape.RECTANGLE;
+    default:
+      return anychart.enums.MilestoneShape.CIRCLE;
+  }
+};
+
 // DVF-1826
 // goog.exportSymbol('anychart.enums.XGroupingMode.FIRST', anychart.enums.XGroupingMode.FIRST);
 // goog.exportSymbol('anychart.enums.XGroupingMode.LAST', anychart.enums.XGroupingMode.LAST);
@@ -5432,6 +5451,7 @@ goog.exportSymbol('anychart.enums.EventType.POINT_MOUSE_UP', anychart.enums.Even
 goog.exportSymbol('anychart.enums.EventType.POINT_MOUSE_MOVE', anychart.enums.EventType.POINT_MOUSE_MOVE);
 goog.exportSymbol('anychart.enums.EventType.POINT_CLICK', anychart.enums.EventType.POINT_CLICK);
 goog.exportSymbol('anychart.enums.EventType.POINT_DBLCLICK', anychart.enums.EventType.POINT_DBLCLICK);
+//deprecated
 goog.exportSymbol('anychart.enums.EventType.POINT_HOVER', anychart.enums.EventType.POINT_HOVER);
 goog.exportSymbol('anychart.enums.EventType.POINTS_SELECT', anychart.enums.EventType.POINTS_SELECT);
 goog.exportSymbol('anychart.enums.EventType.POINTS_HOVER', anychart.enums.EventType.POINTS_HOVER);

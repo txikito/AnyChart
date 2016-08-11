@@ -2429,8 +2429,10 @@ anychart.core.series.Base.prototype.a11y = function(opt_enabledOrJson) {
     this.a11y_ = new anychart.core.utils.SeriesA11y(this);
     this.registerDisposable(this.a11y_);
     this.a11y_.listenSignals(this.onA11ySignal_, this);
-    if (this.chart instanceof anychart.core.Chart)
+    if (this.chart instanceof anychart.core.Chart) {
       this.a11y_.parentA11y(/** @type {anychart.core.utils.A11y} */ (/** @type {anychart.core.Chart} */ (this.chart).a11y()));
+      this.a11y_.parentA11y().applyChangesInChildA11y();
+    }
   }
   if (goog.isDef(opt_enabledOrJson)) {
     this.a11y_.setup.apply(this.a11y_, arguments);
@@ -3750,8 +3752,14 @@ anychart.core.series.Base.prototype.serialize = function() {
 
   if (this.supportsLabels()) {
     json['labels'] = this.labels().serialize();
-    json['hoverLabels'] = this.hoverLabels().serialize();
-    json['selectLabels'] = this.selectLabels().serialize();
+    json['hoverLabels'] = this.hoverLabels().getChangedSettings();
+    json['selectLabels'] = this.selectLabels().getChangedSettings();
+    if (goog.isNull(json['hoverLabels']['enabled'])) {
+      delete json['hoverLabels']['enabled'];
+    }
+    if (goog.isNull(json['selectLabels']['enabled'])) {
+      delete json['selectLabels']['enabled'];
+    }
   }
 
   if (this.supportsMarkers()) {

@@ -350,6 +350,7 @@ anychart.core.SeriesBase.prototype.isSizeBased = function() {
 anychart.core.SeriesBase.prototype.setChart = function(chart) {
   this.chart_ = chart;
   this.a11y().parentA11y(/** @type {anychart.core.utils.A11y} */ (/** @type {anychart.core.Chart} */ (this.chart_).a11y()));
+  this.a11y().parentA11y().applyChangesInChildA11y();
 };
 
 
@@ -2039,9 +2040,17 @@ anychart.core.SeriesBase.prototype.serialize = function() {
   if (goog.isDef(this.name()))
     json['name'] = this.name();
   json['data'] = this.serializeData();
+
   json['labels'] = this.labels().serialize();
-  json['hoverLabels'] = this.hoverLabels().serialize();
-  json['selectLabels'] = this.selectLabels().serialize();
+  json['hoverLabels'] = this.hoverLabels().getChangedSettings();
+  json['selectLabels'] = this.selectLabels().getChangedSettings();
+  if (goog.isNull(json['hoverLabels']['enabled'])) {
+    delete json['hoverLabels']['enabled'];
+  }
+  if (goog.isNull(json['selectLabels']['enabled'])) {
+    delete json['selectLabels']['enabled'];
+  }
+
   json['tooltip'] = this.tooltip().serialize();
   json['legendItem'] = this.legendItem().serialize();
   json['a11y'] = this.a11y().serialize();

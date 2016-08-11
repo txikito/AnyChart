@@ -116,6 +116,31 @@ anychart.onDocumentReady(function() {
   chart.container('container');
   chart.title('Pert 1');
   chart.data(treeData);
+
+  // chart.criticalPath().milestones().fill(function() {
+  //   // debugger;
+  //   if (this['creator']) {
+  //     var name = this['creator'].get('name');
+  //     return 'red';
+  //   } else {
+  //     return this['isStart'] ? 'blue' : 'green';
+  //   }
+  // });
+
+  var task = chart.tasks();
+
+  task.dummyStroke({
+    thickness: 1.5,
+    dash: 10,
+    color: '#60727B'
+  });
+  task.dummyFill('#A0B1BA');
+
+  // chart.milestones().shape('rhomb');
+  // chart.criticalPath().milestones().shape('rect');
+
+  // chart.milestones().size(30);
+  // chart.criticalPath().milestones().size(50);
   // chart.milestones().shape(anychart.enums.MilestoneShape.RHOMBUS);
   // chart.milestones().shape(anychart.enums.MilestoneShape.RHOMBUS);
 

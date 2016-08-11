@@ -260,6 +260,7 @@ anychart.core.ui.LabelsFactory.HANDLED_EVENT_TYPES_CAPTURE_SHIFT_ = 12;
 anychart.core.ui.LabelsFactory.prototype.enabled = function(opt_value) {
   if (goog.isDef(opt_value)) {
     this.enabledState_ = opt_value;
+    this.changedSettings['enabled'] = true;
     if (!goog.isNull(opt_value)) {
       if (goog.isNull(this.enabledState_) && !!opt_value) {
         this.invalidate(anychart.ConsistencyState.ENABLED, this.getEnableChangeSignals());
@@ -1084,7 +1085,7 @@ anychart.core.ui.LabelsFactory.prototype.getDimension = function(formatProviderO
     this.measureTextElement_ = acgraph.text();
     this.measureTextElement_.attr('aria-hidden', 'true');
   }
-  text = this.callTextFormatter(this.textFormatter_, formatProvider, opt_cacheIndex);
+  text = this.callTextFormatter(textFormatter, formatProvider, opt_cacheIndex);
   this.measureTextElement_.width(null);
   this.measureTextElement_.height(null);
   if (isHtml) {

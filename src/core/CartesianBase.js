@@ -286,6 +286,29 @@ anychart.core.CartesianBase.prototype.getType = function() {
 };
 
 
+/** @type {Object.<anychart.enums.CartesianSeriesType, Array.<string>>} */
+anychart.core.CartesianBase.seriesReferenceValues = {
+  'bar': [anychart.opt.VALUE],
+  'line': [anychart.opt.VALUE],
+  'area': [anychart.opt.VALUE],
+  'column': [anychart.opt.VALUE],
+  'spline': [anychart.opt.VALUE],
+  'marker': [anychart.opt.VALUE],
+  'stepArea': [anychart.opt.VALUE],
+  'stepLine:': [anychart.opt.VALUE],
+  'splineArea': [anychart.opt.VALUE],
+  'bubble': [anychart.opt.VALUE, anychart.opt.SIZE],
+  'rangeBar': [anychart.opt.HIGH, anychart.opt.LOW],
+  'rangeArea': [anychart.opt.HIGH, anychart.opt.LOW],
+  'rangeColumn': [anychart.opt.HIGH, anychart.opt.LOW],
+  'rangeStepArea': [anychart.opt.HIGH, anychart.opt.LOW],
+  'rangeSplineArea': [anychart.opt.HIGH, anychart.opt.LOW],
+  'ohlc': [anychart.opt.OPEN, anychart.opt.HIGH, anychart.opt.LOW, anychart.opt.CLOSE],
+  'candlestick': [anychart.opt.OPEN, anychart.opt.HIGH, anychart.opt.LOW, anychart.opt.CLOSE],
+  'box': [anychart.opt.LOWEST, anychart.opt.Q1, anychart.opt.MEDIAN, anychart.opt.Q3, anychart.opt.HIGHEST]
+};
+
+
 //----------------------------------------------------------------------------------------------------------------------
 //
 //  Zoom
@@ -1919,6 +1942,89 @@ anychart.core.CartesianBase.prototype.getAllSeries = function() {
 };
 
 
+/**
+ * @param {(anychart.data.Set|anychart.data.TableData|Array)=} opt_value
+ * @return {anychart.data.View|anychart.core.CartesianBase}
+ */
+anychart.core.CartesianBase.prototype.data = function(opt_value) {
+  if (goog.isDef(opt_value)) {
+
+    // handle HTML table data
+    var seriesNames = null;
+    if (opt_value) {
+      if (opt_value['caption']) this.title(opt_value['caption']);
+      if (opt_value['header'] && opt_value['header'].length) seriesNames = opt_value['header'];
+      if (opt_value['rows']) this.rawData_ = opt_value['rows'];
+      else this.rawData_ = opt_value;
+    } else this.rawData_ = opt_value;
+
+    /** @type {anychart.data.Set} */
+    var dataSet = opt_value instanceof anychart.data.Set ?
+        opt_value :
+        anychart.data.set(this.rawData_);
+
+    // define cols count
+    var firstRow = dataSet.row(0);
+    var colsCount = 1;
+    var keys = null;
+
+    if (goog.isArray(firstRow)) {
+      colsCount = firstRow.length;
+    } else if (goog.isObject(firstRow)) {
+      keys = goog.object.getKeys(firstRow);
+      colsCount = keys.length;
+    }
+
+    var seriesCount = this.getSeriesCount();
+    var usedColsCount = 1; // we assume that first col is always X
+    var seriesIndex = 0;
+    var series, names, allocCount, mapping;
+
+    this.suspendSignalsDispatching();
+
+    for (var i = 0; i < seriesCount; i++) {
+      series = this.getSeriesAt(seriesIndex);
+      names = series.getYValueNames();
+      allocCount = usedColsCount + names.length;
+
+      if (allocCount <= colsCount) {
+        mapping = anychart.data.buildMapping(dataSet, usedColsCount, allocCount, names, keys);
+        series.data(mapping);
+        if (seriesNames) series.name(seriesNames[seriesIndex + 1]);
+        usedColsCount = allocCount;
+      } else {
+        var seriesId = /** @type {string} */(series.id());
+        this.removeSeries(seriesId);
+        seriesIndex--;
+      }
+      seriesIndex++;
+    }
+
+    var type = /** @type {anychart.enums.CartesianSeriesType} */(this.defaultSeriesType());
+    names = anychart.core.CartesianBase.seriesReferenceValues[type];
+
+    do {
+      allocCount = usedColsCount + names.length;
+
+      if (allocCount <= colsCount) {
+        mapping = anychart.data.buildMapping(dataSet, usedColsCount, allocCount, names, keys);
+        series = this.addSeries(mapping)[0];
+        if (seriesNames) series.name(seriesNames[seriesIndex + 1]);
+        seriesIndex++;
+        usedColsCount = allocCount;
+      } else {
+        break;
+      }
+    } while (usedColsCount <= colsCount);
+
+    this.resumeSignalsDispatching(true);
+    return this;
+  } else {
+    return this.rawData_;
+  }
+};
+
+
 //----------------------------------------------------------------------------------------------------------------------
 //
 //  Series specific settings
@@ -2337,8 +2443,6 @@ anychart.core.CartesianBase.prototype.calculateXScales = function() {
             }
           }
         }
-        // we started autocalc before
-        xScale.finishAutoCalc();
       }
       if (xScale instanceof anychart.scales.Ordinal) {
         var namesField = xScale.getNamesField();
@@ -2360,6 +2464,11 @@ anychart.core.CartesianBase.prototype.calculateXScales = function() {
           xScale.setAutoNames(autoNames);
         }
       }
+    }
+    for (uid in this.xScales) {
+      xScale = this.xScales[uid];
+      if (xScale.needsAutoCalc())
+        xScale.finishAutoCalc();
     }
     this.markConsistent(anychart.ConsistencyState.CARTESIAN_SCALES);
     anychart.performance.end('x scales calculation');
