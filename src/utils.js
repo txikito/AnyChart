@@ -349,7 +349,7 @@ anychart.utils.normalizeTimestamp = function(value) {
  * @deprecated Deprecated since 7.9.0. Use anychart.format.dateTime instead.
  */
 anychart.utils.defaultDateFormatter = function(timestamp) {
-  anychart.core.reporting.warning(anychart.enums.WarningCode.DEPRECATED, null, ['anychart.utils.defaultDateFormatter', 'anychart.format.dateTime']);
+  anychart.core.reporting.warning(anychart.enums.WarningCode.DEPRECATED, null, ['anychart.utils.defaultDateFormatter', 'anychart.format.dateTime'], true);
   if (goog.isNumber(timestamp) || goog.isString(timestamp)) {
     var formatter = new goog.i18n.DateTimeFormat('yyyy.MM.dd');
     return formatter.format(new goog.date.UtcDateTime(new Date(+timestamp)));
@@ -925,7 +925,7 @@ anychart.utils.json2xml = function(json, opt_rootNodeName, opt_returnAsXmlNode) 
   var root = anychart.utils.json2xml_(json, opt_rootNodeName || 'anychart', result);
   if (root) {
     if (!opt_rootNodeName)
-      root.setAttribute('xmlns', 'http://anychart.com/schemas/7.11.0/xml-schema.xsd');
+      root.setAttribute('xmlns', 'http://anychart.com/schemas/7.11.1/xml-schema.xsd');
     result.appendChild(root);
   }
   return opt_returnAsXmlNode ? result : goog.dom.xml.serialize(result);
@@ -1109,6 +1109,8 @@ anychart.utils.getNodeNames_ = function(arrayPropName) {
       return ['drill_to', 'item'];
     case 'extraClassNames':
       return ['extra_class_names', 'class_name'];
+    case 'dependsOn':
+      return ['depends_on', 'item'];
   }
   return null;
 };
@@ -1192,6 +1194,8 @@ anychart.utils.getArrayPropName_ = function(nodeName) {
       return ['drillTo', 'item'];
     case 'extraClassNames':
       return ['extraClassNames', 'className'];
+    case 'dependsOn':
+      return ['dependsOn', 'item'];
   }
   return null;
 };
@@ -1331,7 +1335,7 @@ anychart.utils.UTCTimeZoneCache_;
  * @deprecated Deprecated since 7.9.0. Use anychart.format.dateTime instead.
  */
 anychart.utils.formatDateTime = function(date, pattern) {
-  anychart.core.reporting.warning(anychart.enums.WarningCode.DEPRECATED, null, ['anychart.utils.formatDateTime', 'anychart.format.dateTime']);
+  anychart.core.reporting.warning(anychart.enums.WarningCode.DEPRECATED, null, ['anychart.utils.formatDateTime', 'anychart.format.dateTime'], true);
   /** @type {goog.i18n.DateTimeFormat} */
   var formatter;
   if (pattern in anychart.utils.formatDateTimeCache_)

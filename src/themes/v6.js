@@ -820,6 +820,14 @@ goog.provide('anychart.themes.v6');
       'minPixPerPoint': NaN
     },
 
+    'stageCredits': {
+      'enabled': true,
+      'text': 'AnyChart',
+      'url': 'http://anychart.com',
+      'alt': 'AnyChart.com',
+      'logoSrc': 'https://static.anychart.com/logo.png'
+    },
+
     // base/separated chart
     'chart': {
       'enabled': true,
@@ -996,13 +1004,6 @@ goog.provide('anychart.themes.v6');
         'zIndex': 20
       },
       'credits': {
-        'enabled': true,
-        'text': 'AnyChart',
-        'url': 'http://anychart.com',
-        'alt': 'AnyChart.com',
-        'inChart': false
-        // we cannot determine the protocol statically :(
-        //'logoSrc': 'http://static.anychart.com/logo.png'
       },
       'defaultLabelSettings': {
         'enabled': true,
@@ -5710,9 +5711,6 @@ goog.provide('anychart.themes.v6');
       'title': {
         'enabled': false
       },
-      'credits': {
-        'inChart': true
-      },
       'background': {
         'fill': '#fff'
       },
@@ -6706,6 +6704,7 @@ goog.provide('anychart.themes.v6');
           'hAlign': 'center',
           'fontSize': 12,
           'fontOpacity': 1,
+          'textWrap': 'noWrap',
           'contColor': '#333',
           'padding': {
             'top': 1,
@@ -6731,6 +6730,7 @@ goog.provide('anychart.themes.v6');
           'hAlign': 'center',
           'fontSize': 12,
           'fontOpacity': 1,
+          'textWrap': 'noWrap',
           'contColor': '#333',
           'padding': {
             'top': 1,
@@ -6864,6 +6864,7 @@ goog.provide('anychart.themes.v6');
             'hAlign': 'center',
             'fontSize': 12,
             'fontOpacity': 1,
+            'textWrap': 'noWrap',
             'contColor': '#333',
             'padding': {
               'top': 1,
@@ -6889,6 +6890,7 @@ goog.provide('anychart.themes.v6');
             'hAlign': 'center',
             'fontSize': 12,
             'fontOpacity': 1,
+            'textWrap': 'noWrap',
             'contColor': '#333',
             'padding': {
               'top': 1,
