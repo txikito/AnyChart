@@ -13,7 +13,7 @@ goog.require('anychart.core.SeparateChart');
 goog.require('anychart.core.map.geom');
 goog.require('anychart.core.map.projections');
 goog.require('anychart.core.map.projections.TwinProjection');
-goog.require('anychart.core.map.scale.Geo');
+goog.require('anychart.scales.Geo');
 goog.require('anychart.core.map.series.Base');
 goog.require('anychart.core.reporting');
 goog.require('anychart.core.ui.Callout');
@@ -797,7 +797,7 @@ anychart.charts.Map.prototype.dataLayer_;
 
 /**
  * Geo scale.
- * @type {anychart.core.map.scale.Geo}
+ * @type {anychart.scales.Geo}
  * @private
  */
 anychart.charts.Map.prototype.scale_;
@@ -2157,8 +2157,8 @@ anychart.charts.Map.prototype.getPlotBounds = function() {
 //region --- Geo settings
 /**
  * Map scale.
- * @param {anychart.core.map.scale.Geo=} opt_value Scale to set.
- * @return {!(anychart.core.map.scale.Geo|anychart.charts.Map)} Default chart scale value or itself for method chaining.
+ * @param {anychart.scales.Geo=} opt_value Scale to set.
+ * @return {!(anychart.scales.Geo|anychart.charts.Map)} Default chart scale value or itself for method chaining.
  */
 anychart.charts.Map.prototype.scale = function(opt_value) {
   if (goog.isDef(opt_value)) {
@@ -2173,7 +2173,7 @@ anychart.charts.Map.prototype.scale = function(opt_value) {
     return this;
   } else {
     if (!this.scale_) {
-      this.scale_ = new anychart.core.map.scale.Geo();
+      this.scale_ = new anychart.scales.Geo();
       this.scale_.listenSignals(this.geoScaleInvalidated_, this);
     }
     return this.scale_;
@@ -2976,7 +2976,7 @@ anychart.charts.Map.prototype.drawGeom_ = function(coords, index, geom) {
  *    tx: Object,
  *    projection1: anychart.core.map.projections.Base,
  *    projection2: anychart.core.map.projections.Base,
- *    geoScale: anychart.core.map.scale.Geo,
+ *    geoScale: anychart.scales.Geo,
  *    map: anychart.charts.Map
  * }}
  * @private
@@ -4988,7 +4988,7 @@ anychart.charts.Map.prototype.setupByJSON = function(config) {
 
   var i, json, scale;
   if (config['geoScale']) {
-    scale = new anychart.core.map.scale.Geo();
+    scale = new anychart.scales.Geo();
     scale.setup(config['geoScale']);
     this.scale(scale);
   }

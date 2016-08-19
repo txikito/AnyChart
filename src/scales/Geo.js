@@ -1,4 +1,4 @@
-goog.provide('anychart.core.map.scale.Geo');
+goog.provide('anychart.scales.Geo');
 
 goog.require('anychart.core.Base');
 goog.require('anychart.enums');
@@ -9,7 +9,7 @@ goog.require('anychart.enums');
  * @constructor
  * @extends {anychart.core.Base}
  */
-anychart.core.map.scale.Geo = function() {
+anychart.scales.Geo = function() {
   goog.base(this);
   /**
    * Scale input domain minimum.
@@ -129,14 +129,14 @@ anychart.core.map.scale.Geo = function() {
    */
   this.bounds_ = null;
 };
-goog.inherits(anychart.core.map.scale.Geo, anychart.core.Base);
+goog.inherits(anychart.scales.Geo, anychart.core.Base);
 
 
 /**
  * Supported signals mask.
  * @type {number}
  */
-anychart.core.map.scale.Geo.prototype.SUPPORTED_SIGNALS =
+anychart.scales.Geo.prototype.SUPPORTED_SIGNALS =
     anychart.Signal.NEEDS_REAPPLICATION |
     anychart.Signal.NEEDS_RECALCULATION;
 
@@ -145,16 +145,16 @@ anychart.core.map.scale.Geo.prototype.SUPPORTED_SIGNALS =
  * Returns pixel bounds.
  * @return {anychart.math.Rect} .
  */
-anychart.core.map.scale.Geo.prototype.getBounds = function() {
+anychart.scales.Geo.prototype.getBounds = function() {
   return this.bounds_ ? this.bounds_.clone() : anychart.math.rect(0, 0, 0, 0);
 };
 
 
 /**
  * @param {anychart.math.Rect} value Bounds.
- * @return {anychart.core.map.scale.Geo} .
+ * @return {anychart.scales.Geo} .
  */
-anychart.core.map.scale.Geo.prototype.setBounds = function(value) {
+anychart.scales.Geo.prototype.setBounds = function(value) {
   this.bounds_ = value;
   this.consistent = false;
   return this;
@@ -165,7 +165,7 @@ anychart.core.map.scale.Geo.prototype.setBounds = function(value) {
  * Sets transformation map
  * @param {Object} value tx map.
  */
-anychart.core.map.scale.Geo.prototype.setTxMap = function(value) {
+anychart.scales.Geo.prototype.setTxMap = function(value) {
   this.tx = value;
   this.consistent = false;
 };
@@ -175,7 +175,7 @@ anychart.core.map.scale.Geo.prototype.setTxMap = function(value) {
  * Sets transformation map
  * @param {number} value tx map.
  */
-anychart.core.map.scale.Geo.prototype.setMapZoom = function(value) {
+anychart.scales.Geo.prototype.setMapZoom = function(value) {
   this.zoom = value;
   this.consistent = false;
 };
@@ -185,7 +185,7 @@ anychart.core.map.scale.Geo.prototype.setMapZoom = function(value) {
  * @param {number} dx tx map.
  * @param {number} dy tx map.
  */
-anychart.core.map.scale.Geo.prototype.setOffsetFocusPoint = function(dx, dy) {
+anychart.scales.Geo.prototype.setOffsetFocusPoint = function(dx, dy) {
   this.dx_ = dx;
   this.dy_ = dy;
   this.consistent = false;
@@ -196,17 +196,109 @@ anychart.core.map.scale.Geo.prototype.setOffsetFocusPoint = function(dx, dy) {
  * Returns scale type.
  * @return {string}
  */
-anychart.core.map.scale.Geo.prototype.getType = function() {
+anychart.scales.Geo.prototype.getType = function() {
   return anychart.enums.MapsScaleTypes.GEO;
 };
+
+
+//region --- Ticks
+/**
+ * @param {} opt_value
+ */
+anychart.scales.Geo.prototype.xTicks = function(opt_value) {
+  if (!this.xTicks_) {
+    this.xTicks_ = this.createTicks();
+  }
+  if (goog.isDef(opt_value)) {
+    this.xTicks_.setup(opt_value);
+    return this;
+  }
+  return this.xTicks_;
+};
+
+
+/**
+ * @param {} opt_value
+ */
+anychart.scales.Geo.prototype.xMinorTicks = function(opt_value) {
+  if (!this.xMinorTicks_) {
+    this.xMinorTicks_ = this.createTicks();
+  }
+  if (goog.isDef(opt_value)) {
+    this.xMinorTicks_.setup(opt_value);
+    return this;
+  }
+  return this.xMinorTicks_;
+};
+
+
+/**
+ * @param {} opt_value
+ */
+anychart.scales.Geo.prototype.yTicks = function(opt_value) {
+  if (!this.yTicks_) {
+    this.yTicks_ = this.createTicks();
+  }
+  if (goog.isDef(opt_value)) {
+    this.yTicks_.setup(opt_value);
+    return this;
+  }
+  return this.yTicks_;
+};
+
+
+/**
+ * @param {} opt_value
+ */
+anychart.scales.Geo.prototype.yMinorTicks = function(opt_value) {
+  if (!this.yMinorTicks_) {
+    this.yMinorTicks_ = this.createTicks();
+  }
+  if (goog.isDef(opt_value)) {
+    this.yMinorTicks_.setup(opt_value);
+    return this;
+  }
+  return this.yMinorTicks_;
+};
+
+
+/**
+ * Ticks invalidation handler.
+ * @param {anychart.SignalEvent} event Event object.
+ * @private
+ */
+anychart.scales.Geo.prototype.ticksInvalidated_ = function(event) {
+  if (event.hasSignal(anychart.Signal.NEEDS_REAPPLICATION)) {
+    this.consistent = false;
+    this.dispatchSignal(anychart.Signal.NEEDS_REAPPLICATION);
+  }
+};
+
+
+/**
+ * Create scale ticks.
+ * @return {!anychart.scales.GeoTicks}
+ * @protected
+ */
+anychart.scales.Geo.prototype.createTicks = function() {
+  var ticks = new anychart.scales.GeoTicks(this);
+  this.registerDisposable(ticks);
+  ticks.listenSignals(this.ticksInvalidated_, this);
+  return ticks;
+};
+
+
+//endregion
+
+
 
 
 /**
  * Getter/setter for gap.
  * @param {number=} opt_value Value to set.
- * @return {number|anychart.core.map.scale.Geo} .
+ * @return {number|anychart.scales.Geo} .
  */
-anychart.core.map.scale.Geo.prototype.gap = function(opt_value) {
+anychart.scales.Geo.prototype.gap = function(opt_value) {
   if (goog.isDef(opt_value)) {
     opt_value = +opt_value || 0;
     if (this.rangeBasedGap != opt_value) {
@@ -224,9 +316,9 @@ anychart.core.map.scale.Geo.prototype.gap = function(opt_value) {
 
 /**
  * @param {number=} opt_value Value to set.
- * @return {number|anychart.core.map.scale.Geo} Scale minimum.
+ * @return {number|anychart.scales.Geo} Scale minimum.
  */
-anychart.core.map.scale.Geo.prototype.minimumX = function(opt_value) {
+anychart.scales.Geo.prototype.minimumX = function(opt_value) {
   if (goog.isDef(opt_value)) {
     var val = anychart.utils.toNumber(opt_value);
     var auto = isNaN(val);
@@ -248,9 +340,9 @@ anychart.core.map.scale.Geo.prototype.minimumX = function(opt_value) {
 
 /**
  * @param {number=} opt_value Value to set.
- * @return {number|anychart.core.map.scale.Geo} Scale maximum.
+ * @return {number|anychart.scales.Geo} Scale maximum.
  */
-anychart.core.map.scale.Geo.prototype.maximumX = function(opt_value) {
+anychart.scales.Geo.prototype.maximumX = function(opt_value) {
   if (goog.isDef(opt_value)) {
     var val = anychart.utils.toNumber(opt_value);
     var auto = isNaN(val);
@@ -272,9 +364,9 @@ anychart.core.map.scale.Geo.prototype.maximumX = function(opt_value) {
 
 /**
  * @param {number=} opt_value Value to set.
- * @return {number|anychart.core.map.scale.Geo} Scale minimum.
+ * @return {number|anychart.scales.Geo} Scale minimum.
  */
-anychart.core.map.scale.Geo.prototype.minimumY = function(opt_value) {
+anychart.scales.Geo.prototype.minimumY = function(opt_value) {
   if (goog.isDef(opt_value)) {
     var val = anychart.utils.toNumber(opt_value);
     var auto = isNaN(val);
@@ -296,9 +388,9 @@ anychart.core.map.scale.Geo.prototype.minimumY = function(opt_value) {
 
 /**
  * @param {number=} opt_value Value to set.
- * @return {number|anychart.core.map.scale.Geo} Scale maximum.
+ * @return {number|anychart.scales.Geo} Scale maximum.
  */
-anychart.core.map.scale.Geo.prototype.maximumY = function(opt_value) {
+anychart.scales.Geo.prototype.maximumY = function(opt_value) {
   if (goog.isDef(opt_value)) {
     var val = anychart.utils.toNumber(opt_value);
     var auto = isNaN(val);
@@ -322,9 +414,9 @@ anychart.core.map.scale.Geo.prototype.maximumY = function(opt_value) {
  * Extends the current input domain with the passed values (if such don't exist in the domain).<br/>
  * <b>Note:</b> Attention! {@link anychart.scales.Base#finishAutoCalc} drops all passed values.
  * @param {...*} var_args Values that are supposed to extend the input domain.
- * @return {!anychart.core.map.scale.Geo} {@link anychart.core.map.scale.Geo} instance for method chaining.
+ * @return {!anychart.scales.Geo} {@link anychart.scales.Geo} instance for method chaining.
  */
-anychart.core.map.scale.Geo.prototype.extendDataRangeX = function(var_args) {
+anychart.scales.Geo.prototype.extendDataRangeX = function(var_args) {
   for (var i = 0; i < arguments.length; i++) {
     var value = +arguments[i];
     if (isNaN(value)) value = parseFloat(arguments[i]);
@@ -345,9 +437,9 @@ anychart.core.map.scale.Geo.prototype.extendDataRangeX = function(var_args) {
  * Extends the current input domain with the passed values (if such don't exist in the domain).<br/>
  * <b>Note:</b> Attention! {@link anychart.scales.Base#finishAutoCalc} drops all passed values.
  * @param {...*} var_args Values that are supposed to extend the input domain.
- * @return {!anychart.core.map.scale.Geo} {@link anychart.core.map.scale.Geo} instance for method chaining.
+ * @return {!anychart.scales.Geo} {@link anychart.scales.Geo} instance for method chaining.
  */
-anychart.core.map.scale.Geo.prototype.extendDataRangeY = function(var_args) {
+anychart.scales.Geo.prototype.extendDataRangeY = function(var_args) {
   for (var i = 0; i < arguments.length; i++) {
     var value = +arguments[i];
     if (isNaN(value)) value = parseFloat(arguments[i]);
@@ -367,10 +459,10 @@ anychart.core.map.scale.Geo.prototype.extendDataRangeY = function(var_args) {
 
 /**
  * Resets scale data range if it needs auto calculation.
- * @return {!anychart.core.map.scale.Geo} Itself for chaining.
+ * @return {!anychart.scales.Geo} Itself for chaining.
  * @protected
  */
-anychart.core.map.scale.Geo.prototype.resetDataRange = function() {
+anychart.scales.Geo.prototype.resetDataRange = function() {
   this.oldDataRangeMinX = this.dataRangeMinX;
   this.oldDataRangeMaxX = this.dataRangeMaxX;
   this.oldDataRangeMinY = this.dataRangeMinY;
@@ -387,7 +479,7 @@ anychart.core.map.scale.Geo.prototype.resetDataRange = function() {
 /**
  * @return {boolean} Returns true if the scale needs input domain auto calculations.
  */
-anychart.core.map.scale.Geo.prototype.needsAutoCalc = function() {
+anychart.scales.Geo.prototype.needsAutoCalc = function() {
   return this.minimumModeAuto || this.maximumModeAuto;
 };
 
@@ -396,8 +488,15 @@ anychart.core.map.scale.Geo.prototype.needsAutoCalc = function() {
  * Ensures that ticks are initialized for the scale.
  * NOTE: THIS METHOD IS FOR INTERNAL USE IN THE SCALE AND TICKS ONLY. DO NOT PUBLISH IT.
  */
-anychart.core.map.scale.Geo.prototype.calculate = function() {
+anychart.scales.Geo.prototype.calculate = function() {
   if (this.consistent || !this.bounds_) return;
+
+  var setupResult = this.ticks().setupAsMajor(this.min, this.max,
+      this.minimumModeAuto && this.min != this.softMin,
+      this.maximumModeAuto && this.max != this.softMax,
+      this.logBaseVal);
+
+  this.minorTicks().setupAsMinor(this.ticks().getInternal(), this.logBaseVal, setupResult[2], setupResult[3]);
 
   this.consistent = true;
   this.determineScaleMinMax();
@@ -415,7 +514,7 @@ anychart.core.map.scale.Geo.prototype.calculate = function() {
  * Determines this.min, this.max and this.range.
  * @protected
  */
-anychart.core.map.scale.Geo.prototype.determineScaleMinMax = function() {
+anychart.scales.Geo.prototype.determineScaleMinMax = function() {
   var maxX = this.maximumModeAuto ?
       this.dataRangeMaxX :
       this.maxX;
@@ -470,7 +569,7 @@ anychart.core.map.scale.Geo.prototype.determineScaleMinMax = function() {
  * @param {number} y Y value to transform in input scope.
  * @return {Array.<number>} Transformed value adjust bounds.
  */
-anychart.core.map.scale.Geo.prototype.scaleToPx = function(x, y) {
+anychart.scales.Geo.prototype.scaleToPx = function(x, y) {
   this.calculate();
 
   if (!this.bounds_)
@@ -499,7 +598,7 @@ anychart.core.map.scale.Geo.prototype.scaleToPx = function(x, y) {
  * @param {*} y Y value to transform in input scope.
  * @return {Array.<number>} Transformed value adjust bounds.
  */
-anychart.core.map.scale.Geo.prototype.pxToScale = function(x, y) {
+anychart.scales.Geo.prototype.pxToScale = function(x, y) {
   this.calculate();
 
   if (!this.bounds_)
@@ -529,7 +628,7 @@ anychart.core.map.scale.Geo.prototype.pxToScale = function(x, y) {
  * @param {number} lat Latitude in degrees.
  * @return {Object}
  */
-anychart.core.map.scale.Geo.prototype.pickTx = function(lon, lat) {
+anychart.scales.Geo.prototype.pickTx = function(lon, lat) {
   var defaultTx = this.tx['default'];
 
   var txName = goog.object.findKey(this.tx, function(value, key) {
@@ -565,7 +664,7 @@ anychart.core.map.scale.Geo.prototype.pickTx = function(lon, lat) {
  * @param {number} lat Latitude in degrees.
  * @return {Array.<number>} Transformed value adjust bounds [x, y].
  */
-anychart.core.map.scale.Geo.prototype.transformWithoutTx = function(lon, lat) {
+anychart.scales.Geo.prototype.transformWithoutTx = function(lon, lat) {
   this.calculate();
 
   if (!this.bounds_ || isNaN(lon) || isNaN(lat))
@@ -615,7 +714,7 @@ anychart.core.map.scale.Geo.prototype.transformWithoutTx = function(lon, lat) {
  * @param {number} lat Latitude in degrees.
  * @return {Array.<number>} Transformed value adjust bounds [x, y].
  */
-anychart.core.map.scale.Geo.prototype.transform = function(lon, lat) {
+anychart.scales.Geo.prototype.transform = function(lon, lat) {
   var coords = this.transformWithoutTx(lon, lat);
 
   coords[0] = coords[0] * this.zoom + this.dx_;
@@ -631,7 +730,7 @@ anychart.core.map.scale.Geo.prototype.transform = function(lon, lat) {
  * @param {number} y Y value to transform.
  * @return {Array.<number>} Transformed value adjust bounds.
  */
-anychart.core.map.scale.Geo.prototype.inverseTransform = function(x, y) {
+anychart.scales.Geo.prototype.inverseTransform = function(x, y) {
   this.calculate();
 
   if (!this.bounds_ || isNaN(x) || isNaN(y))
@@ -689,9 +788,9 @@ anychart.core.map.scale.Geo.prototype.inverseTransform = function(x, y) {
  * Getter and setter for scale inversion.
  * @param {boolean=} opt_invertedX Inverted X state to set.
  * @param {boolean=} opt_invertedY Inverted Y state to set.
- * @return {(!anychart.core.map.scale.Geo|Array.<boolean>)} Inverted state or itself for method chaining.
+ * @return {(!anychart.scales.Geo|Array.<boolean>)} Inverted state or itself for method chaining.
  */
-anychart.core.map.scale.Geo.prototype.inverted = function(opt_invertedX, opt_invertedY) {
+anychart.scales.Geo.prototype.inverted = function(opt_invertedX, opt_invertedY) {
   if (goog.isDef(opt_invertedX) || goog.isDef(opt_invertedX)) {
     var signal = 0;
     if (goog.isDef(opt_invertedX)) {
@@ -720,9 +819,9 @@ anychart.core.map.scale.Geo.prototype.inverted = function(opt_invertedX, opt_inv
 /**
  * Informs scale that an auto range calculation started for the chart, so it should reset its data range on the first
  * call of this method if needed.
- * @return {!anychart.core.map.scale.Geo} Chaining.
+ * @return {!anychart.scales.Geo} Chaining.
  */
-anychart.core.map.scale.Geo.prototype.startAutoCalc = function() {
+anychart.scales.Geo.prototype.startAutoCalc = function() {
   if (!this.autoCalcs_)
     this.resetDataRange();
   this.autoCalcs_++;
@@ -735,7 +834,7 @@ anychart.core.map.scale.Geo.prototype.startAutoCalc = function() {
  * @param {boolean=} opt_silently If this flag is set, do not dispatch an event if reapplication needed.
  * @return {boolean} If the calculation changed the scale and it needs to be reapplied.
  */
-anychart.core.map.scale.Geo.prototype.finishAutoCalc = function(opt_silently) {
+anychart.scales.Geo.prototype.finishAutoCalc = function(opt_silently) {
   this.autoCalcs_ = Math.max(this.autoCalcs_ - 1, 0);
   if (this.autoCalcs_ == 0) {
     return this.checkScaleChanged(!!opt_silently);
@@ -750,7 +849,7 @@ anychart.core.map.scale.Geo.prototype.finishAutoCalc = function(opt_silently) {
  * @return {boolean} If the scale was changed and it needs to be reapplied.
  * @protected
  */
-anychart.core.map.scale.Geo.prototype.checkScaleChanged = function(silently) {
+anychart.scales.Geo.prototype.checkScaleChanged = function(silently) {
   var res = (this.oldDataRangeMinX != this.dataRangeMinX) || (this.oldDataRangeMaxX != this.dataRangeMaxX) ||
       (this.oldDataRangeMinY != this.dataRangeMinY) || (this.oldDataRangeMaxY != this.dataRangeMaxY);
   if (res) {
@@ -763,7 +862,7 @@ anychart.core.map.scale.Geo.prototype.checkScaleChanged = function(silently) {
 
 
 /** @inheritDoc */
-anychart.core.map.scale.Geo.prototype.serialize = function() {
+anychart.scales.Geo.prototype.serialize = function() {
   var json = goog.base(this, 'serialize');
   json['type'] = this.getType();
   var inv = this.inverted();
@@ -781,7 +880,7 @@ anychart.core.map.scale.Geo.prototype.serialize = function() {
 
 
 /** @inheritDoc */
-anychart.core.map.scale.Geo.prototype.setupByJSON = function(config) {
+anychart.scales.Geo.prototype.setupByJSON = function(config) {
   goog.base(this, 'setupByJSON', config);
   this.inverted(config['invertedX'], config['invertedY']);
   this.minimumX(config['minimumX']);
@@ -796,16 +895,20 @@ anychart.core.map.scale.Geo.prototype.setupByJSON = function(config) {
 
 //exports
 //todo (blackart) Don't export yet.
-//anychart.core.map.scale.Geo.prototype['setBounds'] = anychart.core.map.scale.Geo.prototype.setBounds;
-//anychart.core.map.scale.Geo.prototype['transform'] = anychart.core.map.scale.Geo.prototype.transform;
-//anychart.core.map.scale.Geo.prototype['inverseTransform'] = anychart.core.map.scale.Geo.prototype.inverseTransform;
-//anychart.core.map.scale.Geo.prototype['minimumX'] = anychart.core.map.scale.Geo.prototype.minimumX;
-//anychart.core.map.scale.Geo.prototype['minimumY'] = anychart.core.map.scale.Geo.prototype.minimumY;
-//anychart.core.map.scale.Geo.prototype['maximumX'] = anychart.core.map.scale.Geo.prototype.maximumX;
-//anychart.core.map.scale.Geo.prototype['maximumY'] = anychart.core.map.scale.Geo.prototype.maximumY;
-//anychart.core.map.scale.Geo.prototype['extendDataRangeX'] = anychart.core.map.scale.Geo.prototype.extendDataRangeX;
-//anychart.core.map.scale.Geo.prototype['extendDataRangeY'] = anychart.core.map.scale.Geo.prototype.extendDataRangeY;
-//anychart.core.map.scale.Geo.prototype['inverted'] = anychart.core.map.scale.Geo.prototype.inverted;
-//anychart.core.map.scale.Geo.prototype['startAutoCalc'] = anychart.core.map.scale.Geo.prototype.startAutoCalc;
-//anychart.core.map.scale.Geo.prototype['finishAutoCalc'] = anychart.core.map.scale.Geo.prototype.finishAutoCalc;
-anychart.core.map.scale.Geo.prototype['gap'] = anychart.core.map.scale.Geo.prototype.gap;
+//anychart.scales.Geo.prototype['setBounds'] = anychart.scales.Geo.prototype.setBounds;
+//anychart.scales.Geo.prototype['transform'] = anychart.scales.Geo.prototype.transform;
+//anychart.scales.Geo.prototype['inverseTransform'] = anychart.scales.Geo.prototype.inverseTransform;
+//anychart.scales.Geo.prototype['minimumX'] = anychart.scales.Geo.prototype.minimumX;
+//anychart.scales.Geo.prototype['minimumY'] = anychart.scales.Geo.prototype.minimumY;
+//anychart.scales.Geo.prototype['maximumX'] = anychart.scales.Geo.prototype.maximumX;
+//anychart.scales.Geo.prototype['maximumY'] = anychart.scales.Geo.prototype.maximumY;
+//anychart.scales.Geo.prototype['extendDataRangeX'] = anychart.scales.Geo.prototype.extendDataRangeX;
+//anychart.scales.Geo.prototype['extendDataRangeY'] = anychart.scales.Geo.prototype.extendDataRangeY;
+//anychart.scales.Geo.prototype['inverted'] = anychart.scales.Geo.prototype.inverted;
+//anychart.scales.Geo.prototype['startAutoCalc'] = anychart.scales.Geo.prototype.startAutoCalc;
+//anychart.scales.Geo.prototype['finishAutoCalc'] = anychart.scales.Geo.prototype.finishAutoCalc;
+anychart.scales.Geo.prototype['gap'] = anychart.scales.Geo.prototype.gap;
+anychart.scales.Geo.prototype['xTicks'] = anychart.scales.Geo.prototype.xTicks;
+anychart.scales.Geo.prototype['xMinorTicks'] = anychart.scales.Geo.prototype.xMinorTicks;
+anychart.scales.Geo.prototype['yTicks'] = anychart.scales.Geo.prototype.yTicks;
+anychart.scales.Geo.prototype['yMinorTicks'] = anychart.scales.Geo.prototype.xMinorTicks;

@@ -55,7 +55,7 @@ goog.inherits(anychart.animations.MapCrsAnimation, anychart.animations.MapAnimat
  *    t: number,
  *    tx: Object,
  *    srcProjection: anychart.core.map.projections.Base,
- *    geoScale: anychart.core.map.scale.Geo
+ *    geoScale: anychart.scales.Geo
  * }}
  * @private
  */
