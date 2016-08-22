@@ -1,49 +1,28 @@
 anychart.onDocumentReady(function() {
+  stage = anychart.graphics.create('container', 600, 500);
   anychart.licenseKey('test-key-32db1f79-cc9312c4');
 
 
-  stage = anychart.graphics.create('container');
+  dataSet = anychart.data.set([
+    {id: 'AU.CT', value: 15, title: 'Australian Capital Territory'},
+    {id: 'AU.VI', value: 23, title: 'Victoria'},
+    {id: 'AU.WA', value: 86, title: 'Western Australia'},
+    {id: 'AU.QL', value: 16, title: 'Queensland'},
+    {id: 'AU.NS', value: 32, title: 'New South Wales'},
+    {id: 'AU.NT', value: 64, title: 'Northern Territory'},
+    {id: 'AU.TS', value: 28, title: 'Tasmania'}
+  ]);
+  dataSetForSeries = dataSet.mapAs({id: 'id'});
 
-  // stage.suspend();
-  // stage.credits(true);
-  // var textElement1 = stage.text();
-  // textElement1.x(30);
-  // textElement1.y(20);
-  // textElement1.text('Use stage credits');
-  // textElement1.fontSize(30);
-  // textElement1.fontWeight('bold');
-  // textElement1.color('blue');
-  // stage.container('container');
-  // stage.resume();
-  //
-  anychart.licenseKey('dfsdf');
-
-  // chart1 = anychart.column([1, 2, 3]);
-  // chart1.bounds(0, 0, '50%', '100%');
-  // chart1.credits()
-  //     .text('???');
-
+  chart = anychart.map();
+  chart
+      .geoData('anychart.maps.australia')
+      .unboundRegions(false);
+  var series1 = chart.choropleth(dataSetForSeries);
+  series1.geoIdField('code_hasc');
+  chart.bounds(0, 0, '50%', '50%');
+  chart.container(stage).draw();
 
 
-  // chart1 = anychart.line([1, 2, 3]);
-  // chart1.credits(true);
-  //
-  // chart1.background()
-  //     .fill('green .1')
-  //     .enabled(true);
-  //
-  // chart1.credits()
-  //     .text('Credits')
-  //     .url('http://playground.anychart.com/')
-  //     .alt('WaterMarkCredits')
-  //     .logoSrc('http://static.anychart.com/kitty.png');
 
-
-  // chart2 = anychart.column([3, 2, 1]);
-  // chart2.bounds('50%', 0, '50%', '100%');
-  // chart2.credits().enabled(true);
-
-  // chart1.container('container').draw();
-  // chart1.container(stage).draw();
-  // chart2.container(stage).draw();
 });

@@ -1,4 +1,5 @@
 goog.provide('anychart.scales.GeoTicks');
+
 goog.require('anychart.core.Base');
 goog.require('anychart.enums');
 goog.require('goog.array');
@@ -445,9 +446,8 @@ anychart.scales.GeoTicks.prototype.setupByJSON = function(config) {
 
 //endregion
 //region --- Exports
-anychart.scales.GeoTicks.prototype['interval'] = anychart.scales.GeoTicks.prototype.interval;//doc|ex
-anychart.scales.GeoTicks.prototype['count'] = anychart.scales.GeoTicks.prototype.count;//doc|ex
-anychart.scales.GeoTicks.prototype['base'] = anychart.scales.GeoTicks.prototype.base;//doc|ex
-anychart.scales.GeoTicks.prototype['set'] = anychart.scales.GeoTicks.prototype.set;//doc|ex
-anychart.scales.GeoTicks.prototype['get'] = anychart.scales.GeoTicks.prototype.get;//doc|ex
+anychart.scales.GeoTicks.prototype['interval'] = anychart.scales.GeoTicks.prototype.interval;
+anychart.scales.GeoTicks.prototype['count'] = anychart.scales.GeoTicks.prototype.count;
+anychart.scales.GeoTicks.prototype['set'] = anychart.scales.GeoTicks.prototype.set;
+anychart.scales.GeoTicks.prototype['get'] = anychart.scales.GeoTicks.prototype.get;
 //endregion

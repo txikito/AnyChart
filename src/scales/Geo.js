@@ -2,6 +2,7 @@ goog.provide('anychart.scales.Geo');
 
 goog.require('anychart.core.Base');
 goog.require('anychart.enums');
+goog.require('anychart.scales.GeoTicks');
 
 
 
@@ -490,16 +491,14 @@ anychart.scales.Geo.prototype.needsAutoCalc = function() {
  */
 anychart.scales.Geo.prototype.calculate = function() {
   if (this.consistent || !this.bounds_) return;
-
-  var setupResult = this.ticks().setupAsMajor(this.min, this.max,
-      this.minimumModeAuto && this.min != this.softMin,
-      this.maximumModeAuto && this.max != this.softMax,
-      this.logBaseVal);
-
-  this.minorTicks().setupAsMinor(this.ticks().getInternal(), this.logBaseVal, setupResult[2], setupResult[3]);
-
   this.consistent = true;
   this.determineScaleMinMax();
+
+  // var xSetupResult = this.xTicks().setupAsMajor(this.min, this.max, this.minimumModeAuto, this.maximumModeAuto);
+  // var ySetupResult = this.yTicks().setupAsMajor(this.min, this.max, this.minimumModeAuto, this.maximumModeAuto);
+
+  // this.xMinorTicks().setupAsMinor(this.xTicks().getInternal(), xSetupResult[2], xSetupResult[3]);
+  // this.yMinorTicks().setupAsMinor(this.yTicks().getInternal(), ySetupResult[2], ySetupResult[3]);
 
   this.rangeX = this.maxX - this.minX;
   this.rangeY = this.maxY - this.minY;
