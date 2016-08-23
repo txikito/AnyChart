@@ -10,10 +10,10 @@ goog.require('anychart.animations.MapMoveAnimation');
 goog.require('anychart.animations.MapZoomAnimation');
 goog.require('anychart.core.MapPoint');
 goog.require('anychart.core.SeparateChart');
+goog.require('anychart.core.axes.MapSettings');
 goog.require('anychart.core.map.geom');
 goog.require('anychart.core.map.projections');
 goog.require('anychart.core.map.projections.TwinProjection');
-goog.require('anychart.scales.Geo');
 goog.require('anychart.core.map.series.Base');
 goog.require('anychart.core.reporting');
 goog.require('anychart.core.ui.Callout');
@@ -29,6 +29,7 @@ goog.require('anychart.core.utils.UnboundRegionsSettings');
 goog.require('anychart.math.Rect');
 goog.require('anychart.palettes.HatchFills');
 goog.require('anychart.palettes.Markers');
+goog.require('anychart.scales.Geo');
 goog.require('anychart.scales.LinearColor');
 goog.require('anychart.scales.OrdinalColor');
 goog.require('goog.dom');
@@ -636,7 +637,8 @@ anychart.charts.Map.prototype.SUPPORTED_CONSISTENCY_STATES =
     anychart.ConsistencyState.MAP_MARKER_PALETTE |
     anychart.ConsistencyState.MAP_HATCH_FILL_PALETTE |
     anychart.ConsistencyState.MAP_MOVE |
-    anychart.ConsistencyState.MAP_ZOOM;
+    anychart.ConsistencyState.MAP_ZOOM |
+    anychart.ConsistencyState.MAP_AXES;
 
 
 /**
@@ -1524,6 +1526,24 @@ anychart.charts.Map.prototype.defaultCalloutSettings = function(opt_value) {
     return this;
   }
   return this.defaultCalloutSettings_ || {};
+};
+
+
+/**
+ *
+ * @param {} opt_value .
+ * @return {anychart.charts.Map|anychart.core.axes.MapSettings}
+ */
+anychart.charts.Map.prototype.axes = function(opt_value) {
+  if (!this.axesSettings_) {
+    this.axesSettings_ = new anychart.core.axes.MapSettings(this);
+  }
+
+  if (goog.isDef(opt_value)) {
+    this.axesSettings_.setup(opt_value);
+    return this;
+  }
+  return this.axesSettings_;
 };
 
 
@@ -2989,8 +3009,7 @@ anychart.charts.Map.prototype.calcGeom_ = function(coords, index, geom) {
     if (geom['type'] == 'image' || geom['type'] == 'text') {
       bounds = acgraph.getRenderer().measureElement(geom['cloneNode']);
 
-      geoScale.extendDataRangeX(bounds.getLeft(), bounds.getRight());
-      geoScale.extendDataRangeY(bounds.getTop(), bounds.getBottom());
+      geoScale.extendDataRangeInternal(bounds.getLeft(), bounds.getTop(), bounds.getRight(), bounds.getBottom());
     } else if (geom['type'] == 'path') {
       if (!this.map.measurePath)
         this.map.measurePath = acgraph.path();
@@ -2999,8 +3018,7 @@ anychart.charts.Map.prototype.calcGeom_ = function(coords, index, geom) {
 
       bounds = this.map.measurePath.getBounds();
 
-      geoScale.extendDataRangeX(bounds.getLeft(), bounds.getRight());
-      geoScale.extendDataRangeY(bounds.getTop(), bounds.getBottom());
+      geoScale.extendDataRangeInternal(bounds.getLeft(), bounds.getTop(), bounds.getRight(), bounds.getBottom());
     }
   } else {
     if (this.projection2) {
@@ -3019,8 +3037,7 @@ anychart.charts.Map.prototype.calcGeom_ = function(coords, index, geom) {
       coords[index + 1] = projected[1] * this.tx.scale + this.tx.yoffset;
     }
 
-    geoScale.extendDataRangeX(coords[index]);
-    geoScale.extendDataRangeY(coords[index + 1]);
+    geoScale.extendDataRangeInternal(coords[index], coords[index + 1]);
   }
 };
 
@@ -3357,8 +3374,8 @@ anychart.charts.Map.prototype.drawContent = function(bounds) {
     scale.setBounds(dataBounds);
     this.dataBounds_ = dataBounds;
 
-    // if (!this.dataBoundsRect) this.dataBoundsRect = this.container().rect().zIndex(1000);
-    // this.dataBoundsRect.setBounds(this.dataBounds_);
+    if (!this.dataBoundsRect) this.dataBoundsRect = this.container().rect().zIndex(1000);
+    this.dataBoundsRect.setBounds(this.dataBounds_);
 
     if (this.mapContentLayer_)
       this.mapContentLayer_.clip(boundsWithoutCallouts);
