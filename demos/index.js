@@ -8,7 +8,7 @@ anychart.onDocumentReady(function() {
   chart.crs(anychart.enums.MapProjections.BONNE);
   chart.geoData('anychart.maps.australia');
 
-  chart.scale().gap(.3);
+  // chart.scale().gap(.3);
 
   chart.container(stage).draw();
 

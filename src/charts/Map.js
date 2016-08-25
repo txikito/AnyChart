@@ -3273,6 +3273,23 @@ anychart.charts.Map.prototype.getBoundsWithoutCallouts = function(bounds) {
 };
 
 
+/**
+ * Returns bounds without axes elements.
+ * @param {anychart.math.Rect} bounds
+ * @return {anychart.math.Rect}
+ */
+anychart.charts.Map.prototype.getBoundsWithoutAxes = function(bounds) {
+  if (this.axesSettings_) {
+    var axes = this.axesSettings_.getAxes();
+    for (var i = 0; i < axes.length; i++) {
+      axis = axes[i];
+      axis.parentBounds(bounds);
+    }
+  }
+  return bounds;
+};
+
+
 /** @inheritDoc */
 anychart.charts.Map.prototype.drawContent = function(bounds) {
   this.getRootScene();
@@ -3281,6 +3298,7 @@ anychart.charts.Map.prototype.drawContent = function(bounds) {
   var maxZoomFactor = this.maxZoomLevel_;
   var minZoomFactor = this.minZoomLevel_;
   var boundsWithoutTx, boundsWithTx, seriesType;
+  var axes, axis;
 
   this.calculateGeoScale();
 
@@ -3348,6 +3366,19 @@ anychart.charts.Map.prototype.drawContent = function(bounds) {
   var mapLayer = this.getMapLayer();
   var scale = this.scale();
 
+  if (this.hasInvalidationState(anychart.ConsistencyState.BOUNDS | anychart.ConsistencyState.AXES_CHART_AXES)) {
+    if (this.axesSettings_) {
+      axes = this.axesSettings_.getAxes();
+      for (i = 0; i < axes.length; i++) {
+        axis = axes[i];
+        axis.labels().dropCallsCache();
+        axis.minorLabels().dropCallsCache();
+        if (!axis.scale())
+          axis.scale(/** @type {anychart.scales.Base} */(this.scale()));
+      }
+    }
+  }
+
   if (this.hasInvalidationState(anychart.ConsistencyState.BOUNDS)) {
     var contentAreaBounds;
     if (this.colorRange_) {
@@ -3364,7 +3395,8 @@ anychart.charts.Map.prototype.drawContent = function(bounds) {
       this.maxStrokeThickness_ = unboundRegionsStrokeThickness;
 
     var boundsWithoutCallouts = this.getBoundsWithoutCallouts(contentAreaBounds);
-    var dataBounds = boundsWithoutCallouts.clone();
+    var boundsWithoutAxes = this.getBoundsWithoutAxes(boundsWithoutCallouts);
+    var dataBounds = boundsWithoutAxes.clone();
 
     dataBounds.left = dataBounds.left + this.maxStrokeThickness_ / 2;
     dataBounds.top = dataBounds.top + this.maxStrokeThickness_ / 2;
@@ -3411,6 +3443,20 @@ anychart.charts.Map.prototype.drawContent = function(bounds) {
     if (this.isSvgGeoData())
       state |= anychart.ConsistencyState.APPEARANCE;
     this.invalidate(state, anychart.Signal.NEEDS_REDRAW);
+  }
+
+  if (this.hasInvalidationState(anychart.ConsistencyState.MAP_AXES)) {
+    if (this.axesSettings_) {
+      axes = this.axesSettings_.getAxes();
+      for (i = 0; i < axes.length; i++) {
+        axis = axes[i];
+        axis.suspendSignalsDispatching();
+        axis.container(this.mapLayer_);
+        axis.draw();
+        axis.resumeSignalsDispatching(false);
+      }
+    }
+    this.markConsistent(anychart.ConsistencyState.MAP_AXES);
   }
 
   if (this.hasInvalidationState(anychart.ConsistencyState.MAP_ZOOM)) {
