@@ -637,6 +637,8 @@ anychart.core.axes.Linear.prototype.checkDrawingNeeded = function() {
   this.markConsistent(anychart.ConsistencyState.ENABLED);
   return true;
 };
+
+
 //endregion
 //region --- Setup and Dispose
 /** @inheritDoc */
