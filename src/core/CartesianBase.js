@@ -191,7 +191,7 @@ anychart.core.CartesianBase.prototype.scrollerChangeHandler_ = function(e) {
 //----------------------------------------------------------------------------------------------------------------------
 /** @inheritDoc */
 anychart.core.CartesianBase.prototype.createSeriesInstance = function(type, config) {
-  return new anychart.core.series.Cartesian(this, this, type, config);
+  return new anychart.core.series.Cartesian(this, this, type, config, true);
 };
 
 
@@ -290,6 +290,18 @@ anychart.core.CartesianBase.prototype.applyXZoom = function() {
         anychart.ConsistencyState.CARTESIAN_X_SCROLLER |
         anychart.ConsistencyState.AXES_CHART_ANNOTATIONS);
   }
+};
+
+
+/** @inheritDoc */
+anychart.core.CartesianBase.prototype.getZoomStartRatio = function() {
+  return this.xZoom_.getStartRatio();
+};
+
+
+/** @inheritDoc */
+anychart.core.CartesianBase.prototype.getZoomEndRatio = function() {
+  return this.xZoom_.getEndRatio();
 };
 
 
