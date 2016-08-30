@@ -25,6 +25,7 @@ anychart.scales.GeoTicks = function(scale) {
 goog.inherits(anychart.scales.GeoTicks, anychart.core.Base);
 
 
+//region --- Properties
 /**
  * Supported signals mask.
  * @type {number}
@@ -78,6 +79,16 @@ anychart.scales.GeoTicks.prototype.autoTicks_ = null;
  * @private
  */
 anychart.scales.GeoTicks.prototype.base_ = 0;
+
+
+//endregion
+/**
+ * Setter for tick orientation.
+ * @param {anychart.enums.Layout} value Ticks orientation.
+ */
+anychart.scales.GeoTicks.prototype.setOrientation = function(value) {
+  this.orientation_ = value;
+};
 
 
 /**
@@ -188,8 +199,9 @@ anychart.scales.GeoTicks.prototype.set = function(ticks) {
  */
 anychart.scales.GeoTicks.prototype.get = function() {
   var ticks = this.getInternal();
+  var transformator = this.orientation_ == anychart.enums.Layout.HORIZONTAL ? this.scale_.transformX : this.scale_.transformY;
   return goog.array.filter(ticks, function(el) {
-    var val = this.transform(el);
+    var val = transformator.call(this, el);
     return val >= 0 && val <= 1;
   }, this.scale_);
 };

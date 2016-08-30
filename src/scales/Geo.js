@@ -40,7 +40,6 @@ anychart.scales.Geo = function() {
    */
   this.dataRangeMaxY = -Number.MAX_VALUE;
 
-
   /**
    * Scale input domain minimum.
    * @type {number}
@@ -73,13 +72,25 @@ anychart.scales.Geo = function() {
    * @type {boolean}
    * @protected
    */
-  this.minimumModeAuto = true;
+  this.minimumLongModeAuto = true;
 
   /**
    * @type {boolean}
    * @protected
    */
-  this.maximumModeAuto = true;
+  this.minimumLatModeAuto = true;
+
+  /**
+   * @type {boolean}
+   * @protected
+   */
+  this.maximumLongModeAuto = true;
+
+  /**
+   * @type {boolean}
+   * @protected
+   */
+  this.maximumLatModeAuto = true;
 
   /**
    * @type {number}
@@ -238,6 +249,7 @@ anychart.scales.Geo.prototype.getType = function() {
 anychart.scales.Geo.prototype.xTicks = function(opt_value) {
   if (!this.xTicks_) {
     this.xTicks_ = this.createTicks();
+    this.xTicks_.setOrientation(anychart.enums.Layout.HORIZONTAL);
   }
   if (goog.isDef(opt_value)) {
     this.xTicks_.setup(opt_value);
@@ -253,6 +265,7 @@ anychart.scales.Geo.prototype.xTicks = function(opt_value) {
 anychart.scales.Geo.prototype.xMinorTicks = function(opt_value) {
   if (!this.xMinorTicks_) {
     this.xMinorTicks_ = this.createTicks();
+    this.xMinorTicks_.setOrientation(anychart.enums.Layout.HORIZONTAL);
   }
   if (goog.isDef(opt_value)) {
     this.xMinorTicks_.setup(opt_value);
@@ -268,6 +281,7 @@ anychart.scales.Geo.prototype.xMinorTicks = function(opt_value) {
 anychart.scales.Geo.prototype.yTicks = function(opt_value) {
   if (!this.yTicks_) {
     this.yTicks_ = this.createTicks();
+    this.yTicks_.setOrientation(anychart.enums.Layout.VERTICAL);
   }
   if (goog.isDef(opt_value)) {
     this.yTicks_.setup(opt_value);
@@ -283,6 +297,7 @@ anychart.scales.Geo.prototype.yTicks = function(opt_value) {
 anychart.scales.Geo.prototype.yMinorTicks = function(opt_value) {
   if (!this.yMinorTicks_) {
     this.yMinorTicks_ = this.createTicks();
+    this.yMinorTicks_.setOrientation(anychart.enums.Layout.VERTICAL);
   }
   if (goog.isDef(opt_value)) {
     this.yMinorTicks_.setup(opt_value);
@@ -321,8 +336,6 @@ anychart.scales.Geo.prototype.createTicks = function() {
 //endregion
 
 
-
-
 /**
  * Getter/setter for gap.
  * @param {number=} opt_value Value to set.
@@ -344,100 +357,100 @@ anychart.scales.Geo.prototype.gap = function(opt_value) {
 };
 
 
-// /**
-//  * @param {number=} opt_value Value to set.
-//  * @return {number|anychart.scales.Geo} Scale minimum.
-//  */
-// anychart.scales.Geo.prototype.minimumX = function(opt_value) {
-//   if (goog.isDef(opt_value)) {
-//     var val = anychart.utils.toNumber(opt_value);
-//     var auto = isNaN(val);
-//     if (auto != this.minimumModeAuto || (!auto && val != this.minX)) {
-//       this.minimumModeAuto = auto;
-//       this.minX = val;
-//       this.consistent = false;
-//       if (auto)
-//         this.dispatchSignal(anychart.Signal.NEEDS_RECALCULATION);
-//       else
-//         this.dispatchSignal(anychart.Signal.NEEDS_REAPPLICATION);
-//     }
-//     return this;
-//   }
-//   this.calculate();
-//   return this.minX;
-// };
-//
-//
-// /**
-//  * @param {number=} opt_value Value to set.
-//  * @return {number|anychart.scales.Geo} Scale maximum.
-//  */
-// anychart.scales.Geo.prototype.maximumX = function(opt_value) {
-//   if (goog.isDef(opt_value)) {
-//     var val = anychart.utils.toNumber(opt_value);
-//     var auto = isNaN(val);
-//     if (auto != this.maximumModeAuto || (!auto && val != this.maxX)) {
-//       this.maximumModeAuto = auto;
-//       this.maxX = val;
-//       this.consistent = false;
-//       if (auto)
-//         this.dispatchSignal(anychart.Signal.NEEDS_RECALCULATION);
-//       else
-//         this.dispatchSignal(anychart.Signal.NEEDS_REAPPLICATION);
-//     }
-//     return this;
-//   }
-//   this.calculate();
-//   return this.maxX;
-// };
-//
-//
-// /**
-//  * @param {number=} opt_value Value to set.
-//  * @return {number|anychart.scales.Geo} Scale minimum.
-//  */
-// anychart.scales.Geo.prototype.minimumY = function(opt_value) {
-//   if (goog.isDef(opt_value)) {
-//     var val = anychart.utils.toNumber(opt_value);
-//     var auto = isNaN(val);
-//     if (auto != this.minimumModeAuto || (!auto && val != this.minY)) {
-//       this.minimumModeAuto = auto;
-//       this.minY = val;
-//       this.consistent = false;
-//       if (auto)
-//         this.dispatchSignal(anychart.Signal.NEEDS_RECALCULATION);
-//       else
-//         this.dispatchSignal(anychart.Signal.NEEDS_REAPPLICATION);
-//     }
-//     return this;
-//   }
-//   this.calculate();
-//   return this.minY;
-// };
-//
-//
-// /**
-//  * @param {number=} opt_value Value to set.
-//  * @return {number|anychart.scales.Geo} Scale maximum.
-//  */
-// anychart.scales.Geo.prototype.maximumY = function(opt_value) {
-//   if (goog.isDef(opt_value)) {
-//     var val = anychart.utils.toNumber(opt_value);
-//     var auto = isNaN(val);
-//     if (auto != this.maximumModeAuto || (!auto && val != this.maxY)) {
-//       this.maximumModeAuto = auto;
-//       this.maxY = val;
-//       this.consistent = false;
-//       if (auto)
-//         this.dispatchSignal(anychart.Signal.NEEDS_RECALCULATION);
-//       else
-//         this.dispatchSignal(anychart.Signal.NEEDS_REAPPLICATION);
-//     }
-//     return this;
-//   }
-//   this.calculate();
-//   return this.maxY;
-// };
+/**
+ * @param {number=} opt_value Value to set.
+ * @return {number|anychart.scales.Geo} Scale minimum.
+ */
+anychart.scales.Geo.prototype.minimumX = function(opt_value) {
+  if (goog.isDef(opt_value)) {
+    var val = anychart.utils.toNumber(opt_value);
+    var auto = isNaN(val);
+    if (auto != this.minimumLongModeAuto || (!auto && val != this.minLong)) {
+      this.minimumLongModeAuto = auto;
+      this.minLong = val;
+      this.consistent = false;
+      if (auto)
+        this.dispatchSignal(anychart.Signal.NEEDS_RECALCULATION);
+      else
+        this.dispatchSignal(anychart.Signal.NEEDS_REAPPLICATION);
+    }
+    return this;
+  }
+  this.calculate();
+  return this.minLong;
+};
+
+
+/**
+ * @param {number=} opt_value Value to set.
+ * @return {number|anychart.scales.Geo} Scale maximum.
+ */
+anychart.scales.Geo.prototype.maximumX = function(opt_value) {
+  if (goog.isDef(opt_value)) {
+    var val = anychart.utils.toNumber(opt_value);
+    var auto = isNaN(val);
+    if (auto != this.maximumLongModeAuto || (!auto && val != this.maxLong)) {
+      this.maximumLongModeAuto = auto;
+      this.maxLong = val;
+      this.consistent = false;
+      if (auto)
+        this.dispatchSignal(anychart.Signal.NEEDS_RECALCULATION);
+      else
+        this.dispatchSignal(anychart.Signal.NEEDS_REAPPLICATION);
+    }
+    return this;
+  }
+  this.calculate();
+  return this.maxLong;
+};
+
+
+/**
+ * @param {number=} opt_value Value to set.
+ * @return {number|anychart.scales.Geo} Scale minimum.
+ */
+anychart.scales.Geo.prototype.minimumY = function(opt_value) {
+  if (goog.isDef(opt_value)) {
+    var val = anychart.utils.toNumber(opt_value);
+    var auto = isNaN(val);
+    if (auto != this.minimumLatModeAuto || (!auto && val != this.minLat)) {
+      this.minimumLatModeAuto = auto;
+      this.minLat = val;
+      this.consistent = false;
+      if (auto)
+        this.dispatchSignal(anychart.Signal.NEEDS_RECALCULATION);
+      else
+        this.dispatchSignal(anychart.Signal.NEEDS_REAPPLICATION);
+    }
+    return this;
+  }
+  this.calculate();
+  return this.minLat;
+};
+
+
+/**
+ * @param {number=} opt_value Value to set.
+ * @return {number|anychart.scales.Geo} Scale maximum.
+ */
+anychart.scales.Geo.prototype.maximumY = function(opt_value) {
+  if (goog.isDef(opt_value)) {
+    var val = anychart.utils.toNumber(opt_value);
+    var auto = isNaN(val);
+    if (auto != this.maximumLatModeAuto || (!auto && val != this.maxLat)) {
+      this.maximumLatModeAuto = auto;
+      this.maxLat = val;
+      this.consistent = false;
+      if (auto)
+        this.dispatchSignal(anychart.Signal.NEEDS_RECALCULATION);
+      else
+        this.dispatchSignal(anychart.Signal.NEEDS_REAPPLICATION);
+    }
+    return this;
+  }
+  this.calculate();
+  return this.maxLat;
+};
 
 
 /**
@@ -546,7 +559,7 @@ anychart.scales.Geo.prototype.resetDataRange = function() {
  * @return {boolean} Returns true if the scale needs input domain auto calculations.
  */
 anychart.scales.Geo.prototype.needsAutoCalc = function() {
-  return this.minimumModeAuto || this.maximumModeAuto;
+  return this.minimumLongModeAuto || this.minimumLatModeAuto || this.maximumLongModeAuto || this.maximumLatModeAuto;
 };
 
 
@@ -559,11 +572,11 @@ anychart.scales.Geo.prototype.calculate = function() {
   this.consistent = true;
   this.determineScaleMinMax();
 
-  var minPoint = this.scaleToLatLon(this.minX, this.minY);
-  var maxPoint = this.scaleToLatLon(this.maxX, this.maxY);
+  var minPoint = [this.minLong, this.minLat];
+  var maxPoint = [this.maxLong, this.maxLat];
 
-  var xSetupResult = this.xTicks().setupAsMajor(minPoint[0], maxPoint[0], this.minimumModeAuto, this.maximumModeAuto);
-  var ySetupResult = this.yTicks().setupAsMajor(minPoint[1], maxPoint[1], this.minimumModeAuto, this.maximumModeAuto);
+  var xSetupResult = this.xTicks().setupAsMajor(minPoint[0], maxPoint[0], this.minimumLongModeAuto, this.maximumLongModeAuto);
+  var ySetupResult = this.yTicks().setupAsMajor(minPoint[1], maxPoint[1], this.minimumLatModeAuto, this.maximumLatModeAuto);
 
   this.xMinorTicks().setupAsMinor(this.xTicks().getInternal(), xSetupResult[2], xSetupResult[3]);
   this.yMinorTicks().setupAsMinor(this.yTicks().getInternal(), ySetupResult[2], ySetupResult[3]);
@@ -571,9 +584,93 @@ anychart.scales.Geo.prototype.calculate = function() {
   this.rangeX = this.maxX - this.minX;
   this.rangeY = this.maxY - this.minY;
 
+  this.longRange = this.dataRangeMaxLong - this.dataRangeMinLong;
+  this.latRange = this.dataRangeMaxLat - this.dataRangeMinLat;
+
   this.ratio = Math.min(this.bounds_.height / this.rangeY, this.bounds_.width / this.rangeX);
   this.centerOffsetX = (this.bounds_.width - this.rangeX * this.ratio) / 2;
   this.centerOffsetY = (this.bounds_.height - this.rangeY * this.ratio) / 2;
+
+  //apply gap
+  var extremesForMinLong = this.getExtremesForDimension(this.minLong, true);
+  var extremesForMaxLong = this.getExtremesForDimension(this.maxLong, true);
+  var extremesForMinLat = this.getExtremesForDimension(this.minLat, false);
+  var extremesForMaxLat = this.getExtremesForDimension(this.maxLat, false);
+
+  this.minX = Math.min(extremesForMinLong.minX, extremesForMaxLong.minX, extremesForMinLat.minX, extremesForMaxLat.minX,
+      extremesForMinLong.maxX, extremesForMaxLong.maxX, extremesForMinLat.maxX, extremesForMaxLat.maxX);
+  this.maxX = Math.max(extremesForMinLong.minX, extremesForMaxLong.minX, extremesForMinLat.minX, extremesForMaxLat.minX,
+      extremesForMinLong.maxX, extremesForMaxLong.maxX, extremesForMinLat.maxX, extremesForMaxLat.maxX);
+  this.minY = Math.min(extremesForMinLong.minY, extremesForMaxLong.minY, extremesForMinLat.minY, extremesForMaxLat.minY,
+      extremesForMinLong.maxY, extremesForMaxLong.maxY, extremesForMinLat.maxY, extremesForMaxLat.maxY);
+  this.maxY = Math.max(extremesForMinLong.minY, extremesForMaxLong.minY, extremesForMinLat.minY, extremesForMaxLat.minY,
+      extremesForMinLong.maxY, extremesForMaxLong.maxY, extremesForMinLat.maxY, extremesForMaxLat.maxY);
+
+  this.rangeX = this.maxX - this.minX;
+  this.rangeY = this.maxY - this.minY;
+
+  this.longRange = this.dataRangeMaxLong - this.dataRangeMinLong;
+  this.latRange = this.dataRangeMaxLat - this.dataRangeMinLat;
+
+  this.ratio = Math.min(this.bounds_.height / this.rangeY, this.bounds_.width / this.rangeX);
+  this.centerOffsetX = (this.bounds_.width - this.rangeX * this.ratio) / 2;
+  this.centerOffsetY = (this.bounds_.height - this.rangeY * this.ratio) / 2;
+
+  // console.log(this.minLong, this.minLat, this.maxLong, this.maxLat);
+};
+
+
+/**
+ * Returns extremes for passed dimension.
+ * @param {number} dimensionValue One of values of dimension.
+ * @param {boolean} isHorizontal Dimension orientation.
+ * @return {Object.<number>}
+ */
+anychart.scales.Geo.prototype.getExtremesForDimension = function(dimensionValue, isHorizontal) {
+  var xy;
+  var minX = Number.MAX_VALUE;
+  var minY = Number.MAX_VALUE;
+  var maxX = -Number.MAX_VALUE;
+  var maxY = -Number.MAX_VALUE;
+  var currValue;
+
+  if (isHorizontal) {
+    currValue = this.minLat;
+    while (currValue < this.maxLat) {
+      xy = this.transform(dimensionValue, currValue);
+      xy = this.pxToScale(xy[0], xy[1]);
+      if (xy[0] < minX) minX = xy[0];
+      if (xy[0] > maxX) maxX = xy[0];
+      if (xy[1] < minY) minY = xy[1];
+      if (xy[1] > maxY) maxY = xy[1];
+      currValue += .1;
+    }
+    xy = this.transform(dimensionValue, this.maxLat);
+    xy = this.pxToScale(xy[0], xy[1]);
+    if (xy[0] < minX) minX = xy[0];
+    if (xy[0] > maxX) maxX = xy[0];
+    if (xy[1] < minY) minY = xy[1];
+    if (xy[1] > maxY) maxY = xy[1];
+  } else {
+    currValue = this.minLong;
+    while (currValue < this.maxLong) {
+      xy = this.transform(currValue, dimensionValue);
+      xy = this.pxToScale(xy[0], xy[1]);
+      if (xy[0] < minX) minX = xy[0];
+      if (xy[0] > maxX) maxX = xy[0];
+      if (xy[1] < minY) minY = xy[1];
+      if (xy[1] > maxY) maxY = xy[1];
+      currValue += .1;
+    }
+    xy = this.transform(this.maxLong, dimensionValue);
+    xy = this.pxToScale(xy[0], xy[1]);
+    if (xy[0] < minX) minX = xy[0];
+    if (xy[0] > maxX) maxX = xy[0];
+    if (xy[1] < minY) minY = xy[1];
+    if (xy[1] > maxY) maxY = xy[1];
+  }
+
+  return {minX: minX, minY: minY, maxX: maxX, maxY: maxY};
 };
 
 
@@ -582,61 +679,37 @@ anychart.scales.Geo.prototype.calculate = function() {
  * @protected
  */
 anychart.scales.Geo.prototype.determineScaleMinMax = function() {
-  var maxX = this.maximumModeAuto ?
-      this.dataRangeMaxX :
-      this.maxX;
-  var minX = this.minimumModeAuto ?
-      this.dataRangeMinX :
-      this.minX;
+  var maxLong = this.maximumLongModeAuto ?
+      this.dataRangeMaxLong :
+      this.maxLong;
+  var minLong = this.minimumLongModeAuto ?
+      this.dataRangeMinLong :
+      this.minLong;
 
-  var maxY = this.maximumModeAuto ?
-      this.dataRangeMaxY :
-      this.maxY;
-  var minY = this.minimumModeAuto ?
-      this.dataRangeMinY :
-      this.minY;
+  var maxLat = this.maximumLatModeAuto ?
+      this.dataRangeMaxLat :
+      this.maxLat;
+  var minLat = this.minimumLatModeAuto ?
+      this.dataRangeMinLat :
+      this.minLat;
 
-  var rangeX = maxX - minX;
-  var rangeY = maxY - minY;
+  var rangeLong = maxLong - minLong;
+  var rangeLat = maxLat - minLat;
 
-  if (!isFinite(rangeX)) {
-    this.dataRangeMinX = 0;
-    this.dataRangeMaxX = 1;
-    rangeX = 1;
-  } else if (!rangeX) {
-    this.dataRangeMinX -= 0.5;
-    this.dataRangeMaxX += 0.5;
-    rangeX = 1;
-  }
+  if (this.minimumLongModeAuto)
+    this.minLong = goog.math.clamp(this.dataRangeMinLong - rangeLong * this.rangeBasedGap, -179.9, 179.9);
+  if (this.maximumLongModeAuto)
+    this.maxLong = goog.math.clamp(this.dataRangeMaxLong + rangeLong * this.rangeBasedGap, -179.9, 179.9);
 
-  if (!isFinite(rangeY)) {
-    this.dataRangeMinY = 0;
-    this.dataRangeMaxY = 1;
-    rangeY = 1;
-  } else if (!rangeY) {
-    this.dataRangeMinY -= 0.5;
-    this.dataRangeMaxY += 0.5;
-    rangeY = 1;
-  }
+  if (this.minimumLatModeAuto)
+    this.minLat = goog.math.clamp(this.dataRangeMinLat - rangeLat * this.rangeBasedGap, -89.9, 89.9);
+  if (this.maximumLatModeAuto)
+    this.maxLat = goog.math.clamp(this.dataRangeMaxLat + rangeLat * this.rangeBasedGap, -89.9, 89.9);
 
-  var latLon;
-  if (this.minimumModeAuto) {
-    this.minX = this.dataRangeMinX - rangeX * this.rangeBasedGap;
-    this.minY = this.dataRangeMinY - rangeY * this.rangeBasedGap;
-
-    // latLon = this.scaleToLatLon(this.minX, this.minY);
-    // this.minLong = latLon[0];
-    // this.minLat = latLon[1];
-  }
-
-  if (this.maximumModeAuto) {
-    this.maxX = this.dataRangeMaxX + rangeX * this.rangeBasedGap;
-    this.maxY = this.dataRangeMaxY + rangeY * this.rangeBasedGap;
-
-    // latLon = this.scaleToLatLon(this.maxX, this.maxY);
-    // this.maxLong = latLon[0];
-    // this.maxLat = latLon[1];
-  }
+  this.minX = this.dataRangeMinX;
+  this.minY = this.dataRangeMinY;
+  this.maxX = this.dataRangeMaxX;
+  this.maxY = this.dataRangeMaxY;
 };
 
 
@@ -801,6 +874,34 @@ anychart.scales.Geo.prototype.transform = function(lon, lat) {
 
 
 /**
+ * Returns tick position ratio by its name.<br/>
+ * @param {*} value Value to transform in input scope.
+ * @return {number} Value transformed to scope [0, 1].
+ */
+anychart.scales.Geo.prototype.transformX = function(value) {
+  this.calculate();
+  value = anychart.utils.toNumber(value);
+  var result = (value - this.dataRangeMinLong) / this.longRange;
+
+  return this.isInvertedX ? 1 - result : result;
+};
+
+
+/**
+ * Returns tick position ratio by its name.<br/>
+ * @param {*} value Value to transform in input scope.
+ * @return {number} Value transformed to scope [0, 1].
+ */
+anychart.scales.Geo.prototype.transformY = function(value) {
+  this.calculate();
+  value = anychart.utils.toNumber(value);
+  var result = (value - this.dataRangeMinLat) / this.latRange;
+
+  return this.isInvertedY ? 1 - result : result;
+};
+
+
+/**
  *
  * @param {number} x .
  * @param {number} y .
@@ -955,10 +1056,10 @@ anychart.scales.Geo.prototype.serialize = function() {
   var inv = this.inverted();
   json['invertedX'] = inv[0];
   json['invertedY'] = inv[1];
-  json['maximumX'] = this.maximumModeAuto ? null : this.maxX;
-  json['maximumY'] = this.maximumModeAuto ? null : this.maxY;
-  json['minimumX'] = this.minimumModeAuto ? null : this.minX;
-  json['minimumY'] = this.minimumModeAuto ? null : this.minY;
+  json['maximumX'] = this.maximumLongModeAuto ? null : this.maxLong;
+  json['maximumY'] = this.maximumLatModeAuto ? null : this.maxLat;
+  json['minimumX'] = this.minimumLongModeAuto ? null : this.minLong;
+  json['minimumY'] = this.minimumLatModeAuto ? null : this.minLat;
   json['gap'] = this.gap();
   if (this.bounds_)
     json['bounds'] = this.bounds_;
@@ -1000,3 +1101,7 @@ anychart.scales.Geo.prototype['xMinorTicks'] = anychart.scales.Geo.prototype.xMi
 anychart.scales.Geo.prototype['yTicks'] = anychart.scales.Geo.prototype.yTicks;
 anychart.scales.Geo.prototype['yMinorTicks'] = anychart.scales.Geo.prototype.xMinorTicks;
 anychart.scales.Geo.prototype['extendDataRange'] = anychart.scales.Geo.prototype.extendDataRange;
+anychart.scales.Geo.prototype['minimumX'] = anychart.scales.Geo.prototype.minimumX;
+anychart.scales.Geo.prototype['maximumX'] = anychart.scales.Geo.prototype.maximumX;
+anychart.scales.Geo.prototype['minimumY'] = anychart.scales.Geo.prototype.minimumY;
+anychart.scales.Geo.prototype['maximumY'] = anychart.scales.Geo.prototype.maximumY;

@@ -10,6 +10,7 @@ goog.require('anychart.animations.MapMoveAnimation');
 goog.require('anychart.animations.MapZoomAnimation');
 goog.require('anychart.core.MapPoint');
 goog.require('anychart.core.SeparateChart');
+goog.require('anychart.core.axes.Map');
 goog.require('anychart.core.axes.MapSettings');
 goog.require('anychart.core.map.geom');
 goog.require('anychart.core.map.projections');
@@ -3281,9 +3282,11 @@ anychart.charts.Map.prototype.getBoundsWithoutCallouts = function(bounds) {
 anychart.charts.Map.prototype.getBoundsWithoutAxes = function(bounds) {
   if (this.axesSettings_) {
     var axes = this.axesSettings_.getAxes();
+    var axis;
     for (var i = 0; i < axes.length; i++) {
       axis = axes[i];
       axis.parentBounds(bounds);
+      var bounds = axis.getRemainingBounds();
     }
   }
   return bounds;
