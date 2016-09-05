@@ -203,6 +203,66 @@ anychart.scales.Geo.prototype.setBounds = function(value) {
 
 
 /**
+ * Returns space limited scale extremes.
+ * @return {acgraph.vector.Path}
+ */
+anychart.scales.Geo.prototype.getViewSpace = function() {
+  if (!this.viewSpace)
+    this.viewSpace = acgraph.path();
+
+  var minLong = this.minimumX();
+  var maxLong = this.maximumX();
+  var minLat = this.minimumY();
+  var maxLat = this.maximumY();
+
+  this.viewSpace.clear();
+  var xy = this.transform(minLong, minLat);
+
+  this.viewSpace.moveTo(xy[0], xy[1]);
+  var currLat = minLat;
+  while (currLat < maxLat) {
+    xy = this.transform(minLong, currLat);
+    this.viewSpace.lineTo(xy[0], xy[1]);
+    currLat += 1;
+  }
+  xy = this.transform(minLong, maxLat);
+  this.viewSpace.lineTo(xy[0], xy[1]);
+
+  currLong = minLong;
+  while (currLong < maxLong) {
+    xy = this.transform(currLong, maxLat);
+    this.viewSpace.lineTo(xy[0], xy[1]);
+    currLong += 1;
+  }
+  xy = this.transform(maxLong, maxLat);
+  this.viewSpace.lineTo(xy[0], xy[1]);
+
+  currLat = maxLat;
+  while (currLat > minLat) {
+    xy = this.transform(maxLong, currLat);
+    this.viewSpace.lineTo(xy[0], xy[1]);
+    currLat -= 1;
+  }
+  xy = this.transform(maxLong, minLat);
+  this.viewSpace.lineTo(xy[0], xy[1]);
+
+  var currLong = maxLong;
+  while (currLong > minLong) {
+    xy = this.transform(currLong, minLat);
+    this.viewSpace.lineTo(xy[0], xy[1]);
+    currLong -= 1;
+  }
+  xy = this.transform(minLong, minLat);
+  this.viewSpace.lineTo(xy[0], xy[1]);
+  this.viewSpace.close();
+
+  var viewSpace = acgraph.path();
+  viewSpace.deserialize(this.viewSpace.serialize());
+  return viewSpace;
+};
+
+
+/**
  * Sets transformation map
  * @param {Object} value tx map.
  */
@@ -697,14 +757,14 @@ anychart.scales.Geo.prototype.determineScaleMinMax = function() {
   var rangeLat = maxLat - minLat;
 
   if (this.minimumLongModeAuto)
-    this.minLong = goog.math.clamp(this.dataRangeMinLong - rangeLong * this.rangeBasedGap, -179.9, 179.9);
+    this.minLong = goog.math.clamp(this.dataRangeMinLong - rangeLong * this.rangeBasedGap, -179.99999, 179.99999);
   if (this.maximumLongModeAuto)
-    this.maxLong = goog.math.clamp(this.dataRangeMaxLong + rangeLong * this.rangeBasedGap, -179.9, 179.9);
+    this.maxLong = goog.math.clamp(this.dataRangeMaxLong + rangeLong * this.rangeBasedGap, -179.99999, 179.99999);
 
   if (this.minimumLatModeAuto)
-    this.minLat = goog.math.clamp(this.dataRangeMinLat - rangeLat * this.rangeBasedGap, -89.9, 89.9);
+    this.minLat = goog.math.clamp(this.dataRangeMinLat - rangeLat * this.rangeBasedGap, -89.99999, 89.99999);
   if (this.maximumLatModeAuto)
-    this.maxLat = goog.math.clamp(this.dataRangeMaxLat + rangeLat * this.rangeBasedGap, -89.9, 89.9);
+    this.maxLat = goog.math.clamp(this.dataRangeMaxLat + rangeLat * this.rangeBasedGap, -89.99999, 89.99999);
 
   this.minX = this.dataRangeMinX;
   this.minY = this.dataRangeMinY;
@@ -819,8 +879,8 @@ anychart.scales.Geo.prototype.transformWithoutTx = function(lon, lat) {
   if (!this.bounds_ || isNaN(lon) || isNaN(lat))
     return [NaN, NaN];
 
-  lat = anychart.utils.toNumber(lat);
-  lon = anychart.utils.toNumber(lon) % 180;
+  lon = goog.math.clamp(anychart.utils.toNumber(lon) % 180, -179.99999, 179.99999);
+  lat = goog.math.clamp(anychart.utils.toNumber(lat), -89.99999, 89.99999);
 
   var tx = this.pickTx(lon, lat);
 

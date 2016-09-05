@@ -523,6 +523,7 @@ anychart.themes.merging.mergingMap_ = [
       'standalones.labelsFactory',
       'heatMap.labels',
       'map.defaultSeriesSettings.base.labels',
+      'map.axes.labels',
       'treeMap.headers',
       'treeMap.labels',
       'linearGauge.defaultPointerSettings.base.label',

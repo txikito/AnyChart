@@ -13,12 +13,142 @@ anychart.onDocumentReady(function() {
   chart.scale()
       .minimumX(-13)
       .maximumX(45)
-      .minimumY(30)
+      .minimumY(33)
       .maximumY(75);
 
-  chart.padding(50);
+  chart.scale().xTicks().count(90);
+  chart.scale().yTicks().count(90);
 
-  chart.axes().bottom().enabled(true);
+  var data = [
+    {name: 'Albania', id: 'AL'},
+    {name: 'Andorra', id: 'AD'},
+    {name: 'Austria', id: 'AT'},
+    {name: 'Belarus', id: 'BY'},
+    {name: 'Belgium', id: 'BE'},
+    {name: 'Bosnia and Herzegovina', id: 'BA'},
+    {name: 'Bulgaria', id: 'BG'},
+    {name: 'Croatia', id: 'HR'},
+    {name: 'Cyprus', id: 'CY'},
+    {name: 'Czech Republic', id: 'CZ'},
+    {name: 'Denmark', id: 'DK'},
+    {name: 'Estonia', id: 'EE'},
+    {name: 'Faroe Islands', id: 'FO'},
+    {name: 'Finland', id: 'FI'},
+    {name: 'France', id: 'FR'},
+    {name: 'Germany', id: 'DE'},
+    {name: 'Gibraltar', id: 'GI'},
+    {name: 'Greece', id: 'GR'},
+    {name: 'Hungary', id: 'HU'},
+    {name: 'Iceland', id: 'IS'},
+    {name: 'Ireland', id: 'IE'},
+    {name: 'Italy', id: 'IT'},
+    {name: 'Latvia', id: 'LV'},
+    {name: 'Liechtenstein', id: 'LI'},
+    {name: 'Lithuania', id: 'LT'},
+    {name: 'Luxembourg', id: 'LU'},
+    {name: 'Macedonia', id: 'MK'},
+    {name: 'Malta', id: 'MT'},
+    {name: 'Moldova', id: 'MD'},
+    {name: 'Monaco', id: 'MC'},
+    {name: 'Netherlands', id: 'NL'},
+    {name: 'Norway', id: 'NO'},
+    {name: 'Poland', id: 'PL'},
+    {name: 'Portugal', id: 'PT'},
+    {name: 'Romania', id: 'RO'},
+    {name: 'Russia', id: 'RU'},
+    {name: 'San Marino', id: 'SM'},
+    {name: 'Serbia', id: 'RS'},
+    {name: 'Slovakia', id: 'SK'},
+    {name: 'Slovenia', id: 'SI'},
+    {name: 'Spain', id: 'ES'},
+    {name: 'Sweden', id: 'SE'},
+    {name: 'Switzerland', id: 'CH'},
+    {name: 'Ukraine', id: 'UA'},
+    {name: 'United Kingdom', id: 'GB'},
+    {name: 'Vatican city', id: 'VA'},
+    {name: 'Yugoslavia', id: 'RS'},
+    {name: 'Isle of Man', id: 'IM'},
+    {name: 'Kosovo', id: 'RS'},
+    {name: 'Montenegro', id: 'ME'}
+  ];
+
+  var series = chart.choropleth(data);
+
+  // var callout = chart.callout();
+  // callout.items(['FR']);
+  // callout.padding(10);
+  // callout.background().fill('blue .3');
+
+  // chart.padding(50);
+
+  var tickPosition = anychart.enums.SidePosition.OUTSIDE;
+  var stroke = '#ccc';
+
+  // var topAxis = chart.axes().top();
+  // topAxis
+  //     .stroke(stroke)
+  //     .enabled(true);
+  // topAxis.labels()
+  //     .textFormatter(function() {
+  //       return this.value;
+  //     })
+  //     .positionFormatter(function() {
+  //       return this.value;
+  //     });
+  // //
+  // topAxis.ticks()
+  //     .length(5)
+  //     .position(tickPosition);
+  //
+  //
+  // var rightAxis = chart.axes().right();
+  // rightAxis
+  //     .stroke(stroke)
+  //     .enabled(true);
+  // rightAxis.labels()
+  //     .textFormatter(function() {
+  //       return this.value;
+  //     })
+  //     .positionFormatter(function() {
+  //       return this.value;
+  //     });
+  //
+  // rightAxis.ticks()
+  //     .length(10)
+  //     .position(tickPosition);
+  //
+  //
+  // var bottomAxis = chart.axes().bottom();
+  // bottomAxis
+  //     .stroke(stroke)
+  //     .enabled(true);
+  // bottomAxis.labels()
+  //     .textFormatter(function() {
+  //       return this.value;
+  //     })
+  //     .positionFormatter(function() {
+  //       return this.value;
+  //     });
+  // bottomAxis.ticks()
+  //     .length(5)
+  //     .position(tickPosition);
+  //
+  //
+  // var leftAxis = chart.axes().left();
+  // leftAxis
+  //     .stroke(stroke)
+  //     .enabled(true);
+  // leftAxis.labels()
+  //     .textFormatter(function() {
+  //       return this.value;
+  //     })
+  //     .positionFormatter(function() {
+  //       return this.value;
+  //     });
+  //
+  // leftAxis.ticks()
+  //     .length(10)
+  //     .position(tickPosition);
 
   chart.container(stage).draw();
 
@@ -79,8 +209,8 @@ anychart.onDocumentReady(function() {
     xy = scale.transform(maxLong, minLat);
     path.lineTo(xy[0], xy[1]);
 
-    // xy = scale.transform(maxLong, minLat);
-    // path.moveTo(xy[0], xy[1]);
+    xy = scale.transform(maxLong, minLat);
+    path.moveTo(xy[0], xy[1]);
     var currLong = maxLong;
     while (currLong > minLong) {
       xy = scale.transform(currLong, minLat);
@@ -91,13 +221,13 @@ anychart.onDocumentReady(function() {
     path.lineTo(xy[0], xy[1]);
     path.close();
 
-    var clipPath = acgraph.path();
-    clipPath.deserialize(path.serialize());
+    // var clipPath = acgraph.path();
+    // clipPath.deserialize(path.serialize());
 
-    stage.clip(clipPath);
+    // stage.clip(clipPath);
   };
 
-  chart.listen(anychart.enums.EventType.CHART_DRAW, drawAxes);
+  // chart.listen(anychart.enums.EventType.CHART_DRAW, drawAxes);
 
   // var h = 1;
   // var tt = function() {

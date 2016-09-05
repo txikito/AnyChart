@@ -2946,6 +2946,37 @@ goog.provide('anychart.themes.defaultTheme');
         'zIndex': 50
       },
       'callouts': [],
+      'axes': {
+        'enabled': false,
+        'ticks': {
+          'length': 5,
+          'position': 'outside'
+        },
+        'labels': {
+          'padding': {'top': 2, 'right': 2, 'bottom': 2, 'left': 2},
+          'rotation': null
+        },
+        'top': {
+          'labels': {
+            'anchor': 'bottom'
+          }
+        },
+        'right': {
+          'labels': {
+            'anchor': 'left'
+          }
+        },
+        'bottom': {
+          'labels': {
+            'anchor': 'top'
+          }
+        },
+        'left': {
+          'labels': {
+            'anchor': 'right'
+          }
+        }
+      },
       'unboundRegions': {'enabled': true, 'fill': '#F7F7F7', 'stroke': '#e0e0e0'},
       'legend': {'enabled': false},
       'maxBubbleSize': '20%',

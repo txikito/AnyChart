@@ -12,6 +12,7 @@ goog.require('anychart.core.MapPoint');
 goog.require('anychart.core.SeparateChart');
 goog.require('anychart.core.axes.Map');
 goog.require('anychart.core.axes.MapSettings');
+goog.require('anychart.core.grids.MapSettings');
 goog.require('anychart.core.map.geom');
 goog.require('anychart.core.map.projections');
 goog.require('anychart.core.map.projections.TwinProjection');
@@ -1548,6 +1549,24 @@ anychart.charts.Map.prototype.axes = function(opt_value) {
 };
 
 
+/**
+ *
+ * @param {} opt_value .
+ * @return {anychart.charts.Map|anychart.core.grid.MapSettings}
+ */
+anychart.charts.Map.prototype.grid = function(opt_value) {
+  if (!this.gridSettings_) {
+    this.gridSettings_ = new anychart.core.grids.MapSettings(this);
+  }
+
+  if (goog.isDef(opt_value)) {
+    this.gridSettings_.setup(opt_value);
+    return this;
+  }
+  return this.gridSettings_;
+};
+
+
 //endregion
 //region --- Coloring
 //----------------------------------------------------------------------------------------------------------------------
@@ -2733,6 +2752,7 @@ anychart.charts.Map.prototype.calculateGeoScale = function() {
         sum += /** @type {number} */(series.statistics('seriesSum'));
         pointsCount += /** @type {number} */(series.statistics('seriesPointsCount'));
         //----------------------------------end calc statistics for series
+        // series.calculate();
       }
 
       //----------------------------------calc statistics for series
@@ -2790,8 +2810,6 @@ anychart.charts.Map.prototype.calculateGeoScale = function() {
       series = this.series_[i];
       series.suspendSignalsDispatching();
       series.container(this.dataLayer_);
-      series.setAutoGeoIdField(/** @type {string} */(this.geoIdField()));
-      series.calculate();
       series.resumeSignalsDispatching(false);
     }
   }
@@ -3282,15 +3300,40 @@ anychart.charts.Map.prototype.getBoundsWithoutCallouts = function(bounds) {
  */
 anychart.charts.Map.prototype.getBoundsWithoutAxes = function(bounds) {
   if (this.axesSettings_) {
+    var leftOffset = 0;
+    var topOffset = 0;
+    var rightOffset = 0;
+    var bottomOffset = 0;
+
+    var boundsWithoutAxis = bounds.clone();
+
     var axes = this.axesSettings_.getAxes();
     var axis;
     for (var i = 0; i < axes.length; i++) {
       axis = axes[i];
       axis.parentBounds(bounds);
-      var bounds = axis.getRemainingBounds();
+
+      var remainingBounds = axis.getRemainingBounds();
+
+      var leftOffset_ = bounds.left - remainingBounds.left;
+      if (leftOffset < leftOffset_) leftOffset = leftOffset_;
+
+      var topOffset_ = bounds.top - remainingBounds.top;
+      if (topOffset < topOffset_) topOffset = topOffset_;
+
+      var rightOffset_ = remainingBounds.getRight() - bounds.getRight();
+      if (rightOffset < rightOffset_) rightOffset = rightOffset_;
+
+      var bottomOffset_ = remainingBounds.getBottom() - bounds.getBottom();
+      if (bottomOffset < bottomOffset_) bottomOffset = bottomOffset_;
     }
+
+    boundsWithoutAxis.left += leftOffset;
+    boundsWithoutAxis.top += topOffset;
+    boundsWithoutAxis.width -= leftOffset + rightOffset;
+    boundsWithoutAxis.height -= topOffset + bottomOffset;
   }
-  return bounds;
+  return boundsWithoutAxis;
 };
 
 
@@ -3311,6 +3354,15 @@ anychart.charts.Map.prototype.drawContent = function(bounds) {
       callout = this.callouts_[i];
       callout.invalidate(anychart.ConsistencyState.BOUNDS);
     }
+
+    if (this.axesSettings_) {
+      axes = this.axesSettings_.getAxes();
+      for (i = 0, len = axes.length; i < len; i++) {
+        axis = axes[i];
+        axis.invalidate(axis.ALL_VISUAL_STATES);
+      }
+    }
+    this.invalidate(anychart.ConsistencyState.MAP_AXES);
     this.invalidate(anychart.ConsistencyState.MAP_CALLOUT);
   }
 
@@ -3370,7 +3422,7 @@ anychart.charts.Map.prototype.drawContent = function(bounds) {
   var mapLayer = this.getMapLayer();
   var scale = this.scale();
 
-  if (this.hasInvalidationState(anychart.ConsistencyState.BOUNDS | anychart.ConsistencyState.AXES_CHART_AXES)) {
+  if (this.hasInvalidationState(anychart.ConsistencyState.BOUNDS | anychart.ConsistencyState.MAP_AXES)) {
     if (this.axesSettings_) {
       axes = this.axesSettings_.getAxes();
       for (i = 0; i < axes.length; i++) {
@@ -3399,8 +3451,15 @@ anychart.charts.Map.prototype.drawContent = function(bounds) {
       this.maxStrokeThickness_ = unboundRegionsStrokeThickness;
 
     var boundsWithoutCallouts = this.getBoundsWithoutCallouts(contentAreaBounds);
+
+    // if (!this.allBoundsRect) this.allBoundsRect = this.container().rect().zIndex(1000);
+    // this.allBoundsRect.setBounds(boundsWithoutCallouts);
+
     var boundsWithoutAxes = this.getBoundsWithoutAxes(boundsWithoutCallouts);
     var dataBounds = boundsWithoutAxes.clone();
+
+    // if (!this.dataBoundsRect) this.dataBoundsRect = stage.rect().zIndex(1000);
+    // this.dataBoundsRect.setBounds(dataBounds);
 
     dataBounds.left = dataBounds.left + this.maxStrokeThickness_ / 2;
     dataBounds.top = dataBounds.top + this.maxStrokeThickness_ / 2;
@@ -3410,11 +3469,10 @@ anychart.charts.Map.prototype.drawContent = function(bounds) {
     scale.setBounds(dataBounds);
     this.dataBounds_ = dataBounds;
 
-    if (!this.dataBoundsRect) this.dataBoundsRect = this.container().rect().zIndex(1000);
-    this.dataBoundsRect.setBounds(this.dataBounds_);
+
 
     if (this.mapContentLayer_)
-      this.mapContentLayer_.clip(boundsWithoutCallouts);
+      this.mapContentLayer_.clip(scale.getViewSpace());
 
     this.clear();
 
@@ -3455,7 +3513,7 @@ anychart.charts.Map.prototype.drawContent = function(bounds) {
       for (i = 0; i < axes.length; i++) {
         axis = axes[i];
         axis.suspendSignalsDispatching();
-        axis.container(this.mapLayer_);
+        axis.container(this.container());
         axis.draw();
         axis.resumeSignalsDispatching(false);
       }
@@ -3627,6 +3685,7 @@ anychart.charts.Map.prototype.drawContent = function(bounds) {
       series.suspendSignalsDispatching();
       series.setParentEventTarget(this.getRootScene());
       series.invalidate(anychart.ConsistencyState.APPEARANCE | anychart.ConsistencyState.SERIES_HATCH_FILL);
+      series.setAutoGeoIdField(/** @type {string} */(this.geoIdField()));
       var seriesIndex = /** @type {number} */ (series.index());
       series.setAutoColor(this.palette().itemAt(seriesIndex));
       series.setAutoMarkerType(/** @type {anychart.enums.MarkerType} */(this.markerPalette().itemAt(seriesIndex)));
@@ -5073,6 +5132,10 @@ anychart.charts.Map.prototype.setupByJSON = function(config) {
     }
   }
 
+  if ('axes' in config) {
+    this.axes(config['axes']);
+  }
+
   var scalesInstances = {};
   if (goog.isObject(scales)) {
     for (i in scales) {
@@ -5285,6 +5348,8 @@ anychart.charts.Map.prototype['getPlotBounds'] = anychart.charts.Map.prototype.g
 anychart.charts.Map.prototype['overlapMode'] = anychart.charts.Map.prototype.overlapMode;
 
 anychart.charts.Map.prototype['interactivity'] = anychart.charts.Map.prototype.interactivity;
+
+anychart.charts.Map.prototype['axes'] = anychart.charts.Map.prototype.axes;
 
 anychart.charts.Map.prototype['crsAnimation'] = anychart.charts.Map.prototype.crsAnimation;
 
