@@ -3299,33 +3299,36 @@ anychart.charts.Map.prototype.getBoundsWithoutCallouts = function(bounds) {
  * @return {anychart.math.Rect}
  */
 anychart.charts.Map.prototype.getBoundsWithoutAxes = function(bounds) {
+  var boundsWithoutAxis = bounds.clone();
   if (this.axesSettings_) {
     var leftOffset = 0;
     var topOffset = 0;
     var rightOffset = 0;
     var bottomOffset = 0;
 
-    var boundsWithoutAxis = bounds.clone();
+    boundsWithoutAxis = bounds.clone();
 
     var axes = this.axesSettings_.getAxes();
     var axis;
     for (var i = 0; i < axes.length; i++) {
       axis = axes[i];
-      axis.parentBounds(bounds);
+      if (axis.enabled()) {
+        axis.parentBounds(bounds);
 
-      var remainingBounds = axis.getRemainingBounds();
+        var remainingBounds = axis.getRemainingBounds();
 
-      var leftOffset_ = bounds.left - remainingBounds.left;
-      if (leftOffset < leftOffset_) leftOffset = leftOffset_;
+        var leftOffset_ = bounds.left - remainingBounds.left;
+        if (leftOffset < leftOffset_) leftOffset = leftOffset_;
 
-      var topOffset_ = bounds.top - remainingBounds.top;
-      if (topOffset < topOffset_) topOffset = topOffset_;
+        var topOffset_ = bounds.top - remainingBounds.top;
+        if (topOffset < topOffset_) topOffset = topOffset_;
 
-      var rightOffset_ = remainingBounds.getRight() - bounds.getRight();
-      if (rightOffset < rightOffset_) rightOffset = rightOffset_;
+        var rightOffset_ = remainingBounds.getRight() - bounds.getRight();
+        if (rightOffset < rightOffset_) rightOffset = rightOffset_;
 
-      var bottomOffset_ = remainingBounds.getBottom() - bounds.getBottom();
-      if (bottomOffset < bottomOffset_) bottomOffset = bottomOffset_;
+        var bottomOffset_ = remainingBounds.getBottom() - bounds.getBottom();
+        if (bottomOffset < bottomOffset_) bottomOffset = bottomOffset_;
+      }
     }
 
     boundsWithoutAxis.left += leftOffset;
@@ -5133,7 +5136,7 @@ anychart.charts.Map.prototype.setupByJSON = function(config) {
   }
 
   if ('axes' in config) {
-    this.axes(config['axes']);
+    // this.axes(config['axes']);
   }
 
   var scalesInstances = {};
