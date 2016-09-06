@@ -854,11 +854,8 @@ anychart.core.axes.Map.prototype.dropBoundsCache = function() {
 /**
  * Axis labels drawer.
  * @param {number|string} value Scale ratio.
- * @param {number} ratio Scale ratio.
- * @param {number} index Scale label index.
- * @param {number} pixelShift Pixel shift for sharp display.
  * @param {boolean} isMajor Is major label.
- * @param {Array} ticksArr
+ * @param {number} index Scale label index.
  * @private
  */
 anychart.core.axes.Map.prototype.drawLabel_ = function(value, isMajor, index) {
