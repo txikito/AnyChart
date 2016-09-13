@@ -640,7 +640,8 @@ anychart.charts.Map.prototype.SUPPORTED_CONSISTENCY_STATES =
     anychart.ConsistencyState.MAP_HATCH_FILL_PALETTE |
     anychart.ConsistencyState.MAP_MOVE |
     anychart.ConsistencyState.MAP_ZOOM |
-    anychart.ConsistencyState.MAP_AXES;
+    anychart.ConsistencyState.MAP_AXES |
+    anychart.ConsistencyState.MAP_GRIDS;
 
 
 /**
@@ -751,6 +752,13 @@ anychart.charts.Map.ZINDEX_COLOR_RANGE = 50;
  * @type {number}
  */
 anychart.charts.Map.ZINDEX_CALLOUT = 60;
+
+
+/**
+ * Axis z-index in chart root layer.
+ * @type {number}
+ */
+anychart.charts.Map.ZINDEX_GRID = 5;
 
 
 /**
@@ -1354,6 +1362,17 @@ anychart.charts.Map.prototype.updateSeriesOnZoomOrMove = function() {
     var callout = this.callouts_[i];
     callout.updateOnZoomOrMove();
   }
+
+  // if (this.axesSettings_) {
+  //   axes = this.axesSettings_.getItems();
+  //   for (i = 0; i < axes.length; i++) {
+  //     var axis = axes[i];
+  //     axis.invalidate(anychart.ConsistencyState.AXIS_LABELS |
+  //         anychart.ConsistencyState.AXIS_TICKS |
+  //         anychart.ConsistencyState.AXIS_OVERLAP);
+  //     axis.draw();
+  //   }
+  // }
 };
 
 
@@ -1532,8 +1551,8 @@ anychart.charts.Map.prototype.defaultCalloutSettings = function(opt_value) {
 
 
 /**
- *
- * @param {} opt_value .
+ * Axes common settings.
+ * @param {(boolean|Object)=} opt_value .
  * @return {anychart.charts.Map|anychart.core.axes.MapSettings}
  */
 anychart.charts.Map.prototype.axes = function(opt_value) {
@@ -1550,11 +1569,11 @@ anychart.charts.Map.prototype.axes = function(opt_value) {
 
 
 /**
- *
- * @param {} opt_value .
- * @return {anychart.charts.Map|anychart.core.grid.MapSettings}
+ * Grids common settings.
+ * @param {(boolean|Object)=} opt_value .
+ * @return {anychart.charts.Map|anychart.core.grids.MapSettings}
  */
-anychart.charts.Map.prototype.grid = function(opt_value) {
+anychart.charts.Map.prototype.grids = function(opt_value) {
   if (!this.gridSettings_) {
     this.gridSettings_ = new anychart.core.grids.MapSettings(this);
   }
@@ -2549,8 +2568,8 @@ anychart.charts.Map.prototype.postProcessGeoData = function(geoData, callback, i
  */
 anychart.charts.Map.prototype.calculateGeoScale = function() {
   if (this.hasInvalidationState(anychart.ConsistencyState.MAP_GEO_DATA)) {
-
     var geoData = this.geoData();
+
     if (goog.isDefAndNotNull(geoData)) {
       geoData = goog.isString(this.geoData_) && !goog.string.startsWith(/** @type {string} */(geoData), '<') ?
           goog.dom.getWindow()['anychart']['maps'][this.geoData_] : this.geoData_;
@@ -3308,7 +3327,7 @@ anychart.charts.Map.prototype.getBoundsWithoutAxes = function(bounds) {
 
     boundsWithoutAxis = bounds.clone();
 
-    var axes = this.axesSettings_.getAxes();
+    var axes = this.axesSettings_.getItems();
     var axis;
     for (var i = 0; i < axes.length; i++) {
       axis = axes[i];
@@ -3348,7 +3367,7 @@ anychart.charts.Map.prototype.drawContent = function(bounds) {
   var maxZoomFactor = this.maxZoomLevel_;
   var minZoomFactor = this.minZoomLevel_;
   var boundsWithoutTx, boundsWithTx, seriesType;
-  var axes, axis;
+  var axes, axis, grids, grid;
 
   this.calculateGeoScale();
 
@@ -3359,12 +3378,22 @@ anychart.charts.Map.prototype.drawContent = function(bounds) {
     }
 
     if (this.axesSettings_) {
-      axes = this.axesSettings_.getAxes();
+      axes = this.axesSettings_.getItems();
       for (i = 0, len = axes.length; i < len; i++) {
         axis = axes[i];
         axis.invalidate(axis.ALL_VISUAL_STATES);
       }
     }
+
+    if (this.gridSettings_) {
+      grids = this.gridSettings_.getItems();
+      for (i = 0, len = grids.length; i < len; i++) {
+        grid = grids[i];
+        grid.invalidate(axis.ALL_VISUAL_STATES);
+      }
+    }
+
+    this.invalidate(anychart.ConsistencyState.MAP_GRIDS);
     this.invalidate(anychart.ConsistencyState.MAP_AXES);
     this.invalidate(anychart.ConsistencyState.MAP_CALLOUT);
   }
@@ -3427,13 +3456,13 @@ anychart.charts.Map.prototype.drawContent = function(bounds) {
 
   if (this.hasInvalidationState(anychart.ConsistencyState.BOUNDS | anychart.ConsistencyState.MAP_AXES)) {
     if (this.axesSettings_) {
-      axes = this.axesSettings_.getAxes();
+      axes = this.axesSettings_.getItems();
       for (i = 0; i < axes.length; i++) {
         axis = axes[i];
         axis.labels().dropCallsCache();
         axis.minorLabels().dropCallsCache();
         if (!axis.scale())
-          axis.scale(/** @type {anychart.scales.Base} */(this.scale()));
+          axis.scale(/** @type {anychart.scales.Geo} */(this.scale()));
       }
     }
   }
@@ -3508,20 +3537,6 @@ anychart.charts.Map.prototype.drawContent = function(bounds) {
     if (this.isSvgGeoData())
       state |= anychart.ConsistencyState.APPEARANCE;
     this.invalidate(state, anychart.Signal.NEEDS_REDRAW);
-  }
-
-  if (this.hasInvalidationState(anychart.ConsistencyState.MAP_AXES)) {
-    if (this.axesSettings_) {
-      axes = this.axesSettings_.getAxes();
-      for (i = 0; i < axes.length; i++) {
-        axis = axes[i];
-        axis.suspendSignalsDispatching();
-        axis.container(this.container());
-        axis.draw();
-        axis.resumeSignalsDispatching(false);
-      }
-    }
-    this.markConsistent(anychart.ConsistencyState.MAP_AXES);
   }
 
   if (this.hasInvalidationState(anychart.ConsistencyState.MAP_ZOOM)) {
@@ -3623,6 +3638,8 @@ anychart.charts.Map.prototype.drawContent = function(bounds) {
       if (dx || dy) {
         this.moving = true;
         mapLayer.appendTransformationMatrix(1, 0, 0, 1, dx, dy);
+        this.axesLayer_.appendTransformationMatrix(1, 0, 0, 1, dx, dy);
+        this.gridsLayer_.appendTransformationMatrix(1, 0, 0, 1, dx, dy);
 
         tx = mapLayer.getSelfTransformation();
         this.scale().setOffsetFocusPoint(tx.getTranslateX(), tx.getTranslateY());
@@ -3636,6 +3653,43 @@ anychart.charts.Map.prototype.drawContent = function(bounds) {
     }
 
     this.markConsistent(anychart.ConsistencyState.MAP_MOVE);
+  }
+
+  if (this.hasInvalidationState(anychart.ConsistencyState.MAP_AXES)) {
+    if (this.axesSettings_) {
+      if (!this.axesLayer_) {
+        this.axesLayer_ = this.rootElement.layer();
+        this.axesLayer_.zIndex(anychart.charts.Map.ZINDEX_AXIS);
+      }
+      axes = this.axesSettings_.getItems();
+      for (i = 0; i < axes.length; i++) {
+        axis = axes[i];
+        axis.suspendSignalsDispatching();
+        axis.container(this.axesLayer_);
+        axis.draw();
+        axis.resumeSignalsDispatching(false);
+      }
+    }
+    this.markConsistent(anychart.ConsistencyState.MAP_AXES);
+  }
+
+  if (this.hasInvalidationState(anychart.ConsistencyState.MAP_GRIDS)) {
+    if (this.gridSettings_) {
+      if (!this.gridsLayer_) {
+        this.gridsLayer_ = this.rootElement.layer();
+        this.gridsLayer_.zIndex(anychart.charts.Map.ZINDEX_GRID);
+      }
+      grids = this.gridSettings_.getItems();
+      for (i = 0, len = grids.length; i < len; i++) {
+        grid = grids[i];
+        grid.suspendSignalsDispatching();
+        grid.setScale(/** @type {anychart.scales.Geo} */(this.scale()));
+        grid.container(this.gridsLayer_);
+        grid.draw();
+        grid.resumeSignalsDispatching();
+      }
+    }
+    this.markConsistent(anychart.ConsistencyState.MAP_GRIDS);
   }
 
   if (this.hasInvalidationState(anychart.ConsistencyState.APPEARANCE)) {
@@ -5353,6 +5407,7 @@ anychart.charts.Map.prototype['overlapMode'] = anychart.charts.Map.prototype.ove
 anychart.charts.Map.prototype['interactivity'] = anychart.charts.Map.prototype.interactivity;
 
 anychart.charts.Map.prototype['axes'] = anychart.charts.Map.prototype.axes;
+anychart.charts.Map.prototype['grids'] = anychart.charts.Map.prototype.grids;
 
 anychart.charts.Map.prototype['crsAnimation'] = anychart.charts.Map.prototype.crsAnimation;
 

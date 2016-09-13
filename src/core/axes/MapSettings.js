@@ -33,11 +33,16 @@ goog.inherits(anychart.core.axes.MapSettings, goog.Disposable);
  * Return all exist axes.
  * @return {Array.<anychart.core.axes.Map>}
  */
-anychart.core.axes.MapSettings.prototype.getAxes = function() {
+anychart.core.axes.MapSettings.prototype.getItems = function() {
   return this.axes_;
 };
 
 
+/**
+ * Top axis.
+ * @param {(boolean|Object)=} opt_value Settings for axis.
+ * @return {anychart.core.axes.MapSettings|anychart.core.axes.Map}
+ */
 anychart.core.axes.MapSettings.prototype.top = function(opt_value) {
   if (!this.topAxis_) {
     this.topAxis_ = new anychart.core.axes.Map();
@@ -55,6 +60,11 @@ anychart.core.axes.MapSettings.prototype.top = function(opt_value) {
 };
 
 
+/**
+ * Right axis.
+ * @param {(boolean|Object)=} opt_value Settings for axis.
+ * @return {anychart.core.axes.MapSettings|anychart.core.axes.Map}
+ */
 anychart.core.axes.MapSettings.prototype.right = function(opt_value) {
   if (!this.rightAxis_) {
     this.rightAxis_ = new anychart.core.axes.Map();
@@ -72,6 +82,11 @@ anychart.core.axes.MapSettings.prototype.right = function(opt_value) {
 };
 
 
+/**
+ * Bottom axis.
+ * @param {(boolean|Object)=} opt_value Settings for axis.
+ * @return {anychart.core.axes.MapSettings|anychart.core.axes.Map}
+ */
 anychart.core.axes.MapSettings.prototype.bottom = function(opt_value) {
   if (!this.bottomAxis_) {
     this.bottomAxis_ = new anychart.core.axes.Map();
@@ -89,6 +104,11 @@ anychart.core.axes.MapSettings.prototype.bottom = function(opt_value) {
 };
 
 
+/**
+ * Left axis.
+ * @param {(boolean|Object)=} opt_value Settings for axis.
+ * @return {anychart.core.axes.MapSettings|anychart.core.axes.Map}
+ */
 anychart.core.axes.MapSettings.prototype.left = function(opt_value) {
   if (!this.leftAxis_) {
     this.leftAxis_ = new anychart.core.axes.Map();
@@ -106,6 +126,11 @@ anychart.core.axes.MapSettings.prototype.left = function(opt_value) {
 };
 
 
+/**
+ * Internal invalidation handler.
+ * @param {anychart.SignalEvent} event Event object.
+ * @private
+ */
 anychart.core.axes.MapSettings.prototype.mapInvalidated_ = function(event) {
   this.invalidate(anychart.ConsistencyState.MAP_AXES, anychart.Signal.NEEDS_REDRAW);
 };

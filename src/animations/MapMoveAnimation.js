@@ -29,6 +29,8 @@ goog.inherits(anychart.animations.MapMoveAnimation, anychart.animations.MapAnima
 anychart.animations.MapMoveAnimation.prototype.doMove_ = function(dx, dy) {
   var tx = this.map.getMapLayer().getSelfTransformation();
   this.map.getMapLayer().setTransformationMatrix(tx.getScaleX(), 0, 0, tx.getScaleY(), dx, dy);
+  this.map.axesLayer_.setTransformationMatrix(tx.getScaleX(), 0, 0, tx.getScaleY(), dx, dy);
+  this.map.gridsLayer_.setTransformationMatrix(tx.getScaleX(), 0, 0, tx.getScaleY(), dx, dy);
 
   this.map.scale().setMapZoom(tx.getScaleX());
   this.map.scale().setOffsetFocusPoint(tx.getTranslateX(), tx.getTranslateY());

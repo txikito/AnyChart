@@ -232,8 +232,8 @@ anychart.scales.GeoTicks.prototype.getInternal = function() {
  * @param {boolean=} opt_canModifyMax If the maximum can be modified.
  * @return {!Array} Array of two values: [newMin, newMax].
  */
-anychart.scales.GeoTicks.prototype.setupAsMajor = function(min, max, opt_canModifyMin, opt_canModifyMax) {
-  return this.setupLinear_(min, max, opt_canModifyMin, opt_canModifyMax);
+anychart.scales.GeoTicks.prototype.setupAsMajor = function(min, max, opt_canModifyMin, opt_canModifyMax, opt_limitMin, opt_limitMax) {
+  return this.setupLinear_(min, max, opt_canModifyMin, opt_canModifyMax, opt_limitMin, opt_limitMax);
 };
 
 
@@ -298,7 +298,7 @@ anychart.scales.GeoTicks.prototype.setupAsMinor = function(values, opt_majorDesi
  *    be absent.
  * @private
  */
-anychart.scales.GeoTicks.prototype.setupLinear_ = function(min, max, opt_canModifyMin, opt_canModifyMax) {
+anychart.scales.GeoTicks.prototype.setupLinear_ = function(min, max, opt_canModifyMin, opt_canModifyMax, opt_limitMin, opt_limitMax) {
   this.autoTicks_ = null;
   var result = [min, max];
   if (this.explicit_) {
@@ -352,16 +352,16 @@ anychart.scales.GeoTicks.prototype.setupLinear_ = function(min, max, opt_canModi
     }
     interval = Math.max(interval, 1e-7);
     var desiredMin = anychart.math.specialRound(anychart.utils.alignLeft(min, interval, this.base_));
-    if (opt_canModifyMin)
+    if (opt_canModifyMin) {
       result[0] = min = desiredMin;
-    else if (min - desiredMin > 1e-7) {
+    } else if (min - desiredMin > 1e-7) {
       ticks.push(min);
       result[2] = desiredMin;
     }
     var desiredMax = anychart.math.specialRound(anychart.utils.alignRight(max, interval, this.base_));
-    if (opt_canModifyMax)
+    if (opt_canModifyMax) {
       result[1] = max = desiredMax;
-    else if (desiredMax - max > 1e-7) {
+    } else if (desiredMax - max > 1e-7) {
       result[3] = desiredMax;
     }
     for (var j = anychart.math.specialRound(anychart.utils.alignRight(min, interval, this.base_));
@@ -371,6 +371,16 @@ anychart.scales.GeoTicks.prototype.setupLinear_ = function(min, max, opt_canModi
     }
     if (3 in result)
       ticks.push(max);
+
+    // if (goog.isDef(opt_limitMin) && ticks[0] != opt_limitMin) {
+    //   goog.array.insertAt(ticks, opt_limitMin, 0);
+    // }
+    // if (goog.isDef(opt_limitMax) && ticks[ticks.length - 1] != opt_limitMin) {
+    //   ticks.push(opt_limitMax);
+    // }
+
+    // console.log(ticks);
+
     this.autoTicks_ = ticks;
   }
   return result;

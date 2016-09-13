@@ -211,31 +211,20 @@ anychart.core.axes.MapTicks.prototype.getTickAngle = function(value) {
  * @return {Array.<number>}
  */
 anychart.core.axes.MapTicks.prototype.calcTick = function(value) {
-  var nearPos, centerPos, tickCoords, limit;
+  var nearPos, centerPos, tickCoords;
   var direction = 1;
   if (this.isHorizontal()) {
-    limit = 179.99999;
-    centerPos = this.scale_.transform(goog.math.clamp(value, -limit, limit), this.geoLine);
-    if (value + 1 > limit) {
-      nearPos = this.scale_.transform(value - 1, this.geoLine);
-      direction = -1;
-    } else {
-      nearPos = this.scale_.transform(value + 1, this.geoLine);
-    }
+    centerPos = this.scale_.transform(value, this.geoLine, null);
+    nearPos = this.scale_.transform(value + 1, this.geoLine, null);
   } else {
-    limit = 89.99999;
-    centerPos = this.scale_.transform(this.geoLine, goog.math.clamp(value, -limit, limit));
-    if (value + 1 > limit) {
-      nearPos = this.scale_.transform(this.geoLine, value - 1);
-      direction = -1;
-    } else {
-      nearPos = this.scale_.transform(this.geoLine, value + 1);
-    }
+    centerPos = this.scale_.transform(this.geoLine, value, null);
+    nearPos = this.scale_.transform(this.geoLine, value + 1, null);
   }
 
   var a = centerPos[1] - nearPos[1];
   var b = nearPos[0] - centerPos[0];
   var angle = Math.atan(-a / b);
+  if (isNaN(angle)) angle = 0;
 
   var angle_;
   if (this.position_ == anychart.enums.SidePosition.INSIDE) {
@@ -260,11 +249,11 @@ anychart.core.axes.MapTicks.prototype.calcTick = function(value) {
 
     if (this.orientation() == anychart.enums.Orientation.TOP || this.orientation() == anychart.enums.Orientation.LEFT) {
       if (centerPos[0] > nearPos[0] && (centerPos[1] <= nearPos[1] || centerPos[1] >= nearPos[1])) {
-        angle_ = angle - direction * 1.5 * Math.PI;
+        angle_ = angle - 1.5 * Math.PI;
       }
     } else {
-      if (centerPos[0] < nearPos[0] && (centerPos[1] <= nearPos[1] || centerPos[1] >= nearPos[1])) {
-        angle_ = angle - direction * 1.5 * Math.PI;
+      if (centerPos[0] <= nearPos[0] && (centerPos[1] <= nearPos[1] || centerPos[1] >= nearPos[1])) {
+        angle_ = angle - 1.5 * Math.PI;
       }
     }
   }

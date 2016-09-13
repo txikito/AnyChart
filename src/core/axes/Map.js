@@ -229,6 +229,42 @@ anychart.core.axes.Map.prototype.labelsInvalidated_ = function(event) {
 
 
 /**
+ * Getter/setter for drawFirstLabel.
+ * @param {boolean=} opt_value Drawing flag.
+ * @return {boolean|!anychart.core.axes.Map} Drawing flag or itself for method chaining.
+ */
+anychart.core.axes.Map.prototype.drawFirstLabel = function(opt_value) {
+  if (goog.isDef(opt_value)) {
+    if (this.drawFirstLabel_ != opt_value) {
+      this.drawFirstLabel_ = opt_value;
+      this.dropStaggeredLabelsCache_();
+      this.invalidate(this.ALL_VISUAL_STATES, anychart.Signal.NEEDS_REDRAW | anychart.Signal.BOUNDS_CHANGED);
+    }
+    return this;
+  }
+  return this.drawFirstLabel_;
+};
+
+
+/**
+ * Getter/setter for drawLastLabel.
+ * @param {boolean=} opt_value Drawing flag.
+ * @return {boolean|!anychart.core.axes.Map} Drawing flag or itself for method chaining.
+ */
+anychart.core.axes.Map.prototype.drawLastLabel = function(opt_value) {
+  if (goog.isDef(opt_value)) {
+    if (this.drawLastLabel_ != opt_value) {
+      this.drawLastLabel_ = opt_value;
+      this.dropStaggeredLabelsCache_();
+      this.invalidate(this.ALL_VISUAL_STATES, anychart.Signal.NEEDS_REDRAW | anychart.Signal.BOUNDS_CHANGED);
+    }
+    return this;
+  }
+  return this.drawLastLabel_;
+};
+
+
+/**
  * Getter/setter for minorLabels.
  * @param {(Object|boolean|null)=} opt_value Axis labels.
  * @return {!(anychart.core.ui.LabelsFactory|anychart.core.axes.Map)} Axis labels of itself for method chaining.
@@ -312,6 +348,7 @@ anychart.core.axes.Map.prototype.ticks = function(opt_value) {
 anychart.core.axes.Map.prototype.minorTicks = function(opt_value) {
   if (!this.minorTicks_) {
     this.minorTicks_ = this.createTicks();
+    this.ticks_.orientation(/** @type {anychart.enums.Orientation} */ (this.orientation()));
     this.minorTicks_.setParentEventTarget(this);
     this.minorTicks_.listenSignals(this.ticksInvalidated, this);
     this.registerDisposable(this.minorTicks_);
@@ -484,7 +521,14 @@ anychart.core.axes.Map.prototype.getOverlappedLabels_ = function(opt_bounds) {
          */
         var prevDrawableMinorLabel = -1;
 
-        var scaleTicksArr = scale.ticks().get();
+        var scaleTicks;
+        if (this.isHorizontal()) {
+          scaleTicks = this.scale().xTicks();
+        } else {
+          scaleTicks = this.scale().yTicks();
+        }
+
+        var scaleTicksArr = scaleTicks.get();
         var ticksArrLen = scaleTicksArr.length;
         var tickVal, ratio, bounds1, bounds2, bounds3, bounds4;
         var tempRatio;
@@ -492,7 +536,14 @@ anychart.core.axes.Map.prototype.getOverlappedLabels_ = function(opt_bounds) {
         var isLabels = this.labels().enabled();
 
 
-        var scaleMinorTicksArr = scale.minorTicks().get();
+        var scaleMinorTicks;
+        if (this.isHorizontal()) {
+          scaleMinorTicks = this.scale().xMinorTicks();
+        } else {
+          scaleMinorTicks = this.scale().yMinorTicks();
+        }
+
+        var scaleMinorTicksArr = scaleMinorTicks.get();
         i = 0;
         j = 0;
         var minorTicksArrLen = scaleMinorTicksArr.length;
@@ -502,8 +553,13 @@ anychart.core.axes.Map.prototype.getOverlappedLabels_ = function(opt_bounds) {
         while (i < ticksArrLen || j < minorTicksArrLen) {
           tickVal = scaleTicksArr[i];
           minorTickVal = scaleMinorTicksArr[j];
-          ratio = scale.transform(tickVal);
-          minorRatio = scale.transform(minorTickVal);
+          if (this.isHorizontal()) {
+            ratio = scale.transformX(tickVal);
+            minorRatio = scale.transformX(minorTickVal);
+          } else {
+            ratio = scale.transformY(tickVal);
+            minorRatio = scale.transformY(minorTickVal);
+          }
           bounds1 = bounds2 = bounds3 = bounds4 = null;
 
           if (nextDrawableLabel == -1 && isLabels) {
@@ -526,7 +582,7 @@ anychart.core.axes.Map.prototype.getOverlappedLabels_ = function(opt_bounds) {
 
               if (bounds1 && !(anychart.math.checkRectIntersection(bounds1, bounds2) ||
                   anychart.math.checkRectIntersection(bounds1, bounds3))) {
-                tempRatio = scale.transform(scaleTicksArr[k]);
+                tempRatio = this.isHorizontal() ? scale.transformX(scaleTicksArr[k]) : scale.transformY(scaleTicksArr[k]);
                 if ((tempRatio <= 0 && this.drawFirstLabel()) || (tempRatio >= 1 && this.drawLastLabel()))
                   nextDrawableLabel = k;
                 else if (tempRatio > 0 && tempRatio < 1)
@@ -644,6 +700,7 @@ anychart.core.axes.Map.prototype.getLabelRotation_ = function(tickAngle) {
   return angle;
 };
 
+
 /**
  * Calculate label bounds.
  * @param {number} index Label index.
@@ -658,8 +715,8 @@ anychart.core.axes.Map.prototype.getLabelBounds_ = function(index, isMajor, tick
   //   return null;
 
   var boundsCache = isMajor ? this.labelsBounds_ : this.minorLabelsBounds_;
-  // if (goog.isDef(boundsCache[index]))
-  //   return boundsCache[index];
+  if (goog.isDef(boundsCache[index]))
+    return boundsCache[index];
 
   // var bounds = goog.isDef(opt_parentBounds) ? opt_parentBounds : this.getPixelBounds();
   // var lineBounds = goog.isDef(opt_parentBounds) ? opt_parentBounds : this.line.getBounds();
@@ -690,6 +747,7 @@ anychart.core.axes.Map.prototype.getLabelBounds_ = function(index, isMajor, tick
   // }
 
   var tickCoords = ticks.calcTick(value);
+  // if (this.isHorizontal()) console.log(tickCoords);
 
   x = tickCoords[2];
   y = tickCoords[3];
@@ -701,6 +759,10 @@ anychart.core.axes.Map.prototype.getLabelBounds_ = function(index, isMajor, tick
   settings['rotation'] = this.getLabelRotation_(tickCoords[4]);
 
   var labelBounds = labels.measure(formatProvider, positionProvider, settings, index);
+
+  // var name = isMajor ? 'label' : 'minorLabel';
+  // if (!this[name + index]) this[name + index] = stage.rect().zIndex(1000);
+  // this[name + index].setBounds(labelBounds);
 
   return boundsCache[index] = labelBounds.toCoordinateBox();
 };
@@ -833,6 +895,13 @@ anychart.core.axes.Map.prototype.getRemainingBounds = function() {
 };
 
 
+/** @inheritDoc */
+anychart.core.axes.Map.prototype.invalidateParentBounds = function() {
+  this.dropBoundsCache();
+  this.invalidate(this.ALL_VISUAL_STATES, anychart.Signal.NEEDS_REDRAW | anychart.Signal.BOUNDS_CHANGED);
+};
+
+
 /**
  * Drop bounds cache.
  */
@@ -891,18 +960,20 @@ anychart.core.axes.Map.prototype.getLine = function() {
 anychart.core.axes.Map.prototype.drawTopLine = function() {
   var scale = this.scale();
   var xy;
+  // var precision = scale.longRange * .05;
+  var precision = 1;
 
   var currLong = scale.minimumX();
   while (currLong < scale.maximumX()) {
-    xy = scale.transform(currLong, scale.maximumY());
+    xy = scale.transform(currLong, scale.maximumY(), null);
     if (currLong == scale.minimumX()) {
       this.line.moveTo(xy[0], xy[1]);
     } else {
       this.line.lineTo(xy[0], xy[1]);
     }
-    currLong += 1;
+    currLong += precision;
   }
-  xy = scale.transform(scale.maximumX(), scale.maximumY());
+  xy = scale.transform(scale.maximumX(), scale.maximumY(), null);
   this.line.lineTo(xy[0], xy[1]);
 };
 
@@ -914,18 +985,20 @@ anychart.core.axes.Map.prototype.drawTopLine = function() {
 anychart.core.axes.Map.prototype.drawRightLine = function() {
   var scale = this.scale();
   var xy;
+  // var precision = scale.latRange * .05;
+  var precision = 1;
 
   var currLat = scale.maximumY();
   while (currLat > scale.minimumY()) {
-    xy = scale.transform(scale.maximumX(), currLat);
+    xy = scale.transform(scale.maximumX(), currLat, null);
     if (currLat == scale.maximumY()) {
       this.line.moveTo(xy[0], xy[1]);
     } else {
       this.line.lineTo(xy[0], xy[1]);
     }
-    currLat -= 1;
+    currLat -= precision;
   }
-  xy = scale.transform(scale.maximumX(), scale.minimumY());
+  xy = scale.transform(scale.maximumX(), scale.minimumY(), null);
   this.line.lineTo(xy[0], xy[1]);
 };
 
@@ -937,18 +1010,20 @@ anychart.core.axes.Map.prototype.drawRightLine = function() {
 anychart.core.axes.Map.prototype.drawBottomLine = function() {
   var scale = this.scale();
   var xy;
+  // var precision = scale.longRange * .05;
+  var precision = 1;
 
   var currLong = scale.maximumX();
   while (currLong > scale.minimumX()) {
-    xy = scale.transform(currLong, scale.minimumY());
+    xy = scale.transform(currLong, scale.minimumY(), null);
     if (currLong == scale.maximumX()) {
       this.line.moveTo(xy[0], xy[1]);
     } else {
       this.line.lineTo(xy[0], xy[1]);
     }
-    currLong -= 1;
+    currLong -= precision;
   }
-  xy = scale.transform(scale.minimumX(), scale.minimumY());
+  xy = scale.transform(scale.minimumX(), scale.minimumY(), null);
   this.line.lineTo(xy[0], xy[1]);
 };
 
@@ -959,20 +1034,21 @@ anychart.core.axes.Map.prototype.drawBottomLine = function() {
  */
 anychart.core.axes.Map.prototype.drawLeftLine = function() {
   var scale = this.scale();
-  var xy = scale.transform(scale.minimumX(), scale.minimumY());
+  var xy;
+  // var precision = scale.latRange * .05;
+  var precision = 1;
 
-  this.line.moveTo(xy[0], xy[1]);
   var currLat = scale.minimumY();
   while (currLat < scale.maximumY()) {
-    xy = scale.transform(scale.minimumX(), currLat);
+    xy = scale.transform(scale.minimumX(), currLat, null);
     if (currLat == scale.minimumY()) {
       this.line.moveTo(xy[0], xy[1]);
     } else {
       this.line.lineTo(xy[0], xy[1]);
     }
-    currLat += 1;
+    currLat += precision;
   }
-  xy = scale.transform(scale.minimumX(), scale.maximumY());
+  xy = scale.transform(scale.minimumX(), scale.maximumY(), null);
   this.line.lineTo(xy[0], xy[1]);
 };
 
@@ -1113,12 +1189,12 @@ anychart.core.axes.Map.prototype.draw = function() {
     ticks.draw();
     ticksDrawer = ticks.getTicksDrawer();
 
-    // minorTicks = this.minorTicks();
-    // minorTicks.orientation(/** @type {anychart.enums.Orientation} */ (orientation));
-    // minorTicks.draw();
-    // minorTicksDrawer = minorTicks.getTicksDrawer();
-    //
-    // this.markConsistent(anychart.ConsistencyState.AXIS_TICKS);
+    minorTicks = this.minorTicks();
+    minorTicks.setScale(this.scale());
+    minorTicks.draw();
+    minorTicksDrawer = minorTicks.getTicksDrawer();
+
+    this.markConsistent(anychart.ConsistencyState.AXIS_TICKS);
   }
 
   if (this.hasInvalidationState(anychart.ConsistencyState.AXIS_LABELS)) {
@@ -1148,6 +1224,7 @@ anychart.core.axes.Map.prototype.draw = function() {
 
     var scaleTicksArr = scaleTicks.get();
     var ticksArrLen = scaleTicksArr.length;
+    // console.log(scaleTicksArr);
     // var tickThickness = this.ticks().stroke()['thickness'] ? parseFloat(this.ticks_.stroke()['thickness']) : 1;
 
     var tickVal, ratio, drawLabel, drawTick;
@@ -1156,78 +1233,71 @@ anychart.core.axes.Map.prototype.draw = function() {
     // var stroke = this.stroke();
     // lineThickness = anychart.utils.isNone(stroke) ? 0 : stroke['thickness'] ? parseFloat(this.stroke()['thickness']) : 1;
 
-    for (i = 0; i < ticksArrLen; i++) {
-      tickVal = scaleTicksArr[i];
-      ticksDrawer.call(ticks, tickVal);
+    overlappedLabels = this.getOverlappedLabels_();
 
-      this.drawLabel_(tickVal, true, i);
+    if (goog.isObject(overlappedLabels)) {
+      needDrawLabels = overlappedLabels.labels;
+      needDrawMinorLabels = overlappedLabels.minorLabels;
+    } else {
+      needDrawLabels = !overlappedLabels;
+      needDrawMinorLabels = !overlappedLabels;
     }
-    this.labels().draw();
 
-    // overlappedLabels = this.calcLabels_();
-    //
-    // if (goog.isObject(overlappedLabels)) {
-    //   needDrawLabels = overlappedLabels.labels;
-    //   needDrawMinorLabels = overlappedLabels.minorLabels;
-    // } else {
-    //   needDrawLabels = !overlappedLabels;
-    //   needDrawMinorLabels = !overlappedLabels;
-    // }
+    var scaleMinorTicks;
+    if (this.isHorizontal()) {
+      scaleMinorTicks = this.scale().xMinorTicks();
+    } else {
+      scaleMinorTicks = this.scale().yMinorTicks();
+    }
 
-    // var scaleMinorTicksArr = scale.minorTicks().get();
+    var scaleMinorTicksArr = scaleMinorTicks.get();
     // var minorTickThickness = this.minorTicks_.stroke()['thickness'] ? parseFloat(this.minorTicks_.stroke()['thickness']) : 1;
-    //
-    // i = 0;
-    // j = 0;
-    // var minorTicksArrLen = scaleMinorTicksArr.length;
-    // var minorTickVal, minorRatio, prevMajorRatio;
-    //
-    // while (i < ticksArrLen || j < minorTicksArrLen) {
-    //   tickVal = scaleTicksArr[i];
-    //   // minorTickVal = scaleMinorTicksArr[j];
-    //   // ratio = scale.transform(tickVal);
-    //   // minorRatio = scale.transform(minorTickVal);
-    //
-    //   if (((ratio <= minorRatio && i < ticksArrLen) || j == minorTicksArrLen)) {
-    //     var majorPixelShift = tickThickness % 2 == 0 ? 0 : -.5;
-    //     drawLabel = goog.isArray(needDrawLabels) ? needDrawLabels[i] : needDrawLabels;
-    //     drawTick = (goog.isArray(needDrawLabels) && needDrawLabels[i]) || goog.isBoolean(needDrawLabels);
-    //     if (drawTick && ticksDrawer)
-    //       ticksDrawer.call(
-    //           ticks,
-    //           ratio,
-    //           pixelBounds,
-    //           lineBounds,
-    //           lineThickness,
-    //           majorPixelShift);
-    //
-    //     if (drawLabel)
-    //       this.drawLabel_(tickVal, scale.transform(tickVal, .5), i, majorPixelShift, true, scaleTicksArr);
-    //     prevMajorRatio = ratio;
-    //     i++;
-    //   } else {
-    //     var minorPixelShift = minorTickThickness % 2 == 0 ? 0 : -.5;
-    //     drawLabel = goog.isArray(needDrawMinorLabels) ? needDrawMinorLabels[j] : needDrawMinorLabels;
-    //     drawTick = (goog.isArray(needDrawMinorLabels) && needDrawMinorLabels[j]) || goog.isBoolean(needDrawMinorLabels);
-    //
-    //     if (drawTick && minorTicksDrawer && prevMajorRatio != minorRatio)
-    //       minorTicksDrawer.call(
-    //           minorTicks,
-    //           minorRatio,
-    //           pixelBounds,
-    //           lineBounds,
-    //           lineThickness,
-    //           minorPixelShift);
-    //
-    //     if (drawLabel && prevMajorRatio != minorRatio)
-    //       this.drawLabel_(minorTickVal, scale.transform(minorTickVal, .5), j, minorPixelShift, false, scaleMinorTicksArr);
-    //     j++;
-    //   }
-    // }
-    // if (needDrawMinorLabels) this.minorLabels().draw();
-    //
-    //
-    // this.labels().draw();
+
+    i = 0;
+    j = 0;
+    var minorTicksArrLen = scaleMinorTicksArr.length;
+    var minorTickVal, minorRatio, prevMajorRatio;
+
+    while (i < ticksArrLen || j < minorTicksArrLen) {
+      tickVal = scaleTicksArr[i];
+      minorTickVal = scaleMinorTicksArr[j];
+
+      if (this.isHorizontal()) {
+        ratio = scale.transformX(tickVal);
+        minorRatio = scale.transformX(minorTickVal);
+      } else {
+        ratio = scale.transformY(tickVal);
+        minorRatio = scale.transformY(minorTickVal);
+      }
+
+      if (((ratio <= minorRatio && i < ticksArrLen) || j == minorTicksArrLen)) {
+        // var majorPixelShift = tickThickness % 2 == 0 ? 0 : -.5;
+        drawLabel = goog.isArray(needDrawLabels) ? needDrawLabels[i] : needDrawLabels;
+        drawTick = (goog.isArray(needDrawLabels) && needDrawLabels[i]) || goog.isBoolean(needDrawLabels);
+        if (drawTick && ticksDrawer)
+          ticksDrawer.call(ticks, tickVal);
+
+        if (drawLabel)
+          this.drawLabel_(tickVal, true, i);
+        prevMajorRatio = ratio;
+        i++;
+      } else {
+        // var minorPixelShift = minorTickThickness % 2 == 0 ? 0 : -.5;
+        drawLabel = goog.isArray(needDrawMinorLabels) ? needDrawMinorLabels[j] : needDrawMinorLabels;
+        drawTick = (goog.isArray(needDrawMinorLabels) && needDrawMinorLabels[j]) || goog.isBoolean(needDrawMinorLabels);
+
+        if (drawTick && minorTicksDrawer && prevMajorRatio != minorRatio)
+          minorTicksDrawer.call(minorTicks, minorTickVal);
+
+        if (drawLabel && prevMajorRatio != minorRatio)
+          this.drawLabel_(minorTickVal, false, j);
+        j++;
+      }
+    }
+    if (needDrawMinorLabels) this.minorLabels().draw();
+
+
+    this.labels().draw();
   }
 
   this.title().resumeSignalsDispatching(false);
@@ -1277,16 +1347,16 @@ anychart.core.axes.Map.prototype.disposeInternal = function() {
 // anychart.core.axes.Linear.prototype['staggerMaxLines'] = anychart.core.axes.Linear.prototype.staggerMaxLines;
 anychart.core.axes.Map.prototype['title'] = anychart.core.axes.Map.prototype.title;
 anychart.core.axes.Map.prototype['labels'] = anychart.core.axes.Map.prototype.labels;
-// anychart.core.axes.Linear.prototype['minorLabels'] = anychart.core.axes.Linear.prototype.minorLabels;
+anychart.core.axes.Map.prototype['minorLabels'] = anychart.core.axes.Map.prototype.minorLabels;
 anychart.core.axes.Map.prototype['ticks'] = anychart.core.axes.Map.prototype.ticks;
-// anychart.core.axes.Linear.prototype['minorTicks'] = anychart.core.axes.Linear.prototype.minorTicks;
+anychart.core.axes.Map.prototype['minorTicks'] = anychart.core.axes.Map.prototype.minorTicks;
 anychart.core.axes.Map.prototype['stroke'] = anychart.core.axes.Map.prototype.stroke;
 // anychart.core.axes.Linear.prototype['orientation'] = anychart.core.axes.Linear.prototype.orientation;
 // anychart.core.axes.Linear.prototype['scale'] = anychart.core.axes.Linear.prototype.scale;
 // anychart.core.axes.Linear.prototype['width'] = anychart.core.axes.Linear.prototype.width;
 // anychart.core.axes.Linear.prototype['getRemainingBounds'] = anychart.core.axes.Linear.prototype.getRemainingBounds;
-// anychart.core.axes.Linear.prototype['drawFirstLabel'] = anychart.core.axes.Linear.prototype.drawFirstLabel;
-// anychart.core.axes.Linear.prototype['drawLastLabel'] = anychart.core.axes.Linear.prototype.drawLastLabel;
-// anychart.core.axes.Linear.prototype['overlapMode'] = anychart.core.axes.Linear.prototype.overlapMode;
+anychart.core.axes.Map.prototype['drawFirstLabel'] = anychart.core.axes.Map.prototype.drawFirstLabel;
+anychart.core.axes.Map.prototype['drawLastLabel'] = anychart.core.axes.Map.prototype.drawLastLabel;
+// anychart.core.axes.Map.prototype['overlapMode'] = anychart.core.axes.Map.prototype.overlapMode;
 // anychart.core.axes.Linear.prototype['isHorizontal'] = anychart.core.axes.Linear.prototype.isHorizontal;
 //endregion
