@@ -41,11 +41,11 @@ anychart.onDocumentReady(function() {
   //     .minimumX(-130)
   //     .maximumX(-60);
 
-  chart.scale()
-      .minimumY(-60)
-      .maximumY(90)
-      .minimumX(-180)
-      .maximumX(0);
+  // chart.scale()
+  //     .minimumY(-60)
+  //     .maximumY(90)
+  //     .minimumX(-180)
+  //     .maximumX(0);
 
   chart.scale().xTicks()
       .interval(10);

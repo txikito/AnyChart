@@ -3503,8 +3503,8 @@ anychart.charts.Map.prototype.drawContent = function(bounds) {
 
 
 
-    if (this.mapContentLayer_)
-      this.mapContentLayer_.clip(scale.getViewSpace());
+    // if (this.mapContentLayer_)
+    //   this.mapContentLayer_.clip(scale.getViewSpace());
 
     this.clear();
 

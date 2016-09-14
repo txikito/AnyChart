@@ -107,9 +107,9 @@
     <!--<script src="http://d3js.org/topojson.v1.js"></script>-->
 
 
-    <script src="d3.v3.js"></script>
-    <script src="d3.geo.projection.v0.js"></script>
-    <script src="topojson.v1.js"></script>
+    <script src="../d3-src/d3.v3.js"></script>
+    <script src="../d3-src/d3.geo.projection.v0.js"></script>
+    <script src="../d3-src/topojson.v1.js"></script>
 
     <!--script src="d3_v30.js" charset="utf-8"></script>
     <script src="d3_v3c.js" charset="utf-8"></script>
@@ -303,7 +303,8 @@
             if (pause) return;
             var t = Date.now() - t0;
             rotate[0] = initial[0] + velocity[0] * t;
-            rotate[1] = initial[1] + velocity[1] * t;
+//            rotate[1] = initial[1] + velocity[1] * t;
+            console.log(rotate);
             projection.rotate(rotate);
             redraw(path);
         });
@@ -322,7 +323,7 @@
             context.beginPath(), path({type: "Sphere"}), context.stroke();
         }
 
-        d3.json("world-110m.json", function(error, world) {
+        d3.json("../d3-src/world-110m.json", function(error, world) {
             land = topojson.feature(world, world.objects.land);
             boundaries = topojson.mesh(world, world.objects.countries, function(a, b) {
                 return a !== b;

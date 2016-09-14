@@ -29,6 +29,11 @@ anychart.core.map.projections.Bonne.prototype.forward = function(x, y) {
   x = goog.math.toRadians(x);
   y = goog.math.toRadians(y);
 
+  var coords = this.rotation(x, y);
+
+  x = coords[0];
+  y = coords[1];
+
   var ro = this.cotphi0 + this.phi0 - y;
   var E = ro ? x * Math.cos(y) / ro : ro;
   x = ro * Math.sin(E);
