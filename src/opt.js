@@ -2250,3 +2250,59 @@ anychart.opt.UPDATE_POINT = 'updatePoint';
  * @const {string}
  */
 anychart.opt.MAX_COUNT = 'maxCount';
+
+
+/**
+ * Constant replacer for "startMonth" string.
+ * @const {string}
+ */
+anychart.opt.START_MONTH = 'startMonth';
+
+
+/**
+ * Constant replacer for "endMonth" string.
+ * @const {string}
+ */
+anychart.opt.END_MONTH = 'endMonth';
+
+
+/**
+ * Constant replacer for "weekStart" string.
+ * @const {string}
+ */
+anychart.opt.WEEK_START = 'weekStart';
+
+
+/**
+ * Constant replacer for "outlineColor" string.
+ * @const {string}
+ */
+anychart.opt.OUTLINE_COLOR = 'outlineColor';
+
+
+/**
+ * Constant replacer for "unusedOutlineColor" string.
+ * @const {string}
+ */
+anychart.opt.UNUSED_OUTLINE_COLOR = 'unusedOutlineColor';
+
+
+/**
+ * Constant replacer for "unusedFill" string.
+ * @const {string}
+ */
+anychart.opt.UNUSED_FILL = 'unusedFill';
+
+
+/**
+ * Constant replacer for "unusedStroke" string.
+ * @const {string}
+ */
+anychart.opt.UNUSED_STROKE = 'unusedStroke';
+
+
+/**
+ * Constant replacer for "year" string.
+ * @const {string}
+ */
+anychart.opt.YEAR = 'year';

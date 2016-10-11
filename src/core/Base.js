@@ -362,6 +362,7 @@ anychart.ConsistencyState = {
   //---------------------------------- CALENDAR CHART (SEPARATE CHART) ----------------------------------
   CALENDAR_COLOR_SCALE: 1 << 12,
   CALENDAR_COLOR_RANGE: 1 << 13,
+  CALENDAR_DATA: 1 << 14,
   /**
    * Combination of all states.
    */
