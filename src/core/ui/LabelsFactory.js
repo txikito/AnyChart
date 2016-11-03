@@ -1012,9 +1012,6 @@ anychart.core.ui.LabelsFactory.prototype.getDimension = function(formatProviderO
     formatProvider = formatProviderOrLabel;
     positionProvider = opt_positionProvider || {'value' : {'x': 0, 'y': 0}};
   }
-  if (opt_settings && opt_settings['padding'] && opt_settings['padding'] instanceof anychart.core.utils.Padding) {
-    opt_settings['padding'] = opt_settings['padding'].serialize();
-  }
   this.measureCustomLabel_.setSettings(opt_settings);
 
   var isHtml = goog.isDef(this.measureCustomLabel_.useHtml()) ? this.measureCustomLabel_.useHtml() : this.useHtml();
