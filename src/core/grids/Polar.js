@@ -1,10 +1,12 @@
 goog.provide('anychart.core.grids.Polar');
 goog.require('acgraph');
 goog.require('anychart.color');
+goog.require('anychart.core.IStandaloneBackend');
 goog.require('anychart.core.VisualBase');
 goog.require('anychart.core.reporting');
 goog.require('anychart.core.utils.TypedLayer');
 goog.require('anychart.enums');
+goog.require('anychart.scales');
 
 
 
@@ -12,6 +14,7 @@ goog.require('anychart.enums');
  * Grid.
  * @constructor
  * @extends {anychart.core.VisualBase}
+ * @implements {anychart.core.IStandaloneBackend}
  */
 anychart.core.grids.Polar = function() {
   goog.base(this);
@@ -823,8 +826,8 @@ anychart.core.grids.Polar.prototype.serialize = function() {
 
 
 /** @inheritDoc */
-anychart.core.grids.Polar.prototype.setupByJSON = function(config) {
-  goog.base(this, 'setupByJSON', config);
+anychart.core.grids.Polar.prototype.setupByJSON = function(config, opt_default) {
+  goog.base(this, 'setupByJSON', config, opt_default);
   this.isMinor(config['isMinor']);
   this.layout(config['layout']);
   this.drawLastLine(config['drawLastLine']);

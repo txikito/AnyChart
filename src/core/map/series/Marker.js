@@ -374,8 +374,8 @@ anychart.core.map.series.Marker.prototype.createPositionProvider = function(posi
 
   var arrayMappingWithRegion = anychart.utils.isNaN(x) && x == id;
 
-  x = anychart.utils.toNumber(x);
-  y = anychart.utils.toNumber(y);
+  x = parseFloat(x);
+  y = parseFloat(y);
 
   var txCoords = scale.transform(x, y);
   if (!isNaN(x))
@@ -599,8 +599,8 @@ anychart.core.map.series.Marker.prototype.serialize = function() {
 /**
  * @inheritDoc
  */
-anychart.core.map.series.Marker.prototype.setupByJSON = function(config) {
-  goog.base(this, 'setupByJSON', config);
+anychart.core.map.series.Marker.prototype.setupByJSON = function(config, opt_default) {
+  goog.base(this, 'setupByJSON', config, opt_default);
   this.size(config['size']);
   this.hoverSize(config['hoverSize']);
   this.selectSize(config['selectSize']);

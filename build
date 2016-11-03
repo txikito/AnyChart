@@ -26,7 +26,7 @@ MODULES_PATH = os.path.join(SRC_PATH, 'modules')
 THEMES_PATH = os.path.join(SRC_PATH, 'themes')
 
 #graphics
-GRAPHICS_PATH = os.path.join(CONTRIB_PATH, 'graphics')
+GRAPHICS_PATH = os.path.join(CONTRIB_PATH, 'graphicsjs')
 GRAPHICS_SRC_PATH = os.path.join(CONTRIB_PATH, GRAPHICS_PATH, 'src')
 
 #closure tools
@@ -274,7 +274,7 @@ def __get_default_compiler_args():
         #'--process_closure_primitives',
         #'--use_types_for_optimization',
         #'--use_only_custom_externs',
-        '--externs ' + EXTERNS_PATH,
+        #'--externs ' + EXTERNS_PATH,
         '--extra_annotation_name "includeDoc"',
         '--extra_annotation_name "illustration"',
         '--extra_annotation_name "illustrationDesc"',
@@ -1345,6 +1345,11 @@ def __exec_main_script():
 
 
 if __name__ == '__main__':
+    print ('WARNING!\n'
+           'build script is deprecated and will be delete soon, please use'
+           ' build.py script.\nIn build.py was added new flag, that let you use'
+           ' parallel build for compile_each command, for more information'
+           ' use "./build.py compile_each -h"')
     try:
         __exec_main_script()
     except StandardError as e:

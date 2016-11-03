@@ -1,9 +1,10 @@
 //region --- Requiring and Providing
 goog.provide('anychart.core.axes.MapTicks');
 goog.require('acgraph');
-goog.require('anychart.color');
 goog.require('anychart.core.VisualBase');
+goog.require('anychart.core.settings');
 goog.require('anychart.enums');
+goog.require('anychart.math.Rect');
 goog.require('anychart.utils');
 //endregion
 
@@ -11,31 +12,12 @@ goog.require('anychart.utils');
 
 /**
  * @constructor
+ * @implements {anychart.core.settings.IObjectWithSettings}
+ * @implements {anychart.core.settings.IResolvable}
  * @extends {anychart.core.VisualBase}
  */
 anychart.core.axes.MapTicks = function() {
   anychart.core.axes.MapTicks.base(this, 'constructor');
-
-  /**
-   * Ticks length.
-   * @type {number}
-   * @private
-   */
-  this.length_;
-
-  /**
-   * Ticks stroke.
-   * @type {acgraph.vector.Stroke|string}
-   * @private
-   */
-  this.stroke_;
-
-  /**
-   * Ticks position.
-   * @type {anychart.enums.SidePosition}
-   * @private
-   */
-  this.position_;
 
   /**
    * Ticks enabled.
@@ -45,11 +27,38 @@ anychart.core.axes.MapTicks = function() {
   this.orientation_;
 
   /**
+   * Theme settings.
+   * @type {Object}
+   */
+  this.themeSettings = {};
+
+  /**
+   * Own settings (Settings set by user with API).
+   * @type {Object}
+   */
+  this.ownSettings = {};
+
+  /**
+   * Parent title.
+   * @type {anychart.core.axes.MapTicks}
+   * @private
+   */
+  this.parent_ = null;
+
+  /**
+   * Resolution chain cache.
+   * @type {Array.<Object|null|undefined>|null}
+   * @private
+   */
+  this.resolutionChainCache_ = null;
+
+  /**
    * Path with ticks.
    * @type {!acgraph.vector.Path}
    * @protected
    */
   this.path = acgraph.path();
+  this.path.disableStrokeScaling(true);
   this.bindHandlersToGraphics(this.path);
   this.registerDisposable(this.path);
 };
@@ -72,75 +81,181 @@ anychart.core.axes.MapTicks.prototype.SUPPORTED_CONSISTENCY_STATES = anychart.co
 
 
 //endregion
-//region --- Settings
-/**
- * Getter/setter for length.
- * @param {(number|string)=} opt_value .
- * @return {(number|!anychart.core.axes.MapTicks)} .
- */
-anychart.core.axes.MapTicks.prototype.length = function(opt_value) {
+//region --- IObjectWithSettings implementation
+/** @inheritDoc */
+anychart.core.axes.MapTicks.prototype.getOwnOption = function(name) {
+  return this.ownSettings[name];
+};
+
+
+/** @inheritDoc */
+anychart.core.axes.MapTicks.prototype.hasOwnOption = function(name) {
+  return goog.isDef(this.ownSettings[name]);
+};
+
+
+/** @inheritDoc */
+anychart.core.axes.MapTicks.prototype.getThemeOption = function(name) {
+  return this.themeSettings[name];
+};
+
+
+/** @inheritDoc */
+anychart.core.axes.MapTicks.prototype.getOption = anychart.core.settings.getOption;
+
+
+/** @inheritDoc */
+anychart.core.axes.MapTicks.prototype.setOption = function(name, value) {
+  this.ownSettings[name] = value;
+};
+
+
+/** @inheritDoc */
+anychart.core.axes.MapTicks.prototype.check = function(flags) {
+  return true;
+};
+
+
+//endregion
+//region --- IResolvable implementation
+/** @inheritDoc */
+anychart.core.axes.MapTicks.prototype.resolutionChainCache = function(opt_value) {
   if (goog.isDef(opt_value)) {
-    opt_value = anychart.utils.toNumber(opt_value);
-    if (this.length_ != opt_value) {
-      this.length_ = opt_value;
-      this.dispatchSignal(anychart.Signal.NEEDS_REDRAW | anychart.Signal.BOUNDS_CHANGED);
+    this.resolutionChainCache_ = opt_value;
+  }
+  return this.resolutionChainCache_;
+};
+
+
+/** @inheritDoc */
+anychart.core.axes.MapTicks.prototype.getResolutionChain = anychart.core.settings.getResolutionChain;
+
+
+/** @inheritDoc */
+anychart.core.axes.MapTicks.prototype.getLowPriorityResolutionChain = function() {
+  var sett = [this.themeSettings];
+  if (this.parent_) {
+    sett = goog.array.concat(sett, this.parent_.getLowPriorityResolutionChain());
+  }
+  return sett;
+};
+
+
+/** @inheritDoc */
+anychart.core.axes.MapTicks.prototype.getHighPriorityResolutionChain = function() {
+  var sett = [this.ownSettings];
+  if (this.parent_) {
+    sett = goog.array.concat(sett, this.parent_.getHighPriorityResolutionChain());
+  }
+  return sett;
+};
+
+
+//endregion
+//region --- Parental relations
+/**
+ * Gets/sets new parent.
+ * @param {anychart.core.axes.MapTicks=} opt_value - Value to set.
+ * @return {anychart.core.axes.MapTicks} - Current value or itself for method chaining.
+ */
+anychart.core.axes.MapTicks.prototype.parent = function(opt_value) {
+  if (goog.isDef(opt_value)) {
+    if (this.parent_ != opt_value) {
+      if (this.parent_)
+        this.parent_.unlistenSignals(this.parentInvalidated_, this);
+      this.parent_ = opt_value;
+      if (this.parent_)
+        this.parent_.listenSignals(this.parentInvalidated_, this);
     }
     return this;
-  } else
-    return this.length_;
+  }
+  return this.parent_;
 };
 
 
 /**
- * Getter/setter for stroke.
- * @param {(acgraph.vector.Stroke|acgraph.vector.ColoredFill|string|null)=} opt_strokeOrFill Fill settings
- *    or stroke settings.
- * @param {number=} opt_thickness [1] Line thickness.
- * @param {string=} opt_dashpattern Controls the pattern of dashes and gaps used to stroke paths.
- * @param {acgraph.vector.StrokeLineJoin=} opt_lineJoin Line joint style.
- * @param {acgraph.vector.StrokeLineCap=} opt_lineCap Line cap style.
- * @return {!(anychart.core.axes.MapTicks|acgraph.vector.Stroke)} .
+ * Parent invalidation handler.
+ * @param {anychart.SignalEvent} e - Signal event.
+ * @private
  */
-anychart.core.axes.MapTicks.prototype.stroke = function(opt_strokeOrFill, opt_thickness, opt_dashpattern, opt_lineJoin, opt_lineCap) {
-  if (goog.isDef(opt_strokeOrFill)) {
-    var stroke = acgraph.vector.normalizeStroke.apply(null, arguments);
-    if (this.stroke_ != stroke) {
-      this.stroke_ = stroke;
-      this.dispatchSignal(anychart.Signal.NEEDS_REDRAW);
+anychart.core.axes.MapTicks.prototype.parentInvalidated_ = function(e) {
+  var signal = 0;
+
+  if (e.hasSignal(anychart.Signal.NEEDS_REDRAW)) {
+    signal |= anychart.Signal.NEEDS_REDRAW;
+  }
+
+  if (e.hasSignal(anychart.Signal.BOUNDS_CHANGED)) {
+    signal |= anychart.Signal.BOUNDS_CHANGED;
+  }
+
+  this.resolutionChainCache_ = null;
+
+  this.dispatchSignal(signal);
+};
+
+
+//endregion
+//region --- Optimized props descriptors
+/**
+ * Simple properties descriptors.
+ * @type {!Object.<string, anychart.core.settings.PropertyDescriptor>}
+ */
+anychart.core.axes.MapTicks.prototype.SIMPLE_PROPS_DESCRIPTORS = (function() {
+  /** @type {!Object.<string, anychart.core.settings.PropertyDescriptor>} */
+  var map = {};
+  map[anychart.opt.STROKE] = anychart.core.settings.createDescriptor(
+      anychart.enums.PropertyHandlerType.MULTI_ARG,
+      anychart.opt.STROKE,
+      anychart.core.settings.strokeNormalizer,
+      anychart.ConsistencyState.ONLY_DISPATCHING,
+      anychart.Signal.NEEDS_REDRAW);
+
+  map[anychart.opt.LENGTH] = anychart.core.settings.createDescriptor(
+      anychart.enums.PropertyHandlerType.SINGLE_ARG,
+      anychart.opt.LENGTH,
+      anychart.utils.toNumber,
+      anychart.ConsistencyState.ONLY_DISPATCHING,
+      anychart.Signal.NEEDS_REDRAW | anychart.Signal.BOUNDS_CHANGED);
+
+  map[anychart.opt.POSITION] = anychart.core.settings.createDescriptor(
+      anychart.enums.PropertyHandlerType.SINGLE_ARG,
+      anychart.opt.POSITION,
+      anychart.enums.normalizeSidePosition,
+      anychart.ConsistencyState.ONLY_DISPATCHING,
+      anychart.Signal.NEEDS_REDRAW | anychart.Signal.BOUNDS_CHANGED);
+
+  return map;
+})();
+anychart.core.settings.populate(anychart.core.axes.MapTicks, anychart.core.axes.MapTicks.prototype.SIMPLE_PROPS_DESCRIPTORS);
+
+
+/** @inheritDoc */
+anychart.core.axes.MapTicks.prototype.enabled = function(opt_value) {
+  if (goog.isDef(opt_value)) {
+    if (this.ownSettings['enabled'] != opt_value) {
+      var enabled = this.ownSettings['enabled'] = opt_value;
+      this.dispatchSignal(this.getEnableChangeSignals());
+      if (enabled) {
+        this.doubleSuspension = false;
+        this.resumeSignalsDispatching(true);
+      } else {
+        if (isNaN(this.suspendedDispatching)) {
+          this.suspendSignalsDispatching();
+        } else {
+          this.doubleSuspension = true;
+        }
+      }
     }
     return this;
   } else {
-    return this.stroke_;
+    return /** @type {boolean} */(this.getOption('enabled'));
   }
 };
 
 
-/**
- * Getter/setter for position.
- * @param {(anychart.enums.SidePosition|string)=} opt_value .
- * @return {(anychart.enums.SidePosition|string|!anychart.core.axes.MapTicks)} .
- */
-anychart.core.axes.MapTicks.prototype.position = function(opt_value) {
-  if (goog.isDef(opt_value)) {
-    this.position_ = anychart.enums.normalizeSidePosition(opt_value);
-    this.dispatchSignal(anychart.Signal.NEEDS_REDRAW | anychart.Signal.BOUNDS_CHANGED);
-    return this;
-  } else
-    return this.position_;
-};
-
-
-/**
- * Whether an tick has horizontal orientation.
- * @return {boolean} If the tick has horizontal orientation.
- */
-anychart.core.axes.MapTicks.prototype.isHorizontal = function() {
-  var orientation = this.orientation();
-  return orientation == anychart.enums.Orientation.TOP ||
-      orientation == anychart.enums.Orientation.BOTTOM;
-};
-
-
+//endregion
+//region --- Support methods
 /**
  * Internal use.
  * Change orientation and set drawer to null.
@@ -163,6 +278,17 @@ anychart.core.axes.MapTicks.prototype.orientation = function(opt_value) {
 
 
 /**
+ * Whether an tick has horizontal orientation.
+ * @return {boolean} If the tick has horizontal orientation.
+ */
+anychart.core.axes.MapTicks.prototype.isHorizontal = function() {
+  var orientation = this.orientation();
+  return orientation == anychart.enums.Orientation.TOP ||
+      orientation == anychart.enums.Orientation.BOTTOM;
+};
+
+
+/**
  * Setting scale.
  * @param {anychart.scales.Geo} value
  */
@@ -172,8 +298,6 @@ anychart.core.axes.MapTicks.prototype.setScale = function(value) {
    * @private
    */
   this.scale_ = value;
-
-  this.calcGeoLine();
 };
 
 
@@ -181,8 +305,9 @@ anychart.core.axes.MapTicks.prototype.setScale = function(value) {
 //region --- Calculation
 /**
  * Calc geo line.
+ * @return {number} .
  */
-anychart.core.axes.MapTicks.prototype.calcGeoLine = function() {
+anychart.core.axes.MapTicks.prototype.getGeoLine = function() {
   switch (this.orientation()) {
     case anychart.enums.Orientation.TOP:
       this.geoLine = this.scale_.maximumY();
@@ -197,11 +322,60 @@ anychart.core.axes.MapTicks.prototype.calcGeoLine = function() {
       this.geoLine = this.scale_.minimumX();
       break;
   }
+  return this.geoLine;
 };
 
 
-anychart.core.axes.MapTicks.prototype.getTickAngle = function(value) {
+/**
+ * Return tick angle rotation.
+ * @param {string|anychart.enums.Orientation} position Tick position relative axis.
+ * @param {number} angle Angel for tick rotation.
+ * @param {Array.<number>} centerPos Tick coordinates.
+ * @param {Array.<number>} nearPos Position near tick coordinates.
+ * @private
+ * @return {number}
+ */
+anychart.core.axes.MapTicks.prototype.getAngleForPosition_ = function(position, angle, centerPos, nearPos) {
+  var angle_;
+  switch (position) {
+    case anychart.enums.SidePosition.INSIDE:
+      angle_ = goog.math.standardAngleInRadians(angle) + 1.5 * Math.PI;
 
+      if (this.orientation() == anychart.enums.Orientation.TOP || this.orientation() == anychart.enums.Orientation.LEFT) {
+        if (centerPos[0] < nearPos[0] && (centerPos[1] <= nearPos[1] || centerPos[1] >= nearPos[1])) {
+          angle_ = angle + .5 * Math.PI;
+        }
+      } else {
+        if (centerPos[0] > nearPos[0] && (centerPos[1] <= nearPos[1] || centerPos[1] >= nearPos[1])) {
+          angle_ = angle + .5 * Math.PI;
+        }
+      }
+      break;
+    case anychart.enums.SidePosition.CENTER:
+      angle_ = this.getAngleForPosition_(anychart.enums.SidePosition.OUTSIDE, angle, centerPos, nearPos);
+
+      centerPos[0] += Math.cos(angle_) * this.length() / 2;
+      centerPos[1] += Math.sin(angle_) * this.length() / 2;
+
+      angle_ = angle_ + Math.PI;
+
+      break;
+    case anychart.enums.SidePosition.OUTSIDE:
+    default:
+      angle_ = goog.math.standardAngleInRadians(angle - Math.PI / 2);
+
+      if (this.orientation() == anychart.enums.Orientation.TOP || this.orientation() == anychart.enums.Orientation.LEFT) {
+        if (centerPos[0] > nearPos[0] && (centerPos[1] <= nearPos[1] || centerPos[1] >= nearPos[1])) {
+          angle_ = angle - 1.5 * Math.PI;
+        }
+      } else {
+        if (centerPos[0] <= nearPos[0] && (centerPos[1] <= nearPos[1] || centerPos[1] >= nearPos[1])) {
+          angle_ = angle - 1.5 * Math.PI;
+        }
+      }
+      break;
+  }
+  return angle_;
 };
 
 
@@ -212,13 +386,18 @@ anychart.core.axes.MapTicks.prototype.getTickAngle = function(value) {
  */
 anychart.core.axes.MapTicks.prototype.calcTick = function(value) {
   var nearPos, centerPos, tickCoords;
-  var direction = 1;
+  this.scale_.calculate();
+  value = parseFloat(value);
+  var geoLine = this.getGeoLine();
+  var position = /** @type {anychart.enums.Position} */(this.getOption(anychart.opt.POSITION));
+  var length = /** @type {number} */(this.getOption(anychart.opt.LENGTH));
+
   if (this.isHorizontal()) {
-    centerPos = this.scale_.transform(value, this.geoLine, null);
-    nearPos = this.scale_.transform(value + 1, this.geoLine, null);
+    centerPos = this.scale_.transform(value, geoLine, null);
+    nearPos = this.scale_.transform(value + 1, geoLine, null);
   } else {
-    centerPos = this.scale_.transform(this.geoLine, value, null);
-    nearPos = this.scale_.transform(this.geoLine, value + 1, null);
+    centerPos = this.scale_.transform(geoLine, value, null);
+    nearPos = this.scale_.transform(geoLine, value + 1, null);
   }
 
   var a = centerPos[1] - nearPos[1];
@@ -226,40 +405,10 @@ anychart.core.axes.MapTicks.prototype.calcTick = function(value) {
   var angle = Math.atan(-a / b);
   if (isNaN(angle)) angle = 0;
 
-  var angle_;
-  if (this.position_ == anychart.enums.SidePosition.INSIDE) {
-    angle_ = angle + direction * 1.5 * Math.PI;
+  var angle_ = this.getAngleForPosition_(position, angle, centerPos, nearPos);
 
-    if (this.orientation() == anychart.enums.Orientation.TOP || this.orientation() == anychart.enums.Orientation.LEFT) {
-      if (centerPos[0] < nearPos[0] && (centerPos[1] <= nearPos[1] || centerPos[1] >= nearPos[1])) {
-        angle_ = angle + direction * .5 * Math.PI;
-      }
-    } else {
-      if (centerPos[0] > nearPos[0] && (centerPos[1] <= nearPos[1] || centerPos[1] >= nearPos[1])) {
-        angle_ = angle + direction * .5 * Math.PI;
-      }
-    }
-  } else if (this.position_ == anychart.enums.SidePosition.CENTER) {
-    angle_ = angle + 1.5 * Math.PI;
-    centerPos[0] += Math.cos(angle_) * this.length() / 2;
-    centerPos[1] += Math.sin(angle_) * this.length() / 2;
-    angle_ = angle + Math.PI / 2;
-  } else {
-    angle_ = angle - direction * Math.PI / 2;
-
-    if (this.orientation() == anychart.enums.Orientation.TOP || this.orientation() == anychart.enums.Orientation.LEFT) {
-      if (centerPos[0] > nearPos[0] && (centerPos[1] <= nearPos[1] || centerPos[1] >= nearPos[1])) {
-        angle_ = angle - 1.5 * Math.PI;
-      }
-    } else {
-      if (centerPos[0] <= nearPos[0] && (centerPos[1] <= nearPos[1] || centerPos[1] >= nearPos[1])) {
-        angle_ = angle - 1.5 * Math.PI;
-      }
-    }
-  }
-
-  var dx = Math.cos(angle_) * this.length();
-  var dy = Math.sin(angle_) * this.length();
+  var dx = Math.cos(angle_) * length;
+  var dy = Math.sin(angle_) * length;
 
   tickCoords = [centerPos[0], centerPos[1], centerPos[0] + dx, centerPos[1] + dy, angle_];
 
@@ -295,10 +444,10 @@ anychart.core.axes.MapTicks.prototype.remove = function() {
  * @return {!anychart.core.axes.MapTicks} {@link anychart.core.axes.MapTicks} instance for method chaining.
  */
 anychart.core.axes.MapTicks.prototype.draw = function() {
-  this.calcGeoLine();
+  this.getGeoLine();
 
   this.path.clear();
-  this.path.stroke(this.stroke_);
+  this.path.stroke(/** @type {acgraph.vector.Stroke} */(this.getOption(anychart.opt.STROKE)));
 
   if (!this.checkDrawingNeeded())
     return this;
@@ -318,91 +467,10 @@ anychart.core.axes.MapTicks.prototype.draw = function() {
 
 
 /**
- * Get drawer depends on orientation
- * @return {Function}
- */
-anychart.core.axes.MapTicks.prototype.getTicksDrawer = function() {
-  if (!this.drawer_) {
-    switch (this.orientation_) {
-      case anychart.enums.Orientation.TOP:
-        this.drawer_ = this.drawTopTick;
-        break;
-      case anychart.enums.Orientation.RIGHT:
-        this.drawer_ = this.drawRightTick;
-        break;
-      case anychart.enums.Orientation.BOTTOM:
-        this.drawer_ = this.drawBottomTick;
-        break;
-      case anychart.enums.Orientation.LEFT:
-        this.drawer_ = this.drawLeftTick;
-        break;
-    }
-  }
-  return this.drawer_;
-};
-
-
-/**
  * Axis ticks drawer for top orientation.
- * @param {number} ratio Scale ratio.
- * @param {anychart.math.Rect} bounds Axis bounds.
- * @param {anychart.math.Rect} lineBounds Axis line bounds.
- * @param {number} lineThickness Axis line thickness.
- * @param {number} pixelShift Pixel shift for a crisp display.
- * @protected
+ * @param {number} value Tick value.
  */
-anychart.core.axes.MapTicks.prototype.drawTopTick = function(value) {
-  var tickCoords = this.calcTick(value);
-
-  this.path.moveTo(tickCoords[0], tickCoords[1]);
-  this.path.lineTo(tickCoords[2], tickCoords[3]);
-};
-
-
-/**
- * Axis ticks drawer for right orientation.
- * @param {number} ratio Scale ratio.
- * @param {anychart.math.Rect} bounds Axis bounds.
- * @param {anychart.math.Rect} lineBounds Axis line bounds.
- * @param {number} lineThickness Axis line thickness.
- * @param {number} pixelShift Pixel shift for a crisp display.
- * @protected
- */
-anychart.core.axes.MapTicks.prototype.drawRightTick = function(value) {
-  var tickCoords = this.calcTick(value);
-
-  this.path.moveTo(tickCoords[0], tickCoords[1]);
-  this.path.lineTo(tickCoords[2], tickCoords[3]);
-};
-
-
-/**
- * Axis ticks drawer for bottom orientation.
- * @param {number} ratio Scale ratio.
- * @param {anychart.math.Rect} bounds Axis bounds.
- * @param {anychart.math.Rect} lineBounds Axis line bounds.
- * @param {number} lineThickness Axis line thickness.
- * @param {number} pixelShift Pixel shift for a crisp display.
- * @protected
- */
-anychart.core.axes.MapTicks.prototype.drawBottomTick = function(value) {
-  var tickCoords = this.calcTick(value);
-
-  this.path.moveTo(tickCoords[0], tickCoords[1]);
-  this.path.lineTo(tickCoords[2], tickCoords[3]);
-};
-
-
-/**
- * Axis ticks drawer for left orientation.
- * @param {number} ratio Scale ratio.
- * @param {anychart.math.Rect} bounds Axis bounds.
- * @param {anychart.math.Rect} lineBounds Axis line bounds.
- * @param {number} lineThickness Axis line thickness.
- * @param {number} pixelShift Pixel shift for a crisp display.
- * @protected
- */
-anychart.core.axes.MapTicks.prototype.drawLeftTick = function(value) {
+anychart.core.axes.MapTicks.prototype.drawTick = function(value) {
   var tickCoords = this.calcTick(value);
 
   this.path.moveTo(tickCoords[0], tickCoords[1]);
@@ -412,15 +480,70 @@ anychart.core.axes.MapTicks.prototype.drawLeftTick = function(value) {
 
 //endregion
 //region --- Setup and Dispose
+/**
+ * Sets default settings.
+ * @param {!Object} config
+ */
+anychart.core.axes.MapTicks.prototype.setThemeSettings = function(config) {
+  for (var name in this.SIMPLE_PROPS_DESCRIPTORS) {
+    var val = config[name];
+    if (goog.isDef(val))
+      this.themeSettings[name] = val;
+  }
+  if (anychart.opt.ENABLED in config) this.themeSettings[anychart.opt.ENABLED] = config[anychart.opt.ENABLED];
+  if (anychart.opt.Z_INDEX in config) this.themeSettings[anychart.opt.Z_INDEX] = config[anychart.opt.Z_INDEX];
+};
+
+
 /** @inheritDoc */
-anychart.core.axes.MapTicks.prototype.setupByJSON = function(config) {
-  anychart.core.axes.MapTicks.base(this, 'setupByJSON', config);
+anychart.core.axes.MapTicks.prototype.specialSetupByVal = function(value, opt_default) {
+  if (goog.isBoolean(value) || goog.isNull(value)) {
+    if (opt_default)
+      this.themeSettings[anychart.opt.ENABLED] = !!value;
+    else
+      this.enabled(!!value);
+    return true;
+  }
+  return anychart.core.Base.prototype.specialSetupByVal.apply(this, arguments);
+};
+
+
+/** @inheritDoc */
+anychart.core.axes.MapTicks.prototype.setupByJSON = function(config, opt_default) {
+  if (opt_default) {
+    this.setThemeSettings(config);
+  } else {
+    anychart.core.settings.deserialize(this, this.SIMPLE_PROPS_DESCRIPTORS, config);
+    anychart.core.axes.MapTicks.base(this, 'setupByJSON', config);
+  }
 };
 
 
 /** @inheritDoc */
 anychart.core.axes.MapTicks.prototype.serialize = function() {
-  var json = anychart.core.axes.MapTicks.base(this, 'serialize');
+  var json = {};
+
+  var zIndex;
+  if (this.hasOwnOption(anychart.opt.Z_INDEX)) {
+    zIndex = this.getOwnOption(anychart.opt.Z_INDEX);
+  }
+  if (!goog.isDef(zIndex)) {
+    zIndex = this.getThemeOption(anychart.opt.Z_INDEX);
+  }
+  if (goog.isDef(zIndex)) json['zIndex'] = zIndex;
+
+  var enabled;
+  if (this.hasOwnOption(anychart.opt.ENABLED)) {
+    enabled = this.getOwnOption(anychart.opt.ENABLED);
+  }
+  if (!goog.isDef(enabled)) {
+    enabled = this.getThemeOption(anychart.opt.ENABLED);
+  }
+  json['enabled'] = goog.isDef(enabled) ? enabled : null;
+
+  anychart.core.settings.serialize(this, this.SIMPLE_PROPS_DESCRIPTORS, json, 'Map axis ticks props');
+
+  return json;
 };
 
 
@@ -433,7 +556,8 @@ anychart.core.axes.MapTicks.prototype.disposeInternal = function() {
 //endregion
 //region --- Exports
 //exports
-anychart.core.axes.Ticks.prototype['length'] = anychart.core.axes.Ticks.prototype.length;
-anychart.core.axes.Ticks.prototype['stroke'] = anychart.core.axes.Ticks.prototype.stroke;
-anychart.core.axes.Ticks.prototype['position'] = anychart.core.axes.Ticks.prototype.position;
+//descriptors
+// anychart.core.axes.MapTicks.prototype['length'] = anychart.core.axes.MapTicks.prototype.length;
+// anychart.core.axes.MapTicks.prototype['stroke'] = anychart.core.axes.MapTicks.prototype.stroke;
+// anychart.core.axes.MapTicks.prototype['position'] = anychart.core.axes.MapTicks.prototype.position;
 //endregion

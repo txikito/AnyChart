@@ -143,8 +143,17 @@ anychart.core.ui.CrosshairLabel.prototype.y = function(value) {
  * @protected
  */
 anychart.core.ui.CrosshairLabel.prototype.drawLabel = function() {
-  //bounds
-  var parentBounds = /** @type {anychart.math.Rect} */(this.parentBounds()) || anychart.math.rect(0, 0, 0, 0);
+  var parentBounds;
+  if (!this.parentBounds()) {
+    parentBounds = new anychart.math.Rect(0, 0, 0, 0);
+    //calculate text width and outer width
+    var textElementBounds = this.textElement.getBounds();
+    parentBounds.width = this.padding().widenWidth(textElementBounds.width);
+    parentBounds.height = this.padding().widenHeight(textElementBounds.height);
+  } else {
+    parentBounds = /** @type {anychart.math.Rect} */(this.parentBounds());
+  }
+
   var parentWidth = parentBounds.width;
   var parentHeight = parentBounds.height;
   var backgroundBounds = new anychart.math.Rect(0, 0, this.backgroundWidth, this.backgroundHeight);
@@ -197,8 +206,8 @@ anychart.core.ui.CrosshairLabel.prototype.serialize = function() {
 
 
 /** @inheritDoc */
-anychart.core.ui.CrosshairLabel.prototype.setupByJSON = function(config) {
-  goog.base(this, 'setupByJSON', config);
+anychart.core.ui.CrosshairLabel.prototype.setupByJSON = function(config, opt_default) {
+  goog.base(this, 'setupByJSON', config, opt_default);
   this.axisIndex(config['axisIndex']);
   this.anchor(config['anchor']);
   this.textFormatter(config['textFormatter']);

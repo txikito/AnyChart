@@ -178,12 +178,10 @@ anychart.core.utils.A11y.prototype.setupSpecial = function(var_args) {
 
 
 /**
- * Sets current instance using passed JSON object.
- * @param {!Object} json
- * @protected
+ * @inheritDoc
  */
-anychart.core.utils.A11y.prototype.setupByJSON = function(json) {
-  anychart.core.utils.A11y.base(this, 'setupByJSON', json);
+anychart.core.utils.A11y.prototype.setupByJSON = function(json, opt_default) {
+  anychart.core.utils.A11y.base(this, 'setupByJSON', json, opt_default);
   this.enabled('enabled' in json ? json['enabled'] : true);
   this.titleFormatter(json['titleFormatter']);
 };
@@ -250,11 +248,11 @@ anychart.core.utils.ChartA11y.prototype.applyA11y = function(textInfo) {
     }
 
     var title = this.chart.title();
-    if (!titleText && title.text() && title.enabled())
-      titleText = title.text();
+    if (!titleText && title.getOption(anychart.opt.TEXT) && title.enabled())
+      titleText = title.getOption(anychart.opt.TEXT);
 
     if (this.mode_ == anychart.enums.A11yMode.DATA_TABLE) {
-      this.relatedHtmlTable_ = /** @type {Element} */ (this.chart.toA11yTable(titleText));
+      this.relatedHtmlTable_ = /** @type {Element} */ (this.chart.toA11yTable(/** @type {string} */ (titleText)));
       var containerDiv = /** @type {Element} */ (this.chart.container().container());
       if (containerDiv)
         goog.dom.insertChildAt(containerDiv, this.relatedHtmlTable_, 0);
@@ -294,8 +292,8 @@ anychart.core.utils.ChartA11y.prototype.serialize = function() {
 
 
 /** @inheritDoc */
-anychart.core.utils.ChartA11y.prototype.setupByJSON = function(config) {
-  anychart.core.utils.ChartA11y.base(this, 'setupByJSON', config);
+anychart.core.utils.ChartA11y.prototype.setupByJSON = function(config, opt_default) {
+  anychart.core.utils.ChartA11y.base(this, 'setupByJSON', config, opt_default);
   this.mode(config['mode']);
 };
 

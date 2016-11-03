@@ -1,7 +1,7 @@
 goog.provide('anychart.core.ui.BaseGrid');
 
-goog.require('acgraph.math.Coordinate');
 goog.require('acgraph.vector.Path');
+goog.require('anychart.core.IStandaloneBackend');
 goog.require('anychart.core.VisualBaseWithBounds');
 goog.require('anychart.core.gantt.Controller');
 goog.require('anychart.core.ui.IInteractiveGrid');
@@ -27,6 +27,7 @@ goog.require('goog.fx.Dragger');
  * @constructor
  * @extends {anychart.core.VisualBaseWithBounds}
  * @implements {anychart.core.ui.IInteractiveGrid}
+ * @implements {anychart.core.IStandaloneBackend}
  */
 anychart.core.ui.BaseGrid = function(opt_controller, opt_isResource) {
   goog.base(this);
@@ -477,6 +478,13 @@ anychart.core.ui.BaseGrid.CLIP_Z_INDEX = 50;
 
 
 /**
+ * Tooltip z-index.
+ * @type {number}
+ */
+anychart.core.ui.BaseGrid.TOOLTIP_Z_INDEX = 50;
+
+
+/**
  * Scrolls layer z-index.
  * @type {number}
  */
@@ -530,7 +538,7 @@ anychart.core.ui.BaseGrid.HIGHER_DRAG_EDIT_RATIO = 1 - anychart.core.ui.BaseGrid
 
 /**
  * Checks whether tree data item is actually a milestone.
- * @param {anychart.data.Tree.DataItem} treeDataItem - Tree data item.
+ * @param {(anychart.data.Tree.DataItem|anychart.data.TreeView.DataItem)} treeDataItem - Tree data item.
  * @return {boolean} - Whether tree data item is milestone.
  */
 anychart.core.ui.BaseGrid.isMilestone = function(treeDataItem) {
@@ -735,12 +743,12 @@ anychart.core.ui.BaseGrid.prototype.rowMouseMove = function(event) {
   this.interactivityHandler.highlight(event['hoveredIndex'], event['startY'], event['endY']);
 
   var tooltip = /** @type {anychart.core.ui.Tooltip} */(this.tooltip());
-  var position = tooltip.isFloating() ?
-      new acgraph.math.Coordinate(event['originalEvent']['clientX'], event['originalEvent']['clientY']) :
-      new acgraph.math.Coordinate(0, 0);
+  // var position = tooltip.isFloating() ?
+  //     new acgraph.math.Coordinate(event['originalEvent']['clientX'], event['originalEvent']['clientY']) :
+  //     new acgraph.math.Coordinate(0, 0);
 
   var formatProvider = this.interactivityHandler.createFormatProvider(event['item'], event['period'], event['periodIndex']);
-  tooltip.show(formatProvider, position);
+  tooltip.showFloat(event['originalEvent']['clientX'], event['originalEvent']['clientY'], formatProvider);
 };
 
 
@@ -1598,7 +1606,7 @@ anychart.core.ui.BaseGrid.prototype.drawRowFills_ = function() {
   var clipRect = new anychart.math.Rect(this.pixelBoundsCache.left, this.pixelBoundsCache.top - 1,
       this.pixelBoundsCache.width, totalTop - this.pixelBoundsCache.top + 1);
   this.getClipLayer().clip(clipRect);
-  this.getCellsLayer().clip(clipRect);
+  // this.getCellsLayer().clip(clipRect);
   this.getDrawLayer().clip(clipRect);
 
 };
@@ -1629,34 +1637,47 @@ anychart.core.ui.BaseGrid.prototype.mouseWheelHandler_ = function(e) {
     dy = dy * 15;
   }
 
-  var preventDefault = true;
-  var allowScrolling = true;
-  var bodyScrollLeft = goog.global['document']['body']['scrollLeft'];
-  var horizontalScroll = this.getHorizontalScrollBar();
+  var denyBodyScrollLeft = !goog.global['document']['body']['scrollLeft'];
+  var horizontalScroll = this.horizontalScrollBar();
   var verticalScroll = this.controller.getScrollBar();
 
-  if (scrollsVertically && !scrollsHorizontally) {
-    preventDefault = verticalScroll.startRatio() > 0 &&
-        verticalScroll.endRatio() < 1;
-    allowScrolling = preventDefault;
+  var scrollsUp, scrollsLeft;
+  var preventHorizontally = false;
+  var preventVertically = false;
+
+  if (scrollsVertically) {
+    scrollsUp = dy < 0;
+    var vStart = verticalScroll.startRatio();
+    var vEnd = verticalScroll.endRatio();
+    preventVertically = (vStart == 0 && vEnd == 1) ? false :
+        ((vStart > 0 && vEnd < 1) ||
+        (vStart == 0 && !scrollsUp && vEnd != 1) ||
+        (vEnd == 1 && scrollsUp && vStart != 0));
   }
 
-  if (scrollsHorizontally && !scrollsVertically) {
-    preventDefault = !bodyScrollLeft || (horizontalScroll.startRatio() > 0 &&
-        horizontalScroll.endRatio() < 1);
+  if (scrollsHorizontally) {
+    scrollsLeft = dx < 0;
+    var hStart = horizontalScroll.startRatio();
+    var hEnd = horizontalScroll.endRatio();
+    if (scrollsLeft) {
+      preventHorizontally = (hStart == 0 && hEnd == 1) ? denyBodyScrollLeft :
+          (hStart > 0 && hEnd < 1) ||
+          (hEnd == 1 && hStart != 0) ||
+          (hStart == 0 && denyBodyScrollLeft);
+    } else {
+      preventHorizontally = (hStart == 0 && hEnd == 1) ? false :
+          (hStart > 0 && hEnd < 1) ||
+          (hStart == 0 && hEnd != 1);
+    }
   }
 
-  if (scrollsHorizontally && scrollsVertically) {
-    preventDefault = !bodyScrollLeft || (verticalScroll.startRatio() > 0 &&
-        verticalScroll.endRatio() < 1 &&
-        horizontalScroll.startRatio() > 0 &&
-        horizontalScroll.endRatio() < 1);
-
-    allowScrolling = preventDefault;
+  /*
+    Literally means that default page scrolling must be prevented and we scroll BaseGrid instead.
+   */
+  if (preventVertically || preventHorizontally) {
+    e.preventDefault();
+    this.scroll(dx, dy);
   }
-
-  if (allowScrolling) this.scroll(dx, dy);
-  if (preventDefault) e.preventDefault();
 };
 
 
@@ -1679,7 +1700,8 @@ anychart.core.ui.BaseGrid.prototype.needsReapplicationHandler_ = function(event)
  */
 anychart.core.ui.BaseGrid.prototype.onTooltipSignal_ = function(event) {
   var tooltip = /** @type {anychart.core.ui.Tooltip} */(this.tooltip());
-  tooltip.redraw();
+  tooltip.draw();
+  // tooltip.redraw();
 };
 
 
@@ -1738,9 +1760,9 @@ anychart.core.ui.BaseGrid.prototype.drawInternal = function(positionRecalculated
   var manualSuspend = stage && !stage.isSuspended();
   if (manualSuspend) stage.suspend();
 
-  if (!this.tooltip().container()) {
-    this.tooltip().container(/** @type {acgraph.vector.ILayer} */(this.container()));
-  }
+  // if (!this.tooltip().container()) {
+  //   this.tooltip().container(/** @type {acgraph.vector.ILayer} */(this.container()));
+  // }
 
   var verticalScrollBar, horizontalScrollBar;
 
@@ -1756,7 +1778,7 @@ anychart.core.ui.BaseGrid.prototype.drawInternal = function(positionRecalculated
     this.eventsRect_ = this.base_.rect();
     this.registerDisposable(this.eventsRect_);
     this.eventsRect_
-        .fill('#fff 0.00001')
+        .fill(anychart.color.TRANSPARENT_HANDLER)
         .stroke(null)
         .zIndex(anychart.core.ui.BaseGrid.EVENTS_RECT_Z_INDEX);
 
@@ -1777,12 +1799,16 @@ anychart.core.ui.BaseGrid.prototype.drawInternal = function(positionRecalculated
       verticalScrollBar
           .container(this.getScrollsLayer())
           .listenSignals(function(event) {
-            if (event.hasSignal(anychart.Signal.NEEDS_REDRAW)) verticalScrollBar.draw();
-          }, verticalScrollBar);
+            // bar size for example
+            if (event.hasSignal(anychart.Signal.BOUNDS_CHANGED))
+              this.invalidate(anychart.ConsistencyState.BOUNDS, anychart.Signal.NEEDS_REDRAW);
+            else
+              verticalScrollBar.draw();
+          }, this);
       this.registerDisposable(verticalScrollBar);
     }
 
-    horizontalScrollBar = this.getHorizontalScrollBar();
+    horizontalScrollBar = this.horizontalScrollBar();
     horizontalScrollBar
         .container(this.getScrollsLayer())
         .listenSignals(function(event) {
@@ -1810,13 +1836,14 @@ anychart.core.ui.BaseGrid.prototype.drawInternal = function(positionRecalculated
     this.totalGridsWidth = this.pixelBoundsCache.width;
 
     var header = this.pixelBoundsCache.top + this.headerHeight_;
-    var headSepTop = header + .5;
+    var headSepTop = header + 0.5;
 
     this.getHeaderSeparationPath()
         .clear()
         .moveTo(this.pixelBoundsCache.left, headSepTop)
         .lineTo(this.pixelBoundsCache.left + this.totalGridsWidth, headSepTop);
 
+    var barSize;
     if (this.isStandalone) {
       /*
         NOTE: For standalone mode only!
@@ -1824,20 +1851,22 @@ anychart.core.ui.BaseGrid.prototype.drawInternal = function(positionRecalculated
        */
       verticalScrollBar = this.controller.getScrollBar();
 
+      barSize = /** @type {number} */ (verticalScrollBar.barSize());
       verticalScrollBar.bounds(
-          (this.pixelBoundsCache.left + this.pixelBoundsCache.width - anychart.core.ui.ScrollBar.SCROLL_BAR_SIDE - 1),
-          (this.pixelBoundsCache.top + this.headerHeight() + anychart.core.ui.ScrollBar.SCROLL_BAR_SIDE + 1),
-          anychart.core.ui.ScrollBar.SCROLL_BAR_SIDE,
-          (this.pixelBoundsCache.height - this.headerHeight() - 2 * anychart.core.ui.ScrollBar.SCROLL_BAR_SIDE - 2)
+          (this.pixelBoundsCache.left + this.pixelBoundsCache.width - barSize - 1),
+          (this.pixelBoundsCache.top + this.headerHeight() + barSize + 1),
+          barSize,
+          (this.pixelBoundsCache.height - this.headerHeight() - 2 * barSize - 2)
       );
     }
 
-    horizontalScrollBar = this.getHorizontalScrollBar();
+    horizontalScrollBar = this.horizontalScrollBar();
+    barSize = /** @type {number} */ (horizontalScrollBar.barSize());
     horizontalScrollBar.bounds(
-        (this.pixelBoundsCache.left + anychart.core.ui.ScrollBar.SCROLL_BAR_SIDE),
-        (this.pixelBoundsCache.top + this.pixelBoundsCache.height - anychart.core.ui.ScrollBar.SCROLL_BAR_SIDE - 1),
-        (this.pixelBoundsCache.width - 2 * anychart.core.ui.ScrollBar.SCROLL_BAR_SIDE),
-        anychart.core.ui.ScrollBar.SCROLL_BAR_SIDE
+        (this.pixelBoundsCache.left + barSize),
+        (this.pixelBoundsCache.top + this.pixelBoundsCache.height - barSize - 1),
+        (this.pixelBoundsCache.width - 2 * barSize),
+        barSize
     );
 
     this.redrawPosition = true;
@@ -1935,9 +1964,10 @@ anychart.core.ui.BaseGrid.prototype.initDom = goog.nullFunction;
 
 /**
  * Generates horizontal scroll bar.
- * @return {anychart.core.ui.ScrollBar} - Scroll bar.
+ * @param {Object=} opt_value Object with settings.
+ * @return {anychart.core.ui.ScrollBar|anychart.core.ui.BaseGrid} - Scroll bar.
  */
-anychart.core.ui.BaseGrid.prototype.getHorizontalScrollBar = goog.abstractMethod;
+anychart.core.ui.BaseGrid.prototype.horizontalScrollBar = goog.abstractMethod;
 
 
 /** @inheritDoc */
@@ -2069,7 +2099,8 @@ anychart.core.ui.BaseGrid.prototype.initKeysFeatures = function() {
 /**
  * @inheritDoc
  */
-anychart.core.ui.BaseGrid.prototype.deleteKeyHandler = function(e) {};
+anychart.core.ui.BaseGrid.prototype.deleteKeyHandler = function(e) {
+};
 
 
 /**
@@ -2304,9 +2335,10 @@ anychart.core.ui.BaseGrid.prototype.titleHeight = anychart.core.ui.BaseGrid.prot
  */
 anychart.core.ui.BaseGrid.prototype.tooltip = function(opt_value) {
   if (!this.tooltip_) {
-    this.tooltip_ = new anychart.core.ui.Tooltip();
+    this.tooltip_ = new anychart.core.ui.Tooltip(0);
     this.registerDisposable(this.tooltip_);
     this.tooltip_.listenSignals(this.onTooltipSignal_, this);
+    this.tooltip_.boundsProvider = this;
   }
   if (goog.isDef(opt_value)) {
     this.tooltip_.setup(opt_value);
@@ -2372,8 +2404,8 @@ anychart.core.ui.BaseGrid.prototype.serialize = function() {
 
 
 /** @inheritDoc */
-anychart.core.ui.BaseGrid.prototype.setupByJSON = function(config) {
-  goog.base(this, 'setupByJSON', config);
+anychart.core.ui.BaseGrid.prototype.setupByJSON = function(config, opt_default) {
+  goog.base(this, 'setupByJSON', config, opt_default);
 
   this.isStandalone = ('isStandalone' in config) ? config['isStandalone'] : ('controller' in config);
 
@@ -2389,7 +2421,10 @@ anychart.core.ui.BaseGrid.prototype.setupByJSON = function(config) {
   this.rowEvenFill(config['rowEvenFill']);
   this.rowHoverFill(config['hoverFill']);
   this.rowSelectedFill(config['rowSelectedFill']);
-  this.tooltip(config['tooltip']);
+
+  if (anychart.opt.TOOLTIP in config)
+    this.tooltip().setupByVal(config[anychart.opt.TOOLTIP], opt_default);
+
   this.headerHeight(config['headerHeight']);
   this.editStructurePreviewFill(config['editStructurePreviewFill']);
   this.editStructurePreviewStroke(config['editStructurePreviewStroke']);

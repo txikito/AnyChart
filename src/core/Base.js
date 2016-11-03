@@ -12,6 +12,12 @@ goog.require('goog.events.EventTarget');
  * @enum {number}
  */
 anychart.ConsistencyState = {
+  /**
+   * So magical consistency state. Used to invalidate entities
+   * that don't have own invalidation, can't be drawn but must
+   * be able to dispatch signals.
+   */
+  ONLY_DISPATCHING: 0,
   //---------------------------------- GENERAL STATES ---------------------------------
   /**
    * enabled() has changed.
@@ -138,6 +144,7 @@ anychart.ConsistencyState = {
   MAP_CALLOUT: 1 << 24,
   MAP_AXES: 1 << 25,
   MAP_GRIDS: 1 << 26,
+  MAP_CROSSHAIR: 1 << 27,
   //---------------------------------- HEAT MAP STATES (CHART) ---------------------------------
   HEATMAP_SCALES: 1 << 12,
   HEATMAP_SERIES: 1 << 13,
@@ -189,6 +196,7 @@ anychart.ConsistencyState = {
   BASE_GRID_HOVER: 1 << 8,
   //---------------------------------- BUTTON STATES (VB) ---------------------------------
   BUTTON_BACKGROUND: 1 << 6,
+  BUTTON_CURSOR: 1 << 7,
   //---------------------------------- CREDITS STATES (VB) ---------------------------------
   CREDITS_POSITION: 1 << 6,
   CREDITS_REDRAW_IMAGE: 1 << 7,
@@ -197,6 +205,7 @@ anychart.ConsistencyState = {
   //---------------------------------- DATA GRID COLUMN STATES (VB) ---------------------------------
   DATA_GRID_COLUMN_TITLE: 1 << 6,
   DATA_GRID_COLUMN_POSITION: 1 << 7,
+  DATA_GRID_COLUMN_BUTTON_CURSOR: 1 << 8,
   //---------------------------------- BACKGROUND STATES (VB) ---------------------------------
   BACKGROUND_POINTER_EVENTS: 1 << 6,
   //---------------------------------- LABEL STATES (VB) ---------------------------------
@@ -230,6 +239,8 @@ anychart.ConsistencyState = {
   TOOLTIP_CONTENT: 1 << 9,
   TOOLTIP_BACKGROUND: 1 << 10,
   TOOLTIP_VISIBILITY: 1 << 11,
+  TOOLTIP_MODE: 1 << 12,
+  TOOLTIP_ALLOWANCE: 1 << 13, //allowLeaveScreen or allowLeaveChart.
   //------------------------------ CIRCULAR/LINEAR GAUGE (CHART) ------------------------------
   GAUGE_POINTERS: 1 << 12,
   GAUGE_KNOB: 1 << 13,
@@ -298,6 +309,54 @@ anychart.ConsistencyState = {
   //---------------------------------- ANNOTATIONS (VB) ----------------------------------
   ANNOTATIONS_CONTROLLER_ANNOTATIONS: 1 << 6,
   ANNOTATIONS_CONTROLLER_DRAWING_MODE: 1 << 7,
+  //---------------------------------- RESOURCE LIST (VB) --------------------------------
+  RESOURCE_LIST_BACKGROUND: 1 << 6,
+  RESOURCE_LIST_SCROLL: 1 << 7,
+  RESOURCE_LIST_ITEMS: 1 << 8,
+  RESOURCE_LIST_DATA: 1 << 9,
+  RESOURCE_LIST_IMAGES_SETTINGS: 1 << 10,
+  RESOURCE_LIST_NAMES_SETTINGS: 1 << 11,
+  RESOURCE_LIST_TYPES_SETTINGS: 1 << 12,
+  RESOURCE_LIST_DESCRIPTIONS_SETTINGS: 1 << 13,
+  RESOURCE_LIST_TAGS_SETTINGS: 1 << 14,
+  RESOURCE_LIST_OVERLAY: 1 << 15,
+  //---------------------------------- RESOURCE (CHART) ----------------------------------
+  RESOURCE_RESOURCE_LIST: 1 << 12,
+  RESOURCE_TIME_LINE: 1 << 13,
+  RESOURCE_X_SCROLL: 1 << 14,
+  RESOURCE_Y_SCROLL: 1 << 15,
+  RESOURCE_GRID: 1 << 16,
+  RESOURCE_X_SCALE_RANGE: 1 << 17,
+  RESOURCE_X_SCALE_POSITION: 1 << 18,
+  RESOURCE_DATA: 1 << 19,
+  RESOURCE_Y_RANGE: 1 << 20,
+  RESOURCE_RESOURCES: 1 << 21,
+  RESOURCE_LOGO: 1 << 22,
+  RESOURCE_OVERLAY: 1 << 23,
+  RESOURCE_SPLITTER: 1 << 24,
+  RESOURCE_CONFLICTS: 1 << 25,
+  //---------------------------------- RESOURCE GRID (VB) ----------------------------------
+  RESOURCE_GRID_BACKGROUND: 1 << 6,
+  RESOURCE_GRID_TICKS: 1 << 7,
+  RESOURCE_GRID_POSITION: 1 << 8,
+  RESOURCE_GRID_OVERLAY: 1 << 9,
+  //---------------------------------- RESOURCE TIMELINE (VB) ----------------------------------
+  RESOURCE_TIMELINE_BACKGROUND: 1 << 6,
+  RESOURCE_TIMELINE_TICKS: 1 << 7,
+  RESOURCE_TIMELINE_LABELS: 1 << 8,
+  RESOURCE_TIMELINE_LEVELS: 1 << 9,
+  RESOURCE_TIMELINE_OVERLAY: 1 << 10,
+  //---------------------------------- RESOURCE LOGO (BACKGROUND) ----------------------------------
+  RESOURCE_LOGO_OVERLAY: 1 << 7,
+  //---------------------------------- RESOURCE RESOURCE (B) -----------------------------
+  RESOURCE_RESOURCE_DATA: 1 << 0,
+  RESOURCE_RESOURCE_SCHEDULE: 1 << 1,
+  //---------------------------------- RESOURCE CONFLICTS (VB) -----------------------------
+  RESOURCE_CONFLICTS_LABELS: 1 << 6,
+  RESOURCE_CONFLICTS_CONFLICTS: 1 << 7,
+  //---------------------------------- DATE TIME WITH CALENDAR -----------------------------
+  DTWC_TS_GRID: 1 << 0,
+  DTWC_TS_GRID_ZERO: 1 << 1,
   /**
    * Combination of all states.
    */
@@ -324,7 +383,9 @@ anychart.Signal = {
   NEEDS_UPDATE_A11Y: 1 << 11,
   NEEDS_REDRAW_LABELS: 1 << 12,
   NEEDS_REDRAW_APPEARANCE: 1 << 13,
-  NEEDS_UPDATE_TOOLTIP: 1 << 14
+  NEEDS_UPDATE_TOOLTIP: 1 << 14,
+  ENABLED_STATE_CHANGED: 1 << 15,
+  Z_INDEX_STATE_CHANGED: 1 << 16
 };
 
 
@@ -554,11 +615,34 @@ anychart.core.Base.prototype.setup = function(var_args) {
 
 
 /**
- * Setups current instance using passed JSON object.
- * @param {!Object} json
- * @protected
+ * Setups the element using passed configuration value. It can be a JSON object or a special value that setups
+ * instances of descendant classes.
+ * Note: this method only changes element properties if they are supposed to be changed by the config value -
+ * it doesn't reset other properties to their defaults.
+ * @param {Object|Array|number|string|undefined|boolean|null} value Arguments to setup the instance.
+ * @param {boolean=} opt_default .
+ * @return {anychart.core.Base} Returns itself for chaining.
  */
-anychart.core.Base.prototype.setupByJSON = function(json) {
+anychart.core.Base.prototype.setupByVal = function(value, opt_default) {
+  if (goog.isDef(value)) {
+    this.suspendSignalsDispatching();
+    if (!this.specialSetupByVal(value, opt_default) && goog.isObject(value)) {
+      //if (arg0 instanceof anychart.core.Base)
+      //  throw 'Instance of object is passed to setter. You should use JSON instead';
+      this.setupByJSON(/** @type {!Object} */(value), opt_default);
+    }
+    this.resumeSignalsDispatching(true);
+  }
+  return this;
+};
+
+
+/**
+ * Setups current instance using passed JSON object.
+ * @param {!Object} json .
+ * @param {boolean=} opt_default Identifies that we should setup defaults.
+ */
+anychart.core.Base.prototype.setupByJSON = function(json, opt_default) {
 };
 
 
@@ -569,6 +653,18 @@ anychart.core.Base.prototype.setupByJSON = function(json) {
  * @protected
  */
 anychart.core.Base.prototype.setupSpecial = function(var_args) {
+  return this.specialSetupByVal(arguments[0]);
+};
+
+
+/**
+ * Setups current instance using passed JSON object.
+ * @param {Object|Array|number|string|undefined|boolean|null} value .
+ * @param {boolean=} opt_default .
+ * @return {boolean} If passed values were recognized as special setup values.
+ * @protected
+ */
+anychart.core.Base.prototype.specialSetupByVal = function(value, opt_default) {
   return false;
 };
 

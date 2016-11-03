@@ -128,7 +128,7 @@ anychart.core.axes.StockDateTime.prototype.height = function(opt_value) {
 anychart.core.axes.StockDateTime.prototype.background = function(opt_value) {
   if (!this.background_) {
     this.background_ = new anychart.core.ui.Background();
-    this.background_.setup(anychart.getFullTheme()['defaultBackground']);
+    this.background_.setThemeSettings(anychart.getFullTheme()['defaultBackground']);
     this.background_.listenSignals(this.backgroundInvalidated_, this);
   }
   if (goog.isDef(opt_value)) {
@@ -752,8 +752,8 @@ anychart.core.axes.StockDateTime.prototype.serialize = function() {
 
 
 /** @inheritDoc */
-anychart.core.axes.StockDateTime.prototype.setupByJSON = function(config) {
-  goog.base(this, 'setupByJSON', config);
+anychart.core.axes.StockDateTime.prototype.setupByJSON = function(config, opt_default) {
+  goog.base(this, 'setupByJSON', config, opt_default);
   this.height(config['height']);
   this.labels().setup(config['labels']);
   this.minorLabels().setup(config['minorLabels']);

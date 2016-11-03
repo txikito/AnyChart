@@ -2,6 +2,7 @@ goog.provide('anychart.core.ui.MarkersFactory');
 goog.provide('anychart.core.ui.MarkersFactory.Marker');
 goog.require('acgraph.math.Coordinate');
 goog.require('anychart.color');
+goog.require('anychart.core.IStandaloneBackend');
 goog.require('anychart.core.VisualBase');
 goog.require('anychart.enums');
 goog.require('anychart.math.Rect');
@@ -33,6 +34,7 @@ goog.require('anychart.utils');
  * @param {boolean=} opt_crispEdges
  * @constructor
  * @extends {anychart.core.VisualBase}
+ * @implements {anychart.core.IStandaloneBackend}
  */
 anychart.core.ui.MarkersFactory = function(opt_isNonInteractive, opt_crispEdges) {
   this.suspendSignalsDispatching();
@@ -809,9 +811,9 @@ anychart.core.ui.MarkersFactory.prototype.setupSpecial = function() {
 
 
 /** @inheritDoc */
-anychart.core.ui.MarkersFactory.prototype.setupByJSON = function(config) {
+anychart.core.ui.MarkersFactory.prototype.setupByJSON = function(config, opt_default) {
   var enabledState = this.enabled();
-  goog.base(this, 'setupByJSON', config);
+  goog.base(this, 'setupByJSON', config, opt_default);
   this.disablePointerEvents(config['disablePointerEvents']);
   this.position(config['position']);
   this.rotation(config['rotation']);
@@ -1483,9 +1485,9 @@ anychart.core.ui.MarkersFactory.Marker.prototype.serialize = function() {
 
 
 /** @inheritDoc */
-anychart.core.ui.MarkersFactory.Marker.prototype.setupByJSON = function(config) {
+anychart.core.ui.MarkersFactory.Marker.prototype.setupByJSON = function(config, opt_default) {
   var enabledState = this.enabled();
-  goog.base(this, 'setupByJSON', config);
+  goog.base(this, 'setupByJSON', config, opt_default);
   this.position(config['position']);
   this.rotation(config['rotation']);
   this.anchor(config['anchor']);

@@ -1,5 +1,6 @@
 goog.provide('anychart.core.axisMarkers.PathBase');
 goog.require('acgraph');
+goog.require('anychart.core.IStandaloneBackend');
 goog.require('anychart.core.VisualBase');
 goog.require('anychart.core.reporting');
 goog.require('anychart.core.utils.Padding');
@@ -11,6 +12,7 @@ goog.require('anychart.enums');
  * Markers base.
  * @constructor
  * @extends {anychart.core.VisualBase}
+ * @implements {anychart.core.IStandaloneBackend}
  */
 anychart.core.axisMarkers.PathBase = function() {
   anychart.core.axisMarkers.PathBase.base(this, 'constructor');
@@ -456,8 +458,8 @@ anychart.core.axisMarkers.PathBase.prototype.markerElement = function() {
 
 
 /** @inheritDoc */
-anychart.core.axisMarkers.PathBase.prototype.setupByJSON = function(config) {
-  goog.base(this, 'setupByJSON', config);
+anychart.core.axisMarkers.PathBase.prototype.setupByJSON = function(config, opt_default) {
+  goog.base(this, 'setupByJSON', config, opt_default);
   if ('layout' in config && config['layout']) this.layout(config['layout']);
   if ('axis' in config) {
     var ax = config['axis'];

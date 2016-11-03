@@ -1,11 +1,10 @@
 goog.provide('anychart.charts.Gantt');
-goog.require('acgraph.math.Coordinate');
+
 goog.require('anychart.core.SeparateChart');
 goog.require('anychart.core.gantt.Controller');
 goog.require('anychart.core.reporting');
 goog.require('anychart.core.ui.DataGrid');
 goog.require('anychart.core.ui.IInteractiveGrid');
-goog.require('anychart.core.ui.ScrollBar');
 goog.require('anychart.core.ui.Splitter');
 goog.require('anychart.core.ui.Timeline');
 goog.require('anychart.core.utils.GanttContextProvider');
@@ -46,13 +45,15 @@ anychart.charts.Gantt = function(opt_isResourcesChart) {
   this.isResourcesChart_ = !!opt_isResourcesChart;
 
   this.controller_ = new anychart.core.gantt.Controller(this.isResourcesChart_);
+  this.controller_.dataGrid(/** @type {anychart.core.ui.DataGrid} */ (this.getDataGrid_()));
+  this.controller_.timeline(/** @type {anychart.core.ui.Timeline} */ (this.getTimeline()));
   this.registerDisposable(this.controller_);
   this.controller_.listenSignals(this.controllerInvalidated_, this);
 
 
   /**
    * Data tree.
-   * @type {anychart.data.Tree}
+   * @type {anychart.data.Tree|anychart.data.TreeView}
    * @private
    */
   this.data_ = null;
@@ -145,7 +146,7 @@ anychart.charts.Gantt = function(opt_isResourcesChart) {
    */
   this.verticalScrollBar_ = this.controller_.getScrollBar();
   this.verticalScrollBar_.zIndex(anychart.charts.Gantt.Z_INDEX_SCROLL);
-  this.verticalScrollBar_.listenSignals(this.scrollInvalidated_, this.verticalScrollBar_);
+  this.verticalScrollBar_.listenSignals(this.scrollInvalidated_, this);
   this.registerDisposable(this.verticalScrollBar_);
 
   this.listenOnce(anychart.enums.EventType.CHART_DRAW, function() {
@@ -313,25 +314,28 @@ anychart.charts.Gantt.prototype.controllerInvalidated_ = function(event) {
  */
 anychart.charts.Gantt.prototype.scrollInvalidated_ = function(event) {
   if (event.hasSignal(anychart.Signal.NEEDS_REDRAW)) event.target.draw();
+  if (event.hasSignal(anychart.Signal.BOUNDS_CHANGED))
+    this.invalidate(anychart.ConsistencyState.BOUNDS, anychart.Signal.NEEDS_REDRAW);
 };
 
 
 /**
  * Gets/sets chart data.
- * @param {(anychart.data.Tree|Array.<Object>)=} opt_value - Data tree or raw data.
+ * @param {(anychart.data.Tree|anychart.data.TreeView|Array.<Object>)=} opt_value - Data tree or raw data.
  * @param {anychart.enums.TreeFillingMethod=} opt_fillMethod - Fill method.
- * @return {(anychart.data.Tree|anychart.charts.Gantt)} - Current value or itself for method chaining.
+ * @return {(anychart.data.Tree|anychart.data.TreeView|anychart.charts.Gantt)} - Current value or itself for method chaining.
  */
 anychart.charts.Gantt.prototype.data = function(opt_value, opt_fillMethod) {
   if (goog.isDef(opt_value)) {
-    if (opt_value instanceof anychart.data.Tree) {
+    if (opt_value instanceof anychart.data.Tree || opt_value instanceof anychart.data.TreeView) {
       if (this.data_ != opt_value) {
         this.data_ = opt_value;
+        this.invalidate(anychart.ConsistencyState.GANTT_DATA, anychart.Signal.NEEDS_REDRAW);
       }
     } else {
       this.data_ = new anychart.data.Tree(opt_value, opt_fillMethod);
+      this.invalidate(anychart.ConsistencyState.GANTT_DATA, anychart.Signal.NEEDS_REDRAW);
     }
-    this.invalidate(anychart.ConsistencyState.GANTT_DATA);
     return this;
   }
   return this.data_;
@@ -533,15 +537,15 @@ anychart.charts.Gantt.prototype.zoomOut = function(opt_zoomFactor) {
 
 /**
  * Timeline zoom to range.
- * TODO (A.Kudryavtsev): Take full behaviour description from scale's zoomTo() method.
  *
- * @param {number} startDate - Start date.
- * @param {number=} opt_endDate - End date.
+ * @param {number|anychart.enums.Interval} startOrUnit - Start date timestamp or interval unit.
+ * @param {number=} opt_endOrCount - End date timestamp or interval units count (can't be 0).
+ * @param {anychart.enums.GanttRangeAnchor=} opt_anchor - Anchor to zoom from.
  *
  * @return {anychart.charts.Gantt} - Itself for method chaining.
  */
-anychart.charts.Gantt.prototype.zoomTo = function(startDate, opt_endDate) {
-  this.getTimeline().getScale().zoomTo(startDate, opt_endDate);
+anychart.charts.Gantt.prototype.zoomTo = function(startOrUnit, opt_endOrCount, opt_anchor) {
+  this.getTimeline().getScale().zoomTo(startOrUnit, opt_endOrCount, opt_anchor);
   return this;
 };
 
@@ -569,10 +573,39 @@ anychart.charts.Gantt.prototype.fitToTask = function(taskId) {
     var task = foundTasks[0];
     var actualStart = task.meta(anychart.enums.GanttDataFields.ACTUAL_START);
     var actualEnd = task.meta(anychart.enums.GanttDataFields.ACTUAL_END);
-    if (goog.isNumber(actualStart) && goog.isNumber(actualEnd)) { //no range for milestone.
-      this.getTimeline().getScale().setRange(actualStart, actualEnd);
-    } else {
+    var isMilestone = goog.isDef(actualStart) && ((!isNaN(actualStart) && !goog.isDef(actualEnd)) || (actualStart == actualEnd));
+    if (isMilestone) { //no range for milestone.
       anychart.core.reporting.warning(anychart.enums.WarningCode.GANTT_FIT_TO_TASK, null, [taskId]);
+    } else {
+      this.getTimeline().getScale().setRange(actualStart, actualEnd); //this will redraw timeline first time.
+
+      var bounds = this.tl_.pixelBoundsCache;
+
+      if (bounds.width > 0) {
+        var relatedBounds = task.meta('relBounds');
+        var labelBounds = task.meta('labelBounds');
+        if (relatedBounds && labelBounds) {
+          var labelLefter = labelBounds.left < relatedBounds.left;
+          var labelRighter = labelBounds.left + labelBounds.width > relatedBounds.left + relatedBounds.width;
+
+          var leftVal, rightVal;
+          if (labelBounds.width < bounds.width) {
+            var enlargeRatio = bounds.width / (bounds.width - labelBounds.width);
+            if (labelLefter && !labelRighter) {
+              leftVal = this.tl_.scale().ratioToTimestamp(1 - enlargeRatio);
+              rightVal = this.tl_.scale().ratioToTimestamp(1);
+            }
+            if (labelRighter && !labelLefter) {
+              leftVal = this.tl_.scale().ratioToTimestamp(0);
+              rightVal = this.tl_.scale().ratioToTimestamp(enlargeRatio);
+            }
+          } else {
+            leftVal = this.tl_.scale().ratioToTimestamp(0);
+            rightVal = this.tl_.scale().ratioToTimestamp(labelBounds.width / bounds.width);
+          }
+          this.getTimeline().getScale().setRange(leftVal, rightVal); //this will redraw timeline second time.
+        }
+      }
     }
   } else {
     anychart.core.reporting.warning(anychart.enums.WarningCode.NOT_FOUND, null, ['Task', taskId]);
@@ -603,6 +636,20 @@ anychart.charts.Gantt.prototype.scrollTo = function(pxOffset) {
 anychart.charts.Gantt.prototype.scrollToRow = function(rowIndex) {
   this.controller_.scrollToRow(rowIndex);
   return this;
+};
+
+
+/**
+ * Gets timeline scale.
+ * @param {Object=} opt_value - Scale config.
+ * @return {anychart.charts.Gantt|anychart.scales.GanttDateTime}
+ */
+anychart.charts.Gantt.prototype.xScale = function(opt_value) {
+  if (goog.isDef(opt_value)) {
+    this.getTimeline().scale(opt_value);
+    return this;
+  }
+  return /** @type {anychart.scales.GanttDateTime} */ (this.getTimeline().scale());
 };
 
 
@@ -815,12 +862,12 @@ anychart.charts.Gantt.prototype.rowMouseMove = function(event) {
   } else {
     tooltip = /** @type {anychart.core.ui.Tooltip} */(this.tl_.tooltip());
   }
-  var position = tooltip.isFloating() ?
-      new acgraph.math.Coordinate(event['originalEvent']['clientX'], event['originalEvent']['clientY']) :
-      new acgraph.math.Coordinate(0, 0);
+  // var position = tooltip.isFloating() ?
+  //     new acgraph.math.Coordinate(event['originalEvent']['clientX'], event['originalEvent']['clientY']) :
+  //     new acgraph.math.Coordinate(0, 0);
 
   var formatProvider = this.createFormatProvider(event['item'], event['period'], event['periodIndex']);
-  tooltip.show(formatProvider, position);
+  tooltip.showFloat(event['originalEvent']['clientX'], event['originalEvent']['clientY'], formatProvider);
 };
 
 
@@ -929,28 +976,26 @@ anychart.charts.Gantt.prototype.deleteKeyHandler = function(e) {
  * @param {anychart.math.Rect} bounds - Bounds of gantt chart content area.
  */
 anychart.charts.Gantt.prototype.drawContent = function(bounds) {
-  if (bounds.width) {
+  anychart.core.Base.suspendSignalsDispatching(this.getDataGrid_(), this.getTimeline(), this.splitter_, this.controller_);
 
-    anychart.core.Base.suspendSignalsDispatching(this.getDataGrid_(), this.getTimeline(), this.splitter_, this.controller_);
+  if (!this.splitter().container()) {
+    this.dg_.container(this.rootElement);
+    this.tl_.container(this.rootElement);
+    this.splitter().container(this.rootElement);
+    this.verticalScrollBar_.container(this.rootElement);
+  }
 
-    if (!this.splitter().container()) {
-      this.dg_.container(this.rootElement);
-      this.tl_.container(this.rootElement);
-      this.splitter().container(this.rootElement);
-      this.verticalScrollBar_.container(this.rootElement);
-    }
-
-    if (!this.controller_.dataGrid()) this.controller_.dataGrid(/** @type {anychart.core.ui.DataGrid} */ (this.getDataGrid_()));
-    if (!this.controller_.timeline()) this.controller_.timeline(/** @type {anychart.core.ui.Timeline} */ (this.getTimeline()));
-
-    if (this.hasInvalidationState(anychart.ConsistencyState.GANTT_SPLITTER_POSITION)) {
+  if (this.hasInvalidationState(anychart.ConsistencyState.GANTT_SPLITTER_POSITION) || this.hasInvalidationState(anychart.ConsistencyState.BOUNDS)) {
+    if (bounds.width > 0) {
       var dgWidth = Math.round(anychart.utils.normalizeSize(this.splitterPosition_, bounds.width));
       var dgRatio = goog.math.clamp(dgWidth / bounds.width, 0, 1);
       this.splitter().position(dgRatio);
       this.markConsistent(anychart.ConsistencyState.GANTT_SPLITTER_POSITION);
     }
+  }
 
-    if (this.hasInvalidationState(anychart.ConsistencyState.BOUNDS)) {
+  if (this.hasInvalidationState(anychart.ConsistencyState.BOUNDS)) {
+    if (bounds.width > 0) {
       if (this.dg_.enabled()) {
         this.splitter().bounds(bounds).draw();
       } else {
@@ -973,28 +1018,31 @@ anychart.charts.Gantt.prototype.drawContent = function(bounds) {
 
       var tlBounds = this.tl_.getPixelBounds();
 
+      var barSize = /** @type {number} */ (this.verticalScrollBar_.barSize());
       this.verticalScrollBar_.bounds(
-          (bounds.left + bounds.width - anychart.core.ui.ScrollBar.SCROLL_BAR_SIDE - 1),
-          (tlBounds.top + this.headerHeight_ + anychart.core.ui.ScrollBar.SCROLL_BAR_SIDE + 1),
-          anychart.core.ui.ScrollBar.SCROLL_BAR_SIDE,
-          (tlBounds.height - this.headerHeight_ - 2 * anychart.core.ui.ScrollBar.SCROLL_BAR_SIDE - 2)
+          (bounds.left + bounds.width - barSize - 1),
+          (tlBounds.top + this.headerHeight_ + barSize + 1),
+          barSize,
+          (tlBounds.height - this.headerHeight_ - 2 * barSize - 2)
       );
     }
+  }
 
-    if (this.hasInvalidationState(anychart.ConsistencyState.GANTT_DATA)) {
-      this.controller_.data(this.data_);
-      this.invalidate(anychart.ConsistencyState.GANTT_POSITION);
-      this.markConsistent(anychart.ConsistencyState.GANTT_DATA);
-    }
+  if (this.hasInvalidationState(anychart.ConsistencyState.GANTT_DATA)) {
+    this.controller_.data(this.data_);
+    this.invalidate(anychart.ConsistencyState.GANTT_POSITION);
+    this.markConsistent(anychart.ConsistencyState.GANTT_DATA);
+  }
 
-    anychart.core.Base.resumeSignalsDispatchingTrue(this.dg_, this.tl_, this.splitter_, this.controller_);
-    this.controller_.run(); //This must redraw DG and TL.
+  anychart.core.Base.resumeSignalsDispatchingTrue(this.dg_, this.tl_, this.splitter_, this.controller_);
+  this.controller_.run(); //This must redraw DG and TL.
+  if (bounds.width > 0) {
     this.splitter().draw();
+  }
 
-    if (this.hasInvalidationState(anychart.ConsistencyState.GANTT_POSITION)) {
-      //This consistency state is used to set 'checkDrawingNeeded()' to TRUE. Controller must be run anyway.
-      this.markConsistent(anychart.ConsistencyState.GANTT_POSITION);
-    }
+  if (this.hasInvalidationState(anychart.ConsistencyState.GANTT_POSITION)) {
+    //This consistency state is used to set 'checkDrawingNeeded()' to TRUE. Controller must be run anyway.
+    this.markConsistent(anychart.ConsistencyState.GANTT_POSITION);
   }
 
 };
@@ -1002,7 +1050,7 @@ anychart.charts.Gantt.prototype.drawContent = function(bounds) {
 
 /** @inheritDoc */
 anychart.charts.Gantt.prototype.serialize = function() {
-  var json = goog.base(this, 'serialize');
+  var json = anychart.charts.Gantt.base(this, 'serialize');
 
   json['type'] = this.getType();
 
@@ -1020,10 +1068,10 @@ anychart.charts.Gantt.prototype.serialize = function() {
 
 
 /** @inheritDoc */
-anychart.charts.Gantt.prototype.setupByJSON = function(config) {
-  goog.base(this, 'setupByJSON', config);
+anychart.charts.Gantt.prototype.setupByJSON = function(config, opt_default) {
+  anychart.charts.Gantt.base(this, 'setupByJSON', config, opt_default);
 
-  if ('controller' in config) this.controller_.setupByJSON(config['controller']);
+  if ('controller' in config) this.controller_.setupByJSON(config['controller'], opt_default);
 
   this.data(/** @type {anychart.data.Tree} */ (this.controller_.data()));
 
@@ -1033,8 +1081,8 @@ anychart.charts.Gantt.prototype.setupByJSON = function(config) {
   this.splitterPosition(config['splitterPosition']);
   this.editing(config['editing']);
 
-  if ('dataGrid' in config) this.dataGrid().setupByJSON(config['dataGrid']);
-  if ('timeline' in config) this.getTimeline().setupByJSON(config['timeline']);
+  if ('dataGrid' in config) this.dataGrid().setupByJSON(config['dataGrid'], opt_default);
+  if ('timeline' in config) this.getTimeline().setupByJSON(config['timeline'], opt_default);
 
 };
 
@@ -1064,3 +1112,4 @@ anychart.charts.Gantt.prototype['splitterPosition'] = anychart.charts.Gantt.prot
 anychart.charts.Gantt.prototype['getType'] = anychart.charts.Gantt.prototype.getType;
 anychart.charts.Gantt.prototype['editing'] = anychart.charts.Gantt.prototype.editing;
 anychart.charts.Gantt.prototype['toCsv'] = anychart.charts.Gantt.prototype.toCsv;
+anychart.charts.Gantt.prototype['xScale'] = anychart.charts.Gantt.prototype.xScale;

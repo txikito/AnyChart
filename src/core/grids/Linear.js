@@ -1,10 +1,12 @@
 goog.provide('anychart.core.grids.Linear');
 goog.require('acgraph');
 goog.require('anychart.color');
+goog.require('anychart.core.IStandaloneBackend');
 goog.require('anychart.core.VisualBase');
 goog.require('anychart.core.reporting');
 goog.require('anychart.core.utils.Padding');
 goog.require('anychart.enums');
+goog.require('anychart.scales');
 
 
 
@@ -12,6 +14,7 @@ goog.require('anychart.enums');
  * Grid.
  * @constructor
  * @extends {anychart.core.VisualBase}
+ * @implements {anychart.core.IStandaloneBackend}
  */
 anychart.core.grids.Linear = function() {
   anychart.core.grids.Linear.base(this, 'constructor');
@@ -750,8 +753,8 @@ anychart.core.grids.Linear.prototype.serialize = function() {
 
 
 /** @inheritDoc */
-anychart.core.grids.Linear.prototype.setupByJSON = function(config) {
-  goog.base(this, 'setupByJSON', config);
+anychart.core.grids.Linear.prototype.setupByJSON = function(config, opt_default) {
+  goog.base(this, 'setupByJSON', config, opt_default);
   this.isMinor(config['isMinor']);
   if ('layout' in config && config['layout']) this.layout(config['layout']);
   this.drawFirstLine(config['drawFirstLine']);

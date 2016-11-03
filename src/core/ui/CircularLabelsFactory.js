@@ -53,7 +53,8 @@ anychart.core.ui.CircularLabelsFactory = function() {
    */
   this.autoRotate_ = false;
 
-  this.settingsFieldsForMerge.push('autoRotate');
+  if (!goog.array.contains(this.settingsFieldsForMerge, 'autoRotate'))
+    this.settingsFieldsForMerge.push('autoRotate');
 };
 goog.inherits(anychart.core.ui.CircularLabelsFactory, anychart.core.ui.LabelsFactory);
 
@@ -168,9 +169,9 @@ anychart.core.ui.CircularLabelsFactory.prototype.autoRotate = function(opt_value
     opt_value = !!opt_value;
     if (this.autoRotate_ !== opt_value) {
       this.autoRotate_ = opt_value;
+      this.changedSettings['autoRotate'] = true;
       this.invalidate(anychart.ConsistencyState.BOUNDS, anychart.Signal.NEEDS_REDRAW | anychart.Signal.BOUNDS_CHANGED);
     }
-    this.changedSettings['autoRotate'] = true;
     return this;
   } else {
     return this.autoRotate_;
@@ -347,8 +348,8 @@ anychart.core.ui.CircularLabelsFactory.prototype.serialize = function() {
 
 
 /** @inheritDoc */
-anychart.core.ui.CircularLabelsFactory.prototype.setupByJSON = function(config) {
-  goog.base(this, 'setupByJSON', config);
+anychart.core.ui.CircularLabelsFactory.prototype.setupByJSON = function(config, opt_default) {
+  goog.base(this, 'setupByJSON', config, opt_default);
   this.autoRotate(config['autoRotate']);
 };
 
@@ -472,8 +473,8 @@ anychart.core.ui.CircularLabelsFactory.Label.prototype.serialize = function() {
 
 
 /** @inheritDoc */
-anychart.core.ui.CircularLabelsFactory.Label.prototype.setupByJSON = function(config) {
-  goog.base(this, 'setupByJSON', config);
+anychart.core.ui.CircularLabelsFactory.Label.prototype.setupByJSON = function(config, opt_default) {
+  goog.base(this, 'setupByJSON', config, opt_default);
   this.autoRotate(config['autoRotate']);
 };
 

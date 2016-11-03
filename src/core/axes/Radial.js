@@ -1,6 +1,7 @@
 goog.provide('anychart.core.axes.Radial');
 goog.require('acgraph');
 goog.require('anychart.color');
+goog.require('anychart.core.IStandaloneBackend');
 goog.require('anychart.core.VisualBase');
 goog.require('anychart.core.axes.RadialTicks');
 goog.require('anychart.core.reporting');
@@ -8,8 +9,7 @@ goog.require('anychart.core.ui.LabelsFactory');
 goog.require('anychart.core.utils.AxisLabelsContextProvider');
 goog.require('anychart.enums');
 goog.require('anychart.math.Rect');
-goog.require('anychart.scales.Base');
-goog.require('anychart.scales.ScatterBase');
+goog.require('anychart.scales');
 
 
 
@@ -23,6 +23,7 @@ goog.require('anychart.scales.ScatterBase');
  *    .container(stage).draw();
  * @constructor
  * @extends {anychart.core.VisualBase}
+ * @implements {anychart.core.IStandaloneBackend}
  */
 anychart.core.axes.Radial = function() {
   this.suspendSignalsDispatching();
@@ -1227,8 +1228,8 @@ anychart.core.axes.Radial.prototype.serialize = function() {
 
 
 /** @inheritDoc */
-anychart.core.axes.Radial.prototype.setupByJSON = function(config) {
-  goog.base(this, 'setupByJSON', config);
+anychart.core.axes.Radial.prototype.setupByJSON = function(config, opt_default) {
+  goog.base(this, 'setupByJSON', config, opt_default);
   this.labels().setup(config['labels']);
   this.minorLabels().setup(config['minorLabels']);
   this.ticks(config['ticks']);

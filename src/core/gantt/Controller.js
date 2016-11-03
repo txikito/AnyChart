@@ -64,14 +64,14 @@ anychart.core.gantt.Controller = function(opt_isResources) {
 
   /**
    * Tree data.
-   * @type {anychart.data.Tree}
+   * @type {(anychart.data.Tree|anychart.data.TreeView)}
    * @private
    */
   this.data_ = null;
 
   /**
    * Visible items of tree (items that are not hidden by collapse).
-   * @type {Array.<anychart.data.Tree.DataItem>}
+   * @type {Array.<(anychart.data.Tree.DataItem|anychart.data.TreeView.DataItem)>}
    * @private
    */
   this.visibleItems_ = [];
@@ -183,7 +183,7 @@ goog.inherits(anychart.core.gantt.Controller, anychart.core.Base);
 
 /**
  * Correctly calculates data item pixel height.
- * @param {anychart.data.Tree.DataItem} item - Tree data item.
+ * @param {anychart.data.Tree.DataItem|anychart.data.TreeView.DataItem} item - Tree data item.
  * @return {number} - Data item height.
  */
 anychart.core.gantt.Controller.getItemHeight = function(item) {
@@ -210,20 +210,6 @@ anychart.core.gantt.Controller.prototype.SUPPORTED_CONSISTENCY_STATES =
     anychart.ConsistencyState.CONTROLLER_DATA |
     anychart.ConsistencyState.CONTROLLER_VISIBILITY |
     anychart.ConsistencyState.CONTROLLER_POSITION;
-
-
-/**
- * Henry Laurence Gantt's birth date (20 May 1861).
- * @type {number}
- */
-anychart.core.gantt.Controller.GANTT_BIRTH_DATE = Date.UTC(1861, 4, 20);
-
-
-/**
- * Henry Laurence Gantt's death date (23 Nov 1919).
- * @type {number}
- */
-anychart.core.gantt.Controller.GANTT_DEATH_DATE = Date.UTC(1919, 10, 23);
 
 
 /**
@@ -260,7 +246,7 @@ anychart.core.gantt.Controller.prototype.dataInvalidated_ = function(event) {
 
 /**
  * Function that decides if we go through data item's children while passage.
- * @param {anychart.data.Tree.DataItem} item - Tree data item.
+ * @param {(anychart.data.Tree.DataItem|anychart.data.TreeView.DataItem)} item - Tree data item.
  * @return {boolean} - Whether item is expanded.
  * @private
  */
@@ -271,7 +257,7 @@ anychart.core.gantt.Controller.prototype.traverseChildrenCondition_ = function(i
 
 /**
  * Function that decides whether data item has children.
- * @param {anychart.data.Tree.DataItem} item - Tree data item.
+ * @param {(anychart.data.Tree.DataItem|anychart.data.TreeView.DataItem)} item - Tree data item.
  * @return {boolean} - Whether data item has children.
  * @private
  */
@@ -282,7 +268,7 @@ anychart.core.gantt.Controller.prototype.itemHasChildrenCondition_ = function(it
 
 /**
  * Writes item's dates fields to meta as timestamp.
- * @param {anychart.data.Tree.DataItem} item - Tree data item.
+ * @param {(anychart.data.Tree.DataItem|anychart.data.TreeView.DataItem)} item - Tree data item.
  * @private
  */
 anychart.core.gantt.Controller.prototype.datesToMeta_ = function(item) {
@@ -307,7 +293,7 @@ anychart.core.gantt.Controller.prototype.datesToMeta_ = function(item) {
 
 /**
  * Writes item's periods to meta as timestamp.
- * @param {anychart.data.Tree.DataItem} item - Tree data item.
+ * @param {(anychart.data.Tree.DataItem|anychart.data.TreeView.DataItem)} item - Tree data item.
  * @private
  */
 anychart.core.gantt.Controller.prototype.periodsToMeta_ = function(item) {
@@ -355,8 +341,27 @@ anychart.core.gantt.Controller.prototype.periodsToMeta_ = function(item) {
 
 
 /**
+ * Writes item's markers to meta.
+ * @param {(anychart.data.Tree.DataItem|anychart.data.TreeView.DataItem)} item - Tree data item.
+ * @private
+ */
+anychart.core.gantt.Controller.prototype.markersToMeta_ = function(item) {
+  var itemMarkers, m, marker, val, parsedDate, parsedVal;
+  itemMarkers = item.get(anychart.enums.GanttDataFields.MARKERS);
+  for (m = 0; itemMarkers && m < itemMarkers.length; m++) {
+    marker = itemMarkers[m];
+    val = marker['value'];
+    parsedDate = anychart.format.parseDateTime(val);
+    parsedVal = goog.isNull(parsedDate) ? null : +parsedDate;
+    item.setMeta(anychart.enums.GanttDataFields.MARKERS, m, 'value', parsedVal);
+    this.checkDate_(parsedVal);
+  }
+};
+
+
+/**
  * Item's values auto calculation.
- * @param {anychart.data.Tree.DataItem} item - Current tree data item.
+ * @param {(anychart.data.Tree.DataItem|anychart.data.TreeView.DataItem)} item - Current tree data item.
  * @param {number} currentDepth - Current depth.
  * @private
  */
@@ -365,18 +370,14 @@ anychart.core.gantt.Controller.prototype.autoCalcItem_ = function(item, currentD
       .meta('depth', currentDepth)
       .meta('index', this.linearIndex_++);
 
+  var collapsed = item.get(anychart.enums.GanttDataFields.COLLAPSED);
+  if (goog.isBoolean(collapsed)) {
+    item.meta(anychart.enums.GanttDataFields.COLLAPSED, collapsed);
+  }
+
   this.datesToMeta_(item);
   this.periodsToMeta_(item);
-
-  var itemMarkers = item.get(anychart.enums.GanttDataFields.MARKERS);
-  for (var m = 0; itemMarkers && m < itemMarkers.length; m++) {
-    var marker = itemMarkers[m];
-    var val = marker['value'];
-    var parsedDate = anychart.format.parseDateTime(val);
-    var parsedVal = goog.isNull(parsedDate) ? null : +parsedDate;
-    item.setMeta(anychart.enums.GanttDataFields.MARKERS, m, 'value', parsedVal);
-    this.checkDate_(parsedVal);
-  }
+  this.markersToMeta_(item);
 
   var resultStart = item.meta(anychart.enums.GanttDataFields.ACTUAL_START);
   var resultEnd = item.meta(anychart.enums.GanttDataFields.ACTUAL_END);
@@ -395,6 +396,7 @@ anychart.core.gantt.Controller.prototype.autoCalcItem_ = function(item, currentD
 
       this.datesToMeta_(child);
       this.periodsToMeta_(child);
+      this.markersToMeta_(child);
     }
 
     if (!this.isResources_) {
@@ -457,6 +459,13 @@ anychart.core.gantt.Controller.prototype.linearizeData_ = function() {
     this.autoCalcItem_(/** @type {anychart.data.Tree.DataItem} */ (root), 0);
   }
 
+  if (this.minDate_ == this.maxDate_) {
+    var date = this.minDate_;
+    var interval = 43200000; //ms in 12 hours.
+    this.minDate_ = date - interval;
+    this.maxDate_ = date + interval;
+  }
+
   this.data_.resumeSignalsDispatching(false);
   return this;
 };
@@ -496,7 +505,7 @@ anychart.core.gantt.Controller.prototype.getVisibleData_ = function() {
   var height = 0;
   this.expandedItemsTraverser_.reset();
   while (this.expandedItemsTraverser_.advance()) {
-    item = /** @type {anychart.data.Tree.DataItem} */ (this.expandedItemsTraverser_.current());
+    item = /** @type {(anychart.data.Tree.DataItem|anychart.data.TreeView.DataItem)} */ (this.expandedItemsTraverser_.current());
     this.visibleItems_.push(item);
     height += (anychart.core.gantt.Controller.getItemHeight(item) + this.rowStrokeThickness_);
     this.heightCache_.push(height);
@@ -679,44 +688,9 @@ anychart.core.gantt.Controller.prototype.recalculate = function() {
     this.startIndex_ = 0;
     this.endIndex_ = 0;
     this.verticalOffset_ = 0;
-    this.setGanttLifeYears_();
   }
   this.positionRecalculated_ = true;
   this.markConsistent(anychart.ConsistencyState.CONTROLLER_POSITION);
-};
-
-
-/**
- * Sets this.minDate_ and this.maxDate_ to Henry Gantt's life years.
- * Calculates values to fit timeline's gaps.
- * @private
- */
-anychart.core.gantt.Controller.prototype.setGanttLifeYears_ = function() {
-  var minDate = anychart.core.gantt.Controller.GANTT_BIRTH_DATE;
-  var maxDate = anychart.core.gantt.Controller.GANTT_DEATH_DATE;
-
-  var minGap = 0;
-  var maxGap = 0;
-  if (this.timeline_) {
-    minGap = this.timeline_.minimumGap();
-    maxGap = this.timeline_.maximumGap();
-  }
-
-  var k = (1 + minGap + maxGap);
-
-  /*
-    To calculate this values:
-
-       minGap      maxDate_ - minDate_ = delta         maxGap
-    |---------|---------------------------------|--------------------|
-    birth     minDate_                          maxDate_             death
-
-    { minDate_ - minGap * delta = birth
-    { maxDate_ + maxGap * delta = death
-   */
-
-  this.minDate_ = Math.round((minDate + minDate * maxGap + maxDate * minGap) / k);
-  this.maxDate_ = Math.round((maxDate + maxDate * minGap + minDate * maxGap) / k);
 };
 
 
@@ -758,7 +732,7 @@ anychart.core.gantt.Controller.prototype.getHeightCache = function() {
 
 /**
  * Gets visible items.
- * @return {Array.<anychart.data.Tree.DataItem>} - Height cache.
+ * @return {Array.<(anychart.data.Tree.DataItem|anychart.data.TreeView.DataItem)>} - Height cache.
  */
 anychart.core.gantt.Controller.prototype.getVisibleItems = function() {
   return this.visibleItems_;
@@ -785,18 +759,20 @@ anychart.core.gantt.Controller.prototype.getMaxDate = function() {
 
 /**
  * Gets/sets source data tree.
- * @param {anychart.data.Tree=} opt_value - Value to be set.
- * @return {(anychart.core.gantt.Controller|anychart.data.Tree)} - Current value or itself for method chaining.
+ * @param {(anychart.data.Tree|anychart.data.TreeView)=} opt_value - Value to be set.
+ * @return {(anychart.core.gantt.Controller|anychart.data.Tree|anychart.data.TreeView)} - Current value or itself for method chaining.
  */
 anychart.core.gantt.Controller.prototype.data = function(opt_value) {
   if (goog.isDef(opt_value)) {
-    if ((this.data_ != opt_value) && (opt_value instanceof anychart.data.Tree)) {
+    if ((this.data_ != opt_value) && (opt_value instanceof anychart.data.Tree || opt_value instanceof anychart.data.TreeView)) {
       if (this.data_) this.data_.unlistenSignals(this.dataInvalidated_, this); //Stop listening old tree.
       this.data_ = opt_value;
       this.data_.listenSignals(this.dataInvalidated_, this);
 
       this.expandedItemsTraverser_ = this.data_.getTraverser();
       this.expandedItemsTraverser_.traverseChildrenCondition(this.traverseChildrenCondition_);
+      if (this.timeline_)
+        this.timeline_.scale().reset();
 
       this.invalidate(anychart.ConsistencyState.CONTROLLER_DATA, anychart.Signal.NEEDS_REAPPLICATION);
     }
@@ -942,10 +918,8 @@ anychart.core.gantt.Controller.prototype.run = function() {
     if (this.hasInvalidationState(anychart.ConsistencyState.CONTROLLER_DATA)) {
       this.linearizeData_();
       this.markConsistent(anychart.ConsistencyState.CONTROLLER_DATA);
-
       if (this.timeline_)
         this.timeline_.initScale();
-
       this.invalidate(anychart.ConsistencyState.CONTROLLER_VISIBILITY);
     }
 
@@ -957,9 +931,7 @@ anychart.core.gantt.Controller.prototype.run = function() {
 
     this.recalculate();
 
-    if (isNaN(this.minDate_)) { //In this case this.maxDate_ is NaN as well.
-      this.setGanttLifeYears_();
-    } else if (this.minDate_ == this.maxDate_) {
+    if (!isNaN(this.minDate_) && this.minDate_ == this.maxDate_) {
       this.minDate_ -= anychart.scales.GanttDateTime.MILLISECONDS_IN_DAY;
       this.maxDate_ += anychart.scales.GanttDateTime.MILLISECONDS_IN_DAY;
     }
@@ -1015,11 +987,7 @@ anychart.core.gantt.Controller.prototype.run = function() {
 anychart.core.gantt.Controller.prototype.getScrollBar = function() {
   if (!this.verticalScrollBar_) {
     this.verticalScrollBar_ = new anychart.core.ui.ScrollBar();
-    this.verticalScrollBar_
-        .layout(anychart.enums.Layout.VERTICAL)
-        .buttonsVisible(false)
-        .mouseOutOpacity(.25)
-        .mouseOverOpacity(.45);
+    this.verticalScrollBar_.layout(anychart.enums.Layout.VERTICAL);
 
     var controller = this;
 
@@ -1165,8 +1133,8 @@ anychart.core.gantt.Controller.prototype.serialize = function() {
 
 
 /** @inheritDoc */
-anychart.core.gantt.Controller.prototype.setupByJSON = function(config) {
-  goog.base(this, 'setupByJSON', config);
+anychart.core.gantt.Controller.prototype.setupByJSON = function(config, opt_default) {
+  goog.base(this, 'setupByJSON', config, opt_default);
 
   this.isResources_ = config['isResourceChart']; //Direct setup. I don't want to believe that it is kind of hack.
   if ('treeData' in config) this.data(anychart.data.Tree.fromJson(config['treeData']));

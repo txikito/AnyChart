@@ -2,6 +2,7 @@ goog.provide('anychart.core.ui.Button');
 goog.require('acgraph');
 goog.require('anychart.core.Text');
 goog.require('anychart.core.utils.Padding');
+goog.require('anychart.enums');
 goog.require('anychart.math');
 
 
@@ -13,6 +14,13 @@ goog.require('anychart.math');
  */
 anychart.core.ui.Button = function() {
   goog.base(this);
+
+  /**
+   * Button cursor.
+   * @type {anychart.enums.Cursor}
+   * @private
+   */
+  this.buttonCursor_ = anychart.enums.Cursor.DEFAULT;
 
   /**
    * Width of a button.
@@ -71,7 +79,8 @@ anychart.core.ui.Button.prototype.SUPPORTED_SIGNALS = anychart.core.Text.prototy
  */
 anychart.core.ui.Button.prototype.SUPPORTED_CONSISTENCY_STATES =
     anychart.core.Text.prototype.SUPPORTED_CONSISTENCY_STATES |
-    anychart.ConsistencyState.BUTTON_BACKGROUND;
+    anychart.ConsistencyState.BUTTON_BACKGROUND |
+    anychart.ConsistencyState.BUTTON_CURSOR;
 
 
 /**
@@ -227,7 +236,7 @@ anychart.core.ui.Button.prototype.disabled = function(opt_enable) {
  * @param {(string|number)=} opt_rightOrRightAndLeft Right or right and left space.
  * @param {(string|number)=} opt_bottom Bottom space.
  * @param {(string|number)=} opt_left Left space.
- * @return {!(anychart.core.ui.Button|anychart.core.utils.Margin)} Padding or self for method chaining.
+ * @return {!(anychart.core.ui.Button|anychart.core.utils.Padding)} Padding or self for method chaining.
  */
 anychart.core.ui.Button.prototype.padding = function(opt_spaceOrTopOrTopAndBottom, opt_rightOrRightAndLeft, opt_bottom, opt_left) {
   if (!this.padding_) {
@@ -542,14 +551,14 @@ anychart.core.ui.Button.prototype.calculateButtonBounds_ = function() {
     } else { // in other case - calculating using parent width
       width = anychart.utils.normalizeSize(/** @type {number|string} */ (this.width_), parentWidth);
     }
-    if (hasText) this.textX = anychart.utils.normalizeSize(/** @type {number|string} */ (padding.left()), width);
+    if (hasText) this.textX = anychart.utils.normalizeSize(/** @type {number|string} */ (padding.getOption(anychart.opt.LEFT)), width);
   } else { // if width is not set  - it is either the same as text width, or 0
     if (hasText) {// if there is text - adjust
       width = textWidth;
     } else { // or set to 0
       width = 0;
     }
-    if (hasText) this.textX = anychart.utils.normalizeSize(/** @type {number|string} */ (padding.left()), width);
+    if (hasText) this.textX = anychart.utils.normalizeSize(/** @type {number|string} */ (padding.getOption(anychart.opt.LEFT)), width);
     // if width is not set - use padding
     width = padding.widenWidth(width);
   }
@@ -571,14 +580,14 @@ anychart.core.ui.Button.prototype.calculateButtonBounds_ = function() {
     } else { // in other case - calculating using parent height
       height = anychart.utils.normalizeSize(/** @type {number|string} */ (this.height_), parentHeight);
     }
-    if (hasText) this.textY = anychart.utils.normalizeSize(/** @type {number|string} */ (padding.top()), height);
+    if (hasText) this.textY = anychart.utils.normalizeSize(/** @type {number|string} */ (padding.getOption(anychart.opt.TOP)), height);
   } else { // if height is not set  - it is either the same as text height, or 0
     if (hasText) { // if there is text - adjust
       height = textHeight;
     } else { // or set to 0
       height = 0;
     }
-    if (hasText) this.textY = anychart.utils.normalizeSize(/** @type {number|string} */ (padding.top()), height);
+    if (hasText) this.textY = anychart.utils.normalizeSize(/** @type {number|string} */ (padding.getOption(anychart.opt.TOP)), height);
     // if height is not set - use padding
     height = padding.widenHeight(height);
   }
@@ -648,6 +657,14 @@ anychart.core.ui.Button.prototype.draw = function() {
     if (this.backgroundPath) this.backgroundPath.parent(container);
     if (this.textElement) this.textElement.parent(container);
     this.markConsistent(anychart.ConsistencyState.CONTAINER);
+  }
+
+  if (this.hasInvalidationState(anychart.ConsistencyState.BUTTON_CURSOR)) {
+    if (this.textElement)
+      this.textElement.cursor(/** @type {acgraph.vector.Cursor} */ (this.cursor()));
+    if (this.backgroundPath)
+      this.backgroundPath.cursor(/** @type {acgraph.vector.Cursor} */ (this.cursor()));
+    this.markConsistent(anychart.ConsistencyState.BUTTON_CURSOR);
   }
 
   return this;
@@ -820,6 +837,24 @@ anychart.core.ui.Button.prototype.initStateSettings = function() {
       }
     }
   };
+};
+
+
+/**
+ * Getter/setter for cursor.
+ * @param {(anychart.enums.Cursor|string)=} opt_value cursor.
+ * @return {anychart.enums.Cursor|anychart.core.ui.Button} cursor or self for chaining.
+ */
+anychart.core.ui.Button.prototype.cursor = function(opt_value) {
+  if (goog.isDef(opt_value)) {
+    opt_value = anychart.enums.normalizeCursor(opt_value, anychart.enums.Cursor.DEFAULT);
+    if (this.cursor_ != opt_value) {
+      this.cursor_ = opt_value;
+      this.invalidate(anychart.ConsistencyState.BUTTON_CURSOR, anychart.Signal.NEEDS_REDRAW);
+    }
+    return this;
+  }
+  return this.cursor_;
 };
 
 

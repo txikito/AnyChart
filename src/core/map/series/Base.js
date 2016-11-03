@@ -52,7 +52,8 @@ anychart.core.map.series.Base.prototype.SUPPORTED_CONSISTENCY_STATES =
     anychart.ConsistencyState.SERIES_HATCH_FILL |
     anychart.ConsistencyState.APPEARANCE |
     anychart.ConsistencyState.SERIES_LABELS |
-    anychart.ConsistencyState.SERIES_DATA;
+    anychart.ConsistencyState.SERIES_DATA |
+    anychart.ConsistencyState.MAP_GEO_DATA_INDEX;
 
 
 /**
@@ -643,7 +644,7 @@ anychart.core.map.series.Base.prototype.applyZoomMoveTransform = function() {
  * Calculation before draw.
  */
 anychart.core.map.series.Base.prototype.calculate = function() {
-  if (this.hasInvalidationState(anychart.ConsistencyState.SERIES_DATA)) {
+  if (this.hasInvalidationState(anychart.ConsistencyState.MAP_GEO_DATA_INDEX)) {
     var iterator = this.getResetIterator();
     var index = this.map.getIndexedGeoData()[this.geoIdField()];
     while (iterator.advance()) {
@@ -663,6 +664,7 @@ anychart.core.map.series.Base.prototype.calculate = function() {
       }
       iterator.meta('features', features);
     }
+    this.markConsistent(anychart.ConsistencyState.MAP_GEO_DATA_INDEX);
   }
 };
 
@@ -674,6 +676,8 @@ anychart.core.map.series.Base.prototype.calculate = function() {
 anychart.core.map.series.Base.prototype.draw = function() {
   if (!this.checkDrawingNeeded())
     return this;
+
+  this.calculate();
 
   this.suspendSignalsDispatching();
 
@@ -926,6 +930,7 @@ anychart.core.map.series.Base.prototype.serialize = function() {
   var json = goog.base(this, 'serialize');
 
   json['seriesType'] = this.getType();
+  json['overlapMode'] = this.overlapMode();
 
   if (goog.isDef(this.geoIdField_))
     json['geoIdField'] = this.geoIdField_;
@@ -935,9 +940,10 @@ anychart.core.map.series.Base.prototype.serialize = function() {
 
 
 /** @inheritDoc */
-anychart.core.map.series.Base.prototype.setupByJSON = function(config) {
-  goog.base(this, 'setupByJSON', config);
+anychart.core.map.series.Base.prototype.setupByJSON = function(config, opt_default) {
+  goog.base(this, 'setupByJSON', config, opt_default);
 
+  this.overlapMode(config['overlapMode']);
   this.geoIdField(config['geoIdField']);
 };
 

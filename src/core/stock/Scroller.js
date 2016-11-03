@@ -100,6 +100,14 @@ anychart.core.stock.Scroller.prototype.SUPPORTED_CONSISTENCY_STATES =
     anychart.ConsistencyState.STOCK_SCROLLER_AXIS;
 
 
+/**
+ * @inheritDoc
+ */
+anychart.core.stock.Scroller.prototype.supportsTooltip = function() {
+  return false;
+};
+
+
 //region Series and indicators -related methods
 //----------------------------------------------------------------------------------------------------------------------
 //
@@ -1148,7 +1156,6 @@ anychart.core.stock.Scroller.prototype.draw = function() {
   }
 
   if (this.hasInvalidationState(anychart.ConsistencyState.STOCK_SCROLLER_SERIES)) {
-    this.nonSelectedClipRect.shape(this.pixelBoundsCache);
     for (var i = 0; i < this.series_.length; i++) {
       var series = this.series_[i];
       if (series) {
@@ -1270,8 +1277,8 @@ anychart.core.stock.Scroller.prototype.serialize = function() {
 
 
 /** @inheritDoc */
-anychart.core.stock.Scroller.prototype.setupByJSON = function(config) {
-  goog.base(this, 'setupByJSON', config);
+anychart.core.stock.Scroller.prototype.setupByJSON = function(config, opt_default) {
+  goog.base(this, 'setupByJSON', config, opt_default);
 
   var i, json, scale;
 

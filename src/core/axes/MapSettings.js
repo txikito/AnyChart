@@ -1,5 +1,11 @@
 //region --- Requiring and Providing
 goog.provide('anychart.core.axes.MapSettings');
+goog.require('anychart.core.Base');
+goog.require('anychart.core.axes.Map');
+goog.require('anychart.core.axes.MapTicks');
+goog.require('anychart.core.settings');
+goog.require('anychart.core.ui.LabelsFactory');
+goog.require('anychart.core.ui.Title');
 //endregion
 
 
@@ -7,10 +13,14 @@ goog.provide('anychart.core.axes.MapSettings');
 /**
  * Map axes settings.
  * @param {!anychart.charts.Map} map .
- * @extends {goog.Disposable}
+ * @extends {anychart.core.Base}
+ * @implements {anychart.core.settings.IObjectWithSettings}
+ * @implements {anychart.core.settings.IResolvable}
  * @constructor
  */
 anychart.core.axes.MapSettings = function(map) {
+  anychart.core.axes.MapSettings.base(this, 'constructor');
+
   /**
    * Map.
    * @private
@@ -24,10 +34,184 @@ anychart.core.axes.MapSettings = function(map) {
    * @type {Array.<anychart.core.axes.Map>}
    */
   this.axes_ = [];
+
+  /**
+   * Theme settings.
+   * @type {Object}
+   */
+  this.themeSettings = {};
+
+  /**
+   * Own settings (Settings set by user with API).
+   * @type {Object}
+   */
+  this.ownSettings = {};
+
+  /**
+   * Parent title.
+   * @type {anychart.core.axes.MapSettings}
+   * @private
+   */
+  this.parent_ = null;
+
+  /**
+   * Resolution chain cache.
+   * @type {Array.<Object|null|undefined>|null}
+   * @private
+   */
+  this.resolutionChainCache_ = null;
+
+  this.markConsistent(anychart.ConsistencyState.ALL);
 };
-goog.inherits(anychart.core.axes.MapSettings, goog.Disposable);
+goog.inherits(anychart.core.axes.MapSettings, anychart.core.Base);
 
 
+//region --- Internal properties
+/**
+ * Supported consistency states.
+ * @type {number}
+ */
+anychart.core.axes.MapSettings.prototype.SUPPORTED_CONSISTENCY_STATES =
+    anychart.ConsistencyState.ENABLED |
+    anychart.ConsistencyState.Z_INDEX |
+    anychart.ConsistencyState.APPEARANCE |
+    anychart.ConsistencyState.AXIS_TITLE |
+    anychart.ConsistencyState.AXIS_LABELS |
+    anychart.ConsistencyState.AXIS_TICKS |
+    anychart.ConsistencyState.AXIS_OVERLAP;
+
+
+/**
+ * Supported consistency states.
+ * @type {number}
+ */
+anychart.core.axes.MapSettings.prototype.SUPPORTED_SIGNALS =
+    anychart.Signal.NEEDS_REDRAW |
+    anychart.Signal.BOUNDS_CHANGED |
+    anychart.Signal.ENABLED_STATE_CHANGED;
+
+
+//endregion
+//region --- IObjectWithSettings implementation
+/** @inheritDoc */
+anychart.core.axes.MapSettings.prototype.getOwnOption = function(name) {
+  return this.ownSettings[name];
+};
+
+
+/** @inheritDoc */
+anychart.core.axes.MapSettings.prototype.hasOwnOption = function(name) {
+  return goog.isDef(this.ownSettings[name]);
+};
+
+
+/** @inheritDoc */
+anychart.core.axes.MapSettings.prototype.getThemeOption = function(name) {
+  return this.themeSettings[name];
+};
+
+
+/** @inheritDoc */
+anychart.core.axes.MapSettings.prototype.getOption = anychart.core.settings.getOption;
+
+
+/** @inheritDoc */
+anychart.core.axes.MapSettings.prototype.setOption = function(name, value) {
+  this.ownSettings[name] = value;
+};
+
+
+/** @inheritDoc */
+anychart.core.axes.MapSettings.prototype.check = function(flags) {
+  return true;
+};
+
+
+//endregion
+//region --- IResolvable implementation
+/** @inheritDoc */
+anychart.core.axes.MapSettings.prototype.resolutionChainCache = function(opt_value) {
+  if (goog.isDef(opt_value)) {
+    this.resolutionChainCache_ = opt_value;
+  }
+  return this.resolutionChainCache_;
+};
+
+
+/** @inheritDoc */
+anychart.core.axes.MapSettings.prototype.getResolutionChain = anychart.core.settings.getResolutionChain;
+
+
+/** @inheritDoc */
+anychart.core.axes.MapSettings.prototype.getLowPriorityResolutionChain = function() {
+  var sett = [this.themeSettings];
+  if (this.parent_) {
+    sett = goog.array.concat(sett, this.parent_.getLowPriorityResolutionChain());
+  }
+  return sett;
+};
+
+
+/** @inheritDoc */
+anychart.core.axes.MapSettings.prototype.getHighPriorityResolutionChain = function() {
+  var sett = [this.ownSettings];
+  if (this.parent_) {
+    sett = goog.array.concat(sett, this.parent_.getHighPriorityResolutionChain());
+  }
+  return sett;
+};
+
+
+//endregion
+//region --- Optimized props descriptors
+/**
+ * Simple properties descriptors.
+ * @type {!Object.<string, anychart.core.settings.PropertyDescriptor>}
+ */
+anychart.core.axes.MapSettings.prototype.SIMPLE_PROPS_DESCRIPTORS = (function() {
+  /** @type {!Object.<string, anychart.core.settings.PropertyDescriptor>} */
+  var map = {};
+  map[anychart.opt.STROKE] = anychart.core.settings.createDescriptor(
+      anychart.enums.PropertyHandlerType.MULTI_ARG,
+      anychart.opt.STROKE,
+      anychart.core.settings.strokeNormalizer,
+      anychart.ConsistencyState.ONLY_DISPATCHING,
+      anychart.Signal.NEEDS_REDRAW);
+
+  map[anychart.opt.OVERLAP_MODE] = anychart.core.settings.createDescriptor(
+      anychart.enums.PropertyHandlerType.SINGLE_ARG,
+      anychart.opt.OVERLAP_MODE,
+      anychart.enums.normalizeLabelsOverlapMode,
+      anychart.ConsistencyState.ONLY_DISPATCHING,
+      anychart.Signal.NEEDS_REDRAW | anychart.Signal.BOUNDS_CHANGED);
+
+  map[anychart.opt.DRAW_FIRST_LABEL] = anychart.core.settings.createDescriptor(
+      anychart.enums.PropertyHandlerType.SINGLE_ARG,
+      anychart.opt.DRAW_FIRST_LABEL,
+      anychart.core.settings.booleanNormalizer,
+      anychart.ConsistencyState.ONLY_DISPATCHING,
+      anychart.Signal.NEEDS_REDRAW | anychart.Signal.BOUNDS_CHANGED);
+
+  map[anychart.opt.DRAW_LAST_LABEL] = anychart.core.settings.createDescriptor(
+      anychart.enums.PropertyHandlerType.SINGLE_ARG,
+      anychart.opt.DRAW_LAST_LABEL,
+      anychart.core.settings.booleanNormalizer,
+      anychart.ConsistencyState.ONLY_DISPATCHING,
+      anychart.Signal.NEEDS_REDRAW | anychart.Signal.BOUNDS_CHANGED);
+
+  map[anychart.opt.ENABLED] = anychart.core.settings.createDescriptor(
+      anychart.enums.PropertyHandlerType.SINGLE_ARG,
+      anychart.opt.ENABLED,
+      anychart.core.settings.booleanNormalizer,
+      anychart.ConsistencyState.ONLY_DISPATCHING,
+      anychart.Signal.ENABLED_STATE_CHANGED);
+
+  return map;
+})();
+anychart.core.settings.populate(anychart.core.axes.MapSettings, anychart.core.axes.MapSettings.prototype.SIMPLE_PROPS_DESCRIPTORS);
+
+
+//endregion
 //region --- Axes
 /**
  * Return all exist axes.
@@ -47,9 +231,13 @@ anychart.core.axes.MapSettings.prototype.top = function(opt_value) {
   if (!this.topAxis_) {
     this.topAxis_ = new anychart.core.axes.Map();
     this.topAxis_.orientation(anychart.enums.Orientation.TOP);
-    this.topAxis_.listenSignals(this.mapInvalidated_, this.map_);
-    this.axes_.push(this.topAxis_);
-    this.map_.registerDisposable(this.topAxis_);
+    this.topAxis_.parent(this);
+    this.topAxis_.listenSignals(this.map_.onAxesSettingsSignal, this.map_);
+    var index = 0;
+    var zIndex = anychart.charts.Map.ZINDEX_AXIS + index * anychart.charts.Map.ZINDEX_INCREMENT_MULTIPLIER;
+    this.topAxis_.setAutoZIndex(/** @type {number} */(zIndex));
+    this.axes_[index] = this.topAxis_;
+    this.registerDisposable(this.topAxis_);
   }
 
   if (goog.isDef(opt_value)) {
@@ -69,9 +257,13 @@ anychart.core.axes.MapSettings.prototype.right = function(opt_value) {
   if (!this.rightAxis_) {
     this.rightAxis_ = new anychart.core.axes.Map();
     this.rightAxis_.orientation(anychart.enums.Orientation.RIGHT);
-    this.rightAxis_.listenSignals(this.mapInvalidated_, this.map_);
-    this.axes_.push(this.rightAxis_);
-    this.map_.registerDisposable(this.rightAxis_);
+    this.rightAxis_.parent(this);
+    this.rightAxis_.listenSignals(this.map_.onAxesSettingsSignal, this.map_);
+    var index = 1;
+    var zIndex = anychart.charts.Map.ZINDEX_AXIS + index * anychart.charts.Map.ZINDEX_INCREMENT_MULTIPLIER;
+    this.rightAxis_.setAutoZIndex(/** @type {number} */(zIndex));
+    this.axes_[index] = this.rightAxis_;
+    this.registerDisposable(this.rightAxis_);
   }
 
   if (goog.isDef(opt_value)) {
@@ -91,9 +283,13 @@ anychart.core.axes.MapSettings.prototype.bottom = function(opt_value) {
   if (!this.bottomAxis_) {
     this.bottomAxis_ = new anychart.core.axes.Map();
     this.bottomAxis_.orientation(anychart.enums.Orientation.BOTTOM);
-    this.bottomAxis_.listenSignals(this.mapInvalidated_, this.map_);
-    this.axes_.push(this.bottomAxis_);
-    this.map_.registerDisposable(this.bottomAxis_);
+    this.bottomAxis_.parent(this);
+    this.bottomAxis_.listenSignals(this.map_.onAxesSettingsSignal, this.map_);
+    var index = 2;
+    var zIndex = anychart.charts.Map.ZINDEX_AXIS + index * anychart.charts.Map.ZINDEX_INCREMENT_MULTIPLIER;
+    this.bottomAxis_.setAutoZIndex(/** @type {number} */(zIndex));
+    this.axes_[index] = this.bottomAxis_;
+    this.registerDisposable(this.bottomAxis_);
   }
 
   if (goog.isDef(opt_value)) {
@@ -113,9 +309,13 @@ anychart.core.axes.MapSettings.prototype.left = function(opt_value) {
   if (!this.leftAxis_) {
     this.leftAxis_ = new anychart.core.axes.Map();
     this.leftAxis_.orientation(anychart.enums.Orientation.LEFT);
-    this.leftAxis_.listenSignals(this.mapInvalidated_, this.map_);
-    this.axes_.push(this.leftAxis_);
-    this.map_.registerDisposable(this.leftAxis_);
+    this.leftAxis_.parent(this);
+    this.leftAxis_.listenSignals(this.map_.onAxesSettingsSignal, this.map_);
+    var index = 3;
+    var zIndex = anychart.charts.Map.ZINDEX_AXIS + index * anychart.charts.Map.ZINDEX_INCREMENT_MULTIPLIER;
+    this.leftAxis_.setAutoZIndex(/** @type {number} */(zIndex));
+    this.axes_[index] = this.leftAxis_;
+    this.registerDisposable(this.leftAxis_);
   }
 
   if (goog.isDef(opt_value)) {
@@ -126,53 +326,24 @@ anychart.core.axes.MapSettings.prototype.left = function(opt_value) {
 };
 
 
-/**
- * Internal invalidation handler.
- * @param {anychart.SignalEvent} event Event object.
- * @private
- */
-anychart.core.axes.MapSettings.prototype.mapInvalidated_ = function(event) {
-  this.invalidate(anychart.ConsistencyState.MAP_AXES, anychart.Signal.NEEDS_REDRAW);
-};
-
-
 //endregion
-//region --- Common settings
-/**
- * Sets enable/disable state for all axes.
- * @param {boolean=} opt_value .
- * @return {anychart.core.axes.MapSettings|boolean}
- */
-anychart.core.axes.MapSettings.prototype.enabled = function(opt_value) {
-  if (goog.isDef(opt_value)) {
-    opt_value = !!opt_value;
-    if (this.enabled_ != opt_value) {
-      this.enabled_ = opt_value;
-      for (var i = 0, len = this.axes_.length; i < len; i++) {
-        var axis = this.axes_[i];
-        axis.enabled(this.enabled_);
-      }
-    }
-    return this;
-  }
-  return this.enabled_;
-};
-
-
+//region --- Public complex settings
 /**
  * Getter/setter for title.
- * @param {(null|boolean|Object|string)=} opt_value Axis title.
+ * @param {(boolean|Object|string)=} opt_value Axis title.
  * @return {!(anychart.core.ui.Title|anychart.core.axes.MapSettings)} Axis title or itself for method chaining.
  */
 anychart.core.axes.MapSettings.prototype.title = function(opt_value) {
   if (!this.title_) {
     this.title_ = new anychart.core.ui.Title();
     this.title_.listenSignals(this.titleInvalidated_, this);
+    this.title_.markConsistent(anychart.ConsistencyState.ALL);
     this.registerDisposable(this.title_);
   }
 
   if (goog.isDef(opt_value)) {
     this.title_.setup(opt_value);
+    this.title_.markConsistent(anychart.ConsistencyState.ALL);
     return this;
   }
   return this.title_;
@@ -185,35 +356,29 @@ anychart.core.axes.MapSettings.prototype.title = function(opt_value) {
  * @private
  */
 anychart.core.axes.MapSettings.prototype.titleInvalidated_ = function(event) {
-  // var state = 0;
-  // var signal = 0;
-  // if (event.hasSignal(anychart.Signal.BOUNDS_CHANGED)) {
-  //   state = this.ALL_VISUAL_STATES;
-  //   signal = anychart.Signal.BOUNDS_CHANGED | anychart.Signal.NEEDS_REDRAW;
-  // } else if (event.hasSignal(anychart.Signal.NEEDS_REDRAW)) {
-  //   state = anychart.ConsistencyState.AXIS_TITLE;
-  //   signal = anychart.Signal.NEEDS_REDRAW;
-  // }
-  // this.invalidate(state, signal);
+  this.title_.markConsistent(anychart.ConsistencyState.ALL);
 };
 
 
 /**
  * Getter/setter for labels.
- * @param {(Object|boolean|null)=} opt_value Axis labels.
+ * @param {(Object|boolean)=} opt_value Axis labels.
  * @return {!(anychart.core.ui.LabelsFactory|anychart.core.axes.MapSettings)} Axis labels of itself for method chaining.
  */
 anychart.core.axes.MapSettings.prototype.labels = function(opt_value) {
   if (!this.labels_) {
     this.labels_ = new anychart.core.ui.LabelsFactory();
     this.labels_.listenSignals(this.labelsInvalidated_, this);
+    this.labels_.markConsistent(anychart.ConsistencyState.ALL);
     this.registerDisposable(this.labels_);
   }
 
   if (goog.isDef(opt_value)) {
     if (goog.isObject(opt_value) && !('enabled' in opt_value))
       opt_value['enabled'] = true;
+
     this.labels_.setup(opt_value);
+    this.labels_.markConsistent(anychart.ConsistencyState.ALL);
     return this;
   }
   return this.labels_;
@@ -226,30 +391,27 @@ anychart.core.axes.MapSettings.prototype.labels = function(opt_value) {
  * @private
  */
 anychart.core.axes.MapSettings.prototype.labelsInvalidated_ = function(event) {
-  // var state = 0;
-  // var signal = 0;
-  // if (event.hasSignal(anychart.Signal.BOUNDS_CHANGED)) {
-  //   state = this.ALL_VISUAL_STATES;
-  //   signal = anychart.Signal.BOUNDS_CHANGED | anychart.Signal.NEEDS_REDRAW;
-  // } else if (event.hasSignal(anychart.Signal.NEEDS_REDRAW)) {
-  //   state = anychart.ConsistencyState.AXIS_LABELS | anychart.ConsistencyState.AXIS_TICKS;
-  //   signal = anychart.Signal.NEEDS_REDRAW;
-  // }
-  // this.dropStaggeredLabelsCache_();
-  // this.dropBoundsCache();
-  // this.invalidate(state, signal);
+  this.labels_.markConsistent(anychart.ConsistencyState.ALL);
+  var signal = 0;
+  if (event.hasSignal(anychart.Signal.BOUNDS_CHANGED)) {
+    signal = anychart.Signal.BOUNDS_CHANGED | anychart.Signal.NEEDS_REDRAW;
+  } else if (event.hasSignal(anychart.Signal.NEEDS_REDRAW)) {
+    signal = anychart.Signal.NEEDS_REDRAW;
+  }
+  this.dispatchSignal(signal);
 };
 
 
 /**
  * Getter/setter for minorLabels.
- * @param {(Object|boolean|null)=} opt_value Axis labels.
+ * @param {(Object|boolean)=} opt_value Axis labels.
  * @return {!(anychart.core.ui.LabelsFactory|anychart.core.axes.MapSettings)} Axis labels of itself for method chaining.
  */
 anychart.core.axes.MapSettings.prototype.minorLabels = function(opt_value) {
   if (!this.minorLabels_) {
     this.minorLabels_ = new anychart.core.ui.LabelsFactory();
     this.minorLabels_.listenSignals(this.minorLabelsInvalidated_, this);
+    this.minorLabels_.markConsistent(anychart.ConsistencyState.ALL);
     this.registerDisposable(this.minorLabels_);
   }
 
@@ -257,6 +419,7 @@ anychart.core.axes.MapSettings.prototype.minorLabels = function(opt_value) {
     if (goog.isObject(opt_value) && !('enabled' in opt_value))
       opt_value['enabled'] = true;
     this.minorLabels_.setup(opt_value);
+    this.minorLabels_.markConsistent(anychart.ConsistencyState.ALL);
     return this;
   }
   return this.minorLabels_;
@@ -264,28 +427,25 @@ anychart.core.axes.MapSettings.prototype.minorLabels = function(opt_value) {
 
 
 /**
- * Internal minor label invalidation handler.
+ * Internal label invalidation handler.
  * @param {anychart.SignalEvent} event Event object.
  * @private
  */
 anychart.core.axes.MapSettings.prototype.minorLabelsInvalidated_ = function(event) {
-  // var state = 0;
-  // var signal = 0;
-  // if (event.hasSignal(anychart.Signal.BOUNDS_CHANGED)) {
-  //   state = this.ALL_VISUAL_STATES;
-  //   signal = anychart.Signal.BOUNDS_CHANGED | anychart.Signal.NEEDS_REDRAW;
-  // } else if (event.hasSignal(anychart.Signal.NEEDS_REDRAW)) {
-  //   state = anychart.ConsistencyState.AXIS_LABELS;
-  //   signal = anychart.Signal.NEEDS_REDRAW;
-  // }
-  // this.dropBoundsCache();
-  // this.invalidate(state, signal);
+  this.minorLabels_.markConsistent(anychart.ConsistencyState.ALL);
+  var signal = 0;
+  if (event.hasSignal(anychart.Signal.BOUNDS_CHANGED)) {
+    signal = anychart.Signal.BOUNDS_CHANGED | anychart.Signal.NEEDS_REDRAW;
+  } else if (event.hasSignal(anychart.Signal.NEEDS_REDRAW)) {
+    signal = anychart.Signal.NEEDS_REDRAW;
+  }
+  this.dispatchSignal(signal);
 };
 
 
 /**
  * Getter/setter for ticks.
- * @param {(Object|boolean|null)=} opt_value Axis ticks.
+ * @param {(Object|boolean)=} opt_value Axis ticks.
  * @return {!(anychart.core.axes.MapTicks|anychart.core.axes.MapSettings)} Axis ticks or itself for method chaining.
  */
 anychart.core.axes.MapSettings.prototype.ticks = function(opt_value) {
@@ -305,7 +465,7 @@ anychart.core.axes.MapSettings.prototype.ticks = function(opt_value) {
 
 /**
  * Getter/setter for minorTicks.
- * @param {(Object|boolean|null)=} opt_value Axis ticks.
+ * @param {(Object|boolean)=} opt_value Axis ticks.
  * @return {!(anychart.core.axes.MapTicks|anychart.core.axes.MapSettings)} Axis ticks or itself for method chaining.
  */
 anychart.core.axes.MapSettings.prototype.minorTicks = function(opt_value) {
@@ -324,113 +484,73 @@ anychart.core.axes.MapSettings.prototype.minorTicks = function(opt_value) {
 
 
 /**
- * Internal ticks invalidation handler.
+ * Internal label invalidation handler.
  * @param {anychart.SignalEvent} event Event object.
  * @private
  */
 anychart.core.axes.MapSettings.prototype.ticksInvalidated_ = function(event) {
-  // var state = 0;
-  // var signal = 0;
-  // if (event.hasSignal(anychart.Signal.BOUNDS_CHANGED)) {
-  //   state = this.ALL_VISUAL_STATES;
-  //   signal = anychart.Signal.BOUNDS_CHANGED | anychart.Signal.NEEDS_REDRAW;
-  // } else if (event.hasSignal(anychart.Signal.NEEDS_REDRAW)) {
-  //   state = anychart.ConsistencyState.AXIS_TICKS;
-  //   signal = anychart.Signal.NEEDS_REDRAW;
-  // }
-  // this.invalidate(state, signal);
-};
-
-
-/**
- * Getter/setter for stroke.
- * @param {(acgraph.vector.Stroke|acgraph.vector.ColoredFill|string|null)=} opt_strokeOrFill Fill settings
- *    or stroke settings.
- * @param {number=} opt_thickness [1] Line thickness.
- * @param {string=} opt_dashpattern Controls the pattern of dashes and gaps used to stroke paths.
- * @param {acgraph.vector.StrokeLineJoin=} opt_lineJoin Line joint style.
- * @param {acgraph.vector.StrokeLineCap=} opt_lineCap Line cap style.
- * @return {!(anychart.core.axes.MapSettings|acgraph.vector.Stroke)} .
- */
-anychart.core.axes.MapSettings.prototype.stroke = function(opt_strokeOrFill, opt_thickness, opt_dashpattern, opt_lineJoin, opt_lineCap) {
-  if (goog.isDef(opt_strokeOrFill)) {
-    opt_strokeOrFill = acgraph.vector.normalizeStroke.apply(null, arguments);
-    if (this.stroke_ != opt_strokeOrFill) {
-      var thicknessOld = goog.isObject(this.stroke_) ? this.stroke_['thickness'] || 1 : 1;
-      var thicknessNew = goog.isObject(opt_strokeOrFill) ? opt_strokeOrFill['thickness'] || 1 : 1;
-      this.stroke_ = opt_strokeOrFill;
-      if (thicknessNew == thicknessOld)
-        this.invalidate(anychart.ConsistencyState.APPEARANCE, anychart.Signal.NEEDS_REDRAW);
-      else
-        this.invalidate(this.ALL_VISUAL_STATES, anychart.Signal.NEEDS_REDRAW | anychart.Signal.BOUNDS_CHANGED);
-    }
-    return this;
-  } else {
-    return this.stroke_;
+  var signal = 0;
+  if (event.hasSignal(anychart.Signal.BOUNDS_CHANGED)) {
+    signal = anychart.Signal.BOUNDS_CHANGED | anychart.Signal.NEEDS_REDRAW;
+  } else if (event.hasSignal(anychart.Signal.NEEDS_REDRAW)) {
+    signal = anychart.Signal.NEEDS_REDRAW;
   }
+  this.dispatchSignal(signal);
 };
 
 
 //endregion
 //region --- Setup and Dispose
 /**
- * Special objects to setup current instance.
- * @param {...(Object|Array|number|string|undefined|boolean|null)} var_args
- * @return {boolean} If passed values were recognized as special setup values.
- * @protected
+ * Sets default settings.
+ * @param {!Object} config
  */
-anychart.core.axes.MapSettings.prototype.setupSpecial = function(var_args) {
-  var arg0 = arguments[0];
-  if (goog.isBoolean(arg0) || goog.isNull(arg0)) {
-    this.enabled(!!arg0);
+anychart.core.axes.MapSettings.prototype.setThemeSettings = function(config) {
+  for (var name in this.SIMPLE_PROPS_DESCRIPTORS) {
+    var val = config[name];
+    if (goog.isDef(val))
+      this.themeSettings[name] = val;
+  }
+};
+
+
+/** @inheritDoc */
+anychart.core.axes.MapSettings.prototype.specialSetupByVal = function(value, opt_default) {
+  if (goog.isBoolean(value) || goog.isNull(value)) {
+    if (opt_default)
+      this.themeSettings[anychart.opt.ENABLED] = !!value;
+    else
+      this.enabled(!!value);
     return true;
   }
   return false;
 };
 
 
-/**
- * Setups the element using passed configuration value. It can be a JSON object or a special value that setups
- * instances of descendant classes.
- * Note: this method only changes element properties if they are supposed to be changed by the config value -
- * it doesn't reset other properties to their defaults.
- * @param {...(Object|Array|number|string|undefined|boolean|null)} var_args Arguments to setup the instance.
- * @return {anychart.core.axes.MapSettings} Returns itself for chaining.
- */
-anychart.core.axes.MapSettings.prototype.setup = function(var_args) {
-  var arg0 = arguments[0];
-  if (goog.isDef(arg0)) {
-    if (!this.setupSpecial.apply(this, arguments) && goog.isObject(arg0)) {
-      //if (arg0 instanceof anychart.core.Base)
-      //  throw 'Instance of object is passed to setter. You should use JSON instead';
-      this.setupByJSON(/** @type {!Object} */(arguments[0]));
-    }
-  }
-  return this;
-};
-
-
 /** @inheritDoc */
-anychart.core.axes.MapSettings.prototype.setupByJSON = function(config) {
-  this.enabled(config['enabled']);
-  this.title(config['title']);
-  this.stroke(config['stroke']);
-  this.ticks(config['ticks']);
-  this.minorTicks(config['minorTicks']);
+anychart.core.axes.MapSettings.prototype.setupByJSON = function(config, opt_default) {
+  this.map_.suspendSignalsDispatching();
+
+  if (opt_default) {
+    this.setThemeSettings(config);
+  } else {
+    anychart.core.settings.deserialize(this, this.SIMPLE_PROPS_DESCRIPTORS, config);
+    this.setOption(anychart.opt.ENABLED, anychart.opt.ENABLED in config ? config[anychart.opt.ENABLED] : true);
+  }
+
+  this.title().setupByVal(config['title'], opt_default);
+  this.ticks().setupByVal(config['ticks'], opt_default);
+  this.minorTicks().setupByVal(config['minorTicks'], opt_default);
+
   this.labels().setup(config['labels']);
   this.minorLabels().setup(config['minorLabels']);
-  if (config['left']) {
-    this.left(config['left']);
-  }
-  if (config['top']) {
-    this.top(config['top']);
-  }
-  if (config['right']) {
-    this.right(config['right']);
-  }
-  if (config['bottom']) {
-    this.bottom(config['bottom']);
-  }
+
+  this.left().setupByVal(config['left'], opt_default);
+  this.top().setupByVal(config['top'], opt_default);
+  this.right().setupByVal(config['right'], opt_default);
+  this.bottom().setupByVal(config['bottom'], opt_default);
+
+  this.map_.resumeSignalsDispatching(true);
 };
 
 
@@ -450,19 +570,22 @@ anychart.core.axes.MapSettings.prototype.serialize = function() {
   if (this.bottomAxis_) {
     json['bottom'] = this.bottomAxis_.serialize();
   }
-  json['enabled'] = this.enabled();
+
   json['title'] = this.title_.serialize();
-  json['stroke'] = anychart.color.serialize(/** @type {acgraph.vector.Stroke} */(this.stroke()));
   json['ticks'] = this.ticks().serialize();
   json['minorTicks'] = this.minorTicks().serialize();
   json['labels'] = this.labels().serialize();
   json['minorLabels'] = this.minorLabels().serialize();
+
+  anychart.core.settings.serialize(this, this.SIMPLE_PROPS_DESCRIPTORS, json, 'Map axes props');
+
+  return json;
 };
 
 
 /** @inheritDoc */
 anychart.core.axes.MapSettings.prototype.disposeInternal = function() {
-
+  anychart.core.axes.MapSettings.base(this, 'disposeInternal');
 };
 
 
@@ -473,11 +596,16 @@ anychart.core.axes.MapSettings.prototype['left'] = anychart.core.axes.MapSetting
 anychart.core.axes.MapSettings.prototype['top'] = anychart.core.axes.MapSettings.prototype.top;
 anychart.core.axes.MapSettings.prototype['right'] = anychart.core.axes.MapSettings.prototype.right;
 anychart.core.axes.MapSettings.prototype['bottom'] = anychart.core.axes.MapSettings.prototype.bottom;
+
+anychart.core.axes.MapSettings.prototype['title'] = anychart.core.axes.MapSettings.prototype.title;
+anychart.core.axes.MapSettings.prototype['ticks'] = anychart.core.axes.MapSettings.prototype.ticks;
+anychart.core.axes.MapSettings.prototype['minorTicks'] = anychart.core.axes.MapSettings.prototype.minorTicks;
+anychart.core.axes.MapSettings.prototype['labels'] = anychart.core.axes.MapSettings.prototype.labels;
+anychart.core.axes.MapSettings.prototype['minorLabels'] = anychart.core.axes.MapSettings.prototype.minorLabels;
+
 // anychart.core.axes.MapSettings.prototype['enabled'] = anychart.core.axes.MapSettings.prototype.enabled;
-// anychart.core.axes.MapSettings.prototype['title'] = anychart.core.axes.MapSettings.prototype.title;
 // anychart.core.axes.MapSettings.prototype['stroke'] = anychart.core.axes.MapSettings.prototype.stroke;
-// anychart.core.axes.MapSettings.prototype['ticks'] = anychart.core.axes.MapSettings.prototype.ticks;
-// anychart.core.axes.MapSettings.prototype['minorTicks'] = anychart.core.axes.MapSettings.prototype.minorTicks;
-// anychart.core.axes.MapSettings.prototype['labels'] = anychart.core.axes.MapSettings.prototype.labels;
-// anychart.core.axes.MapSettings.prototype['minorLabels'] = anychart.core.axes.MapSettings.prototype.minorLabels;
+// anychart.core.axes.MapSettings.prototype['drawFirstLabel'] = anychart.core.axes.MapSettings.prototype.drawFirstLabel;
+// anychart.core.axes.MapSettings.prototype['drawLastLabel'] = anychart.core.axes.MapSettings.prototype.drawLastLabel;
+// anychart.core.axes.MapSettings.prototype['overlapMode'] = anychart.core.axes.MapSettings.prototype.overlapMode;
 //endregion

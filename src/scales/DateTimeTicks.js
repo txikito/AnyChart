@@ -115,7 +115,7 @@ anychart.scales.DateTimeTicks.prototype.interval = function(opt_years, opt_month
       val = goog.date.Interval.fromIsoString(opt_years);
     else {
       if (goog.isString(opt_years)) {
-        opt_years = anychart.enums.normalizeInterval(opt_years);
+        opt_years = /** @type {anychart.enums.Interval} */(anychart.enums.normalizeInterval(opt_years));
         opt_months = anychart.utils.toNumber(opt_months) || 1;
         switch (opt_years) {
           case anychart.enums.Interval.YEAR:
@@ -546,8 +546,8 @@ anychart.scales.DateTimeTicks.prototype.setupSpecial = function(var_args) {
 
 
 /** @inheritDoc */
-anychart.scales.DateTimeTicks.prototype.setupByJSON = function(config) {
-  goog.base(this, 'setupByJSON', config);
+anychart.scales.DateTimeTicks.prototype.setupByJSON = function(config, opt_default) {
+  goog.base(this, 'setupByJSON', config, opt_default);
   this.explicit_ = config['explicit'] || null;
   this.count_ = goog.isNull(config['count']) ? NaN : Math.max(2, Math.ceil(config['count']));
   this.interval_ = goog.isString(config['interval']) ? goog.date.Interval.fromIsoString(config['interval']) : null;

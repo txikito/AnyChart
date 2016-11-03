@@ -1,8 +1,12 @@
 goog.provide('anychart.core.settings');
+
 goog.require('acgraph.vector');
 goog.require('anychart.core.reporting');
 goog.require('anychart.enums');
+goog.require('anychart.opt');
 goog.require('anychart.utils');
+goog.require('goog.array');
+goog.require('goog.math');
 
 
 /**
@@ -23,6 +27,206 @@ goog.require('anychart.utils');
  * }}
  */
 anychart.core.settings.PropertyDescriptor;
+
+
+//region Creating descriptors
+/**
+ * Creates descriptor.
+ * @param {anychart.enums.PropertyHandlerType} handler - Handler type.
+ * @param {string} propName - Property name.
+ * @param {Function} normalizer - Normalizer function.
+ * @param {number} consistency - Consistency to set.
+ * @param {number} signal - Signal.
+ * @param {number=} opt_check - Check function.
+ * @return {anychart.core.settings.PropertyDescriptor} - Descriptor.
+ */
+anychart.core.settings.createDescriptor = function(handler, propName, normalizer, consistency, signal, opt_check) {
+  /**
+   * @type {anychart.core.settings.PropertyDescriptor}
+   */
+  var descriptor = {
+    handler: handler,
+    propName: propName,
+    normalizer: normalizer,
+    consistency: consistency,
+    signal: signal
+  };
+  if (goog.isDef(opt_check))
+    descriptor.capabilityCheck = opt_check;
+  return descriptor;
+};
+
+
+/**
+ * Creates text properties descriptors.
+ * @param {number} invalidateBoundsState - State to invalidate bounds.
+ * @param {number} nonBoundsState - State to invalidate without bounds.
+ * @param {number} boundsChangedSignal - Signal for changed bounds.
+ * @param {number} nonBoundsSignal - Signal for non-bounds changes.
+ * @return {!Object.<string, anychart.core.settings.PropertyDescriptor>} - Descriptors map.
+ */
+anychart.core.settings.createTextPropertiesDescriptors = function(invalidateBoundsState, nonBoundsState, boundsChangedSignal, nonBoundsSignal) {
+
+  /** @type {!Object.<string, anychart.core.settings.PropertyDescriptor>} */
+  var map = {};
+
+  map[anychart.opt.MIN_FONT_SIZE] = anychart.core.settings.createDescriptor(
+      anychart.enums.PropertyHandlerType.SINGLE_ARG,
+      anychart.opt.MIN_FONT_SIZE,
+      anychart.core.settings.asIsNormalizer,
+      invalidateBoundsState,
+      boundsChangedSignal);
+
+  map[anychart.opt.MAX_FONT_SIZE] = anychart.core.settings.createDescriptor(
+      anychart.enums.PropertyHandlerType.SINGLE_ARG,
+      anychart.opt.MAX_FONT_SIZE,
+      anychart.core.settings.asIsNormalizer,
+      invalidateBoundsState,
+      boundsChangedSignal);
+
+  map[anychart.opt.ADJUST_FONT_SIZE] = anychart.core.settings.createDescriptor(
+      anychart.enums.PropertyHandlerType.MULTI_ARG,
+      anychart.opt.ADJUST_FONT_SIZE,
+      anychart.core.settings.adjustFontSizeNormalizer,
+      invalidateBoundsState,
+      boundsChangedSignal);
+
+  map[anychart.opt.FONT_SIZE] = anychart.core.settings.createDescriptor(
+      anychart.enums.PropertyHandlerType.SINGLE_ARG,
+      anychart.opt.FONT_SIZE,
+      anychart.core.settings.asIsNormalizer,
+      invalidateBoundsState,
+      boundsChangedSignal);
+
+  map[anychart.opt.FONT_FAMILY] = anychart.core.settings.createDescriptor(
+      anychart.enums.PropertyHandlerType.SINGLE_ARG,
+      anychart.opt.FONT_FAMILY,
+      anychart.core.settings.stringNormalizer,
+      invalidateBoundsState,
+      boundsChangedSignal);
+
+  map[anychart.opt.FONT_COLOR] = anychart.core.settings.createDescriptor(
+      anychart.enums.PropertyHandlerType.SINGLE_ARG,
+      anychart.opt.FONT_COLOR,
+      anychart.core.settings.stringNormalizer,
+      nonBoundsState,
+      nonBoundsSignal);
+
+  map[anychart.opt.FONT_OPACITY] = anychart.core.settings.createDescriptor(
+      anychart.enums.PropertyHandlerType.SINGLE_ARG,
+      anychart.opt.FONT_OPACITY,
+      anychart.core.settings.numberNormalizer,
+      nonBoundsState,
+      nonBoundsSignal);
+
+  map[anychart.opt.FONT_DECORATION] = anychart.core.settings.createDescriptor(
+      anychart.enums.PropertyHandlerType.SINGLE_ARG,
+      anychart.opt.FONT_DECORATION,
+      anychart.enums.normalizeFontDecoration,
+      invalidateBoundsState,
+      boundsChangedSignal);
+
+  map[anychart.opt.FONT_STYLE] = anychart.core.settings.createDescriptor(
+      anychart.enums.PropertyHandlerType.SINGLE_ARG,
+      anychart.opt.FONT_STYLE,
+      anychart.enums.normalizeFontStyle,
+      invalidateBoundsState,
+      boundsChangedSignal);
+
+  map[anychart.opt.FONT_VARIANT] = anychart.core.settings.createDescriptor(
+      anychart.enums.PropertyHandlerType.SINGLE_ARG,
+      anychart.opt.FONT_VARIANT,
+      anychart.enums.normalizeFontVariant,
+      invalidateBoundsState,
+      boundsChangedSignal);
+
+  map[anychart.opt.FONT_WEIGHT] = anychart.core.settings.createDescriptor(
+      anychart.enums.PropertyHandlerType.SINGLE_ARG,
+      anychart.opt.FONT_WEIGHT,
+      anychart.core.settings.asIsNormalizer,
+      invalidateBoundsState,
+      boundsChangedSignal);
+
+  map[anychart.opt.LETTER_SPACING] = anychart.core.settings.createDescriptor(
+      anychart.enums.PropertyHandlerType.SINGLE_ARG,
+      anychart.opt.LETTER_SPACING,
+      anychart.core.settings.asIsNormalizer,
+      invalidateBoundsState,
+      boundsChangedSignal);
+
+  map[anychart.opt.TEXT_DIRECTION] = anychart.core.settings.createDescriptor(
+      anychart.enums.PropertyHandlerType.SINGLE_ARG,
+      anychart.opt.TEXT_DIRECTION,
+      anychart.enums.normalizeTextDirection,
+      invalidateBoundsState,
+      boundsChangedSignal);
+
+  map[anychart.opt.LINE_HEIGHT] = anychart.core.settings.createDescriptor(
+      anychart.enums.PropertyHandlerType.SINGLE_ARG,
+      anychart.opt.LINE_HEIGHT,
+      anychart.core.settings.asIsNormalizer,
+      invalidateBoundsState,
+      boundsChangedSignal);
+
+  map[anychart.opt.TEXT_INDENT] = anychart.core.settings.createDescriptor(
+      anychart.enums.PropertyHandlerType.SINGLE_ARG,
+      anychart.opt.TEXT_INDENT,
+      anychart.core.settings.numberNormalizer,
+      invalidateBoundsState,
+      boundsChangedSignal);
+
+  map[anychart.opt.V_ALIGN] = anychart.core.settings.createDescriptor(
+      anychart.enums.PropertyHandlerType.SINGLE_ARG,
+      anychart.opt.V_ALIGN,
+      anychart.enums.normalizeVAlign,
+      invalidateBoundsState,
+      boundsChangedSignal);
+
+  map[anychart.opt.H_ALIGN] = anychart.core.settings.createDescriptor(
+      anychart.enums.PropertyHandlerType.SINGLE_ARG,
+      anychart.opt.H_ALIGN,
+      anychart.enums.normalizeHAlign,
+      invalidateBoundsState,
+      boundsChangedSignal);
+
+  map[anychart.opt.TEXT_WRAP] = anychart.core.settings.createDescriptor(
+      anychart.enums.PropertyHandlerType.SINGLE_ARG,
+      anychart.opt.TEXT_WRAP,
+      anychart.enums.normalizeTextWrap,
+      invalidateBoundsState,
+      boundsChangedSignal);
+
+  map[anychart.opt.TEXT_OVERFLOW] = anychart.core.settings.createDescriptor(
+      anychart.enums.PropertyHandlerType.SINGLE_ARG,
+      anychart.opt.TEXT_OVERFLOW,
+      anychart.core.settings.stringNormalizer,
+      invalidateBoundsState,
+      boundsChangedSignal);
+
+  map[anychart.opt.SELECTABLE] = anychart.core.settings.createDescriptor(
+      anychart.enums.PropertyHandlerType.SINGLE_ARG,
+      anychart.opt.SELECTABLE,
+      anychart.core.settings.booleanNormalizer,
+      nonBoundsState,
+      nonBoundsSignal);
+
+  map[anychart.opt.DISABLE_POINTER_EVENTS] = anychart.core.settings.createDescriptor(
+      anychart.enums.PropertyHandlerType.SINGLE_ARG,
+      anychart.opt.DISABLE_POINTER_EVENTS,
+      anychart.core.settings.booleanNormalizer,
+      nonBoundsState,
+      nonBoundsSignal);
+
+  map[anychart.opt.USE_HTML] = anychart.core.settings.createDescriptor(
+      anychart.enums.PropertyHandlerType.SINGLE_ARG,
+      anychart.opt.USE_HTML,
+      anychart.core.settings.booleanNormalizer,
+      nonBoundsState,
+      nonBoundsSignal);
+
+  return map;
+};
+//endregion
 
 
 //region Functions to work with settings
@@ -95,13 +299,34 @@ anychart.core.settings.serialize = function(target, descriptors, json, opt_warni
     if (goog.isDef(val) && !goog.isFunction(val)) {
       if (descriptor.normalizer == anychart.core.settings.strokeOrFunctionNormalizer ||
           descriptor.normalizer == anychart.core.settings.fillOrFunctionNormalizer ||
-          descriptor.normalizer == anychart.core.settings.hatchFillOrFunctionNormalizer) {
+          descriptor.normalizer == anychart.core.settings.hatchFillOrFunctionNormalizer ||
+          descriptor.normalizer == anychart.core.settings.strokeNormalizer ||
+          descriptor.normalizer == anychart.core.settings.fillNormalizer ||
+          descriptor.normalizer == anychart.core.settings.hatchFillNormalizer) {
         val = anychart.color.serialize(descriptor.normalizer([val]));
       } else if (descriptor.normalizer == anychart.core.settings.colorNormalizer && !goog.isNull(val)) {
         val = anychart.color.serialize(descriptor.normalizer(val));
+      } else if ((descriptor.normalizer == anychart.core.settings.colorNormalizer ||
+          descriptor.normalizer == anychart.core.settings.strokeNormalizer) && !goog.isNull(val)) {
+        val = anychart.color.serialize(descriptor.normalizer([val]));
       }
       json[name] = val;
     }
+  }
+};
+
+
+/**
+ * Copy settings from config to target for descriptors map.
+ * @param {!Object} target
+ * @param {!Object.<anychart.core.settings.PropertyDescriptor>} descriptors
+ * @param {!Object} config
+ */
+anychart.core.settings.copy = function(target, descriptors, config) {
+  for (var name in descriptors) {
+    var val = config[name];
+    if (goog.isDef(val))
+      target[name] = val;
   }
 };
 //endregion
@@ -127,10 +352,15 @@ anychart.core.settings.serialize = function(target, descriptors, json, opt_warni
 anychart.core.settings.simpleHandler = function(fieldName, normalizer, supportCheck, consistencyState, signal, opt_value) {
   if (goog.isDef(opt_value)) {
     opt_value = normalizer(opt_value);
-    if (this.getOwnOption(fieldName) != opt_value) {
+    if (this.getOwnOption(fieldName) !== opt_value) {
       this.setOption(fieldName, opt_value);
-      if (this.check(supportCheck))
-        this.invalidate(consistencyState, signal);
+      if (this.check(supportCheck)) {
+        if (consistencyState) {
+          this.invalidate(consistencyState, signal);
+        } else {
+          this.dispatchSignal(signal);
+        }
+      }
     }
     return this;
   }
@@ -160,10 +390,14 @@ anychart.core.settings.multiArgsHandler = function(fieldName, arrayNormalizer, s
       args.push(arguments[i]);
     }
     opt_value = arrayNormalizer(args);
-    if (this.getOwnOption(fieldName) != opt_value) {
+    if (this.getOwnOption(fieldName) !== opt_value) {
       this.setOption(fieldName, opt_value);
       if (this.check(supportCheck))
-        this.invalidate(consistencyState, signal);
+        if (consistencyState == anychart.ConsistencyState.ONLY_DISPATCHING) {
+          this.dispatchSignal(signal);
+        } else {
+          this.invalidate(consistencyState, signal);
+        }
     }
     return this;
   }
@@ -201,6 +435,16 @@ anychart.core.settings.colorNormalizer = function(val) {
 /**
  * Array normalizer for stroke.
  * @param {Array.<*>} args
+ * @return {acgraph.vector.Stroke}
+ */
+anychart.core.settings.strokeNormalizer = function(args) {
+  return acgraph.vector.normalizeStroke.apply(null, args);
+};
+
+
+/**
+ * Array normalizer for stroke.
+ * @param {Array.<*>} args
  * @return {*}
  */
 anychart.core.settings.strokeOrFunctionNormalizer = function(args) {
@@ -219,6 +463,16 @@ anychart.core.settings.strokeOrFunctionSimpleNormalizer = function(val) {
   return goog.isFunction(val) ?
       val :
       acgraph.vector.normalizeStroke(/** @type {acgraph.vector.Stroke|acgraph.vector.ColoredFill|string|null|undefined} */(val));
+};
+
+
+/**
+ * Array normalizer for fill.
+ * @param {Array.<*>} args
+ * @return {acgraph.vector.Fill}
+ */
+anychart.core.settings.fillNormalizer = function(args) {
+  return acgraph.vector.normalizeFill.apply(null, args);
 };
 
 
@@ -271,6 +525,16 @@ anychart.core.settings.hatchFillOrFunctionSimpleNormalizer = function(val) {
 
 
 /**
+ * Array normalizer for hatch fill.
+ * @param {Array.<*>} args
+ * @return {acgraph.vector.PatternFill|acgraph.vector.HatchFill}
+ */
+anychart.core.settings.hatchFillNormalizer = function(args) {
+  return acgraph.vector.normalizeHatchFill.apply(null, args);
+};
+
+
+/**
  * Single arg normalizer for boolean params.
  * @param {*} val
  * @return {boolean}
@@ -287,6 +551,26 @@ anychart.core.settings.booleanNormalizer = function(val) {
  */
 anychart.core.settings.numberNormalizer = function(val) {
   return Number(val);
+};
+
+
+/**
+ * Single arg normalizer for number params.
+ * @param {*} val
+ * @return {number|string}
+ */
+anychart.core.settings.numberOrZeroNormalizer = function(val) {
+  return anychart.utils.toNumberOrStringOrNull(val) || 0;
+};
+
+
+/**
+ * Single arg normalizer for string params.
+ * @param {*} val
+ * @return {string}
+ */
+anychart.core.settings.stringNormalizer = function(val) {
+  return String(val);
 };
 
 
@@ -317,6 +601,59 @@ anychart.core.settings.numberOrPercentNormalizer = function(val) {
  */
 anychart.core.settings.markerTypeNormalizer = function(val) {
   return goog.isFunction(val) ? val : anychart.enums.normalizeMarkerType(val);
+};
+
+
+/**
+ * Single arg normalizer for orientation params.
+ * @param {*} val
+ * @return {?anychart.enums.Orientation}
+ */
+anychart.core.settings.orientationNormalizer = function(val) {
+  return goog.isNull(val) ? val : anychart.enums.normalizeOrientation(val);
+};
+
+
+/**
+ * Array normalizer for adjustFontSize.
+ * @param {Array.<boolean>} args
+ * @return {Object|boolean}
+ */
+anychart.core.settings.adjustFontSizeNormalizer = function(args) {
+  return (args.length == 1) ? args[0] : {'width': args[0], 'height': args[1]};
+};
+
+
+/**
+ * Single arg normalizer for number or string.
+ * @param {*} val
+ * @return {number|string}
+ */
+anychart.core.settings.numberOrStringNormalizer = function(val) {
+  return anychart.utils.toNumberOrString(val);
+};
+
+
+/**
+ * Ratio normalizer for number or string.
+ * @param {*} val
+ * @return {number}
+ */
+anychart.core.settings.ratioNormalizer = function(val) {
+  return goog.math.clamp(anychart.utils.toNumber(val), 0, 1);
+};
+
+
+/**
+ * Array normalizer.
+ * @param {Array.<*>} args
+ * @return {*}
+ */
+anychart.core.settings.arrayNormalizer = function(args) {
+  if (goog.isArray(args[0]))
+    return args[0];
+  else
+    return args;
 };
 //endregion
 
@@ -390,4 +727,95 @@ anychart.core.settings.IObjectWithSettings.prototype.check = function(flags) {};
  * @return {number} Actually modified consistency states.
  */
 anychart.core.settings.IObjectWithSettings.prototype.invalidate = function(state, opt_signal) {};
+
+
+/**
+ * Sends invalidation event to listeners.
+ *
+ * NOTE: YOU CAN ONLY SEND SIGNALS FROM SUPPORTED_SIGNALS MASK!
+ *
+ * @param {anychart.Signal|number} state Invalidation state(s).
+ * @param {boolean=} opt_force Force to dispatch signal.
+ */
+anychart.core.settings.IObjectWithSettings.prototype.dispatchSignal = function(state, opt_force) {};
+//endregion
+
+
+
+//region IResolvable
+//----------------------------------------------------------------------------------------------------------------------
+//
+//  IResolvable
+//
+//----------------------------------------------------------------------------------------------------------------------
+/**
+ * An object that is able to have parent object to take settings from it.
+ * @interface
+ */
+anychart.core.settings.IResolvable = function() {};
+
+
+/**
+ * Gets chain of settings object ordered by priority.
+ * @return {Array.<Object|null|undefined>} - Chain of settings.
+ */
+anychart.core.settings.IResolvable.prototype.getResolutionChain = function() {};
+
+
+/**
+ * Gets chain of low priority settings.
+ * @return {Array.<Object|null|undefined>} - Chain of settings.
+ */
+anychart.core.settings.IResolvable.prototype.getLowPriorityResolutionChain = function() {};
+
+
+/**
+ * Gets chain of high priority settings.
+ * @return {Array.<Object|null|undefined>} - Chain of settings.
+ */
+anychart.core.settings.IResolvable.prototype.getHighPriorityResolutionChain = function() {};
+
+
+/**
+ * Getter/setter for resolution chain cache.
+ * General idea of this cache is to avoid array re-concatenation on every getOption() call.
+ * @param {Array.<Object|null|undefined>=} opt_value - Value to set.
+ * @return {Array.<Object|null|undefined>|null} - Chain of settings.
+ */
+anychart.core.settings.IResolvable.prototype.resolutionChainCache = function(opt_value) {};
+
+
+/**
+ * Default resolution chain getter for IResolvable object.
+ * @this {anychart.core.settings.IResolvable}
+ * @return {Array.<Object|null|undefined>} - Chain of settings.
+ */
+anychart.core.settings.getResolutionChain = function() {
+  var chain = this.resolutionChainCache();
+  if (!chain) {
+    chain = goog.array.concat(this.getHighPriorityResolutionChain(), this.getLowPriorityResolutionChain());
+    this.resolutionChainCache(chain);
+  }
+  return chain;
+};
+
+
+/**
+ * Gets option value by name for IResolvable.
+ * @param {string} name - Option name.
+ * @this {anychart.core.settings.IResolvable}
+ * @return {*} - Option value.
+ */
+anychart.core.settings.getOption = function(name) {
+  var chain = this.getResolutionChain();
+  for (var i = 0; i < chain.length; i++) {
+    var obj = chain[i];
+    if (obj) {
+      var res = obj[name];
+      if (goog.isDef(res))
+        return res;
+    }
+  }
+  return void 0;
+};
 //endregion

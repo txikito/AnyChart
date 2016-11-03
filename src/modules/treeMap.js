@@ -12,7 +12,7 @@ goog.require('anychart.modules.base');
 /**
  * Default tree map.<br/>
  * <b>Note:</b> Contains predefined settings for axes and grids.
- * @param {(anychart.data.Tree|Array.<Object>)=} opt_data - Data tree or raw data.
+ * @param {(anychart.data.Tree|anychart.data.TreeView|Array.<Object>)=} opt_data - Data tree or raw data.
  * @param {anychart.enums.TreeFillingMethod=} opt_fillMethod - Fill method.
  * @return {anychart.charts.TreeMap} Tree map chart with defaults.
  */
@@ -20,7 +20,7 @@ anychart.treeMap = function(opt_data, opt_fillMethod) {
   var chart = new anychart.charts.TreeMap(opt_data, opt_fillMethod);
 
   var theme = anychart.getFullTheme();
-  chart.setup(theme['treeMap']);
+  chart.setupByVal(theme['treeMap'], true);
 
   return chart;
 };

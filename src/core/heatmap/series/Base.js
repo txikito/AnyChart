@@ -703,7 +703,6 @@ anychart.core.heatMap.series.Base.prototype.drawLabels = function() {
           mergedSettings['fontSize'] = label.parentLabelsFactory().adjustFontSizeValue;
 
         var bounds = this.labels().measure(label.formatProvider(), label.positionProvider(), mergedSettings);
-        bounds = mergedSettings['padding'].widenBounds(bounds);
 
         var notOutOfCellBounds = cellBounds.left <= bounds.left &&
             cellBounds.getRight() >= bounds.getRight() &&
@@ -761,7 +760,6 @@ anychart.core.heatMap.series.Base.prototype.drawLabel = function(pointState) {
         mergedSettings['fontSize'] = label.parentLabelsFactory().adjustFontSizeValue;
 
       var bounds = this.labels().measure(label.formatProvider(), label.positionProvider(), mergedSettings);
-      bounds = mergedSettings['padding'].widenBounds(bounds);
 
       var notOutOfCellBounds = cellBounds.left <= bounds.left &&
           cellBounds.getRight() >= bounds.getRight() &&
@@ -1482,8 +1480,8 @@ anychart.core.heatMap.series.Base.prototype.serialize = function() {
 /**
  * @inheritDoc
  */
-anychart.core.heatMap.series.Base.prototype.setupByJSON = function(config) {
-  goog.base(this, 'setupByJSON', config);
+anychart.core.heatMap.series.Base.prototype.setupByJSON = function(config, opt_default) {
+  goog.base(this, 'setupByJSON', config, opt_default);
   this.clip(config['clip']);
   this.markers().setup(config['markers']);
   this.hoverMarkers().setup(config['hoverMarkers']);

@@ -17,14 +17,40 @@ anychart.core.utils.MapAxisLabelsContextProvider = function(axis, index, value) 
   this['axis'] = axis;
   var scale = axis.scale();
 
-  var labelText, labelValue;
-  if (scale instanceof anychart.scales.Geo) {
-    labelText = parseFloat(value);
-    labelValue = parseFloat(value);
+  var labelText, sideOfTheWorld;
+  value = parseFloat(value);
+
+  var grad, minutes, seconds;
+  var decimal = Math.abs(value) % 1;
+
+  grad = Math.floor(Math.abs(value));
+  minutes = Math.floor(60 * decimal);
+  seconds = Math.floor(60 * ((60 * decimal) % 1));
+
+  labelText = grad + '\u00B0';
+  if (seconds != 0 || (seconds == 0 && minutes != 0)) {
+    minutes += '';
+    if (minutes.length == 1) minutes = '0' + minutes;
+    labelText += minutes + '\'';
   }
+
+  // if (seconds != 0) {
+  //   seconds += '';
+  //   if (seconds.length == 1) seconds = '0' + seconds;
+  //   labelText += seconds + '\'\'';
+  // }
+
+  if (axis.isHorizontal()) {
+    sideOfTheWorld = value > 0 ? 'E' : 'W';
+  } else {
+    sideOfTheWorld = value > 0 ? 'N' : 'S';
+  }
+
+  labelText += sideOfTheWorld;
+
   this['index'] = index;
   this['value'] = labelText;
-  this['tickValue'] = labelValue;
+  this['tickValue'] = value;
   this['max'] = goog.isDef(scale.max) ? scale.max : null;
   this['min'] = goog.isDef(scale.min) ? scale.min : null;
   this['scale'] = scale;

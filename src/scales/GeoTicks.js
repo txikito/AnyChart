@@ -97,7 +97,7 @@ anychart.scales.GeoTicks.prototype.setOrientation = function(value) {
  * @return {(number|anychart.scales.GeoTicks)} Interval value or itself for chaining.
  */
 anychart.scales.GeoTicks.prototype.interval = function(opt_value) {
-  if (goog.isDef(opt_value)) {
+  if (goog.isDefAndNotNull(opt_value)) {
     if (this.interval_ != opt_value) {
       opt_value = anychart.utils.toNumber(opt_value);
       if (opt_value < 0) {
@@ -201,7 +201,7 @@ anychart.scales.GeoTicks.prototype.get = function() {
   var ticks = this.getInternal();
   var transformator = this.orientation_ == anychart.enums.Layout.HORIZONTAL ? this.scale_.transformX : this.scale_.transformY;
   return goog.array.filter(ticks, function(el) {
-    var val = transformator.call(this, el);
+    var val = transformator.call(this, parseFloat(el));
     return val >= 0 && val <= 1;
   }, this.scale_);
 };
@@ -232,8 +232,8 @@ anychart.scales.GeoTicks.prototype.getInternal = function() {
  * @param {boolean=} opt_canModifyMax If the maximum can be modified.
  * @return {!Array} Array of two values: [newMin, newMax].
  */
-anychart.scales.GeoTicks.prototype.setupAsMajor = function(min, max, opt_canModifyMin, opt_canModifyMax, opt_limitMin, opt_limitMax) {
-  return this.setupLinear_(min, max, opt_canModifyMin, opt_canModifyMax, opt_limitMin, opt_limitMax);
+anychart.scales.GeoTicks.prototype.setupAsMajor = function(min, max, opt_canModifyMin, opt_canModifyMax) {
+  return this.setupLinear_(min, max, opt_canModifyMin, opt_canModifyMax);
 };
 
 
@@ -298,7 +298,7 @@ anychart.scales.GeoTicks.prototype.setupAsMinor = function(values, opt_majorDesi
  *    be absent.
  * @private
  */
-anychart.scales.GeoTicks.prototype.setupLinear_ = function(min, max, opt_canModifyMin, opt_canModifyMax, opt_limitMin, opt_limitMax) {
+anychart.scales.GeoTicks.prototype.setupLinear_ = function(min, max, opt_canModifyMin, opt_canModifyMax) {
   this.autoTicks_ = null;
   var result = [min, max];
   if (this.explicit_) {
@@ -372,15 +372,6 @@ anychart.scales.GeoTicks.prototype.setupLinear_ = function(min, max, opt_canModi
     if (3 in result)
       ticks.push(max);
 
-    // if (goog.isDef(opt_limitMin) && ticks[0] != opt_limitMin) {
-    //   goog.array.insertAt(ticks, opt_limitMin, 0);
-    // }
-    // if (goog.isDef(opt_limitMax) && ticks[ticks.length - 1] != opt_limitMin) {
-    //   ticks.push(opt_limitMax);
-    // }
-
-    // console.log(ticks);
-
     this.autoTicks_ = ticks;
   }
   return result;
@@ -417,7 +408,7 @@ anychart.scales.GeoTicks.prototype.addMinorLinearTicksPortion_ = function(min, m
 /** @inheritDoc */
 anychart.scales.GeoTicks.prototype.serialize = function() {
   var json = goog.base(this, 'serialize');
-  json['base'] = this.base_;
+  // json['base'] = this.base_;
   if (this.explicit_)
     json['explicit'] = this.explicit_;
   else {
@@ -445,10 +436,15 @@ anychart.scales.GeoTicks.prototype.setupSpecial = function(var_args) {
 
 
 /** @inheritDoc */
-anychart.scales.GeoTicks.prototype.setupByJSON = function(config) {
-  goog.base(this, 'setupByJSON', config);
-  this.base(config['base']);
+anychart.scales.GeoTicks.prototype.setupByJSON = function(config, opt_default) {
+  goog.base(this, 'setupByJSON', config, opt_default);
+  // this.base(config['base']);
   this.explicit_ = config['explicit'] || null;
+  if (this.explicit_) {
+    goog.array.forEach(this.explicit_, function(elem, index, arr) {
+      arr[index] = parseFloat(elem);
+    });
+  }
   this.minCount_ = config['count'] || config['minCount'] || NaN;
   this.maxCount_ = config['count'] || config['maxCount'] || NaN;
   this.interval_ = config['interval'] || NaN;
