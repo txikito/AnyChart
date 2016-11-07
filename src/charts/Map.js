@@ -3648,7 +3648,7 @@ anychart.charts.Map.prototype.drawContent = function(bounds) {
     if (this.mapLayer_) {
       //todo (blackart) this is harcode! remove this shit when we to kill world map
       if (this.mapTX['default'].xoffset == 0) {
-        this.mapLayer_.clip(scale.getViewSpace());
+        // this.mapLayer_.clip(scale.getViewSpace());
       }
     }
 

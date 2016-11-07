@@ -122,9 +122,11 @@ anychart.core.map.projections.getProjection = function(projection) {
       break;
     default:
       try {
-        projection_ = new anychart.core.map.projections.Proj4Wrapper(/** @type {string} */(projection));
+        projection_ = window['proj4'] ?
+            new anychart.core.map.projections.Proj4Wrapper(/** @type {string} */(projection)) :
+            new anychart.core.map.projections.Base();
       } catch (e) {
-        projection_ = null;
+        projection_ = new anychart.core.map.projections.Base();
       }
   }
 
