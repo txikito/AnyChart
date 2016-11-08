@@ -26,11 +26,12 @@ var generateData = function(map, opt_min, opt_max) {
 
 anychart.onDocumentReady(function() {
   chart = anychart.map();
-  chart.geoData('anychart.maps.world_source');
+  // chart.geoData('anychart.maps.world_source');
+  chart.geoData('anychart.maps.france');
 
   chart.interactivity().zoomOnMouseWheel(true);
   // chart.overlapMode(false);
-  chart.crs('bonne');
+  // chart.crs('bonne');
 
   series = chart.choropleth(generateData(chart));
   // series.labels().enabled(true).padding(0);
