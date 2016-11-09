@@ -22,7 +22,7 @@ anychart.core.map.projections.Base = function() {
   this.centerAlfa_ = 0;
   this.centerPhi_ = 0;
 
-  this.rotate(180, 0);
+  this.rotate(0, 0);
 };
 
 

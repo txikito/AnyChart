@@ -511,7 +511,7 @@ anychart.charts.Map.prototype.minZoomLevel_ = anychart.charts.Map.ZOOM_MIN_FACTO
  * Map transformations object.
  * @type {Object.<string, Object.<{scale: number, src: string, xoffset: number, yoffset: number, heatZone: Object.<{left: number, top: number, width: number, height: number}>}>>}
  */
-anychart.charts.Map.prototype.mapTX = null;
+anychart.charts.Map.prototype.projectionMap = null;
 
 
 /**
@@ -3271,26 +3271,26 @@ anychart.charts.Map.prototype.drawContent = function(bounds) {
       if (geoIdFromGeoData)
         this.geoIdField(geoIdFromGeoData);
 
-      this.mapTX = {};
+      this.projectionMap = {};
 
       var mapTx = geoData['ac-tx'] || {};
-      var defaultTx = mapTx['default'];
+      var defaultTx = goog.isObject(mapTx) ? mapTx['default'] : (mapTx = {'default': mapTx});
       if (!defaultTx)
         defaultTx = mapTx['default'] = goog.object.clone(anychart.charts.Map.DEFAULT_TX['default']);
 
-      goog.object.forEach(mapTx || anychart.charts.Map.DEFAULT_TX, function(value, key) {
+      goog.object.forEach(mapTx, function(value, key) {
         var tx_ = {};
 
-        tx_.crs = goog.isDef(value['crs']) ? anychart.enums.normalizeMapProjections(value['crs']) : defaultTx.crs;
-        tx_.srcCrs = tx_.crs;
+        tx_.crs = goog.isDef(value['crs']) ? anychart.enums.normalizeMapProjections(value['crs']) : defaultTx['crs'];
+        tx_.srcCrs = anychart.enums.MapProjections.WSG84;
         tx_.curProj = anychart.core.map.projections.getProjection(tx_.crs);
-        tx_.srcProj = anychart.core.map.projections.getProjection(tx_.srcCrs);
+        tx_.srcProj = new anychart.core.map.projections.Base();
         tx_.scale = goog.isDef(value['scale']) ? parseFloat(value['scale']) : 1;
         tx_.xoffset = goog.isDef(value['xoffset']) ? parseFloat(value['xoffset']) : 0;
         tx_.yoffset = goog.isDef(value['yoffset']) ? parseFloat(value['yoffset']) : 0;
         if (goog.isDef(value['heatZone'])) tx_.heatZone = anychart.math.Rect.fromJSON(value['heatZone']);
 
-        this.mapTX[key] = tx_;
+        this.projectionMap[key] = tx_;
       }, this);
 
       if (!this.mapLayer_) {
@@ -3318,49 +3318,40 @@ anychart.charts.Map.prototype.drawContent = function(bounds) {
   }
 
   if (this.hasInvalidationState(anychart.ConsistencyState.MAP_SCALE)) {
-    if (this.mapTX) {
-      scale.setTxMap(this.mapTX);
+    if (this.projectionMap) {
+      debugger;
+
+      scale.setTxMap(this.projectionMap);
 
       if (this.mapLayer_) {
         tx = this.mapLayer_.getSelfTransformation();
         scale.setMapZoom(tx.getScaleX());
         scale.setOffsetFocusPoint(tx.getTranslateX(), tx.getTranslateY());
-
-        //if (this.zoomLevel() != this.minZoomLevel_) {
-        //scene.zoomInc = this.minZoomLevel_;
-        //}
       }
 
-      tx = this.mapTX ? this.mapTX['default'] : null;
-
+      var isNotSvg = !this.isSvgGeoData();
       var firstDrawing = !this.currentCrs_;
-      var crs = goog.isNull(this.crs_) ? tx.srcCrs : this.crs_;
+      var defaultProjection = this.projectionMap['default'];
+      var crs = goog.isNull(this.crs_) ? firstDrawing ? this.projectionMap : defaultProjection : this.crs_;
       var initInternalGeoData = !this.internalGeoData;
-
       this.newCrs_ = null;
-      if (firstDrawing && this.crs_) {
-        this.newCrs_ = this.crs_;
-      } else if ((this.currentCrs_ != tx.crs || this.currentCrs_ != crs) && !firstDrawing && !this.isSvgGeoData()) {
+      if ((this.currentCrs_ != defaultProjection.crs || this.currentCrs_ != crs) && isNotSvg) {
         this.newCrs_ = crs;
       }
-
-      var changeProjection = !!this.newCrs_ && !this.isSvgGeoData();
+      var changeProjection = !!this.newCrs_ && isNotSvg;
 
       var destinationProjection, currentProjection, sourceProjection;
 
-      if ((tx.crs != this.newCrs_ && tx.srcCrs != this.newCrs_) || this.crsAnimation_.enabled()) {
-        if (!anychart.core.map.projections.isBaseProjection(tx.srcCrs)) {
-          sourceProjection = tx.srcProj;
+      if ((defaultProjection.crs != this.newCrs_ && defaultProjection.srcCrs != this.newCrs_) || this.crsAnimation_.enabled()) {
+        if (!anychart.core.map.projections.isBaseProjection(defaultProjection.srcCrs)) {
+          sourceProjection = defaultProjection.srcProj;
         }
         if (changeProjection) {
           destinationProjection = anychart.core.map.projections.getProjection(this.newCrs_);
         }
       }
-      currentProjection = tx.curProj;
+      currentProjection = defaultProjection.curProj;
 
-      if (firstDrawing) {
-        this.currentCrs_ = crs;
-      }
       if (changeProjection) {
         if (this.crsMapAnimation && this.crsMapAnimation.isPlaying()) {
           this.crsMapAnimation.stop();
@@ -3368,8 +3359,8 @@ anychart.charts.Map.prototype.drawContent = function(bounds) {
           this.crsMapAnimation = null;
         }
         this.currentCrs_ = this.newCrs_;
-        tx.crs = this.currentCrs_;
-        tx.curProj = anychart.core.map.projections.getProjection(tx.crs);
+        defaultProjection.crs = this.currentCrs_;
+        defaultProjection.curProj = anychart.core.map.projections.getProjection(defaultProjection.crs);
       }
 
       if (initInternalGeoData) {
@@ -3384,26 +3375,26 @@ anychart.charts.Map.prototype.drawContent = function(bounds) {
       if ((this.crsMapAnimation && this.crsMapAnimation.isStopped()) || !this.crsMapAnimation) {
         var isAnimate = this.crsAnimation_ && this.crsAnimation_.enabled() && this.crsAnimation_.duration() > 0 && !initInternalGeoData && changeProjection;
         if (isAnimate) {
-          tx.curProj = new anychart.core.map.projections.TwinProjection(
+          defaultProjection.curProj = new anychart.core.map.projections.TwinProjection(
               /** @type {anychart.core.map.projections.Base} */(currentProjection),
               /** @type {anychart.core.map.projections.Base} */(destinationProjection));
           this.crsMapAnimation = new anychart.animations.MapCrsAnimation(
               this,
               /** @type {!Array.<anychart.core.map.geom.Point|anychart.core.map.geom.Line|anychart.core.map.geom.Polygon|anychart.core.map.geom.Collection>} */(geoData),
               sourceProjection,
-              tx,
+              defaultProjection,
               /** @type {number} */(this.crsAnimation_.duration()),
               this != this.getCurrentScene());
           this.crsMapAnimation.listenOnce(goog.fx.Transition.EventType.END, function(e) {
             this.crsMapAnimation.stop();
             this.crsMapAnimation.dispose();
-            tx.curProj = tx.curProj.destProjection;
+            defaultProjection.curProj = defaultProjection.curProj.destProjection;
           }, true, this);
           this.crsMapAnimation.play();
 
         } else {
           var callback = goog.bind(this.calcGeom_, {
-            tx: tx,
+            tx: defaultProjection,
             projection1: sourceProjection,
             projection2: destinationProjection,
             geoScale: this.scale(),
@@ -3647,7 +3638,7 @@ anychart.charts.Map.prototype.drawContent = function(bounds) {
 
     if (this.mapLayer_) {
       //todo (blackart) this is harcode! remove this shit when we to kill world map
-      if (this.mapTX['default'].xoffset == 0) {
+      if (this.projectionMap['default'].xoffset == 0) {
         // this.mapLayer_.clip(scale.getViewSpace());
       }
     }
@@ -3661,10 +3652,10 @@ anychart.charts.Map.prototype.drawContent = function(bounds) {
       this.svgRootLayer_.scale(scale.ratio, scale.ratio, 0, 0);
 
       var xy = scale.scaleToPx(0, 0);
-      tx = new goog.graphics.AffineTransform(1, 0, 0, 1, xy[0], xy[1]);
+      defaultProjection = new goog.graphics.AffineTransform(1, 0, 0, 1, xy[0], xy[1]);
 
-      tx.concatenate(this.svgRootLayer_.getSelfTransformation());
-      this.svgRootLayer_.setTransformationMatrix(tx.getScaleX(), tx.getShearY(), tx.getShearX(), tx.getScaleY(), tx.getTranslateX(), tx.getTranslateY());
+      defaultProjection.concatenate(this.svgRootLayer_.getSelfTransformation());
+      this.svgRootLayer_.setTransformationMatrix(defaultProjection.getScaleX(), defaultProjection.getShearY(), defaultProjection.getShearX(), defaultProjection.getScaleY(), defaultProjection.getTranslateX(), defaultProjection.getTranslateY());
     }
 
     if (this.internalGeoData) {
@@ -3787,8 +3778,8 @@ anychart.charts.Map.prototype.drawContent = function(bounds) {
         this.moving = true;
         mapLayer.appendTransformationMatrix(1, 0, 0, 1, dx, dy);
 
-        tx = mapLayer.getSelfTransformation();
-        this.scale().setOffsetFocusPoint(tx.getTranslateX(), tx.getTranslateY());
+        defaultProjection = mapLayer.getSelfTransformation();
+        this.scale().setOffsetFocusPoint(defaultProjection.getTranslateX(), defaultProjection.getTranslateY());
 
         if (this.isDesktop) {
           this.updateSeriesOnZoomOrMove();
@@ -4039,7 +4030,7 @@ anychart.charts.Map.prototype.translateFeature = function(id, dx, dy) {
         bounds.left + bounds.width / 2,
         bounds.top + bounds.height / 2);
     current_tx = this.scale().pickTx(latLon[0], latLon[1]);
-    featureTx = current_tx == this.mapTX['default'] ? (this.mapTX[id] = {}) : current_tx;
+    featureTx = current_tx == this.projectionMap['default'] ? (this.projectionMap[id] = {}) : current_tx;
 
     dx = dx / this.zoomLevel();
     dy = dy / this.zoomLevel();
@@ -4099,7 +4090,7 @@ anychart.charts.Map.prototype.featureTranslation = function(id, opt_dx, opt_dy) 
         bounds.left + bounds.width / 2,
         bounds.top + bounds.height / 2);
     current_tx = this.scale().pickTx(latLon[0], latLon[1]);
-    featureTx = current_tx == this.mapTX['default'] ? (this.mapTX[id] = {}) : current_tx;
+    featureTx = current_tx == this.projectionMap['default'] ? (this.projectionMap[id] = {}) : current_tx;
   }
 
   if (goog.isDef(opt_dx) || goog.isDef(opt_dy)) {
@@ -4171,7 +4162,7 @@ anychart.charts.Map.prototype.featureScaleFactor = function(id, opt_ratio) {
         bounds.left + bounds.width / 2,
         bounds.top + bounds.height / 2);
     current_tx = scale.pickTx(latLon[0], latLon[1]);
-    featureTx = current_tx == this.mapTX['default'] ? (this.mapTX[id] = {}) : current_tx;
+    featureTx = current_tx == this.projectionMap['default'] ? (this.projectionMap[id] = {}) : current_tx;
   }
 
   if (goog.isDef(opt_ratio)) {
@@ -4181,7 +4172,7 @@ anychart.charts.Map.prototype.featureScaleFactor = function(id, opt_ratio) {
       var xoffset = featureTx.xoffset || 0;
       var yoffset = featureTx.yoffset || 0;
 
-      var defaultScale = this.mapTX['default'].scale || anychart.charts.Map.DEFAULT_TX['default']['scale'];
+      var defaultScale = this.projectionMap['default'].scale || anychart.charts.Map.DEFAULT_TX['default']['scale'];
       var scale_ = (featureTx.scale ? featureTx.scale : defaultScale);
 
       var leftTop = scale.pxToScale(bounds.left, bounds.top);
@@ -4237,7 +4228,7 @@ anychart.charts.Map.prototype.featureScaleFactor = function(id, opt_ratio) {
     return this;
   }
 
-  return feature ? featureTx.scale || this.mapTX['default'].scale || 1 : NaN;
+  return feature ? featureTx.scale || this.projectionMap['default'].scale || 1 : NaN;
 };
 
 
@@ -4257,7 +4248,7 @@ anychart.charts.Map.prototype.featureCrs_ = function(feature, opt_crs) {
   var current_tx = scale.pickTx(latLon[0], latLon[1]);
 
   if (!goog.isDef(opt_crs)) {
-    return goog.isDef(current_tx.crs) ? current_tx.crs : this.mapTX['default'].crs;
+    return goog.isDef(current_tx.crs) ? current_tx.crs : this.projectionMap['default'].crs;
   } else if (!this.isSvgGeoData()) {
     var x, y, scaledCoord, x_, y_;
 
@@ -4266,8 +4257,8 @@ anychart.charts.Map.prototype.featureCrs_ = function(feature, opt_crs) {
     feature.domElement.clear();
 
     var id = feature['properties'][this.geoIdField_];
-    var featureTx = current_tx == this.mapTX['default'] ? (this.mapTX[id] = {}) : current_tx;
-    var old_crs = featureTx.crs || this.mapTX['default'].crs || anychart.charts.Map.DEFAULT_TX['default']['crs'];
+    var featureTx = current_tx == this.projectionMap['default'] ? (this.projectionMap[id] = {}) : current_tx;
+    var old_crs = featureTx.crs || this.projectionMap['default'].crs || anychart.charts.Map.DEFAULT_TX['default']['crs'];
     var new_crs = opt_crs;
 
     oldProjection = anychart.core.map.projections.getProjection(old_crs);
@@ -4275,7 +4266,7 @@ anychart.charts.Map.prototype.featureCrs_ = function(feature, opt_crs) {
 
     var xoffset = featureTx.xoffset || 0;
     var yoffset = featureTx.yoffset || 0;
-    var featureScale = featureTx.scale || this.mapTX['default'].scale || anychart.charts.Map.DEFAULT_TX['default']['scale'];
+    var featureScale = featureTx.scale || this.projectionMap['default'].scale || anychart.charts.Map.DEFAULT_TX['default']['scale'];
 
     for (var i = 0, len = feature['polygones'].length; i < len; i++) {
       var polygon = feature['polygones'][i];
@@ -5312,7 +5303,7 @@ anychart.charts.Map.prototype.legendItemOut = function(item, event) {
  * @return {Object}
  */
 anychart.charts.Map.prototype.toGeoJSON = function() {
-  return anychart.core.utils.GeoJSONParser.getInstance().exportToGeoJSON(this.internalGeoData, this.mapTX);
+  return anychart.core.utils.GeoJSONParser.getInstance().exportToGeoJSON(this.internalGeoData, this.projectionMap);
 };
 
 

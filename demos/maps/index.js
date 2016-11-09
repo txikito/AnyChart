@@ -37,7 +37,7 @@ anychart.onDocumentReady(function() {
   // series.labels().enabled(true).padding(0);
   // series.tooltip(false);
 
-  chart.grids(true);
+  // chart.grids(true);
 
   chart.container('container').draw();
 

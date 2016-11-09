@@ -4,6 +4,7 @@ goog.require('anychart.core.map.projections.Aitoff');
 goog.require('anychart.core.map.projections.August');
 goog.require('anychart.core.map.projections.Base');
 goog.require('anychart.core.map.projections.Bonne');
+goog.require('anychart.core.map.projections.Composite');
 goog.require('anychart.core.map.projections.Eckert1');
 goog.require('anychart.core.map.projections.Eckert3');
 goog.require('anychart.core.map.projections.Equirectangular');
@@ -53,13 +54,14 @@ anychart.core.map.projections.getProjection = function(projection) {
   var projection_;
 
   if (goog.isObject(projection)) {
-    projection_ = new anychart.core.map.projections.Base();
     var forward = (goog.isFunction(projection['forward']) ? projection['forward'] : null) ||
         (goog.isFunction(projection) ? projection : null);
-    var invert = goog.isFunction(projection['invert']) ? projection['invert'] : null;
-
 
     if (forward && anychart.core.map.projections.testProjection(forward)) {
+      projection_ = new anychart.core.map.projections.Base();
+      var invert = goog.isFunction(projection['invert']) ? projection['invert'] : null;
+
+
       projection_.forward = function(x, y) {
         x = goog.math.toRadians(x);
         y = goog.math.toRadians(y);
@@ -76,8 +78,10 @@ anychart.core.map.projections.getProjection = function(projection) {
           return result;
         };
       }
+    } else {
+      projection_ = new anychart.core.map.projections.Composite(projection);
     }
-    return projection_;
+    return /** @type {anychart.core.map.projections.Base} */(projection_);
   }
 
   switch (projection) {
