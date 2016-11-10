@@ -552,16 +552,9 @@ window['anychart']['maps']['france'] = {
       "xoffset": -537.3063268564016,
       "yoffset": -1371.4316390766717
     },
-    "FR.GF": {
-      "crs": "+proj=utm +zone=22 +datum=WGS84 +units=m +no_defs",
-      "scale": 0.00025,
-      "heatZone": {"width": 482, "top": 930, "height": 588, "left": -8832},
-      "xoffset": 548.147834882335,
-      "yoffset": 1464.327991327315
-    },
+    "ratio": 161.7798114306107,
     "default": {
       "crs": "+proj=lcc +lat_1=46.8 +lat_0=46.8 +lon_0=2.337229166666667 +k_0=0.99987742 +x_0=600000 +y_0=2200000 +ellps=intl +towgs84=-87,-98,-121,0,0,0,0 +units=m +no_defs",
-      "scale": 161.7798114306107,
       "xoffset": 0,
       "yoffset": 0
     },
@@ -585,6 +578,13 @@ window['anychart']['maps']['france'] = {
       "heatZone": {"width": 130, "top": 2671, "height": 108, "left": -9999},
       "xoffset": -41.26750420692281,
       "yoffset": -1030.692489598164
+    },
+    "FR.GF": {
+      "crs": "+proj=utm +zone=22 +datum=WGS84 +units=m +no_defs",
+      "scale": 0.00025,
+      "heatZone": {"width": 482, "top": 930, "height": 588, "left": -8832},
+      "xoffset": 548.147834882335,
+      "yoffset": 1464.327991327315
     }
   }
 }

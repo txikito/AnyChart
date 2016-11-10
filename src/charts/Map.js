@@ -2924,6 +2924,7 @@ anychart.charts.Map.prototype.calcGeom_ = function(coords, index, geom) {
       geoScale.extendDataRangeInternal(bounds.getLeft(), bounds.getTop(), bounds.getRight(), bounds.getBottom());
     }
   } else {
+    debugger;
     if (this.projection2) {
       x = ((coords[index] - this.tx.xoffset) / this.tx.scale);
       y = ((coords[index + 1] - this.tx.yoffset) / this.tx.scale);
@@ -2946,7 +2947,7 @@ anychart.charts.Map.prototype.calcGeom_ = function(coords, index, geom) {
 
 
 /**
- * Draw geometry.
+ * Iterate geometry.
  * @param {Object} geom Geometry.
  * @param {Function} callBack DOM element.
  * @param {Object=} opt_output Output object for clone geometry.
@@ -3319,8 +3320,6 @@ anychart.charts.Map.prototype.drawContent = function(bounds) {
 
   if (this.hasInvalidationState(anychart.ConsistencyState.MAP_SCALE)) {
     if (this.projectionMap) {
-      debugger;
-
       scale.setTxMap(this.projectionMap);
 
       if (this.mapLayer_) {

@@ -31,6 +31,7 @@ anychart.core.utils.GeoJSONParser.prototype.getType = function() {
 anychart.core.utils.GeoJSONParser.prototype.parse = function(data) {
   var i, len;
   var objects = [];
+  this.ratio = data['ac-tx'] && data['ac-tx']['ratio'] ? data['ac-tx']['ratio'] : 1;
 
   switch (data['type']) {
     case 'FeatureCollection':
