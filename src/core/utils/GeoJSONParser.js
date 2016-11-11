@@ -31,7 +31,11 @@ anychart.core.utils.GeoJSONParser.prototype.getType = function() {
 anychart.core.utils.GeoJSONParser.prototype.parse = function(data) {
   var i, len;
   var objects = [];
-  this.ratio = data['ac-tx'] && data['ac-tx']['ratio'] ? data['ac-tx']['ratio'] : 1;
+
+  this.projection = data['ac-tx'];
+  this.ratio = this.projection && this.projection['ac-ratio'] ? this.projection['ac-ratio'] : 1;
+  this.idField = goog.isDef(data['ac-geoFieldId']) ? data['ac-geoFieldId'] : 'id';
+
 
   switch (data['type']) {
     case 'FeatureCollection':
@@ -103,7 +107,8 @@ anychart.core.utils.GeoJSONParser.prototype.parseGeometry_ = function(geojsonGeo
       obj,
       outerPath,
       holes,
-      hole;
+      hole,
+      x, y, projected;
 
   var geoCoords, len, len_;
 
@@ -122,10 +127,26 @@ anychart.core.utils.GeoJSONParser.prototype.parseGeometry_ = function(geojsonGeo
     properties['middle-y'] = middleY;
   }
 
+  var id = properties[this.idField];
+  var projectionSrc = this.projection[id] || this.projection['default'] || anychart.charts.Map.DEFAULT_TX['default'];
+  // var projection = anychart.core.map.projections.getProjection(projectionSrc.crs);
+  var projection = new anychart.core.map.projections.Bonne();
+  // var scale = goog.isDef(projectionSrc.scale) ? projectionSrc.scale : 1;
+  var scale = 1;
+  // var xoffset = (projectionSrc.xoffset || 0);
+  var xoffset = 0;
+  // var yoffset = (projectionSrc.yoffset || 0);
+  var yoffset = 0;
+
   switch (geojsonGeometry['type']) {
     case 'Point':
+      coord = geojsonGeometry['coordinates'];
+      projected = this.applyProjection(coord, projection, scale, xoffset, yoffset);
+      x = projected[0];
+      y = projected[1];
+
       return {
-        'coordinates': [geojsonGeometry['coordinates'][0], geojsonGeometry['coordinates'][1]],
+        'coordinates': [x, y],
         'properties': properties
       };
       break;
@@ -134,7 +155,12 @@ anychart.core.utils.GeoJSONParser.prototype.parseGeometry_ = function(geojsonGeo
       var coordinates = [];
       geoCoords = geojsonGeometry['coordinates'];
       for (i = 0, len = geoCoords.length; i < len; i++) {
-        coordinates.push(geoCoords[0], geoCoords[1]);
+        coord = geoCoords[i];
+        projected = this.applyProjection(coord, projection, scale, xoffset, yoffset);
+        x = projected[0];
+        y = projected[1];
+
+        coordinates.push(x, y);
       }
       return {'coordinates': coordinates, 'properties': properties};
       break;
@@ -144,7 +170,11 @@ anychart.core.utils.GeoJSONParser.prototype.parseGeometry_ = function(geojsonGeo
       geoCoords = geojsonGeometry['coordinates'];
       for (i = 0, len = geoCoords.length; i < len; i++) {
         coord = geoCoords[i];
-        path.push(coord[0], coord[1]);
+        projected = this.applyProjection(coord, projection, scale, xoffset, yoffset);
+        x = projected[0];
+        y = projected[1];
+
+        path.push(x, y);
       }
       return {'paths': [path], 'properties': properties};
       break;
@@ -157,7 +187,11 @@ anychart.core.utils.GeoJSONParser.prototype.parseGeometry_ = function(geojsonGeo
         geoCoords = strings[i];
         for (j = 0, len_ = geoCoords.length; j < len_; j++) {
           coord = geoCoords[j];
-          path.push(coord[0], coord[1]);
+          projected = this.applyProjection(coord, projection, scale, xoffset, yoffset);
+          x = projected[0];
+          y = projected[1];
+
+          path.push(x, y);
         }
         paths.push(path);
       }
@@ -173,10 +207,14 @@ anychart.core.utils.GeoJSONParser.prototype.parseGeometry_ = function(geojsonGeo
         geoCoords = polygon[i];
         for (j = 0, len_ = geoCoords.length; j < len_; j++) {
           coord = geoCoords[j];
+          projected = this.applyProjection(coord, projection, scale, xoffset, yoffset);
+          x = projected[0];
+          y = projected[1];
+
           if (i == 0) {
-            outerPath.push(coord[0], coord[1]);
+            outerPath.push(x, y);
           } else {
-            hole.push(coord[0], coord[1]);
+            hole.push(x, y);
           }
         }
         if (hole) holes.push(hole);
@@ -197,10 +235,14 @@ anychart.core.utils.GeoJSONParser.prototype.parseGeometry_ = function(geojsonGeo
           geoCoords = polygon[j];
           for (var k = 0, len__ = geoCoords.length; k < len__; k++) {
             coord = geoCoords[k];
+            projected = this.applyProjection(coord, projection, scale, xoffset, yoffset);
+            x = projected[0];
+            y = projected[1];
+
             if (j == 0) {
-              outerPath.push(coord[0], coord[1]);
+              outerPath.push(x, y);
             } else {
-              hole.push(coord[0], coord[1]);
+              hole.push(x, y);
             }
           }
           if (hole) holes.push(hole);
@@ -296,6 +338,28 @@ anychart.core.utils.GeoJSONParser.prototype.exportToGeoJSON = function(gdom, tx)
   }
 
   return geojson;
+};
+
+
+/**
+ *
+ * @param {Array.<number>} coord .
+ * @param {anychart.core.map.projections.Base} projection .
+ * @param {number} scale .
+ * @param {number} xoffset .
+ * @param {number} yoffset .
+ * @return {Array.<number>} .
+ */
+anychart.core.utils.GeoJSONParser.prototype.applyProjection = function(coord, projection, scale, xoffset, yoffset) {
+  var x = coord[0] / this.ratio;
+  var y = coord[1] / this.ratio;
+
+  var projected = projection.forward(x, y);
+
+  x = projected[0] * scale + xoffset;
+  y = projected[1] * scale + yoffset;
+
+  return [x, y];
 };
 
 
