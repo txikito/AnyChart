@@ -1,5 +1,6 @@
 goog.provide('anychart.math.macd');
 goog.require('anychart.math.CycledQueue');
+goog.require('anychart.math.ema');
 goog.require('anychart.utils');
 
 
@@ -81,65 +82,26 @@ anychart.math.macd.startFunction = function(context) {
  */
 anychart.math.macd.calculationFunction = function(row, context) {
   var currValue = anychart.utils.toNumber(row.get('value'));
-  var missing = isNaN(currValue);
-  if (!missing) {
-    context.fastQueue.enqueue(currValue);
-    context.slowQueue.enqueue(currValue);
-
-    if (context.fastQueue.getLength() == context.fastPeriod) {
-      context.fastResult = anychart.math.macd.calcEMA_(
-          context.fastResult,
-          context.fastQueue,
-          context.fastPeriod);
-    }
-    if (context.slowQueue.getLength() == context.slowPeriod) {
-      context.slowResult = anychart.math.macd.calcEMA_(
-          context.slowResult,
-          context.slowQueue,
-          context.slowPeriod);
-    }
-    if (!isNaN(context.slowResult) && !isNaN(context.fastPeriod)) {
-      context.signalQueue.enqueue(context.fastResult - context.slowResult);
-    }
-    if (context.signalQueue.getLength() == context.signalPeriod) {
-      context.signalResult = anychart.math.macd.calcEMA_(
-          context.signalResult,
-          context.signalQueue,
-          context.signalPeriod);
-      row.set('macdResult', context.fastResult - context.slowResult);
-      row.set('signalResult', context.signalResult);
-      row.set('histogramResult', context.fastResult - context.slowResult - context.signalResult);
-      return;
-    }
-  }
-  row.set('macdResult', NaN);
-  row.set('signalResult', NaN);
-  row.set('histogramResult', NaN);
-};
-
-
-/**
- * Calculates EMA on given values.
- * @param {number} prevVal
- * @param {!anychart.math.CycledQueue} queue
- * @param {number} period
- * @return {number}
- * @private
- */
-anychart.math.macd.calcEMA_ = function(prevVal, queue, period) {
-  var result;
-  if (isNaN(prevVal)) {
-    result = 0;
-    for (var i = 0; i < period; i++) {
-      result += /** @type {number} */(queue.get(i));
-    }
-    result /= period;
+  var macdResult, signalResult, histogramResult;
+  if (isNaN(currValue)) {
+    macdResult = signalResult = histogramResult = NaN;
   } else {
-    var lastValue = /** @type {number} */(queue.get(-1));
-    var alpha = 2 / (period + 1);
-    result = prevVal + alpha * (lastValue - prevVal);
+    context.fastResult = anychart.math.ema.calculate(currValue, context.fastPeriod, context.fastQueue, context.fastResult);
+    context.slowResult = anychart.math.ema.calculate(currValue, context.slowPeriod, context.slowQueue, context.slowResult);
+    if (!isNaN(context.fastResult) && !isNaN(context.slowResult))
+      context.signalResult = anychart.math.ema.calculate(context.fastResult - context.slowResult, context.signalPeriod, context.signalQueue, context.signalResult);
+    if (context.signalQueue.getLength() == context.signalPeriod) {
+      macdResult = context.fastResult - context.slowResult;
+      signalResult = context.signalResult;
+      histogramResult = context.fastResult - context.slowResult - context.signalResult;
+    } else {
+      macdResult = signalResult = histogramResult = NaN;
+    }
   }
-  return result;
+
+  row.set('macdResult', macdResult);
+  row.set('signalResult', signalResult);
+  row.set('histogramResult', histogramResult);
 };
 
 

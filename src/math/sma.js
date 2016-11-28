@@ -53,26 +53,14 @@ anychart.math.sma.startFunction = function(context) {
  * @this {anychart.math.sma.Context}
  */
 anychart.math.sma.calculationFunction = function(row, context) {
-  var currValue = anychart.utils.toNumber(row.get('value'));
-  var missing = isNaN(currValue);
-  var firstValue;
-  if (!missing)
-    firstValue = /** @type {number|undefined} */(context.queue.enqueue(currValue));
-  /** @type {number} */
+  var value = anychart.utils.toNumber(row.get('value'));
   var result;
-  if (missing || context.queue.getLength() < context.period) {
+  if (isNaN(value)) {
     result = NaN;
-  } else if (isNaN(context.prevResult)) {
-    result = 0;
-    for (var i = 0; i < context.period; i++) {
-      result += /** @type {number} */(context.queue.get(i));
-    }
-    result /= context.period;
-  } else { // firstValue should not be undefined here
-    var lastValue = /** @type {number} */(context.queue.get(-1));
-    result = context.prevResult + (lastValue - firstValue) / context.period;
+  } else {
+    result = anychart.math.sma.calculate(value, context.period, context.queue, context.prevResult);
+    context.prevResult = result;
   }
-  context.prevResult = result;
   row.set('result', result);
 };
 
@@ -89,6 +77,36 @@ anychart.math.sma.createComputer = function(mapping, opt_period) {
   result.setStartFunction(anychart.math.sma.startFunction);
   result.setCalculationFunction(anychart.math.sma.calculationFunction);
   result.addOutputField('result');
+  return result;
+};
+
+
+/**
+ * Calculates next SMA value based on a previous SMA value and current data value.
+ * To use this function you need a setup queue with length equal to period.
+ * On first calculation pass NaN or nothing as a opt_prevResult.
+ * @param {number} value
+ * @param {number} period
+ * @param {anychart.math.CycledQueue} queue
+ * @param {number} prevResult
+ * @return {number}
+ */
+anychart.math.sma.calculate = function(value, period, queue, prevResult) {
+  var firstValue = /** @type {number} */(queue.enqueue(value));
+  /** @type {number} */
+  var result;
+  if (queue.getLength() < period) {
+    result = NaN;
+  } else if (isNaN(prevResult)) {
+    result = 0;
+    for (var i = 0; i < period; i++) {
+      result += /** @type {number} */(queue.get(i));
+    }
+    result /= period;
+  } else { // firstValue should not be undefined here
+    var lastValue = /** @type {number} */(queue.get(-1));
+    result = prevResult + (lastValue - firstValue) / period;
+  }
   return result;
 };
 

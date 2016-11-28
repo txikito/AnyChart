@@ -181,6 +181,34 @@ anychart.core.stock.Scroller.prototype.seriesConfig = (function() {
     anchoredPositionTop: anychart.opt.VALUE,
     anchoredPositionBottom: anychart.opt.ZERO
   };
+  res[anychart.enums.CartesianSeriesType.JUMP_LINE] = {
+    drawerType: anychart.enums.SeriesDrawerTypes.JUMP_LINE,
+    shapeManagerType: anychart.enums.ShapeManagerTypes.PER_POINT,
+    shapesConfig: [
+      anychart.core.shapeManagers.pathStrokeConfig
+    ],
+    secondaryShapesConfig: [
+      anychart.core.shapeManagers.pathScrollerSelectStrokeConfig
+    ],
+    postProcessor: null,
+    capabilities: capabilities,
+    anchoredPositionTop: anychart.opt.VALUE,
+    anchoredPositionBottom: anychart.opt.VALUE
+  };
+  res[anychart.enums.CartesianSeriesType.STICK] = {
+    drawerType: anychart.enums.SeriesDrawerTypes.STICK,
+    shapeManagerType: anychart.enums.ShapeManagerTypes.PER_POINT,
+    shapesConfig: [
+      anychart.core.shapeManagers.pathStrokeConfig
+    ],
+    secondaryShapesConfig: [
+      anychart.core.shapeManagers.pathScrollerSelectStrokeConfig
+    ],
+    postProcessor: null,
+    capabilities: capabilities,
+    anchoredPositionTop: anychart.opt.VALUE,
+    anchoredPositionBottom: anychart.opt.ZERO
+  };
   res[anychart.enums.StockSeriesType.LINE] = {
     drawerType: anychart.enums.SeriesDrawerTypes.LINE,
     shapeManagerType: anychart.enums.ShapeManagerTypes.PER_SERIES,
@@ -437,6 +465,42 @@ anychart.core.stock.Scroller.prototype.candlestick = function(opt_data, opt_mapp
  */
 anychart.core.stock.Scroller.prototype.column = function(opt_data, opt_mappingSettings, opt_csvSettings) {
   return this.createSeriesByType(anychart.enums.StockSeriesType.COLUMN, opt_data, opt_mappingSettings, opt_csvSettings);
+};
+
+
+/**
+ * Creates and returns a new jump line series.
+ * @param {(anychart.data.TableMapping|anychart.data.Table|Array.<Array.<*>>|string)=} opt_data
+ * @param {Object.<({column: number, type: anychart.enums.AggregationType, weights: number}|number)>=} opt_mappingSettings
+ *   An object where keys are field names and values are objects with fields:
+ *      - 'column': number - Column index, that the field should get values from;
+ *      - 'type': anychart.enums.AggregationType - How to group values for the field. Defaults to 'close'.
+ *      - 'weights': number - Column to get weights from for 'weightedAverage' grouping type. Note: If type set to
+ *          'weightedAverage', but opt_weightsColumn is not passed - uses 'average' grouping instead.
+ *   or numbers - just the column index to get values from. In this case the grouping type will be set to 'close'.
+ * @param {Object=} opt_csvSettings CSV parser settings if the string is passed.
+ * @return {anychart.core.series.StockScroller}
+ */
+anychart.core.stock.Scroller.prototype.jumpLine = function(opt_data, opt_mappingSettings, opt_csvSettings) {
+  return this.createSeriesByType(anychart.enums.StockSeriesType.JUMP_LINE, opt_data, opt_mappingSettings, opt_csvSettings);
+};
+
+
+/**
+ * Creates and returns a new stick series.
+ * @param {(anychart.data.TableMapping|anychart.data.Table|Array.<Array.<*>>|string)=} opt_data
+ * @param {Object.<({column: number, type: anychart.enums.AggregationType, weights: number}|number)>=} opt_mappingSettings
+ *   An object where keys are field names and values are objects with fields:
+ *      - 'column': number - Column index, that the field should get values from;
+ *      - 'type': anychart.enums.AggregationType - How to group values for the field. Defaults to 'close'.
+ *      - 'weights': number - Column to get weights from for 'weightedAverage' grouping type. Note: If type set to
+ *          'weightedAverage', but opt_weightsColumn is not passed - uses 'average' grouping instead.
+ *   or numbers - just the column index to get values from. In this case the grouping type will be set to 'close'.
+ * @param {Object=} opt_csvSettings CSV parser settings if the string is passed.
+ * @return {anychart.core.series.StockScroller}
+ */
+anychart.core.stock.Scroller.prototype.stick = function(opt_data, opt_mappingSettings, opt_csvSettings) {
+  return this.createSeriesByType(anychart.enums.StockSeriesType.STICK, opt_data, opt_mappingSettings, opt_csvSettings);
 };
 
 
@@ -756,6 +820,83 @@ anychart.core.stock.Scroller.prototype.getAllSeries = function() {
 
 
 /**
+ * Creates AMA indicator on the scroller.
+ * @param {!anychart.data.TableMapping} mapping
+ * @param {number=} opt_period
+ * @param {number=} opt_fastPeriod
+ * @param {number=} opt_slowPeriod
+ * @param {anychart.enums.StockSeriesType=} opt_seriesType
+ * @return {anychart.core.stock.indicators.AMA}
+ */
+anychart.core.stock.Scroller.prototype.ama = function(mapping, opt_period, opt_fastPeriod, opt_slowPeriod, opt_seriesType) {
+  var result = new anychart.core.stock.indicators.AMA(this, mapping, opt_period, opt_fastPeriod, opt_slowPeriod, opt_seriesType);
+  this.indicators_.push(result);
+  return result;
+};
+
+
+/**
+ * Creates Aroon indicator on the scroller.
+ * @param {!anychart.data.TableMapping} mapping
+ * @param {number=} opt_period
+ * @param {anychart.enums.StockSeriesType=} opt_upSeriesType
+ * @param {anychart.enums.StockSeriesType=} opt_downSeriesType
+ * @return {anychart.core.stock.indicators.Aroon}
+ */
+anychart.core.stock.Scroller.prototype.aroon = function(mapping, opt_period, opt_upSeriesType, opt_downSeriesType) {
+  var result = new anychart.core.stock.indicators.Aroon(this, mapping, opt_period, opt_upSeriesType, opt_downSeriesType);
+  this.indicators_.push(result);
+  return result;
+};
+
+
+/**
+ * Creates BBands indicator on the scroller.
+ * @param {!anychart.data.TableMapping} mapping
+ * @param {number=} opt_period [20] Sets moving average period value.
+ * @param {number=} opt_deviation [2] Sets the multiplier applied to the moving average to compute upper and lower bands of the indicator.
+ * @param {anychart.enums.StockSeriesType=} opt_upSeriesType
+ * @param {anychart.enums.StockSeriesType=} opt_downSeriesType
+ * @return {anychart.core.stock.indicators.BBands}
+ */
+anychart.core.stock.Scroller.prototype.bbands = function(mapping, opt_period, opt_deviation, opt_upSeriesType, opt_downSeriesType) {
+  var result = new anychart.core.stock.indicators.BBands(this, mapping, opt_period, opt_deviation, opt_upSeriesType, opt_downSeriesType);
+  this.indicators_.push(result);
+  return result;
+};
+
+
+/**
+ * Creates BBands %B indicator on the chart.
+ * @param {!anychart.data.TableMapping} mapping
+ * @param {number=} opt_period [20] Sets moving average period value.
+ * @param {number=} opt_deviation [2] Sets the multiplier applied to the moving average to compute upper and lower bands of the indicator.
+ * @param {anychart.enums.StockSeriesType=} opt_seriesType
+ * @return {anychart.core.stock.indicators.BBandsB}
+ */
+anychart.core.stock.Scroller.prototype.bbandsB = function(mapping, opt_period, opt_deviation, opt_seriesType) {
+  var result = new anychart.core.stock.indicators.BBandsB(this, mapping, opt_period, opt_deviation, opt_seriesType);
+  this.indicators_.push(result);
+  return result;
+};
+
+
+/**
+ * Creates BBands Width indicator on the chart.
+ * @param {!anychart.data.TableMapping} mapping
+ * @param {number=} opt_period [20] Sets moving average period value.
+ * @param {number=} opt_deviation [2] Sets the multiplier applied to the moving average to compute upper and lower bands of the indicator.
+ * @param {anychart.enums.StockSeriesType=} opt_seriesType
+ * @return {anychart.core.stock.indicators.BBandsWidth}
+ */
+anychart.core.stock.Scroller.prototype.bbandsWidth = function(mapping, opt_period, opt_deviation, opt_seriesType) {
+  var result = new anychart.core.stock.indicators.BBandsWidth(this, mapping, opt_period, opt_deviation, opt_seriesType);
+  this.indicators_.push(result);
+  return result;
+};
+
+
+/**
  * Creates EMA indicator on the chart.
  * @param {!anychart.data.TableMapping} mapping
  * @param {number=} opt_period
@@ -784,6 +925,20 @@ anychart.core.stock.Scroller.prototype.macd = function(mapping, opt_fastPeriod, 
     opt_macdSeriesType, opt_signalSeriesType, opt_histogramSeriesType) {
   var result = new anychart.core.stock.indicators.MACD(this, mapping, opt_fastPeriod, opt_slowPeriod, opt_signalPeriod,
       opt_macdSeriesType, opt_signalSeriesType, opt_histogramSeriesType);
+  this.indicators_.push(result);
+  return result;
+};
+
+
+/**
+ * Creates MMA indicator on the scroller.
+ * @param {!anychart.data.TableMapping} mapping
+ * @param {number=} opt_period
+ * @param {anychart.enums.StockSeriesType=} opt_seriesType
+ * @return {anychart.core.stock.indicators.MMA}
+ */
+anychart.core.stock.Scroller.prototype.mma = function(mapping, opt_period, opt_seriesType) {
+  var result = new anychart.core.stock.indicators.MMA(this, mapping, opt_period, opt_seriesType);
   this.indicators_.push(result);
   return result;
 };
@@ -826,21 +981,6 @@ anychart.core.stock.Scroller.prototype.rsi = function(mapping, opt_period, opt_s
  */
 anychart.core.stock.Scroller.prototype.sma = function(mapping, opt_period, opt_seriesType) {
   var result = new anychart.core.stock.indicators.SMA(this, mapping, opt_period, opt_seriesType);
-  this.indicators_.push(result);
-  return result;
-};
-
-
-/**
- * Creates Aroon indicator on the scroller.
- * @param {!anychart.data.TableMapping} mapping
- * @param {number=} opt_period
- * @param {anychart.enums.StockSeriesType=} opt_upSeriesType
- * @param {anychart.enums.StockSeriesType=} opt_downSeriesType
- * @return {anychart.core.stock.indicators.Aroon}
- */
-anychart.core.stock.Scroller.prototype.aroon = function(mapping, opt_period, opt_upSeriesType, opt_downSeriesType) {
-  var result = new anychart.core.stock.indicators.Aroon(this, mapping, opt_period, opt_upSeriesType, opt_downSeriesType);
   this.indicators_.push(result);
   return result;
 };
@@ -1355,6 +1495,8 @@ anychart.core.stock.Scroller.prototype.setupByJSON = function(config, opt_defaul
 anychart.core.stock.Scroller.prototype['area'] = anychart.core.stock.Scroller.prototype.area;
 anychart.core.stock.Scroller.prototype['candlestick'] = anychart.core.stock.Scroller.prototype.candlestick;
 anychart.core.stock.Scroller.prototype['column'] = anychart.core.stock.Scroller.prototype.column;
+anychart.core.stock.Scroller.prototype['stick'] = anychart.core.stock.Scroller.prototype.stick;
+anychart.core.stock.Scroller.prototype['jumpLine'] = anychart.core.stock.Scroller.prototype.jumpLine;
 anychart.core.stock.Scroller.prototype['line'] = anychart.core.stock.Scroller.prototype.line;
 anychart.core.stock.Scroller.prototype['marker'] = anychart.core.stock.Scroller.prototype.marker;
 anychart.core.stock.Scroller.prototype['ohlc'] = anychart.core.stock.Scroller.prototype.ohlc;
@@ -1376,9 +1518,14 @@ anychart.core.stock.Scroller.prototype['getSeriesCount'] = anychart.core.stock.S
 anychart.core.stock.Scroller.prototype['removeSeries'] = anychart.core.stock.Scroller.prototype.removeSeries;
 anychart.core.stock.Scroller.prototype['removeSeriesAt'] = anychart.core.stock.Scroller.prototype.removeSeriesAt;
 anychart.core.stock.Scroller.prototype['removeAllSeries'] = anychart.core.stock.Scroller.prototype.removeAllSeries;
+anychart.core.stock.Scroller.prototype['ama'] = anychart.core.stock.Scroller.prototype.ama;
+anychart.core.stock.Scroller.prototype['aroon'] = anychart.core.stock.Scroller.prototype.aroon;
+anychart.core.stock.Scroller.prototype['bbands'] = anychart.core.stock.Scroller.prototype.bbands;
+anychart.core.stock.Scroller.prototype['bbandsB'] = anychart.core.stock.Scroller.prototype.bbandsB;
+anychart.core.stock.Scroller.prototype['bbandsWidth'] = anychart.core.stock.Scroller.prototype.bbandsWidth;
 anychart.core.stock.Scroller.prototype['ema'] = anychart.core.stock.Scroller.prototype.ema;
 anychart.core.stock.Scroller.prototype['macd'] = anychart.core.stock.Scroller.prototype.macd;
+anychart.core.stock.Scroller.prototype['mma'] = anychart.core.stock.Scroller.prototype.mma;
 anychart.core.stock.Scroller.prototype['roc'] = anychart.core.stock.Scroller.prototype.roc;
 anychart.core.stock.Scroller.prototype['rsi'] = anychart.core.stock.Scroller.prototype.rsi;
 anychart.core.stock.Scroller.prototype['sma'] = anychart.core.stock.Scroller.prototype.sma;
-anychart.core.stock.Scroller.prototype['aroon'] = anychart.core.stock.Scroller.prototype.aroon;
