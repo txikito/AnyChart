@@ -22,7 +22,7 @@ anychart.core.map.projections.Base = function() {
   this.centerAlfa_ = 0;
   this.centerPhi_ = 0;
 
-  this.rotate(0, 0);
+  // this.rotate(0, 0);
 };
 
 
@@ -116,16 +116,16 @@ anychart.core.map.projections.Base.prototype.arcosh = function(x) {
  * @return {Array.<number>}
  */
 anychart.core.map.projections.Base.prototype.forward = function(x, y) {
-  x = goog.math.toRadians(x);
-  y = goog.math.toRadians(y);
-
-  var coords = this.rotation(x, y);
-
-  x = coords[0];
-  y = coords[1];
-
-  x = goog.math.toDegrees(x);
-  y = goog.math.toDegrees(y);
+  // x = goog.math.toRadians(x);
+  // y = goog.math.toRadians(y);
+  //
+  // var coords = this.rotation(x, y);
+  //
+  // x = coords[0];
+  // y = coords[1];
+  //
+  // x = goog.math.toDegrees(x);
+  // y = goog.math.toDegrees(y);
 
   return [x, y];
 };

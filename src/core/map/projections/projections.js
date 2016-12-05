@@ -85,7 +85,7 @@ anychart.core.map.projections.getProjection = function(projection) {
   }
 
   if (anychart.core.map.projections.isBaseProjection(projection))
-    return anychart.core.map.projections.Base();
+    return new anychart.core.map.projections.Base();
 
   switch (projection) {
     case anychart.enums.MapProjections.BONNE:

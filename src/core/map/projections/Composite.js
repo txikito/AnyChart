@@ -19,11 +19,19 @@ goog.inherits(anychart.core.map.projections.Composite, anychart.core.map.project
 
 /** @inheritDoc */
 anychart.core.map.projections.Composite.prototype.forward = function(x, y) {
+  // x = goog.math.toDegrees(x);
+  // y = goog.math.toDegrees(y);
+
+  // console.log(x, y);
+
   return [x, y];
 };
 
 
 /** @inheritDoc */
 anychart.core.map.projections.Composite.prototype.invert = function(x, y) {
+  // x = goog.math.toRadians(x);
+  // y = goog.math.toRadians(y);
+
   return [x, y];
 };

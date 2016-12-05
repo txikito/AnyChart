@@ -129,14 +129,14 @@ anychart.core.utils.GeoJSONParser.prototype.parseGeometry_ = function(geojsonGeo
 
   var id = properties[this.idField];
   var projectionSrc = this.projection[id] || this.projection['default'] || anychart.charts.Map.DEFAULT_TX['default'];
-  // var projection = anychart.core.map.projections.getProjection(projectionSrc.crs);
-  var projection = new anychart.core.map.projections.Bonne();
-  // var scale = goog.isDef(projectionSrc.scale) ? projectionSrc.scale : 1;
-  var scale = 1;
-  // var xoffset = (projectionSrc.xoffset || 0);
-  var xoffset = 0;
-  // var yoffset = (projectionSrc.yoffset || 0);
-  var yoffset = 0;
+  var projection = anychart.core.map.projections.getProjection(projectionSrc.crs);
+  // var projection = new anychart.core.map.projections.Bonne();
+  var scale = goog.isDef(projectionSrc.scale) ? projectionSrc.scale : 1;
+  // var scale = 1;
+  var xoffset = (projectionSrc.xoffset || 0);
+  // var xoffset = 0;
+  var yoffset = (projectionSrc.yoffset || 0);
+  // var yoffset = 0;
 
   switch (geojsonGeometry['type']) {
     case 'Point':
@@ -211,7 +211,7 @@ anychart.core.utils.GeoJSONParser.prototype.parseGeometry_ = function(geojsonGeo
           x = projected[0];
           y = projected[1];
 
-          if (i != 0) {
+          if (!i) {
             outerPath.push(x, y);
           } else {
             hole.push(x, y);
@@ -239,7 +239,7 @@ anychart.core.utils.GeoJSONParser.prototype.parseGeometry_ = function(geojsonGeo
             x = projected[0];
             y = projected[1];
 
-            if (j != 0) {
+            if (!j) {
               outerPath.push(x, y);
             } else {
               hole.push(x, y);
@@ -300,15 +300,19 @@ anychart.core.utils.GeoJSONParser.prototype.exportToGeoJSON = function(gdom, tx)
   };
   geojson['ac-tx'] = {};
   goog.object.forEach(tx, function(value, key) {
-    var tx_ = {};
+    if (key == 'ac-ratio') {
+      geojson['ac-tx'][key] = 1;
+    } else {
+      var tx_ = {};
 
-    if (goog.isDef(value.crs)) tx_['crs'] = value.crs;
-    if (goog.isDef(value.scale)) tx_['scale'] = value.scale;
-    if (goog.isDef(value.xoffset)) tx_['xoffset'] = value.xoffset;
-    if (goog.isDef(value.yoffset)) tx_['yoffset'] = value.yoffset;
-    if (goog.isDef(value.heatZone)) tx_['heatZone'] = value.heatZone.serialize();
+      if (goog.isDef(value.crs)) tx_['crs'] = value.crs;
+      if (goog.isDef(value.scale)) tx_['scale'] = value.scale;
+      if (goog.isDef(value.xoffset)) tx_['xoffset'] = value.xoffset;
+      if (goog.isDef(value.yoffset)) tx_['yoffset'] = value.yoffset;
+      if (goog.isDef(value.heatZone)) tx_['heatZone'] = value.heatZone.serialize();
 
-    geojson['ac-tx'][key] = tx_;
+      geojson['ac-tx'][key] = tx_;
+    }
   });
 
   var features = geojson['features'];

@@ -42,7 +42,7 @@ function drawChart() {
 
   chart = anychart.map();
   // chart.crs(anychart.enums.MapProjections.BONNE);
-  chart.geoData('anychart.maps.world_source');
+  chart.geoData('anychart.maps.france');
 
   var series = chart.choropleth(generateData());
 
@@ -59,6 +59,7 @@ function drawChart() {
 
   scale.colors(['#42a5f5', '#64b5f6', '#90caf9', '#ffa726', '#fb8c00', '#f57c00', '#ef6c00', '#e65100']);
   series.colorScale(scale);
+
   // series.labels(true);
 
   // chart.grids().enabled(true);
@@ -76,27 +77,27 @@ function drawChart() {
   //   {'id': 'AU.QL', 'size': 2},
   //   {'id': 'AU.TS', 'size': 90}
   // ]
-  var series1 = chart.bubble([
-    {lat: 67, long: 180, size: 5},
-    {lat: 67, long: -180, size: 5}
-  ]);
-
-  chart.maxBubbleSize(20);
-  chart.minBubbleSize(5);
+  // var series1 = chart.bubble([
+  //   {lat: 67, long: 180, size: 5},
+  //   {lat: 67, long: -180, size: 5}
+  // ]);
+  //
+  // chart.maxBubbleSize(20);
+  // chart.minBubbleSize(5);
 
   chart.container(stage).draw();
 
 
-  chart.height('50%');
-  chartFromXML = null;
-  chart.listen(anychart.enums.EventType.CHART_DRAW, function(e) {
-    if (chartFromXML) chartFromXML.dispose();
-    var xml = chart.toXml();
-    console.log(xml);
-    chartFromXML = anychart.fromXml(xml);
-    chartFromXML.bounds(0, '50%', '100%', '50%');
-    chartFromXML.container(stage).draw();
-  });
+  // chart.height('50%');
+  // chartFromXML = null;
+  // chart.listen(anychart.enums.EventType.CHART_DRAW, function(e) {
+  //   if (chartFromXML) chartFromXML.dispose();
+  //   var xml = chart.toXml();
+  //   console.log(xml);
+  //   chartFromXML = anychart.fromXml(xml);
+  //   chartFromXML.bounds(0, '50%', '100%', '50%');
+  //   chartFromXML.container(stage).draw();
+  // });
 }
 
 var randomExt = function(a, b) {

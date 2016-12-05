@@ -76,7 +76,14 @@ anychart.animations.MapCrsAnimation.prototype.calcGeom_ = function(coords, index
   coords[index] = p1[0] * this.tx.scale + this.tx.xoffset;
   coords[index + 1] = p1[1] * this.tx.scale + this.tx.yoffset;
 
-  this.geoScale.extendDataRangeInternal(coords[index], coords[index + 1]);
+  x = coords[index];
+  y = coords[index + 1];
+
+  this.geoScale.extendFullDataRangeInternal(x, y);
+  var id = geom['properties'][this.map.geoIdField()];
+  if (!this.map.projectionMap[id]) {
+    this.geoScale.extendMainDataRangeInternal(x, y);
+  }
 };
 
 
@@ -94,7 +101,8 @@ anychart.animations.MapCrsAnimation.prototype.updateCoords = function(t) {
     t: t,
     tx: this.tx,
     srcProjection: this.srcProjection,
-    geoScale: this.map.scale()
+    geoScale: this.map.scale(),
+    map: this.map
   });
 
   this.tx.curProj.ratio(t);

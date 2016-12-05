@@ -168,7 +168,14 @@ anychart.scales.Geo = function() {
    * @type {anychart.math.Rect}
    * @private
    */
-  this.bounds_ = null;
+  this.fullBounds_ = null;
+
+  /**
+   * Bounds of main view.
+   * @type {anychart.math.Rect}
+   * @private
+   */
+  this.mainBounds_ = null;
 };
 goog.inherits(anychart.scales.Geo, anychart.core.Base);
 
@@ -283,7 +290,7 @@ anychart.scales.Geo.prototype.checkScaleChanged = function(silently) {
  * @return {anychart.math.Rect} .
  */
 anychart.scales.Geo.prototype.getBounds = function() {
-  return this.bounds_ ? this.bounds_.clone() : anychart.math.rect(0, 0, 0, 0);
+  return this.fullBounds_ ? this.fullBounds_.clone() : anychart.math.rect(0, 0, 0, 0);
 };
 
 
@@ -292,7 +299,7 @@ anychart.scales.Geo.prototype.getBounds = function() {
  * @return {anychart.scales.Geo} .
  */
 anychart.scales.Geo.prototype.setBounds = function(value) {
-  this.bounds_ = value;
+  this.fullBounds_ = value;
   this.consistent = false;
   return this;
 };
@@ -748,7 +755,65 @@ anychart.scales.Geo.prototype.extendDataRange = function(var_args) {
  * @param {...*} var_args Values that are supposed to extend the input domain.
  * @return {!anychart.scales.Geo} {@link anychart.scales.Geo} instance for method chaining.
  */
-anychart.scales.Geo.prototype.extendDataRangeInternal = function(var_args) {
+anychart.scales.Geo.prototype.extendFullDataRangeInternal = function(var_args) {
+  var coords = arguments;
+  for (var i = 0; i < coords.length - 1; i = i + 2) {
+    var x = +coords[i];
+    var y = +coords[i + 1];
+    if (isNaN(x)) x = parseFloat(coords[i]);
+    if (isNaN(y)) y = parseFloat(coords[i + 1]);
+    if (isNaN(x) || isNaN(y))
+      continue;
+
+    if (this.isCalcLatLon) {
+      if (x < this.fullDataRangeMinLong) {
+        this.fullDataRangeMinLong = x;
+        this.consistent = false;
+      }
+      if (x > this.fullDataRangeMaxLong) {
+        this.fullDataRangeMaxLong = x;
+        this.consistent = false;
+      }
+
+      if (y < this.fullDataRangeMinLat) {
+        this.fullDataRangeMinLat = y;
+        this.consistent = false;
+      }
+      if (y > this.fullDataRangeMaxLat) {
+        this.fullDataRangeMaxLat = y;
+        this.consistent = false;
+      }
+    }
+
+    if (x < this.fullDataRangeMinX) {
+      this.fullDataRangeMinX = x;
+      this.consistent = false;
+    }
+    if (x > this.fullDataRangeMaxX) {
+      this.fullDataRangeMaxX = x;
+      this.consistent = false;
+    }
+
+    if (y < this.fullDataRangeMinY) {
+      this.fullDataRangeMinY = y;
+      this.consistent = false;
+    }
+    if (y > this.fullDataRangeMaxY) {
+      this.fullDataRangeMaxY = y;
+      this.consistent = false;
+    }
+  }
+  return this;
+};
+
+
+/**
+ * Extends the current input domain with the passed values (if such don't exist in the domain).<br/>
+ * <b>Note:</b> Attention! {@link anychart.scales.Base#finishAutoCalc} drops all passed values.
+ * @param {...*} var_args Values that are supposed to extend the input domain.
+ * @return {!anychart.scales.Geo} {@link anychart.scales.Geo} instance for method chaining.
+ */
+anychart.scales.Geo.prototype.extendMainDataRangeInternal = function(var_args) {
   var coords = arguments;
   for (var i = 0; i < coords.length - 1; i = i + 2) {
     var x = +coords[i];
@@ -816,20 +881,42 @@ anychart.scales.Geo.prototype.resetDataRange = function() {
     this.oldDataRangeMaxLong = this.dataRangeMaxLong;
     this.oldDataRangeMinLat = this.dataRangeMinLat;
     this.oldDataRangeMaxLat = this.dataRangeMaxLat;
+
     this.dataRangeMinLong = Number.MAX_VALUE;
     this.dataRangeMaxLong = -Number.MAX_VALUE;
     this.dataRangeMinLat = Number.MAX_VALUE;
     this.dataRangeMaxLat = -Number.MAX_VALUE;
+
+    this.oldFullDataRangeMinLong = this.fullDataRangeMinLong;
+    this.oldFullDataRangeMaxLong = this.fullDataRangeMaxLong;
+    this.oldFullDataRangeMinLat = this.fullDataRangeMinLat;
+    this.oldFullDataRangeMaxLat = this.fullDataRangeMaxLat;
+
+    this.fullDataRangeMinLong = Number.MAX_VALUE;
+    this.fullDataRangeMaxLong = -Number.MAX_VALUE;
+    this.fullDataRangeMinLat = Number.MAX_VALUE;
+    this.fullDataRangeMaxLat = -Number.MAX_VALUE;
   }
 
   this.oldDataRangeMinX = this.dataRangeMinX;
   this.oldDataRangeMaxX = this.dataRangeMaxX;
   this.oldDataRangeMinY = this.dataRangeMinY;
   this.oldDataRangeMaxY = this.dataRangeMaxY;
+
   this.dataRangeMinX = Number.MAX_VALUE;
   this.dataRangeMaxX = -Number.MAX_VALUE;
   this.dataRangeMinY = Number.MAX_VALUE;
   this.dataRangeMaxY = -Number.MAX_VALUE;
+
+  this.oldFullDataRangeMinX = this.fullDataRangeMinX;
+  this.oldFullDataRangeMaxX = this.fullDataRangeMaxX;
+  this.oldFullDataRangeMinY = this.fullDataRangeMinY;
+  this.oldFullDataRangeMaxY = this.fullDataRangeMaxY;
+
+  this.fullDataRangeMinX = Number.MAX_VALUE;
+  this.fullDataRangeMaxX = -Number.MAX_VALUE;
+  this.fullDataRangeMinY = Number.MAX_VALUE;
+  this.fullDataRangeMaxY = -Number.MAX_VALUE;
 
   this.consistent = false;
   return this;
@@ -878,10 +965,25 @@ anychart.scales.Geo.prototype.finishAutoCalc = function(opt_silently) {
  * NOTE: THIS METHOD IS FOR INTERNAL USE IN THE SCALE AND TICKS ONLY. DO NOT PUBLISH IT.
  */
 anychart.scales.Geo.prototype.calculate = function() {
-  if (this.consistent || !this.bounds_) return;
+  if (this.consistent || !this.fullBounds_) return;
 
   this.consistent = true;
   this.determineScaleMinMax();
+
+  this.fullRangeX = this.fullDataRangeMaxX - this.fullDataRangeMinX;
+  this.fullRangeY = this.fullDataRangeMaxY - this.fullDataRangeMinY;
+  this.fullRatio = Math.min(this.fullBounds_.height / this.fullRangeY, this.fullBounds_.width / this.fullRangeX);
+  this.fullCenterOffsetX = (this.fullBounds_.width - this.fullRangeX * this.fullRatio) / 2;
+  this.fullCenterOffsetY = (this.fullBounds_.height - this.fullRangeY * this.fullRatio) / 2;
+
+  var leftTopCorner = this.scaleToPxF(this.dataRangeMinX, this.dataRangeMaxY);
+  var rightBottomCorner = this.scaleToPxF(this.dataRangeMaxX, this.dataRangeMinY);
+
+  this.mainBounds_ = new anychart.math.Rect(
+      leftTopCorner[0],
+      leftTopCorner[1],
+      rightBottomCorner[0] - leftTopCorner[0],
+      rightBottomCorner[1] - leftTopCorner[1]);
 
   var minPoint = [this.minLong, this.minLat];
   var maxPoint = [this.maxLong, this.maxLat];
@@ -898,9 +1000,9 @@ anychart.scales.Geo.prototype.calculate = function() {
   this.longRange = this.maxLong - this.minLong;
   this.latRange = this.maxLat - this.minLat;
 
-  this.ratio = Math.min(this.bounds_.height / this.rangeY, this.bounds_.width / this.rangeX);
-  this.centerOffsetX = (this.bounds_.width - this.rangeX * this.ratio) / 2;
-  this.centerOffsetY = (this.bounds_.height - this.rangeY * this.ratio) / 2;
+  this.ratio = Math.min(this.mainBounds_.height / this.rangeY, this.mainBounds_.width / this.rangeX);
+  this.centerOffsetX = (this.mainBounds_.width - this.rangeX * this.ratio) / 2;
+  this.centerOffsetY = (this.mainBounds_.height - this.rangeY * this.ratio) / 2;
 
   //apply gap
   var extremesForMinLong = this.getExtremesForDimension(this.minLong, true);
@@ -923,9 +1025,9 @@ anychart.scales.Geo.prototype.calculate = function() {
   this.longRange = this.maxLong - this.minLong;
   this.latRange = this.maxLat - this.minLat;
 
-  this.ratio = Math.min(this.bounds_.height / this.rangeY, this.bounds_.width / this.rangeX);
-  this.centerOffsetX = (this.bounds_.width - this.rangeX * this.ratio) / 2;
-  this.centerOffsetY = (this.bounds_.height - this.rangeY * this.ratio) / 2;
+  this.ratio = Math.min(this.mainBounds_.height / this.rangeY, this.mainBounds_.width / this.rangeX);
+  this.centerOffsetX = (this.mainBounds_.width - this.rangeX * this.ratio) / 2;
+  this.centerOffsetY = (this.mainBounds_.height - this.rangeY * this.ratio) / 2;
 
   this.calculateViewSpace();
 };
@@ -1082,10 +1184,34 @@ anychart.scales.Geo.prototype.determineScaleMinMax = function() {
  * @param {number} y Y value to transform in input scope.
  * @return {Array.<number>} Transformed value adjust bounds.
  */
+anychart.scales.Geo.prototype.scaleToPxF = function(x, y) {
+  x = anychart.utils.toNumber(x);
+  y = anychart.utils.toNumber(y);
+
+  var transformX = (x - this.fullDataRangeMinX) * this.fullRatio;
+  var transformY = (this.fullDataRangeMaxY - y) * this.fullRatio;
+
+  var resultX = this.isInvertedX ?
+      this.fullBounds_.getRight() - this.fullCenterOffsetX - transformX :
+      this.fullBounds_.left + this.fullCenterOffsetX + transformX;
+
+  var resultY = this.isInvertedY ?
+      this.fullBounds_.getBottom() - this.fullCenterOffsetY - transformY :
+      this.fullBounds_.top + this.fullCenterOffsetY + transformY;
+
+  return [resultX, resultY];
+};
+
+
+/**
+ * @param {number} x X value to transform in input scope.
+ * @param {number} y Y value to transform in input scope.
+ * @return {Array.<number>} Transformed value adjust bounds.
+ */
 anychart.scales.Geo.prototype.scaleToPx = function(x, y) {
   this.calculate();
 
-  if (!this.bounds_)
+  if (!this.mainBounds_)
     return [NaN, NaN];
 
   x = anychart.utils.toNumber(x);
@@ -1095,12 +1221,12 @@ anychart.scales.Geo.prototype.scaleToPx = function(x, y) {
   var transformY = (this.maxY - y) * this.ratio;
 
   var resultX = this.isInvertedX ?
-      this.bounds_.getRight() - this.centerOffsetX - transformX :
-      this.bounds_.left + this.centerOffsetX + transformX;
+      this.mainBounds_.getRight() - this.centerOffsetX - transformX :
+      this.mainBounds_.left + this.centerOffsetX + transformX;
 
   var resultY = this.isInvertedY ?
-      this.bounds_.getBottom() - this.centerOffsetY - transformY :
-      this.bounds_.top + this.centerOffsetY + transformY;
+      this.mainBounds_.getBottom() - this.centerOffsetY - transformY :
+      this.mainBounds_.top + this.centerOffsetY + transformY;
 
   return [resultX, resultY];
 };
@@ -1114,19 +1240,19 @@ anychart.scales.Geo.prototype.scaleToPx = function(x, y) {
 anychart.scales.Geo.prototype.pxToScale = function(x, y) {
   this.calculate();
 
-  if (!this.bounds_)
+  if (!this.mainBounds_)
     return [NaN, NaN];
 
   x = anychart.utils.toNumber(x);
   y = anychart.utils.toNumber(y);
 
   var transformX = this.isInvertedX ?
-      this.bounds_.getRight() - this.centerOffsetX - x :
-      x - this.bounds_.left - this.centerOffsetX;
+      this.mainBounds_.getRight() - this.centerOffsetX - x :
+      x - this.mainBounds_.left - this.centerOffsetX;
 
   var transformY = this.isInvertedY ?
-      this.bounds_.getBottom() - this.centerOffsetY - y :
-      y - this.bounds_.top - this.centerOffsetY;
+      this.mainBounds_.getBottom() - this.centerOffsetY - y :
+      y - this.mainBounds_.top - this.centerOffsetY;
 
   var resultX = +(/** @type {number} */(transformX)) / this.ratio + this.minX;
   var resultY = -(/** @type {number} */(transformY)) / this.ratio + this.maxY;
@@ -1204,19 +1330,19 @@ anychart.scales.Geo.prototype.transformWithoutTx = function(lon, lat, opt_txName
   lon = projected[0];
   lat = projected[1];
 
-  if (!this.bounds_ || isNaN(lon) || isNaN(lat))
+  if (!this.mainBounds_ || isNaN(lon) || isNaN(lat))
     return [NaN, NaN];
 
   var transformX = (+(/** @type {number} */(lon)) - this.minX) * this.ratio;
   var transformY = (-(/** @type {number} */(lat)) + this.maxY) * this.ratio;
 
   var resultX = this.isInvertedX ?
-      this.bounds_.getRight() - this.centerOffsetX - transformX :
-      this.bounds_.left + this.centerOffsetX + transformX;
+      this.mainBounds_.getRight() - this.centerOffsetX - transformX :
+      this.mainBounds_.left + this.centerOffsetX + transformX;
 
   var resultY = this.isInvertedY ?
-      this.bounds_.getBottom() - this.centerOffsetY - transformY :
-      this.bounds_.top + this.centerOffsetY + transformY;
+      this.mainBounds_.getBottom() - this.centerOffsetY - transformY :
+      this.mainBounds_.top + this.centerOffsetY + transformY;
 
   return [resultX, resultY];
 };
@@ -1248,7 +1374,7 @@ anychart.scales.Geo.prototype.transform = function(lon, lat, opt_txName) {
 anychart.scales.Geo.prototype.inverseTransform = function(x, y) {
   this.calculate();
 
-  if (!this.bounds_ || isNaN(x) || isNaN(y))
+  if (!this.mainBounds_ || isNaN(x) || isNaN(y))
     return [NaN, NaN];
 
   x = anychart.utils.toNumber(x);
@@ -1258,10 +1384,10 @@ anychart.scales.Geo.prototype.inverseTransform = function(x, y) {
   y = (y - this.dy_) / this.zoom;
 
   var transformX = this.isInvertedX ?
-      this.bounds_.getRight() - this.centerOffsetX - x : x - this.bounds_.left - this.centerOffsetX;
+      this.mainBounds_.getRight() - this.centerOffsetX - x : x - this.mainBounds_.left - this.centerOffsetX;
 
   var transformY = this.isInvertedY ?
-      this.bounds_.getBottom() - this.centerOffsetY - y : y - this.bounds_.top - this.centerOffsetY;
+      this.mainBounds_.getBottom() - this.centerOffsetY - y : y - this.mainBounds_.top - this.centerOffsetY;
 
   var resultX = +(/** @type {number} */(transformX)) / this.ratio + this.minX;
   var resultY = -(/** @type {number} */(transformY)) / this.ratio + this.maxY;
@@ -1389,7 +1515,7 @@ anychart.scales.Geo.prototype.serialize = function() {
   if (!this.minimumLatModeAuto) json['minimumY'] = this.minLat;
   json['precision'] = this.precision();
   json['gap'] = this.gap();
-  // if (this.bounds_) json['bounds'] = this.bounds_;
+  // if (this.mainBounds_) json['bounds'] = this.mainBounds_;
   json['xTicks'] = this.xTicks().serialize();
   json['xMinorTicks'] = this.xMinorTicks().serialize();
   json['yTicks'] = this.yTicks().serialize();

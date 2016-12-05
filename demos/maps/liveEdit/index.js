@@ -27,7 +27,9 @@ $(document).ready(function() {
     $('#select_crs').append($("<option>").attr('value', this.text).text(this.id));
   });
 
-  $('body').append('<div id="tooltip"></div>');
+  $('body')
+      .append('<div id="tooltip"></div>');
+
   $('#tooltip')
       .css({
         'position': 'absolute',
@@ -39,27 +41,18 @@ $(document).ready(function() {
 
 
 
-
+  var geodata = anychart.maps.france;
 
 
   stage = anychart.graphics.create('container');
 
   chart = anychart.map();
-  chart.geoData(anychart.maps.united_states_of_america);
+  chart.geoData(geodata);
   chart.interactivity().drag(false);
-
-  var dataSet = anychart.data.set([]);
-
-  var series = chart.choropleth(dataSet);
-  series.labels().textFormatter(function() {
-    return this.getDataValue('id');
-  }).enabled(false);
-  series.tooltip(false);
-
-  chart.container(stage).draw();
+  chart.grids(true);
 
   var data = [];
-  var features = chart.geoData()['features'];
+  var features = geodata['features'];
   for (var i = 0, len = features.length; i < len; i++) {
     var feature = features[i];
     if (feature['properties']) {
@@ -67,7 +60,16 @@ $(document).ready(function() {
       data.push({'id': id, 'title': feature['properties']['code_hasc'], 'value': randomExt(100, 1000)});
     }
   }
-  dataSet.data(data);
+
+  var series = chart.choropleth(data);
+  series.labels().textFormatter(function() {
+    return this.getDataValue('id');
+  }).enabled(false);
+  series.tooltip(false);
+
+  chart.container(stage).draw();
+
+
 
 
 
@@ -109,8 +111,9 @@ $(document).ready(function() {
 
     var startX, startY, drag;
     while (iterator.advance()) {
-      var el = iterator.meta('regionShape');
-      var prop = iterator.meta('regionProperties');
+      var point = iterator.meta('currentPointElement');
+      var el = point.domElement;
+      var prop = point.properties;
 
       el.drag(true).cursor('hand');
 
