@@ -123,69 +123,61 @@ anychart.charts.Calendar.prototype.check = function(flags) {
 anychart.charts.Calendar.PROPERTY_DESCRIPTORS = (function() {
   var map = {};
 
-  map[anychart.opt.START_MONTH] = {
-    handler: anychart.enums.PropertyHandlerType.SINGLE_ARG,
-    propName: anychart.opt.START_MONTH,
-    normalizer: anychart.core.settings.numberOrStringNormalizer,
-    consistency: 0,
-    signal: anychart.Signal.NEEDS_REDRAW
-  };
+  map['startMonth'] = anychart.core.settings.createDescriptor(
+      anychart.enums.PropertyHandlerType.SINGLE_ARG,
+      'startMonth',
+      anychart.core.settings.numberOrStringNormalizer,
+      0,
+      anychart.Signal.NEEDS_REDRAW);
 
-  map[anychart.opt.END_MONTH] = {
-    handler: anychart.enums.PropertyHandlerType.SINGLE_ARG,
-    propName: anychart.opt.END_MONTH,
-    normalizer: anychart.core.settings.numberOrStringNormalizer,
-    consistency: 0,
-    signal: anychart.Signal.NEEDS_REDRAW
-  };
+  map['endMonth'] = anychart.core.settings.createDescriptor(
+      anychart.enums.PropertyHandlerType.SINGLE_ARG,
+      'endMonth',
+      anychart.core.settings.numberOrStringNormalizer,
+      0,
+      anychart.Signal.NEEDS_REDRAW);
 
-  map[anychart.opt.WEEK_START] = {
-    handler: anychart.enums.PropertyHandlerType.SINGLE_ARG,
-    propName: anychart.opt.WEEK_START,
-    normalizer: anychart.core.settings.numberNormalizer,
-    consistency: 0,
-    signal: anychart.Signal.NEEDS_REDRAW
-  };
+  map['weekStart'] = anychart.core.settings.createDescriptor(
+      anychart.enums.PropertyHandlerType.SINGLE_ARG,
+      'weekStart',
+      anychart.core.settings.numberNormalizer,
+      0,
+      anychart.Signal.NEEDS_REDRAW);
 
-  map[anychart.opt.OUTLINE_COLOR] = {
-    handler: anychart.enums.PropertyHandlerType.MULTI_ARG,
-    propName: anychart.opt.OUTLINE_COLOR,
-    normalizer: anychart.core.settings.strokeOrFunctionNormalizer,
-    consistency: 0,
-    signal: anychart.Signal.NEEDS_REDRAW
-  };
+  map['outlineColor'] = anychart.core.settings.createDescriptor(
+      anychart.enums.PropertyHandlerType.MULTI_ARG,
+      'outlineColor',
+      anychart.core.settings.strokeOrFunctionNormalizer,
+      0,
+      anychart.Signal.NEEDS_REDRAW);
 
-  map[anychart.opt.UNUSED_OUTLINE_COLOR] = {
-    handler: anychart.enums.PropertyHandlerType.MULTI_ARG,
-    propName: anychart.opt.UNUSED_OUTLINE_COLOR,
-    normalizer: anychart.core.settings.strokeOrFunctionNormalizer,
-    consistency: 0,
-    signal: anychart.Signal.NEEDS_REDRAW
-  };
+  map['unusedOutlineColor'] = anychart.core.settings.createDescriptor(
+      anychart.enums.PropertyHandlerType.MULTI_ARG,
+      'unusedOutlineColor',
+      anychart.core.settings.strokeOrFunctionNormalizer,
+      0,
+      anychart.Signal.NEEDS_REDRAW);
 
-  map[anychart.opt.UNUSED_FILL] = {
-    handler: anychart.enums.PropertyHandlerType.MULTI_ARG,
-    propName: anychart.opt.UNUSED_FILL,
-    normalizer: anychart.core.settings.fillOrFunctionNormalizer,
-    consistency: 0,
-    signal: anychart.Signal.NEEDS_REDRAW
-  };
+  map['unusedFill'] = anychart.core.settings.createDescriptor(
+      anychart.enums.PropertyHandlerType.MULTI_ARG,
+      'unusedFill',
+      anychart.core.settings.fillOrFunctionNormalizer,
+      0,
+      anychart.Signal.NEEDS_REDRAW);
 
-  map[anychart.opt.UNUSED_STROKE] = {
-    handler: anychart.enums.PropertyHandlerType.MULTI_ARG,
-    propName: anychart.opt.UNUSED_STROKE,
-    normalizer: anychart.core.settings.strokeOrFunctionNormalizer,
-    consistency: 0,
-    signal: anychart.Signal.NEEDS_REDRAW
-  };
+  map['unusedStroke'] = anychart.core.settings.createDescriptor(
+      anychart.enums.PropertyHandlerType.MULTI_ARG,
+      'unusedStroke',
+      anychart.core.settings.strokeOrFunctionNormalizer,
+      0,
+      anychart.Signal.NEEDS_REDRAW);
 
-  map[anychart.opt.YEAR] = {
-    handler: anychart.enums.PropertyHandlerType.SINGLE_ARG,
-    propName: anychart.opt.YEAR,
-    normalizer: anychart.core.settings.asIsNormalizer,
-    consistency: 0,
-    signal: anychart.Signal.NEEDS_REDRAW
-  };
+  map['year'] = anychart.core.settings.createDescriptor(
+      anychart.enums.PropertyHandlerType.SINGLE_ARG,
+      'year',
+      anychart.core.settings.asIsNormalizer,
+      0,
+      anychart.Signal.NEEDS_REDRAW);
 
 
   return map;
@@ -203,9 +195,9 @@ anychart.charts.Calendar.prototype.prepareData = function() {
     this.dataInternal.unlistenSignals(this.dataInvalidated_, this);
   goog.dispose(this.dataInternal);
   delete this.iterator_;
-  this.dataInternal = this.parentView.filter(anychart.opt.X, function(xValue) {
+  this.dataInternal = this.parentView.filter('x', function(xValue) {
     return !goog.isNull(anychart.format.parseDateTime(xValue));
-  }).sort(anychart.opt.X, function(xValue1, xValue2) {
+  }).sort('x', function(xValue1, xValue2) {
     return anychart.format.parseDateTime(xValue1).getTime() - anychart.format.parseDateTime(xValue2).getTime();
   });
   this.dataInternal.listenSignals(this.dataInvalidated_, this);
@@ -295,7 +287,7 @@ anychart.charts.Calendar.prototype.calculate = function() {
   if (this.hasInvalidationState(anychart.ConsistencyState.CALENDAR_DATA)) {
     var iterator = this.getDetachedIterator();
     while (iterator.advance()) {
-      console.log(iterator.get(anychart.opt.X), iterator.get(anychart.opt.VALUE));
+      console.log(iterator.get('x'), iterator.get('value'));
     }
     this.markConsistent(anychart.ConsistencyState.CALENDAR_DATA);
   }
