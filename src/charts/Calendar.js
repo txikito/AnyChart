@@ -357,10 +357,13 @@ anychart.charts.Calendar.prototype.disposeInternal = function() {
 //endregion
 
 //exports
-//anychart.charts.Calendar.prototype['startMonth'] = anychart.charts.Calendar.prototype.startMonth;
-//anychart.charts.Calendar.prototype['endMonth'] = anychart.charts.Calendar.prototype.endMonth;
-//anychart.charts.Calendar.prototype['weekStart'] = anychart.charts.Calendar.prototype.weekStart;
-//anychart.charts.Calendar.prototype['outlineColor'] = anychart.charts.Calendar.prototype.outlineColor;
-//anychart.charts.Calendar.prototype['unusedOutlineColor'] = anychart.charts.Calendar.prototype.unusedOutlineColor;
-//anychart.charts.Calendar.prototype['unusedFill'] = anychart.charts.Calendar.prototype.unusedFill;
-//anychart.charts.Calendar.prototype['unusedStroke'] = anychart.charts.Calendar.prototype.unusedStroke;
+(function() {
+  var proto = anychart.charts.Calendar.prototype;
+  proto['startMonth'] = proto.startMonth;
+  proto['endMonth'] = proto.endMonth;
+  proto['weekStart'] = proto.weekStart;
+  proto['outlineColor'] = proto.outlineColor;
+  proto['unusedOutlineColor'] = proto.unusedOutlineColor;
+  proto['unusedFill'] = proto.unusedFill;
+  proto['unusedStroke'] = proto.unusedStroke;
+})();
