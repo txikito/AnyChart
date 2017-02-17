@@ -334,7 +334,7 @@ anychart.charts.Radar.prototype.yScale = function(opt_value) {
     if (goog.isString(opt_value)) {
       opt_value = anychart.scales.Base.fromString(opt_value, false);
     }
-    if (this.yScale_ != opt_value) {
+    if (opt_value instanceof anychart.scales.Base && this.yScale_ != opt_value) {
       this.yScale_ = opt_value;
       this.invalidate(anychart.ConsistencyState.RADAR_SCALES, anychart.Signal.NEEDS_REDRAW);
     }
@@ -1578,7 +1578,7 @@ anychart.charts.Radar.prototype.getSeriesStatus = function(event) {
   var clientY = event['clientY'];
   var xValue, yValue, index;
 
-  var containerOffset = goog.style.getClientPosition(/** @type {Element} */(this.container().getStage().container()));
+  var containerOffset = this.container().getStage().getClientPosition();
 
 
   var x = clientX - containerOffset.x;

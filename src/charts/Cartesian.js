@@ -342,7 +342,7 @@ anychart.core.ChartWithSeries.generateSeriesConstructors(anychart.charts.Cartesi
  */
 anychart.cartesian = function(opt_isVertical) {
   var chart = new anychart.charts.Cartesian();
-  chart.setupByVal(anychart.getFullTheme()['cartesian'], true);
+  chart.setupByVal(anychart.getFullTheme('cartesian'), true);
   if (goog.isDef(opt_isVertical))
     chart.barChartMode = !!opt_isVertical;
   return chart;
@@ -350,33 +350,11 @@ anychart.cartesian = function(opt_isVertical) {
 anychart.chartTypesMap[anychart.enums.ChartTypes.CARTESIAN] = anychart.cartesian;
 
 
-/**
- * Returns a chart instance with initial settings (no axes, grids, titles, legend and so on).<br/>
- * <b>Note:</b> To get a chart with initial settings use:
- *  <ul>
- *      <li>{@link anychart.area}</li>
- *      <li>{@link anychart.bar}</li>
- *      <li>{@link anychart.column}</li>
- *      <li>{@link anychart.financial}</li>
- *      <li>{@link anychart.line}</li>
- *  </ul>
- * @example
- * var chart = anychart.cartesian();
- * chart.line([20, 7, 10, 14]);
- * @param {boolean=} opt_isVertical If true, sets the chart to Bar Chart mode, swapping default chart elements
- *    behaviour to horizontal-oriented (setting default layout to VERTICAL, swapping axes, etc).
- * @return {!anychart.core.CartesianBase} Empty chart.
- * @deprecated Use anychart.cartesian() instead.
- */
-anychart.cartesianChart = anychart.cartesian;
-
-
 //exports
 /** @suppress {deprecated} */
 (function() {
   var proto = anychart.charts.Cartesian.prototype;
   goog.exportSymbol('anychart.cartesian', anychart.cartesian);
-  goog.exportSymbol('anychart.cartesianChart', anychart.cartesianChart);
   proto['xScale'] = proto.xScale;
   proto['yScale'] = proto.yScale;
   proto['barsPadding'] = proto.barsPadding;
@@ -429,6 +407,11 @@ anychart.cartesianChart = anychart.cartesian;
   proto['getPlotBounds'] = proto.getPlotBounds;
   proto['xZoom'] = proto.xZoom;
   proto['xScroller'] = proto.xScroller;
+  proto['zAspect'] = proto.zAspect;
+  proto['zAngle'] = proto.zAngle;
+  proto['zDistribution'] = proto.zDistribution;
+  proto['zPadding'] = proto.zPadding;
   proto['getStat'] = proto.getStat;
+  proto['zDepth'] = proto.zDepth; // deprecated
   proto['annotations'] = proto.annotations;
 })();

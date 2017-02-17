@@ -498,7 +498,7 @@ anychart.core.PyramidFunnelBase.prototype.normalizeColor = function(color, var_a
   if (goog.isFunction(color)) {
     sourceColor = arguments.length > 1 ?
         this.normalizeColor.apply(this, goog.array.slice(arguments, 1)) :
-        this.palette().colorAt(index);
+        this.palette().itemAt(index);
     scope = {
       'index': index,
       'sourceColor': sourceColor,
@@ -1223,8 +1223,8 @@ anychart.core.PyramidFunnelBase.prototype.drawContent = function(bounds) {
     }
 
     var themePart = this.isInsideLabels() ?
-        anychart.getFullTheme()['pie']['insideLabels'] :
-        anychart.getFullTheme()['pie']['outsideLabels'];
+        anychart.getFullTheme('pie.insideLabels') :
+        anychart.getFullTheme('pie.outsideLabels');
     this.labels().setAutoColor(themePart['autoColor']);
     this.labels().disablePointerEvents(themePart['disablePointerEvents']);
 
@@ -1278,7 +1278,7 @@ anychart.core.PyramidFunnelBase.prototype.drawContent = function(bounds) {
  * @protected
  */
 anychart.core.PyramidFunnelBase.prototype.getProperThemePart = function() {
-  return anychart.getFullTheme()['pyramid'];
+  return anychart.getFullTheme('pyramid');
 };
 
 
@@ -1538,6 +1538,7 @@ anychart.core.PyramidFunnelBase.prototype.doAnimation = function() {
       this.animationQueue_.add(/** @type {goog.fx.TransitionBase} */ (pyramidFunnelLabelAnimation));
 
       this.animationQueue_.listen(goog.fx.Transition.EventType.BEGIN, function() {
+        this.ignoreMouseEvents(true);
         this.dispatchDetachedEvent({
           'type': anychart.enums.EventType.ANIMATION_START,
           'chart': this
@@ -1545,6 +1546,7 @@ anychart.core.PyramidFunnelBase.prototype.doAnimation = function() {
       }, false, this);
 
       this.animationQueue_.listen(goog.fx.Transition.EventType.END, function() {
+        this.ignoreMouseEvents(false);
         this.dispatchDetachedEvent({
           'type': anychart.enums.EventType.ANIMATION_END,
           'chart': this
@@ -1750,7 +1752,7 @@ anychart.core.PyramidFunnelBase.prototype.getSeriesStatus = function(event) {
   //
   //var value, index, iterator;
   //
-  //var containerOffset = goog.style.getClientPosition(/** @type {Element} */(this.container().getStage().container()));
+  //var containerOffset = this.container().getStage().getClientPosition();
   //
   //var x = clientX - containerOffset.x;
   //var y = clientY - containerOffset.y;

@@ -36,7 +36,7 @@ anychart.standalones.axes.Radial.prototype.serialize = function() {
  */
 anychart.standalones.axes.radial = function() {
   var axis = new anychart.standalones.axes.Radial();
-  axis.setup(anychart.getFullTheme()['standalones']['radialAxis']);
+  axis.setup(anychart.getFullTheme('standalones.radialAxis'));
   return axis;
 };
 
@@ -48,7 +48,7 @@ anychart.standalones.axes.radial = function() {
  * @deprecated Since 7.12.0. Use anychart.standalones.axes.radar instead.
  */
 anychart.axes.radial = function() {
-  anychart.core.reporting.warning(anychart.enums.WarningCode.DEPRECATED, null, ['anychart.axes.radial', 'anychart.standalones.axes.radial'], true);
+  anychart.core.reporting.warning(anychart.enums.WarningCode.DEPRECATED, null, ['anychart.axes.radial()', 'anychart.standalones.axes.radial()', null, 'Constructor'], true);
   return anychart.standalones.axes.radial();
 };
 

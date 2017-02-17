@@ -16,6 +16,8 @@ goog.require('anychart.animations.MapAnimation');
  */
 anychart.animations.MapZoomAnimation = function(map, start, end, duration, opt_silentMode, opt_acc) {
   anychart.animations.MapZoomAnimation.base(this, 'constructor', map, start, end, duration, opt_silentMode, opt_acc);
+
+  this.isRlyMove = false;
 };
 goog.inherits(anychart.animations.MapZoomAnimation, anychart.animations.MapAnimation);
 
@@ -26,11 +28,12 @@ goog.inherits(anychart.animations.MapZoomAnimation, anychart.animations.MapAnima
  * @private
  */
 anychart.animations.MapZoomAnimation.prototype.doZoom_ = function(zoom) {
+  if (!this.map.geoData()) return;
   var mapLayer = this.map.getMapLayer();
-  var viewSpacePath = this.map.scale().getViewSpace();
+  // var viewSpacePath = this.map.scale().getViewSpace();
 
-  var boundsWithoutTx = viewSpacePath.getBoundsWithoutTransform();
-  var boundsWithTx = viewSpacePath.getBounds();
+  var boundsWithoutTx = mapLayer.getBoundsWithoutTransform();
+  var boundsWithTx = mapLayer.getBounds();
 
   var cx = this.map.cx;
   var cy = this.map.cy;
@@ -55,7 +58,7 @@ anychart.animations.MapZoomAnimation.prototype.doZoom_ = function(zoom) {
     }
   }
 
-  var zoomMultiplier = zoom / this.map.zoomLevel();
+  var zoomMultiplier = zoom / this.map.getZoomLevel();
 
   mapLayer.scale(zoomMultiplier, zoomMultiplier, cx, cy);
 
@@ -73,10 +76,44 @@ anychart.animations.MapZoomAnimation.prototype.doZoom_ = function(zoom) {
 };
 
 
+/**
+ * Does move.
+ * @param {number} dx .
+ * @param {number} dy .
+ * @private
+ */
+anychart.animations.MapZoomAnimation.prototype.doMove_ = function(dx, dy) {
+  var tx = this.map.getMapLayer().getSelfTransformation();
+  this.map.getMapLayer().setTransformationMatrix(tx.getScaleX(), 0, 0, tx.getScaleY(), dx, dy);
+
+  this.map.scale().setMapZoom(tx.getScaleX());
+  this.map.scale().setOffsetFocusPoint(tx.getTranslateX(), tx.getTranslateY());
+
+  this.map.updateSeriesOnZoomOrMove();
+};
+
+
+/** @inheritDoc */
+anychart.animations.MapZoomAnimation.prototype.onBegin = function() {
+  this.isRlyMove = anychart.math.roughlyEqual(this.startPoint[0], this.endPoint[0], 0.00001) && this.map.allowMoveOnEqualZoomLevels;
+
+  anychart.animations.MapZoomAnimation.base(this, 'onBegin');
+};
+
+
 /** @inheritDoc */
 anychart.animations.MapZoomAnimation.prototype.onAnimate = function() {
-  var currZoom = this.coords[0];
-  this.doZoom_(currZoom);
+  if (this.isRlyMove) {
+    var currDx = this.coords[1];
+    var currDy = this.coords[2];
+    this.doMove_(currDx, currDy);
+  } else {
+    var currZoom = this.coords[0];
+    this.doZoom_(currZoom);
+  }
+
+  if (!this.silentMode)
+    this.map.getRootScene().dispatchEvent(this.map.createZoomEvent(anychart.enums.EventType.ZOOM));
 
   anychart.animations.MapZoomAnimation.base(this, 'onAnimate');
 };
@@ -84,27 +121,34 @@ anychart.animations.MapZoomAnimation.prototype.onAnimate = function() {
 
 /** @inheritDoc */
 anychart.animations.MapZoomAnimation.prototype.onFinish = function() {
-  var currZoom = this.coords[0];
+  if (this.map.geoData()) {
+    var currZoom = this.coords[0];
+    var currDx = this.coords[1];
+    var currDy = this.coords[2];
 
-  var tx = this.map.getMapLayer().getSelfTransformation();
-  if (!this.map.unlimitedZoom && currZoom <= anychart.charts.Map.ZOOM_MIN_FACTOR && !tx.isIdentity() || this.map.zoomDest == anychart.charts.Map.ZOOM_MIN_FACTOR) {
-    var minZoom = anychart.charts.Map.ZOOM_MIN_FACTOR;
-
-    this.map.getMapLayer().setTransformationMatrix(minZoom, 0, 0, minZoom, 0, 0);
-    this.map.fullZoom = minZoom;
-
-    this.map.scale().setMapZoom(minZoom);
-    this.map.scale().setOffsetFocusPoint(0, 0);
-
-    if (this.map.isDesktop) {
-      this.map.updateSeriesOnZoomOrMove();
+    if (this.isRlyMove) {
+      this.doMove_(currDx, currDy);
     } else {
-      this.map.getDataLayer().setTransformationMatrix(minZoom, 0, 0, minZoom, 0, 0);
-    }
-  } else {
-    this.doZoom_(currZoom);
-  }
+      var tx = this.map.getMapLayer().getSelfTransformation();
+      var minZoom = /** @type {number} */(this.map.minZoomLevel());
 
+      if (!this.map.unlimitedZoom && currZoom <= minZoom && !tx.isIdentity() || this.map.zoomDest == minZoom) {
+        this.map.getMapLayer().setTransformationMatrix(minZoom, 0, 0, minZoom, 0, 0);
+        this.map.fullZoom = minZoom;
+
+        this.map.scale().setMapZoom(minZoom);
+        this.map.scale().setOffsetFocusPoint(0, 0);
+
+        if (this.map.isDesktop) {
+          this.map.updateSeriesOnZoomOrMove();
+        } else {
+          this.map.getDataLayer().setTransformationMatrix(minZoom, 0, 0, minZoom, 0, 0);
+        }
+      } else {
+        this.doZoom_(currZoom);
+      }
+    }
+  }
   this.map.lastZoomIsUnlimited = this.map.unlimitedZoom;
   this.map.unlimitedZoom = false;
   this.map.zoomDuration = NaN;
@@ -115,7 +159,11 @@ anychart.animations.MapZoomAnimation.prototype.onFinish = function() {
 
 /** @inheritDoc */
 anychart.animations.MapZoomAnimation.prototype.onEnd = function() {
+  if (!this.silentMode)
+    this.map.getRootScene().dispatchEvent(this.map.createZoomEvent(anychart.enums.EventType.ZOOM_END));
+
   anychart.animations.MapZoomAnimation.base(this, 'onEnd');
+
   this.map.zoomAnimation = null;
   this.map = null;
   this.dispose();

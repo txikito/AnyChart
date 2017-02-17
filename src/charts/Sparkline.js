@@ -98,6 +98,9 @@ anychart.charts.Sparkline = function(opt_data, opt_csvSettings) {
    */
   this.seriesDefaults_ = {};
 
+  /** @inheritDoc */
+  this.allowCreditsDisabling = true;
+
   /**
    * @type {!anychart.core.ui.MarkersFactory}
    * @private
@@ -209,7 +212,7 @@ anychart.charts.Sparkline.prototype.getSeriesStatus = function(event) {
   var clientY = event['clientY'];
   var value, index;
 
-  var containerOffset = goog.style.getClientPosition(/** @type {Element} */(this.container().getStage().container()));
+  var containerOffset = this.container().getStage().getClientPosition();
 
   var x = clientX - containerOffset.x;
   var y = clientY - containerOffset.y;
@@ -227,12 +230,12 @@ anychart.charts.Sparkline.prototype.getSeriesStatus = function(event) {
 
   var ratio = (x - minX) / rangeX;
   value = this.xScale().inverseTransform(ratio);
-  index = this.data().find('x', value);
-  if (index < 0) index = NaN;
+  var indexes = this.data().findInUnsortedDataByX(anychart.utils.toNumber(value));
+  index = indexes.length ? indexes[0] : NaN;
 
   var iterator = this.getIterator();
 
-  if (iterator.select(index)) {
+  if (iterator.select(/** @type {number} */ (index))) {
     var pixX = /** @type {number} */(iterator.meta('x'));
     var pixY = /** @type {number} */(iterator.meta('value'));
     var length = Math.sqrt(Math.pow(pixX - x, 2) + Math.pow(pixY - y, 2));
@@ -299,7 +302,7 @@ anychart.charts.Sparkline.prototype.getIndexByEvent_ = function(event) {
   var min, range;
   var value, index;
 
-  min = bounds.left + goog.style.getClientPosition(/** @type {Element} */(this.container().getStage().container())).x;
+  min = bounds.left + this.container().getStage().getClientPosition().x;
   range = bounds.width;
   var ratio = (x - min) / range;
   value = this.xScale().inverseTransform(ratio);
@@ -413,6 +416,12 @@ anychart.charts.Sparkline.prototype.hoverPoint = function(index, opt_event) {
 anychart.charts.Sparkline.prototype.getAllSeries = function() {
   return [this];
 };
+
+
+/**
+ * @inheritDoc
+ */
+anychart.charts.Sparkline.prototype.unselect = goog.nullFunction;
 
 
 /**
@@ -2076,16 +2085,6 @@ anychart.charts.Sparkline.prototype.labelsInvalidated_ = function(event) {
   if (event.hasSignal(anychart.Signal.NEEDS_REDRAW)) {
     if (this.series_) this.series_.invalidate(anychart.ConsistencyState.SERIES_LABELS, anychart.Signal.NEEDS_REDRAW);
   }
-};
-
-
-/** @inheritDoc */
-anychart.charts.Sparkline.prototype.createStage = function() {
-  var stage = acgraph.create();
-  stage.allowCreditsDisabling = true;
-  // forcing credits to be created to apply credits disabling policy
-  stage.credits();
-  return stage;
 };
 
 

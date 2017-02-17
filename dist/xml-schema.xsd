@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <xsd:schema
         xmlns:xsd="http://www.w3.org/2001/XMLSchema"
-        targetNamespace="http://anychart.com/schemas/7.12.0/xml-schema.xsd"
-        xmlns="http://anychart.com/schemas/7.12.0/xml-schema.xsd"
+        targetNamespace="http://anychart.com/schemas/7.13.0/xml-schema.xsd"
+        xmlns="http://anychart.com/schemas/7.13.0/xml-schema.xsd"
         elementFormDefault="qualified">
 
     <xsd:element name="anychart" type="Anychart"/>
@@ -1303,15 +1303,19 @@
         <xsd:attribute name="title_separator" type="simple.BoolOrNull" default="true"/>
         <xsd:attribute name="paginator" type="simple.BoolOrNull" default="false"/>
         <xsd:attribute name="tooltip" type="simple.BoolOrNull" default="true"/>
-        <xsd:attribute name="items_layout" type="enums.Layout" default="horizontal"/>
+        <xsd:attribute name="items_layout" type="enums.LegendLayout" default="horizontal"/>
         <xsd:attribute name="items_spacing" type="xsd:string" default="15"/>
         <xsd:attribute name="icon_text_spacing" type="xsd:string" default="5"/>
         <xsd:attribute name="icon_size" type="xsd:double"/>
         <xsd:attribute name="width" type="simple.NumberOrPercentOrNull" default="null"/>
         <xsd:attribute name="height" type="simple.NumberOrPercentOrNull" default="null"/>
+        <xsd:attribute name="max_width" type="simple.NumberOrPercentOrNull" default="null"/>
+        <xsd:attribute name="max_height" type="simple.NumberOrPercentOrNull" default="null"/>
         <xsd:attribute name="position" type="enums.Orientation" default="bottom"/>
+        <xsd:attribute name="position_mode" type="enums.LegendPositionMode" default="outside"/>
         <xsd:attribute name="align" type="enums.Align" default="center"/>
         <xsd:attribute name="inverted" type="simple.Bool" default="false"/>
+        <xsd:attribute name="drag" type="simple.Bool" default="false"/>
         <xsd:attribute name="items_source_mode" type="enums.LegendItemsSourceMode" default="default"/>
         <xsd:attribute name="hover_cursor" type="enums.Cursor" default="pointer"/>
         <xsd:attributeGroup ref="attrs.TextSettings"/>
@@ -1586,6 +1590,15 @@
         <xsd:attribute name="edit_structure_preview_fill" type="xsd:string"/>
         <xsd:attribute name="edit_structure_preview_stroke" type="xsd:string"/>
         <xsd:attribute name="edit_structure_preview_dash_stroke" type="xsd:string"/>
+        <xsd:attribute name="edit_start_connector_marker_type" type="xsd:string"/>
+        <xsd:attribute name="edit_finish_connector_marker_type" type="xsd:string"/>
+        <xsd:attribute name="edit_start_connector_marker_size" type="xsd:double"/>
+        <xsd:attribute name="edit_finish_connector_marker_size" type="xsd:double"/>
+        <xsd:attribute name="edit_start_connector_marker_horizontal_offset" type="xsd:double"/>
+        <xsd:attribute name="edit_finish_connector_marker_horizontal_offset" type="xsd:double"/>
+        <xsd:attribute name="edit_start_connector_marker_vertical_offset" type="xsd:double"/>
+        <xsd:attribute name="edit_finish_connector_marker_vertical_offset" type="xsd:double"/>
+        <xsd:attribute name="edit_interval_width" type="xsd:double"/>
     </xsd:complexType>
 
     <xsd:complexType name="core.ColorRange">
@@ -1954,6 +1967,7 @@
             <xsd:element minOccurs="0" maxOccurs="1" name="colors" type="OrdinalOrLinearScaleColors"/>
         </xsd:all>
         <xsd:attribute name="type" type="enums.ScaleTypes" default="linear"/>
+        <xsd:attribute name="max_ticks_count" type="xsd:integer" default="1000"/>
         <xsd:attribute name="inverted" type="simple.Bool" default="false"/>
         <xsd:attribute name="stick_to_zero" type="simple.Bool"/>
         <xsd:attribute name="stack_mode" type="enums.ScaleStackMode" default="none"/>
@@ -1976,6 +1990,7 @@
             <xsd:element minOccurs="0" maxOccurs="1" name="names" type="OrdinalScaleNames"/>
         </xsd:all>
         <xsd:attribute name="type" type="enums.ScaleTypes" default="ordinalColor"/>
+        <xsd:attribute name="max_ticks_count" type="xsd:integer" default="1000"/>
         <xsd:attribute name="inverted" type="simple.Bool" default="false"/>
         <xsd:attribute name="names" type="xsd:string" default="name"/>
         <xsd:attribute name="stick_to_zero" type="simple.Bool"/>
@@ -2010,6 +2025,7 @@
             <xsd:element minOccurs="0" maxOccurs="1" name="y_minor_ticks" type="GeoScaleTicks"/>
         </xsd:all>
         <xsd:attribute name="type" type="enums.ScaleTypes" default="geo"/>
+        <xsd:attribute name="max_ticks_count" type="xsd:integer" default="1000"/>
         <xsd:attribute name="minimum_x" type="simple.NumberOrPercentOrNull"/>
         <xsd:attribute name="minimum_y" type="simple.NumberOrPercentOrNull"/>
         <xsd:attribute name="maximum_x" type="simple.NumberOrPercentOrNull"/>
@@ -2030,6 +2046,7 @@
             <xsd:element minOccurs="0" maxOccurs="1" name="minor_ticks" type="ScaleTicks"/>
         </xsd:all>
         <xsd:attribute name="type" type="enums.GaugeScaleTypes" default="linear"/>
+        <xsd:attribute name="max_ticks_count" type="xsd:integer" default="1000"/>
         <xsd:attribute name="inverted" type="simple.Bool" default="false"/>
         <xsd:attribute name="stick_to_zero" type="simple.Bool"/>
         <xsd:attribute name="stack_mode" type="enums.ScaleStackMode" default="none"/>
@@ -2050,6 +2067,7 @@
             <xsd:element minOccurs="0" maxOccurs="1" name="ranges" type="OrdinalColorScaleRanges"/>
             <xsd:element minOccurs="0" maxOccurs="1" name="names" type="OrdinalScaleNames"/>
         </xsd:all>
+        <xsd:attribute name="max_ticks_count" type="xsd:integer" default="1000"/>
         <xsd:attribute name="inverted" type="simple.Bool" default="false"/>
         <xsd:attribute name="stick_to_zero" type="simple.Bool"/>
         <xsd:attribute name="stack_mode" type="enums.ScaleStackMode" default="none"/>
@@ -2987,6 +3005,22 @@
         <xsd:restriction base="xsd:string">
             <xsd:enumeration value="vertical"/>
             <xsd:enumeration value="horizontal"/>
+        </xsd:restriction>
+    </xsd:simpleType>
+
+    <xsd:simpleType name="enums.LegendLayout">
+        <xsd:restriction base="xsd:string">
+            <xsd:enumeration value="vertical"/>
+            <xsd:enumeration value="verticalexpandable"/>
+            <xsd:enumeration value="horizontal"/>
+            <xsd:enumeration value="horizontalexpandable"/>
+        </xsd:restriction>
+    </xsd:simpleType>
+
+    <xsd:simpleType name="enums.LegendPositionMode">
+        <xsd:restriction base="xsd:string">
+            <xsd:enumeration value="inside"/>
+            <xsd:enumeration value="outside"/>
         </xsd:restriction>
     </xsd:simpleType>
 

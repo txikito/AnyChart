@@ -20,18 +20,18 @@ anychart.core.makeStandalone(anychart.standalones.Background, anychart.core.ui.B
  */
 anychart.standalones.background = function() {
   var background = new anychart.standalones.Background();
-  background.setupByVal(anychart.getFullTheme()['standalones']['background'], true);
+  background.setupByVal(anychart.getFullTheme('standalones.background'), true);
   return background;
 };
 
 
 /**
  * Constructor function.
- * @deprecated Since 7.12.0. Use anychart.standalones.background instead.
  * @return {!anychart.standalones.Background}
+ * @deprecated Since 7.12.0. Use anychart.standalones.background instead.
  */
 anychart.ui.background = function() {
-  anychart.core.reporting.warning(anychart.enums.WarningCode.DEPRECATED, null, ['anychart.ui.background', 'anychart.standalones.background'], true);
+  anychart.core.reporting.warning(anychart.enums.WarningCode.DEPRECATED, null, ['anychart.ui.background()', 'anychart.standalones.background()', null, 'Constructor'], true);
   return anychart.standalones.background();
 };
 

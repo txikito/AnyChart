@@ -19,6 +19,13 @@ goog.require('goog.math');
 anychart.scales.StockScatterDateTime = function(chartOrScroller) {
   anychart.scales.StockScatterDateTime.base(this, 'constructor');
   /**
+   * Threshold ticks count.
+   * @type {number}
+   * @private
+   */
+  this.maxTicksCount_ = 1000;
+
+  /**
    * Chart reference. Used for key<->index transformations.
    * @type {!anychart.core.stock.IKeyIndexTransformer}
    * @protected
@@ -125,6 +132,25 @@ goog.inherits(anychart.scales.StockScatterDateTime, anychart.core.Base);
 anychart.scales.StockScatterDateTime.prototype.SUPPORTED_SIGNALS =
     anychart.Signal.NEED_UPDATE_TICK_DEPENDENT |
     anychart.Signal.NEED_UPDATE_FULL_RANGE_ITEMS;
+
+
+/**
+ * Max ticks count for interval-mode ticks calculation.
+ * @param {number=} opt_value
+ * @return {number|anychart.scales.StockScatterDateTime}
+ */
+anychart.scales.StockScatterDateTime.prototype.maxTicksCount = function(opt_value) {
+  if (goog.isDef(opt_value)) {
+    var val = anychart.utils.normalizeToNaturalNumber(opt_value, 1000, false);
+    if (this.maxTicksCount_ != val) {
+      this.maxTicksCount_ = val;
+      this.consistent = false;
+      this.dispatchSignal(anychart.Signal.NEED_UPDATE_TICK_DEPENDENT);
+    }
+    return this;
+  }
+  return this.maxTicksCount_;
+};
 
 
 /**
@@ -419,9 +445,10 @@ anychart.scales.StockScatterDateTime.prototype.ticksInvalidated_ = function(even
 /**
  * Gets current grouping unit.
  * @return {anychart.enums.Interval}
- * @deprecated Use stockChart.grouping().getEstimatedDataInterval() instead.
+ * @deprecated Since 7.10.0. Use stockChart.grouping().getCurrentDataInterval() instead.
  */
 anychart.scales.StockScatterDateTime.prototype.getGroupingUnit = function() {
+  anychart.core.reporting.warning(anychart.enums.WarningCode.DEPRECATED, null, ['getGroupingUnit()', 'stockChart.grouping().getCurrentDataInterval()'], true);
   return this.unit;
 };
 
@@ -429,9 +456,10 @@ anychart.scales.StockScatterDateTime.prototype.getGroupingUnit = function() {
 /**
  * Gets current grouping unit count.
  * @return {number}
- * @deprecated Use stockChart.grouping().getEstimatedDataInterval() instead.
+ * @deprecated Since 7.10.0. Use stockChart.grouping().getCurrentDataInterval() instead.
  */
 anychart.scales.StockScatterDateTime.prototype.getGroupingUnitCount = function() {
+  anychart.core.reporting.warning(anychart.enums.WarningCode.DEPRECATED, null, ['getGroupingUnitCount()', 'stockChart.grouping().getCurrentDataInterval()'], true);
   return this.count;
 };
 

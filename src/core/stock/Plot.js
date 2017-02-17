@@ -688,12 +688,13 @@ anychart.core.stock.Plot.prototype.atr = function(mapping, opt_period, opt_serie
  * @param {!anychart.data.TableMapping} mapping
  * @param {number=} opt_period [20] Sets moving average period value.
  * @param {number=} opt_deviation [2] Sets the multiplier applied to the moving average to compute upper and lower bands of the indicator.
- * @param {anychart.enums.StockSeriesType=} opt_upSeriesType
- * @param {anychart.enums.StockSeriesType=} opt_downSeriesType
+ * @param {anychart.enums.StockSeriesType=} opt_middleSeriesType
+ * @param {anychart.enums.StockSeriesType=} opt_upperSeriesType
+ * @param {anychart.enums.StockSeriesType=} opt_lowerSeriesType
  * @return {anychart.core.stock.indicators.BBands}
  */
-anychart.core.stock.Plot.prototype.bbands = function(mapping, opt_period, opt_deviation, opt_upSeriesType, opt_downSeriesType) {
-  var result = new anychart.core.stock.indicators.BBands(this, mapping, opt_period, opt_deviation, opt_upSeriesType, opt_downSeriesType);
+anychart.core.stock.Plot.prototype.bbands = function(mapping, opt_period, opt_deviation, opt_middleSeriesType, opt_upperSeriesType, opt_lowerSeriesType) {
+  var result = new anychart.core.stock.indicators.BBands(this, mapping, opt_period, opt_deviation, opt_middleSeriesType, opt_upperSeriesType, opt_lowerSeriesType);
   this.indicators_.push(result);
   return result;
 };
@@ -984,8 +985,9 @@ anychart.core.stock.Plot.prototype.setDefaultGridSettings = function(value) {
 /**
  * Invalidates plot series. Doesn't dispatch anything.
  * @param {boolean} doInvalidateBounds
+ * @param {boolean=} opt_skipLegend
  */
-anychart.core.stock.Plot.prototype.invalidateRedrawable = function(doInvalidateBounds) {
+anychart.core.stock.Plot.prototype.invalidateRedrawable = function(doInvalidateBounds, opt_skipLegend) {
   var i;
 
   var state = anychart.ConsistencyState.SERIES_POINTS;
@@ -1023,7 +1025,8 @@ anychart.core.stock.Plot.prototype.invalidateRedrawable = function(doInvalidateB
   if (doInvalidateBounds) state |= anychart.ConsistencyState.BOUNDS;
   if (this.xAxis_)
     this.xAxis_.invalidate(state);
-  if (this.legend_ && this.legend_.enabled())
+
+  if (!opt_skipLegend && this.legend_ && this.legend_.enabled())
     this.legend_.invalidate(state);
 
   this.invalidate(anychart.ConsistencyState.STOCK_PLOT_SERIES |
@@ -1081,6 +1084,7 @@ anychart.core.stock.Plot.prototype.background = function(opt_value) {
 anychart.core.stock.Plot.prototype.legend = function(opt_value) {
   if (!this.legend_) {
     this.legend_ = new anychart.core.ui.Legend();
+    this.registerDisposable(this.legend_);
     this.legend_.zIndex(200);
     this.legend_.listenSignals(this.onLegendSignal_, this);
     this.legend_.setParentEventTarget(this);
@@ -1575,7 +1579,7 @@ anychart.core.stock.Plot.prototype.ensureBoundsDistributed_ = function() {
 
     this.seriesBounds_ = seriesBounds;
     this.eventsInterceptor_.setBounds(this.seriesBounds_);
-    this.invalidateRedrawable(true);
+    this.invalidateRedrawable(true, true);
     this.markConsistent(anychart.ConsistencyState.BOUNDS | anychart.ConsistencyState.STOCK_PLOT_LEGEND);
   }
 };
@@ -1874,8 +1878,7 @@ anychart.core.stock.Plot.prototype.initDragger_ = function(e) {
  */
 anychart.core.stock.Plot.prototype.handlePlotMouseOverAndMove_ = function(e) {
   if (this.seriesBounds_) {
-    var stageReferencePoint = goog.style.getClientPosition(/** @type {Element} */
-        (this.container().getStage().container()));
+    var stageReferencePoint = this.container().getStage().getClientPosition();
     var x = e['clientX'] - stageReferencePoint.x - this.seriesBounds_.left;
     var y = e['clientY'] - stageReferencePoint.y - this.seriesBounds_.top;
     // testing that the point is inside series area

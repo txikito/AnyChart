@@ -1809,8 +1809,6 @@ anychart.core.ui.Table.prototype.resetFillPaths_ = function() {
  * @private
  */
 anychart.core.ui.Table.prototype.getBorderPath_ = function(stroke) {
-  if (goog.isObject(stroke) && ('keys' in stroke) && !goog.isObject(stroke['mode']))
-    stroke['mode'] = this.getPixelBounds();
   var hash = anychart.utils.hash(stroke);
   if (hash in this.borderPaths_)
     return this.borderPaths_[hash];
@@ -1819,6 +1817,10 @@ anychart.core.ui.Table.prototype.getBorderPath_ = function(stroke) {
         /** @type {!acgraph.vector.Path} */(this.pathsPool_.pop()) :
         acgraph.path();
     this.layer_.addChild(path);
+    if (goog.isObject(stroke) && ('keys' in stroke) && !goog.isObject(stroke['mode'])) {
+      stroke = /** @type {acgraph.vector.Stroke} */(anychart.utils.recursiveClone(stroke));
+      stroke['mode'] = this.getPixelBounds();
+    }
     path.stroke(stroke);
     path.fill(null);
     this.borderPaths_[hash] = path;
@@ -2267,7 +2269,7 @@ anychart.core.ui.Table.prototype.allocCell_ = function(row, col) {
 anychart.core.ui.Table.prototype.getLabelsFactory_ = function() {
   if (!this.labelsFactory_) {
     this.labelsFactory_ = new anychart.core.ui.LabelsFactory();
-    this.labelsFactory_.setup(anychart.getFullTheme()['standalones']['labelsFactory']);
+    this.labelsFactory_.setup(anychart.getFullTheme('standalones.labelsFactory'));
     this.labelsFactory_.anchor(anychart.enums.Anchor.CENTER);
     this.labelsFactory_.position(anychart.enums.Position.CENTER);
     // we do not register disposable here, cause we dispose it manually in disposeInternal

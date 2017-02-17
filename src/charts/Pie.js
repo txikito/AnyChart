@@ -409,6 +409,7 @@ anychart.charts.Pie.prototype.doAnimation = function() {
       this.animationQueue_.add(/** @type {goog.fx.TransitionBase} */ (pieLabelAnimation));
 
       this.animationQueue_.listen(goog.fx.Transition.EventType.BEGIN, function() {
+        this.ignoreMouseEvents(true);
         this.dispatchDetachedEvent({
           'type': anychart.enums.EventType.ANIMATION_START,
           'chart': this
@@ -416,6 +417,7 @@ anychart.charts.Pie.prototype.doAnimation = function() {
       }, false, this);
 
       this.animationQueue_.listen(goog.fx.Transition.EventType.END, function() {
+        this.ignoreMouseEvents(false);
         this.dispatchDetachedEvent({
           'type': anychart.enums.EventType.ANIMATION_END,
           'chart': this
@@ -1491,15 +1493,6 @@ anychart.charts.Pie.prototype.normalizeHatchFill = function(hatchFill) {
 /**
  * @inheritDoc
  */
-anychart.charts.Pie.prototype.remove = function() {
-  if (this.dataLayer_) this.dataLayer_.parent(null);
-  if (this.hatchLayer_) this.hatchLayer_.parent(null);
-};
-
-
-/**
- * @inheritDoc
- */
 anychart.charts.Pie.prototype.beforeDraw = function() {
   if (this.palette_ && this.palette_ instanceof anychart.palettes.RangeColors) {
     this.palette_.count(this.getIterator().getRowsCount());
@@ -1618,8 +1611,8 @@ anychart.charts.Pie.prototype.drawContent = function(bounds) {
     }
 
     var themePart = this.isOutsideLabels() ?
-        anychart.getFullTheme()['pie']['outsideLabels'] :
-        anychart.getFullTheme()['pie']['insideLabels'];
+        anychart.getFullTheme('pie.outsideLabels') :
+        anychart.getFullTheme('pie.insideLabels');
     this.labels().setAutoColor(themePart['autoColor']);
     this.labels().disablePointerEvents(themePart['disablePointerEvents']);
     if (this.isOutsideLabels()) {
@@ -3105,7 +3098,7 @@ anychart.charts.Pie.prototype.getSeriesStatus = function(event) {
   //
   //var value, index, iterator;
   //
-  //var containerOffset = goog.style.getClientPosition(/** @type {Element} */(this.container().getStage().container()));
+  //var containerOffset = this.container().getStage().getClientPosition();
   //
   //var x = clientX - containerOffset.x;
   //var y = clientY - containerOffset.y;

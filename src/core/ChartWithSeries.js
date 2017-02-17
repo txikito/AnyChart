@@ -1097,7 +1097,7 @@ anychart.core.ChartWithSeries.prototype.calculateXScales = function() {
           current0 = 0;
           current1 = 0;
           val0 = current0 < dataLength0 ? data0[current0].data['x'] : NaN;
-          val1 = current1 < dataLength1 ? data0[current1].data['x'] : NaN;
+          val1 = current1 < dataLength1 ? data1[current1].data['x'] : NaN;
           while (!isNaN(val0) && !isNaN(val1)) {
             inc0 = val0 <= val1;
             inc1 = val0 >= val1;
@@ -2390,19 +2390,21 @@ anychart.core.ChartWithSeries.prototype.doAnimation = function() {
       var duration = /** @type {number} */(this.animation().duration());
       for (var i = 0; i < this.seriesList.length; i++) {
         var series = this.seriesList[i];
-        if (!series.rendering().needsCustomPointDrawer()) {
+        if (series.enabled() && !series.rendering().needsCustomPointDrawer()) {
           var ctl = anychart.animations.AnimationBySeriesType[series.getAnimationType()];
           if (ctl)
             this.animationQueue_.add(/** @type {goog.fx.TransitionBase} */ (new ctl(series, duration)));
         }
       }
       this.animationQueue_.listen(goog.fx.Transition.EventType.BEGIN, function() {
+        this.ignoreMouseEvents(true);
         this.dispatchDetachedEvent({
           'type': anychart.enums.EventType.ANIMATION_START,
           'chart': this
         });
       }, false, this);
       this.animationQueue_.listen(goog.fx.Transition.EventType.END, function() {
+        this.ignoreMouseEvents(false);
         this.dispatchDetachedEvent({
           'type': anychart.enums.EventType.ANIMATION_END,
           'chart': this
@@ -2601,7 +2603,7 @@ anychart.core.ChartWithSeries.prototype.getSeriesStatus = function(event) {
 
   var value, index, iterator;
 
-  var containerOffset = goog.style.getClientPosition(/** @type {Element} */(this.container().getStage().container()));
+  var containerOffset = this.container().getStage().getClientPosition();
 
   var x = clientX - containerOffset.x;
   var y = clientY - containerOffset.y;

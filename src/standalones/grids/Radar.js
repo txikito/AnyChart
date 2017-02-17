@@ -20,7 +20,7 @@ anychart.core.makeStandalone(anychart.standalones.grids.Radar, anychart.core.gri
  */
 anychart.standalones.grids.radar = function() {
   var grid = new anychart.standalones.grids.Radar();
-  grid.setup(anychart.getFullTheme()['standalones']['radarGrid']);
+  grid.setup(anychart.getFullTheme('standalones.radarGrid'));
   return grid;
 };
 
@@ -31,7 +31,7 @@ anychart.standalones.grids.radar = function() {
  * @deprecated Since 7.12.0. Use anychart.standalones.grids.radar instead.
  */
 anychart.grids.radar = function() {
-  anychart.core.reporting.warning(anychart.enums.WarningCode.DEPRECATED, null, ['anychart.grids.radar', 'anychart.standalones.grids.radar'], true);
+  anychart.core.reporting.warning(anychart.enums.WarningCode.DEPRECATED, null, ['anychart.grids.radar()', 'anychart.standalones.grids.radar()', null, 'Constructor'], true);
   return anychart.standalones.grids.radar();
 };
 

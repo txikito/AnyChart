@@ -33,7 +33,7 @@ anychart.core.makeStandalone(anychart.standalones.ResourceTimeline, anychart.cor
  */
 anychart.standalones.projectTimeline = function() {
   var timeline = new anychart.standalones.ProjectTimeline();
-  timeline.setup(anychart.getFullTheme()['standalones']['projectTimeline']);
+  timeline.setup(anychart.getFullTheme('standalones.projectTimeline'));
   return timeline;
 };
 
@@ -44,7 +44,7 @@ anychart.standalones.projectTimeline = function() {
  */
 anychart.standalones.resourceTimeline = function() {
   var timeline = new anychart.standalones.ResourceTimeline();
-  timeline.setup(anychart.getFullTheme()['standalones']['resourceTimeline']);
+  timeline.setup(anychart.getFullTheme('standalones.resourceTimeline'));
   return timeline;
 };
 
@@ -55,7 +55,7 @@ anychart.standalones.resourceTimeline = function() {
  * @deprecated Since 7.12.0. Use anychart.standalones.projectTimeline instead.
  */
 anychart.ui.projectTimeline = function() {
-  anychart.core.reporting.warning(anychart.enums.WarningCode.DEPRECATED, null, ['anychart.ui.projectTimeline', 'anychart.standalones.projectTimeline'], true);
+  anychart.core.reporting.warning(anychart.enums.WarningCode.DEPRECATED, null, ['anychart.ui.projectTimeline()', 'anychart.standalones.projectTimeline()', null, 'Constructor'], true);
   return anychart.standalones.projectTimeline();
 };
 
@@ -66,7 +66,7 @@ anychart.ui.projectTimeline = function() {
  * @deprecated Since 7.12.0. Use anychart.standalones.resourceTimeline instead.
  */
 anychart.ui.resourceTimeline = function() {
-  anychart.core.reporting.warning(anychart.enums.WarningCode.DEPRECATED, null, ['anychart.ui.resourceTimeline', 'anychart.standalones.resourceTimeline'], true);
+  anychart.core.reporting.warning(anychart.enums.WarningCode.DEPRECATED, null, ['anychart.ui.resourceTimeline()', 'anychart.standalones.resourceTimeline()', null, 'Constructor'], true);
   return anychart.standalones.resourceTimeline();
 };
 

@@ -60,7 +60,7 @@ acgraph.vector.Stage.prototype.allowCreditsDisabling = false;
 acgraph.vector.Stage.prototype.credits = function(opt_value) {
   if (!this.credits_) {
     this.credits_ = new anychart.core.ui.StageCredits(this, this.allowCreditsDisabling);
-    this.credits_.setup(anychart.getFullTheme()['stageCredits']);
+    this.credits_.setup(anychart.getFullTheme('stageCredits'));
   }
   if (goog.isDef(opt_value)) {
     this.credits_.setup(opt_value);
@@ -68,6 +68,23 @@ acgraph.vector.Stage.prototype.credits = function(opt_value) {
   }
   return this.credits_;
 };
+
+
+// /**
+//  * Original render function from the graphics stage.
+//  * @type {Function}
+//  * @private
+//  */
+// acgraph.vector.Stage.prototype.originalRender_ = acgraph.vector.Stage.prototype.renderInternal;
+//
+//
+// /**
+//  * Render internal override.
+//  */
+// acgraph.vector.Stage.prototype.renderInternal = function() {
+//   this.originalRender_();
+//   this.credits().render();
+// };
 
 
 /**
@@ -79,9 +96,10 @@ acgraph.vector.Stage.prototype.credits = function(opt_value) {
  @see acgraph.vector.Stage#saveAsSvg
  @param {string=} opt_address Export server script URL.
  @return {string} Export server script URL.
+ @deprecated Since 7.10.1. Use anychart.exports.server() instead.
  */
 anychart.server = function(opt_address) {
-  anychart.core.reporting.warning(anychart.enums.WarningCode.DEPRECATED, null, ['anychart.server', 'anychart.exports.server'], true);
+  anychart.core.reporting.warning(anychart.enums.WarningCode.DEPRECATED, null, ['anychart.server()', 'anychart.exports.server()', null, 'Function'], true);
   return anychart.exports.server(opt_address);
 };
 
@@ -378,7 +396,7 @@ anychart.onDocumentLoad = function(func, opt_scope) {
   }
   anychart.documentLoadCallbacks_.push([func, opt_scope]);
 
-  goog.events.listen(goog.dom.getWindow(), goog.events.EventType.LOAD, function() {
+  goog.events.listen(goog.global, goog.events.EventType.LOAD, function() {
     for (var i = 0, count = anychart.documentLoadCallbacks_.length; i < count; i++) {
       var item = anychart.documentLoadCallbacks_[i];
       item[0].apply(item[1]);
@@ -393,7 +411,7 @@ anychart.onDocumentLoad = function(func, opt_scope) {
  * @private
  */
 anychart.attachDomEvents_ = function() {
-  var window = goog.dom.getWindow();
+  var window = goog.global;
   var document = window['document'];
 
   // goog.events.EventType.DOMCONTENTLOADED - for browsers that support DOMContentLoaded event. IE9+
@@ -410,7 +428,7 @@ anychart.attachDomEvents_ = function() {
  * @private
  */
 anychart.detachDomEvents_ = function() {
-  var window = goog.dom.getWindow();
+  var window = goog.global;
   var document = window['document'];
 
   acgraph.events.unlisten(document, [goog.events.EventType.DOMCONTENTLOADED, goog.events.EventType.READYSTATECHANGE], anychart.completed_, false);
@@ -424,7 +442,7 @@ anychart.detachDomEvents_ = function() {
  * @private
  */
 anychart.completed_ = function(event) {
-  var document = goog.dom.getWindow()['document'];
+  var document = goog.global['document'];
   // readyState === "complete" is good enough for us to call the dom ready in oldIE
   if (document.addEventListener || window['event']['type'] === 'load' || document['readyState'] === 'complete') {
     anychart.detachDomEvents_();
@@ -452,7 +470,7 @@ anychart.ready_ = function(event) {
     return;
   }
 
-  var document = goog.dom.getWindow()['document'];
+  var document = goog.global['document'];
 
   // Make sure the document body at least exists in case IE gets a little overzealous (ticket #5443).
   if (!document['body']) {
@@ -488,7 +506,7 @@ anychart.onDocumentReady = function(func, opt_scope) {
   }
   anychart.documentReadyCallbacks_.push([func, opt_scope]);
 
-  var document = goog.dom.getWindow()['document'];
+  var document = goog.global['document'];
 
   if (document['readyState'] === 'complete') {
     setTimeout(anychart.ready_, 1);
@@ -551,17 +569,23 @@ anychart.themes_ = [];
 
 
 /**
+ * Clones of themes, where i-th clone corresponds to (i-1)-th theme and 0 clone is a default theme clone.
+ * @type {Array.<!Object>}
+ * @private
+ */
+anychart.themeClones_ = [];
+
+
+/**
  * Sets the theme/themes for anychart globally or gets current theme/themes.
  * @param {?(string|Object|Array<string|Object>)=} opt_value Object/name of a theme or array of objects/names of the themes.
  * @return {string|Object|Array<string|Object>}
  */
 anychart.theme = function(opt_value) {
   if (goog.isDef(opt_value)) {
-    if (!goog.isArray(opt_value)) {
-      opt_value = [opt_value];
-    }
-    anychart.themes_ = opt_value || [];
-    delete anychart.compiledTheme_;
+    anychart.themes_ = opt_value ? (goog.isArray(opt_value) ? opt_value : [opt_value]) : [];
+    anychart.themeClones_.length = 0;
+    anychart.themes.merging.clearCache();
   }
   return anychart.themes_;
 };
@@ -572,47 +596,43 @@ anychart.theme = function(opt_value) {
  * @param {string|Object} value
  */
 anychart.appendTheme = function(value) {
-  if (goog.isString(value)) {
-    value = goog.global['anychart']['themes'][value];
-  }
   anychart.themes_.push(value);
-  if (anychart.compiledTheme_) {
-    anychart.compiledTheme_ = anychart.themes.merging.merge(
-        anychart.themes.merging.compileTheme(value),
-        anychart.compiledTheme_);
-  }
 };
 
 
 /**
- * Returns final compiled and merged theme.
+ * Returns final compiled and merged theme. Pass root name to compile the theme
+ * partially.
+ * @param {string} root
  * @return {*}
  */
-anychart.getFullTheme = function() {
-  if (!anychart.compiledTheme_) {
-    anychart.performance.start('Theme compilation');
-    if (!anychart.defaultThemeCompiled_) {
-      anychart.defaultThemeCompiled_ = anychart.themes.merging.compileTheme(
-          goog.global['anychart']['themes'][anychart.DEFAULT_THEME]);
-    }
-    if (anychart.themes_.length) {
-      anychart.compiledTheme_ = goog.array.reduce(anychart.themes_, function(mergedThemes, themeToMerge) {
-        return anychart.themes.merging.merge(
-            anychart.themes.merging.compileTheme(
-                goog.isString(themeToMerge) ? goog.global['anychart']['themes'][themeToMerge] : themeToMerge),
-            mergedThemes);
-      }, anychart.defaultThemeCompiled_);
-    } else {
-      anychart.compiledTheme_ = anychart.defaultThemeCompiled_;
-    }
-    anychart.performance.end('Theme compilation');
+anychart.getFullTheme = function(root) {
+  anychart.performance.start('Theme compilation');
+  var i;
+  if (!anychart.themeClones_.length) {
+    anychart.themeClones_.push(goog.global['anychart']['themes'][anychart.DEFAULT_THEME] || {});
   }
-  return anychart.compiledTheme_;
+  for (i = anychart.themeClones_.length - 1; i < anychart.themes_.length; i++) {
+    var themeToMerge = anychart.themes_[i];
+    var clone = anychart.utils.recursiveClone(goog.isString(themeToMerge) ? goog.global['anychart']['themes'][themeToMerge] : themeToMerge);
+    anychart.themeClones_.push(goog.isObject(clone) ? clone : {});
+  }
+  var startMergeAt = Infinity;
+  for (i = 0; i < anychart.themeClones_.length; i++) {
+    if (anychart.themes.merging.compileTheme(anychart.themeClones_[i], root, i))
+      startMergeAt = Math.min(startMergeAt, i);
+  }
+  for (i = Math.max(1, startMergeAt); i < anychart.themeClones_.length; i++) {
+    // theme clones are guaranteed to be objects, so we can skip replacing them
+    anychart.themes.merging.merge(anychart.themeClones_[i], anychart.themeClones_[i - 1]);
+  }
+  anychart.performance.end('Theme compilation');
+  return anychart.themes.merging.getThemePart(anychart.themeClones_[anychart.themeClones_.length - 1], root);
 };
 
 
 // we execute it here to move load from first chart drawing to library initialization phase.
-setTimeout(anychart.getFullTheme, 0);
+// setTimeout(anychart.getFullTheme, 0);
 
 
 //region --- Patches for missing features
@@ -1075,19 +1095,6 @@ goog.exportSymbol('anychart.bubbleMap', anychart.bubbleMap);
 goog.exportSymbol('anychart.markerMap', anychart.markerMap);
 goog.exportSymbol('anychart.seatMap', anychart.seatMap);
 goog.exportSymbol('anychart.connector', anychart.connector);
-goog.exportSymbol('anychart.areaChart', anychart.area);
-goog.exportSymbol('anychart.barChart', anychart.bar);
-goog.exportSymbol('anychart.bubbleChart', anychart.bubble);
-goog.exportSymbol('anychart.bulletChart', anychart.bullet);
-goog.exportSymbol('anychart.cartesianChart', anychart.cartesian);
-goog.exportSymbol('anychart.columnChart', anychart.column);
-goog.exportSymbol('anychart.financialChart', anychart.financial);
-goog.exportSymbol('anychart.lineChart', anychart.line);
-goog.exportSymbol('anychart.markerChart', anychart.marker);
-goog.exportSymbol('anychart.pieChart', anychart.pie);
-goog.exportSymbol('anychart.radarChart', anychart.radar);
-goog.exportSymbol('anychart.polarChart', anychart.polar);
-goog.exportSymbol('anychart.scatterChart', anychart.scatter);
 goog.exportSymbol('anychart.circularGauge', anychart.circularGauge);
 goog.exportSymbol('anychart.gauges.circular', anychart.gauges.circular);
 goog.exportSymbol('anychart.gauges.linear', anychart.gauges.linear);

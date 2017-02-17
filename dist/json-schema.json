@@ -1,6 +1,6 @@
 {
   "$schema": "http://json-schema.org/draft-04/schema",
-  "description": "AnyChart 7 JSON schema, version 7.12.0",
+  "description": "AnyChart 7 JSON schema, version 7.13.0",
   "type": "object",
   "properties": {
     "chart": {
@@ -3812,7 +3812,16 @@
           }
         },
         "horizontalScrollBar": {"$ref": "#/definitions/anychart.core.ui.ScrollBar"},
-        "verticalScrollBar": {"$ref": "#/definitions/anychart.core.ui.ScrollBar"}
+        "verticalScrollBar": {"$ref": "#/definitions/anychart.core.ui.ScrollBar"},
+        "editStartConnectorMarkerType": {"type": "string"},
+        "editFinishConnectorMarkerType": {"type": "string"},
+        "editStartConnectorMarkerSize": {"type": "number"},
+        "editFinishConnectorMarkerSize": {"type": "number"},
+        "editStartConnectorMarkerHorizontalOffset": {"type": "number"},
+        "editFinishConnectorMarkerHorizontalOffset": {"type": "number"},
+        "editStartConnectorMarkerVerticalOffset": {"type": "number"},
+        "editFinishConnectorMarkerVerticalOffset": {"type": "number"},
+        "editIntervalWidth": {"type": "number"}
       }
     },
 
@@ -3870,6 +3879,9 @@
         {"$ref": "#/definitions/anychart.scales.Base"}
       ],
       "properties": {
+        "maxTicksCount": {
+          "type": "number"
+        },
         "minimumGap": {
           "type": "number"
         },
@@ -4115,6 +4127,9 @@
       "type": "object",
       "properties": {
         "type": {"enum": ["geo"]},
+        "maxTicksCount": {
+          "type": "number"
+        },
         "minimumX": {
           "type": ["number", "string", "null"]
         },
@@ -4446,8 +4461,9 @@
           "type": "boolean"
         },
         "position": {"$ref": "#/definitions/anychart.enums.Orientation"},
+        "positionMode": {"$ref": "#/definitions/anychart.enums.LegendPositionMode"},
         "align": {"$ref": "#/definitions/anychart.enums.Align"},
-        "itemsLayout": {"$ref": "#/definitions/anychart.enums.Layout"},
+        "itemsLayout": {"$ref": "#/definitions/anychart.enums.LegendLayout"},
         "items": {
           "type": "array",
           "items": {"$ref": "#/definitions/anychart.core.utils.LegendItemSettings"}
@@ -4478,6 +4494,23 @@
             {"$ref": "#/definitions/disable"},
             {"$ref": "#/definitions/anychart.core.ui.Paginator"}
           ]
+        },
+        "maxWidth": {
+          "type": [
+            "string",
+            "number",
+            "null"
+          ]
+        },
+        "maxHeight": {
+          "type": [
+            "string",
+            "number",
+            "null"
+          ]
+        },
+        "drag": {
+          "type": "boolean"
         }
       }
     },
@@ -5300,6 +5333,12 @@
         "bottom"
       ]
     },
+    "anychart.enums.LegendPositionMode": {
+      "enum": [
+        "inside",
+        "outside"
+      ]
+    },
     "anychart.enums.ChartScrollerPosition": {
       "enum": [
         "afterAxes",
@@ -5353,6 +5392,14 @@
       "enum": [
         "vertical",
         "horizontal"
+      ]
+    },
+    "anychart.enums.LegendLayout": {
+      "enum": [
+        "vertical",
+        "verticalexpandable",
+        "horizontal",
+        "horizontalexpandable"
       ]
     },
     "anychart.enums.RadialGridLayout": {

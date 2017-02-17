@@ -20,7 +20,7 @@ anychart.core.makeStandalone(anychart.standalones.ColorRange, anychart.core.ui.C
  */
 anychart.standalones.colorRange = function() {
   var colorRange = new anychart.standalones.ColorRange();
-  colorRange.setupByVal(anychart.getFullTheme()['standalones']['colorRange'], true);
+  colorRange.setupByVal(anychart.getFullTheme('standalones.colorRange'), true);
   return colorRange;
 };
 
@@ -31,7 +31,7 @@ anychart.standalones.colorRange = function() {
  * @deprecated Since 7.12.0. Use anychart.standalones.colorRange instead.
  */
 anychart.ui.colorRange = function() {
-  anychart.core.reporting.warning(anychart.enums.WarningCode.DEPRECATED, null, ['anychart.ui.colorRange', 'anychart.standalones.colorRange'], true);
+  anychart.core.reporting.warning(anychart.enums.WarningCode.DEPRECATED, null, ['anychart.ui.colorRange()', 'anychart.standalones.colorRange()', null, 'Constructor'], true);
   return anychart.standalones.colorRange();
 };
 

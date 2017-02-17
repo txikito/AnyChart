@@ -36,7 +36,7 @@ anychart.standalones.axes.Polar.prototype.serialize = function() {
  */
 anychart.standalones.axes.polar = function() {
   var axis = new anychart.standalones.axes.Polar();
-  axis.setup(anychart.getFullTheme()['standalones']['polarAxis']);
+  axis.setup(anychart.getFullTheme('standalones.polarAxis'));
   return axis;
 };
 
@@ -48,7 +48,7 @@ anychart.standalones.axes.polar = function() {
  * @deprecated Since 7.12.0. Use anychart.standalones.axes.polar instead.
  */
 anychart.axes.polar = function() {
-  anychart.core.reporting.warning(anychart.enums.WarningCode.DEPRECATED, null, ['anychart.axes.polar', 'anychart.standalones.axes.polar'], true);
+  anychart.core.reporting.warning(anychart.enums.WarningCode.DEPRECATED, null, ['anychart.axes.polar()', 'anychart.standalones.axes.polar()', null, 'Constructor'], true);
   return anychart.standalones.axes.polar();
 };
 

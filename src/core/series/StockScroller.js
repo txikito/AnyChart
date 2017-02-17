@@ -116,37 +116,14 @@ anychart.core.series.StockScroller.prototype.applyConfig = function(config, opt_
 //----------------------------------------------------------------------------------------------------------------------
 /**
  * Container for the second, selected replica of the series.
- * @param {(acgraph.vector.ILayer|string|Element)=} opt_value .
+ * @param {acgraph.vector.ILayer=} opt_value .
  * @return {(acgraph.vector.ILayer|!anychart.core.series.Stock)} .
  */
 anychart.core.series.StockScroller.prototype.secondaryContainer = function(opt_value) {
   if (goog.isDef(opt_value)) {
     if (this.secondaryContainer_ != opt_value) {
-      var containerBounds = this.secondaryContainer_ && this.secondaryContainer_.getStage() && this.secondaryContainer_.getStage().getBounds();
-      if (goog.isString(opt_value) || goog.dom.isElement(opt_value)) {
-        // Should we use registerDisposable in this case?
-        // TODO(Anton Saukh): fix type cast to {Element|string} when this will be fixed in graphics.
-        this.secondaryContainer_ = acgraph.create();
-        this.registerDisposable(this.secondaryContainer_);
-        this.secondaryContainer_.container(/** @type {Element} */(opt_value));
-
-        //if graphics engine can't recognize passed container
-        //we should destroy stage to avoid uncontrolled behaviour
-        if (!this.secondaryContainer_.container()) {
-          this.secondaryContainer_.dispose();
-          this.secondaryContainer_ = null;
-          return this;
-        }
-      } else {
-        this.secondaryContainer_ = /** @type {acgraph.vector.ILayer} */(opt_value);
-      }
-
-      var state = anychart.ConsistencyState.CONTAINER;
-      var newContainerBounds = this.secondaryContainer_ && this.secondaryContainer_.getStage() && this.secondaryContainer_.getStage().getBounds();
-      if (!goog.math.Rect.equals(containerBounds, newContainerBounds))
-        state |= anychart.ConsistencyState.BOUNDS;
-
-      this.invalidate(state, anychart.Signal.NEEDS_REDRAW);
+      this.secondaryContainer_ = opt_value;
+      this.invalidate(anychart.ConsistencyState.CONTAINER, anychart.Signal.NEEDS_REDRAW);
     }
     return this;
   }
@@ -184,6 +161,21 @@ anychart.core.series.StockScroller.prototype.getMainChart = function() {
 /** @inheritDoc */
 anychart.core.series.StockScroller.prototype.getDetachedIterator = function() {
   return this.getSelectableData().getIteratorInternal(true, true);
+};
+//endregion
+
+
+//region Interactivity
+//----------------------------------------------------------------------------------------------------------------------
+//
+//  Interactivity
+//
+//----------------------------------------------------------------------------------------------------------------------
+
+
+/** @inheritDoc */
+anychart.core.series.StockScroller.prototype.getPointState = function(index) {
+  return anychart.PointState.NORMAL;
 };
 //endregion
 
@@ -247,20 +239,6 @@ anychart.core.series.StockScroller.prototype.applyZIndex = function() {
   var zIndex = /** @type {number} */(this.zIndex());
   this.rootLayer.zIndex(zIndex);
   this.secondaryRootLayer_.zIndex(zIndex);
-};
-
-
-/** @inheritDoc */
-anychart.core.series.StockScroller.prototype.updateColors = function() {
-  if (this.shapeManager instanceof anychart.core.shapeManagers.PerPoint) {
-    var iterator = this.getResetIterator();
-    while (iterator.advance()) {
-      this.shapeManager.updateColors(this.getPointState(iterator.getIndex()),
-          /** @type {Object.<string, acgraph.vector.Shape>} */(iterator.meta('shapes')));
-    }
-  } else {
-    this.shapeManager.updateColors(this.getSeriesState());
-  }
 };
 //endregion
 

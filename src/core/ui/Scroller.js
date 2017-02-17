@@ -1099,7 +1099,7 @@ anychart.core.ui.Scroller.prototype.thumbOrRangeMouseDown_ = function(e) {
  */
 anychart.core.ui.Scroller.prototype.nonSelectedRangeClick_ = function(e) {
   // assume we have a stage here
-  var root = goog.style.getClientPosition(/** @type {Element} */(this.rootLayer.getStage().container()));
+  var root = this.rootLayer.getStage().getClientPosition();
   var position;
   if (this.isHorizontal())
     position = e['clientX'] - root.x;
@@ -1425,6 +1425,9 @@ anychart.core.ui.Scroller.prototype.moveHandleTo_ = function(handle, position) {
   }
   startRatio = this.toInternalRatio_(startRatio);
   endRatio = this.toInternalRatio_(endRatio);
+  if (startRatio == endRatio) {
+    endRatio += endRatio < anychart.core.ui.Scroller.MAX_RATIO ? 1 : -1;
+  }
   if (startRatio > endRatio) {
     var tmp = this.startThumb_;
     this.startThumb_ = this.endThumb_;

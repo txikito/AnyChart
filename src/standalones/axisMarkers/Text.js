@@ -21,7 +21,7 @@ anychart.core.makeStandalone(anychart.standalones.axisMarkers.Text, anychart.cor
  */
 anychart.standalones.axisMarkers.text = function() {
   var text = new anychart.standalones.axisMarkers.Text();
-  text.setup(anychart.getFullTheme()['standalones']['textAxisMarker']);
+  text.setup(anychart.getFullTheme('standalones.textAxisMarker'));
   return text;
 };
 
@@ -32,7 +32,7 @@ anychart.standalones.axisMarkers.text = function() {
  * @return {!anychart.standalones.axisMarkers.Text}
  */
 anychart.axisMarkers.text = function() {
-  anychart.core.reporting.warning(anychart.enums.WarningCode.DEPRECATED, null, ['anychart.axisMarkers.text', 'anychart.standalones.axisMarkers.text'], true);
+  anychart.core.reporting.warning(anychart.enums.WarningCode.DEPRECATED, null, ['anychart.axisMarkers.text()', 'anychart.standalones.axisMarkers.text()', null, 'Constructor'], true);
   return anychart.standalones.axisMarkers.text();
 };
 

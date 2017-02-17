@@ -37,7 +37,7 @@ goog.inherits(anychart.standalones.MarkersFactory.Marker, anychart.core.ui.Marke
  */
 anychart.standalones.markersFactory = function() {
   var factory = new anychart.standalones.MarkersFactory();
-  factory.setup(anychart.getFullTheme()['standalones']['markersFactory']);
+  factory.setup(anychart.getFullTheme('standalones.markersFactory'));
   return factory;
 };
 
@@ -48,7 +48,7 @@ anychart.standalones.markersFactory = function() {
  * @deprecated Since 7.12.0. Use anychart.standalones.markersFactory instead.
  */
 anychart.ui.markersFactory = function() {
-  anychart.core.reporting.warning(anychart.enums.WarningCode.DEPRECATED, null, ['anychart.ui.markersFactory', 'anychart.standalones.markersFactory'], true);
+  anychart.core.reporting.warning(anychart.enums.WarningCode.DEPRECATED, null, ['anychart.ui.markersFactory()', 'anychart.standalones.markersFactory()', null, 'Constructor'], true);
   return anychart.standalones.markersFactory();
 };
 

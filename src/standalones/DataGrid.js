@@ -50,7 +50,7 @@ anychart.standalones.DataGrid.prototype.setupByJSON = function(config) {
  */
 anychart.standalones.dataGrid = function() {
   var dataGrid = new anychart.standalones.DataGrid();
-  dataGrid.setup(anychart.getFullTheme()['standalones']['dataGrid']);
+  dataGrid.setup(anychart.getFullTheme('standalones.dataGrid'));
   return dataGrid;
 };
 
@@ -61,7 +61,7 @@ anychart.standalones.dataGrid = function() {
  * @deprecated Since 7.12.0. Use anychart.standalones.dataGrid instead.
  */
 anychart.ui.dataGrid = function() {
-  anychart.core.reporting.warning(anychart.enums.WarningCode.DEPRECATED, null, ['anychart.ui.dataGrid', 'anychart.standalones.dataGrid'], true);
+  anychart.core.reporting.warning(anychart.enums.WarningCode.DEPRECATED, null, ['anychart.ui.dataGrid()', 'anychart.standalones.dataGrid()', null, 'Constructor'], true);
   return anychart.standalones.dataGrid();
 };
 
@@ -78,7 +78,7 @@ anychart.ui.dataGrid = function() {
   proto['container'] = proto.container;
   proto['rowStroke'] = proto.rowStroke;
   proto['backgroundFill'] = proto.backgroundFill;
-  proto['titleHeight'] = proto.titleHeight; //deprecated
+  proto['titleHeight'] = proto.titleHeight; //deprecated since 7.7.0
   proto['headerHeight'] = proto.headerHeight;
   proto['verticalScrollBar'] = proto.verticalScrollBar;
   proto['defaultRowHeight'] = proto.defaultRowHeight;
