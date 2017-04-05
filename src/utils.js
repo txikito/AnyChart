@@ -2062,55 +2062,6 @@ anychart.utils.decomposeArguments = function(namedArguments, opt_options, opt_de
   return result;
 };
 
-
-/**
- * @param {Object} model
- * @param {string} key
- * @param {*=} opt_value
- * @param {boolean=} opt_dryRun
- * @return {string}
- */
-anychart.utils.getset = function(model, key, opt_value, opt_dryRun) {
-  try {
-    var keyPath = key.split('.');
-    var target = model;
-    var name, matchResult, arg, useCall;
-    var success = false;
-
-    debugger;
-    for (var i = 0, count = keyPath.length; i < count; i++) {
-      name = keyPath[i];
-      matchResult = name.match(/(.+)\((.*)\)/);
-      if (matchResult) {
-        name = matchResult[1];
-        arg = matchResult[2] ? matchResult[2] : undefined;
-        useCall = true;
-      } else {
-        arg = undefined;
-        useCall = false;
-      }
-      if (i != count - 1) {
-        target = useCall ?
-            target[name](arg) :
-            target[name];
-      } else {
-        if (opt_dryRun) {
-          success = !!target[name];
-        } else {
-          target = useCall ?
-              goog.isDef(arg) ? target[name](arg, opt_value) : target[name](opt_value) :
-              goog.isDef(opt_value) ? target[name] = opt_value : target[name];
-        }
-      }
-    }
-  } catch (e) {
-    console.log('Can\'t get/set by key: ', key, ' and value: ', opt_value);
-  }
-
-  return opt_dryRun ? success : target;
-};
-
-
 //exports
 goog.exportSymbol('anychart.utils.printUtilsBoolean', anychart.utils.printUtilsBoolean);
 goog.exportSymbol('anychart.utils.xml2json', anychart.utils.xml2json);
@@ -2119,4 +2070,3 @@ goog.exportSymbol('anychart.utils.defaultDateFormatter', anychart.utils.defaultD
 goog.exportSymbol('anychart.utils.formatDateTime', anychart.utils.formatDateTime);
 goog.exportSymbol('anychart.utils.hideTooltips', anychart.utils.hideTooltips);
 goog.exportSymbol('anychart.utils.htmlTableFromCsv', anychart.utils.htmlTableFromCsv);
-goog.exportSymbol('anychart.utils.getset', anychart.utils.getset);
