@@ -7,6 +7,7 @@ goog.provide('anychart.magic');
  */
 
 /**
+ * 
  * @param {?Object} target
  * @param {string} path
  * @param {string} var_args
@@ -17,42 +18,34 @@ anychart.magic.get = function(target, path, var_args) {
 
   var pathParts = this._parsePath(path);
   if (pathParts) {
-    var part;
-    var name;
-    var call;
-    var args;
-
-    for (var i = 0; i < pathParts.length; i++) {
-      part = pathParts[i];
-      name = part[0];
-      call = part[1];
-      args = part[2];
-
-      if (args) {
-        for (var j = 0; j < args.length; j++) {
-          args[j] = args[j].replace(/['"](.*)['"]/, '$1');
-          var substMatch = args[j].match(/^\{(\d+)\}$/);
-          if (substMatch) {
-            var a = Number(substMatch[1]) + 2;
-            args[j] = arguments[a] ? arguments[a] : void 0;
-          }
-        }
-      }
-
-      // console.log(args);
-      //debugger;
-
-      target = call ? target[name].apply(target, args) : target[name];
-    }
+    var pathArgs = [].slice.call(arguments).slice(2);
+    target = this._applyPath(target, pathParts, pathArgs);
   }
 
   return target;
 };
 
 
-anychart.magic.set = function(value, opt_default) {
+/**
+ *
+ * @param target
+ * @param path
+ * @param value
+ * @param var_args
+ * @return {*}
+ */
+anychart.magic.set = function(target, path, value, var_args) {
+  if (!target) target = window;
 
+  var pathParts = this._parsePath(path);
+  if (pathParts) {
+    var pathArgs = [].slice.call(arguments).slice(3);
+    return this._applyPath(target, pathParts, pathArgs, value);
+  }
+
+  return false;
 };
+
 
 anychart.magic._parsePath = function(path) {
   var elementExp = /\s*\.?\s*(([\w_]+)(\(\s*(,?\s*([\d\.]+|\"[^"]+\"|\'[^']+\'|\{\d+\}))*\s*\))?)/;
@@ -79,6 +72,42 @@ anychart.magic._parsePath = function(path) {
   } while (path.length);
 
   return error ? false : result;
+};
+
+
+anychart.magic._applyPath = function(target, path, pathArguments, opt_lastArgument) {
+  var part;
+  var name;
+  var call;
+  var args;
+
+  for (var i = 0; i < path.length; i++) {
+    part = path[i];
+
+    name = part[0];
+    call = part[1];
+    args = part[2];
+
+    if (args) {
+      for (var j = 0; j < args.length; j++) {
+        args[j] = args[j].replace(/['"](.*)['"]/, '$1');
+        var substMatch = args[j].match(/^\{(\d+)\}$/);
+        if (substMatch) {
+          var a = Number(substMatch[1]);
+          args[j] = pathArguments[a] ? pathArguments[a] : void 0;
+        }
+      }
+    }
+
+    if(opt_lastArgument != void 0 && i == path.length - 1) {
+      args = args ? args : [];
+      args.push(opt_lastArgument);
+    }
+
+    target = call ? target[name].apply(target, args) : target[name];
+  }
+
+  return target;
 };
 
 
