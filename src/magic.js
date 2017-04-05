@@ -7,7 +7,7 @@ goog.provide('anychart.magic');
  */
 
 /**
- * 
+ *
  * @param {?Object} target
  * @param {string} path
  * @param {string} var_args
