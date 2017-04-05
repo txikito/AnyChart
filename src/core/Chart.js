@@ -167,6 +167,12 @@ anychart.core.Chart = function() {
    */
   this.lockOverlayRect_ = null;
 
+  /**
+   * @type {null}
+   * @private
+   */
+  this.id_ = null;
+
   this.invalidate(anychart.ConsistencyState.ALL);
   this.resumeSignalsDispatching(false);
 };
@@ -264,12 +270,19 @@ anychart.core.Chart.prototype.createStage = function() {
  * @return {(anychart.core.Chart|string)} Returns element identifier or chart.
  */
 anychart.core.Chart.prototype.id = function(opt_value) {
-  if (goog.isDef(opt_value) && this.id_ != opt_value) {
+  if (goog.isDefAndNotNull(opt_value) && this.id_ != opt_value) {
+    if (anychart.magic.charts[this.id_]) {
+      if (anychart.magic.charts[this.id_] == this) {
+
+      } else {
+        // todo: warning
+        //anychart.core.reporting.warning(anychart.enums.WarningCode., null, ['textFormatter()', 'format()'], true);
+        return this;
+      }
+    }
     this.id_ = opt_value;
     return this;
   }
-  if (!goog.isDef(this.id_))
-    this.id(acgraph.utils.IdGenerator.getInstance().generateId(this));
 
   return /** @type {string} */(this.id_);
 };

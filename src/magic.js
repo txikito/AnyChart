@@ -6,6 +6,9 @@ goog.provide('anychart.magic');
  @name anychart.magic
  */
 
+
+anychart.magic.charts = {};
+
 /**
  *
  * @param {?Object} target
@@ -111,6 +114,29 @@ anychart.magic._applyPath = function(target, path, pathArguments, opt_lastArgume
 };
 
 
+/**
+ *
+ * @param {?(string|Element|Array.<Element|string>)} opt_value
+ */
+anychart.magic.init = function(opt_value) {
+  if (!goog.isDef(opt_value)) opt_value = 'ac-control';
+
+  if (goog.dom.isElement(opt_value)) {
+    console.log("Emelemt yopta");
+
+  } else if (goog.isString(opt_value)) {
+    var elements = goog.dom.getElementsByClass(opt_value);
+    this.init(elements);
+
+  } else if (goog.isArray(opt_value) || goog.dom.isNodeList(opt_value)){
+    for(var i = 0; i < opt_value.length; i++) {
+      this.init(opt_value[i]);
+    }
+  }
+};
+
+
 //exports
 goog.exportSymbol('anychart.magic.get', anychart.magic.get);
 goog.exportSymbol('anychart.magic.set', anychart.magic.set);
+goog.exportSymbol('anychart.magic.init', anychart.magic.init);
