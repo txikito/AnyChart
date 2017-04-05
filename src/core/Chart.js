@@ -258,6 +258,22 @@ anychart.core.Chart.prototype.createStage = function() {
 };
 
 
+/**
+ * Getter/setter for chart id.
+ * @param opt_value {?string}
+ * @return {(anychart.core.Chart|string)} Returns element identifier or chart.
+ */
+anychart.core.Chart.prototype.id = function(opt_value) {
+  if (goog.isDef(opt_value) && this.id_ != opt_value) {
+    this.id_ = opt_value;
+    return this;
+  }
+  if (!goog.isDef(this.id_))
+    this.id(acgraph.utils.IdGenerator.getInstance().generateId(this));
+
+  return /** @type {string} */(this.id_);
+};
+
 //----------------------------------------------------------------------------------------------------------------------
 //
 //  Methods to set defaults for multiple entities.
@@ -3319,5 +3335,6 @@ anychart.core.Chart.prototype.shareWithPinterest = function(opt_linkOrOptions, o
   proto['shareWithTwitter'] = proto.shareWithTwitter;
   proto['shareWithLinkedIn'] = proto.shareWithLinkedIn;
   proto['shareWithPinterest'] = proto.shareWithPinterest;
+  proto['id'] = proto.id;
 })();
 
