@@ -136,7 +136,43 @@ anychart.magic.init = function(opt_value) {
 };
 
 
+/**
+ * Patch for anychart.core.Chart.prototype.id()
+ * While setting id adds this chart instance to anychart.magic.chart
+ * @param opt_value {?string}
+ * @return {(anychart.core.Chart|string)} Returns chart id or chart itself for chaining.
+ */
+anychart.core.Chart.prototype.id = function(opt_value) {
+  if (goog.isDefAndNotNull(opt_value) && this.id_ != opt_value) {
+    if (anychart.magic.charts[opt_value]) {
+      anychart.core.reporting.warning(anychart.enums.WarningCode.OBJECT_KEY_COLLISION, null, [opt_value], true);
+      return this;
+    }
+
+    delete anychart.magic.charts[this.id_];
+    this.id_ = opt_value;
+    anychart.magic.charts[this.id_] = this;
+    return this;
+  }
+
+  return this.id_;
+};
+
+
+/** @inheritDoc */
+anychart.core.Chart.prototype.dispose = function() {
+  delete anychart.magic.charts[this.id_];
+  anychart.core.Chart.base(this, 'dispose');
+};
+
+
 //exports
-goog.exportSymbol('anychart.magic.get', anychart.magic.get);
-goog.exportSymbol('anychart.magic.set', anychart.magic.set);
-goog.exportSymbol('anychart.magic.init', anychart.magic.init);
+(function() {
+  var proto = anychart.core.Chart.prototype;
+  proto['id'] = proto.id;
+  proto['dispose'] = proto.dispose;
+
+  goog.exportSymbol('anychart.magic.get', anychart.magic.get);
+  goog.exportSymbol('anychart.magic.set', anychart.magic.set);
+  goog.exportSymbol('anychart.magic.init', anychart.magic.init);
+})();

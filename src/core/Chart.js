@@ -168,7 +168,7 @@ anychart.core.Chart = function() {
   this.lockOverlayRect_ = null;
 
   /**
-   * @type {null}
+   * @type {?string}
    * @private
    */
   this.id_ = null;
@@ -267,24 +267,14 @@ anychart.core.Chart.prototype.createStage = function() {
 /**
  * Getter/setter for chart id.
  * @param opt_value {?string}
- * @return {(anychart.core.Chart|string)} Returns element identifier or chart.
+ * @return {(anychart.core.Chart|string)} Returns chart id or chart itself for chaining.
  */
 anychart.core.Chart.prototype.id = function(opt_value) {
   if (goog.isDefAndNotNull(opt_value) && this.id_ != opt_value) {
-    if (anychart.magic.charts[this.id_]) {
-      if (anychart.magic.charts[this.id_] == this) {
-
-      } else {
-        // todo: warning
-        //anychart.core.reporting.warning(anychart.enums.WarningCode., null, ['textFormatter()', 'format()'], true);
-        return this;
-      }
-    }
     this.id_ = opt_value;
     return this;
   }
-
-  return /** @type {string} */(this.id_);
+  return this.id_;
 };
 
 //----------------------------------------------------------------------------------------------------------------------
