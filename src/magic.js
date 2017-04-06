@@ -1,5 +1,6 @@
 goog.provide('anychart.magic');
-
+goog.require('goog.dom');
+goog.require('goog.dom.forms');
 
 /**
  @namespace
@@ -13,7 +14,7 @@ anychart.magic.charts = {};
  *
  * @param {(Object|string)} targetOrPath
  * @param {(string|number)} pathOrPathArgs
- * @param {(string|number)} var_args
+ * @param {(string|number)=} var_args
  * @return {*}
  */
 anychart.magic.get = function(targetOrPath, pathOrPathArgs, var_args) {
@@ -40,9 +41,9 @@ anychart.magic.get = function(targetOrPath, pathOrPathArgs, var_args) {
 /**
  *
  * @param {(Object|string)} targetOrPath
- * @param {(string|number)} pathOrValue
- * @param {(string|number)} valueOrPathArgs
- * @param {(string|number)} var_args
+ * @param {(string|number|boolean)} pathOrValue
+ * @param {(string|number|boolean)} valueOrPathArgs
+ * @param {(string|number)=} var_args
  * @return {*}
  */
 anychart.magic.set = function(targetOrPath, pathOrValue, valueOrPathArgs, var_args) {
@@ -105,9 +106,9 @@ anychart.magic._parsePath = function(path) {
 /**
  * Tries to apply settings returned by this._parsePath() method in chaining style starting from target object.
  * @param {Object} target
- * @param {string} path
+ * @param {Array.<Array>} path
  * @param {Array.<(string|number)>} pathArguments
- * @param {(string|number)} opt_lastArgument
+ * @param {(string|number)=} opt_lastArgument
  * @return {*}
  * @private
  */
@@ -156,13 +157,21 @@ anychart.magic._applyPath = function(target, path, pathArguments, opt_lastArgume
 
 /**
  *
- * @param {?(string|Element|Array.<Element|string>)} opt_value
+ * @param {?(string|Element|Array.<Element|string>|*)} opt_value
  */
 anychart.magic.init = function(opt_value) {
   if (!goog.isDef(opt_value)) opt_value = 'ac-control';
 
   if (goog.dom.isElement(opt_value)) {
-    console.log("Emelemt yopta!");
+    var element = opt_value;
+    var chartId = element.getAttribute('ac-chart-id');
+    var key = element.getAttribute('ac-key');
+    if (chartId && key) {
+      var value = this.get(this.charts[chartId], key);
+      goog.dom.forms.setValue(element, value);
+      // console.log(key, value);
+    }
+    goog.events.listen(element, goog.events.EventType.CHANGE, this._onElementChange, false, this);
 
   } else if (goog.isString(opt_value)) {
     var elements = goog.dom.getElementsByClass(opt_value);
@@ -175,6 +184,38 @@ anychart.magic.init = function(opt_value) {
   }
 };
 
+
+anychart.magic._onElementChange = function(event) {
+  //var elem = goog.dom.getElement(event.target);
+  /** @type {!HTMLInputElement} */
+  var element = event.target;
+  var chartId = event.target.getAttribute('ac-chart-id');
+  var key = event.target.getAttribute('ac-key');
+  // debugger;
+  if (chartId && this.charts[chartId] && key) {
+    var type = element.type;
+    if (!goog.isDef(type))
+      return null;
+
+    var value = goog.dom.forms.getValue(element);
+
+    switch (type.toLowerCase()) {
+      case goog.dom.InputType.CHECKBOX:
+      case goog.dom.InputType.RADIO:
+        value = !!value;
+        break;
+        // return goog.dom.forms.getInputChecked_(el);
+        // case goog.dom.InputType.SELECT_ONE:
+        //   return goog.dom.forms.getSelectSingle_(el);
+        // case goog.dom.InputType.SELECT_MULTIPLE:
+        //   return goog.dom.forms.getSelectMultiple_(el);
+      default:
+        break;
+    }
+
+    this.set(this.charts[chartId], key, value);
+  }
+};
 
 /**
  * Patch for anychart.core.Chart.prototype.id()
