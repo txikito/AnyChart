@@ -164,14 +164,28 @@ anychart.magic.init = function(opt_value) {
 
   if (goog.dom.isElement(opt_value)) {
     var element = opt_value;
+    var type = element.type;
+    if (!goog.isDef(type))
+      return null;
+
     var chartId = element.getAttribute('ac-chart-id');
     var key = element.getAttribute('ac-key');
-    if (chartId && key) {
+    var event = goog.events.EventType.CHANGE;
+    var setValue = true;
+
+    switch(type.toLowerCase()) {
+      case goog.dom.InputType.BUTTON:
+        setValue = false;
+        event = goog.events.EventType.CLICK;
+        break;
+    }
+
+    if (chartId && key && setValue) {
       var value = this.get(this.charts[chartId], key);
       goog.dom.forms.setValue(element, value);
       // console.log(key, value);
     }
-    goog.events.listen(element, goog.events.EventType.CHANGE, this._onElementChange, false, this);
+    goog.events.listen(element, event, this._onElementChange, false, this);
 
   } else if (goog.isString(opt_value)) {
     var elements = goog.dom.getElementsByClass(opt_value);
@@ -198,7 +212,6 @@ anychart.magic._onElementChange = function(event) {
       return null;
 
     var value = goog.dom.forms.getValue(element);
-
     switch (type.toLowerCase()) {
       case goog.dom.InputType.CHECKBOX:
       case goog.dom.InputType.RADIO:
