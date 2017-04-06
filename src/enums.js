@@ -3224,6 +3224,7 @@ anychart.enums.WarningCode = {
 
   FEATURE_ID_NOT_FOUND: 301,
 
+  BAD_REQUEST: 400,
   NOT_FOUND: 404,
   DEPRECATED: 405,
   PARSE_DATETIME: 406,

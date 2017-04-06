@@ -11,18 +11,26 @@ anychart.magic.charts = {};
 
 /**
  *
- * @param {?Object} target
- * @param {string} path
- * @param {string} var_args
+ * @param {(Object|string)} targetOrPath
+ * @param {(string|number)} pathOrPathArgs
+ * @param {(string|number)} var_args
  * @return {*}
  */
-anychart.magic.get = function(target, path, var_args) {
-  if (!target) target = window;
+anychart.magic.get = function(targetOrPath, pathOrPathArgs, var_args) {
+  var target = targetOrPath;
+  var path = pathOrPathArgs;
+  var pathArgsIndex = 2;
 
-  var pathParts = this._parsePath(path);
-  if (pathParts) {
-    var pathArgs = [].slice.call(arguments).slice(2);
-    target = this._applyPath(target, pathParts, pathArgs);
+  if (goog.isString(targetOrPath)) {
+    target = window;
+    path = targetOrPath;
+    pathArgsIndex = 1;
+  }
+
+  var pathParsed = this._parsePath(path);
+  if (pathParsed) {
+    var pathArgs = [].slice.call(arguments).slice(pathArgsIndex);
+    target = this._applyPath(target, pathParsed, pathArgs);
   }
 
   return target;
@@ -31,18 +39,28 @@ anychart.magic.get = function(target, path, var_args) {
 
 /**
  *
- * @param target
- * @param path
- * @param value
- * @param var_args
+ * @param {(Object|string)} targetOrPath
+ * @param {(string|number)} pathOrValue
+ * @param {(string|number)} valueOrPathArgs
+ * @param {(string|number)} var_args
  * @return {*}
  */
-anychart.magic.set = function(target, path, value, var_args) {
-  if (!target) target = window;
+anychart.magic.set = function(targetOrPath, pathOrValue, valueOrPathArgs, var_args) {
+  var target = targetOrPath;
+  var path = pathOrValue;
+  var value = valueOrPathArgs;
+  var pathArgsIndex = 3;
+
+  if (goog.isString(targetOrPath)) {
+    target = window;
+    path = targetOrPath;
+    value = pathOrValue;
+    pathArgsIndex = 2;
+  }
 
   var pathParts = this._parsePath(path);
   if (pathParts) {
-    var pathArgs = [].slice.call(arguments).slice(3);
+    var pathArgs = [].slice.call(arguments).slice(pathArgsIndex);
     return this._applyPath(target, pathParts, pathArgs, value);
   }
 
@@ -50,6 +68,12 @@ anychart.magic.set = function(target, path, value, var_args) {
 };
 
 
+/**
+ * Parses settings path for get() or set() methods.
+ * @param path
+ * @return {(Array|boolean)} Array of settings with it's arguments or false in case of wrong path format.
+ * @private
+ */
 anychart.magic._parsePath = function(path) {
   var elementExp = /\s*\.?\s*(([\w_]+)(\(\s*(,?\s*([\d\.]+|\"[^"]+\"|\'[^']+\'|\{\d+\}))*\s*\))?)/;
   var result = [];
@@ -78,36 +102,52 @@ anychart.magic._parsePath = function(path) {
 };
 
 
+/**
+ * Tries to apply settings returned by this._parsePath() method in chaining style starting from target object.
+ * @param {Object} target
+ * @param {string} path
+ * @param {Array.<(string|number)>} pathArguments
+ * @param {(string|number)} opt_lastArgument
+ * @return {*}
+ * @private
+ */
 anychart.magic._applyPath = function(target, path, pathArguments, opt_lastArgument) {
   var part;
   var name;
   var call;
   var args;
 
-  for (var i = 0; i < path.length; i++) {
-    part = path[i];
+  try {
+    for (var i = 0; i < path.length; i++) {
+      part = path[i];
 
-    name = part[0];
-    call = part[1];
-    args = part[2];
+      name = part[0];
+      call = part[1];
+      args = part[2];
 
-    if (args) {
-      for (var j = 0; j < args.length; j++) {
-        args[j] = args[j].replace(/['"](.*)['"]/, '$1');
-        var substMatch = args[j].match(/^\{(\d+)\}$/);
-        if (substMatch) {
-          var a = Number(substMatch[1]);
-          args[j] = pathArguments[a] ? pathArguments[a] : void 0;
+      if (args) {
+        for (var j = 0; j < args.length; j++) {
+          args[j] = args[j].replace(/['"](.*)['"]/, '$1');
+          var substMatch = args[j].match(/^\{(\d+)\}$/);
+          if (substMatch) {
+            var a = Number(substMatch[1]);
+            args[j] = pathArguments[a] ? pathArguments[a] : void 0;
+          }
         }
       }
-    }
 
-    if(opt_lastArgument != void 0 && i == path.length - 1) {
-      args = args ? args : [];
-      args.push(opt_lastArgument);
-    }
+      if (opt_lastArgument != void 0 && i == path.length - 1) {
+        args = args ? args : [];
+        args.push(opt_lastArgument);
+      }
 
-    target = call ? target[name].apply(target, args) : target[name];
+      target = call ? target[name].apply(target, args) : target[name];
+    }
+  } catch (e) {
+    // todo: work this out
+    console.log('Can\'t get/set by key: \'', name, '\' and arguments: \'', args , '\'');
+    anychart.core.reporting.warning(anychart.enums.WarningCode.BAD_REQUEST, null, null, true);
+    return null;
   }
 
   return target;
@@ -122,7 +162,7 @@ anychart.magic.init = function(opt_value) {
   if (!goog.isDef(opt_value)) opt_value = 'ac-control';
 
   if (goog.dom.isElement(opt_value)) {
-    console.log("Emelemt yopta");
+    console.log("Emelemt yopta!");
 
   } else if (goog.isString(opt_value)) {
     var elements = goog.dom.getElementsByClass(opt_value);
