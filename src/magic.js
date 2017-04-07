@@ -165,6 +165,7 @@ anychart.magic.init = function(opt_value) {
   if (goog.dom.isElement(opt_value)) {
     var element = opt_value;
     var type = element.type;
+
     if (!goog.isDef(type))
       return null;
 
@@ -173,12 +174,17 @@ anychart.magic.init = function(opt_value) {
     var event = goog.events.EventType.CHANGE;
     var setValue = true;
 
+    // if(key == 'legend().itemsLayout()') {
+    //   console.log(type);
+    // }
     switch(type.toLowerCase()) {
       case goog.dom.InputType.BUTTON:
+      case goog.dom.InputType.SUBMIT:
         setValue = false;
         event = goog.events.EventType.CLICK;
         break;
     }
+
 
     if (chartId && key && setValue) {
       var value = this.get(this.charts[chartId], key);
@@ -200,6 +206,7 @@ anychart.magic.init = function(opt_value) {
 
 
 anychart.magic._onElementChange = function(event) {
+  console.log("onChange");
   //var elem = goog.dom.getElement(event.target);
   /** @type {!HTMLInputElement} */
   var element = event.target;
