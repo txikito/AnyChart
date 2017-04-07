@@ -214,7 +214,6 @@ anychart.magic._onElementChange = function(event) {
     var value = goog.dom.forms.getValue(element);
     switch (type.toLowerCase()) {
       case goog.dom.InputType.CHECKBOX:
-      case goog.dom.InputType.RADIO:
         value = !!value;
         break;
         // return goog.dom.forms.getInputChecked_(el);
