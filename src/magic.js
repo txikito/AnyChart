@@ -174,22 +174,47 @@ anychart.magic.init = function(opt_value) {
     var event = goog.events.EventType.CHANGE;
     var setValue = true;
 
-    // if(key == 'legend().itemsLayout()') {
-    //   console.log(type);
+    // if (key == 'xAxis(0).orientation()') {
+    //    // debugger;
     // }
-    switch(type.toLowerCase()) {
+
+    type = type.toLowerCase();
+    switch(type) {
       case goog.dom.InputType.BUTTON:
       case goog.dom.InputType.SUBMIT:
         setValue = false;
         event = goog.events.EventType.CLICK;
         break;
+      case goog.dom.InputType.RADIO:
+        setValue = false;
+        break;
+      case goog.dom.InputType.TEXT:
+      case goog.dom.InputType.TEXTAREA:
+      case goog.dom.InputType.RANGE:
+        event = goog.events.EventType.INPUT;
+        break;
     }
-
 
     if (chartId && key && setValue) {
       var value = this.get(this.charts[chartId], key);
-      goog.dom.forms.setValue(element, value);
-      // console.log(key, value);
+      if (goog.isDefAndNotNull(value)) {
+        switch (type) {
+          case goog.dom.InputType.COLOR:
+            if (goog.isFunction(value)) {
+              // if user uses fill() key which has a function value
+              value = "#ffffff";
+            } else if (value instanceof anychart.core.ui.Background) {
+              value = value['fill']();
+            }
+            break;
+          case goog.dom.InputType.DATE:
+            value = anychart.format.dateTime(value, "yyyy-MM-dd");
+            break;
+        }
+
+        value = goog.isBoolean(value) ? value : String(value);
+        goog.dom.forms.setValue(element, value);
+      }
     }
     goog.events.listen(element, event, this._onElementChange, false, this);
 
@@ -206,29 +231,24 @@ anychart.magic.init = function(opt_value) {
 
 
 anychart.magic._onElementChange = function(event) {
-  console.log("onChange");
-  //var elem = goog.dom.getElement(event.target);
   /** @type {!HTMLInputElement} */
   var element = event.target;
   var chartId = event.target.getAttribute('ac-chart-id');
   var key = event.target.getAttribute('ac-key');
-  // debugger;
+  //debugger;
   if (chartId && this.charts[chartId] && key) {
     var type = element.type;
     if (!goog.isDef(type))
       return null;
 
     var value = goog.dom.forms.getValue(element);
+    // if(type == 'date') debugger;
     switch (type.toLowerCase()) {
       case goog.dom.InputType.CHECKBOX:
         value = !!value;
         break;
-        // return goog.dom.forms.getInputChecked_(el);
-        // case goog.dom.InputType.SELECT_ONE:
-        //   return goog.dom.forms.getSelectSingle_(el);
-        // case goog.dom.InputType.SELECT_MULTIPLE:
-        //   return goog.dom.forms.getSelectMultiple_(el);
-      default:
+      case goog.dom.InputType.DATE:
+        value = anychart.format.parseDateTime(value, "yyyy-MM-dd");
         break;
     }
 
