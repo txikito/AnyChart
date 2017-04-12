@@ -2,6 +2,7 @@ goog.provide('anychart.data.Tree');
 
 goog.require('anychart.core.Base');
 goog.require('anychart.core.reporting');
+goog.require('anychart.data.ITreeDataInfo');
 goog.require('anychart.data.Traverser');
 goog.require('anychart.data.TreeView');
 goog.require('anychart.data.csv.Parser');
@@ -49,7 +50,7 @@ goog.require('goog.object');
  * @extends {anychart.core.Base}
  */
 anychart.data.Tree = function(opt_data, opt_fillMethodOrCsvMapping, opt_csvSettingsOrDeps) {
-  goog.base(this);
+  anychart.data.Tree.base(this, 'constructor');
 
 
   /**
@@ -214,7 +215,7 @@ anychart.data.Tree.prototype.dispatchEvents = function(opt_val) {
 anychart.data.Tree.prototype.dispatchSignal = function(value) {
   if (!this.suspendedDispatching && !!(value & anychart.Signal.DATA_CHANGED))
     this.traverserToArrayCache_ = null;
-  goog.base(this, 'dispatchSignal', value);
+  anychart.data.Tree.base(this, 'dispatchSignal', value);
 };
 
 
@@ -927,7 +928,7 @@ anychart.data.Tree.prototype.removeChildren = function() {
  * @inheritDoc
  */
 anychart.data.Tree.prototype.serialize = function() {
-  var json = goog.base(this, 'serialize');
+  var json = anychart.data.Tree.base(this, 'serialize');
   json['children'] = [];
   for (var i = 0; i < this.numChildren(); i++) {
     var root = this.getChildAt(i);
@@ -989,6 +990,7 @@ anychart.data.Tree.prototype.mapAs = function(opt_mapping) {
  * @param {anychart.data.Tree} parentTree - Tree that contains a data item. Used as signal dispatcher in this case.
  * @param {Object} rawData - Data object.
  * @constructor
+ * @implements {anychart.data.ITreeDataInfo}
  */
 anychart.data.Tree.DataItem = function(parentTree, rawData) {
 
@@ -1101,48 +1103,7 @@ anychart.data.Tree.DataItem.prototype.resumeSignals_ = function(doDispatchSuspen
 
 
 /**
- * Gets value from data by path specified.
- * @param {...*} var_args - Arguments.
- *
- * Note:
- * For example we have such a structure of object in item:
- *  <code>
- *    'a': {          //Object 'a' - root object in data of tree data item
- *      'b': {        //Object 'b' - Object item.get('a')['b']
- *        'c': [      //Array 'c' as field of object 'c'
- *          {         //0-element of array 'c'. Actually is an Object.
- *            'd': [  //field 'd' of parent Object. Actually is array ['v1', 'v2', 'v3']
- *              'v1',
- *              'v2',
- *              'v3'
- *            ]
- *          }
- *        ]
- *      }
- *    }
- *  </code>
- *
- *  1) Can take arguments like this:
- *    <code>
- *      item.get(['a', 'b', 'c', 0, 'd', 1]);
- *    </code>
- *
- *    It means that element with index 1 in destination array 'd' will be returned as value.
- *
- *  2) The same behaviour is for this case:
- *    <code>
- *      item.get('a', 'b', 'c', 0, 'd', 1);
- *    </code>
- *
- *  4) Note: If path contains some errors, nothing will happen.
- *  Sample of wrong data for the same sample object 'a':
- *    <code>
- *      item.get('a', 'b', 'e', 0, 'd', 1);    //Incorrect name 'e' in path.
- *      item.get('a', 'b', 'c', 2, 'd', 1);    //Incorrect index 2 in path.
- *      item.get(['a', true, 'c', 0, 'd', 1]); //Incorrect (boolean) value in path
- *      //... etc.
- *    </code>
- * @return {*} - Value or undefined if path is invalid.
+ * @inheritDoc
  */
 anychart.data.Tree.DataItem.prototype.get = function(var_args) {
   if (arguments.length) {
@@ -1483,8 +1444,7 @@ anychart.data.Tree.DataItem.prototype.meta = function(key, opt_value) {
 
 /**
  * Gets value from meta by path specified.
- * Works totally the same way as item.get().
- * TODO (A.Kudryavtsev): NOTE: Not exported for a while.
+ * Works totally the same way as get().
  * @param {...*} var_args - Arguments.
  * @return {*} - Value or undefined if path is invalid.
  */
@@ -2012,42 +1972,46 @@ anychart.data.tree = function(opt_data, opt_fillMethodOrCsvMapping, opt_csvSetti
 
 
 //exports
-goog.exportSymbol('anychart.data.tree', anychart.data.tree);
-anychart.data.Tree.prototype['getTraverser'] = anychart.data.Tree.prototype.getTraverser;
-anychart.data.Tree.prototype['dispatchEvents'] = anychart.data.Tree.prototype.dispatchEvents;
-anychart.data.Tree.prototype['addData'] = anychart.data.Tree.prototype.addData;
-anychart.data.Tree.prototype['createIndexOn'] = anychart.data.Tree.prototype.createIndexOn;
-anychart.data.Tree.prototype['removeIndexOn'] = anychart.data.Tree.prototype.removeIndexOn;
-anychart.data.Tree.prototype['search'] = anychart.data.Tree.prototype.search;
-anychart.data.Tree.prototype['searchItems'] = anychart.data.Tree.prototype.searchItems;
-anychart.data.Tree.prototype['addChild'] = anychart.data.Tree.prototype.addChild;
-anychart.data.Tree.prototype['addChildAt'] = anychart.data.Tree.prototype.addChildAt;
-anychart.data.Tree.prototype['getChildren'] = anychart.data.Tree.prototype.getChildren;
-anychart.data.Tree.prototype['numChildren'] = anychart.data.Tree.prototype.numChildren;
-anychart.data.Tree.prototype['getChildAt'] = anychart.data.Tree.prototype.getChildAt;
-anychart.data.Tree.prototype['removeChild'] = anychart.data.Tree.prototype.removeChild;
-anychart.data.Tree.prototype['removeChildAt'] = anychart.data.Tree.prototype.removeChildAt;
-anychart.data.Tree.prototype['removeChildren'] = anychart.data.Tree.prototype.removeChildren;
-anychart.data.Tree.prototype['indexOfChild'] = anychart.data.Tree.prototype.indexOfChild;
-anychart.data.Tree.prototype['mapAs'] = anychart.data.Tree.prototype.mapAs;
-//----------------------------------------------------------------------------------------------------------------------
-//
-//  anychart.data.Tree.DataItem
-//  NOTE: instance is not exported.
-//
-//----------------------------------------------------------------------------------------------------------------------
-anychart.data.Tree.DataItem.prototype['get'] = anychart.data.Tree.DataItem.prototype.get;
-anychart.data.Tree.DataItem.prototype['set'] = anychart.data.Tree.DataItem.prototype.set;
-anychart.data.Tree.DataItem.prototype['meta'] = anychart.data.Tree.DataItem.prototype.meta;
-anychart.data.Tree.DataItem.prototype['del'] = anychart.data.Tree.DataItem.prototype.del;
-anychart.data.Tree.DataItem.prototype['getParent'] = anychart.data.Tree.DataItem.prototype.getParent;
-anychart.data.Tree.DataItem.prototype['addChild'] = anychart.data.Tree.DataItem.prototype.addChild;
-anychart.data.Tree.DataItem.prototype['addChildAt'] = anychart.data.Tree.DataItem.prototype.addChildAt;
-anychart.data.Tree.DataItem.prototype['getChildren'] = anychart.data.Tree.DataItem.prototype.getChildren;
-anychart.data.Tree.DataItem.prototype['numChildren'] = anychart.data.Tree.DataItem.prototype.numChildren;
-anychart.data.Tree.DataItem.prototype['getChildAt'] = anychart.data.Tree.DataItem.prototype.getChildAt;
-anychart.data.Tree.DataItem.prototype['remove'] = anychart.data.Tree.DataItem.prototype.remove;
-anychart.data.Tree.DataItem.prototype['removeChild'] = anychart.data.Tree.DataItem.prototype.removeChild;
-anychart.data.Tree.DataItem.prototype['removeChildAt'] = anychart.data.Tree.DataItem.prototype.removeChildAt;
-anychart.data.Tree.DataItem.prototype['removeChildren'] = anychart.data.Tree.DataItem.prototype.removeChildren;
-anychart.data.Tree.DataItem.prototype['indexOfChild'] = anychart.data.Tree.DataItem.prototype.indexOfChild;
+(function() {
+  var proto = anychart.data.Tree.prototype;
+  goog.exportSymbol('anychart.data.tree', anychart.data.tree);
+  proto['getTraverser'] = proto.getTraverser;
+  proto['dispatchEvents'] = proto.dispatchEvents;
+  proto['addData'] = proto.addData;
+  proto['createIndexOn'] = proto.createIndexOn;
+  proto['removeIndexOn'] = proto.removeIndexOn;
+  proto['search'] = proto.search;
+  proto['searchItems'] = proto.searchItems;
+  proto['addChild'] = proto.addChild;
+  proto['addChildAt'] = proto.addChildAt;
+  proto['getChildren'] = proto.getChildren;
+  proto['numChildren'] = proto.numChildren;
+  proto['getChildAt'] = proto.getChildAt;
+  proto['removeChild'] = proto.removeChild;
+  proto['removeChildAt'] = proto.removeChildAt;
+  proto['removeChildren'] = proto.removeChildren;
+  proto['indexOfChild'] = proto.indexOfChild;
+  proto['mapAs'] = proto.mapAs;
+  //----------------------------------------------------------------------------------------------------------------------
+  //
+  //  anychart.data.Tree.DataItem
+  //  NOTE: instance is not exported.
+  //
+  //----------------------------------------------------------------------------------------------------------------------
+  proto = anychart.data.Tree.DataItem.prototype;
+  proto['get'] = proto.get;
+  proto['set'] = proto.set;
+  proto['meta'] = proto.meta;
+  proto['del'] = proto.del;
+  proto['getParent'] = proto.getParent;
+  proto['addChild'] = proto.addChild;
+  proto['addChildAt'] = proto.addChildAt;
+  proto['getChildren'] = proto.getChildren;
+  proto['numChildren'] = proto.numChildren;
+  proto['getChildAt'] = proto.getChildAt;
+  proto['remove'] = proto.remove;
+  proto['removeChild'] = proto.removeChild;
+  proto['removeChildAt'] = proto.removeChildAt;
+  proto['removeChildren'] = proto.removeChildren;
+  proto['indexOfChild'] = proto.indexOfChild;
+})();

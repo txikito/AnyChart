@@ -33,7 +33,7 @@ goog.require('anychart.utils');
  * @constructor
  */
 anychart.core.utils.Error = function(series) {
-  goog.base(this);
+  anychart.core.utils.Error.base(this, 'constructor');
 
   /**
    * Series instance.
@@ -408,14 +408,14 @@ anychart.core.utils.Error.supportsErrorForScale = function(scale) {
  * Draws an error.
  * @param {anychart.scales.Base} scale Scale.
  * @param {boolean} horizontal Direction.
- * @param {boolean} isBarBased Whether series is bar based.
+ * @param {boolean} isVertical Whether series is bar based.
  * @param {number} x X coordinate.
  * @param {number} y Y coordinate.
  * @param {acgraph.vector.Path} path Path to draw error.
  * @param {number} lowerCoord Lower coordinate.
  * @param {number} upperCoord Upper coordinate.
  */
-anychart.core.utils.Error.prototype.drawError = function(scale, horizontal, isBarBased, x, y, path, lowerCoord, upperCoord) {
+anychart.core.utils.Error.prototype.drawError = function(scale, horizontal, isVertical, x, y, path, lowerCoord, upperCoord) {
   if (!anychart.core.utils.Error.supportsErrorForScale(scale))
     return;
 
@@ -426,7 +426,7 @@ anychart.core.utils.Error.prototype.drawError = function(scale, horizontal, isBa
 
   var errorWidth = /** @type {number} */ (horizontal ? this.xErrorWidth() : this.valueErrorWidth());
 
-  !!(horizontal ^ isBarBased) ?
+  !!(horizontal ^ isVertical) ?
       this.drawHorizontalErrorLine_(path, lowerCoord, upperCoord, constCoord, errorWidth || 0, lowerPin, upperPin) :
       this.drawVerticalErrorLine_(path, lowerCoord, upperCoord, constCoord, errorWidth || 0, lowerPin, upperPin);
 };
@@ -435,9 +435,9 @@ anychart.core.utils.Error.prototype.drawError = function(scale, horizontal, isBa
 /**
  * Calculates coordinates and draw error.
  * @param {boolean} horizontal Direction.
- * @param {boolean} isBarBased Whether series is bar based.
+ * @param {boolean} isVertical Whether series is bar based.
  */
-anychart.core.utils.Error.prototype.draw = function(horizontal, isBarBased) {
+anychart.core.utils.Error.prototype.draw = function(horizontal, isVertical) {
   var scale = horizontal ? this.series_.getXScale() : this.series_.yScale();
   var iterator = this.series_.getIterator();
   var x = /** @type {number} */ (iterator.meta('x'));
@@ -470,7 +470,7 @@ anychart.core.utils.Error.prototype.draw = function(horizontal, isBarBased) {
   } else {
     upperCoord = horizontal ? x : y;
   }
-  this.drawError(/** @type {anychart.scales.Base} */ (scale), horizontal, isBarBased, x, y, path, lowerCoord, upperCoord);
+  this.drawError(/** @type {anychart.scales.Base} */ (scale), horizontal, isVertical, x, y, path, lowerCoord, upperCoord);
 };
 
 
@@ -582,7 +582,7 @@ anychart.core.utils.Error.prototype.hasGlobalErrorValues = function() {
  * @inheritDoc
  */
 anychart.core.utils.Error.prototype.serialize = function() {
-  var json = goog.base(this, 'serialize');
+  var json = anychart.core.utils.Error.base(this, 'serialize');
   json['mode'] = this.mode();
   json['xError'] = this.xError();
   if (goog.isDef(this.xUpperError()))
@@ -648,8 +648,11 @@ anychart.core.utils.Error.prototype.setupSpecial = function(var_args) {
  * @inheritDoc
  */
 anychart.core.utils.Error.prototype.setupByJSON = function(config, opt_default) {
-  goog.base(this, 'setupByJSON', config, opt_default);
-  this.mode(config['mode']);
+  anychart.core.utils.Error.base(this, 'setupByJSON', config, opt_default);
+
+  var mode = (!goog.isDef(config['mode']) && this.mode_ == anychart.enums.ErrorMode.NONE) ? anychart.enums.ErrorMode.BOTH : config['mode'];
+  this.mode(mode);
+
   this.xError(config['xError']);
   this.xUpperError(config['xUpperError']);
   this.xLowerError(config['xLowerError']);
@@ -736,9 +739,10 @@ anychart.core.utils.ISeriesWithError.prototype.supportsError = function() {};
 
 /**
  * Draws an error.
+ * @param {anychart.data.IRowInfo} point
  * @protected
  */
-anychart.core.utils.ISeriesWithError.prototype.drawError = function() {};
+anychart.core.utils.ISeriesWithError.prototype.drawError = function(point) {};
 
 
 /**
@@ -764,14 +768,17 @@ anychart.core.utils.ISeriesWithError.prototype.yScale = function(opt_value) {};
 
 
 //exports
-anychart.core.utils.Error.prototype['mode'] = anychart.core.utils.Error.prototype.mode;
-anychart.core.utils.Error.prototype['xError'] = anychart.core.utils.Error.prototype.xError;
-anychart.core.utils.Error.prototype['xUpperError'] = anychart.core.utils.Error.prototype.xUpperError;
-anychart.core.utils.Error.prototype['xLowerError'] = anychart.core.utils.Error.prototype.xLowerError;
-anychart.core.utils.Error.prototype['valueError'] = anychart.core.utils.Error.prototype.valueError;
-anychart.core.utils.Error.prototype['valueUpperError'] = anychart.core.utils.Error.prototype.valueUpperError;
-anychart.core.utils.Error.prototype['valueLowerError'] = anychart.core.utils.Error.prototype.valueLowerError;
-anychart.core.utils.Error.prototype['xErrorWidth'] = anychart.core.utils.Error.prototype.xErrorWidth;
-anychart.core.utils.Error.prototype['valueErrorWidth'] = anychart.core.utils.Error.prototype.valueErrorWidth;
-anychart.core.utils.Error.prototype['xErrorStroke'] = anychart.core.utils.Error.prototype.xErrorStroke;
-anychart.core.utils.Error.prototype['valueErrorStroke'] = anychart.core.utils.Error.prototype.valueErrorStroke;
+(function() {
+  var proto = anychart.core.utils.Error.prototype;
+  proto['mode'] = proto.mode;
+  proto['xError'] = proto.xError;
+  proto['xUpperError'] = proto.xUpperError;
+  proto['xLowerError'] = proto.xLowerError;
+  proto['valueError'] = proto.valueError;
+  proto['valueUpperError'] = proto.valueUpperError;
+  proto['valueLowerError'] = proto.valueLowerError;
+  proto['xErrorWidth'] = proto.xErrorWidth;
+  proto['valueErrorWidth'] = proto.valueErrorWidth;
+  proto['xErrorStroke'] = proto.xErrorStroke;
+  proto['valueErrorStroke'] = proto.valueErrorStroke;
+})();

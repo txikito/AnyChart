@@ -168,7 +168,7 @@ anychart.color.blendedHueProgression = function(opt_color1, opt_color2, opt_coun
 /**
  * Trying to convert given acgraph.vector.Fill or acgraph.vector.Stroke to its hex representation if can
  * @param {(acgraph.vector.Fill|acgraph.vector.Stroke)} fillOrStroke Fill or stroke to convert.
- * @return {(string|null)} Hex representation or null if can not be represented.
+ * @return {?(string)} Hex representation or null if can not be represented.
  * @private
  */
 anychart.color.fillOrStrokeToHex_ = function(fillOrStroke) {
@@ -238,6 +238,7 @@ anychart.color.lighten = function(fillOrStroke, opt_factor) {
     if (!goog.isDefAndNotNull(opt_factor)) {
       opt_factor = 0.3;
     }
+
     return goog.color.rgbArrayToHex(goog.color.lighten(rgb, +opt_factor));
   }
 };
@@ -279,6 +280,7 @@ anychart.color.darken = function(fillOrStroke, opt_factor) {
     if (!goog.isDefAndNotNull(opt_factor)) {
       opt_factor = 0.3;
     }
+
     return goog.color.rgbArrayToHex(goog.color.darken(rgb, +opt_factor));
   }
 };
@@ -442,6 +444,22 @@ anychart.color.setOpacity = function(strokeOrFill, opacity, opt_isFill) {
     norm['opacity'] = opacity;
   }
   return norm;
+};
+
+
+/**
+ * Gets opacity from stroke or fill.
+ * @param {(acgraph.vector.Stroke|acgraph.vector.Fill)} color Normalized color with new opacity.
+ * @return {number} opacity Opacity to set.
+ */
+anychart.color.getOpacity = function(color) {
+  var opacity = 1;
+  if (goog.isString(color)) {
+    opacity = color == 'none' ? 0 : 1;
+  } else if (goog.isObject(color)) {
+    opacity = goog.isNumber(color['opacity']) ? color['opacity'] : 1;
+  }
+  return opacity;
 };
 
 

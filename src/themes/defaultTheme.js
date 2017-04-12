@@ -2,6 +2,8 @@ goog.provide('anychart.themes.defaultTheme');
 
 
 (function() {
+  var global = this;
+
   //region --- Aux functions
   //------------------------------------------------------------------------------
   //
@@ -68,7 +70,7 @@ goog.provide('anychart.themes.defaultTheme');
   var locNum = function(val, opt_decimalsCountOrLocale, opt_decimalPoint, opt_groupsSeparator,
                         opt_scale, opt_zeroFillDecimals, opt_scaleSuffixSeparator, opt_useBracketsForNegative) {
     var val_ = (val === null) || (typeof val == 'boolean') || (val == '') ? NaN : +/** @type {number} */(val);
-    return isNaN(val_) ? val : window['anychart']['format']['number'](val_, opt_decimalsCountOrLocale, opt_decimalPoint, opt_groupsSeparator,
+    return isNaN(val_) ? val : global['anychart']['format']['number'](val_, opt_decimalsCountOrLocale, opt_decimalPoint, opt_groupsSeparator,
         opt_scale, opt_zeroFillDecimals, opt_scaleSuffixSeparator, opt_useBracketsForNegative);
   };
 
@@ -96,7 +98,7 @@ goog.provide('anychart.themes.defaultTheme');
    * @return {*}
    */
   var returnName = function() {
-    return this['name'] || this['getDataValue']('id');
+    return this['name'] || this['getData']('id');
   };
 
   var returnMilestoneName = function() {
@@ -113,7 +115,7 @@ goog.provide('anychart.themes.defaultTheme');
    * @return {*}
    */
   var returnNameWithValue = function() {
-    var name = this['name'] || this['getDataValue']('id');
+    var name = this['name'] || this['getData']('id');
     return name + '\n' + locNum(this['value']);
   };
 
@@ -141,7 +143,7 @@ goog.provide('anychart.themes.defaultTheme');
    * @return {*}
    */
   var returnDateTimeX = function() {
-    return window['anychart']['format']['date'](this['x']);
+    return global['anychart']['format']['date'](this['x']);
   };
 
 
@@ -150,7 +152,7 @@ goog.provide('anychart.themes.defaultTheme');
    * @return {*}
    */
   var returnDateTimeTickValue = function() {
-    return window['anychart']['format']['date'](this['tickValue']);
+    return global['anychart']['format']['date'](this['tickValue']);
   };
 
 
@@ -168,7 +170,7 @@ goog.provide('anychart.themes.defaultTheme');
    * @return {*}
    */
   var returnSourceColor70 = function() {
-    return window['anychart']['color']['setOpacity'](this['sourceColor'], 0.7, true);
+    return global['anychart']['color']['setOpacity'](this['sourceColor'], 0.7, true);
   };
 
 
@@ -177,7 +179,7 @@ goog.provide('anychart.themes.defaultTheme');
    * @return {*}
    */
   var returnSourceColor65 = function() {
-    return window['anychart']['color']['setOpacity'](this['sourceColor'], 0.65, true);
+    return global['anychart']['color']['setOpacity'](this['sourceColor'], 0.65, true);
   };
 
 
@@ -186,7 +188,7 @@ goog.provide('anychart.themes.defaultTheme');
    * @return {*}
    */
   var returnSourceColor50 = function() {
-    return window['anychart']['color']['setOpacity'](this['sourceColor'], 0.50, true);
+    return global['anychart']['color']['setOpacity'](this['sourceColor'], 0.50, true);
   };
 
 
@@ -195,7 +197,7 @@ goog.provide('anychart.themes.defaultTheme');
    * @return {*}
    */
   var returnSourceColor85 = function() {
-    return window['anychart']['color']['setOpacity'](this['sourceColor'], 0.85, true);
+    return global['anychart']['color']['setOpacity'](this['sourceColor'], 0.85, true);
   };
 
 
@@ -204,7 +206,7 @@ goog.provide('anychart.themes.defaultTheme');
    * @return {*}
    */
   var returnDarkenSourceColor = function() {
-    return window['anychart']['color']['darken'](this['sourceColor']);
+    return global['anychart']['color']['darken'](this['sourceColor']);
   };
 
 
@@ -213,7 +215,7 @@ goog.provide('anychart.themes.defaultTheme');
    * @return {*}
    */
   var returnLightenSourceColor = function() {
-    return window['anychart']['color']['lighten'](this['sourceColor']);
+    return global['anychart']['color']['lighten'](this['sourceColor']);
   };
 
 
@@ -222,7 +224,7 @@ goog.provide('anychart.themes.defaultTheme');
    * @return {*}
    */
   var returnStrokeSourceColor = function() {
-    return window['anychart']['color']['setThickness'](this['sourceColor'], 1.5);
+    return global['anychart']['color']['setThickness'](this['sourceColor'], 1.5);
   };
 
 
@@ -231,7 +233,7 @@ goog.provide('anychart.themes.defaultTheme');
    * @return {*}
    */
   var returnStrokeSourceColor1 = function() {
-    return window['anychart']['color']['setThickness'](this['sourceColor'], 1);
+    return global['anychart']['color']['setThickness'](this['sourceColor'], 1);
   };
 
 
@@ -240,7 +242,7 @@ goog.provide('anychart.themes.defaultTheme');
    * @return {*}
    */
   var returnLightenStrokeSourceColor = function() {
-    return window['anychart']['color']['setThickness'](window['anychart']['color']['lighten'](this['sourceColor']), 1.5);
+    return global['anychart']['color']['setThickness'](global['anychart']['color']['lighten'](this['sourceColor']), 1.5);
   };
 
   /**
@@ -248,7 +250,7 @@ goog.provide('anychart.themes.defaultTheme');
    * @return {*}
    */
   var returnThickenedStrokeSourceColor = function() {
-    return window['anychart']['color']['setThickness'](this['sourceColor'], 1.5);
+    return global['anychart']['color']['setThickness'](this['sourceColor'], 1.5);
   };
 
 
@@ -340,7 +342,7 @@ goog.provide('anychart.themes.defaultTheme');
    * @return {*}
    */
   var returnStrokeWithThickness = function() {
-    return window['anychart']['color']['setThickness'](this['sourceColor'], 1.5);
+    return global['anychart']['color']['setThickness'](this['sourceColor'], 1.5);
   };
 
 
@@ -420,8 +422,8 @@ goog.provide('anychart.themes.defaultTheme');
       }
       res += '. ';
     } else if (yType == 'dateTime') {
-      res += 'Y-scale minimum value is ' + window['anychart']['format']['dateTime'](yScale['minimum']()) +
-          ' , maximum value is ' + window['anychart']['format']['dateTime'](yScale['maximum']()) + '. ';
+      res += 'Y-scale minimum value is ' + global['anychart']['format']['dateTime'](yScale['minimum']()) +
+          ' , maximum value is ' + global['anychart']['format']['dateTime'](yScale['maximum']()) + '. ';
     } else { // log/linear.
       res += 'Y-scale minimum value is ' + yScale['minimum']() + ' , maximum value is ' + yScale['maximum']() + '. ';
     }
@@ -434,8 +436,8 @@ goog.provide('anychart.themes.defaultTheme');
       }
       res += '. ';
     } else if (xType == 'dateTime') {
-      res += 'X-scale minimum value is ' + window['anychart']['format']['dateTime'](xScale['minimum']()) +
-          ' , maximum value is ' + window['anychart']['format']['dateTime'](xScale['maximum']()) + '. ';
+      res += 'X-scale minimum value is ' + global['anychart']['format']['dateTime'](xScale['minimum']()) +
+          ' , maximum value is ' + global['anychart']['format']['dateTime'](xScale['maximum']()) + '. ';
     } else { // log/linear.
       res += 'X-scale minimum value is ' + xScale['minimum']() + ' , maximum value is ' + xScale['maximum']() + '. ';
     }
@@ -472,8 +474,8 @@ goog.provide('anychart.themes.defaultTheme');
 
     var xScale = chart['xScale']();
 
-    res += 'X-scale minimum value is ' + window['anychart']['format']['dateTime'](xScale['getMinimum']()) +
-        ' , maximum value is ' + window['anychart']['format']['dateTime'](xScale['getMaximum']()) + '. ';
+    res += 'X-scale minimum value is ' + global['anychart']['format']['dateTime'](xScale['getMinimum']()) +
+        ' , maximum value is ' + global['anychart']['format']['dateTime'](xScale['getMaximum']()) + '. ';
 
     return res;
   };
@@ -518,8 +520,8 @@ goog.provide('anychart.themes.defaultTheme');
       }
       res += '. ';
     } else if (yType == 'dateTime') {
-      res += 'Y-scale minimum value is ' + window['anychart']['format']['dateTime'](yScale['minimum']()) +
-          ' , maximum value is ' + window['anychart']['format']['dateTime'](yScale['maximum']()) + '. ';
+      res += 'Y-scale minimum value is ' + global['anychart']['format']['dateTime'](yScale['minimum']()) +
+          ' , maximum value is ' + global['anychart']['format']['dateTime'](yScale['maximum']()) + '. ';
     } else { // log/linear.
       res += 'Y-scale minimum value is ' + yScale['minimum']() + ' , maximum value is ' + yScale['maximum']() + '. ';
     }
@@ -532,20 +534,32 @@ goog.provide('anychart.themes.defaultTheme');
       }
       res += '. ';
     } else if (xType == 'dateTime') {
-      res += 'X-scale minimum value is ' + window['anychart']['format']['dateTime'](xScale['minimum']()) +
-          ' , maximum value is ' + window['anychart']['format']['dateTime'](xScale['maximum']()) + '. ';
+      res += 'X-scale minimum value is ' + global['anychart']['format']['dateTime'](xScale['minimum']()) +
+          ' , maximum value is ' + global['anychart']['format']['dateTime'](xScale['maximum']()) + '. ';
     } else { // log/linear.
       res += 'X-scale minimum value is ' + xScale['minimum']() + ' , maximum value is ' + xScale['maximum']() + '. ';
     }
 
     return res;
   };
+
+  /**
+   * @param {*} contextProvider
+   * @return {*}
+   */
+  var tooltipTitleFormatter = function(contextProvider) {
+    switch (contextProvider['xScaleType']) {
+      case 'dateTime':
+        return window['anychart']['format']['date'](contextProvider['x']);
+      default:
+        return locNum(contextProvider['x']);
+    }
+  };
   //endregion
 
-
-  window['anychart'] = window['anychart'] || {};
-  window['anychart']['themes'] = window['anychart']['themes'] || {};
-  window['anychart']['themes']['defaultTheme'] = {
+  global['anychart'] = global['anychart'] || {};
+  global['anychart']['themes'] = global['anychart']['themes'] || {};
+  global['anychart']['themes']['defaultTheme'] = {
     'palette': {
       'type': 'distinct',
       'items': ['#64b5f6', '#1976d2', '#ef6c00', '#ffd54f', '#455a64', '#96a6a6', '#dd2c00', '#00838f', '#00bfa5', '#ffa000']
@@ -560,14 +574,76 @@ goog.provide('anychart.themes.defaultTheme');
       'items': ['circle', 'diamond', 'square', 'triangleDown', 'triangleUp', 'diagonalCross', 'pentagon', 'cross', 'vline', 'star5', 'star4', 'trapezium', 'star7', 'star6', 'star10']
     },
 
-    'defaultOrdinalColorScale': {
-      'autoColors': function(rangesCount) {
-        return window['anychart']['color']['blendedHueProgression']('#90caf9', '#01579b', rangesCount);
-        //return window['anychart']['color']['blendedHueProgression']('#ffd54f', '#ef6c00', rangesCount); //todo: delete after final choice
+    'defaultScaleSettings': {
+      'linear': {
+        'maxTicksCount': 1000,
+        'inverted': false,
+        'maximum': null,
+        'minimum': null,
+        'minimumGap': 0.1,
+        'maximumGap': 0.1,
+        'softMinimum': null,
+        'softMaximum': null,
+        'ticks': {
+          'mode': 'linear',
+          'base': 0,
+          'explicit': null,
+          'minCount': 4,
+          'maxCount': 6,
+          'interval': NaN
+        },
+        'minorTicks': {
+          'mode': 'linear',
+          'base': 0,
+          'explicit': null,
+          'count': 5,
+          'interval': NaN
+        },
+        'stackMode': 'none',
+        'stickToZero': true
+      },
+      'ordinal': {
+        'type': 'ordinal',
+        'inverted': false,
+        'names': [],
+        'ticks': {
+          'maxCount': 100
+        }
+      },
+      'log': {
+        'type': 'log',
+        'logBase': 10,
+        'ticks': {
+          'mode': 'log'
+        },
+        'minorTicks': {
+          'mode': 'log'
+        }
+      },
+      'dateTime': {
+        'type': 'dateTime',
+        'ticks': {
+          'count': 4
+        },
+        'minorTicks': {
+          'count': 4
+        }
       }
     },
 
-    'defaultLinearColorScale': {'colors': ['#90caf9', '#01579b']},
+    'defaultOrdinalColorScale': {
+      'autoColors': function(rangesCount) {
+        return global['anychart']['color']['blendedHueProgression']('#90caf9', '#01579b', rangesCount);
+        //return global['anychart']['color']['blendedHueProgression']('#ffd54f', '#ef6c00', rangesCount); //todo: delete after final choice
+      }
+    },
+
+    'defaultLinearColorScale': {
+      'maxTicksCount': 1000,
+      'colors': ['#90caf9', '#01579b'],
+      'minimumGap': 0,
+      'maximumGap': 0
+    },
 
     'defaultFontSettings': {
       'fontSize': 13,
@@ -627,7 +703,7 @@ goog.provide('anychart.themes.defaultTheme');
       'anchor': 'center',
       'padding': {'top': 4, 'right': 4, 'bottom': 4, 'left': 4},
       'rotation': 0,
-      'textFormatter': returnValue,
+      'format': returnValue,
       'positionFormatter': returnValue
     },
 
@@ -671,7 +747,7 @@ goog.provide('anychart.themes.defaultTheme');
           'stroke': 'none'
         }
       },
-      'content': {
+      'contentInternal': {
         'enabled': true,
         'fontSize': 12,
         'minFontSize': 9,
@@ -725,12 +801,15 @@ goog.provide('anychart.themes.defaultTheme');
       'position': 'leftTop',
       'anchor': 'leftTop',
       'hideDelay': 0,
-      'titleFormatter': returnValue,
-      'textFormatter': returnValueWithPrefixPostfix,
-      'unionTextFormatter': function() {
+      'titleFormat': returnValue,
+      'format': returnValueWithPrefixPostfix,
+      'unionFormat': function() {
         return this['formattedValues'].join('\n');
       },
-      'zIndex': 0
+      'zIndex': 0,
+      'allowLeaveChart': true,
+      'allowLeaveScreen': false,
+      'allowLeaveStage': false
     },
 
     'defaultAxis': {
@@ -754,14 +833,14 @@ goog.provide('anychart.themes.defaultTheme');
       },
       'labels': {
         'enabled': true,
-        'textFormatter': notRoundedValue,
+        'format': notRoundedValue,
         'positionFormatter': returnValue,
         'zIndex': 35
       },
       'minorLabels': {
         'enabled': false,
         'fontSize': 9,
-        'textFormatter': notRoundedValue,
+        'format': notRoundedValue,
         'positionFormatter': returnValue,
         'zIndex': 35
       },
@@ -848,10 +927,10 @@ goog.provide('anychart.themes.defaultTheme');
       'fontSize': 12,
       'textOverflow': '...',
       'itemsLayout': 'horizontal',
+      'positionMode': 'outside',
       'itemsSpacing': 15,
       'items': null,
-      'itemsFormatter': null,
-      'itemsTextFormatter': null,
+      'itemsFormat': null,
       'itemsSourceMode': 'default',
       'inverted': false,
       'hoverCursor': 'pointer',
@@ -863,7 +942,9 @@ goog.provide('anychart.themes.defaultTheme');
       'align': 'center',
       'padding': {'top': 0, 'right': 10, 'bottom': 10, 'left': 10},
       'margin': {'top': 0, 'right': 0, 'bottom': 0, 'left': 0},
-      'title': {'fontSize': 15},
+      'title': {
+        'fontSize': 15
+      },
       'paginator': {
         'enabled': true,
         'fontSize': 12,
@@ -892,14 +973,17 @@ goog.provide('anychart.themes.defaultTheme');
           }
         }
       },
-      'titleFormatter': null,
+      'titleFormat': null,
       'tooltip': {
         'enabled': false,
-        'allowLeaveScreen': false,
+        'allowLeaveScreen': true,
         'allowLeaveChart': true,
         'title': {'enabled': false}
       },
-      'zIndex': 20
+      'drag': false,
+      'maxWidth': null,
+      'maxHeight': null,
+      'zIndex': 200
     },
 
     'defaultCrosshairLabel': {
@@ -907,7 +991,7 @@ goog.provide('anychart.themes.defaultTheme');
       'y': 0,
       'axisIndex': 0,
       'anchor': null,
-      'textFormatter': returnValue,
+      'format': returnValue,
       'enabled': true,
       'fontSize': 12,
       'minFontSize': 8,
@@ -918,6 +1002,7 @@ goog.provide('anychart.themes.defaultTheme');
       'text': 'Label text',
       'background': {
         'enabled': true,
+        'disablePointerEvents': true,
         'fill': colorFillBackgroundReversed + opacityStrong,
         'corners': 3,
         'zIndex': 0
@@ -1052,8 +1137,9 @@ goog.provide('anychart.themes.defaultTheme');
 
     'stageCredits': {
       'text': 'AnyChart',
-      'url': 'http://anychart.com',
-      'alt': 'AnyChart.com',
+      'url': 'http://www.anychart.com/?utm_source=registered',
+      'alt': 'AnyChart - JavaScript Charts designed to be embedded and integrated',
+      'imgAlt': 'AnyChart - JavaScript Charts',
       'logoSrc': 'https://static.anychart.com/logo.png'
     },
 
@@ -1085,8 +1171,6 @@ goog.provide('anychart.themes.defaultTheme');
         'allowMultiSeriesSelection': true
       },
       'tooltip': {
-        'allowLeaveScreen': false,
-        'allowLeaveChart': true,
         'displayMode': 'single',
         'positionMode': 'float',
         'title': {
@@ -1097,14 +1181,14 @@ goog.provide('anychart.themes.defaultTheme');
          * @this {*}
          * @return {*}
          */
-        'titleFormatter': function() {
-          return this['points'][0]['x'];
+        'titleFormat': function() {
+          return tooltipTitleFormatter(this['points'][0]);
         },
         /**
          * @this {*}
          * @return {*}
          */
-        'textFormatter': function() {
+        'format': function() {
           return this['formattedValues'].join('\n');
         }
       },
@@ -1124,20 +1208,21 @@ goog.provide('anychart.themes.defaultTheme');
       'defaultSeriesSettings': {
         'base': {
           'enabled': true,
+          'isVertical': null,
           'background': {'enabled': true},
           'tooltip': {
             /**
              * @this {*}
              * @return {*}
              */
-            'titleFormatter': function() {
-              return locNum(this['x']);
+            'titleFormat': function() {
+              return tooltipTitleFormatter(this);
             },
             /**
              * @this {*}
              * @return {*}
              */
-            'textFormatter': function() {
+            'format': function() {
               return this['seriesName'] + ': ' + this['valuePrefix'] + locNum(this['value']) + this['valuePostfix'];
             },
             'zIndex': 0
@@ -1146,15 +1231,16 @@ goog.provide('anychart.themes.defaultTheme');
           'hoverHatchFill': null,
           'selectHatchFill': null,
           'labels': {
-            'anchor': 'centerBottom',
-            'position': 'centerTop'
+            'enabled': null,
+            'anchor': 'auto',
+            'position': 'value'
           },
           'hoverLabels': {'enabled': null},
           'selectLabels': {'enabled': null},
           'markers': {
             'enabled': false,
             'disablePointerEvents': false,
-            'position': 'center',
+            'position': 'value',
             'positionFormatter': returnValue,
             'size': 4
           },
@@ -1204,8 +1290,8 @@ goog.provide('anychart.themes.defaultTheme');
           'pointWidth': null,
           'connectMissingPoints': false,
           'a11y': {
-            'enabled': true,
-            'titleFormatter': 'Series named {%SeriesName} with {%SeriesPointsCount} points. Min value is {%SeriesYMin}, max value is {%SeriesYMax}'
+            'enabled': false,
+            'titleFormat': 'Series named {%SeriesName} with {%SeriesPointsCount} points. Min value is {%SeriesYMin}, max value is {%SeriesYMax}'
           }
         },
         'marker': {
@@ -1222,75 +1308,71 @@ goog.provide('anychart.themes.defaultTheme');
             'iconStroke': 'none'
           },
           'labels': {
-            'anchor': 'centerBottom',
             'offsetY': 3
           }
         },
         'bubble': {
           'fill': returnSourceColor70,
           'hoverFill': returnSourceColor50,
-          'hoverMarkers': {
-            'position': 'center'
-          },
           'displayNegative': false,
           /**
            * @this {*}
            * @return {*}
            */
           'negativeFill': function() {
-            return window['anychart']['color']['darken'](
-                window['anychart']['color']['darken'](
-                    window['anychart']['color']['darken'](this['sourceColor'])));
+            return global['anychart']['color']['darken'](
+                global['anychart']['color']['darken'](
+                    global['anychart']['color']['darken'](this['sourceColor'])));
           },
           /**
            * @this {*}
            * @return {*}
            */
           'hoverNegativeFill': function() {
-            return window['anychart']['color']['darken'](
-                window['anychart']['color']['darken'](
-                    window['anychart']['color']['darken'](
-                        window['anychart']['color']['darken'](this['sourceColor']))));
+            return global['anychart']['color']['darken'](
+                global['anychart']['color']['darken'](
+                    global['anychart']['color']['darken'](
+                        global['anychart']['color']['darken'](this['sourceColor']))));
           },
           /**
            * @this {*}
            * @return {*}
            */
           'selectNegativeFill': function() {
-            return window['anychart']['color']['darken'](
-                window['anychart']['color']['darken'](
-                    window['anychart']['color']['darken'](this['sourceColor'])));
+            return global['anychart']['color']['darken'](
+                global['anychart']['color']['darken'](
+                    global['anychart']['color']['darken'](this['sourceColor'])));
           },
           /**
            * @this {*}
            * @return {*}
            */
           'negativeStroke': function() {
-            return window['anychart']['color']['darken'](
-                window['anychart']['color']['darken'](
-                    window['anychart']['color']['darken'](
-                        window['anychart']['color']['darken'](this['sourceColor']))));
+            return global['anychart']['color']['darken'](
+                global['anychart']['color']['darken'](
+                    global['anychart']['color']['darken'](
+                        global['anychart']['color']['darken'](this['sourceColor']))));
           },
           /**
            * @this {*}
            * @return {*}
            */
           'hoverNegativeStroke': function() {
-            return window['anychart']['color']['darken'](
-                window['anychart']['color']['darken'](
-                    window['anychart']['color']['darken'](
-                        window['anychart']['color']['darken'](
-                            window['anychart']['color']['darken'](this['sourceColor'])))));
+            return global['anychart']['color']['darken'](
+                global['anychart']['color']['darken'](
+                    global['anychart']['color']['darken'](
+                        global['anychart']['color']['darken'](
+                            global['anychart']['color']['darken'](this['sourceColor'])))));
           },
           /**
            * @this {*}
            * @return {*}
            */
           'selectNegativeStroke': function() {
-            return window['anychart']['color']['darken'](
-                window['anychart']['color']['darken'](
-                    window['anychart']['color']['darken'](
-                        window['anychart']['color']['darken'](this['sourceColor']))));
+            return global['anychart']['color']['darken'](
+                global['anychart']['color']['darken'](
+                    global['anychart']['color']['darken'](
+                        global['anychart']['color']['darken'](this['sourceColor']))));
           },
           'negativeHatchFill': false,
           'hoverNegativeHatchFill': null,
@@ -1299,16 +1381,12 @@ goog.provide('anychart.themes.defaultTheme');
             'iconStroke': 'none'
           },
           'labels': {
-            'position': 'center',
             'anchor': 'center'
           }
         },
         'areaLike': {
           'fill': returnSourceColor65,
           'hoverFill': returnSourceColor65,
-          'markers': {
-            'position': 'centerTop'
-          },
           'hoverMarkers': {
             'enabled': true
           },
@@ -1317,9 +1395,6 @@ goog.provide('anychart.themes.defaultTheme');
           },
           'legendItem': {
             'iconStroke': 'none'
-          },
-          'labels': {
-            'anchor': 'leftBottom'
           },
           'stepDirection': 'center'
         },
@@ -1328,16 +1403,9 @@ goog.provide('anychart.themes.defaultTheme');
           'hoverFill': returnSourceColor65,
           'legendItem': {
             'iconStroke': 'none'
-          },
-          'labels': {
-            'anchor': 'centerBottom',
-            'position': 'centerTop'
           }
         },
         'lineLike': {
-          'labels': {
-            'anchor': 'leftBottom'
-          },
           'hoverMarkers': {
             'enabled': true
           },
@@ -1346,31 +1414,17 @@ goog.provide('anychart.themes.defaultTheme');
           },
           'stepDirection': 'center'
         },
-        'rangeArea': {
+        'rangeLike': {
           'labels': {
-            'textFormatter': returnRangeLabelsContentFormatter
+            'format': returnRangeLabelsContentFormatter,
+            'position': 'high'
+          },
+          'markers': {
+            'position': 'high'
           },
           'tooltip': {
-            'titleFormatter': returnX,
-            'textFormatter': returnRangeTooltipContentFormatter
-          }
-        },
-        'rangeSplineArea': {
-          'labels': {
-            'textFormatter': returnRangeLabelsContentFormatter
-          },
-          'tooltip': {
-            'titleFormatter': returnX,
-            'textFormatter': returnRangeTooltipContentFormatter
-          }
-        },
-        'rangeStepArea': {
-          'labels': {
-            'textFormatter': returnRangeLabelsContentFormatter
-          },
-          'tooltip': {
-            'titleFormatter': returnX,
-            'textFormatter': returnRangeTooltipContentFormatter
+            // 'titleFormat': returnX,
+            'format': returnRangeTooltipContentFormatter
           }
         },
         'candlestick': {
@@ -1394,45 +1448,20 @@ goog.provide('anychart.themes.defaultTheme');
           'selectRisingStroke': defaultSelectColor,
           'selectFallingStroke': defaultSelectColor,
           'tooltip': {
-            'textFormatter': OHLCTooltipFormatter
+            'format': OHLCTooltipFormatter
           },
           'markers': {
-            'position': 'centerTop'
+            'position': 'high'
           },
           'labels': {
-            'position': 'centerTop',
-            'anchor': 'centerBottom',
-            'textFormatter': returnX
+            'position': 'high',
+            'format': returnX
           }
         },
         'column': {
-          'markers': {
-            'position': 'centerTop'
-          },
-          'hoverMarkers': {
-            'position': 'centerTop'
-          },
+          'isVertical': false,
           'labels': {
-            'offsetY': 3,
-            'anchor': 'centerBottom'
-          }
-        },
-        'rangeColumn': {
-          'markers': {
-            'position': 'centerTop'
-          },
-          'hoverMarkers': {
-            'position': 'centerTop'
-          },
-          'labels': {
-            'position': 'centerTop',
-            'anchor': 'centerBottom',
-            'textFormatter': returnRangeLabelsContentFormatter
-          },
-          'tooltip': {
-            'textFormatter': returnRangeTooltipContentFormatter,
-            'anchor': 'leftTop',
-            'offsetX': 10
+            'offsetY': 3
           }
         },
         'ohlc': {
@@ -1443,49 +1472,20 @@ goog.provide('anychart.themes.defaultTheme');
           'selectRisingStroke': '3 ' + defaultSelectColor,
           'selectFallingStroke': '3 ' + defaultSelectColor,
           'tooltip': {
-            'textFormatter': OHLCTooltipFormatter
+            'format': OHLCTooltipFormatter
           },
           'markers': {
-            'position': 'centerTop'
-          },
-          'hoverMarkers': {
-            'enabled': null,
-            'position': 'centerTop'
-          },
-          'selectMarkers': {
-            'enabled': null,
-            'position': 'centerTop'
+            'position': 'high'
           },
           'labels': {
-            'position': 'centerTop',
-            'anchor': 'centerBottom',
-            /**
-             * @this {*}
-             * @return {*}
-             */
-            'textFormatter': function() {
-              return this['x'];
-            }
+            'position': 'high',
+            'format': returnX
           }
         },
         'stick': {
-          'labels': {
-            'anchor': 'bottom',
-            'position': 'top'
-          },
-          'markers': {
-            'position': 'top'
-          },
           'stroke': returnStrokeSourceColor1
         },
         'jumpLine': {
-          'labels': {
-            'anchor': 'bottom',
-            'position': 'top'
-          },
-          'markers': {
-            'position': 'top'
-          },
           'pointWidth': '100%'
         }
       },
@@ -1512,7 +1512,7 @@ goog.provide('anychart.themes.defaultTheme');
       'minBubbleSize': '5%',
       'a11y': {
         'enabled': true,
-        'titleFormatter': chartA11yTitleFormatter,
+        'titleFormat': chartA11yTitleFormatter,
         'mode': 'chartElements'
       },
       'defaultAnnotationSettings': {
@@ -1546,7 +1546,7 @@ goog.provide('anychart.themes.defaultTheme');
              * @return {*}
              * @this {*}
              */
-            'textFormatter': function() {
+            'format': function() {
               return this['level'];
             }
           },
@@ -1668,27 +1668,23 @@ goog.provide('anychart.themes.defaultTheme');
           'offsetY': 0
         },
         'label': {}
-      }
+      },
+      'labels': {'enabled': false},
+      'hoverLabels': {'enabled': null},
+      'selectLabels': {'enabled': null}
     },
 
     'cartesianBase': {
       'defaultSeriesSettings': {
         'base': {
           'labels': {
-            'textFormatter': VALUE_TOKEN_DECIMALS_COUNT_2
+            'format': VALUE_TOKEN_DECIMALS_COUNT_2
           }
         },
         'bar': {
-          'markers': {
-            'position': 'rightCenter'
-          },
-          'hoverMarkers': {
-            'position': 'rightCenter'
-          },
+          'isVertical': true,
           'labels': {
-            'offsetX': 3,
-            'anchor': 'leftCenter',
-            'position': 'rightCenter'
+            'offsetY': 3
           },
           'tooltip': {
             'anchor': 'leftTop'
@@ -1699,21 +1695,17 @@ goog.provide('anychart.themes.defaultTheme');
             'anchor': 'leftTop'
           }
         },
-        'rangeBar': {
-          'markers': {
-            'position': 'rightCenter'
-          },
-          'hoverMarkers': {
-            'position': 'rightCenter'
-          },
-          'labels': {
-            'anchor': 'leftCenter',
-            'offsetX': 3,
-            'textFormatter': returnRangeLabelsContentFormatter,
-            'position': 'rightCenter'
-          },
+        'rangeColumn': {
+          'isVertical': false,
           'tooltip': {
-            'textFormatter': returnRangeTooltipContentFormatter
+            'anchor': 'leftTop',
+            'offsetX': 10
+          }
+        },
+        'rangeBar': {
+          'isVertical': true,
+          'labels': {
+            'offsetY': 3
           }
         },
         'box': {
@@ -1751,12 +1743,16 @@ goog.provide('anychart.themes.defaultTheme');
             'fill': defaultSelectColor,
             'stroke': defaultSelectStroke
           },
+          'markers': {
+            'position': 'median'
+          },
           'labels': {
+            'position': 'highest',
             /**
              * @this {*}
              * @return {*}
              */
-            'textFormatter': function() {
+            'format': function() {
               return 'Highest: ' + locNum(this['highest']) + '\n' +
                   'Median: ' + locNum(this['median']) + '\n' +
                   'Lowest: ' + locNum(this['lowest']);
@@ -1767,14 +1763,14 @@ goog.provide('anychart.themes.defaultTheme');
              * @this {*}
              * @return {*}
              */
-            'titleFormatter': function() {
+            'titleFormat': function() {
               return this['name'] || this['x'];
             },
             /**
              * @this {*}
              * @return {*}
              */
-            'textFormatter': function() {
+            'format': function() {
               return 'Lowest: ' + this['valuePrefix'] + locNum(this['lowest']) + this['valuePostfix'] + '\n' +
                   'Q1: ' + this['valuePrefix'] + locNum(this['q1']) + this['valuePostfix'] + '\n' +
                   'Median: ' + this['valuePrefix'] + locNum(this['median']) + this['valuePostfix'] + '\n' +
@@ -1791,7 +1787,7 @@ goog.provide('anychart.themes.defaultTheme');
           'padding': {'top': 5, 'right': 0, 'bottom': 0, 'left': 0}
         },
         'labels': {
-          'textFormatter': VALUE_TOKEN_DECIMALS_COUNT_10
+          'format': VALUE_TOKEN_DECIMALS_COUNT_10
         },
         'scale': 0
       },
@@ -1802,7 +1798,7 @@ goog.provide('anychart.themes.defaultTheme');
           'padding': {'top': 0, 'right': 0, 'bottom': 5, 'left': 0}
         },
         'labels': {
-          'textFormatter': VALUE_TOKEN_DECIMALS_COUNT_10
+          'format': VALUE_TOKEN_DECIMALS_COUNT_10
         },
         'scale': 1
       },
@@ -1825,38 +1821,13 @@ goog.provide('anychart.themes.defaultTheme');
       'barGroupsPadding': 0.8,
       'maxBubbleSize': '20%',
       'minBubbleSize': '5%',
-      'barChartMode': false,
+      'isVertical': false,
       'scales': [
         {
-          'type': 'ordinal',
-          'inverted': false,
-          'names': [],
-          'ticks': {
-            'interval': 1
-          }
+          'type': 'ordinal'
         },
         {
-          'type': 'linear',
-          'inverted': false,
-          'maximum': null,
-          'minimum': null,
-          'minimumGap': 0.1,
-          'maximumGap': 0.1,
-          'softMinimum': null,
-          'softMaximum': null,
-          'ticks': {
-            'mode': 'linear',
-            'base': 0,
-            'minCount': 4,
-            'maxCount': 6
-          },
-          'minorTicks': {
-            'mode': 'linear',
-            'base': 0,
-            'count': 5
-          },
-          'stackMode': 'none',
-          'stickToZero': true
+          'type': 'linear'
         }
       ],
       'crosshair': {
@@ -1872,18 +1843,19 @@ goog.provide('anychart.themes.defaultTheme');
         'endRatio': 1
       },
       'a11y': {
-        'titleFormatter': cartesianBaseA11yTitleFormatter
+        'titleFormat': cartesianBaseA11yTitleFormatter
       }
     },
 
-    // merge with defaultCartesian
+    // merge with cartesianBase
     'cartesian': {
       'defaultSeriesType': 'line',
+      'isVertical': false,
       'xAxes': [],
       'yAxes': []
     },
 
-    // merge with cartesian
+    // merge with cartesianBase
     'area': {
       'defaultSeriesType': 'area',
       'tooltip': {
@@ -1894,7 +1866,7 @@ goog.provide('anychart.themes.defaultTheme');
       }
     },
     'bar': {
-      'barChartMode': true,
+      'isVertical': true,
       'defaultSeriesType': 'bar',
       'defaultXAxisSettings': {
         'orientation': 'left'
@@ -1905,34 +1877,10 @@ goog.provide('anychart.themes.defaultTheme');
       'scales': [
         {
           'type': 'ordinal',
-          'inverted': true,
-          'names': [],
-          'ticks': {
-            'interval': 1
-          }
+          'inverted': true
         },
         {
-          'type': 'linear',
-          'inverted': false,
-          'maximum': null,
-          'minimum': null,
-          'minimumGap': 0.1,
-          'maximumGap': 0.1,
-          'softMinimum': null,
-          'softMaximum': null,
-          'ticks': {
-            'mode': 'linear',
-            'base': 0,
-            'minCount': 4,
-            'maxCount': 6
-          },
-          'minorTicks': {
-            'mode': 'linear',
-            'base': 0,
-            'count': 5
-          },
-          'stackMode': 'none',
-          'stickToZero': true
+          'type': 'linear'
         }
       ],
       'tooltip': {
@@ -1971,76 +1919,119 @@ goog.provide('anychart.themes.defaultTheme');
       'defaultSeriesSettings': {
         'candlestick': {
           'tooltip': {
-            'titleFormatter': returnDateTimeX
+            'titleFormat': returnDateTimeX
           },
           'labels': {
-            'textFormatter': returnDateTimeX
+            'format': returnDateTimeX
           }
         },
         'ohlc': {
           'tooltip': {
-            'titleFormatter': returnDateTimeX
+            'titleFormat': returnDateTimeX
           },
           'labels': {
-            'textFormatter': returnDateTimeX
+            'format': returnDateTimeX
           }
         }
       },
       'xAxes': [
         {
           'labels': {
-            'textFormatter': returnDateTimeTickValue
+            'format': returnDateTimeTickValue
           },
           'minorLabels': {
-            'textFormatter': returnDateTimeTickValue
+            'format': returnDateTimeTickValue
           }
         }
       ],
       'scales': [
         {
-          'type': 'dateTime',
-          'inverted': false,
-          'maximum': null,
-          'minimum': null,
-          'minimumGap': 0.1,
-          'maximumGap': 0.1,
-          'softMinimum': null,
-          'softMaximum': null,
-          'ticks': {
-            'count': 4
-          },
-          'minorTicks': {
-            'count': 4
-          }
+          'type': 'dateTime'
         },
         {
-          'type': 'linear',
-          'inverted': false,
-          'maximum': null,
-          'minimum': null,
-          'minimumGap': 0.1,
-          'maximumGap': 0.1,
-          'softMinimum': null,
-          'softMaximum': null,
-          'ticks': {
-            'mode': 'linear',
-            'base': 0,
-            'minCount': 4,
-            'maxCount': 6
-          },
-          'minorTicks': {
-            'mode': 'linear',
-            'base': 0,
-            'count': 5
-          },
-          'stackMode': 'none',
-          'stickToZero': true
+          'type': 'linear'
+        }
+      ]
+    },
+    'verticalLine': {
+      'isVertical': true,
+      'defaultSeriesType': 'line',
+      'defaultXAxisSettings': {
+        'orientation': 'left'
+      },
+      'defaultYAxisSettings': {
+        'orientation': 'bottom'
+      },
+      'scales': [
+        {
+          'type': 'ordinal',
+          'inverted': true
+        },
+        {
+          'type': 'linear'
+        }
+      ],
+      'tooltip': {
+        'displayMode': 'union'
+      },
+      'interactivity': {
+        'hoverMode': 'byX'
+      },
+      'xScroller': {
+        'orientation': 'left'
+      }
+    },
+    'verticalArea': {
+      'isVertical': true,
+      'defaultSeriesType': 'area',
+      'defaultXAxisSettings': {
+        'orientation': 'left'
+      },
+      'defaultYAxisSettings': {
+        'orientation': 'bottom'
+      },
+      'scales': [
+        {
+          'type': 'ordinal',
+          'inverted': true
+        },
+        {
+          'type': 'linear'
+        }
+      ],
+      'tooltip': {
+        'displayMode': 'union'
+      },
+      'interactivity': {
+        'hoverMode': 'byX'
+      },
+      'xScroller': {
+        'orientation': 'left'
+      }
+    },
+    'pareto': {
+      'defaultSeriesType': 'column',
+      'tooltip': {
+        'displayMode': 'union'
+      },
+      'interactivity': {
+        'hoverMode': 'byX'
+      },
+      'yAxes': [
+        {
+          'orientation': 'left'
+        },
+        {
+          'orientation': 'right',
+          'labels': {
+            'format': '{%Value}%'
+          }
         }
       ]
     },
 
-    // merge with cartesian
-    'cartesian3d': {
+    // merges with nothing
+    'cartesian3dBase': {
       'defaultSeriesType': 'column',
       'zAngle': 45,
       'zAspect': '50%',
@@ -2099,6 +2090,8 @@ goog.provide('anychart.themes.defaultTheme');
         }
       ]
     },
+    // merge with cartesian
+    'cartesian3d': {},
 
     // merge with chart
     'pieFunnelPyramidBase': {
@@ -2132,7 +2125,7 @@ goog.provide('anychart.themes.defaultTheme');
          * @this {*}
          * @return {*}
          */
-        'textFormatter': function() {
+        'format': function() {
           return this['name'] ? this['name'] : this['x'];
         }
       },
@@ -2175,14 +2168,14 @@ goog.provide('anychart.themes.defaultTheme');
          * @this {*}
          * @return {*}
          */
-        'titleFormatter': function() {
+        'titleFormat': function() {
           return this['name'] || this['x'];
         },
         /**
          * @this {*}
          * @return {*}
          */
-        'textFormatter': function() {
+        'format': function() {
           return 'Value: ' + locNum(this['value']) + '\nPercent Value: ' + (this['value'] * 100 / this['getStat']('sum')).toFixed(1) + '%';
         }
       },
@@ -2208,10 +2201,10 @@ goog.provide('anychart.themes.defaultTheme');
       'outsideLabelsSpace': 30,
       'insideLabelsOffset': '50%',
       'labels': {
-        'textFormatter': PERCENT_VALUE_TOKEN + '%'
+        'format': PERCENT_VALUE_TOKEN + '%'
       },
       'a11y': {
-        'titleFormatter': pieA11yTitleFormatter
+        'titleFormat': pieA11yTitleFormatter
       }
     },
     'funnel': {
@@ -2267,25 +2260,28 @@ goog.provide('anychart.themes.defaultTheme');
              * @this {*}
              * @return {string}
              */
-            'titleFormatter': function() {
+            'titleFormat': function() {
               return this['seriesName'];
             },
             /**
              * @this {*}
              * @return {*}
              */
-            'textFormatter': function() {
+            'format': function() {
               return 'x: ' + this['x'] + '\ny: ' + this['valuePrefix'] + locNum(this['value']) + this['valuePostfix'];
             }
           },
           'xScale': null,
           'yScale': null,
           'a11y': {
-            'enabled': true,
-            'titleFormatter': 'Series named {%SeriesName} with {%SeriesPointsCount} points. Min value is {%SeriesYMin}, max value is {%SeriesYMax}'
+            'enabled': false,
+            'titleFormat': 'Series named {%SeriesName} with {%SeriesPointsCount} points. Min value is {%SeriesYMin}, max value is {%SeriesYMax}'
           }
         },
         'bubble': {
+          'labels': {
+            'anchor': 'center'
+          },
           'displayNegative': false,
           'negativeFill': returnDarkenSourceColor,
           'hoverNegativeFill': returnDarkenSourceColor,
@@ -2299,7 +2295,7 @@ goog.provide('anychart.themes.defaultTheme');
              * @this {*}
              * @return {*}
              */
-            'textFormatter': function() {
+            'format': function() {
               return 'X: ' + this['x'] + '\nY: ' + this['valuePrefix'] + locNum(this['value']) + this['valuePostfix'] + '\nSize: ' + locNum(this['size']);
             }
           }
@@ -2338,50 +2334,10 @@ goog.provide('anychart.themes.defaultTheme');
       'textAxesMarkers': [],
       'scales': [
         {
-          'type': 'linear',
-          'inverted': false,
-          'maximum': null,
-          'minimum': null,
-          'minimumGap': 0.1,
-          'maximumGap': 0.1,
-          'softMinimum': null,
-          'softMaximum': null,
-          'ticks': {
-            'mode': 'linear',
-            'base': 0,
-            'minCount': 4,
-            'maxCount': 6
-          },
-          'minorTicks': {
-            'mode': 'linear',
-            'base': 0,
-            'count': 5
-          },
-          'stackMode': 'none',
-          'stickToZero': true
+          'type': 'linear'
         },
         {
-          'type': 'linear',
-          'inverted': false,
-          'maximum': null,
-          'minimum': null,
-          'minimumGap': 0.1,
-          'maximumGap': 0.1,
-          'softMinimum': null,
-          'softMaximum': null,
-          'ticks': {
-            'mode': 'linear',
-            'base': 0,
-            'minCount': 4,
-            'maxCount': 6
-          },
-          'minorTicks': {
-            'mode': 'linear',
-            'base': 0,
-            'count': 5
-          },
-          'stackMode': 'none',
-          'stickToZero': true
+          'type': 'linear'
         }
       ],
       'xScale': 0,
@@ -2396,7 +2352,7 @@ goog.provide('anychart.themes.defaultTheme');
         'zIndex': 41
       },
       'a11y': {
-        'titleFormatter': scatterA11yTitleFormatter
+        'titleFormat': scatterA11yTitleFormatter
       },
       'annotations': {
         'annotationsList': [],
@@ -2412,12 +2368,7 @@ goog.provide('anychart.themes.defaultTheme');
       'defaultSeriesType': 'line',
       'defaultSeriesSettings': {
         'base': {
-          'enabled': true,
-          'hatchFill': null,
-          'a11y': {
-            'enabled': true,
-            'titleFormatter': 'Series named {%SeriesName} with {%SeriesPointsCount} points. Min value is {%SeriesYMin}, max value is {%SeriesYMax}'
-          }
+          'clip': false
         },
         'area': {},
         'line': {},
@@ -2425,48 +2376,39 @@ goog.provide('anychart.themes.defaultTheme');
       },
       'xAxis': {
         'scale': 0,
-        'zIndex': 25
+        'zIndex': 25,
+        'labels': {
+          'zIndex': 25
+        },
+        'minorLabels': {
+          'zIndex': 25
+        },
+        'ticks': {
+          'zIndex': 25
+        },
+        'minorTicks': {
+          'zIndex': 25
+        }
+      },
+      'yAxis': {
+        'scale': 1
       },
       'startAngle': 0,
+      'innerRadius': 0,
       'grids': [{}, {'layout': 'circuit'}],
       'minorGrids': [],
       'scales': [
         {
-          'type': 'ordinal',
-          'inverted': false,
-          'names': [],
-          'ticks': {
-            'interval': 1
-          }
+          'type': 'ordinal'
         },
         {
-          'type': 'linear',
-          'inverted': false,
-          'maximum': null,
-          'minimum': null,
-          'minimumGap': 0.1,
-          'maximumGap': 0.1,
-          'softMinimum': null,
-          'softMaximum': null,
-          'ticks': {
-            'mode': 'linear',
-            'base': 0,
-            'minCount': 4,
-            'maxCount': 6
-          },
-          'minorTicks': {
-            'mode': 'linear',
-            'base': 0,
-            'count': 5
-          },
-          'stackMode': 'none',
-          'stickToZero': true
+          'type': 'linear'
         }
       ],
       'xScale': 0,
       'yScale': 1,
       'a11y': {
-        'titleFormatter': scatterA11yTitleFormatter
+        'titleFormat': cartesianBaseA11yTitleFormatter
       }
     },
     // merge with chart
@@ -2474,73 +2416,56 @@ goog.provide('anychart.themes.defaultTheme');
       'defaultSeriesType': 'marker',
       'defaultSeriesSettings': {
         'base': {
-          'enabled': true,
-          'hatchFill': null,
-          'closed': true
+          'closed': true,
+          'clip': false
         },
         'area': {},
         'line': {},
-        'marker': {}
+        'marker': {},
+        'column': {},
+        'rangeColumn': {}
       },
       'xAxis': {
         'scale': 0,
-        'zIndex': 25
+        'zIndex': 25,
+        'fill': 'none',
+        'labels': {
+          'anchor': 'auto',
+          'zIndex': 25
+        },
+        'minorLabels': {
+          'anchor': 'auto',
+          'zIndex': 25
+        },
+        'ticks': {
+          'zIndex': 25
+        },
+        'minorTicks': {
+          'zIndex': 25
+        }
+      },
+      'yAxis': {
+        'scale': 1
       },
       'startAngle': 0,
+      'innerRadius': 0,
+      'sortPointsByX': false,
       'grids': [{}, {'layout': 'circuit'}],
       'minorGrids': [],
       'scales': [
         {
-          'type': 'linear',
-          'inverted': false,
-          'maximum': null,
-          'minimum': null,
-          'minimumGap': 0.1,
-          'maximumGap': 0.1,
-          'softMinimum': null,
-          'softMaximum': null,
-          'ticks': {
-            'mode': 'linear',
-            'base': 0,
-            'minCount': 4,
-            'maxCount': 6
-          },
-          'minorTicks': {
-            'mode': 'linear',
-            'base': 0,
-            'count': 5
-          },
-          'stackMode': 'none',
-          'stickToZero': true
+          'type': 'linear'
         },
         {
-          'type': 'linear',
-          'inverted': false,
-          'maximum': null,
-          'minimum': null,
-          'minimumGap': 0.1,
-          'maximumGap': 0.1,
-          'softMinimum': null,
-          'softMaximum': null,
-          'ticks': {
-            'mode': 'linear',
-            'base': 0,
-            'minCount': 4,
-            'maxCount': 6
-          },
-          'minorTicks': {
-            'mode': 'linear',
-            'base': 0,
-            'count': 5
-          },
-          'stackMode': 'none',
-          'stickToZero': true
+          'type': 'linear'
         }
       ],
       'xScale': 0,
       'yScale': 1,
+      'barsPadding': 0,
+      'barGroupsPadding': 0,
       'a11y': {
-        'titleFormatter': scatterA11yTitleFormatter
+        'titleFormat': scatterA11yTitleFormatter
       }
     },
 
@@ -2594,34 +2519,17 @@ goog.provide('anychart.themes.defaultTheme');
       },
       'scale': {
         'type': 'linear',
+        'minimumGap': 0,
+        'maximumGap': 0,
         'ticks': {
-          'mode': 'linear',
-          'base': 0,
-          'explicit': null,
           'minCount': 2,
           'maxCount': 5,
           'interval': NaN
-        },
-        'minorTicks': {
-          'mode': 'linear',
-          'base': 0,
-          'explicit': null,
-          'count': 5,
-          'interval': NaN
-        },
-        'stackMode': 'none',
-        'stickToZero': true,
-        'minimumGap': 0,
-        'maximumGap': 0,
-        'softMinimum': null,
-        'softMaximum': null,
-        'minimum': null,
-        'maximum': null,
-        'inverted': false
+        }
       },
       'ranges': [],
       'a11y': {
-        'titleFormatter': bulletA11yTitleFormatter
+        'titleFormat': bulletA11yTitleFormatter
       }
     },
     // merge with chart
@@ -2685,35 +2593,10 @@ goog.provide('anychart.themes.defaultTheme');
       'textAxesMarkers': [],
       'scales': [
         {
-          'type': 'ordinal',
-          'inverted': false,
-          'names': [],
-          'ticks': {
-            'interval': 1
-          }
+          'type': 'ordinal'
         },
         {
-          'type': 'linear',
-          'inverted': false,
-          'maximum': null,
-          'minimum': null,
-          'minimumGap': 0.1,
-          'maximumGap': 0.1,
-          'softMinimum': null,
-          'softMaximum': null,
-          'ticks': {
-            'mode': 'linear',
-            'base': 0,
-            'minCount': 4,
-            'maxCount': 6
-          },
-          'minorTicks': {
-            'mode': 'linear',
-            'base': 0,
-            'count': 5
-          },
-          'stackMode': 'none',
-          'stickToZero': true
+          'type': 'linear'
         }
       ],
       'xScale': 0,
@@ -2730,16 +2613,17 @@ goog.provide('anychart.themes.defaultTheme');
          * @this {*}
          * @return {*}
          */
-        'titleFormatter': function() {
+        'titleFormat': function() {
           return this['x'];
         },
         /**
          * @this {*}
          * @return {*}
          */
-        'textFormatter': function() {
+        'format': function() {
           return 'x: ' + this['x'] + '\ny: ' + locNum(this['value']);
-        }
+        },
+        'allowLeaveChart': true
       },
 
       'defaultSeriesSettings': {
@@ -2841,7 +2725,8 @@ goog.provide('anychart.themes.defaultTheme');
           'selectStroke': {'thickness': 0.5, 'color': '#545f69'},
           'hatchFill': false,
           'labels': {
-            'enabled': false,
+            'anchor': 'centerBottom',
+            'enabled': null,
             'adjustFontSize': {
               'width': true,
               'height': true
@@ -2850,13 +2735,13 @@ goog.provide('anychart.themes.defaultTheme');
              * @this {*}
              * @return {*}
              */
-            'textFormatter': function() {
-              if (this['getDataValue']('name')) {
-                return this['getDataValue']('name');
+            'format': function() {
+              if (this['getData']('name')) {
+                return this['getData']('name');
               } else if (this['name']) {
                 return this['name'];
-              } else if (this['getDataValue']('id')) {
-                return this['getDataValue']('id');
+              } else if (this['getData']('id')) {
+                return this['getData']('id');
               } else {
                 return 'lat: ' + this['lat'] + '\nlong: ' + this['long'];
               }
@@ -2869,39 +2754,40 @@ goog.provide('anychart.themes.defaultTheme');
             'enabled': null
           },
           'markers': {
+            // 'fill': returnSourceColor,
             'enabled': false,
             'disablePointerEvents': false
           },
           'hoverMarkers': {'enabled': null},
           'selectMarkers': {'enabled': null},
           'color': null,
-          'allowPointsSelect': null,
           'tooltip': {
             /**
              * @this {*}
              * @return {*}
              */
-            'titleFormatter': function() {
-              return this['name'] || this['getDataValue']('name') || 'Tooltip title';
+            'titleFormat': function() {
+              return this['name'] || this['getData']('name') || 'Tooltip title';
             },
             /**
              * @this {*}
              * @return {*}
              */
-            'textFormatter': function() {
+            'format': function() {
               return 'Id: ' + this['id'] + '\nValue: ' + this['valuePrefix'] + locNum(this['value']) + this['valuePostfix'];
             }
           },
           'xScale': null,
           'yScale': null,
           'a11y': {
-            'titleFormatter': 'Series named {%SeriesName}'
-          }
+            'titleFormat': 'Series named {%SeriesName}'
+          },
+          'clip': false
         },
         'choropleth': {
           'labels': {
             'fontColor': fontColorDark,
-            'anchor': null
+            'anchor': 'center'
           },
           'markers': {
             'anchor': null
@@ -2912,7 +2798,9 @@ goog.provide('anychart.themes.defaultTheme');
           'startSize': 0,
           'endSize': 0,
           'curvature': .3,
-          'stroke': returnSourceColor,
+          'stroke': function() {
+            return {'thickness': 2, 'color': this['sourceColor'], 'lineJoin': 'round'};
+          },
           'hoverStroke': returnLightenSourceColor,
           'selectStroke': '2 ' + defaultSelectColor,
           'markers': {
@@ -2941,7 +2829,7 @@ goog.provide('anychart.themes.defaultTheme');
              * @this {*}
              * @return {*}
              */
-            'textFormatter': function() {
+            'format': function() {
               return 'from: ' + this['startPoint']['lat'] + ',' + this['startPoint']['long'] + '\nto: ' + this['endPoint']['lat'] + ',' + this['endPoint']['long'];
             }
           },
@@ -2956,12 +2844,18 @@ goog.provide('anychart.themes.defaultTheme');
              * @this {*}
              * @return {*}
              */
-            'textFormatter': function() {
+            'format': function() {
               return 'from: ' + this['startPoint']['lat'] + ', ' + this['startPoint']['long'] + '\nto: ' + this['endPoint']['lat'] + ', ' + this['endPoint']['long'];
             }
           }
         },
         'bubble': {
+          'stroke': function() {
+            return {'thickness': 2, 'color': global['anychart']['color']['darken'](this['sourceColor'])};
+          },
+          'labels': {
+            'anchor': 'center'
+          },
           'hoverFill': defaultHoverColor,
           'selectFill': defaultSelectColor,
           'tooltip': {
@@ -2969,8 +2863,16 @@ goog.provide('anychart.themes.defaultTheme');
              * @this {*}
              * @return {*}
              */
-            'textFormatter': function() {
-              return 'Id: ' + this['id'] + '\nValue: ' + this['valuePrefix'] + locNum(this['size']) + this['valuePostfix'];
+            'format': function() {
+              var result;
+              if (this['id']) {
+                result = 'Id: ' + this['id'];
+              } else {
+                result = 'lat: ' + this['lat'] + '\nlong: ' + this['long'];
+              }
+              if (this['size'])
+                result += '\nValue: ' + this['valuePrefix'] + locNum(this['size']) + this['valuePostfix'];
+              return result;
             }
           }
         },
@@ -2989,7 +2891,7 @@ goog.provide('anychart.themes.defaultTheme');
              * @this {*}
              * @return {*}
              */
-            'textFormatter': function() {
+            'format': function() {
               var result;
               if (this['id']) {
                 result = 'Id: ' + this['id'];
@@ -3007,6 +2909,7 @@ goog.provide('anychart.themes.defaultTheme');
         'zIndex': 50
       },
       'geoScale': {
+        'maxTicksCount': 1000,
         'precision': 2
       },
       'callouts': [],
@@ -3025,7 +2928,7 @@ goog.provide('anychart.themes.defaultTheme');
           'padding': 2,
           'rotation': null,
           'fontSize': 10,
-          'anchor': null
+          'anchor': 'auto'
         },
         'minorLabels': {
           'enabled': false,
@@ -3078,14 +2981,14 @@ goog.provide('anychart.themes.defaultTheme');
       'minBubbleSize': '5%',
       'geoIdField': 'id',
       'interactivity': {
-        'copyFormatter': function() {
+        'copyFormat': function() {
           var ths = arguments[0];
           var seriesStatus = ths['seriesStatus'];
           var result = '';
           for (var i = 0, len = seriesStatus.length; i < len; i++) {
             var status = seriesStatus[i];
             if (!status['points'].length) continue;
-            result += 'Series ' + status['series'].index() + ':\n';
+            result += 'Series ' + status['series']['getIndex']() + ':\n';
             for (var j = 0, len_ = status['points'].length; j < len_; j++) {
               var point = status['points'][j];
               result += 'id: ' + point['id'] + ' index: ' + point['index'];
@@ -3100,6 +3003,8 @@ goog.provide('anychart.themes.defaultTheme');
         'keyboardZoomAndMove': true,
         'zoomOnDoubleClick': false
       },
+      'minZoomLevel': 1,
+      'maxZoomLevel': 10,
       'overlapMode': 'noOverlap',
       'crsAnimation': {
         'enabled': true,
@@ -3108,7 +3013,7 @@ goog.provide('anychart.themes.defaultTheme');
       'legend': {
         'enabled': false,
         'tooltip': {
-          'content': {
+          'contentInternal': {
             'background': {
               'disablePointerEvents': false
             }
@@ -3219,14 +3124,14 @@ goog.provide('anychart.themes.defaultTheme');
          * @this {*}
          * @return {*}
          */
-        'titleFormatter': function() {
+        'titleFormat': function() {
           return this['index'];
         },
         /**
          * @this {*}
          * @return {*}
          */
-        'textFormatter': function() {
+        'format': function() {
           return 'Value: ' + locNum(this['value']);
         }
       }
@@ -3239,10 +3144,10 @@ goog.provide('anychart.themes.defaultTheme');
       'globalOffset': '0%',
       'layout': 'vertical',
       'tooltip': {
-        'titleFormatter': function() {
+        'titleFormat': function() {
           return this['name'];
         },
-        'textFormatter': function() {
+        'format': function() {
           if (this['high'])
             return returnRangeTooltipContentFormatter.call(this);
           else
@@ -3251,27 +3156,7 @@ goog.provide('anychart.themes.defaultTheme');
       },
       'scales': [
         {
-          'type': 'linear',
-          'inverted': false,
-          'maximum': null,
-          'minimum': null,
-          'minimumGap': 0.1,
-          'maximumGap': 0.1,
-          'softMinimum': null,
-          'softMaximum': null,
-          'ticks': {
-            'mode': 'linear',
-            'base': 0,
-            'minCount': 4,
-            'maxCount': 6
-          },
-          'minorTicks': {
-            'mode': 'linear',
-            'base': 0,
-            'count': 5
-          },
-          'stackMode': 'none',
-          'stickToZero': true
+          'type': 'linear'
         }
       ],
 
@@ -3290,7 +3175,8 @@ goog.provide('anychart.themes.defaultTheme');
           'type': 'ordinalColor',
           'inverted': false,
           'ticks': {
-            'interval': 1
+            // 'interval': 1,
+            'maxCount': 100
           }
         },
         'points': [
@@ -3322,12 +3208,10 @@ goog.provide('anychart.themes.defaultTheme');
             'anchor': 'center'
           },
           'hoverLabel': {
-            'enabled': false,
-            'fontColor': 'yellow'
+            'enabled': null
           },
           'selectLabel': {
-            'enabled': false,
-            'fontColor': 'pink'
+            'enabled': null
           },
           'stroke': returnStrokeSourceColor,
           'hoverStroke': returnLightenStrokeSourceColor,
@@ -3339,13 +3223,20 @@ goog.provide('anychart.themes.defaultTheme');
         'bar': {},
         'rangeBar': {
           'label': {
-            'textFormatter': function() {
+            'format': function() {
               return locNum(this['high']);
             }
           }
         },
         'marker': {'width': '3%'},
-        'tank': {},
+        'tank': {
+          'emptyFill': '#fff 0.3',
+          'hoverEmptyFill': returnSourceColor,
+          'selectEmptyFill': returnSourceColor,
+          'emptyHatchFill': null
+          //'hoverEmptyHatchFill': null,
+          //'selectEmptyHatchFill': null
+        },
         'thermometer': {
           /**
            * @this {*}
@@ -3353,7 +3244,7 @@ goog.provide('anychart.themes.defaultTheme');
            */
           'fill': function() {
             var sourceColor = this['sourceColor'];
-            var darken = window['anychart']['color']['darken'](sourceColor);
+            var darken = global['anychart']['color']['darken'](sourceColor);
             var key1 = {
               'color': darken
             };
@@ -3379,7 +3270,7 @@ goog.provide('anychart.themes.defaultTheme');
            * @return {*}
            */
           'dimmer': function(color) {
-            return window['anychart']['color']['darken'](color);
+            return global['anychart']['color']['darken'](color);
           },
           'gap': '1%',
           'size': '2%',
@@ -3388,7 +3279,8 @@ goog.provide('anychart.themes.defaultTheme');
             'type': 'ordinalColor',
             'inverted': false,
             'ticks': {
-              'interval': 1
+              // 'interval': 1,
+              'maxCount': 100
             }
           }
         }
@@ -3403,20 +3295,11 @@ goog.provide('anychart.themes.defaultTheme');
     'heatMap': {
       'scales': [
         {
-          'type': 'ordinal',
-          'inverted': false,
-          'names': [],
-          'ticks': {
-            'interval': 1
-          }
+          'type': 'ordinal'
         },
         {
           'type': 'ordinal',
-          'inverted': true,
-          'names': [],
-          'ticks': {
-            'interval': 1
-          }
+          'inverted': true
         },
         {
           'type': 'ordinalColor'
@@ -3440,20 +3323,20 @@ goog.provide('anychart.themes.defaultTheme');
           'fontSize': 13,
           'fontWeight': 'normal'
         },
-        'content': {'fontSize': 11},
+        'contentInternal': {'fontSize': 11},
         'separator': {'enabled': true},
         /**
          * @this {*}
          * @return {*}
          */
-        'titleFormatter': function() {
+        'titleFormat': function() {
           return this['name'] || this['x'];
         },
         /**
          * @this {*}
          * @return {*}
          */
-        'textFormatter': function() {
+        'format': function() {
           if (this['heat'] === undefined) {
             var value = 'Value: ' + this['valuePrefix'] + this['heat'] + this['valuePostfix'];
             if (!isNaN(+this['heat']))
@@ -3496,7 +3379,7 @@ goog.provide('anychart.themes.defaultTheme');
           var value = this['iterator']['get']('heat');
           color = this['colorScale']['valueToColor'](value);
         } else {
-          color = window['anychart']['color']['setOpacity'](this['sourceColor'], 0.85, true);
+          color = global['anychart']['color']['setOpacity'](this['sourceColor'], 0.85, true);
         }
         return color;
       },
@@ -3540,7 +3423,7 @@ goog.provide('anychart.themes.defaultTheme');
          * @this {*}
          * @return {*}
          */
-        'textFormatter': function() {
+        'format': function() {
           return locNum(this['heat']);
         },
         'positionFormatter': returnValue
@@ -3562,13 +3445,19 @@ goog.provide('anychart.themes.defaultTheme');
         'offsetX': 0,
         'offsetY': 0,
         'size': 4,
-        'positionFormatter': returnValue
+        'positionFormatter': returnValue,
+        'fill': '#dd2c00',
+        'type': 'circle'
       },
       'hoverMarkers': {
-        'enabled': null
+        'enabled': null,
+        'size': 6
       },
       'selectMarkers': {
-        'enabled': null
+        'enabled': null,
+        'size': 6,
+        'fill': defaultSelectColor,
+        'stroke': defaultSelectStroke
       },
       'labelsDisplayMode': 'drop',
       'hatchFill': false,
@@ -3588,7 +3477,7 @@ goog.provide('anychart.themes.defaultTheme');
         'inverted': true
       },
       'a11y': {
-        'titleFormatter': chartA11yTitleFormatter
+        'titleFormat': chartA11yTitleFormatter
       }
     },
 
@@ -3604,8 +3493,8 @@ goog.provide('anychart.themes.defaultTheme');
       },
       'tooltip': {
         'enabled': true,
-        'titleFormatter': returnName,
-        'textFormatter': returnValue
+        'titleFormat': returnName,
+        'format': returnValue
       },
       'legend': {
         'itemsSourceMode': 'categories'
@@ -3626,7 +3515,7 @@ goog.provide('anychart.themes.defaultTheme');
           'fill': '#F7F7F7',
           'stroke': '#e0e0e0'
         },
-        'textFormatter': returnName
+        'format': returnName
       },
       'hoverHeaders': {
         'enabled': true,
@@ -3644,7 +3533,7 @@ goog.provide('anychart.themes.defaultTheme');
         'anchor': 'leftTop',
         'rotation': 0,
         'fontColor': fontColorDark,
-        'textFormatter': returnNameWithValue
+        'format': returnNameWithValue
       },
       'hoverLabels': {
         'enabled': null,
@@ -3657,7 +3546,9 @@ goog.provide('anychart.themes.defaultTheme');
       'markers': {
         'enabled': false,
         'position': 'center',
-        'size': 6
+        'size': 6,
+        'fill': '#dd2c00',
+        'type': 'circle'
       },
       'hoverMarkers': {
         'enabled': null,
@@ -3665,7 +3556,9 @@ goog.provide('anychart.themes.defaultTheme');
       },
       'selectMarkers': {
         'enabled': null,
-        'size': 8
+        'size': 8,
+        'fill': defaultSelectColor,
+        'stroke': defaultSelectStroke
       },
       /**
        * @this {*}
@@ -3676,7 +3569,7 @@ goog.provide('anychart.themes.defaultTheme');
         if (this['colorScale']) {
           color = this['colorScale']['valueToColor'](this['value']);
         } else {
-          color = window['anychart']['color']['setOpacity'](this['sourceColor'], 0.85, true);
+          color = global['anychart']['color']['setOpacity'](this['sourceColor'], 0.85, true);
         }
         return color;
       },
@@ -3742,14 +3635,14 @@ goog.provide('anychart.themes.defaultTheme');
           'enabled': true
         },
         'anchor': 'leftTop',
-        'content': {
+        'contentInternal': {
           'hAlign': 'left'
         },
         /**
          * @this {*}
          * @return {string}
          */
-        'textFormatter': function() {
+        'format': function() {
           var name = this['name'];
           return (name !== void 0) ? name + '' : '';
         }
@@ -3799,7 +3692,7 @@ goog.provide('anychart.themes.defaultTheme');
          * @this {*}
          * @return {string}
          */
-        'textFormatter': function() {
+        'format': function() {
           return '';
         }
       },
@@ -3810,7 +3703,7 @@ goog.provide('anychart.themes.defaultTheme');
            * @this {*}
            * @return {string}
            */
-          'textFormatter': function() {
+          'format': function() {
             var val = this['item']['meta']('index');
             return (val != null) ? (val + 1) + '' : '';
           },
@@ -3826,7 +3719,7 @@ goog.provide('anychart.themes.defaultTheme');
            * @this {*}
            * @return {string}
            */
-          'textFormatter': function() {
+          'format': function() {
             var val = this['name'];
             return (val != null) ? (val + '') : '';
           },
@@ -3898,6 +3791,16 @@ goog.provide('anychart.themes.defaultTheme');
         'opacity': 0.00001
       },
 
+      'editStartConnectorMarkerType': 'circle',
+      'editStartConnectorMarkerSize': 10,
+      'editStartConnectorMarkerHorizontalOffset': 0,
+      'editStartConnectorMarkerVerticalOffset': 0,
+      'editFinishConnectorMarkerType': 'circle',
+      'editFinishConnectorMarkerSize': 10,
+      'editFinishConnectorMarkerHorizontalOffset': 0,
+      'editFinishConnectorMarkerVerticalOffset': 0,
+      'editIntervalWidth': 3,
+
       'baselineFill': '#d5ebfc',
       'baselineStroke': '#bfd1e0',
       'parentFill': '#455a64',
@@ -3909,8 +3812,6 @@ goog.provide('anychart.themes.defaultTheme');
       'selectedElementFill': '#ef6c00',
       'selectedElementStroke': '#bc5704',
       'selectedConnectorStroke': '2 #bc5704',
-      'minimumGap': 0.1,
-      'maximumGap': 0.1,
       'baselineAbove': false,
       'tooltip': {
         'padding': {'top': 5, 'right': 5, 'bottom': 5, 'left': 5},
@@ -3924,11 +3825,11 @@ goog.provide('anychart.themes.defaultTheme');
           'enabled': true
         },
         'anchor': 'leftTop',
-        'content': {
+        'contentInternal': {
           'hAlign': 'left'
         },
         'zIndex': 100,
-        'allowLeaveChart': true
+        'allowLeaveChart': false
       },
       'labels': {
         'enabled': true,
@@ -4040,7 +3941,7 @@ goog.provide('anychart.themes.defaultTheme');
     'ganttBase': {
       'splitterPosition': '30%',
       'headerHeight': 70,
-      'hoverFill': '#F8FAFB',
+      'rowHoverFill': '#F8FAFB',
       'rowSelectedFill': '#ebf1f4',
       'rowStroke': '#cecece',
       'editing': false,
@@ -4070,7 +3971,7 @@ goog.provide('anychart.themes.defaultTheme');
         'backgroundFill': 'none',
         'tooltip': {
           'zIndex': 100,
-          'allowLeaveChart': true
+          'allowLeaveChart': false
         }
       },
       'timeline': {
@@ -4085,18 +3986,18 @@ goog.provide('anychart.themes.defaultTheme');
            * @this {*}
            * @return {string}
            */
-          'titleFormatter': function() {
+          'titleFormat': function() {
             return this['name'] || '';
           },
           /**
            * @this {*}
            * @return {string}
            */
-          'textFormatter': function() {
+          'format': function() {
             var startDate = this['minPeriodDate'];
             var endDate = this['maxPeriodDate'];
-            return (startDate ? 'Start Date: ' + window['anychart']['format']['dateTime'](startDate) : '') +
-                (endDate ? '\nEnd Date: ' + window['anychart']['format']['dateTime'](endDate) : '');
+            return (startDate ? 'Start Date: ' + global['anychart']['format']['dateTime'](startDate) : '') +
+                (endDate ? '\nEnd Date: ' + global['anychart']['format']['dateTime'](endDate) : '');
           }
         }
       },
@@ -4106,18 +4007,18 @@ goog.provide('anychart.themes.defaultTheme');
            * @this {*}
            * @return {string}
            */
-          'titleFormatter': function() {
+          'titleFormat': function() {
             return this['name'] || '';
           },
           /**
            * @this {*}
            * @return {string}
            */
-          'textFormatter': function() {
+          'format': function() {
             var startDate = this['periodStart'] || this['minPeriodDate'];
             var endDate = this['periodEnd'] || this['maxPeriodDate'];
-            return (startDate ? 'Start Date: ' + window['anychart']['format']['dateTime'](startDate) : '') +
-                (endDate ? '\nEnd Date: ' + window['anychart']['format']['dateTime'](endDate) : '');
+            return (startDate ? 'Start Date: ' + global['anychart']['format']['dateTime'](startDate) : '') +
+                (endDate ? '\nEnd Date: ' + global['anychart']['format']['dateTime'](endDate) : '');
           }
         }
       }
@@ -4129,14 +4030,14 @@ goog.provide('anychart.themes.defaultTheme');
            * @this {*}
            * @return {string}
            */
-          'titleFormatter': function() {
+          'titleFormat': function() {
             return this['name'] || '';
           },
           /**
            * @this {*}
            * @return {string}
            */
-          'textFormatter': function() {
+          'format': function() {
             var startDate = this['actualStart'] || this['autoStart'];
             var endDate = this['actualEnd'] || this['autoEnd'];
             var progress = this['progressValue'];
@@ -4146,8 +4047,8 @@ goog.provide('anychart.themes.defaultTheme');
               progress = (Math.round(auto * 100) / 100 || 0) + '%';
             }
 
-            return (startDate ? 'Start Date: ' + window['anychart']['format']['dateTime'](startDate) : '') +
-                (endDate ? '\nEnd Date: ' + window['anychart']['format']['dateTime'](endDate) : '') +
+            return (startDate ? 'Start Date: ' + global['anychart']['format']['dateTime'](startDate) : '') +
+                (endDate ? '\nEnd Date: ' + global['anychart']['format']['dateTime'](endDate) : '') +
                 (progress ? '\nComplete: ' + progress : '');
           }
         }
@@ -4158,14 +4059,14 @@ goog.provide('anychart.themes.defaultTheme');
            * @this {*}
            * @return {string}
            */
-          'titleFormatter': function() {
+          'titleFormat': function() {
             return this['name'] || '';
           },
           /**
            * @this {*}
            * @return {string}
            */
-          'textFormatter': function() {
+          'format': function() {
             var startDate = this['actualStart'] || this['autoStart'];
             var endDate = this['actualEnd'] || this['autoEnd'];
             var progress = this['progressValue'];
@@ -4175,8 +4076,8 @@ goog.provide('anychart.themes.defaultTheme');
               progress = (Math.round(auto * 100) / 100 || 0) + '%';
             }
 
-            return (startDate ? 'Start Date: ' + window['anychart']['format']['dateTime'](startDate) : '') +
-                (endDate ? '\nEnd Date: ' + window['anychart']['format']['dateTime'](endDate) : '') +
+            return (startDate ? 'Start Date: ' + global['anychart']['format']['dateTime'](startDate) : '') +
+                (endDate ? '\nEnd Date: ' + global['anychart']['format']['dateTime'](endDate) : '') +
                 (progress ? '\nComplete: ' + progress : '');
 
           }
@@ -4242,42 +4143,45 @@ goog.provide('anychart.themes.defaultTheme');
           'base': {
             'pointWidth': '75%',
             'tooltip': {
-              'textFormatter': StockSimpleTooltipFormatter
+              'format': StockSimpleTooltipFormatter
             },
             'legendItem': {'iconStroke': 'none'}
           },
-          'rangeArea': {
-            'tooltip': {
-              'textFormatter': StockRangeTooltipFormatter
+          'areaLike': {
+            'hoverMarkers': {
+              'enabled': null
+            },
+            'selectMarkers': {
+              'enabled': null
             }
           },
-          'rangeSplineArea': {
-            'tooltip': {
-              'textFormatter': StockRangeTooltipFormatter
+          'lineLike': {
+            'hoverMarkers': {
+              'enabled': null
+            },
+            'selectMarkers': {
+              'enabled': null
             }
           },
-          'rangeStepArea': {
+          'rangeLike': {
             'tooltip': {
-              'textFormatter': StockRangeTooltipFormatter
+              'format': StockRangeTooltipFormatter
             }
           },
           'candlestick': {
             'tooltip': {
-              'textFormatter': StockOHLCTooltipFormatter
+              'format': StockOHLCTooltipFormatter
             }
           },
           'column': {
             'stroke': 'none'
           },
           'rangeColumn': {
-            'stroke': 'none',
-            'tooltip': {
-              'textFormatter': StockRangeTooltipFormatter
-            }
+            'stroke': 'none'
           },
           'ohlc': {
             'tooltip': {
-              'textFormatter': StockOHLCTooltipFormatter
+              'format': StockOHLCTooltipFormatter
             }
           }
         },
@@ -4346,11 +4250,11 @@ goog.provide('anychart.themes.defaultTheme');
              * @this {*}
              * @return {string}
              */
-            'textFormatter': function() {
+            'format': function() {
               var date = this['tickValue'];
-              return window['anychart']['format']['dateTime'](date,
-                  window['anychart']['format']['getDateTimeFormat'](
-                      window['anychart']['format']['getIntervalIdentifier'](this['majorIntervalUnit'])));
+              return global['anychart']['format']['dateTime'](date,
+                  global['anychart']['format']['getDateTimeFormat'](
+                      global['anychart']['format']['getIntervalIdentifier'](this['majorIntervalUnit'])));
             }
           },
           'minorLabels': {
@@ -4367,11 +4271,11 @@ goog.provide('anychart.themes.defaultTheme');
              * @this {*}
              * @return {string}
              */
-            'textFormatter': function() {
+            'format': function() {
               var date = this['tickValue'];
-              return window['anychart']['format']['dateTime'](date,
-                  window['anychart']['format']['getDateTimeFormat'](
-                      window['anychart']['format']['getIntervalIdentifier'](
+              return global['anychart']['format']['dateTime'](date,
+                  global['anychart']['format']['getDateTimeFormat'](
+                      global['anychart']['format']['getIntervalIdentifier'](
                           this['minorIntervalUnit'],
                           this['majorIntervalUnit']
                       )));
@@ -4388,15 +4292,15 @@ goog.provide('anychart.themes.defaultTheme');
            * @this {*}
            * @return {*}
            */
-          'titleFormatter': function() {
+          'titleFormat': function() {
             var date = this['value'];
-            return window['anychart']['format']['dateTime'](date,
-                window['anychart']['format']['getDateTimeFormat'](
-                    window['anychart']['format']['getIntervalIdentifier'](
+            return global['anychart']['format']['dateTime'](date,
+                global['anychart']['format']['getDateTimeFormat'](
+                    global['anychart']['format']['getIntervalIdentifier'](
                         this['dataIntervalUnit'], null, 'full'
                     )));
           },
-          'align': 'center',
+          'align': 'left',
           'padding': {
             'top': 10,
             'right': 10,
@@ -4459,27 +4363,7 @@ goog.provide('anychart.themes.defaultTheme');
         },
         'scales': [
           {
-            'type': 'linear',
-            'inverted': false,
-            'maximum': null,
-            'minimum': null,
-            'minimumGap': 0.1,
-            'maximumGap': 0.1,
-            'softMinimum': null,
-            'softMaximum': null,
-            'ticks': {
-              'mode': 'linear',
-              'base': 0,
-              'minCount': 4,
-              'maxCount': 6
-            },
-            'minorTicks': {
-              'mode': 'linear',
-              'base': 0,
-              'count': 5
-            },
-            'stackMode': 'none',
-            'stickToZero': true
+            'type': 'linear'
           }
         ],
         'yScale': 0,
@@ -4491,7 +4375,6 @@ goog.provide('anychart.themes.defaultTheme');
       'scroller': {
         'defaultSeriesSettings': {
           'base': {
-            'color': '#64b5f6',
             'fill': stockScrollerUnselected,
             'selectFill': returnSourceColor,
             'stroke': stockScrollerUnselected,
@@ -4533,6 +4416,10 @@ goog.provide('anychart.themes.defaultTheme');
           'stick': {
             'stroke': stockScrollerUnselected,
             'selectStroke': returnStrokeSourceColor1
+          },
+          'jumpLine': {
+            'stroke': stockScrollerUnselected,
+            'selectStroke': returnStrokeSourceColor1
           }
         },
         'enabled': true,
@@ -4565,11 +4452,11 @@ goog.provide('anychart.themes.defaultTheme');
              * @this {*}
              * @return {string}
              */
-            'textFormatter': function() {
+            'format': function() {
               var date = this['tickValue'];
-              return window['anychart']['format']['dateTime'](date,
-                  window['anychart']['format']['getDateTimeFormat'](
-                      window['anychart']['format']['getIntervalIdentifier'](this['majorIntervalUnit'])));
+              return global['anychart']['format']['dateTime'](date,
+                  global['anychart']['format']['getDateTimeFormat'](
+                      global['anychart']['format']['getIntervalIdentifier'](this['majorIntervalUnit'])));
             }
           },
           'minorLabels': {
@@ -4586,11 +4473,11 @@ goog.provide('anychart.themes.defaultTheme');
              * @this {*}
              * @return {string}
              */
-            'textFormatter': function() {
+            'format': function() {
               var date = this['tickValue'];
-              return window['anychart']['format']['dateTime'](date,
-                  window['anychart']['format']['getDateTimeFormat'](
-                      window['anychart']['format']['getIntervalIdentifier'](
+              return global['anychart']['format']['dateTime'](date,
+                  global['anychart']['format']['getDateTimeFormat'](
+                      global['anychart']['format']['getIntervalIdentifier'](
                           this['minorIntervalUnit'],
                           this['majorIntervalUnit']
                       )));
@@ -4600,8 +4487,7 @@ goog.provide('anychart.themes.defaultTheme');
         }
       },
       'tooltip': {
-        'allowLeaveScreen': false,
-        'allowLeaveChart': true,
+        'allowLeaveScreen': true,
         'displayMode': 'union',
         'positionMode': 'float',
         'title': {
@@ -4613,17 +4499,17 @@ goog.provide('anychart.themes.defaultTheme');
          * @this {*}
          * @return {*}
          */
-        'titleFormatter': function() {
+        'titleFormat': function() {
           var date = this['hoveredDate'];
-          return window['anychart']['format']['dateTime'](date,
-              window['anychart']['format']['getDateTimeFormat'](
-                  window['anychart']['format']['getIntervalIdentifier'](
+          return global['anychart']['format']['dateTime'](date,
+              global['anychart']['format']['getDateTimeFormat'](
+                  global['anychart']['format']['getIntervalIdentifier'](
                       this['dataIntervalUnit'], null, 'full'
                   )));
         }
       },
       'a11y': {
-        'titleFormatter': chartA11yTitleFormatter
+        'titleFormat': chartA11yTitleFormatter
       }
     },
 
@@ -4660,13 +4546,15 @@ goog.provide('anychart.themes.defaultTheme');
           'hAlign': 'center',
           'fontColor': '#fff',
           'disablePointerEvents': true,
-          'textFormatter': returnMilestoneName
+          'format': returnMilestoneName
         },
         'hoverLabels': {
+          'enabled': null,
           'fontColor': '#fff',
           'fontOpacity': 1
         },
         'selectLabels': {
+          'enabled': null,
           'fontWeight': 'bold'
         },
 
@@ -4688,7 +4576,7 @@ goog.provide('anychart.themes.defaultTheme');
            * @this {*}
            * @return {*}
            */
-          'titleFormatter': function() {
+          'titleFormat': function() {
             if (this['creator']) {
               return 'Milestone - ' + this['index'];
             } else {
@@ -4699,7 +4587,7 @@ goog.provide('anychart.themes.defaultTheme');
            * @this {*}
            * @return {*}
            */
-          'textFormatter': function() {
+          'format': function() {
             var result = '';
             var i = 0;
             if (this['successors'] && this['successors'].length) {
@@ -4753,7 +4641,7 @@ goog.provide('anychart.themes.defaultTheme');
            * @this {*}
            * @return {*}
            */
-          'textFormatter': function() {
+          'format': function() {
             return this['name'];
           }
         },
@@ -4779,7 +4667,7 @@ goog.provide('anychart.themes.defaultTheme');
            * @this {*}
            * @return {*}
            */
-          'textFormatter': function() {
+          'format': function() {
             return 't: ' + locNum(this['duration']);
           }
         },
@@ -4792,14 +4680,14 @@ goog.provide('anychart.themes.defaultTheme');
            * @this {*}
            * @return {*}
            */
-          'titleFormatter': function() {
+          'titleFormat': function() {
             return this['name'];
           },
           /**
            * @this {*}
            * @return {*}
            */
-          'textFormatter': function() {
+          'format': function() {
             var result = 'Earliest start: ' + locNum(this['earliestStart']) + '\nEarliest finish: ' + locNum(this['earliestFinish']) +
                 '\nLatest start: ' + locNum(this['latestStart']) + '\nLatest finish: ' + locNum(this['latestFinish']) +
                 '\nDuration: ' + locNum(this['duration']) + '\nSlack: ' + locNum(this['slack']);
@@ -4823,8 +4711,7 @@ goog.provide('anychart.themes.defaultTheme');
     },
 
     'resource': {
-      'calendar': {
-      },
+      'calendar': {},
       'conflicts': {
         'labels': {
           'enabled': true,
@@ -4833,10 +4720,10 @@ goog.provide('anychart.themes.defaultTheme');
           'fontSize': '8pt',
           'padding': 0,
           'fontColor': '#F4F4F4',
-          'textFormatter': '{%hours}h ({%percent}%)'
+          'format': '{%hours}h ({%percent}%)'
         },
         'fill': '#dd2c00',
-        'stroke' : 'none',
+        'stroke': 'none',
         'hatchFill': null,
         'height': 15,
         'zIndex': 100
@@ -4849,18 +4736,20 @@ goog.provide('anychart.themes.defaultTheme');
           'enabled': true,
           'anchor': 'leftTop',
           'fontColor': '#F4F4F4',
-          'textFormatter': '{%name} ({%hoursPerDayRounded}h)'
+          'format': '{%name} ({%hoursPerDayRounded}h)',
+          'position': 'leftTop'
         },
+        'hoverLabels': {'enabled': null},
+        'selectLabels': {'enabled': null},
         'fill': '#1976d2',
-        // 'fill': '#0095D8',
-        // 'hoverFill': returnSourceColor,
-        // 'selectFill': returnSourceColor,
+        'hoverFill': returnLightenSourceColor,
+        'selectFill': defaultSelectSolidColor,
         'stroke': null,
-        // 'hoverStroke': returnSourceColor,
-        // 'selectStroke': returnSourceColor,
-        'hatchFill': false
-        // 'hoverHatchFill': null,
-        // 'selectHatchFill': null
+        'hoverStroke': returnSourceColor,
+        'selectStroke': returnSourceColor,
+        'hatchFill': false,
+        'hoverHatchFill': null,
+        'selectHatchFill': null
       },
       'resourceList': {
         'oddFill': 'none',
@@ -5037,7 +4926,7 @@ goog.provide('anychart.themes.defaultTheme');
                 'MMM\ndd  EEEE'
               ],
               // 'fontColor': '#ABB6BC',
-              'textFormatter': function() {
+              'format': function() {
                 return this['value'].toUpperCase();
               },
               'hAlign': 'left',
@@ -5061,7 +4950,7 @@ goog.provide('anychart.themes.defaultTheme');
               'hAlign': 'left',
               'fill': '#fff',
               'fontColor': '#ABB6BC',
-              'textFormatter': function() {
+              'format': function() {
                 return this['value'].toUpperCase();
               },
               'height': 30
@@ -5073,7 +4962,7 @@ goog.provide('anychart.themes.defaultTheme');
                 'w MMM'
               ],
               'fill': '#F0F5F8',
-              'textFormatter': function() {
+              'format': function() {
                 return this['value'].toUpperCase();
               }
             }
@@ -5095,7 +4984,7 @@ goog.provide('anychart.themes.defaultTheme');
               'hAlign': 'center',
               'padding': [2, 5, 2, 5],
               'fill': '#fff',
-              'textFormatter': function() {
+              'format': function() {
                 return this['value'].toUpperCase();
               },
               'height': 30
@@ -5107,7 +4996,7 @@ goog.provide('anychart.themes.defaultTheme');
                 'w MMM'
               ],
               'fill': '#F0F5F8',
-              'textFormatter': function() {
+              'format': function() {
                 return this['value'].toUpperCase();
               }
             }
@@ -5131,6 +5020,24 @@ goog.provide('anychart.themes.defaultTheme');
       'background': {
         'enabled': true,
         'stroke': '#ccc'
+      },
+      'tooltip': {
+        'allowLeaveScreen': false,
+        'allowLeaveChart': true,
+        'displayMode': 'single',
+        'positionMode': 'float',
+        'title': {
+          'enabled': true,
+          'fontSize': 13
+        },
+        'separator': {'enabled': true},
+        'titleFormat': '{%name}',
+        /** @this {*} */
+        'format': function() {
+          var format = window['anychart']['format']['date'];
+          return 'Starts: ' + format(this['start']) +
+              '\nEnds: ' + format(this['end']);
+        }
       }
     },
 
@@ -5334,14 +5241,14 @@ goog.provide('anychart.themes.defaultTheme');
            * @this {*}
            * @return {string}
            */
-          'titleFormatter': function() {
+          'titleFormat': function() {
             return this['name'] || '';
           },
           /**
            * @this {*}
            * @return {string}
            */
-          'textFormatter': function() {
+          'format': function() {
             var startDate = this['actualStart'] || this['autoStart'];
             var endDate = this['actualEnd'] || this['autoEnd'];
             var progress = this['progressValue'];
@@ -5351,8 +5258,8 @@ goog.provide('anychart.themes.defaultTheme');
               progress = (Math.round(auto * 100) / 100 || 0) + '%';
             }
 
-            return (startDate ? 'Start Date: ' + window['anychart']['format']['dateTime'](startDate) : '') +
-                (endDate ? '\nEnd Date: ' + window['anychart']['format']['dateTime'](endDate) : '') +
+            return (startDate ? 'Start Date: ' + global['anychart']['format']['dateTime'](startDate) : '') +
+                (endDate ? '\nEnd Date: ' + global['anychart']['format']['dateTime'](endDate) : '') +
                 (progress ? '\nComplete: ' + progress : '');
 
           }
@@ -5364,21 +5271,21 @@ goog.provide('anychart.themes.defaultTheme');
            * @this {*}
            * @return {string}
            */
-          'titleFormatter': function() {
+          'titleFormat': function() {
             return this['name'] || '';
           },
           /**
            * @this {*}
            * @return {string}
            */
-          'textFormatter': function() {
+          'format': function() {
             var startDate = this['periodStart'] || this['minPeriodDate'];
             var endDate = this['periodEnd'] || this['maxPeriodDate'];
-            return (startDate ? 'Start Date: ' + window['anychart']['format']['dateTime'](startDate) : '') +
-                (endDate ? '\nEnd Date: ' + window['anychart']['format']['dateTime'](endDate) : '');
+            return (startDate ? 'Start Date: ' + global['anychart']['format']['dateTime'](startDate) : '') +
+                (endDate ? '\nEnd Date: ' + global['anychart']['format']['dateTime'](endDate) : '');
           }
         }
       }
     }
   };
-})();
+}).call(this);

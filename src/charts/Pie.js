@@ -11,10 +11,10 @@ goog.require('anychart.core.ui.CircularLabelsFactory');
 goog.require('anychart.core.ui.Tooltip');
 goog.require('anychart.core.utils.IInteractiveSeries');
 goog.require('anychart.core.utils.PieInteractivityState');
-goog.require('anychart.core.utils.PointContextProvider');
 goog.require('anychart.core.utils.TypedLayer');
 goog.require('anychart.data.Set');
 goog.require('anychart.enums');
+goog.require('anychart.format.Context');
 goog.require('anychart.math');
 goog.require('anychart.palettes');
 
@@ -30,12 +30,12 @@ goog.require('anychart.palettes');
  * @constructor
  */
 anychart.charts.Pie = function(opt_data, opt_csvSettings) {
-  goog.base(this);
+  anychart.charts.Pie.base(this, 'constructor');
   this.suspendSignalsDispatching();
 
   /**
    * Pie point provider.
-   * @type {anychart.core.utils.PointContextProvider}
+   * @type {anychart.format.Context}
    * @private
    */
   this.pointProvider_;
@@ -43,7 +43,7 @@ anychart.charts.Pie = function(opt_data, opt_csvSettings) {
   /**
    * Filter function that should accept a field value and return true if the row
    *    should be included into the resulting view as and false otherwise.
-   * @type {(null|function(*):boolean)}
+   * @type {?function(*):boolean}
    * @private
    */
   this.groupedPointFilter_ = null;
@@ -409,6 +409,7 @@ anychart.charts.Pie.prototype.doAnimation = function() {
       this.animationQueue_.add(/** @type {goog.fx.TransitionBase} */ (pieLabelAnimation));
 
       this.animationQueue_.listen(goog.fx.Transition.EventType.BEGIN, function() {
+        this.ignoreMouseEvents(true);
         this.dispatchDetachedEvent({
           'type': anychart.enums.EventType.ANIMATION_START,
           'chart': this
@@ -416,6 +417,7 @@ anychart.charts.Pie.prototype.doAnimation = function() {
       }, false, this);
 
       this.animationQueue_.listen(goog.fx.Transition.EventType.END, function() {
+        this.ignoreMouseEvents(false);
         this.dispatchDetachedEvent({
           'type': anychart.enums.EventType.ANIMATION_END,
           'chart': this
@@ -446,6 +448,15 @@ anychart.charts.Pie.prototype.isDiscreteBased = function() {
 
 
 /**
+ * Tester if the series is discrete based.
+ * @return {boolean}
+ */
+anychart.charts.Pie.prototype.isSizeBased = function() {
+  return false;
+};
+
+
+/**
  * @inheritDoc
  */
 anychart.charts.Pie.prototype.isSeries = function() {
@@ -463,7 +474,8 @@ anychart.charts.Pie.prototype.data = function(opt_value, opt_csvSettings) {
   if (goog.isDef(opt_value)) {
     // handle HTML table data
     if (opt_value) {
-      if (opt_value['caption']) this.title(opt_value['caption']);
+      var title = opt_value['title'] || opt_value['caption'];
+      if (title) this.title(title);
       if (opt_value['rows']) opt_value = opt_value['rows'];
     }
 
@@ -944,10 +956,10 @@ anychart.charts.Pie.prototype.overlapMode = function(opt_value) {
 anychart.charts.Pie.prototype.labels = function(opt_value) {
   if (!this.labels_) {
     this.labels_ = new anychart.core.ui.CircularLabelsFactory();
-    this.labels_.textFormatter(function() {
+    this.labels_.setOption('format', function() {
       return (this['value'] * 100 / this.getStat(anychart.enums.Statistics.SUM)).toFixed(1) + '%';
     });
-    this.labels_.positionFormatter(function() {
+    this.labels_.setOption('positionFormatter', function() {
       return this['value'];
     });
 
@@ -1394,15 +1406,15 @@ anychart.charts.Pie.prototype.calculate_ = function(bounds) {
   this.aquaStyleObj_['fy'] = !isNaN(fy) && isFinite(fy) ? fy : 0;
   this.aquaStyleObj_['mode'] = bounds;
 
-  this.labels()
-      .suspendSignalsDispatching()
-      .cx(this.cx_)
-      .cy(this.cy_)
-      .parentRadius(this.radiusValue_)
-      .startAngle(this.startAngle_)
-      .sweepAngle(360)
-      .parentBounds(this.pieBounds_)
-      .resumeSignalsDispatching(false);
+  var labels = this.labels();
+  labels.suspendSignalsDispatching();
+  labels.cx(this.cx_);
+  labels.cy(this.cy_);
+  labels.parentRadius(this.radiusValue_);
+  labels.startAngle(this.startAngle_);
+  labels.sweepAngle(360);
+  labels.parentBounds(this.pieBounds_);
+  labels.resumeSignalsDispatching(false);
 
   this.hoverLabels()
       .parentBounds(this.pieBounds_);
@@ -1476,15 +1488,6 @@ anychart.charts.Pie.prototype.normalizeHatchFill = function(hatchFill) {
   } else
     fill = acgraph.vector.normalizeHatchFill(hatchFill);
   return fill;
-};
-
-
-/**
- * @inheritDoc
- */
-anychart.charts.Pie.prototype.remove = function() {
-  if (this.dataLayer_) this.dataLayer_.parent(null);
-  if (this.hatchLayer_) this.hatchLayer_.parent(null);
 };
 
 
@@ -1609,10 +1612,10 @@ anychart.charts.Pie.prototype.drawContent = function(bounds) {
     }
 
     var themePart = this.isOutsideLabels() ?
-        anychart.getFullTheme()['pie']['outsideLabels'] :
-        anychart.getFullTheme()['pie']['insideLabels'];
+        anychart.getFullTheme('pie.outsideLabels') :
+        anychart.getFullTheme('pie.insideLabels');
     this.labels().setAutoColor(themePart['autoColor']);
-    this.labels().disablePointerEvents(themePart['disablePointerEvents']);
+    this.labels()['disablePointerEvents'](themePart['disablePointerEvents']);
     if (this.isOutsideLabels()) {
       this.calculateOutsideLabels();
     } else {
@@ -1684,7 +1687,11 @@ anychart.charts.Pie.prototype.updatePointOnAnimate = function(point) {
  * @param {boolean} isOutside Whether labels has outside position.
  */
 anychart.charts.Pie.prototype.updateLabelsOnAnimate = function(labelOpacity, connectorOpacity, isOutside) {
-  this.labels().suspendSignalsDispatching().fontOpacity(labelOpacity).draw().resumeSignalsDispatching(false);
+  var labels = this.labels();
+  labels.suspendSignalsDispatching();
+  labels['fontOpacity'](labelOpacity);
+  labels.draw();
+  labels.resumeSignalsDispatching(false);
   if (isOutside && this.drawnConnectors_) {
     for (var i in this.drawnConnectors_) {
       if (this.drawnConnectors_.hasOwnProperty(i))
@@ -1952,7 +1959,7 @@ anychart.charts.Pie.prototype.draw3DSlices_ = function(opt_sliceIndex, opt_updat
               -1 :
               anychart.math.round(Math.sin(goog.math.toRadians(this.getCenterAngle_(side.start, side.end))), 7));
           break;
-        // for start or end side
+          // for start or end side
         default:
           side.sortWeight = anychart.math.round(Math.sin(goog.math.toRadians(side.angle)), 7);
           break;
@@ -2124,8 +2131,7 @@ anychart.charts.Pie.prototype.colorize3DSlice_ = function(pointState) {
   for (i = 0; i < length; i++) {
     side = this.sides3D_[i];
     if (side.index == index) {
-      var uniqueValue = (side.type == anychart.charts.Pie.Side3DType.FRONT ||
-          side.type == anychart.charts.Pie.Side3DType.BACK) ? side.start : '';
+      var uniqueValue = (side.type == anychart.charts.Pie.Side3DType.FRONT || side.type == anychart.charts.Pie.Side3DType.BACK) ? side.start : '';
       this.colorize3DPath_(side.type + 'Path' + uniqueValue, pointState);
     }
   }
@@ -2752,7 +2758,7 @@ anychart.charts.Pie.prototype.drawOutsideLabel_ = function(pointState, opt_updat
 
   var index = iterator.getIndex();
 
-  var labelsFactory = /** @type {anychart.core.ui.CircularLabelsFactory} */(hovered ? this.hoverLabels() : this.labels());
+  var labelsFactory = /** @type {anychart.core.ui.CircularLabelsFactory} */(hovered ? this.hoverLabels() : null);
 
   var label = this.labels().getLabel(index);
 
@@ -2795,7 +2801,7 @@ anychart.charts.Pie.prototype.drawOutsideLabel_ = function(pointState, opt_updat
 
     anchor = iterator.meta('anchor');
     if (goog.isDef(anchor))
-      label.anchor(/** @type {string} */(anchor));
+      label['anchor'](/** @type {string} */(anchor));
 
     if (!wasNoLabel)
       label.draw();
@@ -2808,7 +2814,7 @@ anychart.charts.Pie.prototype.drawOutsideLabel_ = function(pointState, opt_updat
     label = this.labels().add(formatProvider, positionProvider, index);
     anchor = iterator.meta('anchor');
     if (goog.isDef(anchor))
-      label.anchor(/** @type {string} */(anchor));
+      label['anchor'](/** @type {string} */(anchor));
     label.enabled(false);
   }
   if (opt_updateConnector)
@@ -2834,7 +2840,7 @@ anychart.charts.Pie.prototype.drawLabel_ = function(pointState, opt_updateConnec
   var sliceLabel = iterator.get('label');
   var hoverSliceLabel = hovered ? iterator.get('hoverLabel') : null;
   var index = iterator.getIndex();
-  var labelsFactory = /** @type {anychart.core.ui.CircularLabelsFactory} */(hovered ? this.hoverLabels() : this.labels());
+  var labelsFactory = /** @type {anychart.core.ui.CircularLabelsFactory} */(hovered ? this.hoverLabels() : null);
 
   var label = this.labels().getLabel(index);
 
@@ -3083,7 +3089,7 @@ anychart.charts.Pie.prototype.clickSlice = function(opt_explode) {
  * @return {boolean} Define, is labels have outside position.
  */
 anychart.charts.Pie.prototype.isOutsideLabels = function() {
-  return anychart.enums.normalizeSidePosition(this.labels().position()) == anychart.enums.SidePosition.OUTSIDE;
+  return anychart.enums.normalizeSidePosition(this.labels().getOption('position')) == anychart.enums.SidePosition.OUTSIDE;
 };
 
 
@@ -3096,7 +3102,7 @@ anychart.charts.Pie.prototype.getSeriesStatus = function(event) {
   //
   //var value, index, iterator;
   //
-  //var containerOffset = goog.style.getClientPosition(/** @type {Element} */(this.container().getStage().container()));
+  //var containerOffset = this.container().getStage().getClientPosition();
   //
   //var x = clientX - containerOffset.x;
   //var y = clientY - containerOffset.y;
@@ -3270,9 +3276,9 @@ anychart.charts.Pie.prototype.getPoint = function(index) {
   if (iter.select(index) &&
       point.exists() && !this.isMissing_(value = /** @type {number} */(point.get('value')))) {
 
-    point.statistics[anychart.enums.Statistics.PERCENT_VALUE] =
-        point.statistics[anychart.enums.Statistics.Y_PERCENT_OF_TOTAL] =
-            value / /** @type {number} */(this.getStat(anychart.enums.Statistics.SUM)) * 100;
+    var val = value / /** @type {number} */(this.getStat(anychart.enums.Statistics.SUM)) * 100;
+    point.statistics(anychart.enums.Statistics.PERCENT_VALUE, val);
+    point.statistics(anychart.enums.Statistics.Y_PERCENT_OF_TOTAL, val);
   }
 
   return point;
@@ -3280,7 +3286,7 @@ anychart.charts.Pie.prototype.getPoint = function(index) {
 
 
 /** @inheritDoc */
-anychart.charts.Pie.prototype.createLegendItemsProvider = function(sourceMode, itemsTextFormatter) {
+anychart.charts.Pie.prototype.createLegendItemsProvider = function(sourceMode, itemsFormat) {
   /**
    * @type {!Array.<anychart.core.ui.Legend.LegendItemProvider>}
    */
@@ -3298,9 +3304,11 @@ anychart.charts.Pie.prototype.createLegendItemsProvider = function(sourceMode, i
     index = iterator.getIndex();
     var legendItem = /** @type {Object} */ (iterator.get('legendItem') || {});
     var itemText = null;
-    if (goog.isFunction(itemsTextFormatter)) {
+    if (goog.isFunction(itemsFormat)) {
       var format = this.createFormatProvider();
-      itemText = itemsTextFormatter.call(format, format);
+      itemText = itemsFormat.call(format, format);
+      if (goog.isNumber(itemText))
+        itemText = String(itemText);
     }
     if (!goog.isString(itemText)) {
       var isGrouped = !!iterator.meta('groupedPoint');
@@ -3585,7 +3593,7 @@ anychart.charts.Pie.prototype.applyAppearanceToSeries = function(pointState) {
  */
 anychart.charts.Pie.prototype.tooltip = function(opt_value) {
   if (!this.tooltip_) {
-    this.tooltip_ = new anychart.core.ui.Tooltip(anychart.core.ui.Tooltip.Capabilities.SUPPORTS_ALLOW_LEAVE_SCREEN);
+    this.tooltip_ = new anychart.core.ui.Tooltip(0);
     this.tooltip_.chart(this);
     this.registerDisposable(this.tooltip_);
     this.tooltip_.listenSignals(this.onTooltipSignal_, this);
@@ -3621,13 +3629,16 @@ anychart.charts.Pie.prototype.showTooltip = function(opt_event) {
   var tooltip = /** @type {anychart.core.ui.Tooltip} */(this.tooltip());
   var formatProvider = this.createFormatProvider();
   if (opt_event) {
+    tooltip.suspendSignalsDispatching();
     tooltip.showFloat(opt_event['clientX'], opt_event['clientY'], formatProvider);
-    this.listen(goog.events.EventType.MOUSEMOVE, this.showTooltip);
+    tooltip.resumeSignalsDispatching(false);
+    this.listen(goog.labs.userAgent.device.isDesktop() ?
+        goog.events.EventType.MOUSEMOVE : goog.events.EventType.TOUCHSTART, this.showTooltip);
   }
   // if (tooltip.isFloating() && opt_event) {
   //   tooltip.show(
   //       formatProvider,
-  //       new acgraph.math.Coordinate(opt_event['clientX'], opt_event['clientY']));
+  //       new goog.math.Coordinate(opt_event['clientX'], opt_event['clientY']));
   //
   //   // for float
   //   this.listen(goog.events.EventType.MOUSEMOVE, this.showTooltip);
@@ -3635,7 +3646,7 @@ anychart.charts.Pie.prototype.showTooltip = function(opt_event) {
   // } else {
   //   tooltip.show(
   //       formatProvider,
-  //       new acgraph.math.Coordinate(0, 0));
+  //       new goog.math.Coordinate(0, 0));
   // }
 };
 
@@ -3646,7 +3657,8 @@ anychart.charts.Pie.prototype.showTooltip = function(opt_event) {
  */
 anychart.charts.Pie.prototype.hideTooltip = function() {
   var tooltip = /** @type {anychart.core.ui.Tooltip} */(this.tooltip());
-  this.unlisten(goog.events.EventType.MOUSEMOVE, this.showTooltip);
+  this.unlisten(goog.labs.userAgent.device.isDesktop() ?
+      goog.events.EventType.MOUSEMOVE : goog.events.EventType.TOUCHSTART, this.showTooltip);
   tooltip.hide();
 };
 
@@ -3656,7 +3668,7 @@ anychart.charts.Pie.prototype.hideTooltip = function() {
  */
 anychart.charts.Pie.prototype.calculate = function() {
   if (this.hasInvalidationState(anychart.ConsistencyState.PIE_DATA)) {
-    this.statistics = {};
+    this.resetStatistics();
 
     var iterator = this.data().getIterator();
     var value;
@@ -3681,11 +3693,11 @@ anychart.charts.Pie.prototype.calculate = function() {
     var avg;
     if (!count) min = max = sum = avg = undefined;
     else avg = sum / count;
-    this.statistics[anychart.enums.Statistics.COUNT] = count;
-    this.statistics[anychart.enums.Statistics.MIN] = min;
-    this.statistics[anychart.enums.Statistics.MAX] = max;
-    this.statistics[anychart.enums.Statistics.SUM] = sum;
-    this.statistics[anychart.enums.Statistics.AVERAGE] = avg;
+    this.statistics(anychart.enums.Statistics.COUNT, count);
+    this.statistics(anychart.enums.Statistics.MIN, min);
+    this.statistics(anychart.enums.Statistics.MAX, max);
+    this.statistics(anychart.enums.Statistics.SUM, sum);
+    this.statistics(anychart.enums.Statistics.AVERAGE, avg);
 
     this.markConsistent(anychart.ConsistencyState.PIE_DATA);
   }
@@ -3699,11 +3711,31 @@ anychart.charts.Pie.prototype.calculate = function() {
  * @protected
  */
 anychart.charts.Pie.prototype.createFormatProvider = function(opt_force) {
+  var iterator = this.getIterator();
+
   if (!this.pointProvider_ || opt_force)
-    this.pointProvider_ = new anychart.core.utils.PointContextProvider(this, ['x', 'value', 'name']);
-  this.pointProvider_.pointInternal = this.getPoint(this.getIterator().getIndex());
-  this.pointProvider_.applyReferenceValues();
-  return this.pointProvider_;
+    this.pointProvider_ = new anychart.format.Context();
+
+  this.pointProvider_
+      .dataSource(iterator)
+      .statisticsSources([this.getPoint(iterator.getIndex()), this]);
+
+  var values = { //TODO (A.Kudryavtsev): Check types!!!
+    'x': {value: iterator.get('x'), type: anychart.enums.TokenType.STRING},
+    'value': {value: iterator.get('value'), type: anychart.enums.TokenType.NUMBER},
+    'name': {value: iterator.get('name'), type: anychart.enums.TokenType.STRING},
+    'index': {value: iterator.getIndex(), type: anychart.enums.TokenType.NUMBER},
+    'chart': {value: this, type: anychart.enums.TokenType.UNKNOWN}
+  };
+
+  if (iterator.meta('groupedPoint')) {
+    values['name'] = {value: 'Other points', type: anychart.enums.TokenType.STRING};
+    values['groupedPoint'] = {value: true, type: anychart.enums.TokenType.STRING};
+    values['names'] = {value: iterator.meta('names'), type: anychart.enums.TokenType.UNKNOWN};
+    values['values'] = {value: iterator.meta('values'), type: anychart.enums.TokenType.UNKNOWN};
+  }
+
+  return this.pointProvider_.propagate(values);
 };
 
 
@@ -3772,7 +3804,7 @@ anychart.charts.Pie.prototype.domainDefragmentation = function(domain) {
             sourcePieLabelsDomains.push(tmpDomain);
             prevDomain = tmpDomain;
           }
-          var isRightSide = label.anchor() == anychart.enums.Anchor.LEFT_CENTER;
+          var isRightSide = label['anchor']() == anychart.enums.Anchor.LEFT_CENTER;
           tmpDomain = new anychart.charts.Pie.PieOutsideLabelsDomain(isRightSide, this, sourcePieLabelsDomains);
           tmpDomain.softAddLabel(label);
         } else {
@@ -3905,7 +3937,7 @@ anychart.charts.Pie.prototype.calculateOutsideLabels = function() {
 
       if (!domain || domain.isNotIntersect(bounds)) {
         if (domain) leftDomains.push(domain);
-        isRightSide = label.anchor() == anychart.enums.Position.LEFT_CENTER;
+        isRightSide = label['anchor']() == anychart.enums.Position.LEFT_CENTER;
         domain = new anychart.charts.Pie.PieOutsideLabelsDomain(isRightSide, this, leftDomains);
         domain.addLabel(label);
       } else {
@@ -3943,7 +3975,7 @@ anychart.charts.Pie.prototype.calculateOutsideLabels = function() {
 
         if (notIntersection) {
           if (!domain) {
-            isRightSide = label.anchor() == anychart.enums.Position.LEFT_CENTER;
+            isRightSide = label['anchor']() == anychart.enums.Position.LEFT_CENTER;
             domain = new anychart.charts.Pie.PieOutsideLabelsDomain(isRightSide, this, []);
           }
           domain.softAddLabel(label);
@@ -3989,7 +4021,7 @@ anychart.charts.Pie.prototype.calculateOutsideLabels = function() {
 
       if (!domain || domain.isNotIntersect(bounds)) {
         if (domain) rightDomains.push(domain);
-        isRightSide = label.anchor() == anychart.enums.Position.LEFT_CENTER;
+        isRightSide = label['anchor']() == anychart.enums.Position.LEFT_CENTER;
         domain = new anychart.charts.Pie.PieOutsideLabelsDomain(isRightSide, this, rightDomains);
         domain.addLabel(label);
       } else {
@@ -4028,7 +4060,7 @@ anychart.charts.Pie.prototype.calculateOutsideLabels = function() {
 
         if (notIntersection) {
           if (!domain) {
-            isRightSide = label.anchor() == anychart.enums.Position.LEFT_CENTER;
+            isRightSide = label['anchor']() == anychart.enums.Position.LEFT_CENTER;
             domain = new anychart.charts.Pie.PieOutsideLabelsDomain(isRightSide, this, []);
           }
           domain.softAddLabel(label);
@@ -4168,11 +4200,11 @@ anychart.charts.Pie.prototype.drawConnectorLine = function(label, path) {
     var connector = /** @type {number} */(iterator.meta('connector'));
     var positionProvider = label.positionProvider()['value'];
 
-    var offsetY = goog.isDef(label.offsetY()) ? label.offsetY() : this.labels().offsetY();
+    var offsetY = goog.isDef(label.getOption('offsetY')) ? label.getOption('offsetY') : this.labels().getOption('offsetY');
     if (!offsetY) offsetY = 0;
     var offsetRadius = anychart.utils.normalizeSize(/** @type {number|string} */(offsetY), this.radiusValue_);
 
-    var offsetX = goog.isDef(label.offsetX()) ? label.offsetX() : this.labels().offsetX();
+    var offsetX = goog.isDef(label.getOption('offsetX')) ? label.getOption('offsetX') : this.labels().getOption('offsetX');
     if (!offsetX) offsetX = 0;
     var offsetAngle = anychart.utils.normalizeSize(/** @type {number|string} */(offsetX), 360);
 
@@ -4289,7 +4321,7 @@ anychart.charts.Pie.prototype.createPositionProvider = function() {
 
 /** @inheritDoc */
 anychart.charts.Pie.prototype.serialize = function() {
-  var json = goog.base(this, 'serialize');
+  var json = anychart.charts.Pie.base(this, 'serialize');
   json['type'] = this.getType();
   json['data'] = this.data().serialize();
   json['labels'] = this.labels().serialize();
@@ -4420,15 +4452,15 @@ anychart.charts.Pie.prototype.serialize = function() {
 
 /** @inheritDoc */
 anychart.charts.Pie.prototype.setupByJSON = function(config, opt_default) {
-  goog.base(this, 'setupByJSON', config, opt_default);
+  anychart.charts.Pie.base(this, 'setupByJSON', config, opt_default);
   this.group(config['group']);
   this.data(config['data']);
-  this.labels().setup(config['labels']);
-  this.hoverLabels().setup(config['hoverLabels']);
+  this.labels().setupByVal(config['labels'], opt_default);
+  this.hoverLabels().setupByVal(config['hoverLabels'], opt_default);
   this.palette(config['palette']);
   this.hatchFillPalette(config['hatchFillPalette']);
 
-  if (anychart.opt.TOOLTIP in config)
+  if ('tooltip' in config)
     this.tooltip().setupByVal(config['tooltip'], opt_default);
 
   this.sort(config['sort']);
@@ -4706,11 +4738,11 @@ anychart.charts.Pie.PieOutsideLabelsDomain.prototype.calcDomain = function() {
     sweep = /** @type {number} */ (iterator.meta('sweep'));
     exploded = /** @type {boolean} */ (iterator.meta('exploded'));
 
-    var offsetX = goog.isDef(label.offsetX()) ? label.offsetX() : this.pie.labels().offsetX();
+    var offsetX = goog.isDef(label.getOption('offsetX')) ? label.getOption('offsetX') : this.pie.labels().getOption('offsetX');
     if (!offsetX) offsetX = 0;
     var offsetAngle = anychart.utils.normalizeSize(/** @type {number|string} */(offsetX), 360);
 
-    var offsetY = goog.isDef(label.offsetY()) ? label.offsetY() : this.pie.labels().offsetY();
+    var offsetY = goog.isDef(label.getOption('offsetY')) ? label.getOption('offsetY') : this.pie.labels().getOption('offsetY');
     if (!offsetY) offsetY = 0;
     var offsetRadius = anychart.utils.normalizeSize(/** @type {number|string} */(offsetY), this.pie.radiusValue_);
 
@@ -4757,9 +4789,9 @@ anychart.charts.Pie.PieOutsideLabelsDomain.prototype.calcDomain = function() {
     y1 = cy + dRY * Math.sin(angle);
 
     // get connector radius before overlap correction
-    var normalConnector = (Math.sqrt(Math.pow(x0 - x1, 2) + Math.pow(y0 - y1, 2))).toFixed(3);
+    var normalConnector = (anychart.math.vectorLength(x0, y0, x1, y1)).toFixed(3);
     // get connector radius after overlap correction
-    var txConnector = (Math.sqrt(Math.pow(x0 - x, 2) + Math.pow(y0 - y, 2))).toFixed(3);
+    var txConnector = (anychart.math.vectorLength(x0, y0, x, y)).toFixed(3);
     var dAngle = goog.math.toDegrees(Math.acos(normalConnector / txConnector));
 
     if (dAngle > this.maxAngle || isNaN(this.maxAngle) || leg < 0) {
@@ -4839,39 +4871,42 @@ anychart.charts.Pie.PieOutsideLabelsDomain.prototype.calculate = function() {
 
 
 //exports
-anychart.charts.Pie.prototype['data'] = anychart.charts.Pie.prototype.data;//doc|ex|
-anychart.charts.Pie.prototype['group'] = anychart.charts.Pie.prototype.group;//doc|ex|non-tr
-anychart.charts.Pie.prototype['labels'] = anychart.charts.Pie.prototype.labels;//doc|ex
-anychart.charts.Pie.prototype['hoverLabels'] = anychart.charts.Pie.prototype.hoverLabels;//doc|ex
-anychart.charts.Pie.prototype['radius'] = anychart.charts.Pie.prototype.radius;//doc|ex
-anychart.charts.Pie.prototype['innerRadius'] = anychart.charts.Pie.prototype.innerRadius;//doc|ex
-anychart.charts.Pie.prototype['startAngle'] = anychart.charts.Pie.prototype.startAngle;//doc|ex
-anychart.charts.Pie.prototype['explode'] = anychart.charts.Pie.prototype.explode;//doc/ex
-anychart.charts.Pie.prototype['sort'] = anychart.charts.Pie.prototype.sort;//doc|ex
-anychart.charts.Pie.prototype['getCenterPoint'] = anychart.charts.Pie.prototype.getCenterPoint;//doc|ex
-anychart.charts.Pie.prototype['getPixelRadius'] = anychart.charts.Pie.prototype.getPixelRadius;//doc|need-ex
-anychart.charts.Pie.prototype['getPixelInnerRadius'] = anychart.charts.Pie.prototype.getPixelInnerRadius;//doc|need-ex
-anychart.charts.Pie.prototype['getPixelExplode'] = anychart.charts.Pie.prototype.getPixelExplode;
-anychart.charts.Pie.prototype['palette'] = anychart.charts.Pie.prototype.palette;//doc|ex
-anychart.charts.Pie.prototype['fill'] = anychart.charts.Pie.prototype.fill;//doc|ex
-anychart.charts.Pie.prototype['stroke'] = anychart.charts.Pie.prototype.stroke;//doc|ex
-anychart.charts.Pie.prototype['hoverFill'] = anychart.charts.Pie.prototype.hoverFill;//doc|ex
-anychart.charts.Pie.prototype['hoverStroke'] = anychart.charts.Pie.prototype.hoverStroke;//doc|ex
-anychart.charts.Pie.prototype['hatchFill'] = anychart.charts.Pie.prototype.hatchFill;//doc|ex
-anychart.charts.Pie.prototype['hoverHatchFill'] = anychart.charts.Pie.prototype.hoverHatchFill;//doc|ex
-anychart.charts.Pie.prototype['explodeSlice'] = anychart.charts.Pie.prototype.explodeSlice;//doc|ex
-anychart.charts.Pie.prototype['explodeSlices'] = anychart.charts.Pie.prototype.explodeSlices;
-anychart.charts.Pie.prototype['tooltip'] = anychart.charts.Pie.prototype.tooltip;//doc|ex
-anychart.charts.Pie.prototype['outsideLabelsSpace'] = anychart.charts.Pie.prototype.outsideLabelsSpace;//doc|ewx
-anychart.charts.Pie.prototype['overlapMode'] = anychart.charts.Pie.prototype.overlapMode;
-anychart.charts.Pie.prototype['insideLabelsOffset'] = anychart.charts.Pie.prototype.insideLabelsOffset;//doc|ewx
-anychart.charts.Pie.prototype['connectorLength'] = anychart.charts.Pie.prototype.connectorLength;//doc|ex
-anychart.charts.Pie.prototype['outsideLabelsCriticalAngle'] = anychart.charts.Pie.prototype.outsideLabelsCriticalAngle;//doc|ex
-anychart.charts.Pie.prototype['connectorStroke'] = anychart.charts.Pie.prototype.connectorStroke;//doc|ex
-anychart.charts.Pie.prototype['hatchFillPalette'] = anychart.charts.Pie.prototype.hatchFillPalette;
-anychart.charts.Pie.prototype['getType'] = anychart.charts.Pie.prototype.getType;
-anychart.charts.Pie.prototype['hover'] = anychart.charts.Pie.prototype.hover;
-anychart.charts.Pie.prototype['unhover'] = anychart.charts.Pie.prototype.unhover;
-anychart.charts.Pie.prototype['forceHoverLabels'] = anychart.charts.Pie.prototype.forceHoverLabels;
-anychart.charts.Pie.prototype['getPoint'] = anychart.charts.Pie.prototype.getPoint;
-anychart.charts.Pie.prototype['toCsv'] = anychart.charts.Pie.prototype.toCsv;
+(function() {
+  var proto = anychart.charts.Pie.prototype;
+  proto['data'] = proto.data;//doc|ex|
+  proto['group'] = proto.group;//doc|ex|non-tr
+  proto['labels'] = proto.labels;//doc|ex
+  proto['hoverLabels'] = proto.hoverLabels;//doc|ex
+  proto['radius'] = proto.radius;//doc|ex
+  proto['innerRadius'] = proto.innerRadius;//doc|ex
+  proto['startAngle'] = proto.startAngle;//doc|ex
+  proto['explode'] = proto.explode;//doc/ex
+  proto['sort'] = proto.sort;//doc|ex
+  proto['getCenterPoint'] = proto.getCenterPoint;//doc|ex
+  proto['getPixelRadius'] = proto.getPixelRadius;//doc|need-ex
+  proto['getPixelInnerRadius'] = proto.getPixelInnerRadius;//doc|need-ex
+  proto['getPixelExplode'] = proto.getPixelExplode;
+  proto['palette'] = proto.palette;//doc|ex
+  proto['fill'] = proto.fill;//doc|ex
+  proto['stroke'] = proto.stroke;//doc|ex
+  proto['hoverFill'] = proto.hoverFill;//doc|ex
+  proto['hoverStroke'] = proto.hoverStroke;//doc|ex
+  proto['hatchFill'] = proto.hatchFill;//doc|ex
+  proto['hoverHatchFill'] = proto.hoverHatchFill;//doc|ex
+  proto['explodeSlice'] = proto.explodeSlice;//doc|ex
+  proto['explodeSlices'] = proto.explodeSlices;
+  proto['tooltip'] = proto.tooltip;//doc|ex
+  proto['outsideLabelsSpace'] = proto.outsideLabelsSpace;//doc|ewx
+  proto['overlapMode'] = proto.overlapMode;
+  proto['insideLabelsOffset'] = proto.insideLabelsOffset;//doc|ewx
+  proto['connectorLength'] = proto.connectorLength;//doc|ex
+  proto['outsideLabelsCriticalAngle'] = proto.outsideLabelsCriticalAngle;//doc|ex
+  proto['connectorStroke'] = proto.connectorStroke;//doc|ex
+  proto['hatchFillPalette'] = proto.hatchFillPalette;
+  proto['getType'] = proto.getType;
+  proto['hover'] = proto.hover;
+  proto['unhover'] = proto.unhover;
+  proto['forceHoverLabels'] = proto.forceHoverLabels;
+  proto['getPoint'] = proto.getPoint;
+  proto['toCsv'] = proto.toCsv;
+})();

@@ -3,7 +3,6 @@ goog.provide('anychart.core.drawers.JumpLine');
 goog.require('anychart.core.drawers');
 goog.require('anychart.core.drawers.Base');
 goog.require('anychart.enums');
-goog.require('anychart.opt');
 
 
 
@@ -38,7 +37,7 @@ anychart.core.drawers.JumpLine.prototype.flags = (
     anychart.core.drawers.Capabilities.IS_DISCRETE_BASED |
     anychart.core.drawers.Capabilities.IS_WIDTH_BASED |
     // anychart.core.drawers.Capabilities.IS_3D_BASED |
-    // anychart.core.drawers.Capabilities.IS_BAR_BASED |
+    // anychart.core.drawers.Capabilities.IS_VERTICAL |
     // anychart.core.drawers.Capabilities.IS_MARKER_BASED |
     // anychart.core.drawers.Capabilities.IS_OHLC_BASED |
     // anychart.core.drawers.Capabilities.IS_LINE_BASED |
@@ -46,6 +45,14 @@ anychart.core.drawers.JumpLine.prototype.flags = (
     // anychart.core.drawers.Capabilities.SUPPORTS_STEP_DIRECTION |
     // anychart.core.drawers.Capabilities.SUPPORTS_DISTRIBUTION |
     0);
+
+
+/** @inheritDoc */
+anychart.core.drawers.JumpLine.prototype.requiredShapes = (function() {
+  var res = {};
+  res['stroke'] = anychart.enums.ShapeType.PATH;
+  return res;
+})();
 
 
 /** @inheritDoc */
@@ -57,7 +64,7 @@ anychart.core.drawers.JumpLine.prototype.drawSubsequentPoint = function(point, s
 
 /** @inheritDoc */
 anychart.core.drawers.JumpLine.prototype.updatePointOnAnimate = function(point) {
-  var shapes = /** @type {Object.<acgraph.vector.Path>} */(point.meta(anychart.opt.SHAPES));
+  var shapes = /** @type {Object.<acgraph.vector.Path>} */(point.meta('shapes'));
   for (var i in shapes)
     shapes[i].clear();
   this.drawPoint_(point, shapes);
@@ -71,16 +78,18 @@ anychart.core.drawers.JumpLine.prototype.updatePointOnAnimate = function(point) 
  * @private
  */
 anychart.core.drawers.JumpLine.prototype.drawPoint_ = function(point, shapes) {
-  var x = /** @type {number} */(point.meta(anychart.opt.X));
-  var y = /** @type {number} */(point.meta(anychart.opt.VALUE));
+  var x = /** @type {number} */(point.meta('x'));
+  var y = /** @type {number} */(point.meta('value'));
 
   var leftX = x - this.pointWidth / 2;
   var rightX = leftX + this.pointWidth;
 
-  var thickness = acgraph.vector.getThickness(/** @type {acgraph.vector.Stroke} */(shapes[anychart.opt.STROKE].stroke()));
+  var thickness = acgraph.vector.getThickness(/** @type {acgraph.vector.Stroke} */(shapes['stroke'].stroke()));
   leftX = anychart.utils.applyPixelShift(leftX, thickness);
   rightX = anychart.utils.applyPixelShift(rightX, thickness);
   y = anychart.utils.applyPixelShift(y, thickness);
 
-  shapes[anychart.opt.STROKE].moveTo(leftX, y).lineTo(rightX, y);
+  var path = /** @type {acgraph.vector.Path} */(shapes['stroke']);
+  anychart.core.drawers.move(path, this.isVertical, leftX, y);
+  anychart.core.drawers.line(path, this.isVertical, rightX, y);
 };

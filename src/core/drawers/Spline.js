@@ -3,7 +3,6 @@ goog.require('anychart.core.drawers');
 goog.require('anychart.core.drawers.Base');
 goog.require('anychart.core.drawers.SplineDrawer');
 goog.require('anychart.enums');
-goog.require('anychart.opt');
 
 
 
@@ -44,7 +43,7 @@ anychart.core.drawers.Spline.prototype.flags = (
     // anychart.core.drawers.Capabilities.IS_DISCRETE_BASED |
     // anychart.core.drawers.Capabilities.IS_WIDTH_BASED |
     // anychart.core.drawers.Capabilities.IS_3D_BASED |
-    // anychart.core.drawers.Capabilities.IS_BAR_BASED |
+    // anychart.core.drawers.Capabilities.IS_VERTICAL |
     // anychart.core.drawers.Capabilities.IS_MARKER_BASED |
     // anychart.core.drawers.Capabilities.IS_OHLC_BASED |
     anychart.core.drawers.Capabilities.IS_LINE_BASED |
@@ -55,30 +54,39 @@ anychart.core.drawers.Spline.prototype.flags = (
 
 
 /** @inheritDoc */
+anychart.core.drawers.Spline.prototype.requiredShapes = (function() {
+  var res = {};
+  res['stroke'] = anychart.enums.ShapeType.PATH;
+  return res;
+})();
+
+
+/** @inheritDoc */
 anychart.core.drawers.Spline.prototype.startDrawing = function(shapeManager) {
   anychart.core.drawers.Spline.base(this, 'startDrawing', shapeManager);
   var shapes = this.shapesManager.getShapesGroup(this.seriesState);
+  this.queue_.isVertical(this.isVertical);
   this.queue_.rtl(this.series.planIsXScaleInverted());
-  this.queue_.setPaths([/** @type {acgraph.vector.Path} */(shapes[anychart.opt.STROKE])]);
+  this.queue_.setPaths([/** @type {acgraph.vector.Path} */(shapes['stroke'])]);
 };
 
 
 /** @inheritDoc */
 anychart.core.drawers.Spline.prototype.drawFirstPoint = function(point, state) {
   var shapes = this.shapesManager.getShapesGroup(this.seriesState);
-  var x = /** @type {number} */(point.meta(anychart.opt.X));
-  var y = /** @type {number} */(point.meta(anychart.opt.VALUE));
+  var x = /** @type {number} */(point.meta('x'));
+  var y = /** @type {number} */(point.meta('value'));
 
   this.queue_.resetDrawer(false);
-  (/** @type {acgraph.vector.Path} */(shapes[anychart.opt.STROKE])).moveTo(x, y);
+  anychart.core.drawers.move(/** @type {acgraph.vector.Path} */(shapes['stroke']), this.isVertical, x, y);
   this.queue_.processPoint(x, y);
 };
 
 
 /** @inheritDoc */
 anychart.core.drawers.Spline.prototype.drawSubsequentPoint = function(point, state) {
-  var x = /** @type {number} */(point.meta(anychart.opt.X));
-  var y = /** @type {number} */(point.meta(anychart.opt.VALUE));
+  var x = /** @type {number} */(point.meta('x'));
+  var y = /** @type {number} */(point.meta('value'));
 
   this.queue_.processPoint(x, y);
 };

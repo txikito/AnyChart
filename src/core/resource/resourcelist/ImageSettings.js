@@ -22,37 +22,37 @@ goog.inherits(anychart.core.resource.resourceList.ImageSettings, anychart.core.r
 anychart.core.resource.resourceList.ImageSettings.PROPERTY_DESCRIPTORS = (function() {
   var map = {};
 
-  map[anychart.opt.SIZE] = anychart.core.settings.createDescriptor(
+  map['size'] = anychart.core.settings.createDescriptor(
       anychart.enums.PropertyHandlerType.SINGLE_ARG,
-      anychart.opt.SIZE,
+      'size',
       anychart.core.settings.numberOrPercentNormalizer,
       0,
       anychart.Signal.NEEDS_REDRAW);
 
-  map[anychart.opt.BORDER_RADIUS] = anychart.core.settings.createDescriptor(
+  map['borderRadius'] = anychart.core.settings.createDescriptor(
       anychart.enums.PropertyHandlerType.MULTI_ARG,
-      anychart.opt.BORDER_RADIUS,
+      'borderRadius',
       anychart.core.settings.arrayNormalizer,
       0,
       anychart.Signal.NEEDS_REDRAW);
 
-  map[anychart.opt.OPACITY] = anychart.core.settings.createDescriptor(
+  map['opacity'] = anychart.core.settings.createDescriptor(
       anychart.enums.PropertyHandlerType.SINGLE_ARG,
-      anychart.opt.OPACITY,
+      'opacity',
       anychart.core.settings.ratioNormalizer,
       0,
       anychart.Signal.NEEDS_REDRAW);
 
-  map[anychart.opt.ALIGN] = anychart.core.settings.createDescriptor(
+  map['align'] = anychart.core.settings.createDescriptor(
       anychart.enums.PropertyHandlerType.SINGLE_ARG,
-      anychart.opt.ALIGN,
+      'align',
       anychart.core.settings.stringNormalizer,
       0,
       anychart.Signal.NEEDS_REDRAW);
 
-  map[anychart.opt.FITTING_MODE] = anychart.core.settings.createDescriptor(
+  map['fittingMode'] = anychart.core.settings.createDescriptor(
       anychart.enums.PropertyHandlerType.SINGLE_ARG,
-      anychart.opt.FITTING_MODE,
+      'fittingMode',
       anychart.core.settings.stringNormalizer,
       0,
       anychart.Signal.NEEDS_REDRAW);
@@ -83,9 +83,9 @@ anychart.core.resource.resourceList.ImageSettings.prototype.serialize = function
 
 //region --- EXPORTS ---
 //exports
-//anychart.core.resource.resourceList.ImageSettings.prototype['size'] = anychart.core.resource.resourceList.ImageSettings.prototype.size;
-//anychart.core.resource.resourceList.ImageSettings.prototype['borderRadius'] = anychart.core.resource.resourceList.ImageSettings.prototype.borderRadius;
-//anychart.core.resource.resourceList.ImageSettings.prototype['opacity'] = anychart.core.resource.resourceList.ImageSettings.prototype.opacity;
-//anychart.core.resource.resourceList.ImageSettings.prototype['align'] = anychart.core.resource.resourceList.ImageSettings.prototype.align;
-//anychart.core.resource.resourceList.ImageSettings.prototype['fittingMode'] = anychart.core.resource.resourceList.ImageSettings.prototype.fittingMode;
+//proto['size'] = proto.size;
+//proto['borderRadius'] = proto.borderRadius;
+//proto['opacity'] = proto.opacity;
+//proto['align'] = proto.align;
+//proto['fittingMode'] = proto.fittingMode;
 //endregion

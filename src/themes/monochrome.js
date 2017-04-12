@@ -2,6 +2,7 @@ goog.provide('anychart.themes.monochrome');
 
 
 (function() {
+  var global = this;
   var stockScrollerUnselected = '#999 0.6';
 
 
@@ -18,8 +19,17 @@ goog.provide('anychart.themes.monochrome');
    * @this {*}
    * @return {*}
    */
+  var returnSourceColor60 = function() {
+    return global['anychart']['color']['setOpacity'](this['sourceColor'], 0.6, true);
+  };
+
+
+  /**
+   * @this {*}
+   * @return {*}
+   */
   var returnDarkenSourceColor = function() {
-    return window['anychart']['color']['darken'](this['sourceColor']);
+    return global['anychart']['color']['darken'](this['sourceColor']);
   };
 
 
@@ -28,20 +38,20 @@ goog.provide('anychart.themes.monochrome');
    * @return {*}
    */
   var returnLightenSourceColor = function() {
-    return window['anychart']['color']['lighten'](this['sourceColor']);
+    return global['anychart']['color']['lighten'](this['sourceColor']);
   };
 
 
-  window['anychart'] = window['anychart'] || {};
-  window['anychart']['themes'] = window['anychart']['themes'] || {};
-  window['anychart']['themes']['monochrome'] = {
+  global['anychart'] = global['anychart'] || {};
+  global['anychart']['themes'] = global['anychart']['themes'] || {};
+  global['anychart']['themes']['monochrome'] = {
     'palette': {
       'type': 'distinct',
       'items': ['#252525', '#636363', '#898989', '#acacac', '#e1e1e1']
     },
     'defaultOrdinalColorScale': {
       'autoColors': function(rangesCount) {
-        return window['anychart']['color']['blendedHueProgression']('#e1e1e1', '#707070', rangesCount);
+        return global['anychart']['color']['blendedHueProgression']('#e1e1e1', '#707070', rangesCount);
       }
     },
     'defaultLinearColorScale': {'colors': ['#e1e1e1', '#707070']},
@@ -76,9 +86,6 @@ goog.provide('anychart.themes.monochrome');
         'padding': {'bottom': 10},
         'fontSize': 14
       },
-      'content': {
-        'fontColor': '#464646'
-      },
       'separator': {
         'enabled': false
       },
@@ -103,7 +110,6 @@ goog.provide('anychart.themes.monochrome');
         },
         'lineLike': {
           'selectStroke': '3 #212121',
-          'markers': {'enabled': true},
           'selectMarkers': {
             'enabled': true,
             'fill': '#bdbdbd',
@@ -269,20 +275,19 @@ goog.provide('anychart.themes.monochrome');
         'outlineStroke': '#B9B9B9',
         'defaultSeriesSettings': {
           'base': {
-            'color': '#252525 0.6',
             'fill': stockScrollerUnselected,
             'stroke': stockScrollerUnselected,
-            'selectFill': returnSourceColor,
+            'selectFill': returnSourceColor60,
             'selectHatchFill': null,
-            'selectStroke': returnSourceColor
+            'selectStroke': returnSourceColor60
           },
           'lineLike': {
-            'selectStroke': returnSourceColor,
+            'selectStroke': returnSourceColor60,
             'fill': stockScrollerUnselected,
             'stroke': stockScrollerUnselected
           },
           'areaLike': {
-            'selectStroke': returnSourceColor,
+            'selectStroke': returnSourceColor60,
             'fill': stockScrollerUnselected,
             'stroke': stockScrollerUnselected
           },
@@ -291,19 +296,19 @@ goog.provide('anychart.themes.monochrome');
             'risingStroke': stockScrollerUnselected,
             'fallingFill': stockScrollerUnselected,
             'fallingStroke': stockScrollerUnselected,
-            'selectRisingStroke': returnSourceColor,
-            'selectFallingStroke': returnSourceColor,
-            'selectRisingFill': returnSourceColor,
-            'selectFallingFill': returnSourceColor
+            'selectRisingStroke': returnSourceColor60,
+            'selectFallingStroke': returnSourceColor60,
+            'selectRisingFill': returnSourceColor60,
+            'selectFallingFill': returnSourceColor60
           },
           'ohlc': {
             'risingStroke': stockScrollerUnselected,
             'fallingStroke': stockScrollerUnselected,
-            'selectRisingStroke': returnSourceColor,
-            'selectFallingStroke': returnSourceColor
+            'selectRisingStroke': returnSourceColor60,
+            'selectFallingStroke': returnSourceColor60
           }
         }
       }
     }
   };
-})();
+}).call(this);

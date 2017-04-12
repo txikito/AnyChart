@@ -9,7 +9,6 @@ goog.require('anychart.core.axisMarkers.Line3d');
 goog.require('anychart.core.axisMarkers.Range3d');
 goog.require('anychart.core.axisMarkers.Text3d');
 goog.require('anychart.core.drawers.Area3d');
-goog.require('anychart.core.drawers.Bar3d');
 goog.require('anychart.core.drawers.Column3d');
 goog.require('anychart.core.grids.Linear3d');
 goog.require('anychart.core.reporting');
@@ -31,47 +30,15 @@ goog.require('goog.color');
  * @constructor
  * @extends {anychart.core.CartesianBase}
  * @implements {anychart.core.I3DProvider}
- * @param {boolean=} opt_barChartMode If true, sets the chart to Bar Chart mode, swapping default chart elements
- *    behaviour to horizontal-oriented (setting default layout to VERTICAL, swapping axes, etc).
  */
-anychart.charts.Cartesian3d = function(opt_barChartMode) {
-  anychart.charts.Cartesian3d.base(this, 'constructor', opt_barChartMode);
-
-  /**
-   * @type {number|string}
-   * @private
-   */
-  this.zAspect_ = 0;
-
-  /**
-   * @type {number}
-   * @private
-   */
-  this.zAngle_ = 0;
-
-  /**
-   * @type {?number}
-   * @private
-   */
-  this.zDepth_ = null;
+anychart.charts.Cartesian3d = function() {
+  anychart.charts.Cartesian3d.base(this, 'constructor');
 
   /**
    * @type {number}
    * @private
    */
   this.zDepthValue_ = 0;
-
-  /**
-   * @type {boolean}
-   * @private
-   */
-  this.zDistribution_ = false;
-
-  /**
-   * @type {number}
-   * @private
-   */
-  this.zPadding_ = 0;
 
   this.setType(anychart.enums.ChartTypes.CARTESIAN_3D);
 };
@@ -141,7 +108,7 @@ anychart.charts.Cartesian3d.prototype.handleMouseEvent = function(event) {
 anychart.charts.Cartesian3d.areaPostProcessor = function(series, shapes, pointState) {
   var frontFill, topFill, rightFill, bottomFill, backFill, leftFill;
   var resolver = anychart.core.series.Base.getColorResolver(
-      [anychart.opt.FILL, anychart.opt.HOVER_FILL, anychart.opt.SELECT_FILL], anychart.enums.ColorType.FILL);
+      ['fill', 'hoverFill', 'selectFill'], anychart.enums.ColorType.FILL);
   var fill = resolver(series, pointState);
   var opacity = goog.isObject(fill) ? fill['opacity'] : 1;
   var color = goog.isObject(fill) ? fill['color'] : fill;
@@ -176,15 +143,15 @@ anychart.charts.Cartesian3d.areaPostProcessor = function(series, shapes, pointSt
 
   }
 
-  shapes[anychart.opt.BOTTOM].fill({'color': bottomFill, 'opacity': opacity});
-  shapes[anychart.opt.BACK].fill({'color': backFill, 'opacity': opacity});
-  shapes[anychart.opt.LEFT].fill({'color': leftFill, 'opacity': opacity});
-  shapes[anychart.opt.RIGHT].fill({'color': rightFill, 'opacity': opacity});
-  shapes[anychart.opt.TOP].fill({'color': topFill, 'opacity': opacity});
-  shapes[anychart.opt.FRONT].fill(frontFill);
+  shapes['bottom'].fill({'color': bottomFill, 'opacity': opacity});
+  shapes['back'].fill({'color': backFill, 'opacity': opacity});
+  shapes['left'].fill({'color': leftFill, 'opacity': opacity});
+  shapes['right'].fill({'color': rightFill, 'opacity': opacity});
+  shapes['top'].fill({'color': topFill, 'opacity': opacity});
+  shapes['front'].fill(frontFill);
 
   // fix for batik (DVF-2068)
-  shapes[anychart.opt.TOP].stroke({'color': topFill, 'thickness': 0.8});
+  shapes['top'].stroke({'color': topFill, 'thickness': 0.8});
 };
 
 
@@ -197,7 +164,7 @@ anychart.charts.Cartesian3d.areaPostProcessor = function(series, shapes, pointSt
 anychart.charts.Cartesian3d.barColumnPostProcessor = function(series, shapes, pointState) {
   var frontFill, topFill, rightFill, bottomFill, backFill, leftFill;
   var resolver = anychart.core.series.Base.getColorResolver(
-      [anychart.opt.FILL, anychart.opt.HOVER_FILL, anychart.opt.SELECT_FILL], anychart.enums.ColorType.FILL);
+      ['fill', 'hoverFill', 'selectFill'], anychart.enums.ColorType.FILL);
   var fill = resolver(series, pointState);
   var opacity = goog.isObject(fill) ? fill['opacity'] : 1;
   var color = goog.isObject(fill) ? fill['color'] : fill;
@@ -218,7 +185,7 @@ anychart.charts.Cartesian3d.barColumnPostProcessor = function(series, shapes, po
     var softDarkBlendedColor = goog.color.rgbArrayToHex(goog.color.blend(rgbColor, rgbDarken, .1));
 
     frontFill = {
-      'angle': series.isBarBased() ? 0 : 90,
+      'angle': (/** @type {boolean} */(series.getOption('isVertical'))) ? 0 : 90,
       'opacity': opacity,
       'keys': [
         anychart.color.lighten(darkBlendedColor, .2),
@@ -232,12 +199,12 @@ anychart.charts.Cartesian3d.barColumnPostProcessor = function(series, shapes, po
 
   }
 
-  shapes[anychart.opt.BOTTOM].fill(/** @type {!acgraph.vector.Fill} */({'color': bottomFill, 'opacity': opacity}));
-  shapes[anychart.opt.BACK].fill(/** @type {!acgraph.vector.Fill} */({'color': backFill, 'opacity': opacity}));
-  shapes[anychart.opt.LEFT].fill(/** @type {!acgraph.vector.Fill} */({'color': leftFill, 'opacity': opacity}));
-  shapes[anychart.opt.RIGHT].fill(/** @type {!acgraph.vector.Fill} */({'color': rightFill, 'opacity': opacity}));
-  shapes[anychart.opt.TOP].fill(/** @type {!acgraph.vector.Fill} */({'color': topFill, 'opacity': opacity}));
-  shapes[anychart.opt.FRONT].fill(/** @type {!acgraph.vector.Fill} */(frontFill));
+  shapes['bottom'].fill(/** @type {!acgraph.vector.Fill} */({'color': bottomFill, 'opacity': opacity}));
+  shapes['back'].fill(/** @type {!acgraph.vector.Fill} */({'color': backFill, 'opacity': opacity}));
+  shapes['left'].fill(/** @type {!acgraph.vector.Fill} */({'color': leftFill, 'opacity': opacity}));
+  shapes['right'].fill(/** @type {!acgraph.vector.Fill} */({'color': rightFill, 'opacity': opacity}));
+  shapes['top'].fill(/** @type {!acgraph.vector.Fill} */({'color': topFill, 'opacity': opacity}));
+  shapes['front'].fill(/** @type {!acgraph.vector.Fill} */(frontFill));
 };
 
 
@@ -271,11 +238,11 @@ anychart.charts.Cartesian3d.prototype.seriesConfig = (function() {
     secondaryShapesConfig: null,
     postProcessor: anychart.charts.Cartesian3d.areaPostProcessor,
     capabilities: capabilities,
-    anchoredPositionTop: anychart.opt.VALUE,
-    anchoredPositionBottom: anychart.opt.ZERO
+    anchoredPositionTop: 'value',
+    anchoredPositionBottom: 'zero'
   };
   res[anychart.enums.Cartesian3dSeriesType.BAR] = {
-    drawerType: anychart.enums.SeriesDrawerTypes.BAR_3D,
+    drawerType: anychart.enums.SeriesDrawerTypes.COLUMN_3D,
     shapeManagerType: anychart.enums.ShapeManagerTypes.PER_POINT,
     shapesConfig: [
       anychart.core.shapeManagers.pathTop3DConfig,
@@ -291,8 +258,8 @@ anychart.charts.Cartesian3d.prototype.seriesConfig = (function() {
     secondaryShapesConfig: null,
     postProcessor: anychart.charts.Cartesian3d.barColumnPostProcessor,
     capabilities: capabilities,
-    anchoredPositionTop: anychart.opt.VALUE,
-    anchoredPositionBottom: anychart.opt.ZERO
+    anchoredPositionTop: 'value',
+    anchoredPositionBottom: 'zero'
   };
   res[anychart.enums.Cartesian3dSeriesType.COLUMN] = {
     drawerType: anychart.enums.SeriesDrawerTypes.COLUMN_3D,
@@ -311,8 +278,8 @@ anychart.charts.Cartesian3d.prototype.seriesConfig = (function() {
     secondaryShapesConfig: null,
     postProcessor: anychart.charts.Cartesian3d.barColumnPostProcessor,
     capabilities: capabilities,
-    anchoredPositionTop: anychart.opt.VALUE,
-    anchoredPositionBottom: anychart.opt.ZERO
+    anchoredPositionTop: 'value',
+    anchoredPositionBottom: 'zero'
   };
   return res;
 })();
@@ -330,13 +297,15 @@ anychart.core.ChartWithSeries.generateSeriesConstructors(anychart.charts.Cartesi
  * @example
  * var chart = anychart.cartesian3d();
  * chart.area([20, 7, 10, 14]);
- * @param {boolean=} opt_barChartMode If true, sets the chart to Bar Chart mode, swapping default chart elements
+ * @param {boolean=} opt_isVertical If true, sets the chart to Bar Chart mode, swapping default chart elements
  *    behaviour to horizontal-oriented (setting default layout to VERTICAL, swapping axes, etc).
  * @return {!anychart.charts.Cartesian3d} Empty chart.
  */
-anychart.cartesian3d = function(opt_barChartMode) {
-  var chart = new anychart.charts.Cartesian3d(opt_barChartMode);
-  chart.setupByVal(anychart.getFullTheme()['cartesian3d'], true);
+anychart.cartesian3d = function(opt_isVertical) {
+  var chart = new anychart.charts.Cartesian3d();
+  chart.setupByVal(anychart.getFullTheme('cartesian3d'), true);
+  if (goog.isDef(opt_isVertical))
+    chart.barChartMode = !!opt_isVertical;
 
   return chart;
 };
@@ -347,109 +316,6 @@ anychart.chartTypesMap[anychart.enums.ChartTypes.CARTESIAN_3D] = anychart.cartes
 
 /** @inheritDoc */
 anychart.charts.Cartesian3d.prototype.isMode3d = true;
-
-
-/**
- * Getter/setter for zAngle.
- * From 0 to 90.
- * @param {number=} opt_value
- * @return {number|anychart.charts.Cartesian3d}
- */
-anychart.charts.Cartesian3d.prototype.zAngle = function(opt_value) {
-  if (goog.isDef(opt_value)) {
-    if (this.zAngle_ != opt_value) {
-      this.zAngle_ = goog.math.clamp(anychart.utils.toNumber(opt_value), 0, 90);
-      this.invalidate(anychart.ConsistencyState.BOUNDS,
-          anychart.Signal.NEEDS_REDRAW | anychart.Signal.BOUNDS_CHANGED);
-    }
-    return this;
-  } else {
-    return this.zAngle_;
-  }
-};
-
-
-/**
- * Getter/setter for zAspect.
- * @param {(number|string)=} opt_value
- * @return {number|string|anychart.charts.Cartesian3d}
- */
-anychart.charts.Cartesian3d.prototype.zAspect = function(opt_value) {
-  if (goog.isDef(opt_value)) {
-    if (this.zAspect_ != opt_value) {
-      this.zAspect_ = goog.isNumber(opt_value) ? Math.max(opt_value, 0) : opt_value;
-      this.invalidate(anychart.ConsistencyState.BOUNDS,
-          anychart.Signal.NEEDS_REDRAW | anychart.Signal.BOUNDS_CHANGED);
-    }
-    return this;
-  } else {
-    return this.zAspect_;
-  }
-};
-
-
-/**
- * Getter/setter for zDepth.
- * @param {(number|null)=} opt_value
- * @return {number|null|anychart.charts.Cartesian3d}
- * @deprecated Deprecated since 7.10.0. Use chart.zAspect instead.
- */
-anychart.charts.Cartesian3d.prototype.zDepth = function(opt_value) {
-  anychart.core.reporting.warning(anychart.enums.WarningCode.DEPRECATED, null, ['chart.zDepth', 'chart.zAspect with chart.zPadding'], true);
-  if (goog.isDef(opt_value)) {
-    if (this.zDepth_ != opt_value) {
-      this.zDepth_ = goog.isNull(opt_value) ? opt_value : anychart.utils.toNumber(opt_value);
-      this.invalidate(anychart.ConsistencyState.BOUNDS,
-          anychart.Signal.NEEDS_REDRAW | anychart.Signal.BOUNDS_CHANGED);
-    }
-    return this;
-  } else {
-    return this.zDepth_;
-  }
-};
-
-
-/**
- * Getter/setter for distributing series on the z-axis.
- * @param {boolean=} opt_value
- * @return {boolean|anychart.charts.Cartesian3d}
- */
-anychart.charts.Cartesian3d.prototype.zDistribution = function(opt_value) {
-  if (goog.isDef(opt_value)) {
-    opt_value = !!opt_value;
-    if (this.zDistribution_ != opt_value) {
-      this.zDistribution_ = opt_value;
-      this.invalidate(
-          anychart.ConsistencyState.BOUNDS |
-          anychart.ConsistencyState.SERIES_CHART_SCALE_MAPS,
-          anychart.Signal.NEEDS_REDRAW | anychart.Signal.BOUNDS_CHANGED);
-    }
-    return this;
-  } else {
-    return this.zDistribution_;
-  }
-};
-
-
-/**
- * Getter/setter for zPadding.
- * Value must be more than zero.
- * @param {(number)=} opt_value
- * @return {number|anychart.charts.Cartesian3d}
- */
-anychart.charts.Cartesian3d.prototype.zPadding = function(opt_value) {
-  if (goog.isDef(opt_value)) {
-    opt_value = anychart.utils.toNumber(opt_value);
-    if (this.zPadding_ !== opt_value) {
-      this.zPadding_ = Math.max(opt_value, 0);
-      this.invalidate(anychart.ConsistencyState.BOUNDS,
-          anychart.Signal.NEEDS_REDRAW | anychart.Signal.BOUNDS_CHANGED);
-    }
-    return this;
-  } else {
-    return this.zPadding_;
-  }
-};
 
 
 /**
@@ -604,7 +470,7 @@ anychart.charts.Cartesian3d.prototype.setSeriesPointZIndex_ = function(series) {
   var zIndex = anychart.core.ChartWithSeries.ZINDEX_SERIES;
 
   if (value > 0) {
-    if (series.isBarBased()) {
+    if (/** @type {boolean} */(series.getOption('isVertical'))) {
       if (!series.planIsStacked()) {
         if (this.zDistribution()) {
           zIndex += inc;
@@ -619,7 +485,7 @@ anychart.charts.Cartesian3d.prototype.setSeriesPointZIndex_ = function(series) {
     }
 
   } else if (value < 0) {
-    if (series.isBarBased()) {
+    if (/** @type {boolean} */(series.getOption('isVertical'))) {
       zIndex -= inc;
     } else {
       if (!series.planIsStacked()) {
@@ -666,17 +532,17 @@ anychart.charts.Cartesian3d.prototype.getContentAreaBounds = function(bounds) {
   var contentAreaBounds = bounds.clone().round();
   var boundsWithoutAxes = this.getBoundsWithoutAxes(contentAreaBounds);
 
-  var needAspectCalc = !goog.isDefAndNotNull(this.zDepth_) && anychart.utils.isPercent(this.zAspect_);
+  var needAspectCalc = !goog.isDefAndNotNull(this.zDepthInternal) && anychart.utils.isPercent(this.zAspectInternal);
   var seriesCount = this.getSeriesCount();
 
-  var angleRad = goog.math.toRadians(this.zAngle_);
-  var secondAngle = 90 - this.zAngle_;
+  var angleRad = goog.math.toRadians(this.zAngleInternal);
+  var secondAngle = 90 - this.zAngleInternal;
   var secondAngleRad = goog.math.toRadians(secondAngle);
 
-  var zPaddingValue = this.zPadding_;
+  var zPaddingValue = this.zPaddingInternal;
 
   if (needAspectCalc) {
-    var aspectRatio = parseFloat(this.zAspect_) / 100;
+    var aspectRatio = parseFloat(this.zAspectInternal) / 100;
     var xAspectRatio = aspectRatio * Math.sin(secondAngleRad);
     var yAspectRatio = aspectRatio * Math.sin(angleRad);
     var x3dShiftRatio = 0;
@@ -729,15 +595,15 @@ anychart.charts.Cartesian3d.prototype.getContentAreaBounds = function(bounds) {
     this.y3dShift = Math.round(this.y3dShift);
 
   } else {
-    if (goog.isDefAndNotNull(this.zDepth_)) {
-      this.zDepthValue_ = this.zDepth_;
+    if (goog.isDefAndNotNull(this.zDepthInternal)) {
+      this.zDepthValue_ = this.zDepthInternal;
 
     // not needAspectCalc
     } else {
       if (!this.hasStackedSeries && this.zDistribution()) {
-        this.zDepthValue_ = this.zAspect_ * seriesCount + this.zPadding_ * (seriesCount - 1);
+        this.zDepthValue_ = this.zAspectInternal * seriesCount + this.zPaddingInternal * (seriesCount - 1);
       } else {
-        this.zDepthValue_ = anychart.utils.toNumber(this.zAspect_);
+        this.zDepthValue_ = anychart.utils.toNumber(this.zAspectInternal);
       }
     }
 
@@ -778,7 +644,7 @@ anychart.charts.Cartesian3d.prototype.distributeClusters = function(numClusters,
       var barWidthRatio = 1 / numClusters;
       for (var i = 0; i < drawingPlansOfScale.length; i++) {
         wSeries = drawingPlansOfScale[i].series;
-        if (wSeries.isWidthDistributed() && (horizontal ^ wSeries.isBarBased())) {
+        if (wSeries.isWidthDistributed() && (horizontal ^ /** @type {boolean} */(wSeries.getOption('isVertical')))) {
           wSeries.setAutoXPointPosition(0.5);
           wSeries.setAutoPointWidth(barWidthRatio);
         }
@@ -810,7 +676,7 @@ anychart.charts.Cartesian3d.prototype.setupByJSON = function(config, opt_default
   anychart.charts.Cartesian3d.base(this, 'setupByJSON', config, opt_default);
 
   this.zAngle(config['zAngle']);
-  if (config['zDepth']) this.zDepth(config['zDepth']);
+  if (goog.isDef(config['zDepth'])) this.zDepth(config['zDepth']);
   this.zAspect(config['zAspect']);
   this.zDistribution(config['zDistribution']);
   this.zPadding(config['zPadding']);
@@ -825,7 +691,10 @@ anychart.charts.Cartesian3d.prototype.serialize = function() {
   var json = anychart.charts.Cartesian3d.base(this, 'serialize');
 
   json['chart']['zAngle'] = this.zAngle();
-  if (goog.isDefAndNotNull(this.zDepth_)) json['chart']['zDepth'] = this.zDepth();
+  if (goog.isDefAndNotNull(this.zDepthInternal)) {
+    // we should not place warning here on serialization.
+    json['chart']['zDepth'] = this.zDepthInternal;
+  }
   json['chart']['zAspect'] = this.zAspect();
   json['chart']['zDistribution'] = this.zDistribution();
   json['chart']['zPadding'] = this.zPadding();
@@ -835,41 +704,45 @@ anychart.charts.Cartesian3d.prototype.serialize = function() {
 
 
 //exports
-goog.exportSymbol('anychart.cartesian3d', anychart.cartesian3d);
-anychart.charts.Cartesian3d.prototype['xScale'] = anychart.charts.Cartesian3d.prototype.xScale;
-anychart.charts.Cartesian3d.prototype['yScale'] = anychart.charts.Cartesian3d.prototype.yScale;
-anychart.charts.Cartesian3d.prototype['barsPadding'] = anychart.charts.Cartesian3d.prototype.barsPadding;
-anychart.charts.Cartesian3d.prototype['barGroupsPadding'] = anychart.charts.Cartesian3d.prototype.barGroupsPadding;
-anychart.charts.Cartesian3d.prototype['crosshair'] = anychart.charts.Cartesian3d.prototype.crosshair;
-anychart.charts.Cartesian3d.prototype['grid'] = anychart.charts.Cartesian3d.prototype.grid;
-anychart.charts.Cartesian3d.prototype['minorGrid'] = anychart.charts.Cartesian3d.prototype.minorGrid;
-anychart.charts.Cartesian3d.prototype['xAxis'] = anychart.charts.Cartesian3d.prototype.xAxis;
-anychart.charts.Cartesian3d.prototype['yAxis'] = anychart.charts.Cartesian3d.prototype.yAxis;
-anychart.charts.Cartesian3d.prototype['getSeries'] = anychart.charts.Cartesian3d.prototype.getSeries;
-// generated automatically
-// anychart.charts.Cartesian3d.prototype['area'] = anychart.charts.Cartesian3d.prototype.area;
-// anychart.charts.Cartesian3d.prototype['bar'] = anychart.charts.Cartesian3d.prototype.bar;
-// anychart.charts.Cartesian3d.prototype['column'] = anychart.charts.Cartesian3d.prototype.column;
-anychart.charts.Cartesian3d.prototype['lineMarker'] = anychart.charts.Cartesian3d.prototype.lineMarker;
-anychart.charts.Cartesian3d.prototype['rangeMarker'] = anychart.charts.Cartesian3d.prototype.rangeMarker;
-anychart.charts.Cartesian3d.prototype['textMarker'] = anychart.charts.Cartesian3d.prototype.textMarker;
-anychart.charts.Cartesian3d.prototype['palette'] = anychart.charts.Cartesian3d.prototype.palette;
-anychart.charts.Cartesian3d.prototype['markerPalette'] = anychart.charts.Cartesian3d.prototype.markerPalette;
-anychart.charts.Cartesian3d.prototype['hatchFillPalette'] = anychart.charts.Cartesian3d.prototype.hatchFillPalette;
-anychart.charts.Cartesian3d.prototype['getType'] = anychart.charts.Cartesian3d.prototype.getType;
-anychart.charts.Cartesian3d.prototype['defaultSeriesType'] = anychart.charts.Cartesian3d.prototype.defaultSeriesType;
-anychart.charts.Cartesian3d.prototype['addSeries'] = anychart.charts.Cartesian3d.prototype.addSeries;
-anychart.charts.Cartesian3d.prototype['getSeriesAt'] = anychart.charts.Cartesian3d.prototype.getSeriesAt;
-anychart.charts.Cartesian3d.prototype['getSeriesCount'] = anychart.charts.Cartesian3d.prototype.getSeriesCount;
-anychart.charts.Cartesian3d.prototype['removeSeries'] = anychart.charts.Cartesian3d.prototype.removeSeries;
-anychart.charts.Cartesian3d.prototype['removeSeriesAt'] = anychart.charts.Cartesian3d.prototype.removeSeriesAt;
-anychart.charts.Cartesian3d.prototype['removeAllSeries'] = anychart.charts.Cartesian3d.prototype.removeAllSeries;
-anychart.charts.Cartesian3d.prototype['getPlotBounds'] = anychart.charts.Cartesian3d.prototype.getPlotBounds;
-anychart.charts.Cartesian3d.prototype['xZoom'] = anychart.charts.Cartesian3d.prototype.xZoom;
-anychart.charts.Cartesian3d.prototype['xScroller'] = anychart.charts.Cartesian3d.prototype.xScroller;
-anychart.charts.Cartesian3d.prototype['zAspect'] = anychart.charts.Cartesian3d.prototype.zAspect;
-anychart.charts.Cartesian3d.prototype['zAngle'] = anychart.charts.Cartesian3d.prototype.zAngle;
-anychart.charts.Cartesian3d.prototype['zDistribution'] = anychart.charts.Cartesian3d.prototype.zDistribution;
-anychart.charts.Cartesian3d.prototype['zPadding'] = anychart.charts.Cartesian3d.prototype.zPadding;
-anychart.charts.Cartesian3d.prototype['getStat'] = anychart.charts.Cartesian3d.prototype.getStat;
-anychart.charts.Cartesian3d.prototype['zDepth'] = anychart.charts.Cartesian3d.prototype.zDepth; // deprecated
+/** @suppress {deprecated} */
+(function() {
+  var proto = anychart.charts.Cartesian3d.prototype;
+  goog.exportSymbol('anychart.cartesian3d', anychart.cartesian3d);
+  proto['xScale'] = proto.xScale;
+  proto['yScale'] = proto.yScale;
+  proto['barsPadding'] = proto.barsPadding;
+  proto['barGroupsPadding'] = proto.barGroupsPadding;
+  proto['crosshair'] = proto.crosshair;
+  proto['grid'] = proto.grid;
+  proto['minorGrid'] = proto.minorGrid;
+  proto['xAxis'] = proto.xAxis;
+  proto['yAxis'] = proto.yAxis;
+  proto['getSeries'] = proto.getSeries;
+  // generated automatically
+  // proto['area'] = proto.area;
+  // proto['bar'] = proto.bar;
+  // proto['column'] = proto.column;
+  proto['lineMarker'] = proto.lineMarker;
+  proto['rangeMarker'] = proto.rangeMarker;
+  proto['textMarker'] = proto.textMarker;
+  proto['palette'] = proto.palette;
+  proto['markerPalette'] = proto.markerPalette;
+  proto['hatchFillPalette'] = proto.hatchFillPalette;
+  proto['getType'] = proto.getType;
+  proto['defaultSeriesType'] = proto.defaultSeriesType;
+  proto['addSeries'] = proto.addSeries;
+  proto['getSeriesAt'] = proto.getSeriesAt;
+  proto['getSeriesCount'] = proto.getSeriesCount;
+  proto['removeSeries'] = proto.removeSeries;
+  proto['removeSeriesAt'] = proto.removeSeriesAt;
+  proto['removeAllSeries'] = proto.removeAllSeries;
+  proto['getPlotBounds'] = proto.getPlotBounds;
+  proto['xZoom'] = proto.xZoom;
+  proto['xScroller'] = proto.xScroller;
+  proto['zAspect'] = proto.zAspect;
+  proto['zAngle'] = proto.zAngle;
+  proto['zDistribution'] = proto.zDistribution;
+  proto['zPadding'] = proto.zPadding;
+  proto['getStat'] = proto.getStat;
+  proto['zDepth'] = proto.zDepth; // deprecated
+})();

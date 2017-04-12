@@ -2,6 +2,7 @@ goog.provide('anychart.themes.light_turquoise');
 
 
 (function() {
+  var global = this;
   var stockScrollerUnselected = '#999 0.6';
 
 
@@ -18,8 +19,17 @@ goog.provide('anychart.themes.light_turquoise');
    * @this {*}
    * @return {*}
    */
+  var returnSourceColor50 = function() {
+    return global['anychart']['color']['setOpacity'](this['sourceColor'], 0.5, true);
+  };
+
+
+  /**
+   * @this {*}
+   * @return {*}
+   */
   var returnDarkenSourceColor = function() {
-    return window['anychart']['color']['darken'](this['sourceColor']);
+    return global['anychart']['color']['darken'](this['sourceColor']);
   };
 
 
@@ -28,20 +38,20 @@ goog.provide('anychart.themes.light_turquoise');
    * @return {*}
    */
   var returnLightenSourceColor = function() {
-    return window['anychart']['color']['lighten'](this['sourceColor']);
+    return global['anychart']['color']['lighten'](this['sourceColor']);
   };
 
 
-  window['anychart'] = window['anychart'] || {};
-  window['anychart']['themes'] = window['anychart']['themes'] || {};
-  window['anychart']['themes']['lightTurquoise'] = {
+  global['anychart'] = global['anychart'] || {};
+  global['anychart']['themes'] = global['anychart']['themes'] || {};
+  global['anychart']['themes']['lightTurquoise'] = {
     'palette': {
       'type': 'distinct',
       'items': ['#80deea', '#00acc1', '#00838f', '#29b6f6', '#0277bd', '#0277bd', '#8c9eff', '#9575cd', '#ce93d8', '#8e24aa']
     },
     'defaultOrdinalColorScale': {
       'autoColors': function(rangesCount) {
-        return window['anychart']['color']['blendedHueProgression']('#b2dfdb', '#00838f', rangesCount);
+        return global['anychart']['color']['blendedHueProgression']('#b2dfdb', '#00838f', rangesCount);
       }
     },
     'defaultLinearColorScale': {'colors': ['#b2dfdb', '#00838f']},
@@ -84,14 +94,11 @@ goog.provide('anychart.themes.light_turquoise');
         'corners': 3
       },
       'fontColor': '#e0e0e0',
+      'fontSize': 12,
       'title': {
         'fontColor': '#bdbdbd',
         'align': 'center',
         'fontSize': 14
-      },
-      'content': {
-        'fontColor': '#e0e0e0',
-        'fontSize': 12
       },
       'padding': {'top': 10, 'right': 15, 'bottom': 10, 'left': 15},
       'separator': {
@@ -300,28 +307,27 @@ goog.provide('anychart.themes.light_turquoise');
         'outlineStroke': '#bdbdbd',
         'defaultSeriesSettings': {
           'base': {
-            'color': '#00838f 0.5',
-            'selectFill': returnSourceColor,
-            'selectStroke': returnSourceColor
+            'selectFill': returnSourceColor50,
+            'selectStroke': returnSourceColor50
           },
           'candlestick': {
             'risingFill': stockScrollerUnselected,
             'risingStroke': stockScrollerUnselected,
             'fallingFill': stockScrollerUnselected,
             'fallingStroke': stockScrollerUnselected,
-            'selectRisingStroke': returnSourceColor,
-            'selectFallingStroke': returnSourceColor,
-            'selectRisingFill': returnSourceColor,
-            'selectFallingFill': returnSourceColor
+            'selectRisingStroke': returnSourceColor50,
+            'selectFallingStroke': returnSourceColor50,
+            'selectRisingFill': returnSourceColor50,
+            'selectFallingFill': returnSourceColor50
           },
           'ohlc': {
             'risingStroke': stockScrollerUnselected,
             'fallingStroke': stockScrollerUnselected,
-            'selectRisingStroke': returnSourceColor,
-            'selectFallingStroke': returnSourceColor
+            'selectRisingStroke': returnSourceColor50,
+            'selectFallingStroke': returnSourceColor50
           }
         }
       }
     }
   };
-})();
+}).call(this);

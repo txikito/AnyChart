@@ -4,7 +4,7 @@ goog.require('anychart.core.VisualBase');
 goog.require('anychart.core.reporting');
 goog.require('anychart.core.utils.IInteractiveSeries');
 goog.require('anychart.core.utils.InteractivityState');
-goog.require('anychart.core.utils.SeriesPointContextProvider');
+goog.require('anychart.format.Context');
 
 
 
@@ -15,7 +15,7 @@ goog.require('anychart.core.utils.SeriesPointContextProvider');
  * @implements {anychart.core.utils.IInteractiveSeries}
  */
 anychart.core.gauge.pointers.Base = function() {
-  goog.base(this);
+  anychart.core.gauge.pointers.Base.base(this, 'constructor');
 
   /**
    * Pointer stroke.
@@ -104,6 +104,15 @@ anychart.core.gauge.pointers.Base.prototype.SUPPORTED_SIGNALS =
  */
 anychart.core.gauge.pointers.Base.prototype.isDiscreteBased = function() {
   return true;
+};
+
+
+/**
+ * Interface tester.
+ * @return {boolean}
+ */
+anychart.core.gauge.pointers.Base.prototype.isSizeBased = function() {
+  return false;
 };
 
 
@@ -372,10 +381,21 @@ anychart.core.gauge.pointers.Base.prototype.draw = function() {
  */
 anychart.core.gauge.pointers.Base.prototype.createFormatProvider = function(opt_force) {
   if (!this.pointProvider_ || opt_force)
-    this.pointProvider_ = new anychart.core.utils.SeriesPointContextProvider(this, ['value'], false);
-  this.pointProvider_.applyReferenceValues();
+    this.pointProvider_ = new anychart.format.Context();
 
-  return this.pointProvider_;
+  var iterator = this.getIterator();
+
+  var values = {
+    'series': {value: this, type: anychart.enums.TokenType.UNKNOWN},
+    'index': {value: iterator.getIndex(), type: anychart.enums.TokenType.NUMBER},
+    'value': {value: iterator.get('value'), type: anychart.enums.TokenType.NUMBER}
+  };
+
+  this.pointProvider_
+      .dataSource(iterator)
+      .statisticsSources([this]);
+
+  return this.pointProvider_.propagate(values);
 };
 
 
@@ -416,7 +436,7 @@ anychart.core.gauge.pointers.Base.prototype.applyAppearanceToSeries = goog.nullF
 /** @inheritDoc */
 anychart.core.gauge.pointers.Base.prototype.makeBrowserEvent = function(e) {
   //this method is invoked only for events from data layer
-  var res = goog.base(this, 'makeBrowserEvent', e);
+  var res = anychart.core.gauge.pointers.Base.base(this, 'makeBrowserEvent', e);
   res['pointIndex'] = this.getIndexByEvent(res);
   return res;
 };
@@ -668,7 +688,7 @@ anychart.core.gauge.pointers.Base.prototype.hoverMode = function(opt_value) {
 //----------------------------------------------------------------------------------------------------------------------
 /** @inheritDoc */
 anychart.core.gauge.pointers.Base.prototype.serialize = function() {
-  var json = goog.base(this, 'serialize');
+  var json = anychart.core.gauge.pointers.Base.base(this, 'serialize');
 
 
   if (goog.isFunction(this['fill'])) {
@@ -703,7 +723,7 @@ anychart.core.gauge.pointers.Base.prototype.serialize = function() {
 
 /** @inheritDoc */
 anychart.core.gauge.pointers.Base.prototype.setupByJSON = function(config, opt_default) {
-  goog.base(this, 'setupByJSON', config, opt_default);
+  anychart.core.gauge.pointers.Base.base(this, 'setupByJSON', config, opt_default);
 
   this.fill(config['fill']);
   this.stroke(config['stroke']);
@@ -714,8 +734,11 @@ anychart.core.gauge.pointers.Base.prototype.setupByJSON = function(config, opt_d
 
 
 //exports
-anychart.core.gauge.pointers.Base.prototype['stroke'] = anychart.core.gauge.pointers.Base.prototype.stroke;
-anychart.core.gauge.pointers.Base.prototype['fill'] = anychart.core.gauge.pointers.Base.prototype.fill;
-anychart.core.gauge.pointers.Base.prototype['hatchFill'] = anychart.core.gauge.pointers.Base.prototype.hatchFill;
-anychart.core.gauge.pointers.Base.prototype['axisIndex'] = anychart.core.gauge.pointers.Base.prototype.axisIndex;
-anychart.core.gauge.pointers.Base.prototype['dataIndex'] = anychart.core.gauge.pointers.Base.prototype.dataIndex;
+(function() {
+  var proto = anychart.core.gauge.pointers.Base.prototype;
+  proto['stroke'] = proto.stroke;
+  proto['fill'] = proto.fill;
+  proto['hatchFill'] = proto.hatchFill;
+  proto['axisIndex'] = proto.axisIndex;
+  proto['dataIndex'] = proto.dataIndex;
+})();

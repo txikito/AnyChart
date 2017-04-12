@@ -48,7 +48,7 @@ anychart.core.utils.Space = function(opt_spaceOrTopOrTopAndBottom, opt_rightOrRi
 
   /**
    * Resolution chain cache.
-   * @type {Array.<Object|null|undefined>|null}
+   * @type {?Array.<Object|null|undefined>}
    * @private
    */
   this.resolutionChainCache_ = null;
@@ -86,30 +86,30 @@ anychart.core.utils.Space.prototype.SUPPORTED_SIGNALS = anychart.Signal.NEEDS_RE
 anychart.core.utils.Space.SIMPLE_PROPS_DESCRIPTORS = (function() {
   /** @type {!Object.<string, anychart.core.settings.PropertyDescriptor>} */
   var map = {};
-  map[anychart.opt.LEFT] = anychart.core.settings.createDescriptor(
+  map['left'] = anychart.core.settings.createDescriptor(
       anychart.enums.PropertyHandlerType.SINGLE_ARG,
-      anychart.opt.LEFT,
+      'left',
       anychart.core.settings.numberOrZeroNormalizer,
       anychart.ConsistencyState.ONLY_DISPATCHING,
       anychart.Signal.NEEDS_REAPPLICATION);
 
-  map[anychart.opt.TOP] = anychart.core.settings.createDescriptor(
+  map['top'] = anychart.core.settings.createDescriptor(
       anychart.enums.PropertyHandlerType.SINGLE_ARG,
-      anychart.opt.TOP,
+      'top',
       anychart.core.settings.numberOrZeroNormalizer,
       anychart.ConsistencyState.ONLY_DISPATCHING,
       anychart.Signal.NEEDS_REAPPLICATION);
 
-  map[anychart.opt.BOTTOM] = anychart.core.settings.createDescriptor(
+  map['bottom'] = anychart.core.settings.createDescriptor(
       anychart.enums.PropertyHandlerType.SINGLE_ARG,
-      anychart.opt.BOTTOM,
+      'bottom',
       anychart.core.settings.numberOrZeroNormalizer,
       anychart.ConsistencyState.ONLY_DISPATCHING,
       anychart.Signal.NEEDS_REAPPLICATION);
 
-  map[anychart.opt.RIGHT] = anychart.core.settings.createDescriptor(
+  map['right'] = anychart.core.settings.createDescriptor(
       anychart.enums.PropertyHandlerType.SINGLE_ARG,
-      anychart.opt.RIGHT,
+      'right',
       anychart.core.settings.numberOrZeroNormalizer,
       anychart.ConsistencyState.ONLY_DISPATCHING,
       anychart.Signal.NEEDS_REAPPLICATION);
@@ -322,14 +322,14 @@ anychart.core.utils.Space.normalizeSpace = function(var_args) {
  */
 anychart.core.utils.Space.prototype.set = function(opt_spaceOrTopOrTopAndBottom, opt_rightOrRightAndLeft, opt_bottom, opt_left) {
   var normalizedSpace = /** @type {anychart.core.utils.Space.NormalizedSpace} */ (anychart.core.utils.Space.normalizeSpace.apply(this, arguments));
-  if ((this.getOption(anychart.opt.TOP) !== normalizedSpace.top) ||
-      (this.getOption(anychart.opt.RIGHT) !== normalizedSpace.right) ||
-      (this.getOption(anychart.opt.BOTTOM) !== normalizedSpace.bottom) ||
-      (this.getOption(anychart.opt.LEFT) !== normalizedSpace.left)) {
-    this.setOption(anychart.opt.TOP, normalizedSpace.top);
-    this.setOption(anychart.opt.RIGHT, normalizedSpace.right);
-    this.setOption(anychart.opt.BOTTOM, normalizedSpace.bottom);
-    this.setOption(anychart.opt.LEFT, normalizedSpace.left);
+  if ((this.getOption('top') !== normalizedSpace.top) ||
+      (this.getOption('right') !== normalizedSpace.right) ||
+      (this.getOption('bottom') !== normalizedSpace.bottom) ||
+      (this.getOption('left') !== normalizedSpace.left)) {
+    this.setOption('top', normalizedSpace.top);
+    this.setOption('right', normalizedSpace.right);
+    this.setOption('bottom', normalizedSpace.bottom);
+    this.setOption('left', normalizedSpace.left);
     this.dispatchSignal(anychart.Signal.NEEDS_REAPPLICATION);
   }
   return this;
@@ -342,10 +342,10 @@ anychart.core.utils.Space.prototype.set = function(opt_spaceOrTopOrTopAndBottom,
  * @return {!anychart.math.Rect} New rectangle with applied margin.
  */
 anychart.core.utils.Space.prototype.tightenBounds = function(boundsRect) {
-  var left = anychart.utils.normalizeSize(/** @type {number|string} */(this.getOption(anychart.opt.LEFT)), boundsRect.width);
-  var right = anychart.utils.normalizeSize(/** @type {number|string} */(this.getOption(anychart.opt.RIGHT)), boundsRect.width);
-  var top = anychart.utils.normalizeSize(/** @type {number|string} */(this.getOption(anychart.opt.TOP)), boundsRect.height);
-  var bottom = anychart.utils.normalizeSize(/** @type {number|string} */(this.getOption(anychart.opt.BOTTOM)), boundsRect.height);
+  var left = anychart.utils.normalizeSize(/** @type {number|string} */(this.getOption('left')), boundsRect.width);
+  var right = anychart.utils.normalizeSize(/** @type {number|string} */(this.getOption('right')), boundsRect.width);
+  var top = anychart.utils.normalizeSize(/** @type {number|string} */(this.getOption('top')), boundsRect.height);
+  var bottom = anychart.utils.normalizeSize(/** @type {number|string} */(this.getOption('bottom')), boundsRect.height);
   return new anychart.math.Rect(
       boundsRect.left + left,
       boundsRect.top + top,
@@ -361,8 +361,8 @@ anychart.core.utils.Space.prototype.tightenBounds = function(boundsRect) {
  * @return {number} New width.
  */
 anychart.core.utils.Space.prototype.tightenWidth = function(initialWidth) {
-  var left = anychart.utils.normalizeSize(/** @type {number|string} */(this.getOption(anychart.opt.LEFT)), initialWidth);
-  var right = anychart.utils.normalizeSize(/** @type {number|string} */(this.getOption(anychart.opt.RIGHT)), initialWidth);
+  var left = anychart.utils.normalizeSize(/** @type {number|string} */(this.getOption('left')), initialWidth);
+  var right = anychart.utils.normalizeSize(/** @type {number|string} */(this.getOption('right')), initialWidth);
   return initialWidth - left - right;
 };
 
@@ -373,8 +373,8 @@ anychart.core.utils.Space.prototype.tightenWidth = function(initialWidth) {
  * @return {number} New height.
  */
 anychart.core.utils.Space.prototype.tightenHeight = function(initialHeight) {
-  var top = anychart.utils.normalizeSize(/** @type {number|string} */(this.getOption(anychart.opt.TOP)), initialHeight);
-  var bottom = anychart.utils.normalizeSize(/** @type {number|string} */(this.getOption(anychart.opt.BOTTOM)), initialHeight);
+  var top = anychart.utils.normalizeSize(/** @type {number|string} */(this.getOption('top')), initialHeight);
+  var bottom = anychart.utils.normalizeSize(/** @type {number|string} */(this.getOption('bottom')), initialHeight);
   return initialHeight - top - bottom;
 };
 
@@ -385,10 +385,10 @@ anychart.core.utils.Space.prototype.tightenHeight = function(initialHeight) {
  * @return {!anychart.math.Rect} New rectangle.
  */
 anychart.core.utils.Space.prototype.widenBounds = function(boundsRect) {
-  var left = anychart.utils.normalizeSize(/** @type {number|string} */(this.getOption(anychart.opt.LEFT)), boundsRect.width);
-  var right = anychart.utils.normalizeSize(/** @type {number|string} */(this.getOption(anychart.opt.RIGHT)), boundsRect.width);
-  var top = anychart.utils.normalizeSize(/** @type {number|string} */(this.getOption(anychart.opt.TOP)), boundsRect.height);
-  var bottom = anychart.utils.normalizeSize(/** @type {number|string} */(this.getOption(anychart.opt.BOTTOM)), boundsRect.height);
+  var left = anychart.utils.normalizeSize(/** @type {number|string} */(this.getOption('left')), boundsRect.width);
+  var right = anychart.utils.normalizeSize(/** @type {number|string} */(this.getOption('right')), boundsRect.width);
+  var top = anychart.utils.normalizeSize(/** @type {number|string} */(this.getOption('top')), boundsRect.height);
+  var bottom = anychart.utils.normalizeSize(/** @type {number|string} */(this.getOption('bottom')), boundsRect.height);
   return new anychart.math.Rect(
       boundsRect.left - left,
       boundsRect.top - top,
@@ -404,8 +404,8 @@ anychart.core.utils.Space.prototype.widenBounds = function(boundsRect) {
  * @return {number} New width.
  */
 anychart.core.utils.Space.prototype.widenWidth = function(initialWidth) {
-  var left = anychart.utils.normalizeSize(/** @type {number|string} */(this.getOption(anychart.opt.LEFT)), initialWidth);
-  var right = anychart.utils.normalizeSize(/** @type {number|string} */(this.getOption(anychart.opt.RIGHT)), initialWidth);
+  var left = anychart.utils.normalizeSize(/** @type {number|string} */(this.getOption('left')), initialWidth);
+  var right = anychart.utils.normalizeSize(/** @type {number|string} */(this.getOption('right')), initialWidth);
   return initialWidth + left + right;
 };
 
@@ -416,8 +416,8 @@ anychart.core.utils.Space.prototype.widenWidth = function(initialWidth) {
  * @return {number} New height.
  */
 anychart.core.utils.Space.prototype.widenHeight = function(initialHeight) {
-  var top = anychart.utils.normalizeSize(/** @type {number|string} */(this.getOption(anychart.opt.TOP)), initialHeight);
-  var bottom = anychart.utils.normalizeSize(/** @type {number|string} */(this.getOption(anychart.opt.BOTTOM)), initialHeight);
+  var top = anychart.utils.normalizeSize(/** @type {number|string} */(this.getOption('top')), initialHeight);
+  var bottom = anychart.utils.normalizeSize(/** @type {number|string} */(this.getOption('bottom')), initialHeight);
   return initialHeight + top + bottom;
 };
 
@@ -439,7 +439,7 @@ anychart.core.utils.Space.prototype.setThemeSettings = function(config) {
 
 /** @inheritDoc */
 anychart.core.utils.Space.prototype.serialize = function() {
-  var json = goog.base(this, 'serialize');
+  var json = anychart.core.utils.Space.base(this, 'serialize');
   anychart.core.settings.serialize(this, anychart.core.utils.Space.SIMPLE_PROPS_DESCRIPTORS, json, 'Space');
   return json;
 };
@@ -486,9 +486,12 @@ anychart.core.utils.Space.prototype.setupByJSON = function(config, opt_default) 
 //endregion
 //region --- Exports
 //exports
-// anychart.core.utils.Space.prototype['top'] = anychart.core.utils.Space.prototype.top;
-// anychart.core.utils.Space.prototype['right'] = anychart.core.utils.Space.prototype.right;
-// anychart.core.utils.Space.prototype['bottom'] = anychart.core.utils.Space.prototype.bottom;
-// anychart.core.utils.Space.prototype['left'] = anychart.core.utils.Space.prototype.left;
-anychart.core.utils.Space.prototype['set'] = anychart.core.utils.Space.prototype.set;
+(function() {
+  var proto = anychart.core.utils.Space.prototype;
+  // proto['top'] = proto.top;
+  // proto['right'] = proto.right;
+  // proto['bottom'] = proto.bottom;
+  // proto['left'] = proto.left;
+  proto['set'] = proto.set;
+})();
 //endregion

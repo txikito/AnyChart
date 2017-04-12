@@ -2,6 +2,7 @@ goog.provide('anychart.themes.dark_turquoise');
 
 
 (function() {
+  var global = this;
   var stockScrollerUnselected = '#999 0.6';
 
 
@@ -9,8 +10,8 @@ goog.provide('anychart.themes.dark_turquoise');
    * @this {*}
    * @return {*}
    */
-  var returnSourceColor = function() {
-    return this['sourceColor'];
+  var returnSourceColor60 = function() {
+    return global['anychart']['color']['setOpacity'](this['sourceColor'], 0.6, true);
   };
 
 
@@ -19,7 +20,7 @@ goog.provide('anychart.themes.dark_turquoise');
    * @return {*}
    */
   var returnDarkenSourceColor = function() {
-    return window['anychart']['color']['darken'](this['sourceColor']);
+    return global['anychart']['color']['darken'](this['sourceColor']);
   };
 
 
@@ -28,20 +29,20 @@ goog.provide('anychart.themes.dark_turquoise');
    * @return {*}
    */
   var returnLightenSourceColor = function() {
-    return window['anychart']['color']['lighten'](this['sourceColor']);
+    return global['anychart']['color']['lighten'](this['sourceColor']);
   };
 
 
-  window['anychart'] = window['anychart'] || {};
-  window['anychart']['themes'] = window['anychart']['themes'] || {};
-  window['anychart']['themes']['darkTurquoise'] = {
+  global['anychart'] = global['anychart'] || {};
+  global['anychart']['themes'] = global['anychart']['themes'] || {};
+  global['anychart']['themes']['darkTurquoise'] = {
     'palette': {
       'type': 'distinct',
       'items': ['#80deea', '#00acc1', '#00838f', '#29b6f6', '#0277bd', '#0277bd', '#8c9eff', '#9575cd', '#ce93d8', '#8e24aa']
     },
     'defaultOrdinalColorScale': {
       'autoColors': function(rangesCount) {
-        return window['anychart']['color']['blendedHueProgression']('#b2dfdb', '#00838f', rangesCount);
+        return global['anychart']['color']['blendedHueProgression']('#b2dfdb', '#00838f', rangesCount);
       }
     },
     'defaultLinearColorScale': {'colors': ['#b2dfdb', '#00838f']},
@@ -84,14 +85,11 @@ goog.provide('anychart.themes.dark_turquoise');
         'corners': 3
       },
       'fontColor': '#e0e0e0',
+      'fontSize': 12,
       'title': {
         'fontColor': '#bdbdbd',
         'align': 'center',
         'fontSize': 14
-      },
-      'content': {
-        'fontColor': '#e0e0e0',
-        'fontSize': 12
       },
       'padding': {'top': 10, 'right': 15, 'bottom': 10, 'left': 15},
       'separator': {
@@ -334,38 +332,37 @@ goog.provide('anychart.themes.dark_turquoise');
         'outlineStroke': '#616161',
         'defaultSeriesSettings': {
           'base': {
-            'color': '#80deea 0.6',
-            'selectStroke': returnSourceColor,
-            'selectFill': returnSourceColor
+            'selectStroke': returnSourceColor60,
+            'selectFill': returnSourceColor60
           },
           'lineLike': {
-            'selectStroke': returnSourceColor
+            'selectStroke': returnSourceColor60
           },
           'areaLike': {
-            'selectStroke': returnSourceColor,
-            'selectFill': returnSourceColor
+            'selectStroke': returnSourceColor60,
+            'selectFill': returnSourceColor60
           },
           'marker': {
-            'selectStroke': returnSourceColor
+            'selectStroke': returnSourceColor60
           },
           'candlestick': {
             'risingFill': stockScrollerUnselected,
             'risingStroke': stockScrollerUnselected,
             'fallingFill': stockScrollerUnselected,
             'fallingStroke': stockScrollerUnselected,
-            'selectRisingStroke': returnSourceColor,
-            'selectFallingStroke': returnSourceColor,
-            'selectRisingFill': returnSourceColor,
-            'selectFallingFill': returnSourceColor
+            'selectRisingStroke': returnSourceColor60,
+            'selectFallingStroke': returnSourceColor60,
+            'selectRisingFill': returnSourceColor60,
+            'selectFallingFill': returnSourceColor60
           },
           'ohlc': {
             'risingStroke': stockScrollerUnselected,
             'fallingStroke': stockScrollerUnselected,
-            'selectRisingStroke': returnSourceColor,
-            'selectFallingStroke': returnSourceColor
+            'selectRisingStroke': returnSourceColor60,
+            'selectFallingStroke': returnSourceColor60
           }
         }
       }
     }
   };
-})();
+}).call(this);

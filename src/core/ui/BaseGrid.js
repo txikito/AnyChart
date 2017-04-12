@@ -4,10 +4,11 @@ goog.require('acgraph.vector.Path');
 goog.require('anychart.core.IStandaloneBackend');
 goog.require('anychart.core.VisualBaseWithBounds');
 goog.require('anychart.core.gantt.Controller');
+goog.require('anychart.core.reporting');
 goog.require('anychart.core.ui.IInteractiveGrid');
 goog.require('anychart.core.ui.ScrollBar');
 goog.require('anychart.core.ui.Tooltip');
-goog.require('anychart.core.utils.GanttContextProvider');
+goog.require('anychart.format.Context');
 goog.require('anychart.math.Rect');
 goog.require('goog.events.KeyHandler');
 goog.require('goog.events.MouseWheelHandler');
@@ -31,7 +32,7 @@ goog.require('goog.labs.userAgent.device');
  * @implements {anychart.core.IStandaloneBackend}
  */
 anychart.core.ui.BaseGrid = function(opt_controller, opt_isResource) {
-  goog.base(this);
+  anychart.core.ui.BaseGrid.base(this, 'constructor');
 
   /**
    * Mouse wheel handler object.
@@ -391,7 +392,7 @@ anychart.core.ui.BaseGrid = function(opt_controller, opt_isResource) {
 
   /**
    * Context provider.
-   * @type {anychart.core.utils.GanttContextProvider}
+   * @type {anychart.format.Context}
    * @private
    */
   this.formatProvider_ = null;
@@ -561,12 +562,49 @@ anychart.core.ui.BaseGrid.isMilestone = function(treeDataItem) {
 /** @inheritDoc */
 anychart.core.ui.BaseGrid.prototype.createFormatProvider = function(item, opt_period, opt_periodIndex) {
   if (!this.formatProvider_)
-    this.formatProvider_ = new anychart.core.utils.GanttContextProvider(this.controller.isResources());
-  this.formatProvider_.currentItem = item;
-  this.formatProvider_.currentPeriod = opt_period;
-  this.formatProvider_.currentPeriodIndex = opt_periodIndex;
-  this.formatProvider_.applyReferenceValues();
-  return this.formatProvider_;
+    this.formatProvider_ = new anychart.format.Context();
+
+  var isResources = this.controller.isResources();
+  var values = {
+    'item': {value: item, type: anychart.enums.TokenType.UNKNOWN},
+    'name': {value: item.get(anychart.enums.GanttDataFields.NAME), type: anychart.enums.TokenType.STRING},
+    'id': {value: item.get(anychart.enums.GanttDataFields.ID), type: anychart.enums.TokenType.STRING},
+  };
+
+  if (isResources) {
+    values['minPeriodDate'] = {value: item.meta('minPeriodDate'), type: anychart.enums.TokenType.DATE_TIME};
+    values['maxPeriodDate'] = {value: item.meta('maxPeriodDate'), type: anychart.enums.TokenType.DATE_TIME};
+    values['period'] = {value: opt_period, type: anychart.enums.TokenType.UNKNOWN};
+    values['periodIndex'] = {
+      value: (goog.isDefAndNotNull(opt_periodIndex) && opt_periodIndex > 0) ? opt_periodIndex : void 0,
+      type: anychart.enums.TokenType.NUMBER
+    };
+    values['periodStart'] = {
+      value: opt_period ?
+          item.getMeta(anychart.enums.GanttDataFields.PERIODS, opt_periodIndex, anychart.enums.GanttDataFields.START) :
+          void 0, type: anychart.enums.TokenType.DATE_TIME
+    };
+    values['periodEnd'] = {
+      value: opt_period ?
+          item.getMeta(anychart.enums.GanttDataFields.PERIODS, opt_periodIndex, anychart.enums.GanttDataFields.END) :
+          void 0, type: anychart.enums.TokenType.DATE_TIME
+    };
+  } else {
+    values['actualStart'] = {value: item.meta(anychart.enums.GanttDataFields.ACTUAL_START), type: anychart.enums.TokenType.DATE_TIME};
+    values['actualEnd'] = {value: item.meta(anychart.enums.GanttDataFields.ACTUAL_END), type: anychart.enums.TokenType.DATE_TIME};
+    values['progressValue'] = {value: item.meta(anychart.enums.GanttDataFields.PROGRESS_VALUE), type: anychart.enums.TokenType.PERCENT};
+
+    var isParent = !!item.numChildren();
+    values['autoStart'] = {value: isParent ? item.meta('autoStart') : void 0, type: anychart.enums.TokenType.DATE_TIME};
+    values['autoEnd'] = {value: isParent ? item.meta('autoEnd') : void 0, type: anychart.enums.TokenType.DATE_TIME};
+    values['autoProgress'] = {value: isParent ? item.meta('autoProgress') : void 0, type: anychart.enums.TokenType.PERCENT};
+  }
+
+  this.formatProvider_
+      .values(values)
+      .dataSource(item);
+
+  return this.formatProvider_.propagate();
 };
 
 
@@ -626,10 +664,24 @@ anychart.core.ui.BaseGrid.prototype.addMouseMoveAndOver = goog.nullFunction;
 
 
 /**
+ * Additional actions for inherited classes on mouse down.
+ * @param {?Object} evt - Event object.
+ */
+anychart.core.ui.BaseGrid.prototype.addMouseDown = goog.nullFunction;
+
+
+/**
  * Additional actions for inherited classes on mouse up.
  * @param {?Object} evt - Event object.
  */
 anychart.core.ui.BaseGrid.prototype.addMouseUp = goog.nullFunction;
+
+
+/**
+ * Additional actions for inherited classes on mouse double click.
+ * @param {?Object} evt - Event object.
+ */
+anychart.core.ui.BaseGrid.prototype.addMouseDblClick = goog.nullFunction;
 
 
 /**
@@ -677,11 +729,10 @@ anychart.core.ui.BaseGrid.prototype.handleAll_ = function(event) {
  * @private
  */
 anychart.core.ui.BaseGrid.prototype.handleDblMouseClick_ = function(event) {
+  var evt = this.getInteractivityEvent(event);
+  this.addMouseDblClick(evt);
   if (this.interactive) {
-    var evt = this.getInteractivityEvent(event);
-    if (evt && this.interactivityHandler.dispatchEvent(evt)) {
-      this.interactivityHandler.rowDblClick(evt);
-    }
+    this.interactivityHandler.rowDblClick(evt);
   } else {
     this.interactive = true;
   }
@@ -709,9 +760,10 @@ anychart.core.ui.BaseGrid.prototype.handleMouseOut_ = function(event) {
  * @private
  */
 anychart.core.ui.BaseGrid.prototype.handleMouseDown_ = function(event) {
+  var evt = this.getInteractivityEvent(event);
+  this.addMouseDown(evt);
   if (this.interactive) {
     event.preventDefault();
-    var evt = this.getInteractivityEvent(event);
     if (evt && this.interactivityHandler.dispatchEvent(evt)) {
       this.interactivityHandler.rowMouseDown(evt);
     }
@@ -749,6 +801,25 @@ anychart.core.ui.BaseGrid.prototype.rowClick = function(event) {
 
 /** @inheritDoc */
 anychart.core.ui.BaseGrid.prototype.rowDblClick = function(event) {
+  this.rowExpandCollapse(event);
+};
+
+
+/** @inheritDoc */
+anychart.core.ui.BaseGrid.prototype.rowSelect = function(event) {
+  if (this.interactive) {
+    var item = event['item'];
+    if (this.selectRow(item)) {
+      var eventObj = goog.object.clone(event);
+      eventObj['type'] = anychart.enums.EventType.ROW_SELECT;
+      this.interactivityHandler.dispatchEvent(eventObj);
+    }
+  }
+};
+
+
+/** @inheritDoc */
+anychart.core.ui.BaseGrid.prototype.rowExpandCollapse = function(event) {
   var item = event['item'];
   if (item && item.numChildren()) {
     var value = !item.meta(anychart.enums.GanttDataFields.COLLAPSED);
@@ -802,34 +873,21 @@ anychart.core.ui.BaseGrid.prototype.rowMouseDown = goog.nullFunction;
   Illustration for this method:
   (Grid is rectangle in center)
 
-    offsetX < 0  |  !offsetX  |  offsetX > 0
+    offsetX < 0  |  !offsetX      |  offsetX > 0
     offsetY < 0  |  offsetY < 0   |  offsetY < 0
 
     ------------ +----------------+ --------------
                  |                |
-    offsetX < 0  |  !offsetX  |  offsetX > 0
-    !offsetY |  !offsetX  |  !offsetY
+    offsetX < 0  |  !offsetX      |  offsetX > 0
+    !offsetY     |  !offsetX      |  !offsetY
                  |                |
     ------------ +----------------+ --------------
 
-    offsetX < 0  |  !offsetX  |  offsetX > 0
+    offsetX < 0  |  !offsetX      |  offsetX > 0
     offsetY > 0  |  offsetY > 0   |  offsetY > 0
 
  */
 anychart.core.ui.BaseGrid.prototype.mouseOutMove = goog.nullFunction;
-
-
-/** @inheritDoc */
-anychart.core.ui.BaseGrid.prototype.rowSelect = function(event) {
-  if (this.interactive) {
-    var item = event['item'];
-    if (this.selectRow(item)) {
-      var eventObj = goog.object.clone(event);
-      eventObj['type'] = anychart.enums.EventType.ROW_SELECT;
-      this.interactivityHandler.dispatchEvent(eventObj);
-    }
-  }
-};
 
 
 /**
@@ -881,7 +939,7 @@ anychart.core.ui.BaseGrid.prototype.getInteractivityEvent = function(event) {
     var initialTop = /** @type {number} */ (this.pixelBoundsCache.top + this.headerHeight_ + 1);
 
     var min = this.pixelBoundsCache.top +
-        goog.style.getClientPosition(/** @type {Element} */(this.container().getStage().container())).y +
+        this.container().getStage().getClientPosition().y +
         this.headerHeight_;
 
     var mouseHeight = event.clientY - min;
@@ -1176,9 +1234,12 @@ anychart.core.ui.BaseGrid.prototype.rowFill = function(opt_fillOrColorOrKeys, op
  * @param {number=} opt_fx .
  * @param {number=} opt_fy .
  * @return {acgraph.vector.Fill|anychart.core.ui.BaseGrid|string} - Current value or itself for method chaining.
- * @deprecated - Use {@link rowFill} instead.
+ * @deprecated Since 7.7.0. Use rowFill() instead.
  */
-anychart.core.ui.BaseGrid.prototype.cellFill = anychart.core.ui.BaseGrid.prototype.rowFill;
+anychart.core.ui.BaseGrid.prototype.cellFill = function(opt_fillOrColorOrKeys, opt_opacityOrAngleOrCx, opt_modeOrCy, opt_opacityOrMode, opt_opacity, opt_fx, opt_fy) {
+  anychart.core.reporting.warning(anychart.enums.WarningCode.DEPRECATED, null, ['cellFill()', 'rowFill()'], true);
+  return this.rowFill(opt_fillOrColorOrKeys, opt_opacityOrAngleOrCx, opt_modeOrCy, opt_opacityOrMode, opt_opacity, opt_fx, opt_fy);
+};
 
 
 /**
@@ -1215,9 +1276,12 @@ anychart.core.ui.BaseGrid.prototype.rowOddFill = function(opt_fillOrColorOrKeys,
  * @param {number=} opt_fx .
  * @param {number=} opt_fy .
  * @return {acgraph.vector.Fill|anychart.core.ui.BaseGrid|string} - Current value or itself for method chaining.
- * @deprecated - Use {@link rowOddFill} instead.
+ * @deprecated Since 7.7.0. Use rowOddFill() instead.
  */
-anychart.core.ui.BaseGrid.prototype.cellOddFill = anychart.core.ui.BaseGrid.prototype.rowOddFill;
+anychart.core.ui.BaseGrid.prototype.cellOddFill = function(opt_fillOrColorOrKeys, opt_opacityOrAngleOrCx, opt_modeOrCy, opt_opacityOrMode, opt_opacity, opt_fx, opt_fy) {
+  anychart.core.reporting.warning(anychart.enums.WarningCode.DEPRECATED, null, ['cellOddFill()', 'rowOddFill()'], true);
+  return this.rowOddFill(opt_fillOrColorOrKeys, opt_opacityOrAngleOrCx, opt_modeOrCy, opt_opacityOrMode, opt_opacity, opt_fx, opt_fy);
+};
 
 
 /**
@@ -1254,9 +1318,12 @@ anychart.core.ui.BaseGrid.prototype.rowEvenFill = function(opt_fillOrColorOrKeys
  * @param {number=} opt_fx .
  * @param {number=} opt_fy .
  * @return {acgraph.vector.Fill|anychart.core.ui.BaseGrid|string} - Current value or itself for method chaining.
- * @deprecated - Use {@link rowEvenFill} instead.
+ * @deprecated Since 7.7.0. Use rowEvenFill() instead.
  */
-anychart.core.ui.BaseGrid.prototype.cellEvenFill = anychart.core.ui.BaseGrid.prototype.rowEvenFill;
+anychart.core.ui.BaseGrid.prototype.cellEvenFill = function(opt_fillOrColorOrKeys, opt_opacityOrAngleOrCx, opt_modeOrCy, opt_opacityOrMode, opt_opacity, opt_fx, opt_fy) {
+  anychart.core.reporting.warning(anychart.enums.WarningCode.DEPRECATED, null, ['cellEvenFill()', 'rowEvenFill()'], true);
+  return this.rowEvenFill(opt_fillOrColorOrKeys, opt_opacityOrAngleOrCx, opt_modeOrCy, opt_opacityOrMode, opt_opacity, opt_fx, opt_fy);
+};
 
 
 /**
@@ -1551,6 +1618,7 @@ anychart.core.ui.BaseGrid.prototype.dragEndHandler_ = function(e) {
   }
   this.scrollDragger.reset();
   this.dragging = false;
+  this.interactive = true;
   clearInterval(this.scrollInterval);
   this.scrollInterval = null;
 };
@@ -1729,7 +1797,6 @@ anychart.core.ui.BaseGrid.prototype.needsReapplicationHandler_ = function(event)
 anychart.core.ui.BaseGrid.prototype.onTooltipSignal_ = function(event) {
   var tooltip = /** @type {anychart.core.ui.Tooltip} */(this.tooltip());
   tooltip.draw();
-  // tooltip.redraw();
 };
 
 
@@ -2084,7 +2151,7 @@ anychart.core.ui.BaseGrid.prototype.initMouseFeatures = function() {
  */
 anychart.core.ui.BaseGrid.prototype.docMouseMoveListener_ = function(e) {
   var l = anychart.core.ui.BaseGrid.SCROLL_MOUSE_OUT_INSIDE_LENGTH;
-  var containerPosition = goog.style.getClientPosition(/** @type {Element} */(this.container().getStage().container()));
+  var containerPosition = this.container().getStage().getClientPosition();
   var top = this.pixelBoundsCache.top + containerPosition.y + this.headerHeight_ + l;
   var bottom = containerPosition.y + this.pixelBoundsCache.height - l - l;
   var left = containerPosition.x + this.pixelBoundsCache.left + l;
@@ -2355,10 +2422,13 @@ anychart.core.ui.BaseGrid.prototype.headerHeight = function(opt_value) {
 /**
  * Gets/sets header height.
  * @param {number=} opt_value - Value to be set.
- * @deprecated - Use headerHeight instead.
+ * @deprecated Since 7.7.0. Use headerHeight() instead.
  * @return {(number|anychart.core.ui.BaseGrid)} - Current value or itself for method chaining.
  */
-anychart.core.ui.BaseGrid.prototype.titleHeight = anychart.core.ui.BaseGrid.prototype.headerHeight;
+anychart.core.ui.BaseGrid.prototype.titleHeight = function(opt_value) {
+  anychart.core.reporting.warning(anychart.enums.WarningCode.DEPRECATED, null, ['titleHeight()', 'headerHeight()'], true);
+  return this.headerHeight(opt_value);
+};
 
 
 /**
@@ -2371,7 +2441,7 @@ anychart.core.ui.BaseGrid.prototype.tooltip = function(opt_value) {
     this.tooltip_ = new anychart.core.ui.Tooltip(0);
     this.registerDisposable(this.tooltip_);
     this.tooltip_.listenSignals(this.onTooltipSignal_, this);
-    this.tooltip_.boundsProvider = this;
+    this.tooltip_.containerProvider(this);
   }
   if (goog.isDef(opt_value)) {
     this.tooltip_.setup(opt_value);
@@ -2400,14 +2470,14 @@ anychart.core.ui.BaseGrid.prototype.verticalOffset = function(opt_value) {
  * @inheritDoc
  */
 anychart.core.ui.BaseGrid.prototype.disposeInternal = function() {
-  goog.base(this, 'disposeInternal');
+  anychart.core.ui.BaseGrid.base(this, 'disposeInternal');
   goog.events.unlisten(document, goog.events.EventType.MOUSEMOVE, this.docMouseMoveListener_, false, this);
 };
 
 
 /** @inheritDoc */
 anychart.core.ui.BaseGrid.prototype.serialize = function() {
-  var json = goog.base(this, 'serialize');
+  var json = anychart.core.ui.BaseGrid.base(this, 'serialize');
 
   json['isStandalone'] = this.isStandalone;
 
@@ -2440,9 +2510,12 @@ anychart.core.ui.BaseGrid.prototype.serialize = function() {
 };
 
 
-/** @inheritDoc */
+/**
+ * @inheritDoc
+ * @suppress {deprecated}
+ */
 anychart.core.ui.BaseGrid.prototype.setupByJSON = function(config, opt_default) {
-  goog.base(this, 'setupByJSON', config, opt_default);
+  anychart.core.ui.BaseGrid.base(this, 'setupByJSON', config, opt_default);
 
   this.isStandalone = ('isStandalone' in config) ? config['isStandalone'] : ('controller' in config);
 
@@ -2452,6 +2525,13 @@ anychart.core.ui.BaseGrid.prototype.setupByJSON = function(config, opt_default) 
     this.defaultRowHeight(config['defaultRowHeight']);
   }
 
+  if (goog.isDef(config['cellFill']))
+    this.cellFill(config['cellFill']);
+  if (goog.isDef(config['cellOddFill']))
+    this.cellOddFill(config['cellOddFill']);
+  if (goog.isDef(config['cellEvenFill']))
+    this.cellEvenFill(config['cellEvenFill']);
+
   this.backgroundFill(config['backgroundFill']);
   this.rowStroke(config['rowStroke']);
   this.rowFill(config['rowFill']);
@@ -2460,8 +2540,11 @@ anychart.core.ui.BaseGrid.prototype.setupByJSON = function(config, opt_default) 
   this.rowHoverFill(config['hoverFill']);
   this.rowSelectedFill(config['rowSelectedFill']);
 
-  if (anychart.opt.TOOLTIP in config)
-    this.tooltip().setupByVal(config[anychart.opt.TOOLTIP], opt_default);
+  if ('tooltip' in config)
+    this.tooltip().setupByVal(config['tooltip'], opt_default);
+
+  if (goog.isDef(config['titleHeight']))
+    this.titleHeight(config['titleHeight']);
 
   this.headerHeight(config['headerHeight']);
   this.editStructurePreviewFill(config['editStructurePreviewFill']);
@@ -2480,7 +2563,7 @@ anychart.core.ui.BaseGrid.prototype.setupByJSON = function(config, opt_default) 
  * @extends {goog.fx.Dragger}
  */
 anychart.core.ui.BaseGrid.Dragger = function(target, grid) {
-  goog.base(this, target.domElement());
+  anychart.core.ui.BaseGrid.Dragger.base(this, 'constructor', target.domElement());
 
   this.grid = grid;
 
@@ -2549,7 +2632,7 @@ anychart.core.ui.BaseGrid.Dragger.prototype.reset = function() {
  * @suppress {accessControls} - TODO Add another mechanism (fix this inheritance).
  */
 anychart.core.ui.BaseGrid.KeyHandler = function(grid, opt_element, opt_capture) {
-  goog.base(this, opt_element, opt_capture);
+  anychart.core.ui.BaseGrid.KeyHandler.base(this, 'constructor', opt_element, opt_capture);
 
   /**
    * @type {anychart.core.ui.IInteractiveGrid}
@@ -2561,7 +2644,7 @@ goog.inherits(anychart.core.ui.BaseGrid.KeyHandler, goog.events.KeyHandler);
 
 /** @inheritDoc */
 anychart.core.ui.BaseGrid.KeyHandler.prototype.resetState = function() {
-  goog.base(this, 'resetState');
+  anychart.core.ui.BaseGrid.KeyHandler.base(this, 'resetState');
   this.grid.altKey = false;
 };
 
@@ -2574,7 +2657,7 @@ anychart.core.ui.BaseGrid.KeyHandler.prototype.resetState = function() {
  * @extends {acgraph.vector.Path}
  */
 anychart.core.ui.BaseGrid.Element = function() {
-  goog.base(this);
+  anychart.core.ui.BaseGrid.Element.base(this, 'constructor');
 
   /**
    * Meta information. Used for inner purposes only.

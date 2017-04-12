@@ -9,11 +9,11 @@ goog.require('anychart.core.ui.LabelsFactory');
 goog.require('anychart.core.ui.Tooltip');
 goog.require('anychart.core.utils.IInteractiveSeries');
 goog.require('anychart.core.utils.InteractivityState');
-goog.require('anychart.core.utils.LegendContextProvider');
 goog.require('anychart.core.utils.LegendItemSettings');
 goog.require('anychart.core.utils.SeriesA11y');
 goog.require('anychart.data');
 goog.require('anychart.enums');
+goog.require('anychart.format.Context');
 goog.require('anychart.utils');
 
 
@@ -348,10 +348,10 @@ anychart.core.SeriesBase.prototype.isSizeBased = function() {
  * @param {anychart.core.SeparateChart} chart Chart instance.
  */
 anychart.core.SeriesBase.prototype.setChart = function(chart) {
-  this.chart_ = chart;
-  this.a11y().parentA11y(/** @type {anychart.core.utils.A11y} */ (/** @type {anychart.core.Chart} */ (this.chart_).a11y()));
+  this.chart = chart;
+  this.a11y().parentA11y(/** @type {anychart.core.utils.A11y} */ (/** @type {anychart.core.Chart} */ (this.chart).a11y()));
   this.a11y().parentA11y().applyChangesInChildA11y();
-  this.tooltip().parent(/** @type {anychart.core.ui.Tooltip} */ (this.chart_.tooltip()));
+  this.tooltip().parent(/** @type {anychart.core.ui.Tooltip} */ (this.chart.tooltip()));
 };
 
 
@@ -360,7 +360,7 @@ anychart.core.SeriesBase.prototype.setChart = function(chart) {
  * @return {anychart.core.SeparateChart}
  */
 anychart.core.SeriesBase.prototype.getChart = function() {
-  return this.chart_;
+  return this.chart;
 };
 
 
@@ -606,10 +606,10 @@ anychart.core.SeriesBase.prototype.id = function(opt_value) {
 anychart.core.SeriesBase.prototype.statistics = function(opt_name, opt_value) {
   if (goog.isDef(opt_name)) {
     if (goog.isDef(opt_value)) {
-      this.statistics_[opt_name] = opt_value;
+      this.statistics_[opt_name.toLowerCase()] = opt_value;
       return this;
     } else {
-      return this.statistics_[opt_name];
+      return this.statistics_[opt_name.toLowerCase()];
     }
   } else {
     return this.statistics_;
@@ -631,8 +631,8 @@ anychart.core.SeriesBase.prototype.calculateStatistics = goog.nullFunction;
  * @return {*} - Statistics value.
  */
 anychart.core.SeriesBase.prototype.getStat = function(key) {
-  if (this.chart_) this.chart_.calculate();
-  return this.statistics_[key];
+  if (this.chart) this.chart.calculate();
+  return this.statistics(key);
 };
 
 
@@ -650,7 +650,7 @@ anychart.core.SeriesBase.prototype.tooltip = function(opt_value) {
   if (!this.tooltip_) {
     this.tooltip_ = new anychart.core.ui.Tooltip(0);
     this.registerDisposable(this.tooltip_);
-    this.tooltip_.chart(this.chart_);
+    this.tooltip_.chart(this.chart);
   }
   if (goog.isDef(opt_value)) {
     this.tooltip_.setup(opt_value);
@@ -668,22 +668,30 @@ anychart.core.SeriesBase.prototype.tooltip = function(opt_value) {
 //----------------------------------------------------------------------------------------------------------------------
 /**
  * Creates context provider for legend items text formatter function.
- * @return {anychart.core.utils.LegendContextProvider} Legend context provider.
+ * @return {anychart.format.Context} Legend context provider.
  * @protected
  */
 anychart.core.SeriesBase.prototype.createLegendContextProvider = function() {
-  if (!this.legendProvider_)
-    this.legendProvider_ = new anychart.core.utils.LegendContextProvider(this);
-  return this.legendProvider_;
+  if (!this.legendProvider_) {
+    this.legendProvider_ = new anychart.format.Context();
+
+    var statisticsSources = [this];
+    if (this.chart)
+      statisticsSources.push(this.chart);
+
+    this.legendProvider_.statisticsSources(statisticsSources);
+  }
+
+  return this.legendProvider_; //nothing to propagate().
 };
 
 
 /**
  * Return color for legend item.
- * @param {Function} itemsTextFormatter Items text formatter.
+ * @param {Function} itemsFormat Items text formatter.
  * @return {!anychart.core.ui.Legend.LegendItemProvider} Color for legend item.
  */
-anychart.core.SeriesBase.prototype.getLegendItemData = function(itemsTextFormatter) {
+anychart.core.SeriesBase.prototype.getLegendItemData = function(itemsFormat) {
   var legendItem = this.legendItem();
   legendItem.markAllConsistent();
   var json = legendItem.serialize();
@@ -702,12 +710,12 @@ anychart.core.SeriesBase.prototype.getLegendItemData = function(itemsTextFormatt
     json['iconHatchFill'] = legendItem.iconHatchFill().call(ctx, ctx);
   }
   var itemText;
-  if (goog.isFunction(itemsTextFormatter)) {
+  if (goog.isFunction(itemsFormat)) {
     var format = this.createLegendContextProvider();
-    itemText = itemsTextFormatter.call(format, format);
+    itemText = itemsFormat.call(format, format);
   }
   if (!goog.isString(itemText))
-    itemText = goog.isDef(this.name()) ? this.name() : 'Series: ' + this.index();
+    itemText = this.name();
 
   this.updateLegendItemMarker(json);
 
@@ -855,7 +863,6 @@ anychart.core.SeriesBase.prototype.getLabelsColor = function() {
  */
 anychart.core.SeriesBase.prototype.setAutoColor = function(value) {
   this.autoColor_ = value;
-  this.labels().setAutoColor(this.getLabelsColor());
   this.setAutoMarkerColor();
 };
 
@@ -1370,25 +1377,25 @@ anychart.core.SeriesBase.prototype.getLabelsPosition = function(pointState) {
   var labelHoverPosition = hoverPointLabel && hoverPointLabel['position'] ? hoverPointLabel['position'] : null;
   var labelSelectPosition = selectPointLabel && selectPointLabel['position'] ? selectPointLabel['position'] : null;
 
-  return hovered || selected ?
+  return /** @type {string} */(hovered || selected ?
       hovered ?
           labelHoverPosition ?
               labelHoverPosition :
-              this.hoverLabels().position() ?
-                  this.hoverLabels().position() :
+              this.hoverLabels().getOption('position') ?
+                  this.hoverLabels().getOption('position') :
                   labelPosition ?
                       labelPosition :
-                      this.labels().position() :
+                      this.labels().getOption('position') :
           labelSelectPosition ?
               labelSelectPosition :
-              this.selectLabels().position() ?
-                  this.selectLabels().position() :
+              this.selectLabels().getOption('position') ?
+                  this.selectLabels().getOption('position') :
                   labelPosition ?
                       labelPosition :
-                      this.labels().position() :
+                      this.labels().getOption('position') :
       labelPosition ?
           labelPosition :
-          this.labels().position();
+          this.labels().getOption('position'));
 };
 
 
@@ -1423,21 +1430,22 @@ anychart.core.SeriesBase.prototype.configureLabel = function(pointState, opt_res
 
   var selected = this.state.isStateContains(pointState, anychart.PointState.SELECT);
   var hovered = !selected && this.state.isStateContains(pointState, anychart.PointState.HOVER);
-  var isDraw, labelsFactory, pointLabel, stateLabel, labelEnabledState, stateLabelEnabledState;
+  var isDraw, labelsFactory, stateLabelsFactory, pointLabel, stateLabel, labelEnabledState, stateLabelEnabledState;
 
   pointLabel = iterator.get('label');
   labelEnabledState = pointLabel && goog.isDef(pointLabel['enabled']) ? pointLabel['enabled'] : null;
   if (selected) {
     stateLabel = iterator.get('selectLabel');
     stateLabelEnabledState = stateLabel && goog.isDef(stateLabel['enabled']) ? stateLabel['enabled'] : null;
-    labelsFactory = /** @type {anychart.core.ui.LabelsFactory} */(this.selectLabels());
+    stateLabelsFactory = labelsFactory = /** @type {anychart.core.ui.LabelsFactory} */(this.selectLabels());
   } else if (hovered) {
     stateLabel = iterator.get('hoverLabel');
     stateLabelEnabledState = stateLabel && goog.isDef(stateLabel['enabled']) ? stateLabel['enabled'] : null;
-    labelsFactory = /** @type {anychart.core.ui.LabelsFactory} */(this.hoverLabels());
+    stateLabelsFactory = labelsFactory = /** @type {anychart.core.ui.LabelsFactory} */(this.hoverLabels());
   } else {
     stateLabel = null;
     labelsFactory = this.labels_;
+    stateLabelsFactory = null;
   }
 
   if (selected || hovered) {
@@ -1470,7 +1478,7 @@ anychart.core.SeriesBase.prototype.configureLabel = function(pointState, opt_res
 
     if (opt_reset) {
       label.resetSettings();
-      label.currentLabelsFactory(labelsFactory);
+      label.currentLabelsFactory(stateLabelsFactory);
       label.setSettings(/** @type {Object} */(pointLabel), /** @type {Object} */(stateLabel));
     }
 
@@ -1546,7 +1554,7 @@ anychart.core.SeriesBase.prototype.createTooltipContextProvider = function() {
 /** @inheritDoc */
 anychart.core.SeriesBase.prototype.makeBrowserEvent = function(e) {
   //this method is invoked only for events from data layer
-  var res = goog.base(this, 'makeBrowserEvent', e);
+  var res = anychart.core.SeriesBase.base(this, 'makeBrowserEvent', e);
   res['pointIndex'] = this.getIndexByEvent(res);
   return res;
 };
@@ -1628,64 +1636,63 @@ anychart.core.SeriesBase.prototype.getPoint = function(index) {
     point = new anychart.core.SeriesPoint(this, index);
   }
 
-  if (this.chart_) {
-    this.chart_.calculate();
-    var chartStat = this.chart_.statistics;
-    var val = /** @type {number} */ (point.get(anychart.opt.VALUE));
-    var size = /** @type {number} */ (point.get(anychart.opt.SIZE)); //Bubble.
+  if (this.chart) {
+    this.chart.calculate();
+    var val = /** @type {number} */ (point.get('value'));
+    var size = /** @type {number} */ (point.get('size')); //Bubble.
 
-    point.statistics[anychart.enums.Statistics.INDEX] = index;
-    if (goog.isDef(val)) point.statistics[anychart.enums.Statistics.VALUE] = val;
+    point.statistics(anychart.enums.Statistics.INDEX, index);
+    if (goog.isDef(val)) point.statistics(anychart.enums.Statistics.VALUE, val);
     var v;
 
-    if (goog.isNumber(chartStat[anychart.enums.Statistics.DATA_PLOT_X_SUM])) {
-      v = val / /** @type {number} */ (chartStat[anychart.enums.Statistics.DATA_PLOT_X_SUM]);
-      point.statistics[anychart.enums.Statistics.X_PERCENT_OF_TOTAL] = v * 100;
+    if (goog.isNumber(this.chart.statistics(anychart.enums.Statistics.DATA_PLOT_X_SUM))) {
+      v = val / /** @type {number} */ (this.chart.statistics(anychart.enums.Statistics.DATA_PLOT_X_SUM));
+      point.statistics(anychart.enums.Statistics.X_PERCENT_OF_TOTAL, v * 100);
     }
 
     if (goog.isNumber(this.statistics(anychart.enums.Statistics.SERIES_X_SUM))) {
       v = val / /** @type {number} */ (this.statistics(anychart.enums.Statistics.SERIES_X_SUM));
-      point.statistics[anychart.enums.Statistics.X_PERCENT_OF_SERIES] = v * 100;
+      point.statistics(anychart.enums.Statistics.X_PERCENT_OF_SERIES, v * 100);
     }
 
     if (goog.isNumber(this.statistics(anychart.enums.Statistics.SERIES_BUBBLE_SIZE_SUM))) {
       v = size / /** @type {number} */ (this.statistics(anychart.enums.Statistics.SERIES_BUBBLE_SIZE_SUM));
-      point.statistics[anychart.enums.Statistics.BUBBLE_SIZE_PERCENT_OF_SERIES] = v * 100;
-      v = size / /** @type {number} */ (chartStat[anychart.enums.Statistics.DATA_PLOT_BUBBLE_SIZE_SUM]);
-      point.statistics[anychart.enums.Statistics.BUBBLE_SIZE_PERCENT_OF_TOTAL] = v * 100;
-      point.statistics[anychart.enums.Statistics.BUBBLE_SIZE] = size;
+      point.statistics(anychart.enums.Statistics.BUBBLE_SIZE_PERCENT_OF_SERIES, v * 100);
+      v = size / /** @type {number} */ (this.chart.statistics(anychart.enums.Statistics.DATA_PLOT_BUBBLE_SIZE_SUM));
+      point.statistics(anychart.enums.Statistics.BUBBLE_SIZE_PERCENT_OF_TOTAL, v * 100);
+      point.statistics(anychart.enums.Statistics.BUBBLE_SIZE, size);
     }
 
-    var chartSumArr = chartStat[anychart.enums.Statistics.CATEGORY_Y_SUM_ARR_];
-    var x = /** @type {number} */ (point.get(anychart.opt.X));
+    var chartSumArr = this.chart.statistics(anychart.enums.Statistics.CATEGORY_Y_SUM_ARR_);
+    var x = /** @type {number} */ (point.get('x'));
 
     if (chartSumArr) {
-      point.statistics[anychart.enums.Statistics.CATEGORY_NAME] = x;
+      point.statistics(anychart.enums.Statistics.CATEGORY_NAME, x);
       var catSum = chartSumArr[index];
 
       v = val / /** @type {number} */ (this.statistics(anychart.enums.Statistics.SERIES_Y_SUM));
-      point.statistics[anychart.enums.Statistics.Y_PERCENT_OF_SERIES] = v * 100;
-      v = val / chartStat[anychart.enums.Statistics.DATA_PLOT_Y_SUM];
-      point.statistics[anychart.enums.Statistics.Y_PERCENT_OF_TOTAL] = v * 100;
+      point.statistics(anychart.enums.Statistics.Y_PERCENT_OF_SERIES, v * 100);
+      v = val / this.chart.statistics(anychart.enums.Statistics.DATA_PLOT_Y_SUM);
+      point.statistics(anychart.enums.Statistics.Y_PERCENT_OF_TOTAL, v * 100);
       v = val / catSum;
-      point.statistics[anychart.enums.Statistics.Y_PERCENT_OF_CATEGORY] = v * 100;
-      v = catSum / chartStat[anychart.enums.Statistics.DATA_PLOT_Y_SUM];
-      point.statistics[anychart.enums.Statistics.CATEGORY_Y_PERCENT_OF_TOTAL] = v * 100;
-      point.statistics[anychart.enums.Statistics.CATEGORY_Y_SUM] = catSum;
-      point.statistics[anychart.enums.Statistics.CATEGORY_Y_MAX] = chartStat[anychart.enums.Statistics.CATEGORY_Y_MAX_ARR_][index];
-      point.statistics[anychart.enums.Statistics.CATEGORY_Y_MIN] = chartStat[anychart.enums.Statistics.CATEGORY_Y_MIN_ARR_][index];
-      point.statistics[anychart.enums.Statistics.CATEGORY_Y_AVERAGE] = chartStat[anychart.enums.Statistics.CATEGORY_Y_AVG_ARR_][index];
-      point.statistics[anychart.enums.Statistics.CATEGORY_Y_MEDIAN] = chartStat[anychart.enums.Statistics.CATEGORY_Y_MEDIAN_ARR_][index];
-      point.statistics[anychart.enums.Statistics.CATEGORY_Y_MODE] = chartStat[anychart.enums.Statistics.CATEGORY_Y_MODE_ARR_][index];
+      point.statistics(anychart.enums.Statistics.Y_PERCENT_OF_CATEGORY, v * 100);
+      v = catSum / this.chart.statistics(anychart.enums.Statistics.DATA_PLOT_Y_SUM);
+      point.statistics(anychart.enums.Statistics.CATEGORY_Y_PERCENT_OF_TOTAL, v * 100);
+      point.statistics(anychart.enums.Statistics.CATEGORY_Y_SUM, catSum);
+      point.statistics(anychart.enums.Statistics.CATEGORY_Y_MAX, this.chart.statistics(anychart.enums.Statistics.CATEGORY_Y_MAX_ARR_)[index]);
+      point.statistics(anychart.enums.Statistics.CATEGORY_Y_MIN, this.chart.statistics(anychart.enums.Statistics.CATEGORY_Y_MIN_ARR_)[index]);
+      point.statistics(anychart.enums.Statistics.CATEGORY_Y_AVERAGE, this.chart.statistics(anychart.enums.Statistics.CATEGORY_Y_AVG_ARR_)[index]);
+      point.statistics(anychart.enums.Statistics.CATEGORY_Y_MEDIAN, this.chart.statistics(anychart.enums.Statistics.CATEGORY_Y_MEDIAN_ARR_)[index]);
+      point.statistics(anychart.enums.Statistics.CATEGORY_Y_MODE, this.chart.statistics(anychart.enums.Statistics.CATEGORY_Y_MODE_ARR_)[index]);
     } else {
       v = x / /** @type {number} */ (this.statistics(anychart.enums.Statistics.SERIES_X_SUM));
-      point.statistics[anychart.enums.Statistics.X_PERCENT_OF_SERIES] = v * 100;
+      point.statistics(anychart.enums.Statistics.X_PERCENT_OF_SERIES, v * 100);
       v = val / /** @type {number} */ (this.statistics(anychart.enums.Statistics.SERIES_Y_SUM));
-      point.statistics[anychart.enums.Statistics.Y_PERCENT_OF_SERIES] = v * 100;
-      v = x / /** @type {number} */ (chartStat[anychart.enums.Statistics.DATA_PLOT_X_SUM]);
-      point.statistics[anychart.enums.Statistics.X_PERCENT_OF_TOTAL] = v * 100;
-      v = val / /** @type {number} */ (chartStat[anychart.enums.Statistics.DATA_PLOT_Y_SUM]);
-      point.statistics[anychart.enums.Statistics.Y_PERCENT_OF_TOTAL] = v * 100;
+      point.statistics(anychart.enums.Statistics.Y_PERCENT_OF_SERIES, v * 100);
+      v = x / /** @type {number} */ (this.chart.statistics(anychart.enums.Statistics.DATA_PLOT_X_SUM));
+      point.statistics(anychart.enums.Statistics.X_PERCENT_OF_TOTAL, v * 100);
+      v = val / /** @type {number} */ (this.chart.statistics(anychart.enums.Statistics.DATA_PLOT_Y_SUM));
+      point.statistics(anychart.enums.Statistics.Y_PERCENT_OF_TOTAL, v * 100);
 
     }
   }
@@ -1845,11 +1852,20 @@ anychart.core.SeriesBase.prototype.onA11ySignal_ = function() {
 
 
 /**
+ * Creates a11y text info.
+ * @return {Object}
+ */
+anychart.core.SeriesBase.prototype.createA11yTextInfo = function() {
+  return this.createFormatProvider();
+};
+
+
+/**
  * Draws a11y.
  */
 anychart.core.SeriesBase.prototype.drawA11y = function() {
   if (this.hasInvalidationState(anychart.ConsistencyState.A11Y)) {
-    this.a11y().applyA11y(this.createFormatProvider());
+    this.a11y().applyA11y();
     this.markConsistent(anychart.ConsistencyState.A11Y);
   }
 };
@@ -2001,9 +2017,10 @@ anychart.core.SeriesBase.prototype.hoverMode = function(opt_value) {
  * Allows to select points of the series.
  * @param {?boolean=} opt_value Allow or not.
  * @return {null|boolean|anychart.core.SeriesBase} Returns allow points select state or current series instance for chaining.
- * @deprecated Use this.selectionMode().
+ * @deprecated Since 7.13.0 in Map series and was never introduced in public API of other series, but was exported. Use this.selectionMode() instead.
  */
 anychart.core.SeriesBase.prototype.allowPointsSelect = function(opt_value) {
+  anychart.core.reporting.warning(anychart.enums.WarningCode.DEPRECATED, null, ['allowPointsSelect()', 'selectionMode()'], true);
   if (goog.isDef(opt_value)) {
     this.selectionMode(goog.isBoolean(opt_value) ?
         (opt_value ?
@@ -2036,7 +2053,7 @@ anychart.core.SeriesBase.prototype.serializeData = function() {
  * @inheritDoc
  */
 anychart.core.SeriesBase.prototype.serialize = function() {
-  var json = goog.base(this, 'serialize');
+  var json = anychart.core.SeriesBase.base(this, 'serialize');
   if (this.color_)
     json['color'] = anychart.color.serialize(/** @type {acgraph.vector.Fill}*/(this.color_));
   if (goog.isDef(this.name()))
@@ -2169,9 +2186,10 @@ anychart.core.SeriesBase.prototype.serialize = function() {
 
 /**
  * @inheritDoc
+ * @suppress {deprecated}
  */
 anychart.core.SeriesBase.prototype.setupByJSON = function(config, opt_default) {
-  goog.base(this, 'setupByJSON', config, opt_default);
+  anychart.core.SeriesBase.base(this, 'setupByJSON', config, opt_default);
   if (goog.isFunction(this['fill']))
     this.fill(config['fill']);
 
@@ -2204,20 +2222,16 @@ anychart.core.SeriesBase.prototype.setupByJSON = function(config, opt_default) {
   this.meta(config['meta']);
   if ('data' in config)
     this.data(config['data'] || null);
-  this.labels().setup(config['labels']);
-  this.hoverLabels().setup(config['hoverLabels']);
-  this.selectLabels().setup(config['selectLabels']);
+  this.labels().setupByVal(config['labels'], opt_default);
+  this.hoverLabels().setupByVal(config['hoverLabels'], opt_default);
+  this.selectLabels().setupByVal(config['selectLabels'], opt_default);
 
-  if (anychart.opt.TOOLTIP in config)
+  if ('tooltip' in config)
     this.tooltip().setupByVal(config['tooltip'], opt_default);
 
   this.legendItem(config['legendItem']);
   if (goog.isDef(config['allowPointsSelect'])) {
-    this.selectionMode(goog.isBoolean(config['allowPointsSelect']) ?
-        (config['allowPointsSelect'] ?
-            anychart.enums.SelectionMode.MULTI_SELECT :
-            anychart.enums.SelectionMode.NONE) :
-        config['allowPointsSelect']);
+    this.allowPointsSelect(config['allowPointsSelect']);
   }
   this.selectionMode(config['selectionMode']);
   this.a11y(config['a11y']);
@@ -2226,29 +2240,33 @@ anychart.core.SeriesBase.prototype.setupByJSON = function(config, opt_default) {
 
 
 //exports
-anychart.core.SeriesBase.prototype['a11y'] = anychart.core.SeriesBase.prototype.a11y;//doc|ex
+/** @suppress {deprecated} */
+(function() {
+  var proto = anychart.core.SeriesBase.prototype;
+  proto['a11y'] = proto.a11y;//doc|ex
 
-anychart.core.SeriesBase.prototype['color'] = anychart.core.SeriesBase.prototype.color;//doc|ex
-anychart.core.SeriesBase.prototype['name'] = anychart.core.SeriesBase.prototype.name;//doc|ex
-anychart.core.SeriesBase.prototype['id'] = anychart.core.SeriesBase.prototype.id;
-anychart.core.SeriesBase.prototype['meta'] = anychart.core.SeriesBase.prototype.meta;//doc|ex
-anychart.core.SeriesBase.prototype['data'] = anychart.core.SeriesBase.prototype.data;//doc|ex
-anychart.core.SeriesBase.prototype['tooltip'] = anychart.core.SeriesBase.prototype.tooltip;
+  proto['color'] = proto.color;//doc|ex
+  proto['name'] = proto.name;//doc|ex
+  proto['id'] = proto.id;
+  proto['meta'] = proto.meta;//doc|ex
+  proto['data'] = proto.data;//doc|ex
+  proto['tooltip'] = proto.tooltip;
 
-anychart.core.SeriesBase.prototype['labels'] = anychart.core.SeriesBase.prototype.labels;//doc|ex
-anychart.core.SeriesBase.prototype['hoverLabels'] = anychart.core.SeriesBase.prototype.hoverLabels;
-anychart.core.SeriesBase.prototype['selectLabels'] = anychart.core.SeriesBase.prototype.selectLabels;
+  proto['labels'] = proto.labels;//doc|ex
+  proto['hoverLabels'] = proto.hoverLabels;
+  proto['selectLabels'] = proto.selectLabels;
 
-anychart.core.SeriesBase.prototype['unhover'] = anychart.core.SeriesBase.prototype.unhover;
-anychart.core.SeriesBase.prototype['unselect'] = anychart.core.SeriesBase.prototype.unselect;
+  proto['unhover'] = proto.unhover;
+  proto['unselect'] = proto.unselect;
 
-anychart.core.SeriesBase.prototype['hover'] = anychart.core.SeriesBase.prototype.hover;
-anychart.core.SeriesBase.prototype['select'] = anychart.core.SeriesBase.prototype.select;
-anychart.core.SeriesBase.prototype['selectionMode'] = anychart.core.SeriesBase.prototype.selectionMode;
-anychart.core.SeriesBase.prototype['allowPointsSelect'] = anychart.core.SeriesBase.prototype.allowPointsSelect;
+  proto['hover'] = proto.hover;
+  proto['select'] = proto.select;
+  proto['selectionMode'] = proto.selectionMode;
+  proto['allowPointsSelect'] = proto.allowPointsSelect;
 
-anychart.core.SeriesBase.prototype['legendItem'] = anychart.core.SeriesBase.prototype.legendItem;
-anychart.core.SeriesBase.prototype['getPixelBounds'] = anychart.core.SeriesBase.prototype.getPixelBounds;
-anychart.core.SeriesBase.prototype['getPoint'] = anychart.core.SeriesBase.prototype.getPoint;
+  proto['legendItem'] = proto.legendItem;
+  proto['getPixelBounds'] = proto.getPixelBounds;
+  proto['getPoint'] = proto.getPoint;
 
-anychart.core.SeriesBase.prototype['getStat'] = anychart.core.SeriesBase.prototype.getStat;
+  proto['getStat'] = proto.getStat;
+})();

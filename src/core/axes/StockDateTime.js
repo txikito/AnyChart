@@ -17,7 +17,7 @@ goog.require('anychart.math.Rect');
  * @extends {anychart.core.VisualBase}
  */
 anychart.core.axes.StockDateTime = function(groupingProvider, opt_disableInteractivity) {
-  goog.base(this);
+  anychart.core.axes.StockDateTime.base(this, 'constructor');
 
   /**
    * Grouping provider
@@ -128,7 +128,7 @@ anychart.core.axes.StockDateTime.prototype.height = function(opt_value) {
 anychart.core.axes.StockDateTime.prototype.background = function(opt_value) {
   if (!this.background_) {
     this.background_ = new anychart.core.ui.Background();
-    this.background_.setThemeSettings(anychart.getFullTheme()['defaultBackground']);
+    this.background_.setThemeSettings(/** @type {!Object} */(anychart.getFullTheme('defaultBackground')));
     this.background_.listenSignals(this.backgroundInvalidated_, this);
   }
   if (goog.isDef(opt_value)) {
@@ -732,13 +732,13 @@ anychart.core.axes.StockDateTime.prototype.disposeInternal = function() {
 
   this.scale_ = null;
 
-  goog.base(this, 'disposeInternal');
+  anychart.core.axes.StockDateTime.base(this, 'disposeInternal');
 };
 
 
 /** @inheritDoc */
 anychart.core.axes.StockDateTime.prototype.serialize = function() {
-  var json = goog.base(this, 'serialize');
+  var json = anychart.core.axes.StockDateTime.base(this, 'serialize');
   json['height'] = this.height();
   json['labels'] = this.labels().serialize();
   json['minorLabels'] = this.minorLabels().serialize();
@@ -753,10 +753,10 @@ anychart.core.axes.StockDateTime.prototype.serialize = function() {
 
 /** @inheritDoc */
 anychart.core.axes.StockDateTime.prototype.setupByJSON = function(config, opt_default) {
-  goog.base(this, 'setupByJSON', config, opt_default);
+  anychart.core.axes.StockDateTime.base(this, 'setupByJSON', config, opt_default);
   this.height(config['height']);
-  this.labels().setup(config['labels']);
-  this.minorLabels().setup(config['minorLabels']);
+  this.labels().setupByVal(config['labels'], opt_default);
+  this.minorLabels().setupByVal(config['minorLabels'], opt_default);
   this.ticks(config['ticks']);
   this.minorTicks(config['minorTicks']);
   this.background(config['background']);
@@ -767,11 +767,14 @@ anychart.core.axes.StockDateTime.prototype.setupByJSON = function(config, opt_de
 
 
 //exports
-anychart.core.axes.StockDateTime.prototype['height'] = anychart.core.axes.StockDateTime.prototype.height;
-anychart.core.axes.StockDateTime.prototype['labels'] = anychart.core.axes.StockDateTime.prototype.labels;
-anychart.core.axes.StockDateTime.prototype['minorLabels'] = anychart.core.axes.StockDateTime.prototype.minorLabels;
-anychart.core.axes.StockDateTime.prototype['ticks'] = anychart.core.axes.StockDateTime.prototype.ticks;
-anychart.core.axes.StockDateTime.prototype['minorTicks'] = anychart.core.axes.StockDateTime.prototype.minorTicks;
-anychart.core.axes.StockDateTime.prototype['background'] = anychart.core.axes.StockDateTime.prototype.background;
-anychart.core.axes.StockDateTime.prototype['showHelperLabel'] = anychart.core.axes.StockDateTime.prototype.showHelperLabel;
-anychart.core.axes.StockDateTime.prototype['overlapMode'] = anychart.core.axes.StockDateTime.prototype.overlapMode;
+(function() {
+  var proto = anychart.core.axes.StockDateTime.prototype;
+  proto['height'] = proto.height;
+  proto['labels'] = proto.labels;
+  proto['minorLabels'] = proto.minorLabels;
+  proto['ticks'] = proto.ticks;
+  proto['minorTicks'] = proto.minorTicks;
+  proto['background'] = proto.background;
+  proto['showHelperLabel'] = proto.showHelperLabel;
+  proto['overlapMode'] = proto.overlapMode;
+})();

@@ -8,6 +8,7 @@ goog.require('anychart.core.series.StockScroller');
 goog.require('anychart.core.stock.IKeyIndexTransformer');
 goog.require('anychart.core.stock.indicators');
 goog.require('anychart.core.ui.Scroller');
+goog.require('anychart.palettes');
 goog.require('anychart.scales');
 goog.require('anychart.scales.StockOrdinalDateTime');
 goog.require('anychart.scales.StockScatterDateTime');
@@ -25,7 +26,7 @@ goog.require('anychart.scales.StockScatterDateTime');
  * @implements {anychart.core.stock.IKeyIndexTransformer}
  */
 anychart.core.stock.Scroller = function(chart) {
-  goog.base(this);
+  anychart.core.stock.Scroller.base(this, 'constructor');
 
   /**
    * Stock chart reference.
@@ -75,6 +76,20 @@ anychart.core.stock.Scroller = function(chart) {
    * @private
    */
   this.selectedSeriesContainer_ = null;
+
+  /**
+   * Palette for series colors.
+   * @type {anychart.palettes.RangeColors|anychart.palettes.DistinctColors}
+   * @private
+   */
+  this.palette_ = null;
+
+  /**
+   * Hatch fill palette for scroller series.
+   * @type {anychart.palettes.HatchFills}
+   * @private
+   */
+  this.hatchFillPalette_ = null;
 
   this.defaultSeriesType(anychart.enums.StockSeriesType.LINE);
 };
@@ -142,8 +157,8 @@ anychart.core.stock.Scroller.prototype.seriesConfig = (function() {
     ],
     postProcessor: null,
     capabilities: capabilities,
-    anchoredPositionTop: anychart.opt.VALUE,
-    anchoredPositionBottom: anychart.opt.ZERO
+    anchoredPositionTop: 'value',
+    anchoredPositionBottom: 'zero'
   };
   res[anychart.enums.StockSeriesType.CANDLESTICK] = {
     drawerType: anychart.enums.SeriesDrawerTypes.CANDLESTICK,
@@ -162,8 +177,8 @@ anychart.core.stock.Scroller.prototype.seriesConfig = (function() {
     ],
     postProcessor: null,
     capabilities: capabilities,
-    anchoredPositionTop: anychart.opt.HIGH,
-    anchoredPositionBottom: anychart.opt.LOW
+    anchoredPositionTop: 'high',
+    anchoredPositionBottom: 'low'
   };
   res[anychart.enums.StockSeriesType.COLUMN] = {
     drawerType: anychart.enums.SeriesDrawerTypes.COLUMN,
@@ -178,8 +193,8 @@ anychart.core.stock.Scroller.prototype.seriesConfig = (function() {
     ],
     postProcessor: null,
     capabilities: capabilities,
-    anchoredPositionTop: anychart.opt.VALUE,
-    anchoredPositionBottom: anychart.opt.ZERO
+    anchoredPositionTop: 'value',
+    anchoredPositionBottom: 'zero'
   };
   res[anychart.enums.CartesianSeriesType.JUMP_LINE] = {
     drawerType: anychart.enums.SeriesDrawerTypes.JUMP_LINE,
@@ -192,8 +207,8 @@ anychart.core.stock.Scroller.prototype.seriesConfig = (function() {
     ],
     postProcessor: null,
     capabilities: capabilities,
-    anchoredPositionTop: anychart.opt.VALUE,
-    anchoredPositionBottom: anychart.opt.VALUE
+    anchoredPositionTop: 'value',
+    anchoredPositionBottom: 'value'
   };
   res[anychart.enums.CartesianSeriesType.STICK] = {
     drawerType: anychart.enums.SeriesDrawerTypes.STICK,
@@ -206,8 +221,8 @@ anychart.core.stock.Scroller.prototype.seriesConfig = (function() {
     ],
     postProcessor: null,
     capabilities: capabilities,
-    anchoredPositionTop: anychart.opt.VALUE,
-    anchoredPositionBottom: anychart.opt.ZERO
+    anchoredPositionTop: 'value',
+    anchoredPositionBottom: 'zero'
   };
   res[anychart.enums.StockSeriesType.LINE] = {
     drawerType: anychart.enums.SeriesDrawerTypes.LINE,
@@ -220,8 +235,8 @@ anychart.core.stock.Scroller.prototype.seriesConfig = (function() {
     ],
     postProcessor: null,
     capabilities: capabilities,
-    anchoredPositionTop: anychart.opt.VALUE,
-    anchoredPositionBottom: anychart.opt.VALUE
+    anchoredPositionTop: 'value',
+    anchoredPositionBottom: 'value'
   };
   res[anychart.enums.StockSeriesType.MARKER] = {
     drawerType: anychart.enums.SeriesDrawerTypes.MARKER,
@@ -236,8 +251,8 @@ anychart.core.stock.Scroller.prototype.seriesConfig = (function() {
     ],
     postProcessor: null,
     capabilities: capabilities,
-    anchoredPositionTop: anychart.opt.VALUE,
-    anchoredPositionBottom: anychart.opt.VALUE
+    anchoredPositionTop: 'value',
+    anchoredPositionBottom: 'value'
   };
   res[anychart.enums.StockSeriesType.OHLC] = {
     drawerType: anychart.enums.SeriesDrawerTypes.OHLC,
@@ -252,8 +267,8 @@ anychart.core.stock.Scroller.prototype.seriesConfig = (function() {
     ],
     postProcessor: null,
     capabilities: capabilities,
-    anchoredPositionTop: anychart.opt.HIGH,
-    anchoredPositionBottom: anychart.opt.LOW
+    anchoredPositionTop: 'high',
+    anchoredPositionBottom: 'low'
   };
   res[anychart.enums.StockSeriesType.RANGE_AREA] = {
     drawerType: anychart.enums.SeriesDrawerTypes.RANGE_AREA,
@@ -272,8 +287,8 @@ anychart.core.stock.Scroller.prototype.seriesConfig = (function() {
     ],
     postProcessor: null,
     capabilities: capabilities,
-    anchoredPositionTop: anychart.opt.HIGH,
-    anchoredPositionBottom: anychart.opt.LOW
+    anchoredPositionTop: 'high',
+    anchoredPositionBottom: 'low'
   };
   res[anychart.enums.StockSeriesType.RANGE_COLUMN] = {
     drawerType: anychart.enums.SeriesDrawerTypes.RANGE_COLUMN,
@@ -288,8 +303,8 @@ anychart.core.stock.Scroller.prototype.seriesConfig = (function() {
     ],
     postProcessor: null,
     capabilities: capabilities,
-    anchoredPositionTop: anychart.opt.HIGH,
-    anchoredPositionBottom: anychart.opt.LOW
+    anchoredPositionTop: 'high',
+    anchoredPositionBottom: 'low'
   };
   res[anychart.enums.StockSeriesType.RANGE_SPLINE_AREA] = {
     drawerType: anychart.enums.SeriesDrawerTypes.RANGE_SPLINE_AREA,
@@ -308,8 +323,8 @@ anychart.core.stock.Scroller.prototype.seriesConfig = (function() {
     ],
     postProcessor: null,
     capabilities: capabilities,
-    anchoredPositionTop: anychart.opt.HIGH,
-    anchoredPositionBottom: anychart.opt.LOW
+    anchoredPositionTop: 'high',
+    anchoredPositionBottom: 'low'
   };
   res[anychart.enums.StockSeriesType.RANGE_STEP_AREA] = {
     drawerType: anychart.enums.SeriesDrawerTypes.RANGE_STEP_AREA,
@@ -328,8 +343,8 @@ anychart.core.stock.Scroller.prototype.seriesConfig = (function() {
     ],
     postProcessor: null,
     capabilities: capabilities,
-    anchoredPositionTop: anychart.opt.HIGH,
-    anchoredPositionBottom: anychart.opt.LOW
+    anchoredPositionTop: 'high',
+    anchoredPositionBottom: 'low'
   };
   res[anychart.enums.StockSeriesType.SPLINE] = {
     drawerType: anychart.enums.SeriesDrawerTypes.SPLINE,
@@ -342,8 +357,8 @@ anychart.core.stock.Scroller.prototype.seriesConfig = (function() {
     ],
     postProcessor: null,
     capabilities: capabilities,
-    anchoredPositionTop: anychart.opt.VALUE,
-    anchoredPositionBottom: anychart.opt.VALUE
+    anchoredPositionTop: 'value',
+    anchoredPositionBottom: 'value'
   };
   res[anychart.enums.StockSeriesType.SPLINE_AREA] = {
     drawerType: anychart.enums.SeriesDrawerTypes.SPLINE_AREA,
@@ -360,8 +375,8 @@ anychart.core.stock.Scroller.prototype.seriesConfig = (function() {
     ],
     postProcessor: null,
     capabilities: capabilities,
-    anchoredPositionTop: anychart.opt.VALUE,
-    anchoredPositionBottom: anychart.opt.ZERO
+    anchoredPositionTop: 'value',
+    anchoredPositionBottom: 'zero'
   };
   res[anychart.enums.StockSeriesType.STEP_AREA] = {
     drawerType: anychart.enums.SeriesDrawerTypes.STEP_AREA,
@@ -378,8 +393,8 @@ anychart.core.stock.Scroller.prototype.seriesConfig = (function() {
     ],
     postProcessor: null,
     capabilities: capabilities,
-    anchoredPositionTop: anychart.opt.VALUE,
-    anchoredPositionBottom: anychart.opt.ZERO
+    anchoredPositionTop: 'value',
+    anchoredPositionBottom: 'zero'
   };
   res[anychart.enums.StockSeriesType.STEP_LINE] = {
     drawerType: anychart.enums.SeriesDrawerTypes.STEP_LINE,
@@ -392,8 +407,8 @@ anychart.core.stock.Scroller.prototype.seriesConfig = (function() {
     ],
     postProcessor: null,
     capabilities: capabilities,
-    anchoredPositionTop: anychart.opt.VALUE,
-    anchoredPositionBottom: anychart.opt.VALUE
+    anchoredPositionTop: 'value',
+    anchoredPositionBottom: 'value'
   };
   return res;
 })();
@@ -851,16 +866,31 @@ anychart.core.stock.Scroller.prototype.aroon = function(mapping, opt_period, opt
 
 
 /**
+ * Creates ATR indicator on the chart.
+ * @param {!anychart.data.TableMapping} mapping
+ * @param {number=} opt_period
+ * @param {anychart.enums.StockSeriesType=} opt_seriesType
+ * @return {anychart.core.stock.indicators.ATR}
+ */
+anychart.core.stock.Scroller.prototype.atr = function(mapping, opt_period, opt_seriesType) {
+  var result = new anychart.core.stock.indicators.ATR(this, mapping, opt_period, opt_seriesType);
+  this.indicators_.push(result);
+  return result;
+};
+
+
+/**
  * Creates BBands indicator on the scroller.
  * @param {!anychart.data.TableMapping} mapping
  * @param {number=} opt_period [20] Sets moving average period value.
  * @param {number=} opt_deviation [2] Sets the multiplier applied to the moving average to compute upper and lower bands of the indicator.
- * @param {anychart.enums.StockSeriesType=} opt_upSeriesType
- * @param {anychart.enums.StockSeriesType=} opt_downSeriesType
+ * @param {anychart.enums.StockSeriesType=} opt_middleSeriesType
+ * @param {anychart.enums.StockSeriesType=} opt_upperSeriesType
+ * @param {anychart.enums.StockSeriesType=} opt_lowerSeriesType
  * @return {anychart.core.stock.indicators.BBands}
  */
-anychart.core.stock.Scroller.prototype.bbands = function(mapping, opt_period, opt_deviation, opt_upSeriesType, opt_downSeriesType) {
-  var result = new anychart.core.stock.indicators.BBands(this, mapping, opt_period, opt_deviation, opt_upSeriesType, opt_downSeriesType);
+anychart.core.stock.Scroller.prototype.bbands = function(mapping, opt_period, opt_deviation, opt_middleSeriesType, opt_upperSeriesType, opt_lowerSeriesType) {
+  var result = new anychart.core.stock.indicators.BBands(this, mapping, opt_period, opt_deviation, opt_middleSeriesType, opt_upperSeriesType, opt_lowerSeriesType);
   this.indicators_.push(result);
   return result;
 };
@@ -905,6 +935,28 @@ anychart.core.stock.Scroller.prototype.bbandsWidth = function(mapping, opt_perio
  */
 anychart.core.stock.Scroller.prototype.ema = function(mapping, opt_period, opt_seriesType) {
   var result = new anychart.core.stock.indicators.EMA(this, mapping, opt_period, opt_seriesType);
+  this.indicators_.push(result);
+  return result;
+};
+
+
+/**
+ * Creates KDJ indicator on the chart.
+ * @param {!anychart.data.TableMapping} mapping
+ * @param {number=} opt_kPeriod [14] Indicator period. Defaults to 14.
+ * @param {number=} opt_kMAPeriod [5] Indicator K smoothing period. Defaults to 5.
+ * @param {number=} opt_dPeriod [5] Indicator D period. Defaults to 5.
+ * @param {anychart.enums.MovingAverageType=} opt_kMAType [EMA] Indicator K smoothing type. Defaults to EMA.
+ * @param {anychart.enums.MovingAverageType=} opt_dMAType [EMA] Indicator D smoothing type. Defaults to EMA.
+ * @param {number=} opt_kMultiplier [-2] K multiplier.
+ * @param {number=} opt_dMultiplier [3] D multiplier.
+ * @param {anychart.enums.StockSeriesType=} opt_kSeriesType
+ * @param {anychart.enums.StockSeriesType=} opt_dSeriesType
+ * @param {anychart.enums.StockSeriesType=} opt_jSeriesType
+ * @return {anychart.core.stock.indicators.KDJ}
+ */
+anychart.core.stock.Scroller.prototype.kdj = function(mapping, opt_kPeriod, opt_kMAPeriod, opt_dPeriod, opt_kMAType, opt_dMAType, opt_kMultiplier, opt_dMultiplier, opt_kSeriesType, opt_dSeriesType, opt_jSeriesType) {
+  var result = new anychart.core.stock.indicators.KDJ(this, mapping, opt_kPeriod, opt_kMAPeriod, opt_dPeriod, opt_kMAType, opt_dMAType, opt_kMultiplier, opt_dMultiplier, opt_kSeriesType, opt_dSeriesType, opt_jSeriesType);
   this.indicators_.push(result);
   return result;
 };
@@ -987,6 +1039,25 @@ anychart.core.stock.Scroller.prototype.sma = function(mapping, opt_period, opt_s
 
 
 /**
+ * Creates Stochastic indicator on the chart.
+ * @param {!anychart.data.TableMapping} mapping
+ * @param {number=} opt_kPeriod [14] Indicator period. Defaults to 14.
+ * @param {number=} opt_kMAPeriod [1] Indicator K smoothing period. Defaults to 1.
+ * @param {number=} opt_dPeriod [3] Indicator D period. Defaults to 3.
+ * @param {anychart.enums.MovingAverageType=} opt_kMAType [SMA] Indicator K smoothing type. Defaults to SMA.
+ * @param {anychart.enums.MovingAverageType=} opt_dMAType [SMA] Indicator D smoothing type. Defaults to SMA.
+ * @param {anychart.enums.StockSeriesType=} opt_kSeriesType
+ * @param {anychart.enums.StockSeriesType=} opt_dSeriesType
+ * @return {anychart.core.stock.indicators.Stochastic}
+ */
+anychart.core.stock.Scroller.prototype.stochastic = function(mapping, opt_kPeriod, opt_kMAPeriod, opt_dPeriod, opt_kMAType, opt_dMAType, opt_kSeriesType, opt_dSeriesType) {
+  var result = new anychart.core.stock.indicators.Stochastic(this, mapping, opt_kPeriod, opt_kMAPeriod, opt_dPeriod, opt_kMAType, opt_dMAType, opt_kSeriesType, opt_dSeriesType);
+  this.indicators_.push(result);
+  return result;
+};
+
+
+/**
  * Getter/setter for series default settings.
  * @param {Object=} opt_value Object with default series settings.
  * @return {Object}
@@ -1027,6 +1098,12 @@ anychart.core.stock.Scroller.prototype.calculate = goog.nullFunction;
 
 
 /**
+ * @inheritDoc
+ */
+anychart.core.stock.Scroller.prototype.ensureStatisticsReady = goog.nullFunction;
+
+
+/**
  * @param {string} type Series type.
  * @param {(anychart.data.TableMapping|anychart.data.Table|Array.<Array.<*>>|string)=} opt_data
  * @param {Object.<({column: number, type: anychart.enums.AggregationType, weights: number}|number)>=} opt_mappingSettings
@@ -1059,9 +1136,8 @@ anychart.core.stock.Scroller.prototype.createSeriesByType = function(type, opt_d
     series.setAutoZIndex(seriesZIndex);
     series.clip(true);
     series.setAutoPointWidth(.9);
-    // series.setAutoColor(this.palette().itemAt(index));
-    // series.setAutoMarkerType(/** @type {anychart.enums.MarkerType} */(this.markerPalette().itemAt(index)));
-    // series.setAutoHatchFill(/** @type {acgraph.vector.HatchFill|acgraph.vector.PatternFill} */(this.hatchFillPalette().itemAt(index)));
+    series.setAutoColor(this.palette().itemAt(index));
+    series.setAutoHatchFill(/** @type {acgraph.vector.HatchFill|acgraph.vector.PatternFill} */(this.hatchFillPalette().itemAt(index)));
     series.setParentEventTarget(this);
     series.listenSignals(this.seriesInvalidated_, this);
 
@@ -1085,6 +1161,19 @@ anychart.core.stock.Scroller.prototype.seriesInvalidated_ = function(e) {
   if (e.hasSignal(anychart.Signal.NEEDS_RECALCULATION))
     signal |= anychart.Signal.NEEDS_RECALCULATION;
   this.invalidate(anychart.ConsistencyState.STOCK_SCROLLER_SERIES, signal);
+};
+
+
+/**
+ * Invalidates all series.
+ * @private
+ */
+anychart.core.stock.Scroller.prototype.invalidateSeries_ = function() {
+  for (var i = 0; i < this.series_.length; i++)
+    this.series_[i].invalidate(
+        anychart.ConsistencyState.SERIES_COLOR |
+        anychart.ConsistencyState.SERIES_HATCH_FILL |
+        anychart.ConsistencyState.BOUNDS);
 };
 //endregion
 
@@ -1155,7 +1244,7 @@ anychart.core.stock.Scroller.prototype.setRangeByValues = function(start, end) {
 
 /** @inheritDoc */
 anychart.core.stock.Scroller.prototype.updateBoundsCache = function() {
-  goog.base(this, 'updateBoundsCache');
+  anychart.core.stock.Scroller.base(this, 'updateBoundsCache');
   this.invalidateScaleDependend();
 };
 
@@ -1175,6 +1264,14 @@ anychart.core.stock.Scroller.prototype.getCurrentMinDistance = function() {
  */
 anychart.core.stock.Scroller.prototype.grouping = function() {
   return /** @type {anychart.core.stock.Grouping} */(this.chart_.scrollerGrouping());
+};
+
+
+/**
+ * @return {boolean}
+ */
+anychart.core.stock.Scroller.prototype.isVertical = function() {
+  return false;
 };
 //endregion
 
@@ -1196,17 +1293,16 @@ anychart.core.stock.Scroller.prototype.yScale = function(opt_value) {
       this.registerDisposable(opt_value = anychart.scales.ScatterBase.fromString(opt_value, false));
     }
     if (!(opt_value instanceof anychart.scales.ScatterBase)) {
-      anychart.core.reporting.error(anychart.enums.ErrorCode.INCORRECT_SCALE_TYPE, undefined, ['Scatter chart scales']);
+      anychart.core.reporting.error(anychart.enums.ErrorCode.INCORRECT_SCALE_TYPE, undefined, ['Scatter chart scales', 'scatter', 'linear, log']);
       return this;
     }
     if (this.yScale_ != opt_value) {
       this.yScale_ = opt_value;
-      //this.chart_.redrawSeries();
     }
     return this;
   } else {
     if (!this.yScale_) {
-      this.yScale_ = new anychart.scales.Linear();
+      this.yScale_ = anychart.scales.linear();
       this.registerDisposable(this.yScale_);
     }
     return this.yScale_;
@@ -1280,7 +1376,7 @@ anychart.core.stock.Scroller.prototype.invalidateScaleDependend = function() {
 //----------------------------------------------------------------------------------------------------------------------
 /** @inheritDoc */
 anychart.core.stock.Scroller.prototype.draw = function() {
-  goog.base(this, 'draw');
+  anychart.core.stock.Scroller.base(this, 'draw');
 
   if (!this.checkDrawingNeeded())
     return this;
@@ -1303,6 +1399,8 @@ anychart.core.stock.Scroller.prototype.draw = function() {
         series.parentBounds(this.pixelBoundsCache);
         series.container(this.seriesContainer_);
         series.secondaryContainer(this.selectedSeriesContainer_);
+        series.setAutoColor(this.palette().itemAt(i));
+        series.setAutoHatchFill(/** @type {acgraph.vector.HatchFill|acgraph.vector.PatternFill} */(this.hatchFillPalette().itemAt(i)));
         series.draw();
         series.resumeSignalsDispatching(false);
       }
@@ -1328,6 +1426,99 @@ anychart.core.stock.Scroller.prototype.draw = function() {
 //endregion
 
 
+//region --- Palettes
+//----------------------------------------------------------------------------------------------------------------------
+//
+//  Palettes
+//
+//----------------------------------------------------------------------------------------------------------------------
+/**
+ * Getter/setter for palette.
+ * @param {(anychart.palettes.RangeColors|anychart.palettes.DistinctColors|Object|Array.<string>)=} opt_value .
+ * @return {!(anychart.palettes.RangeColors|anychart.palettes.DistinctColors|anychart.core.stock.Scroller)} .
+ */
+anychart.core.stock.Scroller.prototype.palette = function(opt_value) {
+  if (opt_value instanceof anychart.palettes.RangeColors) {
+    this.setupPalette_(anychart.palettes.RangeColors, opt_value);
+    return this;
+  } else if (opt_value instanceof anychart.palettes.DistinctColors) {
+    this.setupPalette_(anychart.palettes.DistinctColors, opt_value);
+    return this;
+  } else if (goog.isObject(opt_value) && opt_value['type'] == 'range') {
+    this.setupPalette_(anychart.palettes.RangeColors);
+  } else if (goog.isObject(opt_value) || this.palette_ == null)
+    this.setupPalette_(anychart.palettes.DistinctColors);
+
+  if (goog.isDef(opt_value)) {
+    this.palette_.setup(opt_value);
+    return this;
+  }
+  return /** @type {!(anychart.palettes.RangeColors|anychart.palettes.DistinctColors)} */(this.palette_);
+};
+
+
+/**
+ * @param {Function} cls Palette constructor.
+ * @param {(anychart.palettes.RangeColors|anychart.palettes.DistinctColors)=} opt_cloneFrom Settings to clone from.
+ * @private
+ */
+anychart.core.stock.Scroller.prototype.setupPalette_ = function(cls, opt_cloneFrom) {
+  this.invalidateSeries_();
+  if (this.palette_ instanceof cls) {
+    if (opt_cloneFrom)
+      this.palette_.setup(opt_cloneFrom);
+  } else {
+    // we dispatch only if we replace existing palette.
+    var doDispatch = !!this.palette_;
+    goog.dispose(this.palette_);
+    this.palette_ = new cls();
+    if (opt_cloneFrom)
+      this.palette_.setup(opt_cloneFrom);
+    this.palette_.listenSignals(this.paletteInvalidated_, this);
+    this.registerDisposable(this.palette_);
+    if (doDispatch)
+      this.invalidate(anychart.ConsistencyState.STOCK_SCROLLER_SERIES, anychart.Signal.NEEDS_REDRAW);
+  }
+};
+
+
+/**
+ * Hatch fill palette settings.
+ * @param {(Array.<acgraph.vector.HatchFill.HatchFillType>|Object|anychart.palettes.HatchFills)=} opt_value Hatch fill palette settings to set.
+ * @return {!(anychart.palettes.HatchFills|anychart.core.stock.Scroller)} Return current hatch fill palette or itself
+ * for chaining call.
+ */
+anychart.core.stock.Scroller.prototype.hatchFillPalette = function(opt_value) {
+  if (!this.hatchFillPalette_) {
+    this.hatchFillPalette_ = new anychart.palettes.HatchFills();
+    this.hatchFillPalette_.listenSignals(this.paletteInvalidated_, this);
+    this.registerDisposable(this.hatchFillPalette_);
+  }
+
+  if (goog.isDef(opt_value)) {
+    this.hatchFillPalette_.setup(opt_value);
+    this.invalidateSeries_();
+    this.invalidate(anychart.ConsistencyState.STOCK_SCROLLER_SERIES, anychart.Signal.NEEDS_REDRAW);
+    return this;
+  } else {
+    return this.hatchFillPalette_;
+  }
+};
+
+
+/**
+ * Internal palette invalidation handler.
+ * @param {anychart.SignalEvent} event Event object.
+ * @private
+ */
+anychart.core.stock.Scroller.prototype.paletteInvalidated_ = function(event) {
+  if (event.hasSignal(anychart.Signal.NEEDS_REAPPLICATION)) {
+    this.invalidate(anychart.ConsistencyState.STOCK_SCROLLER_SERIES, anychart.Signal.NEEDS_REDRAW);
+  }
+};
+
+
+//endregion
 //region IKeyIndexTransformer
 //----------------------------------------------------------------------------------------------------------------------
 //
@@ -1402,15 +1593,17 @@ anychart.core.stock.Scroller.prototype.disposeInternal = function() {
 
   delete this.chart_;
 
-  goog.base(this, 'disposeInternal');
+  anychart.core.stock.Scroller.base(this, 'disposeInternal');
 };
 
 
 /** @inheritDoc */
 anychart.core.stock.Scroller.prototype.serialize = function() {
-  var json = goog.base(this, 'serialize');
+  var json = anychart.core.stock.Scroller.base(this, 'serialize');
 
   json['defaultSeriesType'] = this.defaultSeriesType();
+  json['palette'] = this.palette().serialize();
+  json['hatchFillPalette'] = this.hatchFillPalette().serialize();
 
   return json;
 };
@@ -1418,7 +1611,7 @@ anychart.core.stock.Scroller.prototype.serialize = function() {
 
 /** @inheritDoc */
 anychart.core.stock.Scroller.prototype.setupByJSON = function(config, opt_default) {
-  goog.base(this, 'setupByJSON', config, opt_default);
+  anychart.core.stock.Scroller.base(this, 'setupByJSON', config, opt_default);
 
   var i, json, scale;
 
@@ -1434,7 +1627,7 @@ anychart.core.stock.Scroller.prototype.setupByJSON = function(config, opt_defaul
       if (goog.isString(json)) {
         json = {'type': json};
       }
-      json = anychart.themes.merging.mergeScale(json, i, type);
+      json = anychart.themes.merging.mergeScale(json, i, type, anychart.enums.ScaleTypes.LINEAR);
       scale = anychart.scales.ScatterBase.fromString(json['type'], false);
       scale.setup(json);
       scalesInstances[i] = scale;
@@ -1446,7 +1639,7 @@ anychart.core.stock.Scroller.prototype.setupByJSON = function(config, opt_defaul
       if (goog.isString(json)) {
         json = {'type': json};
       }
-      json = anychart.themes.merging.mergeScale(json, i, type);
+      json = anychart.themes.merging.mergeScale(json, i, type, anychart.enums.ScaleTypes.LINEAR);
       scale = anychart.scales.ScatterBase.fromString(json['type'], false);
       scale.setup(json);
       scalesInstances[i] = scale;
@@ -1487,45 +1680,55 @@ anychart.core.stock.Scroller.prototype.setupByJSON = function(config, opt_defaul
       }
     }
   }
+  this.palette(config['palette']);
+  this.hatchFillPalette(config['hatchFillPalette']);
 };
 //endregion
 
 
 //exports
-anychart.core.stock.Scroller.prototype['area'] = anychart.core.stock.Scroller.prototype.area;
-anychart.core.stock.Scroller.prototype['candlestick'] = anychart.core.stock.Scroller.prototype.candlestick;
-anychart.core.stock.Scroller.prototype['column'] = anychart.core.stock.Scroller.prototype.column;
-anychart.core.stock.Scroller.prototype['stick'] = anychart.core.stock.Scroller.prototype.stick;
-anychart.core.stock.Scroller.prototype['jumpLine'] = anychart.core.stock.Scroller.prototype.jumpLine;
-anychart.core.stock.Scroller.prototype['line'] = anychart.core.stock.Scroller.prototype.line;
-anychart.core.stock.Scroller.prototype['marker'] = anychart.core.stock.Scroller.prototype.marker;
-anychart.core.stock.Scroller.prototype['ohlc'] = anychart.core.stock.Scroller.prototype.ohlc;
-anychart.core.stock.Scroller.prototype['rangeArea'] = anychart.core.stock.Scroller.prototype.rangeArea;
-anychart.core.stock.Scroller.prototype['rangeColumn'] = anychart.core.stock.Scroller.prototype.rangeColumn;
-anychart.core.stock.Scroller.prototype['rangeSplineArea'] = anychart.core.stock.Scroller.prototype.rangeSplineArea;
-anychart.core.stock.Scroller.prototype['rangeStepArea'] = anychart.core.stock.Scroller.prototype.rangeStepArea;
-anychart.core.stock.Scroller.prototype['spline'] = anychart.core.stock.Scroller.prototype.spline;
-anychart.core.stock.Scroller.prototype['splineArea'] = anychart.core.stock.Scroller.prototype.splineArea;
-anychart.core.stock.Scroller.prototype['stepArea'] = anychart.core.stock.Scroller.prototype.stepArea;
-anychart.core.stock.Scroller.prototype['stepLine'] = anychart.core.stock.Scroller.prototype.stepLine;
-anychart.core.stock.Scroller.prototype['getSeries'] = anychart.core.stock.Scroller.prototype.getSeries;
-anychart.core.stock.Scroller.prototype['yScale'] = anychart.core.stock.Scroller.prototype.yScale;
-anychart.core.stock.Scroller.prototype['xAxis'] = anychart.core.stock.Scroller.prototype.xAxis;
-anychart.core.stock.Scroller.prototype['defaultSeriesType'] = anychart.core.stock.Scroller.prototype.defaultSeriesType;
-anychart.core.stock.Scroller.prototype['addSeries'] = anychart.core.stock.Scroller.prototype.addSeries;
-anychart.core.stock.Scroller.prototype['getSeriesAt'] = anychart.core.stock.Scroller.prototype.getSeriesAt;
-anychart.core.stock.Scroller.prototype['getSeriesCount'] = anychart.core.stock.Scroller.prototype.getSeriesCount;
-anychart.core.stock.Scroller.prototype['removeSeries'] = anychart.core.stock.Scroller.prototype.removeSeries;
-anychart.core.stock.Scroller.prototype['removeSeriesAt'] = anychart.core.stock.Scroller.prototype.removeSeriesAt;
-anychart.core.stock.Scroller.prototype['removeAllSeries'] = anychart.core.stock.Scroller.prototype.removeAllSeries;
-anychart.core.stock.Scroller.prototype['ama'] = anychart.core.stock.Scroller.prototype.ama;
-anychart.core.stock.Scroller.prototype['aroon'] = anychart.core.stock.Scroller.prototype.aroon;
-anychart.core.stock.Scroller.prototype['bbands'] = anychart.core.stock.Scroller.prototype.bbands;
-anychart.core.stock.Scroller.prototype['bbandsB'] = anychart.core.stock.Scroller.prototype.bbandsB;
-anychart.core.stock.Scroller.prototype['bbandsWidth'] = anychart.core.stock.Scroller.prototype.bbandsWidth;
-anychart.core.stock.Scroller.prototype['ema'] = anychart.core.stock.Scroller.prototype.ema;
-anychart.core.stock.Scroller.prototype['macd'] = anychart.core.stock.Scroller.prototype.macd;
-anychart.core.stock.Scroller.prototype['mma'] = anychart.core.stock.Scroller.prototype.mma;
-anychart.core.stock.Scroller.prototype['roc'] = anychart.core.stock.Scroller.prototype.roc;
-anychart.core.stock.Scroller.prototype['rsi'] = anychart.core.stock.Scroller.prototype.rsi;
-anychart.core.stock.Scroller.prototype['sma'] = anychart.core.stock.Scroller.prototype.sma;
+(function() {
+  var proto = anychart.core.stock.Scroller.prototype;
+  proto['area'] = proto.area;
+  proto['candlestick'] = proto.candlestick;
+  proto['column'] = proto.column;
+  proto['stick'] = proto.stick;
+  proto['jumpLine'] = proto.jumpLine;
+  proto['line'] = proto.line;
+  proto['marker'] = proto.marker;
+  proto['ohlc'] = proto.ohlc;
+  proto['rangeArea'] = proto.rangeArea;
+  proto['rangeColumn'] = proto.rangeColumn;
+  proto['rangeSplineArea'] = proto.rangeSplineArea;
+  proto['rangeStepArea'] = proto.rangeStepArea;
+  proto['spline'] = proto.spline;
+  proto['splineArea'] = proto.splineArea;
+  proto['stepArea'] = proto.stepArea;
+  proto['stepLine'] = proto.stepLine;
+  proto['getSeries'] = proto.getSeries;
+  proto['yScale'] = proto.yScale;
+  proto['xAxis'] = proto.xAxis;
+  proto['defaultSeriesType'] = proto.defaultSeriesType;
+  proto['addSeries'] = proto.addSeries;
+  proto['getSeriesAt'] = proto.getSeriesAt;
+  proto['getSeriesCount'] = proto.getSeriesCount;
+  proto['removeSeries'] = proto.removeSeries;
+  proto['removeSeriesAt'] = proto.removeSeriesAt;
+  proto['removeAllSeries'] = proto.removeAllSeries;
+  proto['palette'] = proto.palette;
+  proto['hatchFillPalette'] = proto.hatchFillPalette;
+  proto['ama'] = proto.ama;
+  proto['aroon'] = proto.aroon;
+  proto['atr'] = proto.atr;
+  proto['bbands'] = proto.bbands;
+  proto['bbandsB'] = proto.bbandsB;
+  proto['bbandsWidth'] = proto.bbandsWidth;
+  proto['ema'] = proto.ema;
+  proto['kdj'] = proto.kdj;
+  proto['macd'] = proto.macd;
+  proto['mma'] = proto.mma;
+  proto['roc'] = proto.roc;
+  proto['rsi'] = proto.rsi;
+  proto['sma'] = proto.sma;
+  proto['stochastic'] = proto.stochastic;
+})();

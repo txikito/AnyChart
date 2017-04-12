@@ -20,7 +20,7 @@ anychart.core.makeStandalone(anychart.standalones.grids.Linear, anychart.core.gr
  */
 anychart.standalones.grids.linear = function() {
   var grid = new anychart.standalones.grids.Linear();
-  grid.setup(anychart.getFullTheme()['standalones']['linearGrid']);
+  grid.setup(anychart.getFullTheme('standalones.linearGrid'));
   return grid;
 };
 
@@ -31,14 +31,18 @@ anychart.standalones.grids.linear = function() {
  * @deprecated Since 7.12.0. Use anychart.standalones.grids.linear instead.
  */
 anychart.grids.linear = function() {
-  anychart.core.reporting.warning(anychart.enums.WarningCode.DEPRECATED, null, ['anychart.grids.linear', 'anychart.standalones.grids.linear'], true);
+  anychart.core.reporting.warning(anychart.enums.WarningCode.DEPRECATED, null, ['anychart.grids.linear()', 'anychart.standalones.grids.linear()', null, 'Constructor'], true);
   return anychart.standalones.grids.linear();
 };
 
 
 //exports
-goog.exportSymbol('anychart.grids.linear', anychart.grids.linear);
-goog.exportSymbol('anychart.standalones.grids.linear', anychart.standalones.grids.linear);
-anychart.standalones.grids.Linear.prototype['draw'] = anychart.standalones.grids.Linear.prototype.draw;
-anychart.standalones.grids.Linear.prototype['parentBounds'] = anychart.standalones.grids.Linear.prototype.parentBounds;
-anychart.standalones.grids.Linear.prototype['container'] = anychart.standalones.grids.Linear.prototype.container;
+/** @suppress {deprecated} */
+(function() {
+  var proto = anychart.standalones.grids.Linear.prototype;
+  goog.exportSymbol('anychart.grids.linear', anychart.grids.linear);
+  goog.exportSymbol('anychart.standalones.grids.linear', anychart.standalones.grids.linear);
+  proto['draw'] = proto.draw;
+  proto['parentBounds'] = proto.parentBounds;
+  proto['container'] = proto.container;
+})();

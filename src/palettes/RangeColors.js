@@ -21,7 +21,7 @@ goog.require('goog.color');
  * @extends {anychart.core.Base}
  */
 anychart.palettes.RangeColors = function() {
-  goog.base(this);
+  anychart.palettes.RangeColors.base(this, 'constructor');
 
   /**
    * Color palette colors list.
@@ -73,9 +73,10 @@ anychart.palettes.RangeColors.prototype.colorPalette_;
  * @param {...(acgraph.vector.SolidFill|string)} var_args .
  * @return {Array.<acgraph.vector.SolidFill>|acgraph.vector.LinearGradientFill|acgraph.vector.RadialGradientFill|
  * Array.<acgraph.vector.GradientKey>|Array.<string>|anychart.palettes.RangeColors} .
- * @deprecated use items.
+ * @deprecated Since 7.7.0. Use items() method instead.
  */
 anychart.palettes.RangeColors.prototype.colors = function(opt_value, var_args) {
+  anychart.core.reporting.warning(anychart.enums.WarningCode.DEPRECATED, null, ['colors()', 'items()'], true);
   return this.items.apply(this, arguments);
 };
 
@@ -134,9 +135,10 @@ anychart.palettes.RangeColors.prototype.count = function(opt_value) {
  * @param {number} index .
  * @param {acgraph.vector.SolidFill=} opt_color .
  * @return {acgraph.vector.SolidFill|anychart.palettes.RangeColors} .
- * @deprecated use itemAt.
+ * @deprecated Since 7.7.0. Use itemAt() method instead.
  */
 anychart.palettes.RangeColors.prototype.colorAt = function(index, opt_color) {
+  anychart.core.reporting.warning(anychart.enums.WarningCode.DEPRECATED, null, ['colorAt()', 'itemAt()'], true);
   return this.itemAt(index, opt_color);
 };
 
@@ -294,7 +296,7 @@ anychart.palettes.RangeColors.prototype.restoreDefaults = function(opt_doNotDisp
 
 /** @inheritDoc */
 anychart.palettes.RangeColors.prototype.serialize = function() {
-  var json = goog.base(this, 'serialize');
+  var json = anychart.palettes.RangeColors.base(this, 'serialize');
   json['type'] = 'range';
   var res = [];
   for (var i = 0; i < this.colors_.length; i++) {
@@ -323,9 +325,14 @@ anychart.palettes.RangeColors.prototype.setupSpecial = function(var_args) {
 };
 
 
-/** @inheritDoc */
+/**
+ * @inheritDoc
+ * @suppress {deprecated}
+ */
 anychart.palettes.RangeColors.prototype.setupByJSON = function(config, opt_default) {
-  goog.base(this, 'setupByJSON', config, opt_default);
+  anychart.palettes.RangeColors.base(this, 'setupByJSON', config, opt_default);
+  if (goog.isDef(config['colors']))
+    this.colors(config['colors']);
   this.items(config['items']);
   this.count(config['count']);
 };
@@ -348,9 +355,13 @@ anychart.palettes.rangeColors = function(opt_value, var_args) {
 
 
 //exports
-goog.exportSymbol('anychart.palettes.rangeColors', anychart.palettes.rangeColors);
-anychart.palettes.RangeColors.prototype['colorAt'] = anychart.palettes.RangeColors.prototype.colorAt;
-anychart.palettes.RangeColors.prototype['itemAt'] = anychart.palettes.RangeColors.prototype.itemAt;
-anychart.palettes.RangeColors.prototype['colors'] = anychart.palettes.RangeColors.prototype.colors;
-anychart.palettes.RangeColors.prototype['items'] = anychart.palettes.RangeColors.prototype.items;
-anychart.palettes.RangeColors.prototype['count'] = anychart.palettes.RangeColors.prototype.count;
+/** @suppress {deprecated} */
+(function() {
+  var proto = anychart.palettes.RangeColors.prototype;
+  goog.exportSymbol('anychart.palettes.rangeColors', anychart.palettes.rangeColors);
+  proto['colorAt'] = proto.colorAt;
+  proto['itemAt'] = proto.itemAt;
+  proto['colors'] = proto.colors;
+  proto['items'] = proto.items;
+  proto['count'] = proto.count;
+})();

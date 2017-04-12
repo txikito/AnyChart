@@ -72,21 +72,25 @@ anychart.ConsistencyState = {
   BULLET_AXES: 1 << 14,
   BULLET_AXES_MARKERS: 1 << 15,
   BULLET_MARKERS: 1 << 16,
-  //---------------------------------- CARTESIAN STATES (CHART) ---------------------------------
+  //---------------------------------- CHART WITH SERIES STATES (CHART) ---------------------------------
   SERIES_CHART_PALETTE: 1 << 12,
   SERIES_CHART_MARKER_PALETTE: 1 << 13,
   SERIES_CHART_HATCH_FILL_PALETTE: 1 << 14,
-  SERIES_CHART_SCALES: 1 << 15,
-  SERIES_CHART_SERIES: 1 << 16,
-  SERIES_CHART_SCALE_MAPS: 1 << 17,
-  SERIES_CHART_Y_SCALES: 1 << 18,
-  AXES_CHART_AXES: 1 << 19,
-  AXES_CHART_AXES_MARKERS: 1 << 20,
-  AXES_CHART_GRIDS: 1 << 21,
-  AXES_CHART_CROSSHAIR: 1 << 22,
-  AXES_CHART_ANNOTATIONS: 1 << 23,
-  CARTESIAN_ZOOM: 1 << 24,
-  CARTESIAN_X_SCROLLER: 1 << 25,
+  SERIES_CHART_SERIES: 1 << 15,
+  //---------------------------------- CHART WITH ORTHOGONAL SCALES STATES (SERIES_CHART) ---------------------------------
+  SCALE_CHART_SCALES: 1 << 16,
+  SCALE_CHART_SCALE_MAPS: 1 << 17,
+  SCALE_CHART_Y_SCALES: 1 << 18,
+  SCALE_CHART_STATISTICS: 1 << 19,
+  //---------------------------------- CHART WITH AXES STATES (SCALE_CHART) -------------------------------
+  AXES_CHART_AXES: 1 << 20,
+  AXES_CHART_AXES_MARKERS: 1 << 21,
+  AXES_CHART_GRIDS: 1 << 22,
+  AXES_CHART_CROSSHAIR: 1 << 23,
+  AXES_CHART_ANNOTATIONS: 1 << 24,
+  //---------------------------------- CARTESIAN STATES (AXES_CHART) ---------------------------------
+  CARTESIAN_ZOOM: 1 << 25,
+  CARTESIAN_X_SCROLLER: 1 << 26,
   //---------------------------------- PYRAMID/FUNNEL STATES (CHART) ---------------------------------
   PYRAMID_FUNNEL_LABELS: 1 << 12,
   PYRAMID_FUNNEL_MARKERS: 1 << 13,
@@ -98,44 +102,14 @@ anychart.ConsistencyState = {
   //---------------------------------- PIE STATES (CHART) ---------------------------------
   PIE_LABELS: 1 << 12,
   PIE_DATA: 1 << 13,
-  //---------------------------------- POLAR STATES (CHART) ---------------------------------
-  POLAR_PALETTE: 1 << 12,
-  POLAR_MARKER_PALETTE: 1 << 13,
-  POLAR_HATCH_FILL_PALETTE: 1 << 14,
-  POLAR_SCALES: 1 << 15,
-  POLAR_SERIES: 1 << 16,
-  POLAR_AXES: 1 << 17,
-  POLAR_GRIDS: 1 << 18,
-  //---------------------------------- RADAR STATES (CHART) ---------------------------------
-  RADAR_PALETTE: 1 << 12,
-  RADAR_MARKER_PALETTE: 1 << 13,
-  RADAR_HATCH_FILL_PALETTE: 1 << 14,
-  RADAR_SCALES: 1 << 15,
-  RADAR_SERIES: 1 << 16,
-  RADAR_AXES: 1 << 17,
-  RADAR_GRIDS: 1 << 18,
-  //---------------------------------- SCATTER STATES (CHART) ---------------------------------
-  SCATTER_PALETTE: 1 << 12,
-  SCATTER_MARKER_PALETTE: 1 << 13,
-  SCATTER_HATCH_FILL_PALETTE: 1 << 14,
-  SCATTER_SCALES: 1 << 15,
-  SCATTER_SERIES: 1 << 16,
-  SCATTER_AXES: 1 << 17,
-  SCATTER_AXES_MARKERS: 1 << 18,
-  SCATTER_GRIDS: 1 << 19,
-  SCATTER_CROSSHAIR: 1 << 20,
   //---------------------------------- SPARKLINE STATES (CHART) ---------------------------------
   SPARK_SCALES: 1 << 12,
   SPARK_SERIES: 1 << 13,
   SPARK_AXES_MARKERS: 1 << 14,
-  //---------------------------------- MAP STATES (CHART) ---------------------------------
-  MAP_SCALE: 1 << 12,
-  MAP_COLOR_SCALE: 1 << 13,
-  MAP_GEO_DATA: 1 << 14,
-  MAP_SERIES: 1 << 15,
-  MAP_PALETTE: 1 << 16,
-  MAP_MARKER_PALETTE: 1 << 17,
-  MAP_HATCH_FILL_PALETTE: 1 << 18,
+  //---------------------------------- MAP STATES (SERIES_CHART) ---------------------------------
+  MAP_SCALE: 1 << 16,
+  MAP_COLOR_SCALE: 1 << 17,
+  MAP_GEO_DATA: 1 << 18,
   MAP_COLOR_RANGE: 1 << 19,
   MAP_MOVE: 1 << 20,
   MAP_ZOOM: 1 << 21,
@@ -165,6 +139,7 @@ anychart.ConsistencyState = {
   SERIES_CLIP: 1 << 12, //
   SERIES_ERROR: 1 << 13, //
   SERIES_OUTLIERS: 1 << 14, //
+  SERIES_SHAPE_MANAGER: 1 << 15,
   //---------------------------------- AXES STATES (VB) ---------------------------------
   CALLOUT_TITLE: 1 << 6,
   CALLOUT_LABELS: 1 << 7,
@@ -221,6 +196,7 @@ anychart.ConsistencyState = {
   LEGEND_SEPARATOR: 1 << 8,
   LEGEND_PAGINATOR: 1 << 9,
   LEGEND_RECREATE_ITEMS: 1 << 10,
+  LEGEND_DRAG: 1 << 11,
   //---------------------------------- MARKERS FACTORY STATES (VB) ---------------------------------
   MARKERS_FACTORY_HANDLERS: 1 << 6,
   //---------------------------------- PAGINATOR STATES (VB) ---------------------------------
@@ -385,7 +361,8 @@ anychart.Signal = {
   NEEDS_REDRAW_APPEARANCE: 1 << 13,
   NEEDS_UPDATE_TOOLTIP: 1 << 14,
   ENABLED_STATE_CHANGED: 1 << 15,
-  Z_INDEX_STATE_CHANGED: 1 << 16
+  Z_INDEX_STATE_CHANGED: 1 << 16,
+  NEED_RECALCULATE_LEGEND: 1 << 17
 };
 
 
@@ -411,7 +388,7 @@ anychart.PointState = {
  * @extends {goog.events.EventTarget}
  */
 anychart.core.Base = function() {
-  goog.base(this);
+  anychart.core.Base.base(this, 'constructor');
 };
 goog.inherits(anychart.core.Base, goog.events.EventTarget);
 
@@ -512,10 +489,11 @@ anychart.core.Base.prototype.markConsistent = function(state) {
 
 /**
  * Checks if an element has any consistency state set.
+ * @param {number=} opt_allowState
  * @return {boolean} True if it has it.
  */
-anychart.core.Base.prototype.isConsistent = function() {
-  return !this.consistency_;
+anychart.core.Base.prototype.isConsistent = function(opt_allowState) {
+  return !(this.consistency_ & ~(opt_allowState || 0));
 };
 
 
@@ -596,7 +574,7 @@ anychart.core.Base.prototype.serialize = function() {
  * instances of descendant classes.
  * Note: this method only changes element properties if they are supposed to be changed by the config value -
  * it doesn't reset other properties to their defaults.
- * @param {...(Object|Array|number|string|undefined|boolean|null)} var_args Arguments to setup the instance.
+ * @param {...*} var_args Arguments to setup the instance.
  * @return {anychart.core.Base} Returns itself for chaining.
  */
 anychart.core.Base.prototype.setup = function(var_args) {
@@ -619,7 +597,7 @@ anychart.core.Base.prototype.setup = function(var_args) {
  * instances of descendant classes.
  * Note: this method only changes element properties if they are supposed to be changed by the config value -
  * it doesn't reset other properties to their defaults.
- * @param {Object|Array|number|string|undefined|boolean|null} value Arguments to setup the instance.
+ * @param {*} value Arguments to setup the instance.
  * @param {boolean=} opt_default .
  * @return {anychart.core.Base} Returns itself for chaining.
  */
@@ -732,7 +710,7 @@ anychart.core.Base.resumeSignalsDispatchingFalse = function(var_args) {
  * @extends {goog.events.Event}
  */
 anychart.SignalEvent = function(target, invalidatedStates) {
-  goog.base(this, anychart.enums.EventType.SIGNAL, target);
+  anychart.SignalEvent.base(this, 'constructor', anychart.enums.EventType.SIGNAL, target);
 
   /**
    * Aspects of the object that were hasSignal.
@@ -828,7 +806,7 @@ anychart.core.Base.prototype.dispatchEvent = function(e) {
   } else if ('type' in e) {
     e.type = String(e.type).toLowerCase();
   }
-  return goog.base(this, 'dispatchEvent', e);
+  return anychart.core.Base.base(this, 'dispatchEvent', e);
 };
 
 
@@ -858,7 +836,7 @@ anychart.core.Base.prototype.dispatchEvent = function(e) {
  * @template SCOPE,EVENTOBJ
  */
 anychart.core.Base.prototype.listen = function(type, listener, opt_useCapture, opt_listenerScope) {
-  return goog.base(this, 'listen', String(type).toLowerCase(), listener, opt_useCapture, opt_listenerScope);
+  return anychart.core.Base.base(this, 'listen', String(type).toLowerCase(), listener, opt_useCapture, opt_listenerScope);
 };
 
 
@@ -889,7 +867,7 @@ anychart.core.Base.prototype.listen = function(type, listener, opt_useCapture, o
  * @template SCOPE,EVENTOBJ
  */
 anychart.core.Base.prototype.listenOnce = function(type, listener, opt_useCapture, opt_listenerScope) {
-  return goog.base(this, 'listenOnce', String(type).toLowerCase(), listener, opt_useCapture, opt_listenerScope);
+  return anychart.core.Base.base(this, 'listenOnce', String(type).toLowerCase(), listener, opt_useCapture, opt_listenerScope);
 };
 
 
@@ -921,7 +899,7 @@ anychart.core.Base.prototype.listenOnce = function(type, listener, opt_useCaptur
  * @template SCOPE,EVENTOBJ
  */
 anychart.core.Base.prototype.unlisten = function(type, listener, opt_useCapture, opt_listenerScope) {
-  return goog.base(this, 'unlisten', String(type).toLowerCase(), listener, opt_useCapture, opt_listenerScope);
+  return anychart.core.Base.base(this, 'unlisten', String(type).toLowerCase(), listener, opt_useCapture, opt_listenerScope);
 };
 
 
@@ -947,7 +925,7 @@ anychart.core.Base.prototype.unlisten = function(type, listener, opt_useCapture,
  * @return {boolean} Whether any listener was removed.
  */
 anychart.core.Base.prototype.unlistenByKey = function(key) {
-  return goog.base(this, 'unlistenByKey', key);
+  return anychart.core.Base.base(this, 'unlistenByKey', key);
 };
 
 
@@ -974,20 +952,27 @@ anychart.core.Base.prototype.unlistenByKey = function(key) {
  */
 anychart.core.Base.prototype.removeAllListeners = function(opt_type) {
   if (goog.isDef(opt_type)) opt_type = String(opt_type).toLowerCase();
-  return goog.base(this, 'removeAllListeners', opt_type);
+  return anychart.core.Base.base(this, 'removeAllListeners', opt_type);
 };
 
 
 //exports
-anychart.core.Base.prototype['listen'] = anychart.core.Base.prototype.listen;//doc|ex
-anychart.core.Base.prototype['listenOnce'] = anychart.core.Base.prototype.listenOnce;//doc|ex
-anychart.core.Base.prototype['unlisten'] = anychart.core.Base.prototype.unlisten;//doc|ex
-anychart.core.Base.prototype['unlistenByKey'] = anychart.core.Base.prototype.unlistenByKey;//doc|ex
-anychart.core.Base.prototype['removeAllListeners'] = anychart.core.Base.prototype.removeAllListeners;//doc|ex
-anychart.core.Base.prototype['dispose'] = anychart.core.Base.prototype.dispose;
-anychart.SignalEvent.prototype['targetNeedsRedraw'] = anychart.SignalEvent.prototype.targetNeedsRedraw;//doc
-anychart.SignalEvent.prototype['targetBoundsChanged'] = anychart.SignalEvent.prototype.targetBoundsChanged;//doc
-anychart.SignalEvent.prototype['targetDataChanged'] = anychart.SignalEvent.prototype.targetDataChanged;//doc
-anychart.SignalEvent.prototype['targetMetaChanged'] = anychart.SignalEvent.prototype.targetMetaChanged;//doc
-anychart.SignalEvent.prototype['targetNeedsReapplication'] = anychart.SignalEvent.prototype.targetNeedsReapplication;//doc
-anychart.SignalEvent.prototype['targetNeedsRecalculation'] = anychart.SignalEvent.prototype.targetNeedsRecalculation;//doc
+(function() {
+  var proto = anychart.core.Base.prototype;
+  proto['listen'] = proto.listen;//doc|ex
+  proto['listenOnce'] = proto.listenOnce;//doc|ex
+  proto['unlisten'] = proto.unlisten;//doc|ex
+  proto['unlistenByKey'] = proto.unlistenByKey;//doc|ex
+  proto['removeAllListeners'] = proto.removeAllListeners;//doc|ex
+  proto['dispose'] = proto.dispose;
+  proto = anychart.SignalEvent.prototype;
+  proto['targetNeedsRedraw'] = proto.targetNeedsRedraw;//doc
+  proto['targetBoundsChanged'] = proto.targetBoundsChanged;//doc
+  proto['targetDataChanged'] = proto.targetDataChanged;//doc
+  proto['targetMetaChanged'] = proto.targetMetaChanged;//doc
+  proto['targetNeedsReapplication'] = proto.targetNeedsReapplication;//doc
+  proto['targetNeedsRecalculation'] = proto.targetNeedsRecalculation;//doc
+  goog.exportSymbol('anychart.PointState.NORMAL', anychart.PointState.NORMAL);
+  goog.exportSymbol('anychart.PointState.HOVER', anychart.PointState.HOVER);
+  goog.exportSymbol('anychart.PointState.SELECT', anychart.PointState.SELECT);
+})();

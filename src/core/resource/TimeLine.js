@@ -91,7 +91,7 @@ anychart.core.resource.TimeLine = function() {
 
   /**
    * Resolution chain cache.
-   * @type {Array.<Object|null|undefined>|null}
+   * @type {?Array.<Object|null|undefined>}
    * @private
    */
   this.resolutionChainCache_ = null;
@@ -137,7 +137,7 @@ goog.inherits(anychart.core.resource.TimeLine, anychart.core.VisualBaseWithBound
  *      selectable: (boolean|undefined),
  *      disablePointerEvents: (boolean|undefined),
  *      useHtml: (boolean|undefined),
- *      textFormatter: (Function|undefined)
+ *      format: (Function|undefined)
  *   }>,
  *   fill: (acgraph.vector.Fill|undefined),
  *   padding: (Object|Array|number|string|null|undefined),
@@ -163,7 +163,7 @@ goog.inherits(anychart.core.resource.TimeLine, anychart.core.VisualBaseWithBound
  *   selectable: (boolean|undefined),
  *   disablePointerEvents: (boolean|undefined),
  *   useHtml: (boolean|undefined),
- *   textFormatter: (Function|undefined)
+ *   format: (Function|undefined)
  * }}
  */
 anychart.core.resource.TimeLine.Level;
@@ -216,13 +216,23 @@ anychart.core.resource.TimeLine.TEXT_DESCRIPTORS =
         anychart.Signal.NEEDS_REDRAW | anychart.Signal.BOUNDS_CHANGED,
         anychart.Signal.NEEDS_REDRAW
     );
-anychart.core.resource.TimeLine.TEXT_DESCRIPTORS[anychart.opt.TEXT_FORMATTER] =
+anychart.core.resource.TimeLine.TEXT_DESCRIPTORS['format'] =
     anychart.core.settings.createDescriptor(
         anychart.enums.PropertyHandlerType.SINGLE_ARG,
-        anychart.opt.TEXT_FORMATTER,
-        anychart.core.settings.asIsNormalizer,
+        'format',
+        anychart.core.settings.stringOrFunctionNormalizer,
         anychart.ConsistencyState.APPEARANCE | anychart.ConsistencyState.BOUNDS,
         anychart.Signal.NEEDS_REDRAW | anychart.Signal.BOUNDS_CHANGED);
+//@deprecated Since 7.13.1. Use 'format' instead.
+anychart.core.resource.TimeLine.TEXT_DESCRIPTORS['textFormatter'] =
+    anychart.core.settings.createDescriptor(
+        anychart.enums.PropertyHandlerType.SINGLE_ARG_DEPRECATED,
+        'format',
+        anychart.core.settings.stringOrFunctionNormalizer,
+        anychart.ConsistencyState.APPEARANCE | anychart.ConsistencyState.BOUNDS,
+        anychart.Signal.NEEDS_REDRAW | anychart.Signal.BOUNDS_CHANGED,
+        void 0,
+        'textFormatter');
 anychart.core.settings.populate(anychart.core.resource.TimeLine, anychart.core.resource.TimeLine.TEXT_DESCRIPTORS);
 
 
@@ -234,51 +244,51 @@ anychart.core.resource.TimeLine.DESCRIPTORS = (function() {
   /** @type {!Object.<string, anychart.core.settings.PropertyDescriptor>} */
   var map = {};
 
-  map[anychart.opt.STROKE] = anychart.core.settings.createDescriptor(
+  map['stroke'] = anychart.core.settings.createDescriptor(
       anychart.enums.PropertyHandlerType.MULTI_ARG,
-      anychart.opt.STROKE,
+      'stroke',
       anychart.core.settings.strokeNormalizer,
       anychart.ConsistencyState.APPEARANCE,
       anychart.Signal.NEEDS_REDRAW);
 
-  map[anychart.opt.FILL] = anychart.core.settings.createDescriptor(
+  map['fill'] = anychart.core.settings.createDescriptor(
       anychart.enums.PropertyHandlerType.MULTI_ARG,
-      anychart.opt.FILL,
+      'fill',
       anychart.core.settings.fillNormalizer,
       anychart.ConsistencyState.APPEARANCE,
       anychart.Signal.NEEDS_REDRAW);
 
-  map[anychart.opt.LEVEL_HEIGHT] = anychart.core.settings.createDescriptor(
+  map['levelHeight'] = anychart.core.settings.createDescriptor(
       anychart.enums.PropertyHandlerType.SINGLE_ARG,
-      anychart.opt.LEVEL_HEIGHT,
+      'levelHeight',
       anychart.core.settings.numberOrPercentNormalizer,
       anychart.ConsistencyState.APPEARANCE,
       anychart.Signal.NEEDS_REDRAW);
 
-  map[anychart.opt.DRAW_TOP_LINE] = anychart.core.settings.createDescriptor(
+  map['drawTopLine'] = anychart.core.settings.createDescriptor(
       anychart.enums.PropertyHandlerType.SINGLE_ARG,
-      anychart.opt.DRAW_TOP_LINE,
+      'drawTopLine',
       anychart.core.settings.booleanNormalizer,
       anychart.ConsistencyState.RESOURCE_LIST_ITEMS,
       anychart.Signal.NEEDS_REDRAW);
 
-  map[anychart.opt.DRAW_RIGHT_LINE] = anychart.core.settings.createDescriptor(
+  map['drawRightLine'] = anychart.core.settings.createDescriptor(
       anychart.enums.PropertyHandlerType.SINGLE_ARG,
-      anychart.opt.DRAW_RIGHT_LINE,
+      'drawRightLine',
       anychart.core.settings.booleanNormalizer,
       anychart.ConsistencyState.RESOURCE_LIST_ITEMS,
       anychart.Signal.NEEDS_REDRAW);
 
-  map[anychart.opt.DRAW_BOTTOM_LINE] = anychart.core.settings.createDescriptor(
+  map['drawBottomLine'] = anychart.core.settings.createDescriptor(
       anychart.enums.PropertyHandlerType.SINGLE_ARG,
-      anychart.opt.DRAW_BOTTOM_LINE,
+      'drawBottomLine',
       anychart.core.settings.booleanNormalizer,
       anychart.ConsistencyState.RESOURCE_LIST_ITEMS,
       anychart.Signal.NEEDS_REDRAW);
 
-  map[anychart.opt.DRAW_LEFT_LINE] = anychart.core.settings.createDescriptor(
+  map['drawLeftLine'] = anychart.core.settings.createDescriptor(
       anychart.enums.PropertyHandlerType.SINGLE_ARG,
-      anychart.opt.DRAW_LEFT_LINE,
+      'drawLeftLine',
       anychart.core.settings.booleanNormalizer,
       anychart.ConsistencyState.RESOURCE_LIST_ITEMS,
       anychart.Signal.NEEDS_REDRAW);
@@ -664,10 +674,10 @@ anychart.core.resource.TimeLine.prototype.getLabelsFormatProvider_ = function(va
 anychart.core.resource.TimeLine.prototype.labelsConfiguration = function(row, col, tick, holiday, left, right, from, to) {
   var settings = holiday ? this.holidaysLabelSettings[row] : this.weekdaysLabelSettings[row];
 
-  var padding = settings[anychart.opt.PADDING];
+  var padding = settings['padding'];
   if (padding && !(padding instanceof anychart.core.utils.Padding)) {
     if (!this.tempPadding_) this.tempPadding_ = new anychart.core.utils.Padding();
-    this.tempPadding_.setup(settings[anychart.opt.PADDING]);
+    this.tempPadding_.setup(settings['padding']);
     padding = this.tempPadding_;
   }
 
@@ -688,15 +698,15 @@ anychart.core.resource.TimeLine.prototype.labelsConfiguration = function(row, co
   var sourceBounds = anychart.math.rect(left, to, right - left, levelHeight);
 
   var label = labels.add({'tickValue': tick['start']}, positionProvider, col);
-  settings[anychart.opt.WIDTH] = bounds.width;
-  settings[anychart.opt.HEIGHT] = bounds.height;
+  settings['width'] = bounds.width;
+  settings['height'] = bounds.height;
 
   if (padding)
     label.cellBoundsWithPadding = padding.tightenBounds(bounds);
   label.cellBounds = bounds;
   label.sourceBounds = sourceBounds;
 
-  label.clip(bounds);
+  label['clip'](bounds);
   label.setSettings(settings);
 
   if (!this.choosenFormats_[row] && this.formatIndex_ != this.sourceFormats_[row].length - 1) {
@@ -727,8 +737,8 @@ anychart.core.resource.TimeLine.prototype.drawLabels = function(row) {
 
     if (!i || i == len - 1) {
       var settings = label.getMergedSettings();
-      settings[anychart.opt.WIDTH] = null;
-      settings[anychart.opt.HEIGHT] = null;
+      settings['width'] = null;
+      settings['height'] = null;
 
       var labelBounds = labels.measure(label, undefined, settings);
       var parentBounds = label.cellBounds;
@@ -757,7 +767,7 @@ anychart.core.resource.TimeLine.prototype.drawLabels = function(row) {
         y = bounds.top + bounds.height / 2;
 
         label.positionProvider({'value': {'x': x, 'y': y}});
-        label.settingsObj[anychart.opt.WIDTH] = labelBounds.width;
+        label.setOption('width', labelBounds.width);
       } else if (labelBounds.getRight() > parentBounds.getRight()) {
         bounds = labelBounds;
 
@@ -771,7 +781,7 @@ anychart.core.resource.TimeLine.prototype.drawLabels = function(row) {
         y = bounds.top + bounds.height / 2;
 
         label.positionProvider({'value': {'x': x, 'y': y}});
-        label.settingsObj[anychart.opt.WIDTH] = labelBounds.width;
+        label.setOption('width', labelBounds.width);
       } else if (hAlign != 'center') {
         x = bounds.left + bounds.width / 2;
         y = bounds.top + bounds.height / 2;
@@ -779,7 +789,7 @@ anychart.core.resource.TimeLine.prototype.drawLabels = function(row) {
         label.positionProvider({'value': {'x': x, 'y': y}});
       }
 
-      label.clip(label.cellBoundsWithPadding);
+      label['clip'](label.cellBoundsWithPadding);
     }
   }
   labels.dropCallsCache();
@@ -927,13 +937,12 @@ anychart.core.resource.TimeLine.prototype.draw = function() {
         if (labels) {
           labels.clear();
         } else {
-          var defaultTextFormatter = anychart.getFullTheme()['defaultLabelFactory']['textFormatter'];
-          var defaultPositionFormatter = anychart.getFullTheme()['defaultLabelFactory']['positionFormatter'];
+          var defaultFormat = /** @type {Function} */(anychart.getFullTheme('defaultLabelFactory.format'));
+          var defaultPositionFormatter = /** @type {Function} */(anychart.getFullTheme('defaultLabelFactory.positionFormatter'));
 
           labels = new anychart.core.ui.LabelsFactory();
-          labels
-              .textFormatter(defaultTextFormatter)
-              .positionFormatter(defaultPositionFormatter);
+          labels['format'](defaultFormat);
+          labels['positionFormatter'](defaultPositionFormatter);
 
           labels.enabled(true);
           labels.container(this.labelsLayer_);
@@ -968,16 +977,16 @@ anychart.core.resource.TimeLine.prototype.draw = function() {
   }
 
   if (this.hasInvalidationState(anychart.ConsistencyState.APPEARANCE)) {
-    var themeLabelsSettings = anychart.getFullTheme()['defaultLabelFactory'];
+    var themeLabelsSettings = /** @type {Object} */(anychart.getFullTheme('defaultLabelFactory'));
     var timeLineWeekdaysLabelsSettings = {};
     anychart.core.settings.serialize(this, anychart.core.resource.TimeLine.TEXT_DESCRIPTORS, timeLineWeekdaysLabelsSettings);
-    timeLineWeekdaysLabelsSettings[anychart.opt.PADDING] = this.padding();
+    timeLineWeekdaysLabelsSettings['padding'] = this.padding();
     var timeLineHolidaysLabelsSettings = {};
     anychart.core.settings.serialize(
         /** @type {!anychart.core.settings.IObjectWithSettings} */(this.holidays_),
         anychart.core.resource.TimeLine.TEXT_DESCRIPTORS,
         timeLineHolidaysLabelsSettings);
-    timeLineHolidaysLabelsSettings[anychart.opt.PADDING] = this.holidays_.padding();
+    timeLineHolidaysLabelsSettings['padding'] = this.holidays_.padding();
 
     rowCount = this.levels_.length;
 
@@ -994,9 +1003,9 @@ anychart.core.resource.TimeLine.prototype.draw = function() {
       goog.object.extend(weekdaysLabelSettings, timeLineWeekdaysLabelsSettings);
       var levelWeekDaysLabelsSettings = {};
       anychart.core.settings.copy(levelWeekDaysLabelsSettings, anychart.core.resource.TimeLine.TEXT_DESCRIPTORS, level);
-      if (anychart.opt.PADDING in level) levelWeekDaysLabelsSettings[anychart.opt.PADDING] = level[anychart.opt.PADDING];
+      if ('padding' in level) levelWeekDaysLabelsSettings['padding'] = level['padding'];
       goog.object.extend(weekdaysLabelSettings, levelWeekDaysLabelsSettings);
-      weekdaysLabelSettings[anychart.opt.ENABLED] = true;
+      weekdaysLabelSettings['enabled'] = true;
       this.weekdaysLabelSettings[i] = weekdaysLabelSettings;
 
       var holidaysLabelSettings = {};
@@ -1008,17 +1017,17 @@ anychart.core.resource.TimeLine.prototype.draw = function() {
       if (levelHoliday) {
         //levelHolidaysLabelsSettings;
         anychart.core.settings.copy(holidaysLabelSettings, anychart.core.resource.TimeLine.TEXT_DESCRIPTORS, levelHoliday);
-        if (anychart.opt.PADDING in levelHoliday) holidaysLabelSettings[anychart.opt.PADDING] = levelHoliday[anychart.opt.PADDING];
+        if ('padding' in levelHoliday) holidaysLabelSettings['padding'] = levelHoliday['padding'];
       }
-      holidaysLabelSettings[anychart.opt.ENABLED] = true;
+      holidaysLabelSettings['enabled'] = true;
       this.holidaysLabelSettings[i] = holidaysLabelSettings;
 
-      var weekdayStroke = anychart.opt.STROKE in level ? level[anychart.opt.STROKE] : this.getOption(anychart.opt.STROKE);
-      var weekdayFill = anychart.opt.FILL in level ? level[anychart.opt.FILL] : this.getOption(anychart.opt.FILL);
+      var weekdayStroke = 'stroke' in level ? level['stroke'] : this.getOption('stroke');
+      var weekdayFill = 'fill' in level ? level['fill'] : this.getOption('fill');
       weekdaysStrokePath.fill(null).stroke(weekdayStroke);
       weekdaysPath.fill(weekdayFill).stroke(null);
 
-      var holidayFill = levelHoliday && anychart.opt.FILL in levelHoliday ? levelHoliday[anychart.opt.FILL] : this.holidays_.getOwnOption(anychart.opt.FILL);
+      var holidayFill = levelHoliday && 'fill' in levelHoliday ? levelHoliday['fill'] : this.holidays_.getOwnOption('fill');
       if (!holidayFill) {
         holidayFill = weekdayFill;
       }
@@ -1047,7 +1056,7 @@ anychart.core.resource.TimeLine.prototype.draw = function() {
   }
 
   if (this.hasInvalidationState(anychart.ConsistencyState.RESOURCE_TIMELINE_OVERLAY)) {
-    this.overlay_.target(/** @type {Element} */(this.container().getStage().container()));
+    this.overlay_.target(this.container().getStage().getDomWrapper());
     this.overlay_.setBounds(this.getPixelBounds());
     this.overlay_.draw();
     this.markConsistent(anychart.ConsistencyState.RESOURCE_TIMELINE_OVERLAY);
@@ -1059,10 +1068,10 @@ anychart.core.resource.TimeLine.prototype.draw = function() {
 
     var from = this.pixelBoundsCache_.height + this.pixelBoundsCache_.top;
     var to = 0;
-    var drawTop = !!this.getOption(anychart.opt.DRAW_TOP_LINE);
-    var drawRight = !!this.getOption(anychart.opt.DRAW_RIGHT_LINE);
-    var drawBottom = !!this.getOption(anychart.opt.DRAW_BOTTOM_LINE);
-    var drawLeft = !!this.getOption(anychart.opt.DRAW_LEFT_LINE);
+    var drawTop = !!this.getOption('drawTopLine');
+    var drawRight = !!this.getOption('drawRightLine');
+    var drawBottom = !!this.getOption('drawBottomLine');
+    var drawLeft = !!this.getOption('drawLeftLine');
     var pixelShiftFrom = 0;
     var pixelShiftTo = 0;
 
@@ -1167,7 +1176,7 @@ anychart.core.resource.TimeLine.prototype.remove = function() {
 anychart.core.resource.TimeLine.prototype.specialSetupByVal = function(value, opt_default) {
   if (goog.isBoolean(value) || goog.isNull(value)) {
     if (opt_default) {
-      this.defaultSettings[anychart.opt.ENABLED] = !!value;
+      this.defaultSettings['enabled'] = !!value;
     } else {
       this.enabled(!!value);
     }
@@ -1189,7 +1198,7 @@ anychart.core.resource.TimeLine.prototype.setThemeSettings = function(config) {
 
 /** @inheritDoc */
 anychart.core.resource.TimeLine.prototype.serialize = function() {
-  var json = goog.base(this, 'serialize');
+  var json = anychart.core.resource.TimeLine.base(this, 'serialize');
   anychart.core.settings.serialize(this, anychart.core.resource.TimeLine.DESCRIPTORS, json, 'Resource Timeline');
   anychart.core.settings.serialize(this, anychart.core.resource.TimeLine.TEXT_DESCRIPTORS, json, 'Resource Timeline text settings');
 
@@ -1203,7 +1212,7 @@ anychart.core.resource.TimeLine.prototype.serialize = function() {
 
 /** @inheritDoc */
 anychart.core.resource.TimeLine.prototype.setupByJSON = function(config, opt_default) {
-  goog.base(this, 'setupByJSON', config, opt_default);
+  anychart.core.resource.TimeLine.base(this, 'setupByJSON', config, opt_default);
   if (opt_default) {
     this.setThemeSettings(config);
   } else {
@@ -1243,7 +1252,7 @@ anychart.core.resource.TimeLine.prototype.disposeInternal = function() {
   this.levelsLayer_ = null;
   this.labelsLayer_ = null;
 
-  goog.base(this, 'disposeInternal');
+  anychart.core.resource.TimeLine.base(this, 'disposeInternal');
 };
 
 
@@ -1255,14 +1264,17 @@ anychart.core.resource.TimeLine.prototype.disposeInternal = function() {
 //
 //------------------------------------------------------------------------------
 //exports
-anychart.core.resource.TimeLine.prototype['background'] = anychart.core.resource.TimeLine.prototype.background;
-anychart.core.resource.TimeLine.prototype['padding'] = anychart.core.resource.TimeLine.prototype.padding;
-anychart.core.resource.TimeLine.prototype['holidays'] = anychart.core.resource.TimeLine.prototype.holidays;
-anychart.core.resource.TimeLine.prototype['overlay'] = anychart.core.resource.TimeLine.prototype.overlay;
-// descriptors
-// anychart.core.resource.TimeLine.prototype['fill'] = anychart.core.resource.TimeLine.prototype.fill;
-// anychart.core.resource.TimeLine.prototype['stroke'] = anychart.core.resource.TimeLine.prototype.stroke;
-// anychart.core.resource.TimeLine.prototype['levelHeight'] = anychart.core.resource.TimeLine.prototype.levelHeight;
+(function() {
+  var proto = anychart.core.resource.TimeLine.prototype;
+  proto['background'] = proto.background;
+  proto['padding'] = proto.padding;
+  proto['holidays'] = proto.holidays;
+  proto['overlay'] = proto.overlay;
+  // descriptors
+  // proto['fill'] = proto.fill;
+  // proto['stroke'] = proto.stroke;
+  // proto['levelHeight'] = proto.levelHeight;
+})();
 
 
 //endregion

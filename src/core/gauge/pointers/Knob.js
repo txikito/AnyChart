@@ -11,7 +11,7 @@ goog.require('anychart.utils');
  * @extends {anychart.core.gauge.pointers.Base}
  */
 anychart.core.gauge.pointers.Knob = function() {
-  goog.base(this);
+  anychart.core.gauge.pointers.Knob.base(this, 'constructor');
   /**
    * @type {number}
    * @private
@@ -129,7 +129,7 @@ anychart.core.gauge.pointers.Knob.prototype.bottomRatio = function(opt_value) {
  */
 anychart.core.gauge.pointers.Knob.prototype.topRadius = function(opt_value) {
   if (goog.isDef(opt_value)) {
-    opt_value = goog.isNull(opt_value) ? opt_value : anychart.utils.normalizeToPercent(opt_value);
+    opt_value = goog.isNull(opt_value) ? opt_value : /** @type {string} */ (anychart.utils.normalizeToPercent(opt_value));
     if (this.topRadius_ != opt_value) {
       this.topRadius_ = opt_value;
       this.invalidate(anychart.ConsistencyState.BOUNDS,
@@ -147,7 +147,7 @@ anychart.core.gauge.pointers.Knob.prototype.topRadius = function(opt_value) {
  */
 anychart.core.gauge.pointers.Knob.prototype.bottomRadius = function(opt_value) {
   if (goog.isDef(opt_value)) {
-    opt_value = goog.isNull(opt_value) ? opt_value : anychart.utils.normalizeToPercent(opt_value);
+    opt_value = goog.isNull(opt_value) ? opt_value : /** @type {string} */ (anychart.utils.normalizeToPercent(opt_value));
     if (this.bottomRadius_ != opt_value) {
       this.bottomRadius_ = opt_value;
       this.invalidate(anychart.ConsistencyState.BOUNDS,
@@ -218,9 +218,9 @@ anychart.core.gauge.pointers.Knob.prototype.drawVertexSide = function(path, asvs
   yo = (((xb - xa) * (xp - xo)) / (yb - ya)) + yp || 0;
 
   //OA length
-  loa = Math.sqrt(Math.pow(xa - xo, 2) + Math.pow(ya - yo, 2));
+  loa = anychart.math.vectorLength(xa, ya, xo, yo);
   //OP length
-  lop = Math.sqrt(Math.pow(xp - xo, 2) + Math.pow(yp - yo, 2));
+  lop = anychart.math.vectorLength(xp, yp, xo, yo);
 
   //Tilt angle of vertex side to the tangent in the start vertex point.
   vertexSideTiltAngle = goog.math.toDegrees(Math.atan(lop / loa));
@@ -435,7 +435,7 @@ anychart.core.gauge.pointers.Knob.prototype.draw = function() {
     this.markConsistent(anychart.ConsistencyState.BOUNDS);
   }
 
-  goog.base(this, 'draw');
+  anychart.core.gauge.pointers.Knob.base(this, 'draw');
   return this;
 };
 
@@ -445,7 +445,7 @@ anychart.core.gauge.pointers.Knob.prototype.draw = function() {
 //----------------------------------------------------------------------------------------------------------------------
 /** @inheritDoc */
 anychart.core.gauge.pointers.Knob.prototype.serialize = function() {
-  var json = goog.base(this, 'serialize');
+  var json = anychart.core.gauge.pointers.Knob.base(this, 'serialize');
 
   json['verticesCount'] = this.verticesCount();
   json['verticesCurvature'] = this.verticesCurvature();
@@ -460,7 +460,7 @@ anychart.core.gauge.pointers.Knob.prototype.serialize = function() {
 
 /** @inheritDoc */
 anychart.core.gauge.pointers.Knob.prototype.setupByJSON = function(config, opt_default) {
-  goog.base(this, 'setupByJSON', config, opt_default);
+  anychart.core.gauge.pointers.Knob.base(this, 'setupByJSON', config, opt_default);
 
   this.verticesCount(config['verticesCount']);
   this.verticesCurvature(config['verticesCurvature']);
@@ -472,9 +472,12 @@ anychart.core.gauge.pointers.Knob.prototype.setupByJSON = function(config, opt_d
 
 
 //exports
-anychart.core.gauge.pointers.Knob.prototype['verticesCount'] = anychart.core.gauge.pointers.Knob.prototype.verticesCount;
-anychart.core.gauge.pointers.Knob.prototype['verticesCurvature'] = anychart.core.gauge.pointers.Knob.prototype.verticesCurvature;
-anychart.core.gauge.pointers.Knob.prototype['topRatio'] = anychart.core.gauge.pointers.Knob.prototype.topRatio;
-anychart.core.gauge.pointers.Knob.prototype['bottomRatio'] = anychart.core.gauge.pointers.Knob.prototype.bottomRatio;
-anychart.core.gauge.pointers.Knob.prototype['topRadius'] = anychart.core.gauge.pointers.Knob.prototype.topRadius;
-anychart.core.gauge.pointers.Knob.prototype['bottomRadius'] = anychart.core.gauge.pointers.Knob.prototype.bottomRadius;
+(function() {
+  var proto = anychart.core.gauge.pointers.Knob.prototype;
+  proto['verticesCount'] = proto.verticesCount;
+  proto['verticesCurvature'] = proto.verticesCurvature;
+  proto['topRatio'] = proto.topRatio;
+  proto['bottomRatio'] = proto.bottomRatio;
+  proto['topRadius'] = proto.topRadius;
+  proto['bottomRadius'] = proto.bottomRadius;
+})();

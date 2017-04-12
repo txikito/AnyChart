@@ -8,8 +8,8 @@ goog.require('goog.array');
 
 
 /**
- * Soecial View which allows to map anychart.data.Set storages.
- * @param {!anychart.data.Set} parentSet The data set to map.
+ * Special View which allows to map anychart.data.Set storages.
+ * @param {!(anychart.data.Set|anychart.data.IView)} parentSet The data set to map.
  * @param {!Object.<Array.<number>>=} opt_arrayMapping Mapping for array rows.
  * @param {!Object.<Array.<string>>=} opt_objectMapping Mapping for object rows.
  * @param {!Array.<string>=} opt_defaultProps Mapping for rows which are string, number or a function.
@@ -22,14 +22,14 @@ goog.require('goog.array');
  */
 anychart.data.Mapping = function(parentSet, opt_arrayMapping, opt_objectMapping, opt_defaultProps, opt_indexProps,
     opt_writeToFirstFieldByMapping) {
-  goog.base(this, parentSet);
+  anychart.data.Mapping.base(this, 'constructor', parentSet);
   this.initMappingInfo(opt_arrayMapping, opt_objectMapping, opt_defaultProps, opt_indexProps, opt_writeToFirstFieldByMapping);
 };
 goog.inherits(anychart.data.Mapping, anychart.data.View);
 
 
 /**
- * Conistency states supported by this object.
+ * Consistency states supported by this object.
  * @type {number}
  */
 anychart.data.Mapping.prototype.SUPPORTED_SIGNALS = anychart.Signal.DATA_CHANGED;
@@ -110,8 +110,12 @@ anychart.data.Mapping.prototype.setInternal = function(row, fieldName, value) {
     }
     anychart.core.reporting.warning(anychart.enums.WarningCode.NOT_MAPPED_FIELD, null, [fieldName]);
   } else if (rowType == 'object') {
-    anychart.utils.mapObject(/** @type {!Object} */(row), fieldName, this.objectMapping_[fieldName], value,
+    var result = anychart.utils.mapObject(/** @type {!Object} */(row), fieldName, this.objectMapping_[fieldName], value,
         this.writeToFirstFieldByMapping_);
+    // result will be undefined if there no such field in row, but row will have property because it will be set.
+    if ((result === void 0) && row.hasOwnProperty(fieldName)) {
+      this.parentView.addSeenField(fieldName);
+    }
   } else if (goog.array.indexOf(this.defaultProps_, fieldName) > -1) {
     if (anychart.DEVELOP && (goog.isArray(value) || goog.isObject(value)))
       anychart.core.reporting.warning(anychart.enums.WarningCode.COMPLEX_VALUE_TO_DEFAULT_FIELD, null, [fieldName]);
@@ -126,6 +130,12 @@ anychart.data.Mapping.prototype.setInternal = function(row, fieldName, value) {
 /** @inheritDoc */
 anychart.data.Mapping.prototype.getRowMapping = function(rowIndex) {
   return this;
+};
+
+
+/** @inheritDoc */
+anychart.data.Mapping.prototype.getMappings = function() {
+  return [this];
 };
 
 
@@ -146,6 +156,41 @@ anychart.data.Mapping.prototype.parentViewChangedHandler = function(event) {
   this.cachedValues = null;
   if (event.hasSignal(anychart.Signal.DATA_CHANGED))
     this.dispatchSignal(anychart.Signal.DATA_CHANGED);
+};
+
+
+/** @inheritDoc */
+anychart.data.Mapping.prototype.checkFieldExist = function(name) {
+  if (this.parentView.checkFieldExist(name))
+    return true;
+  var i;
+  var mapping = this.indexProps_;
+  for (i = 0; i < mapping.length; i++) {
+    if (mapping[i] == name)
+      return true;
+  }
+  if (this.parentView.hasSimpleRows()) {
+    mapping = this.defaultProps_;
+    for (i = 0; i < mapping.length; i++) {
+      if (mapping[i] == name)
+        return true;
+    }
+  }
+  mapping = this.objectMapping_[name];
+  if (mapping) {
+    for (i = 0; i < mapping.length; i++) {
+      if (this.parentView.checkFieldExist(mapping[i]))
+        return true;
+    }
+  }
+  mapping = this.arrayMapping_[name];
+  if (mapping) {
+    for (i = 0; i < mapping.length; i++) {
+      if (this.parentView.checkFieldExist(mapping[i]))
+        return true;
+    }
+  }
+  return false;
 };
 
 
@@ -322,14 +367,17 @@ anychart.data.Mapping.prototype.getIndexMapping = function() {
 
 
 //exports
-goog.exportSymbol('anychart.data.Mapping.DEFAULT_ARRAY_MAPPING', anychart.data.Mapping.DEFAULT_ARRAY_MAPPING);
-goog.exportSymbol('anychart.data.Mapping.DEFAULT_OBJECT_MAPPING', anychart.data.Mapping.DEFAULT_OBJECT_MAPPING);
-goog.exportSymbol('anychart.data.Mapping.DEFAULT_SIMPLE_ROW_MAPPING', anychart.data.Mapping.DEFAULT_SIMPLE_ROW_MAPPING);
-goog.exportSymbol('anychart.data.Mapping.DEFAULT_INDEX_MAPPING', anychart.data.Mapping.DEFAULT_INDEX_MAPPING);
-anychart.data.Mapping.prototype['getRowsCount'] = anychart.data.Mapping.prototype.getRowsCount;
-anychart.data.Mapping.prototype['getIterator'] = anychart.data.Mapping.prototype.getIterator;
-anychart.data.Mapping.prototype['row'] = anychart.data.Mapping.prototype.row;
-anychart.data.Mapping.prototype['getArrayMapping'] = anychart.data.Mapping.prototype.getArrayMapping;
-anychart.data.Mapping.prototype['getObjectMapping'] = anychart.data.Mapping.prototype.getObjectMapping;
-anychart.data.Mapping.prototype['getSimpleRowMapping'] = anychart.data.Mapping.prototype.getSimpleRowMapping;
-anychart.data.Mapping.prototype['getIndexMapping'] = anychart.data.Mapping.prototype.getIndexMapping;
+(function() {
+  var proto = anychart.data.Mapping.prototype;
+  goog.exportSymbol('anychart.data.Mapping.DEFAULT_ARRAY_MAPPING', anychart.data.Mapping.DEFAULT_ARRAY_MAPPING);
+  goog.exportSymbol('anychart.data.Mapping.DEFAULT_OBJECT_MAPPING', anychart.data.Mapping.DEFAULT_OBJECT_MAPPING);
+  goog.exportSymbol('anychart.data.Mapping.DEFAULT_SIMPLE_ROW_MAPPING', anychart.data.Mapping.DEFAULT_SIMPLE_ROW_MAPPING);
+  goog.exportSymbol('anychart.data.Mapping.DEFAULT_INDEX_MAPPING', anychart.data.Mapping.DEFAULT_INDEX_MAPPING);
+  proto['getRowsCount'] = proto.getRowsCount;
+  proto['getIterator'] = proto.getIterator;
+  proto['row'] = proto.row;
+  proto['getArrayMapping'] = proto.getArrayMapping;
+  proto['getObjectMapping'] = proto.getObjectMapping;
+  proto['getSimpleRowMapping'] = proto.getSimpleRowMapping;
+  proto['getIndexMapping'] = proto.getIndexMapping;
+})();

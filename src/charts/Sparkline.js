@@ -11,9 +11,9 @@ goog.require('anychart.core.ui.LabelsFactory');
 goog.require('anychart.core.ui.MarkersFactory');
 goog.require('anychart.core.utils.IInteractiveSeries');
 goog.require('anychart.core.utils.InteractivityState');
-goog.require('anychart.core.utils.PointContextProvider');
 goog.require('anychart.data.Set');
 goog.require('anychart.enums');
+goog.require('anychart.format.Context');
 goog.require('anychart.scales');
 
 
@@ -27,7 +27,7 @@ goog.require('anychart.scales');
  * @constructor
  */
 anychart.charts.Sparkline = function(opt_data, opt_csvSettings) {
-  goog.base(this);
+  anychart.charts.Sparkline.base(this, 'constructor');
 
   /**
    * Interactivity state.
@@ -98,6 +98,9 @@ anychart.charts.Sparkline = function(opt_data, opt_csvSettings) {
    */
   this.seriesDefaults_ = {};
 
+  /** @inheritDoc */
+  this.allowCreditsDisabling = true;
+
   /**
    * @type {!anychart.core.ui.MarkersFactory}
    * @private
@@ -119,15 +122,15 @@ anychart.charts.Sparkline = function(opt_data, opt_csvSettings) {
    */
   this.labelsInternal_ = new anychart.core.ui.LabelsFactory();
   // defaults that was deleted form LabelsFactory
-  this.labelsInternal_.positionFormatter(anychart.utils.DEFAULT_FORMATTER);
-  this.labelsInternal_.textFormatter(anychart.utils.DEFAULT_FORMATTER);
+  this.labelsInternal_['positionFormatter'](anychart.utils.DEFAULT_FORMATTER);
+  this.labelsInternal_['format'](anychart.utils.DEFAULT_FORMATTER);
   this.labelsInternal_.background(null);
-  this.labelsInternal_.rotation(0);
-  this.labelsInternal_.width(null);
-  this.labelsInternal_.height(null);
-  this.labelsInternal_.fontSize(11);
-  this.labelsInternal_.minFontSize(8);
-  this.labelsInternal_.maxFontSize(72);
+  this.labelsInternal_['rotation'](0);
+  this.labelsInternal_['width'](null);
+  this.labelsInternal_['height'](null);
+  this.labelsInternal_['fontSize'](11);
+  this.labelsInternal_['minFontSize'](8);
+  this.labelsInternal_['maxFontSize'](72);
   this.labelsInternal_.setParentEventTarget(this);
   this.labelsInternal_.setAutoZIndex(anychart.charts.Sparkline.ZINDEX_LABEL);
 
@@ -189,7 +192,7 @@ anychart.charts.Sparkline.ZINDEX_LABEL = 40;
 /** @inheritDoc */
 anychart.charts.Sparkline.prototype.makeBrowserEvent = function(e) {
   //this method is invoked only for events from data layer
-  var res = goog.base(this, 'makeBrowserEvent', e);
+  var res = anychart.charts.Sparkline.base(this, 'makeBrowserEvent', e);
   res['pointIndex'] = this.getIndexByEvent_(res);
   return res;
 };
@@ -209,7 +212,7 @@ anychart.charts.Sparkline.prototype.getSeriesStatus = function(event) {
   var clientY = event['clientY'];
   var value, index;
 
-  var containerOffset = goog.style.getClientPosition(/** @type {Element} */(this.container().getStage().container()));
+  var containerOffset = this.container().getStage().getClientPosition();
 
   var x = clientX - containerOffset.x;
   var y = clientY - containerOffset.y;
@@ -227,15 +230,15 @@ anychart.charts.Sparkline.prototype.getSeriesStatus = function(event) {
 
   var ratio = (x - minX) / rangeX;
   value = this.xScale().inverseTransform(ratio);
-  index = this.data().find('x', value);
-  if (index < 0) index = NaN;
+  var indexes = this.data().findInUnsortedDataByX(anychart.utils.toNumber(value));
+  index = indexes.length ? indexes[0] : NaN;
 
   var iterator = this.getIterator();
 
-  if (iterator.select(index)) {
+  if (iterator.select(/** @type {number} */ (index))) {
     var pixX = /** @type {number} */(iterator.meta('x'));
     var pixY = /** @type {number} */(iterator.meta('value'));
-    var length = Math.sqrt(Math.pow(pixX - x, 2) + Math.pow(pixY - y, 2));
+    var length = anychart.math.vectorLength(pixX, pixY, x, y);
 
     if (!isNaN(pixX) && !isNaN(pixY)) {
       points.push({
@@ -267,8 +270,21 @@ anychart.charts.Sparkline.prototype.selectionMode = function() {
  */
 anychart.charts.Sparkline.prototype.createFormatProvider = function() {
   if (!this.pointProvider_)
-    this.pointProvider_ = new anychart.core.utils.PointContextProvider(this, ['x', 'value']);
-  this.pointProvider_.applyReferenceValues();
+    this.pointProvider_ = new anychart.format.Context();
+
+  var iterator = this.getIterator();
+  this.pointProvider_
+      .dataSource(iterator)
+      .statisticsSources([this]);
+
+  var values = {
+    'x': {value: iterator.get('x'), type: anychart.enums.TokenType.STRING},
+    'value': {value: iterator.get('value'), type: anychart.enums.TokenType.NUMBER},
+    'index': {value: iterator.getIndex(), type: anychart.enums.TokenType.NUMBER},
+    'chart': {value: this, type: anychart.enums.TokenType.UNKNOWN}
+  };
+
+  this.pointProvider_.propagate(values);
   return this.pointProvider_;
 };
 
@@ -299,7 +315,7 @@ anychart.charts.Sparkline.prototype.getIndexByEvent_ = function(event) {
   var min, range;
   var value, index;
 
-  min = bounds.left + goog.style.getClientPosition(/** @type {Element} */(this.container().getStage().container())).x;
+  min = bounds.left + this.container().getStage().getClientPosition().x;
   range = bounds.width;
   var ratio = (x - min) / range;
   value = this.xScale().inverseTransform(ratio);
@@ -416,6 +432,12 @@ anychart.charts.Sparkline.prototype.getAllSeries = function() {
 
 
 /**
+ * @inheritDoc
+ */
+anychart.charts.Sparkline.prototype.unselect = goog.nullFunction;
+
+
+/**
  * @param {(anychart.enums.HoverMode|string)=} opt_value Hover mode.
  * @return {anychart.charts.Sparkline|anychart.enums.HoverMode} .
  */
@@ -439,6 +461,12 @@ anychart.charts.Sparkline.prototype.getPoint = function(index) {
 
 /** @inheritDoc */
 anychart.charts.Sparkline.prototype.isDiscreteBased = function() {
+  return false;
+};
+
+
+/** @inheritDoc */
+anychart.charts.Sparkline.prototype.isSizeBased = function() {
   return false;
 };
 
@@ -633,7 +661,7 @@ anychart.charts.Sparkline.prototype.xScale = function(opt_value) {
     return this;
   } else {
     if (!this.xScale_) {
-      this.xScale_ = new anychart.scales.Ordinal();
+      this.xScale_ = anychart.scales.ordinal();
     }
     return this.xScale_;
   }
@@ -657,7 +685,7 @@ anychart.charts.Sparkline.prototype.yScale = function(opt_value) {
     return this;
   } else {
     if (!this.yScale_) {
-      this.yScale_ = new anychart.scales.Linear();
+      this.yScale_ = anychart.scales.linear();
     }
     return this.yScale_;
   }
@@ -2039,7 +2067,7 @@ anychart.charts.Sparkline.prototype.getFinalLabel = function(usePointSettings) {
   var label = this.labelsInternal_.getLabel(index);
   var res = null;
   if (finalSettings['enabled']) {
-    var position = finalSettings['position'] || this.labelsInternal_.position();
+    var position = finalSettings['position'] || this.labelsInternal_.getOption('position');
     var positionProvider = this.series_.createPositionProvider(/** @type {anychart.enums.Position|string} */(position));
     var formatProvider = this.series_.createFormatProvider();
 
@@ -2051,7 +2079,7 @@ anychart.charts.Sparkline.prototype.getFinalLabel = function(usePointSettings) {
     }
 
     label.resetSettings();
-    label.currentLabelsFactory(this.labelsInternal_);
+    // label.currentLabelsFactory(this.labelsInternal_);
     label.setSettings(/** @type {Object} */(finalSettings));
     res = label;
   } else if (label) {
@@ -2073,16 +2101,6 @@ anychart.charts.Sparkline.prototype.labelsInvalidated_ = function(event) {
 };
 
 
-/** @inheritDoc */
-anychart.charts.Sparkline.prototype.createStage = function() {
-  var stage = acgraph.create();
-  stage.allowCreditsDisabling = true;
-  // forcing credits to be created to apply credits disabling policy
-  stage.credits();
-  return stage;
-};
-
-
 //----------------------------------------------------------------------------------------------------------------------
 //
 //  Calculation.
@@ -2098,7 +2116,7 @@ anychart.charts.Sparkline.prototype.calculate = function() {
   var value;
 
   if (this.hasInvalidationState(anychart.ConsistencyState.SPARK_SCALES)) {
-    this.statistics = {};
+    this.resetStatistics();
     var x, y;
     var xScale = /** @type {anychart.scales.Base} */ (this.xScale());
     var yScale = /** @type {anychart.scales.Base} */ (this.yScale());
@@ -2145,11 +2163,11 @@ anychart.charts.Sparkline.prototype.calculate = function() {
     }
     var seriesAverage = seriesSum / seriesPointsCount;
 
-    this.statistics[anychart.enums.Statistics.MAX] = seriesMax;
-    this.statistics[anychart.enums.Statistics.MIN] = seriesMin;
-    this.statistics[anychart.enums.Statistics.SUM] = seriesSum;
-    this.statistics[anychart.enums.Statistics.AVERAGE] = seriesAverage;
-    this.statistics[anychart.enums.Statistics.POINTS_COUNT] = seriesPointsCount;
+    this.statistics(anychart.enums.Statistics.MAX, seriesMax);
+    this.statistics(anychart.enums.Statistics.MIN, seriesMin);
+    this.statistics(anychart.enums.Statistics.SUM, seriesSum);
+    this.statistics(anychart.enums.Statistics.AVERAGE, seriesAverage);
+    this.statistics(anychart.enums.Statistics.POINTS_COUNT, seriesPointsCount);
 
     this.markConsistent(anychart.ConsistencyState.SPARK_SCALES);
   }
@@ -2261,7 +2279,7 @@ anychart.charts.Sparkline.prototype.invalidateSeries_ = function() {
 
 /** @inheritDoc */
 anychart.charts.Sparkline.prototype.setupByJSON = function(config, opt_default) {
-  goog.base(this, 'setupByJSON', config, opt_default);
+  anychart.charts.Sparkline.base(this, 'setupByJSON', config, opt_default);
 
   if ('defaultLabelSettings' in config)
     this.defaultLabelSettings(config['defaultLabelSettings']);
@@ -2304,7 +2322,7 @@ anychart.charts.Sparkline.prototype.setupByJSON = function(config, opt_default) 
       if (goog.isString(json)) {
         json = {'type': json};
       }
-      json = anychart.themes.merging.mergeScale(json, i, type);
+      json = anychart.themes.merging.mergeScale(json, i, type, anychart.enums.ScaleTypes.LINEAR);
       scale = anychart.scales.Base.fromString(json['type'], false);
       scale.setup(json);
       scalesInstances[i] = scale;
@@ -2316,7 +2334,7 @@ anychart.charts.Sparkline.prototype.setupByJSON = function(config, opt_default) 
       if (goog.isString(json)) {
         json = {'type': json};
       }
-      json = anychart.themes.merging.mergeScale(json, i, type);
+      json = anychart.themes.merging.mergeScale(json, i, type, anychart.enums.ScaleTypes.LINEAR);
       scale = anychart.scales.Base.fromString(json['type'], false);
       scale.setup(json);
       scalesInstances[i] = scale;
@@ -2399,12 +2417,12 @@ anychart.charts.Sparkline.prototype.setupByJSON = function(config, opt_default) 
   if (config['minMarkers']) this.minMarkers().setupByJSON(config['minMarkers']);
   if (config['negativeMarkers']) this.negativeMarkers().setupByJSON(config['negativeMarkers']);
   if (config['markers']) this.markers().setupByJSON(config['markers']);
-  if (config['firstLabels']) this.firstLabels().setupByJSON(config['firstLabels']);
-  if (config['lastLabels']) this.lastLabels().setupByJSON(config['lastLabels']);
-  if (config['maxLabels']) this.maxLabels().setupByJSON(config['maxLabels']);
-  if (config['minLabels']) this.minLabels().setupByJSON(config['minLabels']);
-  if (config['negativeLabels']) this.negativeLabels().setupByJSON(config['negativeLabels']);
-  if (config['labels']) this.labels().setup(config['labels']);
+  if (config['firstLabels']) this.firstLabels().setupByVal(config['firstLabels'], opt_default);
+  if (config['lastLabels']) this.lastLabels().setupByVal(config['lastLabels'], opt_default);
+  if (config['maxLabels']) this.maxLabels().setupByVal(config['maxLabels'], opt_default);
+  if (config['minLabels']) this.minLabels().setupByVal(config['minLabels'], opt_default);
+  if (config['negativeLabels']) this.negativeLabels().setupByVal(config['negativeLabels'], opt_default);
+  if (config['labels']) this.labels().setupByVal(config['labels'], opt_default);
 };
 
 
@@ -2412,7 +2430,7 @@ anychart.charts.Sparkline.prototype.setupByJSON = function(config, opt_default) 
  * @inheritDoc
  */
 anychart.charts.Sparkline.prototype.serialize = function() {
-  var json = goog.base(this, 'serialize');
+  var json = anychart.charts.Sparkline.base(this, 'serialize');
   var i;
   var scalesIds = {};
   var scales = [];
@@ -2613,51 +2631,54 @@ anychart.chartTypesMap[anychart.enums.ChartTypes.SPARKLINE] = anychart.sparkline
 
 
 //exports
-goog.exportSymbol('anychart.sparkline', anychart.sparkline);
-anychart.charts.Sparkline.prototype['xScale'] = anychart.charts.Sparkline.prototype.xScale;
-anychart.charts.Sparkline.prototype['yScale'] = anychart.charts.Sparkline.prototype.yScale;
+(function() {
+  var proto = anychart.charts.Sparkline.prototype;
+  goog.exportSymbol('anychart.sparkline', anychart.sparkline);
+  proto['xScale'] = proto.xScale;
+  proto['yScale'] = proto.yScale;
 
-anychart.charts.Sparkline.prototype['lineMarker'] = anychart.charts.Sparkline.prototype.lineMarker;
-anychart.charts.Sparkline.prototype['rangeMarker'] = anychart.charts.Sparkline.prototype.rangeMarker;
-anychart.charts.Sparkline.prototype['textMarker'] = anychart.charts.Sparkline.prototype.textMarker;
+  proto['lineMarker'] = proto.lineMarker;
+  proto['rangeMarker'] = proto.rangeMarker;
+  proto['textMarker'] = proto.textMarker;
 
-anychart.charts.Sparkline.prototype['type'] = anychart.charts.Sparkline.prototype.type;
-anychart.charts.Sparkline.prototype['data'] = anychart.charts.Sparkline.prototype.data;
-anychart.charts.Sparkline.prototype['clip'] = anychart.charts.Sparkline.prototype.clip;
+  proto['type'] = proto.type;
+  proto['data'] = proto.data;
+  proto['clip'] = proto.clip;
 
-anychart.charts.Sparkline.prototype['connectMissingPoints'] = anychart.charts.Sparkline.prototype.connectMissingPoints;
-anychart.charts.Sparkline.prototype['pointWidth'] = anychart.charts.Sparkline.prototype.pointWidth;
+  proto['connectMissingPoints'] = proto.connectMissingPoints;
+  proto['pointWidth'] = proto.pointWidth;
 
-anychart.charts.Sparkline.prototype['lastFill'] = anychart.charts.Sparkline.prototype.lastFill;
-anychart.charts.Sparkline.prototype['lastHatchFill'] = anychart.charts.Sparkline.prototype.lastHatchFill;
-anychart.charts.Sparkline.prototype['lastMarkers'] = anychart.charts.Sparkline.prototype.lastMarkers;
-anychart.charts.Sparkline.prototype['lastLabels'] = anychart.charts.Sparkline.prototype.lastLabels;
+  proto['lastFill'] = proto.lastFill;
+  proto['lastHatchFill'] = proto.lastHatchFill;
+  proto['lastMarkers'] = proto.lastMarkers;
+  proto['lastLabels'] = proto.lastLabels;
 
-anychart.charts.Sparkline.prototype['firstFill'] = anychart.charts.Sparkline.prototype.firstFill;
-anychart.charts.Sparkline.prototype['firstHatchFill'] = anychart.charts.Sparkline.prototype.firstHatchFill;
-anychart.charts.Sparkline.prototype['firstMarkers'] = anychart.charts.Sparkline.prototype.firstMarkers;
-anychart.charts.Sparkline.prototype['firstLabels'] = anychart.charts.Sparkline.prototype.firstLabels;
+  proto['firstFill'] = proto.firstFill;
+  proto['firstHatchFill'] = proto.firstHatchFill;
+  proto['firstMarkers'] = proto.firstMarkers;
+  proto['firstLabels'] = proto.firstLabels;
 
-anychart.charts.Sparkline.prototype['maxFill'] = anychart.charts.Sparkline.prototype.maxFill;
-anychart.charts.Sparkline.prototype['maxHatchFill'] = anychart.charts.Sparkline.prototype.maxHatchFill;
-anychart.charts.Sparkline.prototype['maxMarkers'] = anychart.charts.Sparkline.prototype.maxMarkers;
-anychart.charts.Sparkline.prototype['maxLabels'] = anychart.charts.Sparkline.prototype.maxLabels;
+  proto['maxFill'] = proto.maxFill;
+  proto['maxHatchFill'] = proto.maxHatchFill;
+  proto['maxMarkers'] = proto.maxMarkers;
+  proto['maxLabels'] = proto.maxLabels;
 
-anychart.charts.Sparkline.prototype['minFill'] = anychart.charts.Sparkline.prototype.minFill;
-anychart.charts.Sparkline.prototype['minHatchFill'] = anychart.charts.Sparkline.prototype.minHatchFill;
-anychart.charts.Sparkline.prototype['minMarkers'] = anychart.charts.Sparkline.prototype.minMarkers;
-anychart.charts.Sparkline.prototype['minLabels'] = anychart.charts.Sparkline.prototype.minLabels;
+  proto['minFill'] = proto.minFill;
+  proto['minHatchFill'] = proto.minHatchFill;
+  proto['minMarkers'] = proto.minMarkers;
+  proto['minLabels'] = proto.minLabels;
 
-anychart.charts.Sparkline.prototype['negativeFill'] = anychart.charts.Sparkline.prototype.negativeFill;
-anychart.charts.Sparkline.prototype['negativeHatchFill'] = anychart.charts.Sparkline.prototype.negativeHatchFill;
-anychart.charts.Sparkline.prototype['negativeMarkers'] = anychart.charts.Sparkline.prototype.negativeMarkers;
-anychart.charts.Sparkline.prototype['negativeLabels'] = anychart.charts.Sparkline.prototype.negativeLabels;
+  proto['negativeFill'] = proto.negativeFill;
+  proto['negativeHatchFill'] = proto.negativeHatchFill;
+  proto['negativeMarkers'] = proto.negativeMarkers;
+  proto['negativeLabels'] = proto.negativeLabels;
 
-anychart.charts.Sparkline.prototype['fill'] = anychart.charts.Sparkline.prototype.fill;
-anychart.charts.Sparkline.prototype['hatchFill'] = anychart.charts.Sparkline.prototype.hatchFill;
-anychart.charts.Sparkline.prototype['markers'] = anychart.charts.Sparkline.prototype.markers;
-anychart.charts.Sparkline.prototype['labels'] = anychart.charts.Sparkline.prototype.labels;
+  proto['fill'] = proto.fill;
+  proto['hatchFill'] = proto.hatchFill;
+  proto['markers'] = proto.markers;
+  proto['labels'] = proto.labels;
 
-anychart.charts.Sparkline.prototype['stroke'] = anychart.charts.Sparkline.prototype.stroke;
+  proto['stroke'] = proto.stroke;
 
-anychart.charts.Sparkline.prototype['getType'] = anychart.charts.Sparkline.prototype.getType;
+  proto['getType'] = proto.getType;
+})();

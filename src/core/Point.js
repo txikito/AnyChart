@@ -26,8 +26,9 @@ anychart.core.Point = function(chart, index) {
   /**
    * Statistics object.
    * @type {Object.<string, *>}
+   * @private
    */
-  this.statistics = {};
+  this.statistics_ = {};
 };
 
 
@@ -123,21 +124,45 @@ anychart.core.Point.prototype.exists = function() {
 
 
 /**
+ * Point statistics getter/setter for internal usage. Turns names to lower case and asks values as lower case.
+ * @param {string=} opt_name Statistics parameter name.
+ * @param {*=} opt_value Statistics parameter value.
+ * @return {anychart.core.Point|*}
+ */
+anychart.core.Point.prototype.statistics = function(opt_name, opt_value) {
+  if (goog.isDef(opt_name)) {
+    if (goog.isDef(opt_value)) {
+      this.statistics_[opt_name.toLowerCase()] = opt_value;
+      return this;
+    } else {
+      return this.statistics_[opt_name.toLowerCase()];
+    }
+  } else {
+    return this.statistics_;
+  }
+};
+
+
+/**
  * Gets statistics value by key.
  * @param {string} key - Key.
  * @return {*} - Statistics value.
  */
 anychart.core.Point.prototype.getStat = function(key) {
-  return goog.isDef(this.statistics[key]) ? this.statistics[key] : this.get(key);
+  var stat = this.statistics(key);
+  return goog.isDef(stat) ? stat : this.get(key);
 };
 
 
 //exports
-anychart.core.Point.prototype['getIndex'] = anychart.core.Point.prototype.getIndex;
-anychart.core.Point.prototype['getChart'] = anychart.core.Point.prototype.getChart;
-anychart.core.Point.prototype['get'] = anychart.core.Point.prototype.get;
-anychart.core.Point.prototype['set'] = anychart.core.Point.prototype.set;
-anychart.core.Point.prototype['hovered'] = anychart.core.Point.prototype.hovered;
-anychart.core.Point.prototype['selected'] = anychart.core.Point.prototype.selected;
-anychart.core.Point.prototype['exists'] = anychart.core.Point.prototype.exists;
-anychart.core.Point.prototype['getStat'] = anychart.core.Point.prototype.getStat;
+(function() {
+  var proto = anychart.core.Point.prototype;
+  proto['getIndex'] = proto.getIndex;
+  proto['getChart'] = proto.getChart;
+  proto['get'] = proto.get;
+  proto['set'] = proto.set;
+  proto['hovered'] = proto.hovered;
+  proto['selected'] = proto.selected;
+  proto['exists'] = proto.exists;
+  proto['getStat'] = proto.getStat;
+})();

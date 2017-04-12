@@ -3,21 +3,75 @@ goog.require('anychart.color');
 
 
 /**
- * Propagates all default values to their end-point targets.
- * @param {*} theme
- * @return {*}
+ * Compiles target root in the theme. If the target is already compiled returns null.
+ * Note: expects the theme to be a clone of the actual theme, so it can be edited in place.
+ * @param {!Object} theme
+ * @param {string} path
+ * @param {number} themeIndex
+ * @return {boolean}
  */
-anychart.themes.merging.compileTheme = function(theme) {
-  var result = anychart.utils.recursiveClone(theme);
-  var i;
-  for (i = 0; i < anychart.themes.merging.mergingMap_.length; i++) {
-    var obj = anychart.themes.merging.mergingMap_[i];
-    var defaultsObj = obj.defaultObj;
-    for (var j = 0; j < obj.targets.length; j++) {
-      result = anychart.themes.merging.mergeThemePart_(result, obj.targets[j].split('.'), defaultsObj.split('.'));
+anychart.themes.merging.compileTheme = function(theme, path, themeIndex) {
+  var rootParts = path.split('.');
+  var descriptor = anychart.themes.merging.mergingMapInverse_[rootParts[0]];
+  if (!descriptor) {
+    anychart.themes.merging.mergingMapInverse_[rootParts[0]] = {requires: [], compiledIn: themeIndex, mergedIn: 0};
+    return true;
+  }
+  var needsCompilation = descriptor.compiledIn <= themeIndex;
+  if (needsCompilation) {
+    descriptor.compiledIn = themeIndex + 1;
+    var requires = descriptor.requires;
+    for (var i = 0; i < requires.length; i++) {
+      var req = requires[i];
+      // ensure the default object is merged first
+      anychart.themes.merging.compileTheme(theme, req.defaultObj, themeIndex);
+      var targets = req.targets;
+      var defObjSplit = req.defaultObj.split('.');
+      for (var j = 0; j < targets.length; j++) {
+        // the theme is always an object, so the reference remains correct
+        anychart.themes.merging.mergeThemePart_(theme, targets[j].split('.'), defObjSplit);
+      }
     }
   }
-  return result || {};
+  return needsCompilation || descriptor.mergedIn < themeIndex;
+};
+
+
+/**
+ * @param {string} path
+ * @param {number} themeIndex
+ */
+anychart.themes.merging.markMergedDescriptor = function(path, themeIndex) {
+  var rootParts = path.split('.');
+  var descriptor = anychart.themes.merging.mergingMapInverse_[rootParts[0]];
+  if (!descriptor) {
+    anychart.themes.merging.mergingMapInverse_[rootParts[0]] = {requires: [], mergedIn: 0, compiledIn: 0};
+  }
+  descriptor.mergedIn = themeIndex;
+};
+
+
+/**
+ * Clears themes cache.
+ */
+anychart.themes.merging.clearCache = function() {
+  for (var i in anychart.themes.merging.mergingMapInverse_) {
+    var descriptor = anychart.themes.merging.mergingMapInverse_[i];
+    // we want to keep default theme cache
+    descriptor.compiledIn = Math.min(descriptor.compiledIn, 1);
+    descriptor.mergedIn = 0;
+  }
+};
+
+
+/**
+ * Returns theme part denoted be a string where parts are separated with a point.
+ * @param {*} theme
+ * @param {string} path
+ * @return {*}
+ */
+anychart.themes.merging.getThemePart = function(theme, path) {
+  return anychart.themes.merging.getThemePart_(theme, path.split('.'));
 };
 
 
@@ -45,25 +99,35 @@ anychart.themes.merging.getThemePart_ = function(theme, path) {
  * @param {Object} scaleObj - Scale object.
  * @param {number|string} index - Index or part of path.
  * @param {string} chartType - Chart type.
+ * @param {anychart.enums.ScaleTypes} defaultType - Default scale type.
  * @return {Object} - Clone of original scale json object with type.
  */
-anychart.themes.merging.mergeScale = function(scaleObj, index, chartType) {
-  var theme = anychart.getFullTheme();
-  var themeScale = anychart.themes.merging.getThemePart_(theme, [chartType, 'scales', index]);
+anychart.themes.merging.mergeScale = function(scaleObj, index, chartType, defaultType) {
+  var theme = anychart.getFullTheme(chartType);
+  var themeScale = anychart.themes.merging.getThemePart_(theme, ['scales', index]);
+  scaleObj = /** @type {Object} */(anychart.themes.merging.deepClone_(scaleObj));
 
+  var scaleType;
   if (themeScale) {
-    var scaleType = scaleObj['type'];
+    scaleType = scaleObj['type'];
     var themeScaleType = themeScale['type'];
 
-    if (goog.isDef(scaleType) && goog.isDef(themeScaleType) && ((themeScaleType == 'ordinal') ^ (scaleType == 'ordinal'))) {
-      return scaleObj;
-    } else {
-      var deepClone = anychart.themes.merging.deepClone_(scaleObj);
-      return /** @type {Object} */ (anychart.themes.merging.merge(deepClone, themeScale));
+    if (!goog.isDef(scaleType) || !goog.isDef(themeScaleType) || !((themeScaleType == 'ordinal') ^ (scaleType == 'ordinal'))) {
+      scaleObj = /** @type {Object} */ (anychart.themes.merging.merge(scaleObj, themeScale));
     }
   }
 
-  return scaleObj;
+  scaleType = scaleObj['type'] || defaultType;
+  var scaleDefault;
+  if (String(scaleType).toLowerCase() == 'ordinalcolor') {
+    anychart.getFullTheme('defaultOrdinalColorScale');
+  } else if (String(scaleType).toLowerCase() == 'linearcolor') {
+    anychart.getFullTheme('defaultLinearColorScale');
+  } else {
+    scaleDefault = anychart.themes.merging.getThemePart_(anychart.getFullTheme('defaultScaleSettings'), [scaleType]);
+  }
+
+  return /** @type {Object} */ (anychart.themes.merging.merge(scaleObj, scaleDefault));
 };
 
 
@@ -96,9 +160,8 @@ anychart.themes.merging.deepClone_ = function(obj) {
  * @param {Array.<string|number>} path Path parts.
  * @param {*} value
  * @return {*} Theme with the result.
- * @private
  */
-anychart.themes.merging.setThemePart_ = function(theme, path, value) {
+anychart.themes.merging.setThemePart = function(theme, path, value) {
   if (goog.isDef(value)) {
     var curr = goog.isObject(theme) ? theme : {};
     var result = curr;
@@ -160,7 +223,7 @@ anychart.themes.merging.removeThemePart_ = function(theme, path) {
  * @private
  */
 anychart.themes.merging.mergeThemePart_ = function(theme, targetPath, defaultPath) {
-  return anychart.themes.merging.setThemePart_(
+  return anychart.themes.merging.setThemePart(
       theme, targetPath,
       anychart.themes.merging.merge(
           anychart.themes.merging.getThemePart_(theme, targetPath),
@@ -178,7 +241,7 @@ anychart.themes.merging.mergeThemePart_ = function(theme, targetPath, defaultPat
  */
 anychart.themes.merging.replaceThemePart_ = function(theme, targetPath, defaultPath) {
   if (!goog.isDef(anychart.themes.merging.getThemePart_(theme, targetPath)))
-    return anychart.themes.merging.setThemePart_(theme, targetPath,
+    return anychart.themes.merging.setThemePart(theme, targetPath,
         anychart.themes.merging.getThemePart_(theme, defaultPath));
   return theme;
 };
@@ -270,9 +333,11 @@ anychart.themes.merging.demergeMultiple_ = function(target, defaultObj) {
       var itemDefault = anychart.themes.merging.getThemePart_(defaultObj,
           anychart.themes.merging.multipleEntities_[name].split('.'));
       var success = true;
-      if (goog.isArray(defaultArray) && defaultArray.length == len) {
+      var defaultArrayElement;
+      var defaultArrayLen = goog.isArray(defaultArray) ? defaultArray.length : 0;
+      if (defaultArrayLen == len) {
         for (i = 0; i < len; i++) {
-          var defaultArrayElement = anychart.utils.recursiveClone(defaultArray[i]);
+          defaultArrayElement = anychart.utils.recursiveClone(defaultArray[i]);
           defaultArrayElement = anychart.themes.merging.merge(defaultArrayElement, itemDefault);
           if (!anychart.themes.merging.checkEquality_(targetPart[i], defaultArrayElement)) {
             success = false;
@@ -286,7 +351,13 @@ anychart.themes.merging.demergeMultiple_ = function(target, defaultObj) {
         target = anychart.themes.merging.removeThemePart_(target, namePath);
       } else {
         for (i = 0; i < len; i++) {
-          targetPart[i] = anychart.themes.merging.demerge_(targetPart[i], itemDefault) || {};
+          if (i < defaultArrayLen) {
+            defaultArrayElement = anychart.utils.recursiveClone(defaultArray[i]);
+            defaultArrayElement = anychart.themes.merging.merge(defaultArrayElement, itemDefault);
+          } else {
+            defaultArrayElement = itemDefault;
+          }
+          targetPart[i] = anychart.themes.merging.demerge_(targetPart[i], defaultArrayElement) || {};
         }
       }
     }
@@ -308,8 +379,14 @@ anychart.themes.merging.demergeScales_ = function(target, defaultObj) {
     var namePath = anychart.themes.merging.scaleEntities_[j].split('.');
     var targetPart = anychart.themes.merging.getThemePart_(target, namePath);
     if (goog.isArray(targetPart)) {
-      len = targetPart.length;
       var defaultArray = anychart.themes.merging.getThemePart_(defaultObj, namePath);
+      len = defaultArray.length;
+      for (i = 0; i < len; i++) {
+        var scaleType = defaultArray[i]['type'];
+        var scaleDefault = anychart.themes.merging.getThemePart_(anychart.getFullTheme('defaultScaleSettings'), [scaleType]);
+        defaultArray[i] = anychart.themes.merging.merge(defaultArray[i], scaleDefault);
+      }
+      len = targetPart.length;
       var success = true;
       if (goog.isArray(defaultArray) && defaultArray.length == len) {
         for (i = 0; i < len; i++) {
@@ -352,6 +429,7 @@ anychart.themes.merging.demerge_ = function(target, defaultObj, opt_nonMergableE
       if (key in defaultObj) {
         var defVal = defaultObj[key];
         var nonMergableEntityType;
+
         if (key in anychart.themes.merging.nonMergableEntities_) {
           nonMergableEntityType = anychart.themes.merging.nonMergableEntities_[key];
           switch (nonMergableEntityType) {
@@ -373,8 +451,7 @@ anychart.themes.merging.demerge_ = function(target, defaultObj, opt_nonMergableE
         } else {
           nonMergableEntityType = anychart.themes.merging.NonMergableEntityTypes_.NONE;
         }
-        if (nonMergableEntityType == anychart.themes.merging.NonMergableEntityTypes_.SCALE ||
-            nonMergableEntityType == anychart.themes.merging.NonMergableEntityTypes_.PADDING) {
+        if (nonMergableEntityType != anychart.themes.merging.NonMergableEntityTypes_.NONE) {
           val = anychart.themes.merging.checkEquality_(target[key], defVal, nonMergableEntityType) ?
               undefined : target[key];
         } else {
@@ -470,10 +547,17 @@ anychart.themes.merging.checkEquality_ = function(target, defaultObj, opt_arrayT
 
 /**
  * Map used by merger, that explains how to merge. It is an array to ensure merging order.
- * @type {Array.<{defaultObj:string, targets:Array.<string>}>}
+ * @const {Array.<{defaultObj:string, targets:Array.<string>}>}
  * @private
  */
 anychart.themes.merging.mergingMap_ = [
+  {
+    defaultObj: 'defaultScaleSettings.linear',
+    targets: [
+      'defaultScaleSettings.log',
+      'defaultScaleSettings.dateTime'
+    ]
+  },
   {
     defaultObj: 'defaultFontSettings',
     targets: [
@@ -481,7 +565,7 @@ anychart.themes.merging.mergingMap_ = [
       'defaultLabelFactory',
       'defaultCrosshairLabel',
       'defaultTooltip',
-      'defaultTooltip.content',
+      'defaultTooltip.contentInternal',
       'defaultLegend',
       'defaultLegend.paginator',
       'chart.defaultLabelSettings',
@@ -499,7 +583,7 @@ anychart.themes.merging.mergingMap_ = [
     targets: [
       'defaultTitle.background',
       'defaultTooltip.background',
-      'defaultTooltip.content.background',
+      'defaultTooltip.contentInternal.background',
       'defaultLabelFactory.background',
       'defaultCrosshairLabel.background',
       'chart.background',
@@ -542,6 +626,12 @@ anychart.themes.merging.mergingMap_ = [
       'defaultTimeline.header.lowLevel.labels',
       'resource.activities.labels',
       'resource.conflicts.labels'
+    ]
+  },
+  {
+    defaultObj: 'chart.labels',
+    targets: [
+      'chart.defaultSeriesSettings.base.labels'
     ]
   },
   {
@@ -609,25 +699,28 @@ anychart.themes.merging.mergingMap_ = [
   {
     defaultObj: 'palette',
     targets: [
-      'chart.palette'
+      'chart.palette',
+      'stock.scroller.palette'
     ]
   },
   {
     defaultObj: 'hatchFillPalette',
     targets: [
-      'chart.hatchFillPalette'
+      'chart.hatchFillPalette',
+      'stock.scroller.hatchFillPalette'
     ]
   },
   {
     defaultObj: 'hatchFillPaletteFor3D',
     targets: [
-      'cartesian3d.hatchFillPalette'
+      'cartesian3dBase.hatchFillPalette'
     ]
   },
   {
     defaultObj: 'markerPalette',
     targets: [
-      'chart.markerPalette'
+      'chart.markerPalette',
+      'stock.defaultPlotSettings.markerPalette'
     ]
   },
   {
@@ -805,6 +898,16 @@ anychart.themes.merging.mergingMap_ = [
     ]
   },
   {
+    defaultObj: 'cartesianBase.defaultSeriesSettings.rangeLike',
+    targets: [
+      'cartesianBase.defaultSeriesSettings.rangeArea',
+      'cartesianBase.defaultSeriesSettings.rangeBar',
+      'cartesianBase.defaultSeriesSettings.rangeColumn',
+      'cartesianBase.defaultSeriesSettings.rangeSplineArea',
+      'cartesianBase.defaultSeriesSettings.rangeStepArea'
+    ]
+  },
+  {
     defaultObj: 'cartesianBase.defaultSeriesSettings.base',
     targets: [
       'cartesianBase.defaultSeriesSettings.areaLike',
@@ -853,29 +956,33 @@ anychart.themes.merging.mergingMap_ = [
     targets: [
       'cartesian',
       'area',
+      'verticalArea',
       'bar',
       'box',
       'column',
       'financial',
       'line',
+      'verticalLine',
       'jumpLine',
-      'stick'
+      'stick',
+      'pareto'
     ]
   },
   {
-    defaultObj: 'cartesian3d.defaultSeriesSettings.base',
+    defaultObj: 'cartesian3dBase.defaultSeriesSettings.base',
     targets: [
-      'cartesian3d.defaultSeriesSettings.bar',
-      'cartesian3d.defaultSeriesSettings.column',
-      'cartesian3d.defaultSeriesSettings.area'
+      'cartesian3dBase.defaultSeriesSettings.bar',
+      'cartesian3dBase.defaultSeriesSettings.column',
+      'cartesian3dBase.defaultSeriesSettings.area'
     ]
   },
   {
-    defaultObj: 'cartesian3d',
+    defaultObj: 'cartesian3dBase',
     targets: [
       'area3d',
       'bar3d',
-      'column3d'
+      'column3d',
+      'cartesian3d'
     ]
   },
   {
@@ -961,19 +1068,35 @@ anychart.themes.merging.mergingMap_ = [
     targets: [
       'polar.defaultSeriesSettings.areaLike',
       'polar.defaultSeriesSettings.lineLike',
-      'polar.defaultSeriesSettings.marker'
+      'polar.defaultSeriesSettings.marker',
+      'polar.defaultSeriesSettings.barLike'
+    ]
+  },
+  {
+    defaultObj: 'polar.defaultSeriesSettings.rangeLike',
+    targets: [
+      'polar.defaultSeriesSettings.rangeColumn'
     ]
   },
   {
     defaultObj: 'polar.defaultSeriesSettings.areaLike',
     targets: [
-      'polar.defaultSeriesSettings.area'
+      'polar.defaultSeriesSettings.area',
+      'polar.defaultSeriesSettings.polygon'
     ]
   },
   {
     defaultObj: 'polar.defaultSeriesSettings.lineLike',
     targets: [
-      'polar.defaultSeriesSettings.line'
+      'polar.defaultSeriesSettings.line',
+      'polar.defaultSeriesSettings.polyline'
+    ]
+  },
+  {
+    defaultObj: 'polar.defaultSeriesSettings.barLike',
+    targets: [
+      'polar.defaultSeriesSettings.column',
+      'polar.defaultSeriesSettings.rangeColumn'
     ]
   },
   {
@@ -1032,6 +1155,15 @@ anychart.themes.merging.mergingMap_ = [
       'stock.defaultAnnotationSettings.fibonacciTimezones',
       'stock.defaultAnnotationSettings.marker',
       'stock.defaultAnnotationSettings.label'
+    ]
+  },
+  {
+    defaultObj: 'stock.defaultPlotSettings.defaultSeriesSettings.rangeLike',
+    targets: [
+      'stock.defaultPlotSettings.defaultSeriesSettings.rangeArea',
+      'stock.defaultPlotSettings.defaultSeriesSettings.rangeColumn',
+      'stock.defaultPlotSettings.defaultSeriesSettings.rangeSplineArea',
+      'stock.defaultPlotSettings.defaultSeriesSettings.rangeStepArea'
     ]
   },
   {
@@ -1123,6 +1255,15 @@ anychart.themes.merging.mergingMap_ = [
     ]
   },
   {
+    defaultObj: 'stock.scroller.defaultSeriesSettings.rangeLike',
+    targets: [
+      'stock.scroller.defaultSeriesSettings.rangeArea',
+      'stock.scroller.defaultSeriesSettings.rangeColumn',
+      'stock.scroller.defaultSeriesSettings.rangeSplineArea',
+      'stock.scroller.defaultSeriesSettings.rangeStepArea'
+    ]
+  },
+  {
     defaultObj: 'defaultScrollBar',
     targets: [
       'defaultDataGrid.horizontalScrollBar',
@@ -1204,6 +1345,50 @@ anychart.themes.merging.mergingMap_ = [
 
 
 /**
+ * @const {Object.<string, Object.<{
+ *    requires: Array.<{
+ *        defaultObj:string,
+ *        targets:Array.<string>
+ *    }>,
+ *    compiledIn: number,
+ *    mergedIn: number
+ * }>>}
+ * @private
+ */
+anychart.themes.merging.mergingMapInverse_ = (function() {
+  var mergingMap = anychart.themes.merging.mergingMap_;
+  var res = {};
+  for (var i = 0; i < mergingMap.length; i++) {
+    var defObj = mergingMap[i].defaultObj;
+    var targets = mergingMap[i].targets;
+    for (var j = 0; j < targets.length; j++) {
+      var target = targets[j];
+      var targetSplit = target.split('.');
+      var root = targetSplit[0];
+      var obj = res[root];
+      if (!obj) {
+        res[root] = obj = {
+          requires: [],
+          compiledIn: 0,
+          mergedIn: 0
+        };
+      }
+      var last = obj.requires[obj.requires.length - 1];
+      if (last && last.defaultObj == defObj) {
+        last.targets.push(target);
+      } else {
+        obj.requires.push({
+          defaultObj: defObj,
+          targets: [target]
+        });
+      }
+    }
+  }
+  return res;
+})();
+
+
+/**
  * Type of the non-mergable entity.
  * @enum {number}
  * @private
@@ -1227,6 +1412,7 @@ anychart.themes.merging.NonMergableEntityTypes_ = {
  * @private
  */
 anychart.themes.merging.nonMergableEntities_ = {
+
   'padding': anychart.themes.merging.NonMergableEntityTypes_.PADDING,
 
   'scale': anychart.themes.merging.NonMergableEntityTypes_.SCALE,
@@ -1394,6 +1580,10 @@ anychart.themes.merging.scaleEntities_ = [
 anychart.themes.merging.typedEntities_ = {
   'chart.series': {
     defaults: 'chart.defaultSeriesSettings',
+    typeDescriptor: 'seriesType'
+  },
+  'map.series': {
+    defaults: 'map.defaultSeriesSettings',
     typeDescriptor: 'seriesType'
   },
   'gauge.pointers': {

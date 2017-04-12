@@ -2,6 +2,7 @@ goog.provide('anychart.themes.pastel');
 
 
 (function() {
+  var global = this;
   var stockScrollerUnselected = '#999';
 
 
@@ -18,8 +19,17 @@ goog.provide('anychart.themes.pastel');
    * @this {*}
    * @return {*}
    */
+  var returnSourceColor60 = function() {
+    return global['anychart']['color']['setOpacity'](this['sourceColor'], 0.6, true);
+  };
+
+
+  /**
+   * @this {*}
+   * @return {*}
+   */
   var returnDarkenSourceColor = function() {
-    return window['anychart']['color']['darken'](this['sourceColor']);
+    return global['anychart']['color']['darken'](this['sourceColor']);
   };
 
 
@@ -28,20 +38,20 @@ goog.provide('anychart.themes.pastel');
    * @return {*}
    */
   var returnLightenSourceColor = function() {
-    return window['anychart']['color']['lighten'](this['sourceColor']);
+    return global['anychart']['color']['lighten'](this['sourceColor']);
   };
 
 
-  window['anychart'] = window['anychart'] || {};
-  window['anychart']['themes'] = window['anychart']['themes'] || {};
-  window['anychart']['themes']['pastel'] = {
+  global['anychart'] = global['anychart'] || {};
+  global['anychart']['themes'] = global['anychart']['themes'] || {};
+  global['anychart']['themes']['pastel'] = {
     'palette': {
       'type': 'distinct',
       'items': ['#90caf9', '#80cbc4', '#aed581', '#e6ee9c', '#ffcc80', '#ffab91', '#f8bbd0', '#d1c4e9', '#9e9e9e', '#c7b299']
     },
     'defaultOrdinalColorScale': {
       'autoColors': function(rangesCount) {
-        return window['anychart']['color']['blendedHueProgression']('#e6ee9c', '#80cbc4', rangesCount);
+        return global['anychart']['color']['blendedHueProgression']('#e6ee9c', '#80cbc4', rangesCount);
       }
     },
     'defaultLinearColorScale': {'colors': ['#e6ee9c', '#80cbc4']},
@@ -238,24 +248,23 @@ goog.provide('anychart.themes.pastel');
         'outlineStroke': '#dcd8d4',
         'defaultSeriesSettings': {
           'base': {
-            'color': '#90caf9 0.6',
-            'selectStroke': returnSourceColor
+            'selectStroke': returnSourceColor60
           },
           'candlestick': {
             'risingFill': stockScrollerUnselected,
             'risingStroke': stockScrollerUnselected,
             'fallingFill': stockScrollerUnselected,
             'fallingStroke': stockScrollerUnselected,
-            'selectRisingStroke': returnSourceColor,
-            'selectFallingStroke': returnSourceColor,
-            'selectRisingFill': returnSourceColor,
-            'selectFallingFill': returnSourceColor
+            'selectRisingStroke': returnSourceColor60,
+            'selectFallingStroke': returnSourceColor60,
+            'selectRisingFill': returnSourceColor60,
+            'selectFallingFill': returnSourceColor60
           },
           'ohlc': {
             'risingStroke': stockScrollerUnselected,
             'fallingStroke': stockScrollerUnselected,
-            'selectRisingStroke': returnSourceColor,
-            'selectFallingStroke': returnSourceColor
+            'selectRisingStroke': returnSourceColor60,
+            'selectFallingStroke': returnSourceColor60
           }
         }
       },
@@ -266,4 +275,4 @@ goog.provide('anychart.themes.pastel');
       }
     }
   };
-})();
+}).call(this);

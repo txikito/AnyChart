@@ -8,6 +8,7 @@ goog.require('anychart.utils');
  *    queue: !anychart.math.CycledQueue,
  *    period: number,
  *    prevResult: number,
+ *    dequeuedValue: number,
  *    dispose: Function
  * }}
  */
@@ -25,6 +26,7 @@ anychart.math.sma.initContext = function(opt_period) {
     queue: anychart.math.cycledQueue(period),
     period: period,
     prevResult: NaN,
+    dequeuedValue: NaN,
     /**
      * @this {anychart.math.sma.Context}
      */
@@ -43,6 +45,7 @@ anychart.math.sma.initContext = function(opt_period) {
 anychart.math.sma.startFunction = function(context) {
   context.queue.clear();
   context.prevResult = NaN;
+  context.dequeuedValue = NaN;
 };
 
 
@@ -54,13 +57,7 @@ anychart.math.sma.startFunction = function(context) {
  */
 anychart.math.sma.calculationFunction = function(row, context) {
   var value = anychart.utils.toNumber(row.get('value'));
-  var result;
-  if (isNaN(value)) {
-    result = NaN;
-  } else {
-    result = anychart.math.sma.calculate(value, context.period, context.queue, context.prevResult);
-    context.prevResult = result;
-  }
+  var result = anychart.math.sma.calculate(context, value);
   row.set('result', result);
 };
 
@@ -85,28 +82,32 @@ anychart.math.sma.createComputer = function(mapping, opt_period) {
  * Calculates next SMA value based on a previous SMA value and current data value.
  * To use this function you need a setup queue with length equal to period.
  * On first calculation pass NaN or nothing as a opt_prevResult.
+ * @param {anychart.math.sma.Context} context
  * @param {number} value
- * @param {number} period
- * @param {anychart.math.CycledQueue} queue
- * @param {number} prevResult
  * @return {number}
  */
-anychart.math.sma.calculate = function(value, period, queue, prevResult) {
-  var firstValue = /** @type {number} */(queue.enqueue(value));
+anychart.math.sma.calculate = function(context, value) {
+  if (isNaN(value)) {
+    context.dequeuedValue = NaN;
+    return NaN;
+  }
+  var firstValue = /** @type {number} */(context.queue.enqueue(value));
+  context.dequeuedValue = firstValue;
   /** @type {number} */
   var result;
-  if (queue.getLength() < period) {
-    result = NaN;
-  } else if (isNaN(prevResult)) {
+  if (context.queue.getLength() < context.period) {
+    return NaN;
+  } else if (isNaN(context.prevResult)) {
     result = 0;
-    for (var i = 0; i < period; i++) {
-      result += /** @type {number} */(queue.get(i));
+    for (var i = 0; i < context.period; i++) {
+      result += /** @type {number} */(context.queue.get(i));
     }
-    result /= period;
+    result /= context.period;
   } else { // firstValue should not be undefined here
-    var lastValue = /** @type {number} */(queue.get(-1));
-    result = prevResult + (lastValue - firstValue) / period;
+    var lastValue = /** @type {number} */(context.queue.get(-1));
+    result = context.prevResult + (lastValue - firstValue) / context.period;
   }
+  context.prevResult = result;
   return result;
 };
 
@@ -114,5 +115,6 @@ anychart.math.sma.calculate = function(value, period, queue, prevResult) {
 //exports
 goog.exportSymbol('anychart.math.sma.initContext', anychart.math.sma.initContext);
 goog.exportSymbol('anychart.math.sma.startFunction', anychart.math.sma.startFunction);
+goog.exportSymbol('anychart.math.sma.calculate', anychart.math.sma.calculate);
 goog.exportSymbol('anychart.math.sma.calculationFunction', anychart.math.sma.calculationFunction);
 goog.exportSymbol('anychart.math.sma.createComputer', anychart.math.sma.createComputer);

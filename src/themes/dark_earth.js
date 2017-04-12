@@ -2,6 +2,7 @@ goog.provide('anychart.themes.dark_earth');
 
 
 (function() {
+  var global = this;
   var stockScrollerUnselected = '#999 0.6';
 
 
@@ -18,8 +19,17 @@ goog.provide('anychart.themes.dark_earth');
    * @this {*}
    * @return {*}
    */
+  var returnSourceColor60 = function() {
+    return global['anychart']['color']['setOpacity'](this['sourceColor'], 0.6, true);
+  };
+
+
+  /**
+   * @this {*}
+   * @return {*}
+   */
   var returnDarkenSourceColor = function() {
-    return window['anychart']['color']['darken'](this['sourceColor']);
+    return global['anychart']['color']['darken'](this['sourceColor']);
   };
 
 
@@ -28,20 +38,20 @@ goog.provide('anychart.themes.dark_earth');
    * @return {*}
    */
   var returnLightenSourceColor = function() {
-    return window['anychart']['color']['lighten'](this['sourceColor']);
+    return global['anychart']['color']['lighten'](this['sourceColor']);
   };
 
 
-  window['anychart'] = window['anychart'] || {};
-  window['anychart']['themes'] = window['anychart']['themes'] || {};
-  window['anychart']['themes']['darkEarth'] = {
+  global['anychart'] = global['anychart'] || {};
+  global['anychart']['themes'] = global['anychart']['themes'] || {};
+  global['anychart']['themes']['darkEarth'] = {
     'palette': {
       'type': 'distinct',
       'items': ['#827717', '#c77532', '#998675', '#6b617b', '#c69c6d', '#d29b9b', '#879872', '#16685d', '#57a7b1', '#bdbdbd']
     },
     'defaultOrdinalColorScale': {
       'autoColors': function(rangesCount) {
-        return window['anychart']['color']['blendedHueProgression']('#827717', '#c77532', rangesCount);
+        return global['anychart']['color']['blendedHueProgression']('#827717', '#c77532', rangesCount);
       }
     },
     'defaultLinearColorScale': {'colors': ['#827717', '#c77532']},
@@ -287,29 +297,28 @@ goog.provide('anychart.themes.dark_earth');
         'outlineStroke': '#636363 0.6',
         'defaultSeriesSettings': {
           'base': {
-            'color': '#827717 0.6',
-            'selectStroke': returnSourceColor,
-            'selectFill': returnSourceColor
+            'selectStroke': returnSourceColor60,
+            'selectFill': returnSourceColor60
           },
           'lineLike': {
-            'selectStroke': returnSourceColor
+            'selectStroke': returnSourceColor60
           },
           'areaLike': {
-            'selectStroke': returnSourceColor,
-            'selectFill': returnSourceColor
+            'selectStroke': returnSourceColor60,
+            'selectFill': returnSourceColor60
           },
           'marker': {
-            'selectStroke': returnSourceColor
+            'selectStroke': returnSourceColor60
           },
           'candlestick': {
             'risingFill': stockScrollerUnselected,
             'risingStroke': stockScrollerUnselected,
             'fallingFill': stockScrollerUnselected,
             'fallingStroke': stockScrollerUnselected,
-            'selectRisingStroke': returnSourceColor,
-            'selectFallingStroke': returnSourceColor,
-            'selectRisingFill': returnSourceColor,
-            'selectFallingFill': returnSourceColor
+            'selectRisingStroke': returnSourceColor60,
+            'selectFallingStroke': returnSourceColor60,
+            'selectRisingFill': returnSourceColor60,
+            'selectFallingFill': returnSourceColor60
           },
           'ohlc': {
             'risingStroke': stockScrollerUnselected,
@@ -321,4 +330,4 @@ goog.provide('anychart.themes.dark_earth');
       }
     }
   };
-})();
+}).call(this);

@@ -62,6 +62,74 @@ goog.inherits(anychart.core.ui.StageCredits, goog.Disposable);
 anychart.core.ui.StageCredits.DOMAIN_REGEXP = /^(.*\.)?anychart\.(com|stg|dev)$/i;
 
 
+//region --- Styles
+//------------------------------------------------------------------------------
+//
+//  Styles
+//
+//------------------------------------------------------------------------------
+/**
+ * A flag to install styles only one time.
+ * @type {boolean}
+ * @private
+ */
+anychart.core.ui.StageCredits.stylesInstalled_ = false;
+
+
+/**
+ * Installing default css.
+ * @private
+ */
+anychart.core.ui.StageCredits.installStyles_ = function() {
+  var styles = '';
+  var css = goog.dom.createDom(goog.dom.TagName.STYLE);
+  css.type = 'text/css';
+
+  styles += '.' + anychart.core.ui.StageCredits.CssClass_.CREDITS + '{' +
+      'position:absolute;' +
+      'overflow:hidden;' +
+      'right:9px;' +
+      'bottom:6px;' +
+      'height:10px;' +
+      '}';
+
+  styles += '.' + anychart.core.ui.StageCredits.CssClass_.CREDITS + ' a {' +
+      'text-decoration:none;' +
+      '}';
+
+  styles += '.' + anychart.core.ui.StageCredits.CssClass_.LOGO + '{' +
+      'border:none;' +
+      'margin-right:2px;' +
+      'height:10px;' +
+      'width:10px;' +
+      'display:inline-block;' +
+      'vertical-align:top;' +
+      '}';
+
+  styles += '.' + anychart.core.ui.StageCredits.CssClass_.TEXT + '{' +
+      'font-size:10px;' +
+      'line-height:9px;' +
+      'display:inline-block;' +
+      'vertical-align:top;' +
+      'text-decoration:none;' +
+      'font-family:"Helvetica Neue",Helvetica,Arial,sans-serif;' +
+      'color:#929292;' +
+      'height:10px;' +
+      '}';
+
+  if (css.styleSheet)
+    css['styleSheet']['cssText'] = styles;
+  else
+    goog.dom.appendChild(css, goog.dom.createTextNode(styles));
+
+  goog.dom.insertChildAt(
+      goog.dom.getElementsByTagNameAndClass('head')[0],
+      css, 0
+  );
+};
+
+
+//endregion
 //region --- WORKING WITH STATES ---
 /**
  * States enum
@@ -203,6 +271,24 @@ anychart.core.ui.StageCredits.prototype.alt = function(opt_value) {
 
 
 /**
+ * Getter/setter for image alt.
+ * @param {string=} opt_value alt.
+ * @return {string|anychart.core.ui.StageCredits} alt or self for chaining.
+ */
+anychart.core.ui.StageCredits.prototype.imgAlt = function(opt_value) {
+  if (goog.isDef(opt_value)) {
+    if (this.imgAlt_ != opt_value) {
+      this.imgAlt_ = opt_value;
+      if (this.isValid())
+        this.invalidate(anychart.core.ui.StageCredits.States.URL_ALT, true);
+    }
+    return this;
+  }
+  return this.imgAlt_;
+};
+
+
+/**
  * Getter/setter for logoSrc.
  * @param {string=} opt_value logoSrc.
  * @return {string|anychart.core.ui.StageCredits} logoSrc or self for chaining.
@@ -251,62 +337,7 @@ anychart.core.ui.StageCredits.CssClass_ = {
 };
 
 
-/**
- * Creates and return style node.
- * @return {!Element}
- * @private
- */
-anychart.core.ui.StageCredits.prototype.createCssElement_ = function() {
-  var styles = '';
-  var css = goog.dom.createDom(goog.dom.TagName.STYLE);
-  css.type = 'text/css';
-
-  styles += '.' + anychart.core.ui.StageCredits.CssClass_.CREDITS + '{' +
-      'position:absolute;' +
-      'overflow:hidden;' +
-      'right:9px;' +
-      'bottom:6px;' +
-      'height:10px;' +
-      '}';
-
-  styles += '.' + anychart.core.ui.StageCredits.CssClass_.CREDITS + ' a {' +
-      'text-decoration:none;' +
-      '}';
-
-  styles += '.' + anychart.core.ui.StageCredits.CssClass_.LOGO + '{' +
-      'border:none;' +
-      'margin-right:2px;' +
-      'height:10px;' +
-      'width:10px;' +
-      'display:inline-block;' +
-      'vertical-align:top;' +
-      '}';
-
-  styles += '.' + anychart.core.ui.StageCredits.CssClass_.TEXT + '{' +
-      'font-size:10px;' +
-      'line-height:9px;' +
-      'display:inline-block;' +
-      'vertical-align:top;' +
-      'text-decoration:none;' +
-      'font-family:"Helvetica Neue",Helvetica,Arial,sans-serif;' +
-      'color:#929292;' +
-      'height:10px;' +
-      '}';
-
-  if (css.styleSheet)
-    css['styleSheet']['cssText'] = styles;
-  else
-    goog.dom.appendChild(css, goog.dom.createTextNode(styles));
-
-  goog.dom.insertChildAt(
-      goog.dom.getElementsByTagNameAndClass('head')[0],
-      css, 0
-  );
-  return css;
-};
 //endregion
-
-
 //region --- DRAWING ---
 /**
  * Renders credits.
@@ -331,8 +362,9 @@ anychart.core.ui.StageCredits.prototype.render = function() {
     return this;
   }
 
-  if (!anychart.core.ui.StageCredits.creditsCss_) {
-    anychart.core.ui.StageCredits.creditsCss_ = this.createCssElement_();
+  if (!anychart.core.ui.StageCredits.stylesInstalled_) {
+    anychart.core.ui.StageCredits.installStyles_();
+    anychart.core.ui.StageCredits.stylesInstalled_ = true;
   }
 
   if (!this.domElement_) {
@@ -347,7 +379,7 @@ anychart.core.ui.StageCredits.prototype.render = function() {
     goog.dom.appendChild(this.domElement_, this.a_);
   }
 
-  var containerElement = /** @type {Element} */(this.stage_.container());
+  var containerElement = this.stage_.getDomWrapper();
   if (this.hasInvalidationState(anychart.core.ui.StageCredits.States.ENABLED)) {
     if (containerElement)
       goog.dom.appendChild(containerElement, this.domElement_);
@@ -356,9 +388,12 @@ anychart.core.ui.StageCredits.prototype.render = function() {
 
   if (this.hasInvalidationState(anychart.core.ui.StageCredits.States.URL_ALT)) {
     goog.dom.setProperties(this.a_, {
-      'href': valid ? this.url() : 'http://anychart.com',
-      'title': valid ? this.alt() : 'AnyChart',
+      'href': valid ? this.url() : 'http://www.anychart.com/?utm_source=trial',
+      'title': valid ? this.alt() : 'AnyChart - JavaScript Charts designed to be embedded and integrated',
       'target': '_blank'
+    });
+    goog.dom.setProperties(this.image_, {
+      'alt': valid ? this.imgAlt() : 'AnyChart - JavaScript Charts'
     });
     this.markConsistent(anychart.core.ui.StageCredits.States.URL_ALT);
   }
@@ -424,7 +459,7 @@ anychart.core.ui.StageCredits.prototype.getFinalSrc = function() {
 anychart.core.ui.StageCredits.prototype.onImageLoadHandler_ = function(e) {
   var src = this.tagetSrc;
   if (e.target.id != src) return;
-  if (!this.isDisposed())
+  if (!this.isDisposed() && this.getFinalSrc() == src)
     if (!this.image_.parentNode)
       goog.dom.insertChildAt(this.a_, this.image_, 0);
     goog.dom.setProperties(this.image_, {'src': src});
@@ -458,7 +493,7 @@ anychart.core.ui.StageCredits.prototype.onImageErrorHandler_ = function(e) {
 //region --- SETUP/DISPOSE ---
 /**
  * Setup.
- * @param {Object|null|boolean|string} config Config.
+ * @param {*} config Config.
  */
 anychart.core.ui.StageCredits.prototype.setup = function(config) {
   this.stage_.suspend();
@@ -471,6 +506,7 @@ anychart.core.ui.StageCredits.prototype.setup = function(config) {
     this.url(config['url']);
     this.text(config['text']);
     this.alt(config['alt']);
+    this.imgAlt(config['imgAlt']);
     this.logoSrc(config['logoSrc']);
     this.enabled(config['enabled']);
   }
@@ -486,6 +522,7 @@ anychart.core.ui.StageCredits.prototype.serialize = function() {
   var json = {};
   json['url'] = this.url();
   json['alt'] = this.alt();
+  json['imgAlt'] = this.imgAlt();
   json['text'] = this.text();
   json['logoSrc'] = this.logoSrc();
   json['enabled'] = this.enabled();
@@ -517,8 +554,12 @@ anychart.core.ui.StageCredits.prototype.disposeInternal = function() {
 
 
 //exports
-anychart.core.ui.StageCredits.prototype['text'] = anychart.core.ui.StageCredits.prototype.text;
-anychart.core.ui.StageCredits.prototype['url'] = anychart.core.ui.StageCredits.prototype.url;
-anychart.core.ui.StageCredits.prototype['alt'] = anychart.core.ui.StageCredits.prototype.alt;
-anychart.core.ui.StageCredits.prototype['logoSrc'] = anychart.core.ui.StageCredits.prototype.logoSrc;
-anychart.core.ui.StageCredits.prototype['enabled'] = anychart.core.ui.StageCredits.prototype.enabled;
+(function() {
+  var proto = anychart.core.ui.StageCredits.prototype;
+  proto['text'] = proto.text;
+  proto['url'] = proto.url;
+  proto['alt'] = proto.alt;
+  proto['imgAlt'] = proto.imgAlt;
+  proto['logoSrc'] = proto.logoSrc;
+  proto['enabled'] = proto.enabled;
+})();

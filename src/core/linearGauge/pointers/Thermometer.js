@@ -32,12 +32,12 @@ anychart.core.linearGauge.pointers.Thermometer.prototype.drawVertical = function
   this.pointerBounds.height = Math.abs(bottom - top);
 
   this.path.clear()
-    .moveTo(left, top)
-    .lineTo(right, top)
-    .lineTo(right, bottom)
-    .arcToByEndPoint(left, bottom, this.pixRadius_, this.pixRadius_, true, !inverted)
-    .lineTo(left, top)
-    .close();
+      .moveTo(left, top)
+      .lineTo(right, top)
+      .lineTo(right, bottom)
+      .arcToByEndPoint(left, bottom, this.pixRadius_, this.pixRadius_, true, !inverted)
+      .lineTo(left, top)
+      .close();
 
   this.hatch.deserialize(this.path.serialize());
 };
@@ -58,12 +58,12 @@ anychart.core.linearGauge.pointers.Thermometer.prototype.drawHorizontal = functi
   this.pointerBounds.height = Math.abs(right - left);
 
   this.path.clear()
-    .moveTo(top, left)
-    .lineTo(top, right)
-    .lineTo(bottom, right)
-    .arcToByEndPoint(bottom, left, this.pixRadius_, this.pixRadius_, true, !inverted)
-    .lineTo(top, left)
-    .close();
+      .moveTo(top, left)
+      .lineTo(top, right)
+      .lineTo(bottom, right)
+      .arcToByEndPoint(bottom, left, this.pixRadius_, this.pixRadius_, true, !inverted)
+      .lineTo(top, left)
+      .close();
 
   this.hatch.deserialize(this.path.serialize());
 };
@@ -114,7 +114,7 @@ anychart.core.linearGauge.pointers.Thermometer.prototype.getReservedBounds = fun
  */
 anychart.core.linearGauge.pointers.Thermometer.prototype.bulbRadius = function(opt_value) {
   if (goog.isDef(opt_value)) {
-    opt_value = anychart.utils.normalizeToPercent(opt_value);
+    opt_value = /** @type {string} */ (anychart.utils.normalizeToPercent(opt_value));
     if (this.bulbRadius_ != opt_value) {
       this.bulbRadius_ = opt_value;
       this.invalidate(anychart.ConsistencyState.APPEARANCE, anychart.Signal.NEEDS_REDRAW | anychart.Signal.BOUNDS_CHANGED);
@@ -132,7 +132,7 @@ anychart.core.linearGauge.pointers.Thermometer.prototype.bulbRadius = function(o
  */
 anychart.core.linearGauge.pointers.Thermometer.prototype.bulbPadding = function(opt_value) {
   if (goog.isDef(opt_value)) {
-    opt_value = anychart.utils.normalizeToPercent(opt_value);
+    opt_value = /** @type {string} */ (anychart.utils.normalizeToPercent(opt_value));
     if (this.bulbPadding_ != opt_value) {
       this.bulbPadding_ = opt_value;
       this.invalidate(anychart.ConsistencyState.APPEARANCE, anychart.Signal.NEEDS_REDRAW | anychart.Signal.BOUNDS_CHANGED);
@@ -164,5 +164,8 @@ anychart.core.linearGauge.pointers.Thermometer.prototype.serialize = function() 
 //endregion
 
 //exports
-anychart.core.linearGauge.pointers.Thermometer.prototype['bulbRadius'] = anychart.core.linearGauge.pointers.Thermometer.prototype.bulbRadius;
-anychart.core.linearGauge.pointers.Thermometer.prototype['bulbPadding'] = anychart.core.linearGauge.pointers.Thermometer.prototype.bulbPadding;
+(function() {
+  var proto = anychart.core.linearGauge.pointers.Thermometer.prototype;
+  proto['bulbRadius'] = proto.bulbRadius;
+  proto['bulbPadding'] = proto.bulbPadding;
+})();

@@ -3,7 +3,6 @@ goog.require('anychart.core.drawers');
 goog.require('anychart.core.drawers.Base');
 goog.require('anychart.core.drawers.SplineDrawer');
 goog.require('anychart.enums');
-goog.require('anychart.opt');
 
 
 
@@ -44,7 +43,7 @@ anychart.core.drawers.RangeSplineArea.prototype.flags = (
     // anychart.core.drawers.Capabilities.IS_DISCRETE_BASED |
     // anychart.core.drawers.Capabilities.IS_WIDTH_BASED |
     // anychart.core.drawers.Capabilities.IS_3D_BASED |
-    // anychart.core.drawers.Capabilities.IS_BAR_BASED |
+    // anychart.core.drawers.Capabilities.IS_VERTICAL |
     // anychart.core.drawers.Capabilities.IS_MARKER_BASED |
     // anychart.core.drawers.Capabilities.IS_OHLC_BASED |
     // anychart.core.drawers.Capabilities.IS_LINE_BASED |
@@ -55,48 +54,58 @@ anychart.core.drawers.RangeSplineArea.prototype.flags = (
 
 
 /** @inheritDoc */
-anychart.core.drawers.RangeSplineArea.prototype.yValueNames = ([anychart.opt.HIGH, anychart.opt.LOW]);
+anychart.core.drawers.RangeSplineArea.prototype.requiredShapes = (function() {
+  var res = {};
+  res['fill'] = anychart.enums.ShapeType.PATH;
+  res['hatchFill'] = anychart.enums.ShapeType.PATH;
+  res['low'] = anychart.enums.ShapeType.PATH;
+  res['high'] = anychart.enums.ShapeType.PATH;
+  return res;
+})();
+
+
+/** @inheritDoc */
+anychart.core.drawers.RangeSplineArea.prototype.yValueNames = (['low', 'high']);
 
 
 /** @inheritDoc */
 anychart.core.drawers.RangeSplineArea.prototype.startDrawing = function(shapeManager) {
   anychart.core.drawers.RangeSplineArea.base(this, 'startDrawing', shapeManager);
   var shapes = this.shapesManager.getShapesGroup(this.seriesState);
+  this.queue_.isVertical(this.isVertical);
   this.queue_.rtl(this.series.planIsXScaleInverted());
   /**
    * @type {Array.<acgraph.vector.Path>}
    * @private
    */
   this.forwardPaths_ = [
-    /** @type {acgraph.vector.Path} */(shapes[anychart.opt.FILL]),
-    /** @type {acgraph.vector.Path} */(shapes[anychart.opt.HATCH_FILL]),
-    /** @type {acgraph.vector.Path} */(shapes[anychart.opt.HIGH])];
+    /** @type {acgraph.vector.Path} */(shapes['fill']),
+    /** @type {acgraph.vector.Path} */(shapes['hatchFill']),
+    /** @type {acgraph.vector.Path} */(shapes['high'])];
   /**
    * @type {Array.<acgraph.vector.Path>}
    * @private
    */
   this.backwardPaths_ = [
-    /** @type {acgraph.vector.Path} */(shapes[anychart.opt.FILL]),
-    /** @type {acgraph.vector.Path} */(shapes[anychart.opt.HATCH_FILL]),
-    /** @type {acgraph.vector.Path} */(shapes[anychart.opt.LOW])];
+    /** @type {acgraph.vector.Path} */(shapes['fill']),
+    /** @type {acgraph.vector.Path} */(shapes['hatchFill']),
+    /** @type {acgraph.vector.Path} */(shapes['low'])];
 };
 
 
 /** @inheritDoc */
 anychart.core.drawers.RangeSplineArea.prototype.drawFirstPoint = function(point, state) {
-  var x = /** @type {number} */(point.meta(anychart.opt.X));
-  var high = /** @type {number} */(point.meta(anychart.opt.HIGH));
-  var low = /** @type {number} */(point.meta(anychart.opt.LOW));
+  var x = /** @type {number} */(point.meta('x'));
+  var high = /** @type {number} */(point.meta('high'));
+  var low = /** @type {number} */(point.meta('low'));
 
   this.queue_.setPaths(this.forwardPaths_);
   this.queue_.resetDrawer(false);
-  this.forwardPaths_[0]
-      .moveTo(x, low)
-      .lineTo(x, high);
-  this.forwardPaths_[1]
-      .moveTo(x, low)
-      .lineTo(x, high);
-  this.forwardPaths_[2].moveTo(x, high);
+  anychart.core.drawers.move(this.forwardPaths_[0], this.isVertical, x, low);
+  anychart.core.drawers.line(this.forwardPaths_[0], this.isVertical, x, high);
+  anychart.core.drawers.move(this.forwardPaths_[1], this.isVertical, x, low);
+  anychart.core.drawers.line(this.forwardPaths_[1], this.isVertical, x, high);
+  anychart.core.drawers.move(this.forwardPaths_[2], this.isVertical, x, high);
   this.queue_.processPoint(x, high);
 
   /** @type {Array.<number>} */
@@ -106,9 +115,9 @@ anychart.core.drawers.RangeSplineArea.prototype.drawFirstPoint = function(point,
 
 /** @inheritDoc */
 anychart.core.drawers.RangeSplineArea.prototype.drawSubsequentPoint = function(point, state) {
-  var x = /** @type {number} */(point.meta(anychart.opt.X));
-  var high = /** @type {number} */(point.meta(anychart.opt.HIGH));
-  var low = /** @type {number} */(point.meta(anychart.opt.LOW));
+  var x = /** @type {number} */(point.meta('x'));
+  var high = /** @type {number} */(point.meta('high'));
+  var low = /** @type {number} */(point.meta('low'));
 
   this.queue_.processPoint(x, high);
 
@@ -131,9 +140,9 @@ anychart.core.drawers.RangeSplineArea.prototype.finalizeSegment = function() {
       if (firstPoint) {
         this.queue_.setPaths(this.backwardPaths_);
         this.queue_.resetDrawer(true);
-        this.backwardPaths_[0].lineTo(x, y);
-        this.backwardPaths_[1].lineTo(x, y);
-        this.backwardPaths_[2].moveTo(x, y);
+        anychart.core.drawers.line(this.backwardPaths_[0], this.isVertical, x, y);
+        anychart.core.drawers.line(this.backwardPaths_[1], this.isVertical, x, y);
+        anychart.core.drawers.move(this.backwardPaths_[2], this.isVertical, x, y);
         firstPoint = false;
       }
       this.queue_.processPoint(x, y);

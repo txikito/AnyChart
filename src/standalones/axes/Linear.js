@@ -25,7 +25,7 @@ anychart.core.makeStandalone(anychart.standalones.axes.Linear, anychart.core.axe
  */
 anychart.standalones.axes.linear = function() {
   var axis = new anychart.standalones.axes.Linear();
-  axis.setup(anychart.getFullTheme()['standalones']['linearAxis']);
+  axis.setup(anychart.getFullTheme('standalones.linearAxis'));
   return axis;
 };
 
@@ -41,15 +41,19 @@ anychart.standalones.axes.linear = function() {
  * @deprecated Since 7.12.0. Use anychart.standalones.axes.linear instead.
  */
 anychart.axes.linear = function() {
-  anychart.core.reporting.warning(anychart.enums.WarningCode.DEPRECATED, null, ['anychart.axes.linear', 'anychart.standalones.axes.linear'], true);
+  anychart.core.reporting.warning(anychart.enums.WarningCode.DEPRECATED, null, ['anychart.axes.linear()', 'anychart.standalones.axes.linear()', null, 'Constructor'], true);
   return anychart.standalones.axes.linear();
 };
 
 
 //exports
-goog.exportSymbol('anychart.axes.linear', anychart.axes.linear);
-goog.exportSymbol('anychart.standalones.axes.linear', anychart.standalones.axes.linear);
-anychart.standalones.axes.Linear.prototype['padding'] = anychart.standalones.axes.Linear.prototype.padding;
-anychart.standalones.axes.Linear.prototype['draw'] = anychart.standalones.axes.Linear.prototype.draw;
-anychart.standalones.axes.Linear.prototype['parentBounds'] = anychart.standalones.axes.Linear.prototype.parentBounds;
-anychart.standalones.axes.Linear.prototype['container'] = anychart.standalones.axes.Linear.prototype.container;
+/** @suppress {deprecated} */
+(function() {
+  var proto = anychart.standalones.axes.Linear.prototype;
+  goog.exportSymbol('anychart.axes.linear', anychart.axes.linear);
+  goog.exportSymbol('anychart.standalones.axes.linear', anychart.standalones.axes.linear);
+  proto['padding'] = proto.padding;
+  proto['draw'] = proto.draw;
+  proto['parentBounds'] = proto.parentBounds;
+  proto['container'] = proto.container;
+})();

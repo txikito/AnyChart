@@ -20,27 +20,30 @@ anychart.core.makeStandalone(anychart.standalones.Background, anychart.core.ui.B
  */
 anychart.standalones.background = function() {
   var background = new anychart.standalones.Background();
-  background.setupByVal(anychart.getFullTheme()['standalones']['background'], true);
+  background.setupByVal(anychart.getFullTheme('standalones.background'), true);
   return background;
 };
 
 
 /**
  * Constructor function.
- * @deprecated Since 7.12.0. Use anychart.standalones.background instead.
  * @return {!anychart.standalones.Background}
+ * @deprecated Since 7.12.0. Use anychart.standalones.background instead.
  */
 anychart.ui.background = function() {
-  anychart.core.reporting.warning(anychart.enums.WarningCode.DEPRECATED, null, ['anychart.ui.background', 'anychart.standalones.background'], true);
+  anychart.core.reporting.warning(anychart.enums.WarningCode.DEPRECATED, null, ['anychart.ui.background()', 'anychart.standalones.background()', null, 'Constructor'], true);
   return anychart.standalones.background();
 };
 
 
-//anychart.ui.Background.prototype['getRemainingBounds'] = anychart.ui.Background.prototype.getRemainingBounds;
-
 //exports
-goog.exportSymbol('anychart.standalones.background', anychart.standalones.background);
-goog.exportSymbol('anychart.ui.background', anychart.ui.background);
-anychart.standalones.Background.prototype['draw'] = anychart.standalones.Background.prototype.draw;
-anychart.standalones.Background.prototype['parentBounds'] = anychart.standalones.Background.prototype.parentBounds;
-anychart.standalones.Background.prototype['container'] = anychart.standalones.Background.prototype.container;
+//proto['getRemainingBounds'] = proto.getRemainingBounds;
+/** @suppress {deprecated} */
+(function() {
+  var proto = anychart.standalones.Background.prototype;
+  goog.exportSymbol('anychart.standalones.background', anychart.standalones.background);
+  goog.exportSymbol('anychart.ui.background', anychart.ui.background);
+  proto['draw'] = proto.draw;
+  proto['parentBounds'] = proto.parentBounds;
+  proto['container'] = proto.container;
+})();

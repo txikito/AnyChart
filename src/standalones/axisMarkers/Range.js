@@ -20,7 +20,7 @@ anychart.core.makeStandalone(anychart.standalones.axisMarkers.Range, anychart.co
  */
 anychart.standalones.axisMarkers.range = function() {
   var res = new anychart.standalones.axisMarkers.Range();
-  res.setup(anychart.getFullTheme()['standalones']['rangeAxisMarker']);
+  res.setup(anychart.getFullTheme('standalones.rangeAxisMarker'));
   return res;
 };
 
@@ -31,14 +31,18 @@ anychart.standalones.axisMarkers.range = function() {
  * @return {!anychart.standalones.axisMarkers.Range}
  */
 anychart.axisMarkers.range = function() {
-  anychart.core.reporting.warning(anychart.enums.WarningCode.DEPRECATED, null, ['anychart.axisMarkers.range', 'anychart.standalones.axisMarkers.range'], true);
+  anychart.core.reporting.warning(anychart.enums.WarningCode.DEPRECATED, null, ['anychart.axisMarkers.range()', 'anychart.standalones.axisMarkers.range()', null, 'Constructor'], true);
   return anychart.standalones.axisMarkers.range();
 };
 
 
 //exports
-goog.exportSymbol('anychart.axisMarkers.range', anychart.axisMarkers.range);
-goog.exportSymbol('anychart.standalones.axisMarkers.range', anychart.standalones.axisMarkers.range);
-anychart.standalones.axisMarkers.Range.prototype['draw'] = anychart.standalones.axisMarkers.Range.prototype.draw;
-anychart.standalones.axisMarkers.Range.prototype['parentBounds'] = anychart.standalones.axisMarkers.Range.prototype.parentBounds;
-anychart.standalones.axisMarkers.Range.prototype['container'] = anychart.standalones.axisMarkers.Range.prototype.container;
+/** @suppress {deprecated} */
+(function() {
+  var proto = anychart.standalones.axisMarkers.Range.prototype;
+  goog.exportSymbol('anychart.axisMarkers.range', anychart.axisMarkers.range);
+  goog.exportSymbol('anychart.standalones.axisMarkers.range', anychart.standalones.axisMarkers.range);
+  proto['draw'] = proto.draw;
+  proto['parentBounds'] = proto.parentBounds;
+  proto['container'] = proto.container;
+})();

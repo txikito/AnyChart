@@ -106,7 +106,7 @@ anychart.core.pert.Tasks.prototype.dummyFill = function(opt_fillOrColorOrKeys, o
   }
   return goog.isDef(this.dummyFill_) ?
       this.dummyFill_ :
-      (this.parent() ? /** @type {anychart.core.pert.Tasks} */ (this.parent()).dummyFill() : anychart.opt.NONE);
+      (this.parent() ? /** @type {anychart.core.pert.Tasks} */ (this.parent()).dummyFill() : 'none');
 };
 
 
@@ -160,7 +160,7 @@ anychart.core.pert.Tasks.prototype.dummyFill = function(opt_fillOrColorOrKeys, o
 
 /**
  * Gets final dummy fill.
- * @param {anychart.core.utils.PertPointContextProvider} provider - Context provider.
+ * @param {anychart.format.Context} provider - Context provider.
  * @return {!acgraph.vector.Fill} - Final fill.
  */
 anychart.core.pert.Tasks.prototype.getFinalDummyFill = function(provider) {
@@ -200,7 +200,7 @@ anychart.core.pert.Tasks.prototype.dummyStroke = function(opt_strokeOrFill, opt_
   }
   return goog.isDef(this.dummyStroke_) ?
       this.dummyStroke_ :
-      (this.parent() ? /** @type {anychart.core.pert.Tasks} */ (this.parent()).dummyStroke() : anychart.opt.NONE);
+      (this.parent() ? /** @type {anychart.core.pert.Tasks} */ (this.parent()).dummyStroke() : 'none');
 };
 
 
@@ -252,7 +252,7 @@ anychart.core.pert.Tasks.prototype.dummyStroke = function(opt_strokeOrFill, opt_
 
 /**
  * Gets final dummy stroke.
- * @param {anychart.core.utils.PertPointContextProvider} provider - Context provider.
+ * @param {anychart.format.Context} provider - Context provider.
  * @return {!acgraph.vector.Stroke} - Final fill.
  */
 anychart.core.pert.Tasks.prototype.getFinalDummyStroke = function(provider) {
@@ -282,8 +282,8 @@ anychart.core.pert.Tasks.prototype.lowerLabels = function(opt_value) {
   }
 
   if (goog.isDef(opt_value)) {
-    if (goog.isObject(opt_value) && !(anychart.opt.ENABLED in opt_value))
-      opt_value[anychart.opt.ENABLED] = true;
+    if (goog.isObject(opt_value) && !('enabled' in opt_value))
+      opt_value['enabled'] = true;
     this.lowerLabels_.setup(opt_value);
     return this;
   }
@@ -304,8 +304,8 @@ anychart.core.pert.Tasks.prototype.selectLowerLabels = function(opt_value) {
   }
 
   if (goog.isDef(opt_value)) {
-    if (goog.isObject(opt_value) && !(anychart.opt.ENABLED in opt_value))
-      opt_value[anychart.opt.ENABLED] = true;
+    if (goog.isObject(opt_value) && !('enabled' in opt_value))
+      opt_value['enabled'] = true;
     this.selectLowerLabels_.setup(opt_value);
     return this;
   }
@@ -326,8 +326,8 @@ anychart.core.pert.Tasks.prototype.hoverLowerLabels = function(opt_value) {
   }
 
   if (goog.isDef(opt_value)) {
-    if (goog.isObject(opt_value) && !(anychart.opt.ENABLED in opt_value))
-      opt_value[anychart.opt.ENABLED] = true;
+    if (goog.isObject(opt_value) && !('enabled' in opt_value))
+      opt_value['enabled'] = true;
     this.hoverLowerLabels_.setup(opt_value);
     return this;
   }
@@ -473,26 +473,29 @@ anychart.core.pert.Tasks.prototype.setupByJSON = function(config, opt_default) {
 
 
 //exports
-anychart.core.pert.Tasks.prototype['color'] = anychart.core.pert.Tasks.prototype.color;
+(function() {
+  var proto = anychart.core.pert.Tasks.prototype;
+  proto['color'] = proto.color;
 
-anychart.core.pert.Tasks.prototype['fill'] = anychart.core.pert.Tasks.prototype.fill;
-anychart.core.pert.Tasks.prototype['hoverFill'] = anychart.core.pert.Tasks.prototype.hoverFill;
-anychart.core.pert.Tasks.prototype['selectFill'] = anychart.core.pert.Tasks.prototype.selectFill;
-anychart.core.pert.Tasks.prototype['stroke'] = anychart.core.pert.Tasks.prototype.stroke;
-anychart.core.pert.Tasks.prototype['hoverStroke'] = anychart.core.pert.Tasks.prototype.hoverStroke;
-anychart.core.pert.Tasks.prototype['selectStroke'] = anychart.core.pert.Tasks.prototype.selectStroke;
+  proto['fill'] = proto.fill;
+  proto['hoverFill'] = proto.hoverFill;
+  proto['selectFill'] = proto.selectFill;
+  proto['stroke'] = proto.stroke;
+  proto['hoverStroke'] = proto.hoverStroke;
+  proto['selectStroke'] = proto.selectStroke;
 
-anychart.core.pert.Tasks.prototype['dummyFill'] = anychart.core.pert.Tasks.prototype.dummyFill;
-//anychart.core.pert.Tasks.prototype['hoverDummyFill'] = anychart.core.pert.Tasks.prototype.hoverDummyFill;
-//anychart.core.pert.Tasks.prototype['selectDummyFill'] = anychart.core.pert.Tasks.prototype.selectDummyFill;
-anychart.core.pert.Tasks.prototype['dummyStroke'] = anychart.core.pert.Tasks.prototype.dummyStroke;
-//anychart.core.pert.Tasks.prototype['hoverDummyStroke'] = anychart.core.pert.Tasks.prototype.hoverDummyStroke;
-//anychart.core.pert.Tasks.prototype['selectDummyStroke'] = anychart.core.pert.Tasks.prototype.selectDummyStroke;
+  proto['dummyFill'] = proto.dummyFill;
+  //proto['hoverDummyFill'] = proto.hoverDummyFill;
+  //proto['selectDummyFill'] = proto.selectDummyFill;
+  proto['dummyStroke'] = proto.dummyStroke;
+  //proto['hoverDummyStroke'] = proto.hoverDummyStroke;
+  //proto['selectDummyStroke'] = proto.selectDummyStroke;
 
-anychart.core.pert.Tasks.prototype['upperLabels'] = anychart.core.pert.Tasks.prototype.upperLabels;
-anychart.core.pert.Tasks.prototype['selectUpperLabels'] = anychart.core.pert.Tasks.prototype.selectUpperLabels;
-anychart.core.pert.Tasks.prototype['hoverUpperLabels'] = anychart.core.pert.Tasks.prototype.hoverUpperLabels;
-anychart.core.pert.Tasks.prototype['tooltip'] = anychart.core.pert.Tasks.prototype.tooltip;
-anychart.core.pert.Tasks.prototype['lowerLabels'] = anychart.core.pert.Tasks.prototype.lowerLabels;
-anychart.core.pert.Tasks.prototype['hoverLowerLabels'] = anychart.core.pert.Tasks.prototype.hoverLowerLabels;
-anychart.core.pert.Tasks.prototype['selectLowerLabels'] = anychart.core.pert.Tasks.prototype.selectLowerLabels;
+  proto['upperLabels'] = proto.upperLabels;
+  proto['selectUpperLabels'] = proto.selectUpperLabels;
+  proto['hoverUpperLabels'] = proto.hoverUpperLabels;
+  proto['tooltip'] = proto.tooltip;
+  proto['lowerLabels'] = proto.lowerLabels;
+  proto['hoverLowerLabels'] = proto.hoverLowerLabels;
+  proto['selectLowerLabels'] = proto.selectLowerLabels;
+})();

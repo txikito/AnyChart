@@ -6,9 +6,9 @@
 goog.provide('anychart.modules.radar');
 
 goog.require('anychart.charts.Radar');
-goog.require('anychart.core.radar.series.Area');
-goog.require('anychart.core.radar.series.Line');
-goog.require('anychart.core.radar.series.Marker');
+// goog.require('anychart.core.radar.series.Area');
+// goog.require('anychart.core.radar.series.Line');
+// goog.require('anychart.core.radar.series.Marker');
 goog.require('anychart.modules.base');
 
 
@@ -23,14 +23,9 @@ goog.require('anychart.modules.base');
  */
 anychart.radar = function(var_args) {
   var chart = new anychart.charts.Radar();
-  var theme = anychart.getFullTheme();
-
-  chart.setupByVal(theme['radar'], true);
-
-  for (var i = 0, count = arguments.length; i < count; i++) {
-    chart.line(arguments[i]);
-  }
-
+  chart.setupByVal(anychart.getFullTheme('radar'), true);
+  if (arguments.length)
+    chart.addSeries.apply(chart, arguments);
   return chart;
 };
 
@@ -39,4 +34,3 @@ anychart.chartTypesMap[anychart.enums.ChartTypes.RADAR] = anychart.radar;
 
 //exports
 goog.exportSymbol('anychart.radar', anychart.radar);
-goog.exportSymbol('anychart.radarChart', anychart.radar);

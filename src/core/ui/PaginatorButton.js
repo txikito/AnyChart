@@ -10,7 +10,7 @@ goog.require('anychart.core.ui.Button');
  * @extends {anychart.core.ui.Button}
  */
 anychart.core.ui.PaginatorButton = function() {
-  goog.base(this);
+  anychart.core.ui.PaginatorButton.base(this, 'constructor');
 
   /**
    * Drawer for the button background.
@@ -70,5 +70,5 @@ anychart.core.ui.PaginatorButton.prototype.drawBackground = function(fill, strok
 
 /** @inheritDoc */
 anychart.core.ui.PaginatorButton.prototype.initStateSettings = function() {
-  this.stateSettings_ = anychart.getFullTheme()['defaultLegend']['paginator']['buttonsSettings'];
+  this.stateSettings_ = anychart.getFullTheme('defaultLegend.paginator.buttonsSettings');
 };

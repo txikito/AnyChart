@@ -26,7 +26,7 @@ goog.require('anychart.utils');
  * @extends {anychart.core.Chart}
  */
 anychart.charts.Bullet = function(opt_data, opt_csvSettings) {
-  goog.base(this);
+  anychart.charts.Bullet.base(this, 'constructor');
 
   /**
    * @type {Array.<anychart.core.axisMarkers.Range>}
@@ -46,6 +46,9 @@ anychart.charts.Bullet = function(opt_data, opt_csvSettings) {
    * @private
    */
   this.layout_;
+
+  /** @inheritDoc */
+  this.allowCreditsDisabling = true;
 
   this.data(opt_data || null, opt_csvSettings);
 };
@@ -239,7 +242,7 @@ anychart.charts.Bullet.prototype.isHorizontal = function() {
  */
 anychart.charts.Bullet.prototype.scale = function(opt_value) {
   if (!this.scale_) {
-    this.scale_ = new anychart.scales.Linear();
+    this.scale_ = anychart.scales.linear();
     this.scale_.minimumGap(0);
     this.scale_.maximumGap(0);
     this.scale_.ticks().count(3, 5);
@@ -744,18 +747,8 @@ anychart.charts.Bullet.prototype.hoverMode = function(opt_value) {
 
 
 /** @inheritDoc */
-anychart.charts.Bullet.prototype.createStage = function() {
-  var stage = acgraph.create();
-  stage.allowCreditsDisabling = true;
-  // forcing credits to be created to apply credits disabling policy
-  stage.credits();
-  return stage;
-};
-
-
-/** @inheritDoc */
 anychart.charts.Bullet.prototype.serialize = function() {
-  var json = goog.base(this, 'serialize');
+  var json = anychart.charts.Bullet.base(this, 'serialize');
   json['type'] = anychart.enums.ChartTypes.BULLET;
   json['layout'] = this.layout();
   json['data'] = this.data().serialize();
@@ -773,7 +766,7 @@ anychart.charts.Bullet.prototype.serialize = function() {
 
 /** @inheritDoc */
 anychart.charts.Bullet.prototype.setupByJSON = function(config, opt_default) {
-  goog.base(this, 'setupByJSON', config, opt_default);
+  anychart.charts.Bullet.base(this, 'setupByJSON', config, opt_default);
 
   if ('defaultRangeMarkerSettings' in config)
     this.defaultRangeSettings(config['defaultRangeMarkerSettings']);
@@ -808,12 +801,15 @@ anychart.charts.Bullet.prototype.setupByJSON = function(config, opt_default) {
 
 
 //exports
-anychart.charts.Bullet.prototype['data'] = anychart.charts.Bullet.prototype.data;//doc|ex
-anychart.charts.Bullet.prototype['layout'] = anychart.charts.Bullet.prototype.layout;//doc|ex
-anychart.charts.Bullet.prototype['rangePalette'] = anychart.charts.Bullet.prototype.rangePalette;//doc|ex
-anychart.charts.Bullet.prototype['markerPalette'] = anychart.charts.Bullet.prototype.markerPalette;//doc|ex
-anychart.charts.Bullet.prototype['scale'] = anychart.charts.Bullet.prototype.scale;//doc|ex
-anychart.charts.Bullet.prototype['axis'] = anychart.charts.Bullet.prototype.axis;//doc|ex
-anychart.charts.Bullet.prototype['range'] = anychart.charts.Bullet.prototype.range;//doc|ex
-anychart.charts.Bullet.prototype['isHorizontal'] = anychart.charts.Bullet.prototype.isHorizontal;//doc
-anychart.charts.Bullet.prototype['getType'] = anychart.charts.Bullet.prototype.getType;//doc
+(function() {
+  var proto = anychart.charts.Bullet.prototype;
+  proto['data'] = proto.data;//doc|ex
+  proto['layout'] = proto.layout;//doc|ex
+  proto['rangePalette'] = proto.rangePalette;//doc|ex
+  proto['markerPalette'] = proto.markerPalette;//doc|ex
+  proto['scale'] = proto.scale;//doc|ex
+  proto['axis'] = proto.axis;//doc|ex
+  proto['range'] = proto.range;//doc|ex
+  proto['isHorizontal'] = proto.isHorizontal;//doc
+  proto['getType'] = proto.getType;//doc
+})();

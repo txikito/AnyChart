@@ -11,7 +11,14 @@ goog.require('anychart.scales.Base');
  * @extends {anychart.scales.Base}
  */
 anychart.scales.ScatterBase = function() {
-  goog.base(this);
+  anychart.scales.ScatterBase.base(this, 'constructor');
+  /**
+   * Threshold ticks count.
+   * @type {number}
+   * @private
+   */
+  this.maxTicksCount_ = NaN;
+
   /**
    * Scale input domain minimum.
    * @type {number}
@@ -97,6 +104,25 @@ anychart.scales.ScatterBase = function() {
   this.stickToZeroFlag = false;
 };
 goog.inherits(anychart.scales.ScatterBase, anychart.scales.Base);
+
+
+/**
+ * Max ticks count for interval-mode ticks calculation.
+ * @param {number=} opt_value
+ * @return {number|anychart.scales.ScatterBase}
+ */
+anychart.scales.ScatterBase.prototype.maxTicksCount = function(opt_value) {
+  if (goog.isDef(opt_value)) {
+    var val = anychart.utils.normalizeToNaturalNumber(opt_value, 1000, false);
+    if (this.maxTicksCount_ != val) {
+      this.maxTicksCount_ = val;
+      this.consistent = false;
+      this.dispatchSignal(anychart.Signal.NEEDS_REAPPLICATION);
+    }
+    return this;
+  }
+  return this.maxTicksCount_;
+};
 
 
 /**
@@ -244,7 +270,7 @@ anychart.scales.ScatterBase.prototype.stackMode = function(opt_stackMode) {
     this.minimumGap(0);
     this.maximumGap(0);
   }
-  var result = goog.base(this, 'stackMode', opt_stackMode);
+  var result = anychart.scales.ScatterBase.base(this, 'stackMode', opt_stackMode);
   this.resumeSignalsDispatching(true);
   return result;
 };
@@ -364,6 +390,7 @@ anychart.scales.ScatterBase.prototype.determineScaleMinMax = function() {
       this.min;
   var range = max - min;
 
+  if (Math.abs(range) < 1e-4 && !this.minimumModeAuto && !this.maximumModeAuto) this.max += 1e-4;
 
   if (this.minimumModeAuto) {
     this.min = this.dataRangeMin - range * this.minimumRangeBasedGap;
@@ -412,26 +439,28 @@ anychart.scales.ScatterBase.prototype.inverseTransform = function(ratio) {
 
 /** @inheritDoc */
 anychart.scales.ScatterBase.prototype.serialize = function() {
-  var json = goog.base(this, 'serialize');
+  var json = anychart.scales.ScatterBase.base(this, 'serialize');
   json['maximum'] = this.maximumModeAuto ? null : this.max;
   json['minimum'] = this.minimumModeAuto ? null : this.min;
   json['minimumGap'] = this.minimumGap();
   json['maximumGap'] = this.maximumGap();
   json['softMinimum'] = isNaN(this.softMin) ? null : this.softMin;
   json['softMaximum'] = isNaN(this.softMax) ? null : this.softMax;
+  json['maxTicksCount'] = this.maxTicksCount_;
   return json;
 };
 
 
 /** @inheritDoc */
 anychart.scales.ScatterBase.prototype.setupByJSON = function(config, opt_default) {
-  goog.base(this, 'setupByJSON', config, opt_default);
+  anychart.scales.ScatterBase.base(this, 'setupByJSON', config, opt_default);
   this.minimumGap(config['minimumGap']);
   this.maximumGap(config['maximumGap']);
   this.softMinimum(config['softMinimum']);
   this.softMaximum(config['softMaximum']);
   this.minimum(config['minimum']);
   this.maximum(config['maximum']);
+  this.maxTicksCount(config['maxTicksCount']);
 };
 
 
@@ -460,6 +489,10 @@ anychart.scales.ScatterBase.fromString = function(type, opt_canReturnNull) {
 
 
 //exports
-anychart.scales.ScatterBase.prototype['minimum'] = anychart.scales.ScatterBase.prototype.minimum;//doc|ex
-anychart.scales.ScatterBase.prototype['maximum'] = anychart.scales.ScatterBase.prototype.maximum;//doc|ex
-anychart.scales.ScatterBase.prototype['extendDataRange'] = anychart.scales.ScatterBase.prototype.extendDataRange;//doc|need-ex
+(function() {
+  var proto = anychart.scales.ScatterBase.prototype;
+  proto['maxTicksCount'] = proto.maxTicksCount;
+  proto['minimum'] = proto.minimum;//doc|ex
+  proto['maximum'] = proto.maximum;//doc|ex
+  proto['extendDataRange'] = proto.extendDataRange;//doc|need-ex
+})();

@@ -14,7 +14,7 @@ goog.require('goog.date.UtcDateTime');
  * @extends {anychart.core.Base}
  */
 anychart.scales.DateTimeTicks = function(scale) {
-  goog.base(this);
+  anychart.scales.DateTimeTicks.base(this, 'constructor');
 
   /**
    * Scale reference to get setup from in emergency situations.
@@ -299,12 +299,22 @@ anychart.scales.DateTimeTicks.prototype.setupAsMinor = function(min, max, adjust
   this.autoTicks_ = null;
   if (!this.explicit_) {
     var ticks = [];
-    var interval = this.interval_ || this.calculateIntervals_(min, max, true);
+    var interval = this.interval_;
+    var backupCount = this.count_;
+    if (interval && (adjustedMax - adjustedMin) / anychart.utils.getIntervalApproxDuration(interval) > this.scale.maxTicksCount()) {
+      anychart.core.reporting.warning(anychart.enums.WarningCode.TOO_MANY_TICKS, null,
+          [adjustedMax - adjustedMin, anychart.utils.getIntervalApproxDuration(interval)]);
+      interval = null;
+      this.count_ = 4;
+    }
+    if (!interval)
+      interval = this.calculateIntervals_(min, max, true);
     var date = new goog.date.UtcDateTime(new Date(adjustedMin));
     var endDate = new goog.date.UtcDateTime(new Date(adjustedMax));
     for (var i = 0; goog.date.Date.compare(date, endDate) <= 0 && i < 150; date.add(interval), i++)
       ticks.push(date.getTime());
     this.autoTicks_ = ticks;
+    this.count_ = backupCount;
   }
 };
 
@@ -323,7 +333,16 @@ anychart.scales.DateTimeTicks.prototype.setupAsMajor = function(min, max, opt_ca
   var result = [min, max];
   if (!this.explicit_) {
     var ticks = [];
-    var interval = this.interval_ || this.calculateIntervals_(min, max, false);
+    var interval = this.interval_;
+    var backupCount = this.count_;
+    if (interval && (max - min) / anychart.utils.getIntervalApproxDuration(interval) > this.scale.maxTicksCount()) {
+      anychart.core.reporting.warning(anychart.enums.WarningCode.TOO_MANY_TICKS, null,
+          [max - min, anychart.utils.getIntervalApproxDuration(interval)]);
+      interval = null;
+      this.count_ = 4;
+    }
+    if (!interval)
+      interval = this.calculateIntervals_(min, max, false);
     if (opt_canModifyMin)
       result[0] = min = anychart.utils.alignDateLeft(min, interval, 0);
     var date = new goog.date.UtcDateTime(new Date(min));
@@ -333,6 +352,7 @@ anychart.scales.DateTimeTicks.prototype.setupAsMajor = function(min, max, opt_ca
     if (opt_canModifyMax && goog.date.Date.compare(date, endDate) > 0)
       ticks.push(result[1] = date.getTime());
     this.autoTicks_ = ticks;
+    this.count_ = backupCount;
   }
   return result;
 };
@@ -523,7 +543,7 @@ anychart.scales.DateTimeTicks.prototype.calculateIntervals_ = function(min, max,
 //----------------------------------------------------------------------------------------------------------------------
 /** @inheritDoc */
 anychart.scales.DateTimeTicks.prototype.serialize = function() {
-  var json = goog.base(this, 'serialize');
+  var json = anychart.scales.DateTimeTicks.base(this, 'serialize');
   if (this.explicit_)
     json['explicit'] = this.explicit_;
   else if (this.interval_)
@@ -547,7 +567,7 @@ anychart.scales.DateTimeTicks.prototype.setupSpecial = function(var_args) {
 
 /** @inheritDoc */
 anychart.scales.DateTimeTicks.prototype.setupByJSON = function(config, opt_default) {
-  goog.base(this, 'setupByJSON', config, opt_default);
+  anychart.scales.DateTimeTicks.base(this, 'setupByJSON', config, opt_default);
   this.explicit_ = config['explicit'] || null;
   this.count_ = goog.isNull(config['count']) ? NaN : Math.max(2, Math.ceil(config['count']));
   this.interval_ = goog.isString(config['interval']) ? goog.date.Interval.fromIsoString(config['interval']) : null;
@@ -556,7 +576,10 @@ anychart.scales.DateTimeTicks.prototype.setupByJSON = function(config, opt_defau
 
 
 //exports
-anychart.scales.DateTimeTicks.prototype['interval'] = anychart.scales.DateTimeTicks.prototype.interval;//doc|ex
-anychart.scales.DateTimeTicks.prototype['count'] = anychart.scales.DateTimeTicks.prototype.count;//doc|ex
-anychart.scales.DateTimeTicks.prototype['set'] = anychart.scales.DateTimeTicks.prototype.set;//doc|ex
-anychart.scales.DateTimeTicks.prototype['get'] = anychart.scales.DateTimeTicks.prototype.get;//doc|ex
+(function() {
+  var proto = anychart.scales.DateTimeTicks.prototype;
+  proto['interval'] = proto.interval;//doc|ex
+  proto['count'] = proto.count;//doc|ex
+  proto['set'] = proto.set;//doc|ex
+  proto['get'] = proto.get;//doc|ex
+})();

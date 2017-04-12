@@ -20,7 +20,7 @@ anychart.core.makeStandalone(anychart.standalones.grids.Polar, anychart.core.gri
  */
 anychart.standalones.grids.polar = function() {
   var grid = new anychart.standalones.grids.Polar();
-  grid.setup(anychart.getFullTheme()['standalones']['polarGrid']);
+  grid.setup(anychart.getFullTheme('standalones.polarGrid'));
   return grid;
 };
 
@@ -31,15 +31,20 @@ anychart.standalones.grids.polar = function() {
  * @deprecated Since 7.12.0. Use anychart.standalones.grids.polar instead.
  */
 anychart.grids.polar = function() {
-  anychart.core.reporting.warning(anychart.enums.WarningCode.DEPRECATED, null, ['anychart.grids.polar', 'anychart.standalones.grids.polar'], true);
+  anychart.core.reporting.warning(anychart.enums.WarningCode.DEPRECATED, null, ['anychart.grids.polar()', 'anychart.standalones.grids.polar()', null, 'Constructor'], true);
   return anychart.standalones.grids.polar();
 };
 
 
 //exports
-goog.exportSymbol('anychart.grids.polar', anychart.grids.polar);
-goog.exportSymbol('anychart.standalones.grids.polar', anychart.standalones.grids.polar);
-anychart.standalones.grids.Polar.prototype['draw'] = anychart.standalones.grids.Polar.prototype.draw;
-anychart.standalones.grids.Polar.prototype['parentBounds'] = anychart.standalones.grids.Polar.prototype.parentBounds;
-anychart.standalones.grids.Polar.prototype['container'] = anychart.standalones.grids.Polar.prototype.container;
-anychart.standalones.grids.Polar.prototype['startAngle'] = anychart.standalones.grids.Polar.prototype.startAngle;
+/** @suppress {deprecated} */
+(function() {
+  var proto = anychart.standalones.grids.Polar.prototype;
+  goog.exportSymbol('anychart.grids.polar', anychart.grids.polar);
+  goog.exportSymbol('anychart.standalones.grids.polar', anychart.standalones.grids.polar);
+  proto['draw'] = proto.draw;
+  proto['parentBounds'] = proto.parentBounds;
+  proto['container'] = proto.container;
+  proto['startAngle'] = proto.startAngle;
+  proto['innerRadius'] = proto.innerRadius;
+})();

@@ -11,7 +11,7 @@ goog.require('anychart.utils');
  * @extends {anychart.core.gauge.pointers.Base}
  */
 anychart.core.gauge.pointers.Needle = function() {
-  goog.base(this);
+  anychart.core.gauge.pointers.Needle.base(this, 'constructor');
   /**
    * Pointer width.
    * @type {?string}
@@ -64,7 +64,7 @@ goog.inherits(anychart.core.gauge.pointers.Needle, anychart.core.gauge.pointers.
  */
 anychart.core.gauge.pointers.Needle.prototype.startWidth = function(opt_value) {
   if (goog.isDef(opt_value)) {
-    opt_value = goog.isNull(opt_value) ? opt_value : anychart.utils.normalizeToPercent(opt_value);
+    opt_value = goog.isNull(opt_value) ? opt_value : /** @type {string} */ (anychart.utils.normalizeToPercent(opt_value));
     if (this.startWidth_ != opt_value) {
       this.startWidth_ = opt_value;
       this.invalidate(anychart.ConsistencyState.BOUNDS,
@@ -83,7 +83,7 @@ anychart.core.gauge.pointers.Needle.prototype.startWidth = function(opt_value) {
  */
 anychart.core.gauge.pointers.Needle.prototype.startRadius = function(opt_value) {
   if (goog.isDef(opt_value)) {
-    opt_value = goog.isNull(opt_value) ? opt_value : anychart.utils.normalizeToPercent(opt_value);
+    opt_value = goog.isNull(opt_value) ? opt_value : /** @type {string} */ (anychart.utils.normalizeToPercent(opt_value));
     if (this.startRadius_ != opt_value) {
       this.startRadius_ = opt_value;
       this.invalidate(anychart.ConsistencyState.BOUNDS,
@@ -103,7 +103,7 @@ anychart.core.gauge.pointers.Needle.prototype.startRadius = function(opt_value) 
  */
 anychart.core.gauge.pointers.Needle.prototype.middleWidth = function(opt_value) {
   if (goog.isDef(opt_value)) {
-    opt_value = goog.isNull(opt_value) ? opt_value : anychart.utils.normalizeToPercent(opt_value);
+    opt_value = goog.isNull(opt_value) ? opt_value : /** @type {string} */ (anychart.utils.normalizeToPercent(opt_value));
     if (this.middleWidth_ != opt_value) {
       this.middleWidth_ = opt_value;
       this.invalidate(anychart.ConsistencyState.BOUNDS,
@@ -122,7 +122,7 @@ anychart.core.gauge.pointers.Needle.prototype.middleWidth = function(opt_value) 
  */
 anychart.core.gauge.pointers.Needle.prototype.middleRadius = function(opt_value) {
   if (goog.isDef(opt_value)) {
-    opt_value = goog.isNull(opt_value) ? opt_value : anychart.utils.normalizeToPercent(opt_value);
+    opt_value = goog.isNull(opt_value) ? opt_value : /** @type {string} */ (anychart.utils.normalizeToPercent(opt_value));
     if (this.middleRadius_ != opt_value) {
       this.middleRadius_ = opt_value;
       this.invalidate(anychart.ConsistencyState.BOUNDS,
@@ -142,7 +142,7 @@ anychart.core.gauge.pointers.Needle.prototype.middleRadius = function(opt_value)
  */
 anychart.core.gauge.pointers.Needle.prototype.endWidth = function(opt_value) {
   if (goog.isDef(opt_value)) {
-    opt_value = goog.isNull(opt_value) ? opt_value : anychart.utils.normalizeToPercent(opt_value);
+    opt_value = goog.isNull(opt_value) ? opt_value : /** @type {string} */ (anychart.utils.normalizeToPercent(opt_value));
     if (this.endWidth_ != opt_value) {
       this.endWidth_ = opt_value;
       this.invalidate(anychart.ConsistencyState.BOUNDS,
@@ -161,7 +161,7 @@ anychart.core.gauge.pointers.Needle.prototype.endWidth = function(opt_value) {
  */
 anychart.core.gauge.pointers.Needle.prototype.endRadius = function(opt_value) {
   if (goog.isDef(opt_value)) {
-    opt_value = goog.isNull(opt_value) ? opt_value : anychart.utils.normalizeToPercent(opt_value);
+    opt_value = goog.isNull(opt_value) ? opt_value : /** @type {string} */ (anychart.utils.normalizeToPercent(opt_value));
     if (this.endRadius_ != opt_value) {
       this.endRadius_ = opt_value;
       this.invalidate(anychart.ConsistencyState.BOUNDS,
@@ -341,7 +341,7 @@ anychart.core.gauge.pointers.Needle.prototype.draw = function() {
     this.markConsistent(anychart.ConsistencyState.BOUNDS);
   }
 
-  goog.base(this, 'draw');
+  anychart.core.gauge.pointers.Needle.base(this, 'draw');
 
   return this;
 };
@@ -352,7 +352,7 @@ anychart.core.gauge.pointers.Needle.prototype.draw = function() {
 //----------------------------------------------------------------------------------------------------------------------
 /** @inheritDoc */
 anychart.core.gauge.pointers.Needle.prototype.serialize = function() {
-  var json = goog.base(this, 'serialize');
+  var json = anychart.core.gauge.pointers.Needle.base(this, 'serialize');
 
   if (goog.isDef(this.startRadius())) json['startRadius'] = this.startRadius();
   if (goog.isDef(this.middleRadius())) json['middleRadius'] = this.middleRadius();
@@ -367,7 +367,7 @@ anychart.core.gauge.pointers.Needle.prototype.serialize = function() {
 
 /** @inheritDoc */
 anychart.core.gauge.pointers.Needle.prototype.setupByJSON = function(config, opt_default) {
-  goog.base(this, 'setupByJSON', config, opt_default);
+  anychart.core.gauge.pointers.Needle.base(this, 'setupByJSON', config, opt_default);
 
   this.startRadius(config['startRadius']);
   this.middleRadius(config['middleRadius']);
@@ -379,9 +379,12 @@ anychart.core.gauge.pointers.Needle.prototype.setupByJSON = function(config, opt
 
 
 //exports
-anychart.core.gauge.pointers.Needle.prototype['startRadius'] = anychart.core.gauge.pointers.Needle.prototype.startRadius;
-anychart.core.gauge.pointers.Needle.prototype['middleRadius'] = anychart.core.gauge.pointers.Needle.prototype.middleRadius;
-anychart.core.gauge.pointers.Needle.prototype['endRadius'] = anychart.core.gauge.pointers.Needle.prototype.endRadius;
-anychart.core.gauge.pointers.Needle.prototype['startWidth'] = anychart.core.gauge.pointers.Needle.prototype.startWidth;
-anychart.core.gauge.pointers.Needle.prototype['middleWidth'] = anychart.core.gauge.pointers.Needle.prototype.middleWidth;
-anychart.core.gauge.pointers.Needle.prototype['endWidth'] = anychart.core.gauge.pointers.Needle.prototype.endWidth;
+(function() {
+  var proto = anychart.core.gauge.pointers.Needle.prototype;
+  proto['startRadius'] = proto.startRadius;
+  proto['middleRadius'] = proto.middleRadius;
+  proto['endRadius'] = proto.endRadius;
+  proto['startWidth'] = proto.startWidth;
+  proto['middleWidth'] = proto.middleWidth;
+  proto['endWidth'] = proto.endWidth;
+})();

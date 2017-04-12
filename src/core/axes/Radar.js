@@ -6,9 +6,9 @@ goog.require('anychart.core.VisualBase');
 goog.require('anychart.core.axes.RadialTicks');
 goog.require('anychart.core.reporting');
 goog.require('anychart.core.ui.LabelsFactory');
-goog.require('anychart.core.utils.AxisLabelsContextProvider');
 goog.require('anychart.core.utils.Bounds');
 goog.require('anychart.enums');
+goog.require('anychart.format.Context');
 goog.require('anychart.math.Rect');
 goog.require('anychart.scales.Base');
 
@@ -22,7 +22,7 @@ goog.require('anychart.scales.Base');
  */
 anychart.core.axes.Radar = function() {
   this.suspendSignalsDispatching();
-  goog.base(this);
+  anychart.core.axes.Radar.base(this, 'constructor');
 
   this.labelsBounds_ = [];
   this.line_ = acgraph.path();
@@ -151,6 +151,15 @@ anychart.core.axes.Radar.prototype.startAngle_ = NaN;
  * @private
  */
 anychart.core.axes.Radar.prototype.labelsBounds_ = null;
+
+
+/**
+ * Drops labels calls cache.
+ */
+anychart.core.axes.Radar.prototype.dropLabelCallsCache = function() {
+  if (this.labels_)
+    this.labels_.dropCallsCache();
+};
 
 
 /**
@@ -635,7 +644,43 @@ anychart.core.axes.Radar.prototype.drawLine_ = function(index, x, y) {
  * @private
  */
 anychart.core.axes.Radar.prototype.getLabelsFormatProvider_ = function(index, value) {
-  return new anychart.core.utils.AxisLabelsContextProvider(this, index, value);
+  var scale = this.scale();
+
+  var labelText, labelValue;
+  var addRange = true;
+  if (scale instanceof anychart.scales.Ordinal) {
+    labelText = scale.ticks().names()[index];
+    labelValue = value;
+    addRange = false;
+  } else if (scale instanceof anychart.scales.DateTime) {
+    labelText = anychart.format.date(/** @type {number} */(value));
+    labelValue = value;
+  } else {
+    labelText = parseFloat(value);
+    labelValue = parseFloat(value);
+  }
+
+  var values = {
+    'axis': {value: this, type: anychart.enums.TokenType.UNKNOWN},
+    'index': {value: index, type: anychart.enums.TokenType.NUMBER},
+    'value': {value: labelText, type: anychart.enums.TokenType.NUMBER},
+    'tickValue': {value: labelValue, type: anychart.enums.TokenType.NUMBER},
+    'scale': {value: scale, type: anychart.enums.TokenType.UNKNOWN}
+  };
+
+  if (addRange) {
+    values['min'] = {value: goog.isDef(scale.min) ? scale.min : null, type: anychart.enums.TokenType.NUMBER};
+    values['max'] = {value: goog.isDef(scale.max) ? scale.max : null, type: anychart.enums.TokenType.NUMBER};
+  }
+
+  var aliases = {};
+  aliases[anychart.enums.StringToken.AXIS_SCALE_MAX] = 'max';
+  aliases[anychart.enums.StringToken.AXIS_SCALE_MIN] = 'min';
+
+  var context = new anychart.format.Context(values);
+  context.tokenAliases(aliases);
+
+  return context.propagate();
 };
 
 
@@ -819,7 +864,7 @@ anychart.core.axes.Radar.prototype.remove = function() {
 
 /** @inheritDoc */
 anychart.core.axes.Radar.prototype.serialize = function() {
-  var json = goog.base(this, 'serialize');
+  var json = anychart.core.axes.Radar.base(this, 'serialize');
   json['labels'] = this.labels().serialize();
   json['ticks'] = this.ticks().serialize();
   //json['startAngle'] = this.startAngle();
@@ -830,9 +875,9 @@ anychart.core.axes.Radar.prototype.serialize = function() {
 
 /** @inheritDoc */
 anychart.core.axes.Radar.prototype.setupByJSON = function(config, opt_default) {
-  goog.base(this, 'setupByJSON', config, opt_default);
+  anychart.core.axes.Radar.base(this, 'setupByJSON', config, opt_default);
   //this.startAngle(config['startAngle']);
-  this.labels().setup(config['labels']);
+  this.labels().setupByVal(config['labels'], opt_default);
   this.ticks(config['ticks']);
   this.stroke(config['stroke']);
 };
@@ -840,7 +885,7 @@ anychart.core.axes.Radar.prototype.setupByJSON = function(config, opt_default) {
 
 /** @inheritDoc */
 anychart.core.axes.Radar.prototype.disposeInternal = function() {
-  goog.base(this, 'disposeInternal');
+  anychart.core.axes.Radar.base(this, 'disposeInternal');
 
   delete this.scale_;
   this.labelsBounds_ = null;
@@ -858,10 +903,13 @@ anychart.core.axes.Radar.prototype.disposeInternal = function() {
 };
 
 
-//anychart.core.axes.Radar.prototype['startAngle'] = anychart.core.axes.Radar.prototype.startAngle;
+//proto['startAngle'] = proto.startAngle;
 //exports
-anychart.core.axes.Radar.prototype['labels'] = anychart.core.axes.Radar.prototype.labels;
-anychart.core.axes.Radar.prototype['ticks'] = anychart.core.axes.Radar.prototype.ticks;
-anychart.core.axes.Radar.prototype['stroke'] = anychart.core.axes.Radar.prototype.stroke;
-anychart.core.axes.Radar.prototype['scale'] = anychart.core.axes.Radar.prototype.scale;
-anychart.core.axes.Radar.prototype['getRemainingBounds'] = anychart.core.axes.Radar.prototype.getRemainingBounds;
+(function() {
+  var proto = anychart.core.axes.Radar.prototype;
+  proto['labels'] = proto.labels;
+  proto['ticks'] = proto.ticks;
+  proto['stroke'] = proto.stroke;
+  proto['scale'] = proto.scale;
+  proto['getRemainingBounds'] = proto.getRemainingBounds;
+})();

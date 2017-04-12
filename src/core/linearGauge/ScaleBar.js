@@ -98,7 +98,7 @@ anychart.core.linearGauge.ScaleBar.prototype.to = function(opt_value) {
 anychart.core.linearGauge.ScaleBar.prototype.scale = function(opt_value) {
   if (goog.isDef(opt_value)) {
     if (!(opt_value instanceof anychart.scales.ScatterBase)) {
-      anychart.core.reporting.error(anychart.enums.ErrorCode.INCORRECT_SCALE_TYPE, undefined, ['ScaleBar scale']);
+      anychart.core.reporting.error(anychart.enums.ErrorCode.INCORRECT_SCALE_TYPE, undefined, ['ScaleBar scale', 'scatter', 'linear, log']);
       return this;
     }
     if (this.scale_ != opt_value) {
@@ -251,7 +251,7 @@ anychart.core.linearGauge.ScaleBar.prototype.points = function(opt_value) {
  */
 anychart.core.linearGauge.ScaleBar.prototype.width = function(opt_value) {
   if (goog.isDef(opt_value)) {
-    opt_value = anychart.utils.normalizeToPercent(opt_value);
+    opt_value = /** @type {string} */ (anychart.utils.normalizeToPercent(opt_value));
     if (this.width_ != opt_value) {
       this.width_ = opt_value;
       this.invalidate(anychart.ConsistencyState.APPEARANCE, anychart.Signal.NEEDS_REDRAW | anychart.Signal.BOUNDS_CHANGED);
@@ -269,7 +269,7 @@ anychart.core.linearGauge.ScaleBar.prototype.width = function(opt_value) {
  */
 anychart.core.linearGauge.ScaleBar.prototype.offset = function(opt_value) {
   if (goog.isDef(opt_value)) {
-    opt_value = anychart.utils.normalizeToPercent(opt_value);
+    opt_value = /** @type {string} */ (anychart.utils.normalizeToPercent(opt_value));
     if (this.offset_ != opt_value) {
       this.offset_ = opt_value;
       this.invalidate(anychart.ConsistencyState.APPEARANCE, anychart.Signal.NEEDS_REDRAW | anychart.Signal.BOUNDS_CHANGED);
@@ -547,12 +547,12 @@ anychart.core.linearGauge.ScaleBar.prototype.draw = function() {
         fill['angle'] = 0;
       path = this.paths[0] ? this.paths[0] : this.paths[0] = this.rootLayer.path();
       path
-        .moveTo(left, top)
-        .lineTo(right, top)
-        .lineTo(right, bottom)
-        .lineTo(left, bottom)
-        .lineTo(left, top)
-        .close();
+          .moveTo(left, top)
+          .lineTo(right, top)
+          .lineTo(right, bottom)
+          .lineTo(left, bottom)
+          .lineTo(left, top)
+          .close();
       path.fill(fill).stroke('none');
       path.clip(this.clipPath_);
     } else if (colorScale instanceof anychart.scales.OrdinalColor) {
@@ -573,20 +573,20 @@ anychart.core.linearGauge.ScaleBar.prototype.draw = function() {
           pos = inverted ? i : (ranges.length - 1 - i);
           y = top + partLength * pos;
           path
-            .moveTo(left, y)
-            .lineTo(left, y + partLength + shift)
-            .lineTo(right, y + partLength + shift)
-            .lineTo(right, y)
-            .close();
+              .moveTo(left, y)
+              .lineTo(left, y + partLength + shift)
+              .lineTo(right, y + partLength + shift)
+              .lineTo(right, y)
+              .close();
         } else {
           pos = inverted ? (ranges.length - 1 - i) : i;
           x = left + partLength * pos;
           path
-            .moveTo(x, top)
-            .lineTo(x + partLength + shift, top)
-            .lineTo(x + partLength + shift, bottom)
-            .lineTo(x, bottom)
-            .close();
+              .moveTo(x, top)
+              .lineTo(x + partLength + shift, top)
+              .lineTo(x + partLength + shift, bottom)
+              .lineTo(x, bottom)
+              .close();
         }
         path.fill(color).stroke('none');
       }
@@ -596,12 +596,12 @@ anychart.core.linearGauge.ScaleBar.prototype.draw = function() {
       stroke = this.stroke();
       path = this.paths[0] ? this.paths[0] : this.paths[0] = this.rootLayer.path();
       path
-        .moveTo(left, top)
-        .lineTo(right, top)
-        .lineTo(right, bottom)
-        .lineTo(left, bottom)
-        .lineTo(left, top)
-        .close();
+          .moveTo(left, top)
+          .lineTo(right, top)
+          .lineTo(right, bottom)
+          .lineTo(left, bottom)
+          .lineTo(left, top)
+          .close();
       path.fill(fill).stroke(stroke).clip(this.clipPath_);
     }
 
@@ -703,12 +703,15 @@ anychart.core.linearGauge.ScaleBar.prototype.disposeInternal = function() {
 //endregion
 
 //exports
-anychart.core.linearGauge.ScaleBar.prototype['from'] = anychart.core.linearGauge.ScaleBar.prototype.from;
-anychart.core.linearGauge.ScaleBar.prototype['to'] = anychart.core.linearGauge.ScaleBar.prototype.to;
-anychart.core.linearGauge.ScaleBar.prototype['width'] = anychart.core.linearGauge.ScaleBar.prototype.width;
-anychart.core.linearGauge.ScaleBar.prototype['offset'] = anychart.core.linearGauge.ScaleBar.prototype.offset;
-anychart.core.linearGauge.ScaleBar.prototype['scale'] = anychart.core.linearGauge.ScaleBar.prototype.scale;
-anychart.core.linearGauge.ScaleBar.prototype['colorScale'] = anychart.core.linearGauge.ScaleBar.prototype.colorScale;
-anychart.core.linearGauge.ScaleBar.prototype['fill'] = anychart.core.linearGauge.ScaleBar.prototype.fill;
-anychart.core.linearGauge.ScaleBar.prototype['stroke'] = anychart.core.linearGauge.ScaleBar.prototype.stroke;
-anychart.core.linearGauge.ScaleBar.prototype['points'] = anychart.core.linearGauge.ScaleBar.prototype.points;
+(function() {
+  var proto = anychart.core.linearGauge.ScaleBar.prototype;
+  proto['from'] = proto.from;
+  proto['to'] = proto.to;
+  proto['width'] = proto.width;
+  proto['offset'] = proto.offset;
+  proto['scale'] = proto.scale;
+  proto['colorScale'] = proto.colorScale;
+  proto['fill'] = proto.fill;
+  proto['stroke'] = proto.stroke;
+  proto['points'] = proto.points;
+})();

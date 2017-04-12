@@ -17,7 +17,14 @@ goog.require('goog.math');
  * @implements {anychart.scales.IXScale}
  */
 anychart.scales.StockScatterDateTime = function(chartOrScroller) {
-  goog.base(this);
+  anychart.scales.StockScatterDateTime.base(this, 'constructor');
+  /**
+   * Threshold ticks count.
+   * @type {number}
+   * @private
+   */
+  this.maxTicksCount_ = 1000;
+
   /**
    * Chart reference. Used for key<->index transformations.
    * @type {!anychart.core.stock.IKeyIndexTransformer}
@@ -125,6 +132,25 @@ goog.inherits(anychart.scales.StockScatterDateTime, anychart.core.Base);
 anychart.scales.StockScatterDateTime.prototype.SUPPORTED_SIGNALS =
     anychart.Signal.NEED_UPDATE_TICK_DEPENDENT |
     anychart.Signal.NEED_UPDATE_FULL_RANGE_ITEMS;
+
+
+/**
+ * Max ticks count for interval-mode ticks calculation.
+ * @param {number=} opt_value
+ * @return {number|anychart.scales.StockScatterDateTime}
+ */
+anychart.scales.StockScatterDateTime.prototype.maxTicksCount = function(opt_value) {
+  if (goog.isDef(opt_value)) {
+    var val = anychart.utils.normalizeToNaturalNumber(opt_value, 1000, false);
+    if (this.maxTicksCount_ != val) {
+      this.maxTicksCount_ = val;
+      this.consistent = false;
+      this.dispatchSignal(anychart.Signal.NEED_UPDATE_TICK_DEPENDENT);
+    }
+    return this;
+  }
+  return this.maxTicksCount_;
+};
 
 
 /**
@@ -419,9 +445,10 @@ anychart.scales.StockScatterDateTime.prototype.ticksInvalidated_ = function(even
 /**
  * Gets current grouping unit.
  * @return {anychart.enums.Interval}
- * @deprecated Use stockChart.grouping().getEstimatedDataInterval() instead.
+ * @deprecated Since 7.10.0. Use stockChart.grouping().getCurrentDataInterval() instead.
  */
 anychart.scales.StockScatterDateTime.prototype.getGroupingUnit = function() {
+  anychart.core.reporting.warning(anychart.enums.WarningCode.DEPRECATED, null, ['getGroupingUnit()', 'stockChart.grouping().getCurrentDataInterval()'], true);
   return this.unit;
 };
 
@@ -429,9 +456,10 @@ anychart.scales.StockScatterDateTime.prototype.getGroupingUnit = function() {
 /**
  * Gets current grouping unit count.
  * @return {number}
- * @deprecated Use stockChart.grouping().getEstimatedDataInterval() instead.
+ * @deprecated Since 7.10.0. Use stockChart.grouping().getCurrentDataInterval() instead.
  */
 anychart.scales.StockScatterDateTime.prototype.getGroupingUnitCount = function() {
+  anychart.core.reporting.warning(anychart.enums.WarningCode.DEPRECATED, null, ['getGroupingUnitCount()', 'stockChart.grouping().getCurrentDataInterval()'], true);
   return this.count;
 };
 
@@ -556,18 +584,23 @@ anychart.scales.StockScatterDateTime.MAJOR_INTERVALS_ = [
 ];
 
 
-//anychart.scales.StockScatterDateTime.prototype['getTicks'] = anychart.scales.StockScatterDateTime.prototype.getTicks;
-//anychart.scales.StockScatterDateTime.prototype['getMajorIntervalUnit'] = anychart.scales.StockScatterDateTime.prototype.getMajorIntervalUnit;
-//anychart.scales.StockScatterDateTime.prototype['getMajorIntervalUnitCount'] = anychart.scales.StockScatterDateTime.prototype.getMajorIntervalUnitCount;
-//anychart.scales.StockScatterDateTime.prototype['getMinorIntervalUnit'] = anychart.scales.StockScatterDateTime.prototype.getMinorIntervalUnit;
-//anychart.scales.StockScatterDateTime.prototype['getMinorIntervalUnitCount'] = anychart.scales.StockScatterDateTime.prototype.getMinorIntervalUnitCount;
+//proto['getTicks'] = proto.getTicks;
+//proto['getMajorIntervalUnit'] = proto.getMajorIntervalUnit;
+//proto['getMajorIntervalUnitCount'] = proto.getMajorIntervalUnitCount;
+//proto['getMinorIntervalUnit'] = proto.getMinorIntervalUnit;
+//proto['getMinorIntervalUnitCount'] = proto.getMinorIntervalUnitCount;
+
 
 //exports
-anychart.scales.StockScatterDateTime.prototype['getFullMinimum'] = anychart.scales.StockScatterDateTime.prototype.getFullMinimum;
-anychart.scales.StockScatterDateTime.prototype['getFullMaximum'] = anychart.scales.StockScatterDateTime.prototype.getFullMaximum;
-anychart.scales.StockScatterDateTime.prototype['getMinimum'] = anychart.scales.StockScatterDateTime.prototype.getMinimum;
-anychart.scales.StockScatterDateTime.prototype['getMaximum'] = anychart.scales.StockScatterDateTime.prototype.getMaximum;
-anychart.scales.StockScatterDateTime.prototype['transform'] = anychart.scales.StockScatterDateTime.prototype.transform;
-anychart.scales.StockScatterDateTime.prototype['inverseTransform'] = anychart.scales.StockScatterDateTime.prototype.inverseTransform;
-anychart.scales.StockScatterDateTime.prototype['getGroupingUnit'] = anychart.scales.StockScatterDateTime.prototype.getGroupingUnit;
-anychart.scales.StockScatterDateTime.prototype['getGroupingUnitCount'] = anychart.scales.StockScatterDateTime.prototype.getGroupingUnitCount;
+/** @suppress {deprecated} */
+(function() {
+  var proto = anychart.scales.StockScatterDateTime.prototype;
+  proto['getFullMinimum'] = proto.getFullMinimum;
+  proto['getFullMaximum'] = proto.getFullMaximum;
+  proto['getMinimum'] = proto.getMinimum;
+  proto['getMaximum'] = proto.getMaximum;
+  proto['transform'] = proto.transform;
+  proto['inverseTransform'] = proto.inverseTransform;
+  proto['getGroupingUnit'] = proto.getGroupingUnit;
+  proto['getGroupingUnitCount'] = proto.getGroupingUnitCount;
+})();

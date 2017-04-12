@@ -35,14 +35,18 @@ anychart.standalones.table = function(opt_rowsCount, opt_colsCount) {
  * @deprecated Since 7.12.0. Use anychart.standalones.table instead.
  */
 anychart.ui.table = function(opt_rowsCount, opt_colsCount) {
-  anychart.core.reporting.warning(anychart.enums.WarningCode.DEPRECATED, null, ['anychart.ui.table', 'anychart.standalones.table'], true);
+  anychart.core.reporting.warning(anychart.enums.WarningCode.DEPRECATED, null, ['anychart.ui.table()', 'anychart.standalones.table()', null, 'Constructor'], true);
   return anychart.standalones.table(opt_rowsCount, opt_colsCount);
 };
 
 
 //exports
-goog.exportSymbol('anychart.ui.table', anychart.ui.table);
-goog.exportSymbol('anychart.standalones.table', anychart.standalones.table);
-anychart.standalones.Table.prototype['draw'] = anychart.standalones.Table.prototype.draw;
-anychart.standalones.Table.prototype['parentBounds'] = anychart.standalones.Table.prototype.parentBounds;
-anychart.standalones.Table.prototype['container'] = anychart.standalones.Table.prototype.container;
+/** @suppress {deprecated} */
+(function() {
+  var proto = anychart.standalones.Table.prototype;
+  goog.exportSymbol('anychart.ui.table', anychart.ui.table);
+  goog.exportSymbol('anychart.standalones.table', anychart.standalones.table);
+  proto['draw'] = proto.draw;
+  proto['parentBounds'] = proto.parentBounds;
+  proto['container'] = proto.container;
+})();

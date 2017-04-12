@@ -5,10 +5,10 @@ goog.require('anychart.core.SeriesBase');
 goog.require('anychart.core.ui.LabelsFactory');
 goog.require('anychart.core.ui.MarkersFactory');
 goog.require('anychart.core.utils.Padding');
-goog.require('anychart.core.utils.SeriesPointContextProvider');
 goog.require('anychart.core.utils.TypedLayer');
 goog.require('anychart.data');
 goog.require('anychart.enums');
+goog.require('anychart.format.Context');
 goog.require('anychart.utils');
 
 
@@ -22,13 +22,13 @@ goog.require('anychart.utils');
  * @extends {anychart.core.SeriesBase}
  */
 anychart.core.heatMap.series.Base = function(opt_data, opt_csvSettings) {
-  goog.base(this, opt_data, opt_csvSettings);
+  anychart.core.heatMap.series.Base.base(this, 'constructor', opt_data, opt_csvSettings);
 
   this.referenceValueNames = ['x', 'y', 'heat'];
   this.referenceValueMeanings = ['x', 'y', 'n'];
 
   /**
-   * @type {anychart.core.utils.SeriesPointContextProvider}
+   * @type {anychart.format.Context}
    * @private
    */
   this.pointProvider_;
@@ -287,7 +287,7 @@ anychart.core.heatMap.series.Base.prototype.categoriseData = function(categories
  * If there are several - array.
  * If any of the two is undefined - returns null.
  *
- * @return {Array.<*>|null} Fetches significant scale values from current data row.
+ * @return {?Array.<*>} Fetches significant scale values from current data row.
  */
 anychart.core.heatMap.series.Base.prototype.getReferenceScaleValues = function() {
   if (!this.enabled()) return null;
@@ -312,7 +312,7 @@ anychart.core.heatMap.series.Base.prototype.getReferenceScaleValues = function()
  * If there are several - array.
  * If any of the two is undefined - returns null.
  *
- * @return {Array.<number>|null} Array with values or null, any of the two is undefined.
+ * @return {?Array.<number>} Array with values or null, any of the two is undefined.
  *    (we do so to avoid reiterating to check on missing).
  * @protected
  */
@@ -613,7 +613,7 @@ anychart.core.heatMap.series.Base.prototype.configureLabel = function(pointState
   } else if (hovered) {
     labelsFactory = /** @type {anychart.core.ui.LabelsFactory} */(this.hoverLabels());
   } else {
-    labelsFactory = /** @type {anychart.core.ui.LabelsFactory} */(this.labels());
+    labelsFactory = null;
   }
 
   var label = this.labels().getLabel(index);
@@ -660,7 +660,7 @@ anychart.core.heatMap.series.Base.prototype.configureLabel = function(pointState
     if (opt_reset) {
       label.resetSettings();
       label.currentLabelsFactory(labelsFactory);
-      label.setSettings(/** @type {Object} */(pointLabel), /** @type {Object} */(hovered ? hoverPointLabel : selectPointLabel));
+      label.setSettings(/** @type {Object} */(pointLabel), /** @type {Object} */(hovered ? hoverPointLabel : selected ? selectPointLabel : null));
     }
 
     return label;
@@ -700,7 +700,7 @@ anychart.core.heatMap.series.Base.prototype.drawLabels = function() {
         mergedSettings['width'] = null;
         mergedSettings['height'] = null;
         if (mergedSettings['adjustByWidth'] || mergedSettings['adjustByHeight'])
-          mergedSettings['fontSize'] = label.parentLabelsFactory().adjustFontSizeValue;
+          mergedSettings['fontSize'] = label.parentLabelsFactory().autoSettings['fontSize'];
 
         var bounds = this.labels().measure(label.formatProvider(), label.positionProvider(), mergedSettings);
 
@@ -714,19 +714,21 @@ anychart.core.heatMap.series.Base.prototype.drawLabels = function() {
           if (chart.labelsDisplayMode() == anychart.enums.LabelsDisplayMode.DROP) {
             this.labels().clear(index);
           } else {
-            if (label.width() != bounds.width || label.height() != bounds.height) {
+            if (label['width'] != bounds.width || label['height'] != bounds.height) {
               label.dropMergedSettings();
-              label.width(bounds.width).height(bounds.height);
+              label['width'](bounds.width);
+              label['height'](bounds.height);
             }
           }
         } else {
-          label.width(cellBounds.width).height(cellBounds.height);
+          label['width'](cellBounds.width);
+          label['height'](cellBounds.height);
         }
 
         if (chart.labelsDisplayMode() != anychart.enums.LabelsDisplayMode.ALWAYS_SHOW) {
-          label.clip(cellBounds);
+          label['clip'](cellBounds);
         } else {
-          label.clip(null);
+          label['clip'](null);
         }
       }
     }
@@ -750,14 +752,15 @@ anychart.core.heatMap.series.Base.prototype.drawLabel = function(pointState) {
           /** @type {number} */(iterator.meta('y')) + thickness,
           /** @type {number} */(iterator.meta('width')) - thickness * 2,
           /** @type {number} */(iterator.meta('height')) - thickness * 2);
-      label.width(cellBounds.width).height(cellBounds.height);
+      label['width'](cellBounds.width);
+      label['height'](cellBounds.height);
 
       var padding = mergedSettings['padding'];
 
       mergedSettings['width'] = null;
       mergedSettings['height'] = null;
       if (mergedSettings['adjustByWidth'] || mergedSettings['adjustByHeight'])
-        mergedSettings['fontSize'] = label.parentLabelsFactory().adjustFontSizeValue;
+        mergedSettings['fontSize'] = label.parentLabelsFactory().autoSettings['fontSize'];
 
       var bounds = this.labels().measure(label.formatProvider(), label.positionProvider(), mergedSettings);
 
@@ -768,18 +771,19 @@ anychart.core.heatMap.series.Base.prototype.drawLabel = function(pointState) {
 
       var chart = this.getChart();
       if (chart.labelsDisplayMode() != anychart.enums.LabelsDisplayMode.ALWAYS_SHOW) {
-        label.clip(cellBounds);
+        label['clip'](cellBounds);
       } else {
-        label.clip(null);
+        label['clip'](null);
       }
 
       if (!notOutOfCellBounds) {
         if (chart.labelsDisplayMode() == anychart.enums.LabelsDisplayMode.DROP) {
           this.labels().clear(label.getIndex());
         } else {
-          if (label.width() != bounds.width || label.height() != bounds.height) {
+          if (label['width'] != bounds.width || label['height'] != bounds.height) {
             label.dropMergedSettings();
-            label.width(bounds.width).height(bounds.height);
+            label['width'](bounds.width);
+            label['height'](bounds.height);
           }
         }
       }
@@ -842,7 +846,7 @@ anychart.core.heatMap.series.Base.prototype.remove = function() {
   this.labels().container(null);
   this.markers().container(null);
 
-  goog.base(this, 'remove');
+  anychart.core.heatMap.series.Base.base(this, 'remove');
 };
 
 
@@ -897,31 +901,50 @@ anychart.core.heatMap.series.Base.prototype.applyAxesLinesSpace = function(value
  */
 anychart.core.heatMap.series.Base.prototype.createFormatProvider = function(opt_force) {
   if (!this.pointProvider_ || opt_force)
-    this.pointProvider_ = new anychart.core.utils.SeriesPointContextProvider(this, this.referenceValueNames, false);
-  this.pointProvider_.applyReferenceValues();
+    this.pointProvider_ = new anychart.format.Context();
+
+  var iterator = this.getIterator();
+
+  var values = {
+    'chart': {value: this.getChart(), type: anychart.enums.TokenType.UNKNOWN},
+    'series': {value: this, type: anychart.enums.TokenType.UNKNOWN},
+    'scale': {value: this.xScale(), type: anychart.enums.TokenType.UNKNOWN},
+    'index': {value: iterator.getIndex(), type: anychart.enums.TokenType.NUMBER},
+    'x': {value: iterator.get('x'), type: anychart.enums.TokenType.STRING},
+    'y': {value: iterator.get('y'), type: anychart.enums.TokenType.NUMBER},
+    'heat': {value: iterator.get('heat'), type: anychart.enums.TokenType.NUMBER},
+    'seriesName': {value: this.name(), type: anychart.enums.TokenType.STRING}
+  };
 
   var colorScale = this.getChart().colorScale();
-
   if (colorScale) {
-    var iterator = this.getIterator();
     var value = iterator.get('heat');
 
     if (colorScale instanceof anychart.scales.OrdinalColor) {
-      this.pointProvider_['color'] = colorScale.valueToColor(/** @type {number} */(value));
       var range = colorScale.getRangeByValue(/** @type {number} */(value));
       if (range) {
-        this.pointProvider_['colorRange'] = {
+        var colorRange = {
           'color': range.color,
           'end': range.end,
           'name': range.name,
           'start': range.start,
           'index': range.sourceIndex
         };
+        values['colorRange'] = {value: colorRange, type: anychart.enums.TokenType.UNKNOWN};
       }
+      values['color'] = {value: colorScale.valueToColor(/** @type {number} */(value)), type: anychart.enums.TokenType.UNKNOWN};
     }
   }
 
-  return this.pointProvider_;
+  var tokenAliases = {};
+  tokenAliases[anychart.enums.StringToken.X_VALUE] = 'x';
+
+  this.pointProvider_
+      .dataSource(iterator)
+      .statisticsSources([this, this.getChart()])
+      .tokenAliases(tokenAliases);
+
+  return this.pointProvider_.propagate(values);
 };
 
 
@@ -1213,7 +1236,7 @@ anychart.core.heatMap.series.Base.prototype.calculateStatistics = function() {
 //----------------------------------------------------------------------------------------------------------------------
 /** @inheritDoc */
 anychart.core.heatMap.series.Base.prototype.getEnableChangeSignals = function() {
-  return goog.base(this, 'getEnableChangeSignals') | anychart.Signal.DATA_CHANGED | anychart.Signal.NEEDS_RECALCULATION | anychart.Signal.NEED_UPDATE_LEGEND;
+  return anychart.core.heatMap.series.Base.base(this, 'getEnableChangeSignals') | anychart.Signal.DATA_CHANGED | anychart.Signal.NEEDS_RECALCULATION | anychart.Signal.NEED_UPDATE_LEGEND;
 };
 
 
@@ -1441,8 +1464,8 @@ anychart.core.heatMap.series.Base.prototype.getMarkerStroke = function() {
 /**
  * @inheritDoc
  */
-anychart.core.heatMap.series.Base.prototype.getLegendItemData = function(itemsTextFormatter) {
-  var data = goog.base(this, 'getLegendItemData', itemsTextFormatter);
+anychart.core.heatMap.series.Base.prototype.getLegendItemData = function(itemsFormat) {
+  var data = anychart.core.heatMap.series.Base.base(this, 'getLegendItemData', itemsFormat);
   var markers = this.markers();
   markers.setAutoFill(this.getMarkerFill());
   markers.setAutoStroke(/** @type {acgraph.vector.Stroke} */(this.getMarkerStroke()));
@@ -1468,7 +1491,7 @@ anychart.core.heatMap.series.Base.prototype.getLegendItemData = function(itemsTe
  * @inheritDoc
  */
 anychart.core.heatMap.series.Base.prototype.serialize = function() {
-  var json = goog.base(this, 'serialize');
+  var json = anychart.core.heatMap.series.Base.base(this, 'serialize');
   json['clip'] = (this.clip_ instanceof anychart.math.Rect) ? this.clip_.serialize() : this.clip_;
   json['markers'] = this.markers().serialize();
   json['hoverMarkers'] = this.hoverMarkers().serialize();
@@ -1481,7 +1504,7 @@ anychart.core.heatMap.series.Base.prototype.serialize = function() {
  * @inheritDoc
  */
 anychart.core.heatMap.series.Base.prototype.setupByJSON = function(config, opt_default) {
-  goog.base(this, 'setupByJSON', config, opt_default);
+  anychart.core.heatMap.series.Base.base(this, 'setupByJSON', config, opt_default);
   this.clip(config['clip']);
   this.markers().setup(config['markers']);
   this.hoverMarkers().setup(config['hoverMarkers']);

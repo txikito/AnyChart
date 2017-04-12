@@ -70,7 +70,7 @@ anychart.standalones.Legend.prototype.onStockPlotSignal_ = function(event) {
   if (event.hasSignal(anychart.Signal.NEED_UPDATE_LEGEND)) {
     this.suspendSignalsDispatching();
     var plot = /** @type {anychart.core.stock.Plot} */ (event.target);
-    var autoText = plot.getLegendAutoText(/** @type {string|Function} */ (this.titleFormatter()));
+    var autoText = plot.getLegendAutoText(/** @type {string|Function} */ (this.titleFormat()));
     if (!goog.isNull(autoText))
       this.title().autoText(autoText);
     this.invalidate(anychart.ConsistencyState.APPEARANCE | anychart.ConsistencyState.LEGEND_RECREATE_ITEMS);
@@ -127,7 +127,7 @@ goog.inherits(anychart.standalones.LegendItem, anychart.core.ui.LegendItem);
  */
 anychart.standalones.legend = function() {
   var legend = new anychart.standalones.Legend();
-  legend.setup(anychart.getFullTheme()['standalones']['legend']);
+  legend.setup(anychart.getFullTheme('standalones.legend'));
   return legend;
 };
 
@@ -138,30 +138,35 @@ anychart.standalones.legend = function() {
  * @deprecated Since 7.12.0. Use anychart.standalones.legend instead.
  */
 anychart.ui.legend = function() {
-  anychart.core.reporting.warning(anychart.enums.WarningCode.DEPRECATED, null, ['anychart.ui.legend', 'anychart.standalones.legend'], true);
+  anychart.core.reporting.warning(anychart.enums.WarningCode.DEPRECATED, null, ['anychart.ui.legend()', 'anychart.standalones.legend()', null, 'Constructor'], true);
   return anychart.standalones.legend();
 };
 
 
 //exports
-goog.exportSymbol('anychart.ui.legend', anychart.ui.legend);
-goog.exportSymbol('anychart.standalones.legend', anychart.standalones.legend);
-anychart.standalones.Legend.prototype['draw'] = anychart.standalones.Legend.prototype.draw;
-anychart.standalones.Legend.prototype['parentBounds'] = anychart.standalones.Legend.prototype.parentBounds;
-anychart.standalones.Legend.prototype['container'] = anychart.standalones.Legend.prototype.container;
-anychart.standalones.Legend.prototype['itemsSource'] = anychart.standalones.Legend.prototype.itemsSource;
-anychart.core.ui.LegendItem.prototype['x'] = anychart.core.ui.LegendItem.prototype.x;
-anychart.core.ui.LegendItem.prototype['y'] = anychart.core.ui.LegendItem.prototype.y;
-anychart.core.ui.LegendItem.prototype['iconType'] = anychart.core.ui.LegendItem.prototype.iconType;
-anychart.core.ui.LegendItem.prototype['iconFill'] = anychart.core.ui.LegendItem.prototype.iconFill;
-anychart.core.ui.LegendItem.prototype['iconStroke'] = anychart.core.ui.LegendItem.prototype.iconStroke;
-anychart.core.ui.LegendItem.prototype['iconHatchFill'] = anychart.core.ui.LegendItem.prototype.iconHatchFill;
-anychart.core.ui.LegendItem.prototype['iconTextSpacing'] = anychart.core.ui.LegendItem.prototype.iconTextSpacing;
-anychart.core.ui.LegendItem.prototype['maxWidth'] = anychart.core.ui.LegendItem.prototype.maxWidth;
-anychart.core.ui.LegendItem.prototype['maxHeight'] = anychart.core.ui.LegendItem.prototype.maxHeight;
-anychart.core.ui.LegendItem.prototype['text'] = anychart.core.ui.LegendItem.prototype.text;
-anychart.core.ui.LegendItem.prototype['getTextElement'] = anychart.core.ui.LegendItem.prototype.getTextElement;
-anychart.core.ui.LegendItem.prototype['getContentBounds'] = anychart.core.ui.LegendItem.prototype.getContentBounds;
-anychart.core.ui.LegendItem.prototype['getWidth'] = anychart.core.ui.LegendItem.prototype.getWidth;
-anychart.core.ui.LegendItem.prototype['getHeight'] = anychart.core.ui.LegendItem.prototype.getHeight;
-anychart.core.ui.LegendItem.prototype['draw'] = anychart.core.ui.LegendItem.prototype.draw;
+/** @suppress {deprecated} */
+(function() {
+  var proto = anychart.standalones.Legend.prototype;
+  goog.exportSymbol('anychart.ui.legend', anychart.ui.legend);
+  goog.exportSymbol('anychart.standalones.legend', anychart.standalones.legend);
+  proto['draw'] = proto.draw;
+  proto['parentBounds'] = proto.parentBounds;
+  proto['container'] = proto.container;
+  proto['itemsSource'] = proto.itemsSource;
+  proto = anychart.core.ui.LegendItem.prototype;
+  proto['x'] = proto.x;
+  proto['y'] = proto.y;
+  proto['iconType'] = proto.iconType;
+  proto['iconFill'] = proto.iconFill;
+  proto['iconStroke'] = proto.iconStroke;
+  proto['iconHatchFill'] = proto.iconHatchFill;
+  proto['iconTextSpacing'] = proto.iconTextSpacing;
+  proto['maxWidth'] = proto.maxWidth;
+  proto['maxHeight'] = proto.maxHeight;
+  proto['text'] = proto.text;
+  proto['getTextElement'] = proto.getTextElement;
+  proto['getContentBounds'] = proto.getContentBounds;
+  proto['getWidth'] = proto.getWidth;
+  proto['getHeight'] = proto.getHeight;
+  proto['draw'] = proto.draw;
+})();

@@ -10,7 +10,6 @@ goog.require('anychart.core.settings');
 goog.require('anychart.core.ui.Background');
 goog.require('anychart.core.ui.Overlay');
 goog.require('anychart.core.utils.Space');
-goog.require('anychart.opt');
 //endregion
 
 
@@ -175,51 +174,51 @@ anychart.core.resource.ResourceList.DESCRIPTORS = (function() {
   /** @type {!Object.<string, anychart.core.settings.PropertyDescriptor>} */
   var map = {};
 
-  map[anychart.opt.STROKE] = anychart.core.settings.createDescriptor(
+  map['stroke'] = anychart.core.settings.createDescriptor(
       anychart.enums.PropertyHandlerType.MULTI_ARG,
-      anychart.opt.STROKE,
+      'stroke',
       anychart.core.settings.strokeNormalizer,
       anychart.ConsistencyState.APPEARANCE,
       anychart.Signal.NEEDS_REDRAW);
 
-  map[anychart.opt.ODD_FILL] = anychart.core.settings.createDescriptor(
+  map['oddFill'] = anychart.core.settings.createDescriptor(
       anychart.enums.PropertyHandlerType.MULTI_ARG,
-      anychart.opt.ODD_FILL,
+      'oddFill',
       anychart.core.settings.fillNormalizer,
       anychart.ConsistencyState.APPEARANCE,
       anychart.Signal.NEEDS_REDRAW);
 
-  map[anychart.opt.EVEN_FILL] = anychart.core.settings.createDescriptor(
+  map['evenFill'] = anychart.core.settings.createDescriptor(
       anychart.enums.PropertyHandlerType.MULTI_ARG,
-      anychart.opt.EVEN_FILL,
+      'evenFill',
       anychart.core.settings.fillNormalizer,
       anychart.ConsistencyState.APPEARANCE,
       anychart.Signal.NEEDS_REDRAW);
 
-  map[anychart.opt.DRAW_TOP_LINE] = anychart.core.settings.createDescriptor(
+  map['drawTopLine'] = anychart.core.settings.createDescriptor(
       anychart.enums.PropertyHandlerType.SINGLE_ARG,
-      anychart.opt.DRAW_TOP_LINE,
+      'drawTopLine',
       anychart.core.settings.booleanNormalizer,
       anychart.ConsistencyState.RESOURCE_LIST_ITEMS,
       anychart.Signal.NEEDS_REDRAW);
 
-  map[anychart.opt.DRAW_RIGHT_LINE] = anychart.core.settings.createDescriptor(
+  map['drawRightLine'] = anychart.core.settings.createDescriptor(
       anychart.enums.PropertyHandlerType.SINGLE_ARG,
-      anychart.opt.DRAW_RIGHT_LINE,
+      'drawRightLine',
       anychart.core.settings.booleanNormalizer,
       anychart.ConsistencyState.RESOURCE_LIST_ITEMS,
       anychart.Signal.NEEDS_REDRAW);
 
-  map[anychart.opt.DRAW_BOTTOM_LINE] = anychart.core.settings.createDescriptor(
+  map['drawBottomLine'] = anychart.core.settings.createDescriptor(
       anychart.enums.PropertyHandlerType.SINGLE_ARG,
-      anychart.opt.DRAW_BOTTOM_LINE,
+      'drawBottomLine',
       anychart.core.settings.booleanNormalizer,
       anychart.ConsistencyState.RESOURCE_LIST_ITEMS,
       anychart.Signal.NEEDS_REDRAW);
 
-  map[anychart.opt.DRAW_LEFT_LINE] = anychart.core.settings.createDescriptor(
+  map['drawLeftLine'] = anychart.core.settings.createDescriptor(
       anychart.enums.PropertyHandlerType.SINGLE_ARG,
-      anychart.opt.DRAW_LEFT_LINE,
+      'drawLeftLine',
       anychart.core.settings.booleanNormalizer,
       anychart.ConsistencyState.RESOURCE_LIST_ITEMS,
       anychart.Signal.NEEDS_REDRAW);
@@ -543,7 +542,7 @@ anychart.core.resource.ResourceList.prototype.overlaySignal_ = function(e) {
  * @protected
  */
 anychart.core.resource.ResourceList.prototype.getIterator = function() {
-  return this.target_ ? this.target_.getIterator() : null;
+  return this.target_ ? this.target_.getDataIterator() : null;
 };
 
 
@@ -686,31 +685,31 @@ anychart.core.resource.ResourceList.prototype.releaseItems_ = function(opt_start
 anychart.core.resource.ResourceList.prototype.prepareItem_ = function(item, iterator) {
   var itemSettings, imageSettings, nameSettings, typeSettings, descriptionSettings, tagSettings, enabled, tmp;
 
-  imageSettings = anychart.core.resource.ResourceList.GET_SETTINGS(anychart.opt.IMAGE, anychart.core.resource.resourceList.ImageSettings.PROPERTY_DESCRIPTORS, iterator);
+  imageSettings = anychart.core.resource.ResourceList.GET_SETTINGS('image', anychart.core.resource.resourceList.ImageSettings.PROPERTY_DESCRIPTORS, iterator);
   tmp = iterator.get('imageMargin');
   if (goog.isDef(tmp))
     imageSettings['margin'] = anychart.core.utils.Space.normalizeSpace(/** @type {(Object|Array|string|number)} */(tmp));
   item.setOption('imageSettings', imageSettings);
 
-  nameSettings = anychart.core.resource.ResourceList.GET_SETTINGS(anychart.opt.NAME, anychart.core.resource.resourceList.TextSettings.PROPERTY_DESCRIPTORS, iterator);
+  nameSettings = anychart.core.resource.ResourceList.GET_SETTINGS('name', anychart.core.resource.resourceList.TextSettings.PROPERTY_DESCRIPTORS, iterator);
   tmp = iterator.get('nameMargin');
   if (goog.isDef(tmp))
     nameSettings['margin'] = anychart.core.utils.Space.normalizeSpace(/** @type {(Object|Array|string|number)} */(tmp));
   item.setOption('nameSettings', nameSettings);
 
-  typeSettings = anychart.core.resource.ResourceList.GET_SETTINGS(anychart.opt.TYPE, anychart.core.resource.resourceList.TextSettings.PROPERTY_DESCRIPTORS, iterator);
+  typeSettings = anychart.core.resource.ResourceList.GET_SETTINGS('type', anychart.core.resource.resourceList.TextSettings.PROPERTY_DESCRIPTORS, iterator);
   tmp = iterator.get('typeMargin');
   if (goog.isDef(tmp))
     typeSettings['margin'] = anychart.core.utils.Space.normalizeSpace(/** @type {(Object|Array|string|number)} */(tmp));
   item.setOption('typeSettings', typeSettings);
 
-  descriptionSettings = anychart.core.resource.ResourceList.GET_SETTINGS(anychart.opt.DESCRIPTION, anychart.core.resource.resourceList.TextSettings.PROPERTY_DESCRIPTORS, iterator);
+  descriptionSettings = anychart.core.resource.ResourceList.GET_SETTINGS('description', anychart.core.resource.resourceList.TextSettings.PROPERTY_DESCRIPTORS, iterator);
   tmp = iterator.get('descriptionMargin');
   if (goog.isDef(tmp))
     descriptionSettings['margin'] = anychart.core.utils.Space.normalizeSpace(/** @type {(Object|Array|string|number)} */(tmp));
   item.setOption('descriptionSettings', descriptionSettings);
 
-  tagSettings = anychart.core.resource.ResourceList.GET_SETTINGS(anychart.opt.TAGS, anychart.core.resource.resourceList.TextSettings.PROPERTY_DESCRIPTORS, iterator);
+  tagSettings = anychart.core.resource.ResourceList.GET_SETTINGS('tags', anychart.core.resource.resourceList.TextSettings.PROPERTY_DESCRIPTORS, iterator);
   tmp = iterator.get('tagsMargin');
   if (goog.isDef(tmp))
     tagSettings['margin'] = anychart.core.utils.Space.normalizeSpace(/** @type {(Object|Array|string|number)} */(tmp));
@@ -723,15 +722,15 @@ anychart.core.resource.ResourceList.prototype.prepareItem_ = function(item, iter
   item.setOption('tagSettings', tagSettings);
 
   // --- DATA ---
-  item.setOption(anychart.opt.WIDTH, this.boundsCache.width);
-  item.setOption(anychart.opt.HEIGHT, this.boundsCache.height);
-  item.setOption(anychart.opt.IMAGE_SRC, iterator.get('image') || '');
-  item.setOption(anychart.opt.NAME, iterator.get('name') || null);
-  item.setOption(anychart.opt.TYPE, iterator.get('type') || null);
-  item.setOption(anychart.opt.DESCRIPTION, iterator.get('description') || null);
+  item.setOption('width', this.boundsCache.width);
+  item.setOption('height', this.boundsCache.height);
+  item.setOption('imageSrc', iterator.get('image') || '');
+  item.setOption('name', iterator.get('name') || null);
+  item.setOption('type', iterator.get('type') || null);
+  item.setOption('description', iterator.get('description') || null);
   var tags = iterator.get('tags');
   tags = tags ? goog.isArray(tags) ? tags.slice() : [tags] : [];
-  item.setOption(anychart.opt.TAGS, tags);
+  item.setOption('tags', tags);
 
   enabled = iterator.get('enabled');
   enabled = goog.isDef(enabled) && !isNaN(enabled) ? !!enabled : true;
@@ -835,11 +834,11 @@ anychart.core.resource.ResourceList.prototype.draw = function() {
 
   if (this.hasInvalidationState(anychart.ConsistencyState.APPEARANCE)) {
     this.itemsStrokePath
-        .stroke(this.getOption(anychart.opt.STROKE));
+        .stroke(this.getOption('stroke'));
     this.itemsEvenPath
-        .fill(this.getOption(anychart.opt.EVEN_FILL));
+        .fill(this.getOption('evenFill'));
     this.itemsOddPath
-        .fill(this.getOption(anychart.opt.ODD_FILL));
+        .fill(this.getOption('oddFill'));
     this.markConsistent(anychart.ConsistencyState.APPEARANCE);
   }
 
@@ -857,7 +856,7 @@ anychart.core.resource.ResourceList.prototype.draw = function() {
   }
 
   if (this.hasInvalidationState(anychart.ConsistencyState.RESOURCE_LIST_OVERLAY)) {
-    this.overlay_.target(/** @type {Element} */(this.container().getStage().container()));
+    this.overlay_.target(this.container().getStage().getDomWrapper());
     this.overlay_.setBounds(this.getPixelBounds());
     this.overlay_.draw();
     this.markConsistent(anychart.ConsistencyState.RESOURCE_LIST_OVERLAY);
@@ -948,21 +947,23 @@ anychart.core.resource.ResourceList.prototype.draw = function() {
     var from, to, row;
 
     var offsetY = 0;
-    var drawTop = !!this.getOption(anychart.opt.DRAW_TOP_LINE);
-    var drawRight = !!this.getOption(anychart.opt.DRAW_RIGHT_LINE);
-    var drawBottom = !!this.getOption(anychart.opt.DRAW_BOTTOM_LINE);
-    var drawLeft = !!this.getOption(anychart.opt.DRAW_LEFT_LINE);
+    var drawTop = !!this.getOption('drawTopLine');
+    var drawRight = !!this.getOption('drawRightLine');
+    var drawBottom = !!this.getOption('drawBottomLine');
+    var drawLeft = !!this.getOption('drawLeftLine');
 
     from = anychart.utils.applyPixelShift(offsetY, thickness);
     var rowCount = this.items_.length;
     var lastRow = rowCount - 1;
     this.itemsStrokePath.clear();
+    this.itemsEvenPath.clear();
+    this.itemsOddPath.clear();
 
     for (row = 0; row < rowCount; row++) {
       var isLastRow = row == lastRow;
       item = this.items_[row];
-      item.setOption(anychart.opt.WIDTH, this.boundsCache.width);
-      item.setOption(anychart.opt.HEIGHT, this.boundsCache.height);
+      item.setOption('width', this.boundsCache.width);
+      item.setOption('height', this.boundsCache.height);
       item.invalidate(anychart.ConsistencyState.BOUNDS);
       this.drawItem_(item, offsetY);
       var itemHeight = item.getActualHeight();
@@ -1057,8 +1058,8 @@ anychart.core.resource.ResourceList.prototype.setupByJSON = function(config, opt
     anychart.core.settings.deserialize(this, anychart.core.resource.ResourceList.DESCRIPTORS, config);
   }
 
-  if (anychart.opt.BACKGROUND in config)
-    this.background(config[anychart.opt.BACKGROUND]);
+  if ('background' in config)
+    this.background(config['background']);
 
   this.images().setupByJSON(config['images'], opt_default);
   this.names().setupByJSON(config['names'], opt_default);
@@ -1124,20 +1125,23 @@ anychart.core.resource.ResourceList.prototype.disposeInternal = function() {
 //endregion
 //region --- Exports
 //exports
-anychart.core.resource.ResourceList.prototype['target'] = anychart.core.resource.ResourceList.prototype.target;
-anychart.core.resource.ResourceList.prototype['background'] = anychart.core.resource.ResourceList.prototype.background;
-anychart.core.resource.ResourceList.prototype['images'] = anychart.core.resource.ResourceList.prototype.images;
-anychart.core.resource.ResourceList.prototype['names'] = anychart.core.resource.ResourceList.prototype.names;
-anychart.core.resource.ResourceList.prototype['types'] = anychart.core.resource.ResourceList.prototype.types;
-anychart.core.resource.ResourceList.prototype['descriptions'] = anychart.core.resource.ResourceList.prototype.descriptions;
-anychart.core.resource.ResourceList.prototype['tags'] = anychart.core.resource.ResourceList.prototype.tags;
-anychart.core.resource.ResourceList.prototype['overlay'] = anychart.core.resource.ResourceList.prototype.overlay;
-// descriptors
-// anychart.core.resource.ResourceList.prototype['stroke'] = anychart.core.resource.ResourceList.prototype.stroke;
-// anychart.core.resource.ResourceList.prototype['evenFill'] = anychart.core.resource.ResourceList.prototype.evenFill;
-// anychart.core.resource.ResourceList.prototype['oddFill'] = anychart.core.resource.ResourceList.prototype.oddFill;
-// anychart.core.resource.ResourceList.prototype['drawTopLine'] = anychart.core.resource.ResourceList.prototype.drawTopLine;
-// anychart.core.resource.ResourceList.prototype['drawRightLine'] = anychart.core.resource.ResourceList.prototype.drawRightLine;
-// anychart.core.resource.ResourceList.prototype['drawBottomLine'] = anychart.core.resource.ResourceList.prototype.drawBottomLine;
-// anychart.core.resource.ResourceList.prototype['drawLeftLine'] = anychart.core.resource.ResourceList.prototype.drawLeftLine;
+(function() {
+  var proto = anychart.core.resource.ResourceList.prototype;
+  proto['target'] = proto.target;
+  proto['background'] = proto.background;
+  proto['images'] = proto.images;
+  proto['names'] = proto.names;
+  proto['types'] = proto.types;
+  proto['descriptions'] = proto.descriptions;
+  proto['tags'] = proto.tags;
+  proto['overlay'] = proto.overlay;
+  // descriptors
+  // proto['stroke'] = proto.stroke;
+  // proto['evenFill'] = proto.evenFill;
+  // proto['oddFill'] = proto.oddFill;
+  // proto['drawTopLine'] = proto.drawTopLine;
+  // proto['drawRightLine'] = proto.drawRightLine;
+  // proto['drawBottomLine'] = proto.drawBottomLine;
+  // proto['drawLeftLine'] = proto.drawLeftLine;
+})();
 //endregion

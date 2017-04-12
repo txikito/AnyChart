@@ -32,7 +32,7 @@ anychart.standalones.Title.prototype.dependsOnContainerSize = function() {
  */
 anychart.standalones.title = function() {
   var title = new anychart.standalones.Title();
-  title.setupByVal(anychart.getFullTheme()['standalones']['title'], true);
+  title.setupByVal(anychart.getFullTheme('standalones.title'), true);
   return title;
 };
 
@@ -43,14 +43,18 @@ anychart.standalones.title = function() {
  * @return {!anychart.standalones.Title}
  */
 anychart.ui.title = function() {
-  anychart.core.reporting.warning(anychart.enums.WarningCode.DEPRECATED, null, ['anychart.ui.title', 'anychart.standalones.title'], true);
+  anychart.core.reporting.warning(anychart.enums.WarningCode.DEPRECATED, null, ['anychart.ui.title()', 'anychart.standalones.title()', null, 'Constructor'], true);
   return anychart.standalones.title();
 };
 
 
 //exports
-goog.exportSymbol('anychart.standalones.title', anychart.standalones.title);
-goog.exportSymbol('anychart.ui.title', anychart.ui.title);
-anychart.standalones.Title.prototype['draw'] = anychart.standalones.Title.prototype.draw;
-anychart.standalones.Title.prototype['parentBounds'] = anychart.standalones.Title.prototype.parentBounds;
-anychart.standalones.Title.prototype['container'] = anychart.standalones.Title.prototype.container;
+/** @suppress {deprecated} */
+(function() {
+  var proto = anychart.standalones.Title.prototype;
+  goog.exportSymbol('anychart.standalones.title', anychart.standalones.title);
+  goog.exportSymbol('anychart.ui.title', anychart.ui.title);
+  proto['draw'] = proto.draw;
+  proto['parentBounds'] = proto.parentBounds;
+  proto['container'] = proto.container;
+})();

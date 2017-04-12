@@ -3,6 +3,7 @@
  * @suppress {extraRequire}
  */
 goog.provide('anychart.core.series.Stock');
+
 goog.require('anychart.core.drawers.Area');
 goog.require('anychart.core.drawers.Candlestick');
 goog.require('anychart.core.drawers.Column');
@@ -19,8 +20,8 @@ goog.require('anychart.core.drawers.StepArea');
 goog.require('anychart.core.drawers.StepLine');
 goog.require('anychart.core.reporting');
 goog.require('anychart.core.series.Base');
-goog.require('anychart.core.utils.StockHighlightContextProvider');
 goog.require('anychart.data.Table');
+goog.require('anychart.format.Context');
 
 
 
@@ -120,13 +121,19 @@ anychart.core.series.Stock.prototype.getPointOption = function(name) {
 
 /** @inheritDoc */
 anychart.core.series.Stock.prototype.getPreFirstPoint = function() {
-  return this.data_.getPreFirstRow();
+  var row = this.data_.getPreFirstRow();
+  if (row)
+    this.getIterator().specialSelect(row.row);
+  return row;
 };
 
 
 /** @inheritDoc */
 anychart.core.series.Stock.prototype.getPostLastPoint = function() {
-  return this.data_.getPostLastRow();
+  var row = this.data_.getPostLastRow();
+  if (row)
+    this.getIterator().specialSelect(row.row);
+  return row;
 };
 
 
@@ -162,7 +169,7 @@ anychart.core.series.Stock.prototype.updateComparisonZero = function() {
   }
   // if we have found a row to get value from - we cast it to number
   // if anything went wrong - we get 0 value and fail to make a comparison, which is a good result
-  this.comparisonZero = Number(row && row.get(anychart.opt.VALUE)) || 0;
+  this.comparisonZero = Number(row && row.get('value')) || 0;
 };
 //endregion
 
@@ -268,6 +275,12 @@ anychart.core.series.Stock.prototype.getSelectableData = function() {
 anychart.core.series.Stock.prototype.getDetachedIterator = function() {
   return this.data_.getIterator();
 };
+
+
+/** @inheritDoc */
+anychart.core.series.Stock.prototype.considerMetaEmpty = function() {
+  return true;
+};
 //endregion
 
 
@@ -278,15 +291,15 @@ anychart.core.series.Stock.prototype.getDetachedIterator = function() {
 //
 //----------------------------------------------------------------------------------------------------------------------
 /** @inheritDoc */
-anychart.core.series.Stock.prototype.getColorResolutionContext = function(opt_baseColor) {
+anychart.core.series.Stock.prototype.getColorResolutionContext = function(opt_baseColor, opt_ignorePointSettings) {
   return {
-    'sourceColor': opt_baseColor || this.getOption(anychart.opt.COLOR) || 'blue'
+    'sourceColor': opt_baseColor || this.getOption('color') || 'blue'
   };
 };
 
 
 /** @inheritDoc */
-anychart.core.series.Stock.prototype.getHatchFillResolutionContext = function() {
+anychart.core.series.Stock.prototype.getHatchFillResolutionContext = function(opt_ignorePointSettings) {
   return {
     'sourceHatchFill': this.getAutoHatchFill()
   };
@@ -350,6 +363,13 @@ anychart.core.series.Stock.prototype.getScaleReferenceValues = function() {
   }
   return res;
 };
+
+
+/** @inheritDoc */
+anychart.core.series.Stock.prototype.planHasPointMarkers = function() {
+  var column = this.data_.getFieldColumn('marker');
+  return (goog.isString(column) || !isNaN(column));
+};
 //endregion
 
 
@@ -410,7 +430,7 @@ anychart.core.series.Stock.prototype.getSeriesState = function() {
 anychart.core.series.Stock.prototype.hoverSeries = function() {
   if (!(this.seriesState & anychart.PointState.HOVER)) {
     this.seriesState = anychart.PointState.HOVER;
-    this.invalidate(anychart.ConsistencyState.SERIES_COLOR, anychart.Signal.NEEDS_REDRAW);
+    this.invalidate(anychart.ConsistencyState.SERIES_COLOR | anychart.ConsistencyState.SERIES_MARKERS, anychart.Signal.NEEDS_REDRAW);
   }
   return this;
 };
@@ -424,9 +444,15 @@ anychart.core.series.Stock.prototype.hoverSeries = function() {
 anychart.core.series.Stock.prototype.unhover = function() {
   if (this.seriesState != anychart.PointState.NORMAL) {
     this.seriesState = anychart.PointState.NORMAL;
-    this.invalidate(anychart.ConsistencyState.SERIES_COLOR, anychart.Signal.NEEDS_REDRAW);
+    this.invalidate(anychart.ConsistencyState.SERIES_COLOR | anychart.ConsistencyState.SERIES_MARKERS, anychart.Signal.NEEDS_REDRAW);
   }
   return this;
+};
+
+
+/** @inheritDoc */
+anychart.core.series.Stock.prototype.getPointState = function(index) {
+  return this.getSeriesState();
 };
 //endregion
 
@@ -440,10 +466,9 @@ anychart.core.series.Stock.prototype.unhover = function() {
 /** @inheritDoc */
 anychart.core.series.Stock.prototype.createTooltipContextProvider = function() {
   if (!this.tooltipContext) {
-    this.tooltipContext = new anychart.core.utils.StockHighlightContextProvider(this, this.drawer.yValueNames, false);
+    this.tooltipContext = new anychart.format.Context();
   }
-  this.tooltipContext.applyReferenceValues();
-  return this.tooltipContext;
+  return this.updateContext(this.tooltipContext, this.getCurrentPoint());
 };
 
 
@@ -454,9 +479,8 @@ anychart.core.series.Stock.prototype.createTooltipContextProvider = function() {
  */
 anychart.core.series.Stock.prototype.createLegendContextProvider = function() {
   if (!this.legendProvider)
-    this.legendProvider = new anychart.core.utils.StockHighlightContextProvider(this, this.drawer.yValueNames, false);
-  this.legendProvider.applyReferenceValues();
-  return this.legendProvider;
+    this.legendProvider = new anychart.format.Context();
+  return this.updateContext(this.legendProvider, this.getCurrentPoint());
 };
 
 
@@ -494,17 +518,17 @@ anychart.core.series.Stock.prototype.getLegendIconColor = function(legendItemJso
     var name;
     var rising = context['open'] < context['close'];
     if (colorType == anychart.enums.ColorType.STROKE) {
-      name = rising ? anychart.opt.RISING_STROKE : anychart.opt.FALLING_STROKE;
+      name = rising ? 'risingStroke' : 'fallingStroke';
     } else if (colorType == anychart.enums.ColorType.HATCH_FILL) {
       if (this.check(anychart.core.drawers.Capabilities.USES_STROKE_AS_FILL))
         return null;
-      name = rising ? anychart.opt.RISING_HATCH_FILL : anychart.opt.FALLING_HATCH_FILL;
+      name = rising ? 'risingHatchFill' : 'fallingHatchFill';
     } else {
       if (this.check(anychart.core.drawers.Capabilities.USES_STROKE_AS_FILL)) {
-        name = rising ? anychart.opt.RISING_STROKE : anychart.opt.FALLING_STROKE;
+        name = rising ? 'risingStroke' : 'fallingStroke';
         colorType = anychart.enums.ColorType.STROKE;
       } else {
-        name = rising ? anychart.opt.RISING_FILL : anychart.opt.FALLING_FILL;
+        name = rising ? 'risingFill' : 'fallingFill';
       }
     }
     var resolver = anychart.core.series.Base.getColorResolver([name], colorType);
@@ -519,7 +543,7 @@ anychart.core.series.Stock.prototype.getLegendIconColor = function(legendItemJso
 anychart.core.series.Stock.prototype.getLegendIconType = function(type, context) {
   if (String(type).toLowerCase() == anychart.enums.LegendItemIconType.RISING_FALLING) {
     if (this.check(anychart.core.drawers.Capabilities.IS_OHLC_BASED)) {
-      return (context[anychart.opt.OPEN] < context[anychart.opt.CLOSE]) ?
+      return (context['open'] < context['close']) ?
           anychart.enums.LegendItemIconType.TRIANGLE_UP :
           anychart.enums.LegendItemIconType.TRIANGLE_DOWN;
     }
@@ -571,7 +595,7 @@ anychart.core.series.Stock.prototype.getLegendItemText = function(context) {
  * @inheritDoc
  */
 anychart.core.series.Stock.prototype.serialize = function() {
-  var json = goog.base(this, 'serialize');
+  var json = anychart.core.series.Stock.base(this, 'serialize');
   return json;
 };
 
@@ -580,7 +604,7 @@ anychart.core.series.Stock.prototype.serialize = function() {
  * @inheritDoc
  */
 anychart.core.series.Stock.prototype.setupByJSON = function(config, opt_default) {
-  goog.base(this, 'setupByJSON', config, opt_default);
+  anychart.core.series.Stock.base(this, 'setupByJSON', config, opt_default);
 };
 
 
@@ -596,10 +620,13 @@ anychart.core.series.Stock.prototype.disposeInternal = function() {
   this.highlightedRow_ = null;
   this.lastRow_ = null;
 
-  goog.base(this, 'disposeInternal');
+  anychart.core.series.Stock.base(this, 'disposeInternal');
 };
 //endregion
 
 
 //exports
-anychart.core.series.Stock.prototype['data'] = anychart.core.series.Stock.prototype.data;
+(function() {
+  var proto = anychart.core.series.Stock.prototype;
+  proto['data'] = proto.data;
+})();

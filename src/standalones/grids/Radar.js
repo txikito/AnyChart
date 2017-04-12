@@ -20,7 +20,7 @@ anychart.core.makeStandalone(anychart.standalones.grids.Radar, anychart.core.gri
  */
 anychart.standalones.grids.radar = function() {
   var grid = new anychart.standalones.grids.Radar();
-  grid.setup(anychart.getFullTheme()['standalones']['radarGrid']);
+  grid.setup(anychart.getFullTheme('standalones.radarGrid'));
   return grid;
 };
 
@@ -31,15 +31,20 @@ anychart.standalones.grids.radar = function() {
  * @deprecated Since 7.12.0. Use anychart.standalones.grids.radar instead.
  */
 anychart.grids.radar = function() {
-  anychart.core.reporting.warning(anychart.enums.WarningCode.DEPRECATED, null, ['anychart.grids.radar', 'anychart.standalones.grids.radar'], true);
+  anychart.core.reporting.warning(anychart.enums.WarningCode.DEPRECATED, null, ['anychart.grids.radar()', 'anychart.standalones.grids.radar()', null, 'Constructor'], true);
   return anychart.standalones.grids.radar();
 };
 
 
 //exports
-goog.exportSymbol('anychart.grids.radar', anychart.grids.radar);
-goog.exportSymbol('anychart.standalones.grids.radar', anychart.standalones.grids.radar);
-anychart.standalones.grids.Radar.prototype['draw'] = anychart.standalones.grids.Radar.prototype.draw;
-anychart.standalones.grids.Radar.prototype['parentBounds'] = anychart.standalones.grids.Radar.prototype.parentBounds;
-anychart.standalones.grids.Radar.prototype['container'] = anychart.standalones.grids.Radar.prototype.container;
-anychart.standalones.grids.Radar.prototype['startAngle'] = anychart.standalones.grids.Radar.prototype.startAngle;
+/** @suppress {deprecated} */
+(function() {
+  var proto = anychart.standalones.grids.Radar.prototype;
+  goog.exportSymbol('anychart.grids.radar', anychart.grids.radar);
+  goog.exportSymbol('anychart.standalones.grids.radar', anychart.standalones.grids.radar);
+  proto['draw'] = proto.draw;
+  proto['parentBounds'] = proto.parentBounds;
+  proto['container'] = proto.container;
+  proto['startAngle'] = proto.startAngle;
+  proto['innerRadius'] = proto.innerRadius;
+})();

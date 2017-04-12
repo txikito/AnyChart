@@ -38,7 +38,7 @@ goog.inherits(anychart.standalones.LabelsFactory.Label, anychart.core.ui.LabelsF
  */
 anychart.standalones.labelsFactory = function() {
   var factory = new anychart.standalones.LabelsFactory();
-  factory.setup(anychart.getFullTheme()['standalones']['labelsFactory']);
+  factory.setupByVal(anychart.getFullTheme('standalones.labelsFactory'), true);
   return factory;
 };
 
@@ -49,18 +49,22 @@ anychart.standalones.labelsFactory = function() {
  * @deprecated Since 7.12.0. Use anychart.standalones.labelsFactory instead.
  */
 anychart.ui.labelsFactory = function() {
-  anychart.core.reporting.warning(anychart.enums.WarningCode.DEPRECATED, null, ['anychart.ui.labelsFactory', 'anychart.standalones.labelsFactory'], true);
+  anychart.core.reporting.warning(anychart.enums.WarningCode.DEPRECATED, null, ['anychart.ui.labelsFactory()', 'anychart.standalones.labelsFactory()', null, 'Constructor'], true);
   return anychart.standalones.labelsFactory();
 };
 
 
 //exports
-goog.exportSymbol('anychart.ui.labelsFactory', anychart.ui.labelsFactory);
-goog.exportSymbol('anychart.standalones.labelsFactory', anychart.standalones.labelsFactory);
-anychart.standalones.LabelsFactory.prototype['draw'] = anychart.standalones.LabelsFactory.prototype.draw;
-anychart.standalones.LabelsFactory.prototype['parentBounds'] = anychart.standalones.LabelsFactory.prototype.parentBounds;
-anychart.standalones.LabelsFactory.prototype['container'] = anychart.standalones.LabelsFactory.prototype.container;
-anychart.standalones.LabelsFactory.prototype['add'] = anychart.standalones.LabelsFactory.prototype.add;
-anychart.standalones.LabelsFactory.prototype['clear'] = anychart.standalones.LabelsFactory.prototype.clear;
-anychart.standalones.LabelsFactory.prototype['measure'] = anychart.standalones.LabelsFactory.prototype.measure;
-anychart.standalones.LabelsFactory.prototype['measureWithTransform'] = anychart.standalones.LabelsFactory.prototype.measureWithTransform;
+/** @suppress {deprecated} */
+(function() {
+  var proto = anychart.standalones.LabelsFactory.prototype;
+  goog.exportSymbol('anychart.ui.labelsFactory', anychart.ui.labelsFactory);
+  goog.exportSymbol('anychart.standalones.labelsFactory', anychart.standalones.labelsFactory);
+  proto['draw'] = proto.draw;
+  proto['parentBounds'] = proto.parentBounds;
+  proto['container'] = proto.container;
+  proto['add'] = proto.add;
+  proto['clear'] = proto.clear;
+  proto['measure'] = proto.measure;
+  proto['measureWithTransform'] = proto.measureWithTransform;
+})();

@@ -46,7 +46,7 @@ anychart.core.utils.DrawingPlanIterator.prototype.advance = function() {
  * @return {number}
  */
 anychart.core.utils.DrawingPlanIterator.prototype.getRawDataIndex = function() {
-  return /** @type {number} */(this.meta(anychart.opt.RAW_INDEX));
+  return /** @type {number} */(this.meta('rawIndex'));
 };
 
 
@@ -58,7 +58,7 @@ anychart.core.utils.DrawingPlanIterator.prototype.get = function(fieldName) {
       res = this.currentPoint_.data[fieldName];
     } else {
       //anychart.core.utils.DrawingPlanIterator.misses[fieldName] = true;
-      var rawIndex = this.currentPoint_.meta[anychart.opt.RAW_INDEX];
+      var rawIndex = this.currentPoint_.meta['rawIndex'];
       if (!this.currentRow) {
         if (goog.isDef(rawIndex))
           this.currentRow = this.view.row(rawIndex);
@@ -96,8 +96,11 @@ anychart.core.utils.DrawingPlanIterator.prototype.meta = function(name, opt_valu
 
 
 //exports
-anychart.core.utils.DrawingPlanIterator.prototype['reset'] = anychart.core.utils.DrawingPlanIterator.prototype.reset;//doc|ex
-anychart.core.utils.DrawingPlanIterator.prototype['advance'] = anychart.core.utils.DrawingPlanIterator.prototype.advance;//doc|ex
-anychart.core.utils.DrawingPlanIterator.prototype['get'] = anychart.core.utils.DrawingPlanIterator.prototype.get;//doc|ex
-anychart.core.utils.DrawingPlanIterator.prototype['meta'] = anychart.core.utils.DrawingPlanIterator.prototype.meta;//doc|need-ex
-anychart.core.utils.DrawingPlanIterator.prototype['getRowsCount'] = anychart.core.utils.DrawingPlanIterator.prototype.getRowsCount;//doc|ex
+(function() {
+  var proto = anychart.core.utils.DrawingPlanIterator.prototype;
+  proto['reset'] = proto.reset;//doc|ex
+  proto['advance'] = proto.advance;//doc|ex
+  proto['get'] = proto.get;//doc|ex
+  proto['meta'] = proto.meta;//doc|need-ex
+  proto['getRowsCount'] = proto.getRowsCount;//doc|ex
+})();

@@ -558,22 +558,22 @@ anychart.scales.Calendar.prototype.handleParentSignals_ = function(e) {
  * @constructor
  */
 anychart.scales.Calendar.AStorage = function(availability) {
-  var isWorking = availability[anychart.opt.IS_WORKING];
+  var isWorking = availability['isWorking'];
   this.holidays = goog.isDef(isWorking) ? !isWorking : false;
 
-  var period = anychart.enums.normalizeAvailabilityPeriod(availability[anychart.opt.EACH]);
+  var period = anychart.enums.normalizeAvailabilityPeriod(availability['each']);
   switch (period) {
     case anychart.enums.AvailabilityPeriod.YEAR:
-      this.initYearly_(availability[anychart.opt.ON], availability[anychart.opt.FROM], availability[anychart.opt.TO]);
+      this.initYearly_(availability['on'], availability['from'], availability['to']);
       break;
     case anychart.enums.AvailabilityPeriod.WEEK:
-      this.initWeekly_(availability[anychart.opt.ON], availability[anychart.opt.FROM], availability[anychart.opt.TO]);
+      this.initWeekly_(availability['on'], availability['from'], availability['to']);
       break;
     case anychart.enums.AvailabilityPeriod.DAY:
-      this.initWeekly_(NaN, availability[anychart.opt.FROM], availability[anychart.opt.TO]);
+      this.initWeekly_(NaN, availability['from'], availability['to']);
       break;
     default:
-      this.initNonPeriodic_(availability[anychart.opt.ON], availability[anychart.opt.FROM], availability[anychart.opt.TO]);
+      this.initNonPeriodic_(availability['on'], availability['from'], availability['to']);
   }
 
   if (period == anychart.enums.AvailabilityPeriod.NONE) {
@@ -586,12 +586,12 @@ anychart.scales.Calendar.AStorage = function(availability) {
       this.ends = this.to_.clone();
     }
   } else {
-    var tmp = anychart.format.parseDateTime(availability[anychart.opt.STARTS]);
+    var tmp = anychart.format.parseDateTime(availability['starts']);
     this.starts = tmp ?
         new goog.date.UtcDateTime(tmp.getUTCFullYear(), tmp.getUTCMonth(), tmp.getUTCDate()) :
         anychart.scales.Calendar.MINIMUM_DATE;
 
-    tmp = anychart.format.parseDateTime(availability[anychart.opt.ENDS]);
+    tmp = anychart.format.parseDateTime(availability['ends']);
     if (tmp) {
       this.ends = new goog.date.UtcDateTime(tmp.getUTCFullYear(), tmp.getUTCMonth(), tmp.getUTCDate());
       this.ends.add(anychart.scales.Calendar.DAY_);
@@ -940,7 +940,7 @@ anychart.scales.Calendar.AStorage.prototype.toElement_ = function(str, maxVal, d
 //------------------------------------------------------------------------------
 /** @inheritDoc */
 anychart.scales.Calendar.prototype.serialize = function() {
-  var json = goog.base(this, 'serialize');
+  var json = anychart.scales.Calendar.base(this, 'serialize');
   if (!this.weekendRangeIsDefault_)
     json['weekendRange'] = this.weekendRange_ ?
         [this.weekendRange_[0], this.weekendRange_[1]] : null;
@@ -952,7 +952,7 @@ anychart.scales.Calendar.prototype.serialize = function() {
 
 /** @inheritDoc */
 anychart.scales.Calendar.prototype.setupByJSON = function(config) {
-  goog.base(this, 'setupByJSON', config);
+  anychart.scales.Calendar.base(this, 'setupByJSON', config);
   this.weekendRange(config['weekendRange']);
   this.timezoneOffset(config['timezoneOffset']);
   this.availabilities(config['availabilities']);
@@ -965,7 +965,7 @@ anychart.scales.Calendar.prototype.disposeInternal = function() {
   if (this.parent_)
     this.parent_.unlistenSignals(this.handleParentSignals_, this);
   this.parent_ = null;
-  goog.base(this, 'disposeInternal');
+  anychart.scales.Calendar.base(this, 'disposeInternal');
 };
 
 
@@ -983,8 +983,11 @@ anychart.scales.calendar = function(opt_parentCalendar) {
 
 
 //exports
-goog.exportSymbol('anychart.scales.calendar', anychart.scales.calendar);
-anychart.scales.Calendar.prototype['weekendRange'] = anychart.scales.Calendar.prototype.weekendRange;
-anychart.scales.Calendar.prototype['timezoneOffset'] = anychart.scales.Calendar.prototype.timezoneOffset;
-anychart.scales.Calendar.prototype['availabilities'] = anychart.scales.Calendar.prototype.availabilities;
-anychart.scales.Calendar.prototype['getWorkingSchedule'] = anychart.scales.Calendar.prototype.getWorkingSchedule;
+(function() {
+  var proto = anychart.scales.Calendar.prototype;
+  goog.exportSymbol('anychart.scales.calendar', anychart.scales.calendar);
+  proto['weekendRange'] = proto.weekendRange;
+  proto['timezoneOffset'] = proto.timezoneOffset;
+  proto['availabilities'] = proto.availabilities;
+  proto['getWorkingSchedule'] = proto.getWorkingSchedule;
+})();

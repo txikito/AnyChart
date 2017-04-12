@@ -2,7 +2,6 @@ goog.provide('anychart.data.TableMapping');
 goog.require('anychart.core.Base');
 goog.require('anychart.data.TableSelectable');
 goog.require('anychart.enums');
-goog.require('anychart.opt');
 goog.require('anychart.utils');
 
 
@@ -27,7 +26,7 @@ goog.require('anychart.utils');
  * @extends {anychart.core.Base}
  */
 anychart.data.TableMapping = function(table, opt_fields) {
-  goog.base(this);
+  anychart.data.TableMapping.base(this, 'constructor');
 
   /**
    * Table reference.
@@ -127,9 +126,9 @@ anychart.data.TableMapping.prototype.addField = function(name, column, opt_typeO
     if (typeIsCalculator &&
         !goog.isFunction(opt_typeOrCalculator) &&
         !(
-            (anychart.opt.RESET in opt_typeOrCalculator) &&
-            (anychart.opt.CONSIDER_ITEM in opt_typeOrCalculator) &&
-            (anychart.opt.GET_RESULT in opt_typeOrCalculator)
+            ('reset' in opt_typeOrCalculator) &&
+            ('considerItem' in opt_typeOrCalculator) &&
+            ('getResult' in opt_typeOrCalculator)
         )) {
       return this; // an object wannabe calculator with wrong fields - ignoring.
     }
@@ -198,10 +197,13 @@ anychart.data.TableMapping.prototype.getTable = function() {
 };
 
 
-//anychart.data.TableMapping.prototype['getAggregateColumn'] = anychart.data.TableMapping.prototype.getAggregateColumn;
-//anychart.data.TableMapping.prototype['getSourceColumn'] = anychart.data.TableMapping.prototype.getSourceColumn;
-//anychart.data.TableMapping.prototype['getTable'] = anychart.data.TableMapping.prototype.getTable;
+//proto['getAggregateColumn'] = proto.getAggregateColumn;
+//proto['getSourceColumn'] = proto.getSourceColumn;
+//proto['getTable'] = proto.getTable;
 
 //exports
-anychart.data.TableMapping.prototype['addField'] = anychart.data.TableMapping.prototype.addField;
-anychart.data.TableMapping.prototype['createSelectable'] = anychart.data.TableMapping.prototype.createSelectable;
+(function() {
+  var proto = anychart.data.TableMapping.prototype;
+  proto['addField'] = proto.addField;
+  proto['createSelectable'] = proto.createSelectable;
+})();

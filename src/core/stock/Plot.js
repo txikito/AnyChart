@@ -1,4 +1,5 @@
 goog.provide('anychart.core.stock.Plot');
+
 goog.require('anychart.core.IPlot');
 goog.require('anychart.core.VisualBaseWithBounds');
 goog.require('anychart.core.annotations.PlotController');
@@ -10,8 +11,8 @@ goog.require('anychart.core.series.Stock');
 goog.require('anychart.core.stock.indicators');
 goog.require('anychart.core.ui.Background');
 goog.require('anychart.core.ui.Legend');
-goog.require('anychart.core.utils.GenericContextProvider');
 goog.require('anychart.enums');
+goog.require('anychart.format.Context');
 goog.require('anychart.palettes');
 goog.require('anychart.scales.Linear');
 goog.require('anychart.utils');
@@ -34,7 +35,7 @@ goog.require('goog.fx.Dragger');
  * @implements {anychart.core.IPlot}
  */
 anychart.core.stock.Plot = function(chart) {
-  goog.base(this);
+  anychart.core.stock.Plot.base(this, 'constructor');
 
   /**
    * Parent chart reference.
@@ -670,16 +671,31 @@ anychart.core.stock.Plot.prototype.aroon = function(mapping, opt_period, opt_upS
 
 
 /**
+ * Creates ATR indicator on the chart.
+ * @param {!anychart.data.TableMapping} mapping
+ * @param {number=} opt_period
+ * @param {anychart.enums.StockSeriesType=} opt_seriesType
+ * @return {anychart.core.stock.indicators.ATR}
+ */
+anychart.core.stock.Plot.prototype.atr = function(mapping, opt_period, opt_seriesType) {
+  var result = new anychart.core.stock.indicators.ATR(this, mapping, opt_period, opt_seriesType);
+  this.indicators_.push(result);
+  return result;
+};
+
+
+/**
  * Creates BBands indicator on the chart.
  * @param {!anychart.data.TableMapping} mapping
  * @param {number=} opt_period [20] Sets moving average period value.
  * @param {number=} opt_deviation [2] Sets the multiplier applied to the moving average to compute upper and lower bands of the indicator.
- * @param {anychart.enums.StockSeriesType=} opt_upSeriesType
- * @param {anychart.enums.StockSeriesType=} opt_downSeriesType
+ * @param {anychart.enums.StockSeriesType=} opt_middleSeriesType
+ * @param {anychart.enums.StockSeriesType=} opt_upperSeriesType
+ * @param {anychart.enums.StockSeriesType=} opt_lowerSeriesType
  * @return {anychart.core.stock.indicators.BBands}
  */
-anychart.core.stock.Plot.prototype.bbands = function(mapping, opt_period, opt_deviation, opt_upSeriesType, opt_downSeriesType) {
-  var result = new anychart.core.stock.indicators.BBands(this, mapping, opt_period, opt_deviation, opt_upSeriesType, opt_downSeriesType);
+anychart.core.stock.Plot.prototype.bbands = function(mapping, opt_period, opt_deviation, opt_middleSeriesType, opt_upperSeriesType, opt_lowerSeriesType) {
+  var result = new anychart.core.stock.indicators.BBands(this, mapping, opt_period, opt_deviation, opt_middleSeriesType, opt_upperSeriesType, opt_lowerSeriesType);
   this.indicators_.push(result);
   return result;
 };
@@ -724,6 +740,28 @@ anychart.core.stock.Plot.prototype.bbandsWidth = function(mapping, opt_period, o
  */
 anychart.core.stock.Plot.prototype.ema = function(mapping, opt_period, opt_seriesType) {
   var result = new anychart.core.stock.indicators.EMA(this, mapping, opt_period, opt_seriesType);
+  this.indicators_.push(result);
+  return result;
+};
+
+
+/**
+ * Creates KDJ indicator on the chart.
+ * @param {!anychart.data.TableMapping} mapping
+ * @param {number=} opt_kPeriod [14] Indicator period. Defaults to 14.
+ * @param {number=} opt_kMAPeriod [5] Indicator K smoothing period. Defaults to 5.
+ * @param {number=} opt_dPeriod [5] Indicator D period. Defaults to 5.
+ * @param {anychart.enums.MovingAverageType=} opt_kMAType [EMA] Indicator K smoothing type. Defaults to EMA.
+ * @param {anychart.enums.MovingAverageType=} opt_dMAType [EMA] Indicator D smoothing type. Defaults to EMA.
+ * @param {number=} opt_kMultiplier [-2] K multiplier.
+ * @param {number=} opt_dMultiplier [3] D multiplier.
+ * @param {anychart.enums.StockSeriesType=} opt_kSeriesType
+ * @param {anychart.enums.StockSeriesType=} opt_dSeriesType
+ * @param {anychart.enums.StockSeriesType=} opt_jSeriesType
+ * @return {anychart.core.stock.indicators.KDJ}
+ */
+anychart.core.stock.Plot.prototype.kdj = function(mapping, opt_kPeriod, opt_kMAPeriod, opt_dPeriod, opt_kMAType, opt_dMAType, opt_kMultiplier, opt_dMultiplier, opt_kSeriesType, opt_dSeriesType, opt_jSeriesType) {
+  var result = new anychart.core.stock.indicators.KDJ(this, mapping, opt_kPeriod, opt_kMAPeriod, opt_dPeriod, opt_kMAType, opt_dMAType, opt_kMultiplier, opt_dMultiplier, opt_kSeriesType, opt_dSeriesType, opt_jSeriesType);
   this.indicators_.push(result);
   return result;
 };
@@ -800,6 +838,25 @@ anychart.core.stock.Plot.prototype.rsi = function(mapping, opt_period, opt_serie
  */
 anychart.core.stock.Plot.prototype.sma = function(mapping, opt_period, opt_seriesType) {
   var result = new anychart.core.stock.indicators.SMA(this, mapping, opt_period, opt_seriesType);
+  this.indicators_.push(result);
+  return result;
+};
+
+
+/**
+ * Creates Stochastic indicator on the chart.
+ * @param {!anychart.data.TableMapping} mapping
+ * @param {number=} opt_kPeriod [14] Indicator period. Defaults to 14.
+ * @param {number=} opt_kMAPeriod [1] Indicator K smoothing period. Defaults to 1.
+ * @param {number=} opt_dPeriod [3] Indicator D period. Defaults to 3.
+ * @param {anychart.enums.MovingAverageType=} opt_kMAType [SMA] Indicator K smoothing type. Defaults to SMA.
+ * @param {anychart.enums.MovingAverageType=} opt_dMAType [SMA] Indicator D smoothing type. Defaults to SMA.
+ * @param {anychart.enums.StockSeriesType=} opt_kSeriesType
+ * @param {anychart.enums.StockSeriesType=} opt_dSeriesType
+ * @return {anychart.core.stock.indicators.Stochastic}
+ */
+anychart.core.stock.Plot.prototype.stochastic = function(mapping, opt_kPeriod, opt_kMAPeriod, opt_dPeriod, opt_kMAType, opt_dMAType, opt_kSeriesType, opt_dSeriesType) {
+  var result = new anychart.core.stock.indicators.Stochastic(this, mapping, opt_kPeriod, opt_kMAPeriod, opt_dPeriod, opt_kMAType, opt_dMAType, opt_kSeriesType, opt_dSeriesType);
   this.indicators_.push(result);
   return result;
 };
@@ -929,8 +986,9 @@ anychart.core.stock.Plot.prototype.setDefaultGridSettings = function(value) {
 /**
  * Invalidates plot series. Doesn't dispatch anything.
  * @param {boolean} doInvalidateBounds
+ * @param {boolean=} opt_skipLegend
  */
-anychart.core.stock.Plot.prototype.invalidateRedrawable = function(doInvalidateBounds) {
+anychart.core.stock.Plot.prototype.invalidateRedrawable = function(doInvalidateBounds, opt_skipLegend) {
   var i;
 
   var state = anychart.ConsistencyState.SERIES_POINTS;
@@ -968,7 +1026,8 @@ anychart.core.stock.Plot.prototype.invalidateRedrawable = function(doInvalidateB
   if (doInvalidateBounds) state |= anychart.ConsistencyState.BOUNDS;
   if (this.xAxis_)
     this.xAxis_.invalidate(state);
-  if (this.legend_ && this.legend_.enabled())
+
+  if (!opt_skipLegend && this.legend_ && this.legend_.enabled())
     this.legend_.invalidate(state);
 
   this.invalidate(anychart.ConsistencyState.STOCK_PLOT_SERIES |
@@ -1026,8 +1085,16 @@ anychart.core.stock.Plot.prototype.background = function(opt_value) {
 anychart.core.stock.Plot.prototype.legend = function(opt_value) {
   if (!this.legend_) {
     this.legend_ = new anychart.core.ui.Legend();
+    this.registerDisposable(this.legend_);
     this.legend_.zIndex(200);
     this.legend_.listenSignals(this.onLegendSignal_, this);
+    this.legend_.listen(anychart.enums.EventType.DRAG_START, function(e) {
+      this.chart_.preventHighlight();
+    }, false, this);
+    this.legend_.listen(anychart.enums.EventType.DRAG_END, function(e) {
+      this.chart_.allowHighlight();
+    }, false, this);
+
     this.legend_.setParentEventTarget(this);
   }
 
@@ -1051,7 +1118,7 @@ anychart.core.stock.Plot.prototype.yScale = function(opt_value) {
       opt_value = anychart.scales.ScatterBase.fromString(opt_value, false);
     }
     if (!(opt_value instanceof anychart.scales.ScatterBase)) {
-      anychart.core.reporting.error(anychart.enums.ErrorCode.INCORRECT_SCALE_TYPE, undefined, ['Scatter chart scales']);
+      anychart.core.reporting.error(anychart.enums.ErrorCode.INCORRECT_SCALE_TYPE, undefined, ['Scatter chart scales', 'scatter', 'linear, log']);
       return this;
     }
     if (this.yScale_ != opt_value) {
@@ -1066,7 +1133,7 @@ anychart.core.stock.Plot.prototype.yScale = function(opt_value) {
     return this;
   } else {
     if (!this.yScale_) {
-      this.yScale_ = new anychart.scales.Linear();
+      this.yScale_ = anychart.scales.linear();
     }
     return this.yScale_;
   }
@@ -1422,7 +1489,7 @@ anychart.core.stock.Plot.prototype.ensureVisualReady_ = function() {
     this.rootLayer_ = acgraph.layer();
     this.bindHandlersToGraphics(this.rootLayer_);
     this.eventsInterceptor_ = this.rootLayer_.rect();
-    this.eventsInterceptor_.zIndex(1000);
+    this.eventsInterceptor_.zIndex(199);
     //this.eventsInterceptor_.cursor(acgraph.vector.Cursor.EW_RESIZE);
     this.eventsInterceptor_.fill(anychart.color.TRANSPARENT_HANDLER);
     this.eventsInterceptor_.stroke(null);
@@ -1431,6 +1498,7 @@ anychart.core.stock.Plot.prototype.ensureVisualReady_ = function() {
     this.eventsHandler.listen(this.eventsInterceptor_, acgraph.events.EventType.MOUSEOVER, this.handlePlotMouseOverAndMove_);
     this.eventsHandler.listen(this.eventsInterceptor_, acgraph.events.EventType.MOUSEMOVE, this.handlePlotMouseOverAndMove_);
     this.eventsHandler.listen(this.eventsInterceptor_, acgraph.events.EventType.MOUSEOUT, this.handlePlotMouseOut_);
+    this.eventsHandler.listen(this.eventsInterceptor_, acgraph.events.EventType.MOUSEDOWN, this.handlePlotMouseDown_);
   }
 };
 
@@ -1465,13 +1533,18 @@ anychart.core.stock.Plot.prototype.ensureBoundsDistributed_ = function() {
     } else {
       legendTitleDate = NaN;
     }
-    this.updateLegend_(seriesBounds, legendTitleDate);
-    // we need forced dispatch signal here to update standalone legend on series enable/disable
-    // we do not worry about it because only standalone legend listens this signal
-    this.dispatchSignal(anychart.Signal.NEED_UPDATE_LEGEND, true);
-    seriesBounds = this.legend().getRemainingBounds();
 
-    if (this.xAxis_) {
+    var legend = /** @type {anychart.core.ui.Legend} */(this.legend());
+    if (legend.positionMode() == anychart.enums.LegendPositionMode.OUTSIDE) {
+      this.updateLegend_(seriesBounds, legendTitleDate);
+      // we need forced dispatch signal here to update standalone legend on series enable/disable
+      // we do not worry about it because only standalone legend listens this signal
+      this.dispatchSignal(anychart.Signal.NEED_UPDATE_LEGEND, true);
+
+      seriesBounds = this.legend().getRemainingBounds();
+    }
+
+    if (this.xAxis_ && this.xAxis_.enabled()) {
       this.xAxis_.suspendSignalsDispatching();
       this.xAxis_.parentBounds(seriesBounds);
       this.xAxis_.resumeSignalsDispatching(false);
@@ -1499,7 +1572,7 @@ anychart.core.stock.Plot.prototype.ensureBoundsDistributed_ = function() {
       }
     }
 
-    if (this.xAxis_) {
+    if (this.xAxis_ && this.xAxis_.enabled()) {
       this.xAxis_.suspendSignalsDispatching();
       // we need this to tell xAxis about new width by Y axes
       this.xAxis_.parentBounds(seriesBounds.left, seriesBounds.top,
@@ -1508,18 +1581,16 @@ anychart.core.stock.Plot.prototype.ensureBoundsDistributed_ = function() {
       seriesBounds = this.xAxis_.getRemainingBounds();
     }
 
-    if (this.legend_ && this.legend_.enabled()) {
-      var legendBounds = seriesBounds.clone();
-      var legendHeight = this.legend_.getPixelBounds().height;
-      legendBounds.top -= legendHeight;
-      legendBounds.height += legendHeight;
-      this.updateLegend_(legendBounds);
-      seriesBounds = this.legend_.getRemainingBounds();
+    if (legend.positionMode() == anychart.enums.LegendPositionMode.INSIDE) {
+      this.updateLegend_(seriesBounds, legendTitleDate);
+      // we need forced dispatch signal here to update standalone legend on series enable/disable
+      // we do not worry about it because only standalone legend listens this signal
+      this.dispatchSignal(anychart.Signal.NEED_UPDATE_LEGEND, true);
     }
 
     this.seriesBounds_ = seriesBounds;
     this.eventsInterceptor_.setBounds(this.seriesBounds_);
-    this.invalidateRedrawable(true);
+    this.invalidateRedrawable(true, true);
     this.markConsistent(anychart.ConsistencyState.BOUNDS | anychart.ConsistencyState.STOCK_PLOT_LEGEND);
   }
 };
@@ -1543,21 +1614,18 @@ anychart.core.stock.Plot.prototype.getLegendAutoText = function(legendFormatter,
   var formatter;
   if (!isNaN(opt_titleValue) && (formatter = legendFormatter)) {
     if (goog.isString(formatter))
-      formatter = anychart.core.utils.TokenParser.getInstance().getTextFormatter(formatter);
+      formatter = anychart.core.utils.TokenParser.getInstance().getFormat(formatter);
     if (goog.isFunction(formatter)) {
       var grouping = /** @type {anychart.core.stock.Grouping} */(this.chart_.grouping());
-      var context = new anychart.core.utils.GenericContextProvider({
-        'value': opt_titleValue,
-        'hoveredDate': opt_titleValue,
-        'dataIntervalUnit': grouping.getCurrentDataInterval()['unit'],
-        'dataIntervalUnitCount': grouping.getCurrentDataInterval()['count'],
-        'isGrouped': grouping.isGrouped()
-      }, {
-        'value': anychart.enums.TokenType.DATE_TIME,
-        'hoveredDate': anychart.enums.TokenType.DATE_TIME,
-        'dataIntervalUnit': anychart.enums.TokenType.STRING,
-        'dataIntervalUnitCount': anychart.enums.TokenType.STRING
-      });
+
+      var values = {
+        'value': {value: opt_titleValue, type: anychart.enums.TokenType.DATE_TIME},
+        'hoveredDate': {value: opt_titleValue, type: anychart.enums.TokenType.DATE_TIME},
+        'dataIntervalUnit': {value: grouping.getCurrentDataInterval()['unit'], type: anychart.enums.TokenType.STRING},
+        'dataIntervalUnitCount': {value: grouping.getCurrentDataInterval()['count'], type: anychart.enums.TokenType.NUMBER},
+        'isGrouped': {value: grouping.isGrouped()}
+      };
+      var context = (new anychart.format.Context(values)).propagate();
       return formatter.call(context, context);
     }
   }
@@ -1577,9 +1645,8 @@ anychart.core.stock.Plot.prototype.updateLegend_ = function(opt_seriesBounds, op
   legend.container(this.rootLayer_);
   if (opt_seriesBounds) {
     legend.parentBounds(opt_seriesBounds);
-    legend.width(opt_seriesBounds.width);
   }
-  var autoText = this.getLegendAutoText(/** @type {string|Function} */ (legend.titleFormatter()), opt_titleValue);
+  var autoText = this.getLegendAutoText(/** @type {string|Function} */ (legend.titleFormat()), opt_titleValue);
   if (!goog.isNull(autoText))
     legend.title().autoText(autoText);
   if (!legend.itemsSource())
@@ -1613,10 +1680,10 @@ anychart.core.stock.Plot.prototype.onLegendSignal_ = function(event) {
 /**
  * Create legend items provider specific to chart type.
  * @param {string} sourceMode Items source mode (default|categories).
- * @param {?(Function|string)} itemsTextFormatter Legend items text formatter.
+ * @param {?(Function|string)} itemsFormat Legend items text formatter.
  * @return {!Array.<anychart.core.ui.Legend.LegendItemProvider>} Legend items provider.
  */
-anychart.core.stock.Plot.prototype.createLegendItemsProvider = function(sourceMode, itemsTextFormatter) {
+anychart.core.stock.Plot.prototype.createLegendItemsProvider = function(sourceMode, itemsFormat) {
   /**
    * @type {!Array.<anychart.core.ui.Legend.LegendItemProvider>}
    */
@@ -1625,7 +1692,7 @@ anychart.core.stock.Plot.prototype.createLegendItemsProvider = function(sourceMo
     /** @type {anychart.core.series.Stock} */
     var series = this.series_[i];
     if (series) {
-      var itemData = series.getLegendItemData(itemsTextFormatter);
+      var itemData = series.getLegendItemData(itemsFormat);
       itemData['sourceUid'] = goog.getUid(this);
       itemData['sourceKey'] = series.id();
       data.push(itemData);
@@ -1818,8 +1885,7 @@ anychart.core.stock.Plot.prototype.initDragger_ = function(e) {
  */
 anychart.core.stock.Plot.prototype.handlePlotMouseOverAndMove_ = function(e) {
   if (this.seriesBounds_) {
-    var stageReferencePoint = goog.style.getClientPosition(/** @type {Element} */
-        (this.container().getStage().container()));
+    var stageReferencePoint = this.container().getStage().getClientPosition();
     var x = e['clientX'] - stageReferencePoint.x - this.seriesBounds_.left;
     var y = e['clientY'] - stageReferencePoint.y - this.seriesBounds_.top;
     // testing that the point is inside series area
@@ -1844,6 +1910,16 @@ anychart.core.stock.Plot.prototype.handlePlotMouseOut_ = function(e) {
   this.frameHighlightRatio_ = NaN;
   if (!goog.isDef(this.frame_))
     this.frame_ = window.requestAnimationFrame(this.frameAction_);
+};
+
+
+/**
+ * Handles mouseDown event on the series plot area.
+ * @param {acgraph.events.BrowserEvent} e
+ * @private
+ */
+anychart.core.stock.Plot.prototype.handlePlotMouseDown_ = function(e) {
+  this.annotations().unselect();
 };
 //endregion
 
@@ -2094,13 +2170,13 @@ anychart.core.stock.Plot.prototype.disposeInternal = function() {
   goog.disposeAll(this.palette_, this.markerPalette_, this.hatchFillPalette_);
   this.palette_ = this.markerPalette_ = this.hatchFillPalette_ = null;
 
-  goog.base(this, 'disposeInternal');
+  anychart.core.stock.Plot.base(this, 'disposeInternal');
 };
 
 
 /** @inheritDoc */
 anychart.core.stock.Plot.prototype.serialize = function() {
-  var json = goog.base(this, 'serialize');
+  var json = anychart.core.stock.Plot.base(this, 'serialize');
   var scalesIds = {};
   var scales = [];
   var axesIds = [];
@@ -2128,7 +2204,7 @@ anychart.core.stock.Plot.prototype.serialize = function() {
   json['dateTimeHighlighter'] = anychart.color.serialize(this.dateTimeHighlighterStroke_);
 
   json['palette'] = this.palette().serialize();
-  // json['markerPalette'] = this.markerPalette().serialize();
+  json['markerPalette'] = this.markerPalette().serialize();
   json['hatchFillPalette'] = this.hatchFillPalette().serialize();
 
   var yAxes = [];
@@ -2256,16 +2332,16 @@ anychart.core.stock.Plot.prototype.serialize = function() {
 
 /** @inheritDoc */
 anychart.core.stock.Plot.prototype.setupByJSON = function(config, opt_default) {
-  goog.base(this, 'setupByJSON', config, opt_default);
+  anychart.core.stock.Plot.base(this, 'setupByJSON', config, opt_default);
   var i, json, scale;
 
   this.defaultSeriesType(config['defaultSeriesType']);
 
   this.palette(config['palette']);
-  // this.markerPalette(config['markerPalette']);
+  this.markerPalette(config['markerPalette']);
   this.hatchFillPalette(config['hatchFillPalette']);
 
-  this.background(config[anychart.opt.BACKGROUND]);
+  this.background(config['background']);
 
   this.xAxis(config['xAxis']);
   this.dateTimeHighlighter(config['dateTimeHighlighter']);
@@ -2280,7 +2356,7 @@ anychart.core.stock.Plot.prototype.setupByJSON = function(config, opt_default) {
       if (goog.isString(json)) {
         json = {'type': json};
       }
-      json = anychart.themes.merging.mergeScale(json, i, type);
+      json = anychart.themes.merging.mergeScale(json, i, type, anychart.enums.ScaleTypes.LINEAR);
       scale = anychart.scales.ScatterBase.fromString(json['type'], false);
       scale.setup(json);
       scalesInstances[i] = scale;
@@ -2292,7 +2368,7 @@ anychart.core.stock.Plot.prototype.setupByJSON = function(config, opt_default) {
       if (goog.isString(json)) {
         json = {'type': json};
       }
-      json = anychart.themes.merging.mergeScale(json, i, type);
+      json = anychart.themes.merging.mergeScale(json, i, type, anychart.enums.ScaleTypes.LINEAR);
       scale = anychart.scales.ScatterBase.fromString(json['type'], false);
       scale.setup(json);
       scalesInstances[i] = scale;
@@ -2390,7 +2466,7 @@ anychart.core.stock.Plot.prototype.setupByJSON = function(config, opt_default) {
  * @extends {goog.fx.Dragger}
  */
 anychart.core.stock.Plot.Dragger = function(plot, target) {
-  goog.base(this, target.domElement());
+  anychart.core.stock.Plot.Dragger.base(this, 'constructor', target.domElement());
 
   /**
    * Plot reference.
@@ -2499,50 +2575,56 @@ anychart.core.stock.Plot.Dragger.prototype.limitY = function(y) {
 
 
 //exports
-anychart.core.stock.Plot.prototype['background'] = anychart.core.stock.Plot.prototype.background;
-anychart.core.stock.Plot.prototype['legend'] = anychart.core.stock.Plot.prototype.legend;
-anychart.core.stock.Plot.prototype['area'] = anychart.core.stock.Plot.prototype.area;
-anychart.core.stock.Plot.prototype['candlestick'] = anychart.core.stock.Plot.prototype.candlestick;
-anychart.core.stock.Plot.prototype['column'] = anychart.core.stock.Plot.prototype.column;
-anychart.core.stock.Plot.prototype['jumpLine'] = anychart.core.stock.Plot.prototype.jumpLine;
-anychart.core.stock.Plot.prototype['stick'] = anychart.core.stock.Plot.prototype.stick;
-anychart.core.stock.Plot.prototype['line'] = anychart.core.stock.Plot.prototype.line;
-anychart.core.stock.Plot.prototype['marker'] = anychart.core.stock.Plot.prototype.marker;
-anychart.core.stock.Plot.prototype['ohlc'] = anychart.core.stock.Plot.prototype.ohlc;
-anychart.core.stock.Plot.prototype['rangeArea'] = anychart.core.stock.Plot.prototype.rangeArea;
-anychart.core.stock.Plot.prototype['rangeColumn'] = anychart.core.stock.Plot.prototype.rangeColumn;
-anychart.core.stock.Plot.prototype['rangeSplineArea'] = anychart.core.stock.Plot.prototype.rangeSplineArea;
-anychart.core.stock.Plot.prototype['rangeStepArea'] = anychart.core.stock.Plot.prototype.rangeStepArea;
-anychart.core.stock.Plot.prototype['spline'] = anychart.core.stock.Plot.prototype.spline;
-anychart.core.stock.Plot.prototype['splineArea'] = anychart.core.stock.Plot.prototype.splineArea;
-anychart.core.stock.Plot.prototype['stepArea'] = anychart.core.stock.Plot.prototype.stepArea;
-anychart.core.stock.Plot.prototype['stepLine'] = anychart.core.stock.Plot.prototype.stepLine;
-anychart.core.stock.Plot.prototype['getSeries'] = anychart.core.stock.Plot.prototype.getSeries;
-anychart.core.stock.Plot.prototype['yScale'] = anychart.core.stock.Plot.prototype.yScale;
-anychart.core.stock.Plot.prototype['yAxis'] = anychart.core.stock.Plot.prototype.yAxis;
-anychart.core.stock.Plot.prototype['xAxis'] = anychart.core.stock.Plot.prototype.xAxis;
-anychart.core.stock.Plot.prototype['grid'] = anychart.core.stock.Plot.prototype.grid;
-anychart.core.stock.Plot.prototype['minorGrid'] = anychart.core.stock.Plot.prototype.minorGrid;
-anychart.core.stock.Plot.prototype['dateTimeHighlighter'] = anychart.core.stock.Plot.prototype.dateTimeHighlighter;
-anychart.core.stock.Plot.prototype['defaultSeriesType'] = anychart.core.stock.Plot.prototype.defaultSeriesType;
-anychart.core.stock.Plot.prototype['addSeries'] = anychart.core.stock.Plot.prototype.addSeries;
-anychart.core.stock.Plot.prototype['getSeriesAt'] = anychart.core.stock.Plot.prototype.getSeriesAt;
-anychart.core.stock.Plot.prototype['getSeriesCount'] = anychart.core.stock.Plot.prototype.getSeriesCount;
-anychart.core.stock.Plot.prototype['removeSeries'] = anychart.core.stock.Plot.prototype.removeSeries;
-anychart.core.stock.Plot.prototype['removeSeriesAt'] = anychart.core.stock.Plot.prototype.removeSeriesAt;
-anychart.core.stock.Plot.prototype['removeAllSeries'] = anychart.core.stock.Plot.prototype.removeAllSeries;
-anychart.core.stock.Plot.prototype['ama'] = anychart.core.stock.Plot.prototype.ama;
-anychart.core.stock.Plot.prototype['aroon'] = anychart.core.stock.Plot.prototype.aroon;
-anychart.core.stock.Plot.prototype['bbands'] = anychart.core.stock.Plot.prototype.bbands;
-anychart.core.stock.Plot.prototype['bbandsB'] = anychart.core.stock.Plot.prototype.bbandsB;
-anychart.core.stock.Plot.prototype['bbandsWidth'] = anychart.core.stock.Plot.prototype.bbandsWidth;
-anychart.core.stock.Plot.prototype['ema'] = anychart.core.stock.Plot.prototype.ema;
-anychart.core.stock.Plot.prototype['macd'] = anychart.core.stock.Plot.prototype.macd;
-anychart.core.stock.Plot.prototype['mma'] = anychart.core.stock.Plot.prototype.mma;
-anychart.core.stock.Plot.prototype['roc'] = anychart.core.stock.Plot.prototype.roc;
-anychart.core.stock.Plot.prototype['rsi'] = anychart.core.stock.Plot.prototype.rsi;
-anychart.core.stock.Plot.prototype['sma'] = anychart.core.stock.Plot.prototype.sma;
-anychart.core.stock.Plot.prototype['palette'] = anychart.core.stock.Plot.prototype.palette;
-// anychart.core.stock.Plot.prototype['markerPalette'] = anychart.core.stock.Plot.prototype.markerPalette;
-anychart.core.stock.Plot.prototype['hatchFillPalette'] = anychart.core.stock.Plot.prototype.hatchFillPalette;
-anychart.core.stock.Plot.prototype['annotations'] = anychart.core.stock.Plot.prototype.annotations;
+(function() {
+  var proto = anychart.core.stock.Plot.prototype;
+  proto['background'] = proto.background;
+  proto['legend'] = proto.legend;
+  proto['area'] = proto.area;
+  proto['candlestick'] = proto.candlestick;
+  proto['column'] = proto.column;
+  proto['jumpLine'] = proto.jumpLine;
+  proto['stick'] = proto.stick;
+  proto['line'] = proto.line;
+  proto['marker'] = proto.marker;
+  proto['ohlc'] = proto.ohlc;
+  proto['rangeArea'] = proto.rangeArea;
+  proto['rangeColumn'] = proto.rangeColumn;
+  proto['rangeSplineArea'] = proto.rangeSplineArea;
+  proto['rangeStepArea'] = proto.rangeStepArea;
+  proto['spline'] = proto.spline;
+  proto['splineArea'] = proto.splineArea;
+  proto['stepArea'] = proto.stepArea;
+  proto['stepLine'] = proto.stepLine;
+  proto['getSeries'] = proto.getSeries;
+  proto['yScale'] = proto.yScale;
+  proto['yAxis'] = proto.yAxis;
+  proto['xAxis'] = proto.xAxis;
+  proto['grid'] = proto.grid;
+  proto['minorGrid'] = proto.minorGrid;
+  proto['dateTimeHighlighter'] = proto.dateTimeHighlighter;
+  proto['defaultSeriesType'] = proto.defaultSeriesType;
+  proto['addSeries'] = proto.addSeries;
+  proto['getSeriesAt'] = proto.getSeriesAt;
+  proto['getSeriesCount'] = proto.getSeriesCount;
+  proto['removeSeries'] = proto.removeSeries;
+  proto['removeSeriesAt'] = proto.removeSeriesAt;
+  proto['removeAllSeries'] = proto.removeAllSeries;
+  proto['ama'] = proto.ama;
+  proto['aroon'] = proto.aroon;
+  proto['atr'] = proto.atr;
+  proto['bbands'] = proto.bbands;
+  proto['bbandsB'] = proto.bbandsB;
+  proto['bbandsWidth'] = proto.bbandsWidth;
+  proto['ema'] = proto.ema;
+  proto['kdj'] = proto.kdj;
+  proto['macd'] = proto.macd;
+  proto['mma'] = proto.mma;
+  proto['roc'] = proto.roc;
+  proto['rsi'] = proto.rsi;
+  proto['sma'] = proto.sma;
+  proto['stochastic'] = proto.stochastic;
+  proto['palette'] = proto.palette;
+  proto['markerPalette'] = proto.markerPalette;
+  proto['hatchFillPalette'] = proto.hatchFillPalette;
+  proto['annotations'] = proto.annotations;
+})();

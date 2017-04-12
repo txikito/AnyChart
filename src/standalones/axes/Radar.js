@@ -36,7 +36,7 @@ anychart.standalones.axes.Radar.prototype.serialize = function() {
  */
 anychart.standalones.axes.radar = function() {
   var axis = new anychart.standalones.axes.Radar();
-  axis.setup(anychart.getFullTheme()['standalones']['radarAxis']);
+  axis.setup(anychart.getFullTheme('standalones.radarAxis'));
   return axis;
 };
 
@@ -48,15 +48,19 @@ anychart.standalones.axes.radar = function() {
  * @deprecated Since 7.12.0. Use anychart.standalones.axes.radar instead.
  */
 anychart.axes.radar = function() {
-  anychart.core.reporting.warning(anychart.enums.WarningCode.DEPRECATED, null, ['anychart.axes.radar', 'anychart.standalones.axes.radar'], true);
+  anychart.core.reporting.warning(anychart.enums.WarningCode.DEPRECATED, null, ['anychart.axes.radar()', 'anychart.standalones.axes.radar()', null, 'Constructor'], true);
   return anychart.standalones.axes.radar();
 };
 
 
 //exports
-goog.exportSymbol('anychart.axes.radar', anychart.axes.radar);
-goog.exportSymbol('anychart.standalones.axes.radar', anychart.standalones.axes.radar);
-anychart.standalones.axes.Radar.prototype['draw'] = anychart.standalones.axes.Radar.prototype.draw;
-anychart.standalones.axes.Radar.prototype['parentBounds'] = anychart.standalones.axes.Radar.prototype.parentBounds;
-anychart.standalones.axes.Radar.prototype['container'] = anychart.standalones.axes.Radar.prototype.container;
-anychart.standalones.axes.Radar.prototype['startAngle'] = anychart.standalones.axes.Radar.prototype.startAngle;
+/** @suppress {deprecated} */
+(function() {
+  var proto = anychart.standalones.axes.Radar.prototype;
+  goog.exportSymbol('anychart.axes.radar', anychart.axes.radar);
+  goog.exportSymbol('anychart.standalones.axes.radar', anychart.standalones.axes.radar);
+  proto['draw'] = proto.draw;
+  proto['parentBounds'] = proto.parentBounds;
+  proto['container'] = proto.container;
+  proto['startAngle'] = proto.startAngle;
+})();

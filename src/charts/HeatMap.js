@@ -24,20 +24,20 @@ goog.require('anychart.scales.OrdinalColor');
  * @constructor
  */
 anychart.charts.HeatMap = function(opt_data, opt_csvSettings) {
-  goog.base(this);
+  anychart.charts.HeatMap.base(this, 'constructor');
 
   /**
    * @type {!anychart.scales.Ordinal}
    * @private
    */
-  this.xScale_ = new anychart.scales.Ordinal();
+  this.xScale_ = anychart.scales.ordinal();
   this.xScale_.listenSignals(this.scaleInvalidated_, this);
 
   /**
    * @type {!anychart.scales.Ordinal}
    * @private
    */
-  this.yScale_ = new anychart.scales.Ordinal();
+  this.yScale_ = anychart.scales.ordinal();
   this.yScale_.listenSignals(this.scaleInvalidated_, this);
 
   /**
@@ -740,7 +740,7 @@ anychart.charts.HeatMap.prototype.colorScaleInvalidated_ = function(event) {
 //
 //----------------------------------------------------------------------------------------------------------------------
 /** @inheritDoc */
-anychart.charts.HeatMap.prototype.createLegendItemsProvider = function(sourceMode, itemsTextFormatter) {
+anychart.charts.HeatMap.prototype.createLegendItemsProvider = function(sourceMode, itemsFormat) {
   var i, count;
   /**
    * @type {!Array.<anychart.core.ui.Legend.LegendItemProvider>}
@@ -831,7 +831,7 @@ anychart.charts.HeatMap.prototype.legendItemOver = function(item, event) {
 
   var sourceMode = this.legend().itemsSourceMode();
   if (sourceMode == anychart.enums.LegendItemsSourceMode.CATEGORIES) {
-    series = /** @type {anychart.core.map.series.Base} */(meta.series);
+    series = /** @type {anychart.core.SeriesBase} */(meta.series);
     var scale = meta.scale;
     if (scale && series) {
       var range = meta.range;
@@ -916,7 +916,7 @@ anychart.charts.HeatMap.prototype.createEventSeriesStatus = function(seriesStatu
 
 /** @inheritDoc */
 anychart.charts.HeatMap.prototype.makeCurrentPoint = function(seriesStatus, event, opt_empty) {
-  var currentPoint = goog.base(this, 'makeCurrentPoint', seriesStatus, event, opt_empty);
+  var currentPoint = anychart.charts.HeatMap.base(this, 'makeCurrentPoint', seriesStatus, event, opt_empty);
 
   currentPoint['series'] = this;
 
@@ -938,7 +938,7 @@ anychart.charts.HeatMap.prototype.getSeriesStatus = function(event) {
   var clientY = event['clientY'];
   var value, index;
 
-  var containerOffset = goog.style.getClientPosition(/** @type {Element} */(this.container().getStage().container()));
+  var containerOffset = this.container().getStage().getClientPosition();
 
   var x = clientX - containerOffset.x;
   var y = clientY - containerOffset.y;
@@ -977,7 +977,7 @@ anychart.charts.HeatMap.prototype.getSeriesStatus = function(event) {
           var pixX = /** @type {number} */(iterator.meta('x'));
           var pixY = /** @type {number} */(iterator.meta('y'));
 
-          var length = Math.sqrt(Math.pow(pixX - x, 2) + Math.pow(pixY - y, 2));
+          var length = anychart.math.vectorLength(pixX, pixY, x, y);
           if (length <= spotRadius) {
             ind.push(index);
             if (length < minLength) {
@@ -1010,7 +1010,7 @@ anychart.charts.HeatMap.prototype.getSeriesStatus = function(event) {
           pixX = /** @type {number} */(iterator.meta('x'));
           pixY = /** @type {number} */(iterator.meta('y'));
 
-          length = Math.sqrt(Math.pow(pixX - x, 2) + Math.pow(pixY - y, 2));
+          length = anychart.math.vectorLength(pixX, pixY, x, y);
           if (length < minLength) {
             minLength = length;
             minLengthIndex = index[j];
@@ -1055,19 +1055,15 @@ anychart.charts.HeatMap.prototype.createSeries_ = function(data, opt_csvSettings
   instance.labels().setAutoZIndex(seriesZIndex + anychart.charts.HeatMap.ZINDEX_INCREMENT_MULTIPLIER / 2);
   instance.clip(true);
 
-  var theme = anychart.getFullTheme();
-  instance.setAutoColor(theme['palette']['items'][0]);
-  instance.setAutoMarkerType(/** @type {anychart.enums.MarkerType} */(theme['markerPalette']['items'][0]));
-  instance.setAutoHatchFill(/** @type {acgraph.vector.HatchFill|acgraph.vector.PatternFill} */(theme['hatchFillPalette']['items'][0]));
+  instance.setAutoColor(/** @type {acgraph.vector.Fill} */(anychart.getFullTheme('palette.items.0')));
+  instance.setAutoMarkerType(/** @type {anychart.enums.MarkerType} */(anychart.getFullTheme('markerPalette.items.0')));
+  instance.setAutoHatchFill(/** @type {acgraph.vector.HatchFill|acgraph.vector.PatternFill} */(anychart.getFullTheme('hatchFillPalette.items.0')));
 
   instance.markers().setAutoZIndex(seriesZIndex + anychart.charts.HeatMap.ZINDEX_INCREMENT_MULTIPLIER / 2);
   instance.markers().setAutoFill((/** @type {anychart.core.heatMap.series.Base} */ (instance)).getMarkerFill());
   instance.markers().setAutoStroke(/** @type {acgraph.vector.Stroke} */((/** @type {anychart.core.heatMap.series.Base} */ (instance)).getMarkerStroke()));
 
-  if (anychart.DEFAULT_THEME != 'v6')
-    instance.labels().setAutoColor(anychart.color.darken(/** @type {(acgraph.vector.Fill|acgraph.vector.Stroke)} */(instance.color())));
-
-  instance.a11y(theme[this.getType()]['defaultSeriesSettings']['base']['a11y']);
+  instance.a11y(/** @type {boolean|Object|undefined} */(anychart.getFullTheme(this.getType() + '.defaultSeriesSettings.base.a11y')));
 
   instance.listenSignals(this.seriesInvalidated_, this);
 
@@ -1393,23 +1389,23 @@ anychart.charts.HeatMap.prototype.drawContent = function(bounds) {
       if (!xScrollerBeforeAxes) {
         switch (xScroller.orientation()) {
           case anychart.enums.Orientation.TOP:
-            xScroller.padding()[anychart.opt.TOP](topOffset + (this.topAxisPadding_ || 0));
-            xScroller.padding()[anychart.opt.BOTTOM](0);
+            xScroller.padding()['top'](topOffset + (this.topAxisPadding_ || 0));
+            xScroller.padding()['bottom'](0);
             topOffset += xScrollerSize;
             break;
           case anychart.enums.Orientation.BOTTOM:
-            xScroller.padding()[anychart.opt.TOP](0);
-            xScroller.padding()[anychart.opt.BOTTOM](bottomOffset + (this.bottomAxisPadding_ || 0));
+            xScroller.padding()['top'](0);
+            xScroller.padding()['bottom'](bottomOffset + (this.bottomAxisPadding_ || 0));
             bottomOffset += xScrollerSize;
             break;
           case anychart.enums.Orientation.LEFT:
-            xScroller.padding()[anychart.opt.LEFT](leftOffset + (this.leftAxisPadding_ || 0));
-            xScroller.padding()[anychart.opt.RIGHT](0);
+            xScroller.padding()['left'](leftOffset + (this.leftAxisPadding_ || 0));
+            xScroller.padding()['right'](0);
             leftOffset += xScrollerSize;
             break;
           case anychart.enums.Orientation.RIGHT:
-            xScroller.padding()[anychart.opt.LEFT](0);
-            xScroller.padding()[anychart.opt.RIGHT](rightOffset + (this.rightAxisPadding_ || 0));
+            xScroller.padding()['left'](0);
+            xScroller.padding()['right'](rightOffset + (this.rightAxisPadding_ || 0));
             rightOffset += xScrollerSize;
             break;
         }
@@ -1418,23 +1414,23 @@ anychart.charts.HeatMap.prototype.drawContent = function(bounds) {
       if (!yScrollerBeforeAxes) {
         switch (yScroller.orientation()) {
           case anychart.enums.Orientation.TOP:
-            yScroller.padding()[anychart.opt.TOP](topOffset + (this.topAxisPadding_ || 0));
-            yScroller.padding()[anychart.opt.BOTTOM](0);
+            yScroller.padding()['top'](topOffset + (this.topAxisPadding_ || 0));
+            yScroller.padding()['bottom'](0);
             topOffset += yScrollerSize;
             break;
           case anychart.enums.Orientation.BOTTOM:
-            yScroller.padding()[anychart.opt.TOP](0);
-            yScroller.padding()[anychart.opt.BOTTOM](bottomOffset + (this.bottomAxisPadding_ || 0));
+            yScroller.padding()['top'](0);
+            yScroller.padding()['bottom'](bottomOffset + (this.bottomAxisPadding_ || 0));
             bottomOffset += yScrollerSize;
             break;
           case anychart.enums.Orientation.LEFT:
-            yScroller.padding()[anychart.opt.LEFT](leftOffset + (this.leftAxisPadding_ || 0));
-            yScroller.padding()[anychart.opt.RIGHT](0);
+            yScroller.padding()['left'](leftOffset + (this.leftAxisPadding_ || 0));
+            yScroller.padding()['right'](0);
             leftOffset += yScrollerSize;
             break;
           case anychart.enums.Orientation.RIGHT:
-            yScroller.padding()[anychart.opt.LEFT](0);
-            yScroller.padding()[anychart.opt.RIGHT](rightOffset + (this.rightAxisPadding_ || 0));
+            yScroller.padding()['left'](0);
+            yScroller.padding()['right'](rightOffset + (this.rightAxisPadding_ || 0));
             rightOffset += yScrollerSize;
             break;
         }
@@ -1448,29 +1444,29 @@ anychart.charts.HeatMap.prototype.drawContent = function(bounds) {
           axisStrokeThickness = acgraph.vector.getThickness(/** @type {acgraph.vector.Stroke} */(axis.stroke()));
 
           if (orientation == anychart.enums.Orientation.TOP) {
-            axis.padding()[anychart.opt.TOP](topOffset);
-            axis.padding()[anychart.opt.BOTTOM](0);
+            axis.padding()['top'](topOffset);
+            axis.padding()['bottom'](0);
             remainingBounds = axis.getRemainingBounds();
             topOffset = contentAreaBounds.height - remainingBounds.height;
             if (isNaN(this.topAxisPadding_))
               this.topAxisPadding_ = axisStrokeThickness;
           } else if (orientation == anychart.enums.Orientation.BOTTOM) {
-            axis.padding()[anychart.opt.BOTTOM](bottomOffset);
-            axis.padding()[anychart.opt.TOP](0);
+            axis.padding()['bottom'](bottomOffset);
+            axis.padding()['top'](0);
             remainingBounds = axis.getRemainingBounds();
             bottomOffset = contentAreaBounds.height - remainingBounds.height;
             if (isNaN(this.bottomAxisPadding_))
               this.bottomAxisPadding_ = axisStrokeThickness;
           } else if (orientation == anychart.enums.Orientation.LEFT) {
-            axis.padding()[anychart.opt.LEFT](leftOffset);
-            axis.padding()[anychart.opt.RIGHT](0);
+            axis.padding()['left'](leftOffset);
+            axis.padding()['right'](0);
             remainingBounds = axis.getRemainingBounds();
             leftOffset = contentAreaBounds.width - remainingBounds.width;
             if (isNaN(this.leftAxisPadding_))
               this.leftAxisPadding_ = axisStrokeThickness;
           } else if (orientation == anychart.enums.Orientation.RIGHT) {
-            axis.padding()[anychart.opt.RIGHT](rightOffset);
-            axis.padding()[anychart.opt.LEFT](0);
+            axis.padding()['right'](rightOffset);
+            axis.padding()['left'](0);
             remainingBounds = axis.getRemainingBounds();
             rightOffset = contentAreaBounds.width - remainingBounds.width;
             if (isNaN(this.rightAxisPadding_))
@@ -1482,23 +1478,23 @@ anychart.charts.HeatMap.prototype.drawContent = function(bounds) {
       if (xScrollerBeforeAxes) {
         switch (xScroller.orientation()) {
           case anychart.enums.Orientation.TOP:
-            xScroller.padding()[anychart.opt.TOP](topOffset + (this.topAxisPadding_ || 0));
-            xScroller.padding()[anychart.opt.BOTTOM](0);
+            xScroller.padding()['top'](topOffset + (this.topAxisPadding_ || 0));
+            xScroller.padding()['bottom'](0);
             topOffset += xScrollerSize;
             break;
           case anychart.enums.Orientation.BOTTOM:
-            xScroller.padding()[anychart.opt.TOP](0);
-            xScroller.padding()[anychart.opt.BOTTOM](bottomOffset + (this.bottomAxisPadding_ || 0));
+            xScroller.padding()['top'](0);
+            xScroller.padding()['bottom'](bottomOffset + (this.bottomAxisPadding_ || 0));
             bottomOffset += xScrollerSize;
             break;
           case anychart.enums.Orientation.LEFT:
-            xScroller.padding()[anychart.opt.LEFT](leftOffset + (this.leftAxisPadding_ || 0));
-            xScroller.padding()[anychart.opt.RIGHT](0);
+            xScroller.padding()['left'](leftOffset + (this.leftAxisPadding_ || 0));
+            xScroller.padding()['right'](0);
             leftOffset += xScrollerSize;
             break;
           case anychart.enums.Orientation.RIGHT:
-            xScroller.padding()[anychart.opt.LEFT](0);
-            xScroller.padding()[anychart.opt.RIGHT](rightOffset + (this.rightAxisPadding_ || 0));
+            xScroller.padding()['left'](0);
+            xScroller.padding()['right'](rightOffset + (this.rightAxisPadding_ || 0));
             rightOffset += xScrollerSize;
             break;
         }
@@ -1507,42 +1503,42 @@ anychart.charts.HeatMap.prototype.drawContent = function(bounds) {
       if (yScrollerBeforeAxes) {
         switch (yScroller.orientation()) {
           case anychart.enums.Orientation.TOP:
-            yScroller.padding()[anychart.opt.TOP](topOffset + (this.topAxisPadding_ || 0));
-            yScroller.padding()[anychart.opt.BOTTOM](0);
+            yScroller.padding()['top'](topOffset + (this.topAxisPadding_ || 0));
+            yScroller.padding()['bottom'](0);
             topOffset += yScrollerSize;
             break;
           case anychart.enums.Orientation.BOTTOM:
-            yScroller.padding()[anychart.opt.TOP](0);
-            yScroller.padding()[anychart.opt.BOTTOM](bottomOffset + (this.bottomAxisPadding_ || 0));
+            yScroller.padding()['top'](0);
+            yScroller.padding()['bottom'](bottomOffset + (this.bottomAxisPadding_ || 0));
             bottomOffset += yScrollerSize;
             break;
           case anychart.enums.Orientation.LEFT:
-            yScroller.padding()[anychart.opt.LEFT](leftOffset + (this.leftAxisPadding_ || 0));
-            yScroller.padding()[anychart.opt.RIGHT](0);
+            yScroller.padding()['left'](leftOffset + (this.leftAxisPadding_ || 0));
+            yScroller.padding()['right'](0);
             leftOffset += yScrollerSize;
             break;
           case anychart.enums.Orientation.RIGHT:
-            yScroller.padding()[anychart.opt.LEFT](0);
-            yScroller.padding()[anychart.opt.RIGHT](rightOffset + (this.rightAxisPadding_ || 0));
+            yScroller.padding()['left'](0);
+            yScroller.padding()['right'](rightOffset + (this.rightAxisPadding_ || 0));
             rightOffset += yScrollerSize;
             break;
         }
       }
 
       if (xScrollerHorizontal) {
-        xScroller.padding()[anychart.opt.LEFT](leftOffset);
-        xScroller.padding()[anychart.opt.RIGHT](rightOffset);
+        xScroller.padding()['left'](leftOffset);
+        xScroller.padding()['right'](rightOffset);
       } else {
-        xScroller.padding()[anychart.opt.TOP](topOffset);
-        xScroller.padding()[anychart.opt.BOTTOM](bottomOffset);
+        xScroller.padding()['top'](topOffset);
+        xScroller.padding()['bottom'](bottomOffset);
       }
 
       if (yScrollerHorizontal) {
-        yScroller.padding()[anychart.opt.LEFT](leftOffset);
-        yScroller.padding()[anychart.opt.RIGHT](rightOffset);
+        yScroller.padding()['left'](leftOffset);
+        yScroller.padding()['right'](rightOffset);
       } else {
-        yScroller.padding()[anychart.opt.TOP](topOffset);
-        yScroller.padding()[anychart.opt.BOTTOM](bottomOffset);
+        yScroller.padding()['top'](topOffset);
+        yScroller.padding()['bottom'](bottomOffset);
       }
 
       boundsWithoutAxes.left += leftOffset;
@@ -1556,15 +1552,15 @@ anychart.charts.HeatMap.prototype.drawContent = function(bounds) {
           var remainingBoundsBeforeSetPadding = axis.getRemainingBounds();
 
           if (axis.isHorizontal()) {
-            axis.padding()[anychart.opt.LEFT](leftOffset);
-            axis.padding()[anychart.opt.RIGHT](rightOffset);
+            axis.padding()['left'](leftOffset);
+            axis.padding()['right'](rightOffset);
             remainingBounds = axis.getRemainingBounds();
             if (remainingBounds.height != remainingBoundsBeforeSetPadding.height) {
               complete = false;
             }
           } else {
-            axis.padding()[anychart.opt.TOP](topOffset);
-            axis.padding()[anychart.opt.BOTTOM](bottomOffset);
+            axis.padding()['top'](topOffset);
+            axis.padding()['bottom'](bottomOffset);
             remainingBounds = axis.getRemainingBounds();
             if (remainingBounds.width != remainingBoundsBeforeSetPadding.width) {
               complete = false;
@@ -1678,14 +1674,14 @@ anychart.charts.HeatMap.prototype.drawSeries_ = function() {
   hoverLabels = this.hoverLabels();
   selectLabels = this.selectLabels();
 
-  adjustFontSize = labels.adjustFontSize();
-  hoverAdjustFontSize = hoverLabels.adjustFontSize();
-  selectAdjustFontSize = selectLabels.adjustFontSize();
+  adjustFontSize = labels['adjustFontSize']();
+  hoverAdjustFontSize = hoverLabels['adjustFontSize']();
+  selectAdjustFontSize = selectLabels['adjustFontSize']();
 
-  var normalAdjustFontSizeSetting = (adjustFontSize['width'] || adjustFontSize['height']);
+  var normalAdjustFontSizeSetting = (!!adjustFontSize && (adjustFontSize['width'] || adjustFontSize['height']));
   needAdjustFontSize = normalAdjustFontSizeSetting && labels.enabled();
-  hoverNeedAdjustFontSize = (normalAdjustFontSizeSetting || hoverAdjustFontSize['width'] || hoverAdjustFontSize['height']) && (labels.enabled() || hoverLabels.enabled());
-  selectNeedAdjustFontSize = (normalAdjustFontSizeSetting || selectAdjustFontSize['width'] || selectAdjustFontSize['height']) && (labels.enabled() || selectLabels.enabled());
+  hoverNeedAdjustFontSize = (normalAdjustFontSizeSetting || (hoverAdjustFontSize && (hoverAdjustFontSize['width'] || hoverAdjustFontSize['height']))) && (labels.enabled() || hoverLabels.enabled());
+  selectNeedAdjustFontSize = (normalAdjustFontSizeSetting || (selectAdjustFontSize && (selectAdjustFontSize['width'] || selectAdjustFontSize['height']))) && (labels.enabled() || selectLabels.enabled());
 
   iterator = series.getResetIterator();
   var minFontSize, hoverMinFontSize, selectMinFontSize;
@@ -1725,8 +1721,8 @@ anychart.charts.HeatMap.prototype.drawSeries_ = function() {
             var mergedSettings = label.getMergedSettings();
             var padding = mergedSettings['padding'];
 
-            var width = cellBounds.width - padding.getOption(anychart.opt.LEFT) - padding.getOption(anychart.opt.RIGHT);
-            var height = cellBounds.height - padding.getOption(anychart.opt.TOP) - padding.getOption(anychart.opt.BOTTOM);
+            var width = cellBounds.width - padding.getOption('left') - padding.getOption('right');
+            var height = cellBounds.height - padding.getOption('top') - padding.getOption('bottom');
 
             var needAdjust = (mergedSettings['adjustByHeight'] || mergedSettings['adjustByHeight']);
             if (needAdjust && this.labels().adjustFontSizeMode() == anychart.enums.AdjustFontSizeMode.SAME) {
@@ -1753,8 +1749,8 @@ anychart.charts.HeatMap.prototype.drawSeries_ = function() {
             var mergedSettings = label.getMergedSettings();
             var padding = mergedSettings['padding'];
 
-            var width = cellBounds.width - padding.getOption(anychart.opt.LEFT) - padding.getOption(anychart.opt.RIGHT);
-            var height = cellBounds.height - padding.getOption(anychart.opt.TOP) - padding.getOption(anychart.opt.BOTTOM);
+            var width = cellBounds.width - padding.getOption('left') - padding.getOption('right');
+            var height = cellBounds.height - padding.getOption('top') - padding.getOption('bottom');
 
             var needAdjust = (mergedSettings['adjustByHeight'] || mergedSettings['adjustByHeight']);
             if (needAdjust && this.labels().adjustFontSizeMode() == anychart.enums.AdjustFontSizeMode.SAME) {
@@ -1781,8 +1777,8 @@ anychart.charts.HeatMap.prototype.drawSeries_ = function() {
             var mergedSettings = label.getMergedSettings();
             var padding = mergedSettings['padding'];
 
-            var width = cellBounds.width - padding.getOption(anychart.opt.LEFT) - padding.getOption(anychart.opt.RIGHT);
-            var height = cellBounds.height - padding.getOption(anychart.opt.TOP) - padding.getOption(anychart.opt.BOTTOM);
+            var width = cellBounds.width - padding.getOption('left') - padding.getOption('right');
+            var height = cellBounds.height - padding.getOption('top') - padding.getOption('bottom');
 
             var needAdjust = (mergedSettings['adjustByHeight'] || mergedSettings['adjustByHeight']);
             if (needAdjust && this.labels().adjustFontSizeMode() == anychart.enums.AdjustFontSizeMode.SAME) {
@@ -2111,7 +2107,8 @@ anychart.charts.HeatMap.prototype.data = function(opt_value, opt_csvSettings) {
   if (goog.isDef(opt_value)) {
     // handle HTML table data
     if (opt_value) {
-      if (opt_value['caption']) this.title(opt_value['caption']);
+      var title = opt_value['title'] || opt_value['caption'];
+      if (title) this.title(title);
       if (opt_value['rows']) opt_value = opt_value['rows'];
     }
     this.series_.data(opt_value, opt_csvSettings);
@@ -2161,7 +2158,7 @@ anychart.charts.HeatMap.prototype.select = function(opt_indexOrIndexes) {
  * @inheritDoc
  */
 anychart.charts.HeatMap.prototype.setupByJSON = function(config, opt_default) {
-  goog.base(this, 'setupByJSON', config, opt_default);
+  anychart.charts.HeatMap.base(this, 'setupByJSON', config, opt_default);
 
   if ('defaultXAxisSettings' in config)
     this.defaultXAxisSettings(config['defaultXAxisSettings']);
@@ -2186,7 +2183,7 @@ anychart.charts.HeatMap.prototype.setupByJSON = function(config, opt_default) {
       if (goog.isString(json)) {
         json = {'type': json};
       }
-      json = anychart.themes.merging.mergeScale(json, i, type);
+      json = anychart.themes.merging.mergeScale(json, i, type, anychart.enums.ScaleTypes.ORDINAL);
       scale = anychart.scales.Base.fromString(json['type'], false);
       scale.setup(json);
       scalesInstances[i] = scale;
@@ -2198,7 +2195,7 @@ anychart.charts.HeatMap.prototype.setupByJSON = function(config, opt_default) {
       if (goog.isString(json)) {
         json = {'type': json};
       }
-      json = anychart.themes.merging.mergeScale(json, i, type);
+      json = anychart.themes.merging.mergeScale(json, i, type, anychart.enums.ScaleTypes.ORDINAL);
       scale = anychart.scales.Base.fromString(json['type'], false);
       scale.setup(json);
       scalesInstances[i] = scale;
@@ -2302,9 +2299,9 @@ anychart.charts.HeatMap.prototype.setupByJSON = function(config, opt_default) {
   if ('data' in config)
     this.data(config['data'] || null);
 
-  this.labels().setup(config['labels']);
-  this.hoverLabels().setup(config['hoverLabels']);
-  this.selectLabels().setup(config['selectLabels']);
+  this.labels().setupByVal(config['labels'], opt_default);
+  this.hoverLabels().setupByVal(config['hoverLabels'], opt_default);
+  this.selectLabels().setupByVal(config['selectLabels'], opt_default);
 
   this.markers().setup(config['markers']);
   this.hoverMarkers().setup(config['hoverMarkers']);
@@ -2342,7 +2339,7 @@ anychart.charts.HeatMap.prototype.setupByJSON = function(config, opt_default) {
  * @inheritDoc
  */
 anychart.charts.HeatMap.prototype.serialize = function() {
-  var json = goog.base(this, 'serialize');
+  var json = anychart.charts.HeatMap.base(this, 'serialize');
   var i;
   var scalesIds = {};
   var scales = [];
@@ -2625,49 +2622,52 @@ anychart.charts.HeatMap.prototype.labelsDisplayMode = function(opt_value) {
 
 
 //exports
-anychart.charts.HeatMap.prototype['getType'] = anychart.charts.HeatMap.prototype.getType;
+(function() {
+  var proto = anychart.charts.HeatMap.prototype;
+  proto['getType'] = proto.getType;
 
-anychart.charts.HeatMap.prototype['grid'] = anychart.charts.HeatMap.prototype.grid;
+  proto['grid'] = proto.grid;
 
-anychart.charts.HeatMap.prototype['xAxis'] = anychart.charts.HeatMap.prototype.xAxis;
-anychart.charts.HeatMap.prototype['yAxis'] = anychart.charts.HeatMap.prototype.yAxis;
+  proto['xAxis'] = proto.xAxis;
+  proto['yAxis'] = proto.yAxis;
 
-anychart.charts.HeatMap.prototype['xScale'] = anychart.charts.HeatMap.prototype.xScale;
-anychart.charts.HeatMap.prototype['yScale'] = anychart.charts.HeatMap.prototype.yScale;
+  proto['xScale'] = proto.xScale;
+  proto['yScale'] = proto.yScale;
 
-anychart.charts.HeatMap.prototype['labelsDisplayMode'] = anychart.charts.HeatMap.prototype.labelsDisplayMode;
+  proto['labelsDisplayMode'] = proto.labelsDisplayMode;
 
-anychart.charts.HeatMap.prototype['fill'] = anychart.charts.HeatMap.prototype.fill;
-anychart.charts.HeatMap.prototype['hoverFill'] = anychart.charts.HeatMap.prototype.hoverFill;
-anychart.charts.HeatMap.prototype['selectFill'] = anychart.charts.HeatMap.prototype.selectFill;
+  proto['fill'] = proto.fill;
+  proto['hoverFill'] = proto.hoverFill;
+  proto['selectFill'] = proto.selectFill;
 
-anychart.charts.HeatMap.prototype['stroke'] = anychart.charts.HeatMap.prototype.stroke;
-anychart.charts.HeatMap.prototype['hoverStroke'] = anychart.charts.HeatMap.prototype.hoverStroke;
-anychart.charts.HeatMap.prototype['selectStroke'] = anychart.charts.HeatMap.prototype.selectStroke;
+  proto['stroke'] = proto.stroke;
+  proto['hoverStroke'] = proto.hoverStroke;
+  proto['selectStroke'] = proto.selectStroke;
 
-anychart.charts.HeatMap.prototype['hatchFill'] = anychart.charts.HeatMap.prototype.hatchFill;
-anychart.charts.HeatMap.prototype['hoverHatchFill'] = anychart.charts.HeatMap.prototype.hoverHatchFill;
-anychart.charts.HeatMap.prototype['selectHatchFill'] = anychart.charts.HeatMap.prototype.selectHatchFill;
+  proto['hatchFill'] = proto.hatchFill;
+  proto['hoverHatchFill'] = proto.hoverHatchFill;
+  proto['selectHatchFill'] = proto.selectHatchFill;
 
-anychart.charts.HeatMap.prototype['labels'] = anychart.charts.HeatMap.prototype.labels;
-anychart.charts.HeatMap.prototype['hoverLabels'] = anychart.charts.HeatMap.prototype.hoverLabels;
-anychart.charts.HeatMap.prototype['selectLabels'] = anychart.charts.HeatMap.prototype.selectLabels;
+  proto['labels'] = proto.labels;
+  proto['hoverLabels'] = proto.hoverLabels;
+  proto['selectLabels'] = proto.selectLabels;
 
-anychart.charts.HeatMap.prototype['markers'] = anychart.charts.HeatMap.prototype.markers;
-anychart.charts.HeatMap.prototype['hoverMarkers'] = anychart.charts.HeatMap.prototype.hoverMarkers;
-anychart.charts.HeatMap.prototype['selectMarkers'] = anychart.charts.HeatMap.prototype.selectMarkers;
+  proto['markers'] = proto.markers;
+  proto['hoverMarkers'] = proto.hoverMarkers;
+  proto['selectMarkers'] = proto.selectMarkers;
 
-anychart.charts.HeatMap.prototype['hover'] = anychart.charts.HeatMap.prototype.hover;
-anychart.charts.HeatMap.prototype['select'] = anychart.charts.HeatMap.prototype.select;
+  proto['hover'] = proto.hover;
+  proto['select'] = proto.select;
 
-anychart.charts.HeatMap.prototype['unhover'] = anychart.charts.HeatMap.prototype.unhover;
-anychart.charts.HeatMap.prototype['unselect'] = anychart.charts.HeatMap.prototype.unselect;
+  proto['unhover'] = proto.unhover;
+  proto['unselect'] = proto.unselect;
 
-anychart.charts.HeatMap.prototype['data'] = anychart.charts.HeatMap.prototype.data;
+  proto['data'] = proto.data;
 
-anychart.charts.HeatMap.prototype['colorScale'] = anychart.charts.HeatMap.prototype.colorScale;
+  proto['colorScale'] = proto.colorScale;
 
-anychart.charts.HeatMap.prototype['xZoom'] = anychart.charts.HeatMap.prototype.xZoom;
-anychart.charts.HeatMap.prototype['yZoom'] = anychart.charts.HeatMap.prototype.yZoom;
-anychart.charts.HeatMap.prototype['xScroller'] = anychart.charts.HeatMap.prototype.xScroller;
-anychart.charts.HeatMap.prototype['yScroller'] = anychart.charts.HeatMap.prototype.yScroller;
+  proto['xZoom'] = proto.xZoom;
+  proto['yZoom'] = proto.yZoom;
+  proto['xScroller'] = proto.xScroller;
+  proto['yScroller'] = proto.yScroller;
+})();

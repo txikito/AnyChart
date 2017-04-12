@@ -234,7 +234,7 @@ anychart.ui.GanttToolbar.prototype.draw = function() {
       this.printMenu_.addChild(printItem, true);
     }
 
-    return goog.base(this, 'draw');
+    return anychart.ui.GanttToolbar.base(this, 'draw');
   }
 
   return this;
@@ -251,18 +251,22 @@ anychart.ui.ganttToolbar = function() {
 
 
 /**
- * Deprecated constructor function for gantt toolbar.
+ * Constructor function for gantt toolbar.
  * @return {anychart.ui.GanttToolbar}
- * @deprecated Use anychart.ui.ganttToolbar() instead.
+ * @deprecated Since 7.10.0. Use anychart.ui.ganttToolbar() instead.
  */
 anychart.ganttToolbar = function() {
-  anychart.core.reporting.warning(anychart.enums.WarningCode.DEPRECATED, null, ['anychart.ganttToolbar()', 'anychart.ui.ganttToolbar()'], true);
+  anychart.core.reporting.warning(anychart.enums.WarningCode.DEPRECATED, null, ['anychart.ganttToolbar()', 'anychart.ui.ganttToolbar()', null, 'Constructor'], true);
   return new anychart.ui.GanttToolbar();
 };
 
 
 //exports
-goog.exportSymbol('anychart.ui.ganttToolbar', anychart.ui.ganttToolbar);
-goog.exportSymbol('anychart.ganttToolbar', anychart.ganttToolbar);
-anychart.ui.GanttToolbar.prototype['draw'] = anychart.ui.GanttToolbar.prototype.draw;
-anychart.ui.GanttToolbar.prototype['printPaperSizes'] = anychart.ui.GanttToolbar.prototype.printPaperSizes;
+/** @suppress {deprecated} */
+(function() {
+  var proto = anychart.ui.GanttToolbar.prototype;
+  goog.exportSymbol('anychart.ui.ganttToolbar', anychart.ui.ganttToolbar);
+  goog.exportSymbol('anychart.ganttToolbar', anychart.ganttToolbar);
+  proto['draw'] = proto.draw;
+  proto['printPaperSizes'] = proto.printPaperSizes;
+})();

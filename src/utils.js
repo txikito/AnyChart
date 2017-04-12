@@ -13,6 +13,7 @@ goog.require('goog.dom');
 goog.require('goog.dom.xml');
 goog.require('goog.i18n.DateTimeFormat');
 goog.require('goog.json.hybrid');
+goog.require('goog.object');
 
 
 /**
@@ -150,6 +151,7 @@ anychart.utils.extractTag = function(target) {
  * @return {boolean}
  */
 anychart.utils.checkIfParent = function(parent, target) {
+  if (!parent) return false;
   while (target instanceof goog.events.EventTarget && target != parent) {
     target = target.getParentEventTarget();
   }
@@ -194,7 +196,7 @@ anychart.utils.normalizeSize = function(value, opt_containerSize, opt_invert) {
  * @return {boolean} Is value set in percent.
  */
 anychart.utils.isPercent = function(value) {
-  return goog.isString(value) && goog.string.endsWith(value, '%');
+  return goog.isString(value) && goog.string.endsWith(value, '%') && !isNaN(parseFloat(value));
 };
 
 
@@ -217,17 +219,18 @@ anychart.utils.normalizeNumberOrPercent = function(value, opt_default) {
 /**
  * Normalizes passed value to a percent format string.
  * @param {*} value Value to normalize.
- * @return {string} Normalized to percent format value. If source value doesn't like percent format then trying to
+ * @param {boolean=} opt_canReturnNaN Can return NaN or normalize to '0%'
+ * @return {(string|number)} Normalized to percent format value. If source value doesn't like percent format then trying to
  * convert it. If convert was failed then returns default value ['0%'].
  */
-anychart.utils.normalizeToPercent = function(value) {
+anychart.utils.normalizeToPercent = function(value, opt_canReturnNaN) {
   if (anychart.utils.isPercent(value))
     return /** @type {string} */(value);
 
   if (!goog.isNumber(value))
     value = parseFloat(value);
 
-  if (isNaN(value)) return '0%';
+  if (isNaN(value)) return opt_canReturnNaN ? NaN : '0%';
   return value + '%';
 };
 
@@ -346,7 +349,7 @@ anychart.utils.normalizeTimestamp = function(value) {
  * Formats incoming timestamp as 'yyyy.MM.dd'.
  * @param {number|string} timestamp - Timestamp.
  * @return {string} - Formatted date.
- * @deprecated Deprecated since 7.9.0. Use anychart.format.dateTime instead.
+ * @deprecated Since 7.9.0. Use anychart.format.dateTime instead.
  */
 anychart.utils.defaultDateFormatter = function(timestamp) {
   anychart.core.reporting.warning(anychart.enums.WarningCode.DEPRECATED, null, ['anychart.utils.defaultDateFormatter', 'anychart.format.dateTime'], true);
@@ -363,12 +366,16 @@ anychart.utils.defaultDateFormatter = function(timestamp) {
  * Gets anchor coordinates by bounds.
  * @param {anychart.math.Rect} bounds Bounds rectangle.
  * @param {?(anychart.enums.Anchor|string)} anchor Anchor.
+ * @param {anychart.enums.Anchor=} opt_autoDefault
  * @return {{x: number, y: number}} Anchor coordinates as {x:number, y:number}.
  */
-anychart.utils.getCoordinateByAnchor = function(bounds, anchor) {
+anychart.utils.getCoordinateByAnchor = function(bounds, anchor, opt_autoDefault) {
   var x = bounds.left;
   var y = bounds.top;
-  switch (anychart.enums.normalizeAnchor(anchor)) {
+  var anchorVal = anychart.enums.normalizeAnchor(anchor);
+  if (opt_autoDefault && anchorVal == anychart.enums.Anchor.AUTO)
+    anchorVal = opt_autoDefault;
+  switch (anchorVal) {
     case anychart.enums.Anchor.LEFT_TOP:
       break;
     case anychart.enums.Anchor.LEFT_CENTER:
@@ -401,6 +408,161 @@ anychart.utils.getCoordinateByAnchor = function(bounds, anchor) {
       break;
   }
   return {'x': x, 'y': y};
+};
+
+
+/**
+ * Returns anchor for angle.
+ * @param {number} angle .
+ * @return {anychart.enums.Anchor} .
+ */
+anychart.utils.getAnchorForAngle = function(angle) {
+  var result;
+  angle = goog.math.standardAngle(angle);
+
+  if (!angle) {
+    result = anychart.enums.Anchor.LEFT_CENTER;
+  } else if (angle > 0 && angle < 90) {
+    result = anychart.enums.Anchor.LEFT_TOP;
+  } else if (angle == 90) {
+    result = anychart.enums.Anchor.CENTER_TOP;
+  } else if (angle > 90 && angle < 180) {
+    result = anychart.enums.Anchor.RIGHT_TOP;
+  } else if (angle == 180) {
+    result = anychart.enums.Anchor.RIGHT_CENTER;
+  } else if (angle > 180 && angle < 270) {
+    result = anychart.enums.Anchor.RIGHT_BOTTOM;
+  } else if (angle == 270) {
+    result = anychart.enums.Anchor.CENTER_BOTTOM;
+  } else {
+    result = anychart.enums.Anchor.LEFT_BOTTOM;
+  }
+
+  return result;
+};
+
+
+/**
+ * Returns an anchor for the position to keep the element outside of the body.
+ * @param {anychart.enums.Position|anychart.enums.Anchor} anchor
+ * @return {anychart.enums.Anchor}
+ */
+anychart.utils.flipAnchor = function(anchor) {
+  switch (anchor) {
+    case anychart.enums.Anchor.LEFT_TOP:
+      return anychart.enums.Anchor.RIGHT_BOTTOM;
+    case anychart.enums.Anchor.LEFT_CENTER:
+      return anychart.enums.Anchor.RIGHT_CENTER;
+    case anychart.enums.Anchor.LEFT_BOTTOM:
+      return anychart.enums.Anchor.RIGHT_TOP;
+    case anychart.enums.Anchor.CENTER_TOP:
+      return anychart.enums.Anchor.CENTER_BOTTOM;
+    case anychart.enums.Anchor.CENTER_BOTTOM:
+      return anychart.enums.Anchor.CENTER_TOP;
+    case anychart.enums.Anchor.RIGHT_TOP:
+      return anychart.enums.Anchor.LEFT_BOTTOM;
+    case anychart.enums.Anchor.RIGHT_CENTER:
+      return anychart.enums.Anchor.LEFT_CENTER;
+    case anychart.enums.Anchor.RIGHT_BOTTOM:
+      return anychart.enums.Anchor.LEFT_TOP;
+  }
+  return /** @type {anychart.enums.Anchor} */(anchor);
+};
+
+
+/**
+ * Returns an anchor for the position to keep the element outside of the body.
+ * @param {anychart.enums.Position|anychart.enums.Anchor} anchor
+ * @return {anychart.enums.Anchor}
+ */
+anychart.utils.flipAnchorHorizontal = function(anchor) {
+  switch (anchor) {
+    case anychart.enums.Anchor.LEFT_TOP:
+      return anychart.enums.Anchor.RIGHT_TOP;
+    case anychart.enums.Anchor.LEFT_CENTER:
+      return anychart.enums.Anchor.RIGHT_CENTER;
+    case anychart.enums.Anchor.LEFT_BOTTOM:
+      return anychart.enums.Anchor.RIGHT_BOTTOM;
+    case anychart.enums.Anchor.RIGHT_TOP:
+      return anychart.enums.Anchor.LEFT_TOP;
+    case anychart.enums.Anchor.RIGHT_CENTER:
+      return anychart.enums.Anchor.LEFT_CENTER;
+    case anychart.enums.Anchor.RIGHT_BOTTOM:
+      return anychart.enums.Anchor.LEFT_BOTTOM;
+  }
+  return /** @type {anychart.enums.Anchor} */(anchor);
+};
+
+
+/**
+ * Returns an anchor for the position to keep the element outside of the body.
+ * @param {anychart.enums.Position|anychart.enums.Anchor} anchor
+ * @return {anychart.enums.Anchor}
+ */
+anychart.utils.flipAnchorVertical = function(anchor) {
+  switch (anchor) {
+    case anychart.enums.Anchor.LEFT_TOP:
+      return anychart.enums.Anchor.LEFT_BOTTOM;
+    case anychart.enums.Anchor.LEFT_BOTTOM:
+      return anychart.enums.Anchor.LEFT_TOP;
+    case anychart.enums.Anchor.CENTER_TOP:
+      return anychart.enums.Anchor.CENTER_BOTTOM;
+    case anychart.enums.Anchor.CENTER_BOTTOM:
+      return anychart.enums.Anchor.CENTER_TOP;
+    case anychart.enums.Anchor.RIGHT_TOP:
+      return anychart.enums.Anchor.RIGHT_BOTTOM;
+    case anychart.enums.Anchor.RIGHT_BOTTOM:
+      return anychart.enums.Anchor.RIGHT_TOP;
+  }
+  return /** @type {anychart.enums.Anchor} */(anchor);
+};
+
+
+/**
+ * Returns true if the anchor is one of three top anchors.
+ * @param {anychart.enums.Anchor} anchor
+ * @return {boolean}
+ */
+anychart.utils.isTopAnchor = function(anchor) {
+  return anchor == anychart.enums.Anchor.LEFT_TOP ||
+      anchor == anychart.enums.Anchor.CENTER_TOP ||
+      anchor == anychart.enums.Anchor.RIGHT_TOP;
+};
+
+
+/**
+ * Returns true if the anchor is one of three bottom anchors.
+ * @param {anychart.enums.Anchor} anchor
+ * @return {boolean}
+ */
+anychart.utils.isBottomAnchor = function(anchor) {
+  return anchor == anychart.enums.Anchor.LEFT_BOTTOM ||
+      anchor == anychart.enums.Anchor.CENTER_BOTTOM ||
+      anchor == anychart.enums.Anchor.RIGHT_BOTTOM;
+};
+
+
+/**
+ * Returns true if the anchor is one of three left anchors.
+ * @param {anychart.enums.Anchor} anchor
+ * @return {boolean}
+ */
+anychart.utils.isLeftAnchor = function(anchor) {
+  return anchor == anychart.enums.Anchor.LEFT_TOP ||
+      anchor == anychart.enums.Anchor.LEFT_CENTER ||
+      anchor == anychart.enums.Anchor.LEFT_BOTTOM;
+};
+
+
+/**
+ * Returns true if the anchor is one of three right anchors.
+ * @param {anychart.enums.Anchor} anchor
+ * @return {boolean}
+ */
+anychart.utils.isRightAnchor = function(anchor) {
+  return anchor == anychart.enums.Anchor.RIGHT_TOP ||
+      anchor == anychart.enums.Anchor.RIGHT_CENTER ||
+      anchor == anychart.enums.Anchor.RIGHT_BOTTOM;
 };
 
 
@@ -681,6 +843,9 @@ anychart.utils.applyOffsetByAnchor = function(position, anchor, offsetX, offsetY
     case anychart.enums.Anchor.RIGHT_BOTTOM:
       position.x -= offsetX;
       position.y -= offsetY;
+      break;
+
+    default:
       break;
   }
   return position;
@@ -1004,7 +1169,7 @@ anychart.utils.json2xml = function(json, opt_rootNodeName, opt_returnAsXmlNode) 
   var root = anychart.utils.json2xml_(json, opt_rootNodeName || 'anychart', result);
   if (root) {
     if (!opt_rootNodeName)
-      root.setAttribute('xmlns', 'http://anychart.com/schemas/7.12.0/xml-schema.xsd');
+      root.setAttribute('xmlns', 'http://anychart.com/schemas/7.13.1/xml-schema.xsd');
     result.appendChild(root);
   }
   return opt_returnAsXmlNode ? result : goog.dom.xml.serialize(result);
@@ -1415,7 +1580,7 @@ anychart.utils.UTCTimeZoneCache_;
  * @param {number|Date} date UTC timestamp or Date object.
  * @param {string} pattern
  * @return {string}
- * @deprecated Deprecated since 7.9.0. Use anychart.format.dateTime instead.
+ * @deprecated Since 7.9.0. Use anychart.format.dateTime instead.
  */
 anychart.utils.formatDateTime = function(date, pattern) {
   anychart.core.reporting.warning(anychart.enums.WarningCode.DEPRECATED, null, ['anychart.utils.formatDateTime', 'anychart.format.dateTime'], true);
@@ -1434,11 +1599,24 @@ anychart.utils.formatDateTime = function(date, pattern) {
 
 
 /**
+ * Global tooltips registry. Used to make anychart.utils.hideTooltips() work correctly.
+ * @type {Object.<anychart.core.ui.Tooltip>}
+ */
+anychart.utils.tooltipsRegistry = {};
+
+
+/**
  * Hide all tooltips.
  * @param {boolean=} opt_force Ignore tooltips hide delay.
  */
 anychart.utils.hideTooltips = function(opt_force) {
-  anychart.core.utils.TooltipsContainer.getInstance().hideTooltips(opt_force);
+  for (var key in anychart.utils.tooltipsRegistry) {
+    if (anychart.utils.tooltipsRegistry.hasOwnProperty(key)) {
+      var tooltip = anychart.utils.tooltipsRegistry[key];
+      if (!tooltip.isDisposed())
+        tooltip.hide(opt_force);
+    }
+  }
 };
 
 
@@ -1517,7 +1695,7 @@ anychart.utils.INTERVAL_ESTIMATIONS = [
  * Returns an array of [unit: anychart.enums.Interval, count: number] with estimation of the data interval passed.
  * Interval must be a valid number (not a NaN).
  * @param {number} interval
- * @return {!{unit: anychart.enums.Interval, count: number}}}
+ * @return {!{unit: anychart.enums.Interval, count: number}} }
  */
 anychart.utils.estimateInterval = function(interval) {
   interval = Math.floor(interval);
@@ -1546,6 +1724,22 @@ anychart.utils.estimateInterval = function(interval) {
     unit = estimation.unit;
   }
   return {'unit': unit, 'count': count};
+};
+
+
+/**
+ * Returns approximate interval duration in milliseconds.
+ * @param {goog.date.Interval} interval
+ * @return {number}
+ */
+anychart.utils.getIntervalApproxDuration = function(interval) {
+  var result = interval.years; // years
+  result = result * 365.25 + interval.months; // months
+  result = result * 365.25 / 12 + interval.days; // days
+  result = result * 24 + interval.hours; // hours
+  result = result * 60 + interval.minutes; // minutes
+  result = result * 60 + interval.seconds; // seconds
+  return result * 1000; // milliseconds
 };
 
 
@@ -1987,6 +2181,44 @@ anychart.utils.printUtilsBoolean = function() {
   return anychart.isValidKey();
 };
 
+
+/**
+ * Decomposes function arguments.
+ * Converts list of arguments from mixed format, where first argument can be either simple option, or object with named options,
+ * to array of arguments that can be applied with apply() function.
+ * @param {Object} namedArguments Object that maps option names to function arguments.
+ * <code>
+ *   // Example
+ *   {
+ *   'paperSize': opt_paperSizeOrWidthOrOptions,
+ *   'width': opt_paperSizeOrWidthOrOptions,
+ *   'landscape': opt_landscapeOrHeight,
+ *   'height': opt_landscapeOrHeight,
+ *   'filename': opt_filename
+ *   }
+ * </code>
+ * @param {(Object|*)=} opt_options Object of options (usually first argument of function).
+ * @param {Object=} opt_defaults Default option values in the same format as 'namedArguments'.
+ * @return {Object} Result arguments as object in the same format as 'namedArguments'.
+ */
+anychart.utils.decomposeArguments = function(namedArguments, opt_options, opt_defaults) {
+  var result = {};
+  opt_options = goog.typeOf(opt_options) == 'object' ? opt_options : null;
+
+  goog.object.forEach(namedArguments, function(arg, name) {
+    if (opt_options) {
+      result[name] = goog.isDef(opt_options[name]) ? opt_options[name] : undefined;
+    } else {
+      result[name] = arg;
+    }
+
+    if (goog.isDef(opt_defaults)) {
+      result[name] = result[name] || opt_defaults[name];
+    }
+  });
+
+  return result;
+};
 
 //exports
 goog.exportSymbol('anychart.utils.printUtilsBoolean', anychart.utils.printUtilsBoolean);

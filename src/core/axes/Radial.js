@@ -6,10 +6,11 @@ goog.require('anychart.core.VisualBase');
 goog.require('anychart.core.axes.RadialTicks');
 goog.require('anychart.core.reporting');
 goog.require('anychart.core.ui.LabelsFactory');
-goog.require('anychart.core.utils.AxisLabelsContextProvider');
 goog.require('anychart.enums');
+goog.require('anychart.format.Context');
 goog.require('anychart.math.Rect');
 goog.require('anychart.scales');
+goog.require('anychart.utils');
 
 
 
@@ -27,7 +28,7 @@ goog.require('anychart.scales');
  */
 anychart.core.axes.Radial = function() {
   this.suspendSignalsDispatching();
-  goog.base(this);
+  anychart.core.axes.Radial.base(this, 'constructor');
 
   this.labelsBounds_ = [];
   this.minorLabelsBounds_ = [];
@@ -166,6 +167,17 @@ anychart.core.axes.Radial.prototype.labelsBounds_ = null;
  * @private
  */
 anychart.core.axes.Radial.prototype.minorLabelsBounds_ = null;
+
+
+/**
+ * Drops labels calls cache.
+ */
+anychart.core.axes.Radial.prototype.dropLabelCallsCache = function() {
+  if (this.labels_)
+    this.labels_.dropCallsCache();
+  if (this.minorLabels_)
+    this.minorLabels_.dropCallsCache();
+};
 
 
 /**
@@ -426,6 +438,24 @@ anychart.core.axes.Radial.prototype.startAngle = function(opt_value) {
 
 
 /**
+ * Inner radius getter/setter.
+ * @param {(string|number)=} opt_value .
+ * @return {(string|number|anychart.core.axes.Radial)} .
+ */
+anychart.core.axes.Radial.prototype.innerRadius = function(opt_value) {
+  if (goog.isDef(opt_value)) {
+    var value = anychart.utils.normalizeNumberOrPercent(opt_value, this.innerRadius_);
+    if (this.innerRadius_ != value) {
+      this.innerRadius_ = value;
+      this.invalidate(this.ALL_VISUAL_STATES_, anychart.Signal.NEEDS_REDRAW | anychart.Signal.BOUNDS_CHANGED);
+    }
+    return this;
+  }
+  return this.innerRadius_;
+};
+
+
+/**
  * @private
  */
 anychart.core.axes.Radial.prototype.dropBoundsCache_ = function() {
@@ -643,6 +673,8 @@ anychart.core.axes.Radial.prototype.calcLabels_ = function(opt_bounds) {
 anychart.core.axes.Radial.prototype.calculateAxis_ = function() {
   var parentBounds = this.parentBounds();
   this.length_ = Math.min(parentBounds.width, parentBounds.height) / 2;
+  this.innerLength_ = anychart.utils.normalizeSize(this.innerRadius_, this.length_);
+  if (this.innerLength_ == this.length_) this.innerLength_--;
   this.cx_ = Math.round(parentBounds.left + parentBounds.width / 2);
   this.cy_ = Math.round(parentBounds.top + parentBounds.height / 2);
 };
@@ -678,7 +710,7 @@ anychart.core.axes.Radial.prototype.getLabelBounds_ = function(index, isMajor) {
     ratio = scale.transform(value, .5);
   }
 
-  var radius = this.length_ * ratio;
+  var radius = this.innerLength_ + (this.length_ - this.innerLength_) * ratio;
   var angle = goog.math.standardAngle(this.startAngle() - 90);
   var angleRad = goog.math.toRadians(angle);
 
@@ -860,20 +892,13 @@ anychart.core.axes.Radial.prototype.drawLine_ = function() {
     xPixelShift = lineThickness % 2 == 0 ? 0 : .5;
   }
 
-  var x, y;
-  x = this.cx_ + this.length_ * Math.cos(angleRad);
-  y = this.cy_ + this.length_ * Math.sin(angleRad);
-
-  //if (angle == 180) {
-  //  x = Math.floor(x);
-  //  y = Math.floor(y);
-  //} else {
-  x = Math.round(x);
-  y = Math.round(y);
-  //}
+  var x = Math.round(this.cx_ + this.length_ * Math.cos(angleRad));
+  var y = Math.round(this.cy_ + this.length_ * Math.sin(angleRad));
+  var zeroX = Math.round(this.cx_ + this.innerLength_ * Math.cos(angleRad));
+  var zeroY = Math.round(this.cy_ + this.innerLength_ * Math.sin(angleRad));
 
   this.line_
-      .moveTo(this.cx_ + xPixelShift, this.cy_ + yPixelShift)
+      .moveTo(zeroX + xPixelShift, zeroY + yPixelShift)
       .lineTo(x + xPixelShift, y + yPixelShift);
 };
 
@@ -911,7 +936,7 @@ anychart.core.axes.Radial.prototype.drawTick_ = function(ratio, isMajor) {
     yPixelShift *= -1;
   }
 
-  var radius = this.length_ * ratio;
+  var radius = this.innerLength_ + (this.length_ - this.innerLength_) * ratio;
 
   var x = this.cx_ + radius * Math.cos(angleRad);
   var y = this.cy_ + radius * Math.sin(angleRad);
@@ -983,7 +1008,43 @@ anychart.core.axes.Radial.prototype.drawLabel_ = function(index, isMajor) {
  * @private
  */
 anychart.core.axes.Radial.prototype.getLabelsFormatProvider_ = function(index, value) {
-  return new anychart.core.utils.AxisLabelsContextProvider(this, index, value);
+  var scale = this.scale();
+
+  var labelText, labelValue;
+  var addRange = true;
+  if (scale instanceof anychart.scales.Ordinal) {
+    labelText = scale.ticks().names()[index];
+    labelValue = value;
+    addRange = false;
+  } else if (scale instanceof anychart.scales.DateTime) {
+    labelText = anychart.format.date(/** @type {number} */(value));
+    labelValue = value;
+  } else {
+    labelText = parseFloat(value);
+    labelValue = parseFloat(value);
+  }
+
+  var values = {
+    'axis': {value: this, type: anychart.enums.TokenType.UNKNOWN},
+    'index': {value: index, type: anychart.enums.TokenType.NUMBER},
+    'value': {value: labelText, type: anychart.enums.TokenType.NUMBER},
+    'tickValue': {value: labelValue, type: anychart.enums.TokenType.NUMBER},
+    'scale': {value: scale, type: anychart.enums.TokenType.UNKNOWN}
+  };
+
+  if (addRange) {
+    values['max'] = {value: goog.isDef(scale.max) ? scale.max : null, type: anychart.enums.TokenType.NUMBER};
+    values['min'] = {value: goog.isDef(scale.min) ? scale.min : null, type: anychart.enums.TokenType.NUMBER};
+  }
+
+  var aliases = {};
+  aliases[anychart.enums.StringToken.AXIS_SCALE_MAX] = 'max';
+  aliases[anychart.enums.StringToken.AXIS_SCALE_MIN] = 'min';
+
+  var context = new anychart.format.Context(values);
+  context.tokenAliases(aliases);
+
+  return context.propagate();
 };
 
 
@@ -1213,7 +1274,7 @@ anychart.core.axes.Radial.prototype.remove = function() {
 
 /** @inheritDoc */
 anychart.core.axes.Radial.prototype.serialize = function() {
-  var json = goog.base(this, 'serialize');
+  var json = anychart.core.axes.Radial.base(this, 'serialize');
   json['labels'] = this.labels().serialize();
   json['minorLabels'] = this.minorLabels().serialize();
   json['ticks'] = this.ticks().serialize();
@@ -1229,9 +1290,9 @@ anychart.core.axes.Radial.prototype.serialize = function() {
 
 /** @inheritDoc */
 anychart.core.axes.Radial.prototype.setupByJSON = function(config, opt_default) {
-  goog.base(this, 'setupByJSON', config, opt_default);
-  this.labels().setup(config['labels']);
-  this.minorLabels().setup(config['minorLabels']);
+  anychart.core.axes.Radial.base(this, 'setupByJSON', config, opt_default);
+  this.labels().setupByVal(config['labels'], opt_default);
+  this.minorLabels().setupByVal(config['minorLabels'], opt_default);
   this.ticks(config['ticks']);
   this.minorTicks(config['minorTicks']);
   this.stroke(config['stroke']);
@@ -1244,7 +1305,7 @@ anychart.core.axes.Radial.prototype.setupByJSON = function(config, opt_default) 
 
 /** @inheritDoc */
 anychart.core.axes.Radial.prototype.disposeInternal = function() {
-  goog.base(this, 'disposeInternal');
+  anychart.core.axes.Radial.base(this, 'disposeInternal');
 
   delete this.scale_;
   this.labelsBounds_ = null;
@@ -1262,14 +1323,17 @@ anychart.core.axes.Radial.prototype.disposeInternal = function() {
 };
 
 
-//anychart.core.axes.Radial.prototype['startAngle'] = anychart.core.axes.Radial.prototype.startAngle;
+//proto['startAngle'] = proto.startAngle;
 //exports
-anychart.core.axes.Radial.prototype['labels'] = anychart.core.axes.Radial.prototype.labels;
-anychart.core.axes.Radial.prototype['minorLabels'] = anychart.core.axes.Radial.prototype.minorLabels;
-anychart.core.axes.Radial.prototype['ticks'] = anychart.core.axes.Radial.prototype.ticks;
-anychart.core.axes.Radial.prototype['minorTicks'] = anychart.core.axes.Radial.prototype.minorTicks;
-anychart.core.axes.Radial.prototype['stroke'] = anychart.core.axes.Radial.prototype.stroke;
-anychart.core.axes.Radial.prototype['scale'] = anychart.core.axes.Radial.prototype.scale;
-anychart.core.axes.Radial.prototype['drawFirstLabel'] = anychart.core.axes.Radial.prototype.drawFirstLabel;
-anychart.core.axes.Radial.prototype['drawLastLabel'] = anychart.core.axes.Radial.prototype.drawLastLabel;
-anychart.core.axes.Radial.prototype['overlapMode'] = anychart.core.axes.Radial.prototype.overlapMode;
+(function() {
+  var proto = anychart.core.axes.Radial.prototype;
+  proto['labels'] = proto.labels;
+  proto['minorLabels'] = proto.minorLabels;
+  proto['ticks'] = proto.ticks;
+  proto['minorTicks'] = proto.minorTicks;
+  proto['stroke'] = proto.stroke;
+  proto['scale'] = proto.scale;
+  proto['drawFirstLabel'] = proto.drawFirstLabel;
+  proto['drawLastLabel'] = proto.drawLastLabel;
+  proto['overlapMode'] = proto.overlapMode;
+})();

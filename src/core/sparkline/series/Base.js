@@ -2,9 +2,9 @@ goog.provide('anychart.core.sparkline.series.Base');
 goog.require('acgraph');
 goog.require('anychart.color');
 goog.require('anychart.core.VisualBaseWithBounds');
-goog.require('anychart.core.utils.SeriesPointContextProvider');
 goog.require('anychart.data');
 goog.require('anychart.enums');
+goog.require('anychart.format.Context');
 
 
 
@@ -23,11 +23,11 @@ goog.require('anychart.enums');
 anychart.core.sparkline.series.Base = function(chart) {
   this.suspendSignalsDispatching();
   /**
-   * @type {anychart.core.utils.SeriesPointContextProvider}
+   * @type {anychart.format.Context}
    * @private
    */
   this.pointProvider_;
-  goog.base(this);
+  anychart.core.sparkline.series.Base.base(this, 'constructor');
 
   /**
    * Chart instance.
@@ -142,13 +142,22 @@ anychart.core.sparkline.series.Base.prototype.getChart = function() {
 
 
 /**
+ * Interface function.
+ * @return {boolean}
+ */
+anychart.core.sparkline.series.Base.prototype.isSizeBased = function() {
+  return false;
+};
+
+
+/**
  * Gets an array of reference 'y' fields from the row iterator point to
  * and gets pixel values. Reference fields are defined using referenceValueNames and referenceValueMeanings.
  * If there is only one field - a value is returned.
  * If there are several - array.
  * If any of the two is undefined - returns null.
  *
- * @return {Array.<number>|null} Array with values or null, any of the two is undefined.
+ * @return {?Array.<number>} Array with values or null, any of the two is undefined.
  *    (we do so to avoid reiterating to check on missing).
  * @protected
  */
@@ -238,7 +247,7 @@ anychart.core.sparkline.series.Base.prototype.remove = function() {
 
   this.chart.labels().container(null);
 
-  goog.base(this, 'remove');
+  anychart.core.sparkline.series.Base.base(this, 'remove');
 };
 
 
@@ -330,9 +339,28 @@ anychart.core.sparkline.series.Base.prototype.finalizeDrawing = function() {
  */
 anychart.core.sparkline.series.Base.prototype.createFormatProvider = function(opt_force) {
   if (!this.pointProvider_ || opt_force)
-    this.pointProvider_ = new anychart.core.utils.SeriesPointContextProvider(this, ['x', 'value'], false);
-  this.pointProvider_.applyReferenceValues();
-  return this.pointProvider_;
+    this.pointProvider_ = new anychart.format.Context();
+
+  var iterator = this.getIterator();
+
+  var values = {
+    'chart': {value: this.getChart(), type: anychart.enums.TokenType.UNKNOWN},
+    'series': {value: this, type: anychart.enums.TokenType.UNKNOWN},
+    'index': {value: iterator.getIndex(), type: anychart.enums.TokenType.NUMBER},
+    'value': {value: iterator.get('value'), type: anychart.enums.TokenType.NUMBER},
+    'x': {value: iterator.get('x'), type: anychart.enums.TokenType.STRING},
+    'seriesName': {value: 'Series ' + iterator.getIndex(), type: anychart.enums.TokenType.STRING}
+  };
+
+  var tokenAliases = {};
+  tokenAliases[anychart.enums.StringToken.X_VALUE] = 'x';
+
+  this.pointProvider_
+      .dataSource(iterator)
+      .statisticsSources([this, this.getChart()])
+      .tokenAliases(tokenAliases);
+
+  return this.pointProvider_.propagate(values);
 };
 
 

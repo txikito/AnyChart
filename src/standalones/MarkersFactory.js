@@ -37,7 +37,7 @@ goog.inherits(anychart.standalones.MarkersFactory.Marker, anychart.core.ui.Marke
  */
 anychart.standalones.markersFactory = function() {
   var factory = new anychart.standalones.MarkersFactory();
-  factory.setup(anychart.getFullTheme()['standalones']['markersFactory']);
+  factory.setup(anychart.getFullTheme('standalones.markersFactory'));
   return factory;
 };
 
@@ -48,22 +48,27 @@ anychart.standalones.markersFactory = function() {
  * @deprecated Since 7.12.0. Use anychart.standalones.markersFactory instead.
  */
 anychart.ui.markersFactory = function() {
-  anychart.core.reporting.warning(anychart.enums.WarningCode.DEPRECATED, null, ['anychart.ui.markersFactory', 'anychart.standalones.markersFactory'], true);
+  anychart.core.reporting.warning(anychart.enums.WarningCode.DEPRECATED, null, ['anychart.ui.markersFactory()', 'anychart.standalones.markersFactory()', null, 'Constructor'], true);
   return anychart.standalones.markersFactory();
 };
 
 
 //exports
-goog.exportSymbol('anychart.ui.markersFactory', anychart.ui.markersFactory);
-goog.exportSymbol('anychart.standalones.markersFactory', anychart.standalones.markersFactory);
-anychart.standalones.MarkersFactory.prototype['draw'] = anychart.standalones.MarkersFactory.prototype.draw;
-anychart.standalones.MarkersFactory.prototype['parentBounds'] = anychart.standalones.MarkersFactory.prototype.parentBounds;
-anychart.standalones.MarkersFactory.prototype['container'] = anychart.standalones.MarkersFactory.prototype.container;
-anychart.standalones.MarkersFactory.prototype['add'] = anychart.standalones.MarkersFactory.prototype.add;
-anychart.standalones.MarkersFactory.prototype['clear'] = anychart.standalones.MarkersFactory.prototype.clear;
-anychart.standalones.MarkersFactory.prototype['measure'] = anychart.standalones.MarkersFactory.prototype.measure;
+/** @suppress {deprecated} */
+(function() {
+  var proto = anychart.standalones.MarkersFactory.prototype;
+  goog.exportSymbol('anychart.ui.markersFactory', anychart.ui.markersFactory);
+  goog.exportSymbol('anychart.standalones.markersFactory', anychart.standalones.markersFactory);
+  proto['draw'] = proto.draw;
+  proto['parentBounds'] = proto.parentBounds;
+  proto['container'] = proto.container;
+  proto['add'] = proto.add;
+  proto['clear'] = proto.clear;
+  proto['measure'] = proto.measure;
 
-anychart.standalones.MarkersFactory.Marker.prototype['enabled'] = anychart.standalones.MarkersFactory.Marker.prototype.enabled;
-anychart.standalones.MarkersFactory.Marker.prototype['draw'] = anychart.standalones.MarkersFactory.Marker.prototype.draw;
-anychart.standalones.MarkersFactory.Marker.prototype['clear'] = anychart.standalones.MarkersFactory.Marker.prototype.clear;
-anychart.standalones.MarkersFactory.Marker.prototype['getIndex'] = anychart.standalones.MarkersFactory.Marker.prototype.getIndex;
+  proto = anychart.standalones.MarkersFactory.Marker.prototype;
+  proto['enabled'] = proto.enabled;
+  proto['draw'] = proto.draw;
+  proto['clear'] = proto.clear;
+  proto['getIndex'] = proto.getIndex;
+})();

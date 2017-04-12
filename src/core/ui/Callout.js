@@ -18,7 +18,7 @@ goog.require('anychart.math.Rect');
  * @extends {anychart.core.VisualBase}
  */
 anychart.core.ui.Callout = function() {
-  goog.base(this);
+  anychart.core.ui.Callout.base(this, 'constructor');
 
   /**
    * @type {?number}
@@ -417,7 +417,7 @@ anychart.core.ui.Callout.prototype.updateOnZoomOrMove = function() {
     iterator.select(item.getIndex());
 
     var positionProvider = this.createPositionProvider(label.getIndex())['value'];
-    var middlePoint = series.getMiddlePoint()['value'];
+    var middlePoint = series.getMiddlePoint();
 
     connector
         .clear()
@@ -620,7 +620,7 @@ anychart.core.ui.Callout.prototype.getPixelBounds = function() {
           titleLength = title.getContentBounds().height;
         }
 
-        var titleOrientation = title.getOption(anychart.opt.ORIENTATION) || title.defaultOrientation();
+        var titleOrientation = title.getOption('orientation') || title.defaultOrientation();
         if (titleOrientation == anychart.enums.Orientation.TOP || titleOrientation == anychart.enums.Orientation.BOTTOM) {
           affectSize = this.isHorizontal();
           affectLength = !this.isHorizontal();
@@ -633,16 +633,16 @@ anychart.core.ui.Callout.prototype.getPixelBounds = function() {
 
       var x, y;
       var padding = this.padding();
-      var topPad = anychart.utils.normalizeSize(/** @type {number|string} */(padding.getOption(anychart.opt.TOP)), parentBounds.height);
-      var rightPad = anychart.utils.normalizeSize(/** @type {number|string} */(padding.getOption(anychart.opt.RIGHT)), parentBounds.width);
-      var bottomPad = anychart.utils.normalizeSize(/** @type {number|string} */(padding.getOption(anychart.opt.BOTTOM)), parentBounds.height);
-      var leftPad = anychart.utils.normalizeSize(/** @type {number|string} */(padding.getOption(anychart.opt.LEFT)), parentBounds.width);
+      var topPad = anychart.utils.normalizeSize(/** @type {number|string} */(padding.getOption('top')), parentBounds.height);
+      var rightPad = anychart.utils.normalizeSize(/** @type {number|string} */(padding.getOption('right')), parentBounds.width);
+      var bottomPad = anychart.utils.normalizeSize(/** @type {number|string} */(padding.getOption('bottom')), parentBounds.height);
+      var leftPad = anychart.utils.normalizeSize(/** @type {number|string} */(padding.getOption('left')), parentBounds.width);
 
       var margin = this.margin();
-      var topMargin = anychart.utils.normalizeSize(/** @type {number|string} */(margin.getOption(anychart.opt.TOP)), parentBounds.height);
-      var rightMargin = anychart.utils.normalizeSize(/** @type {number|string} */(margin.getOption(anychart.opt.RIGHT)), parentBounds.width);
-      var bottomMargin = anychart.utils.normalizeSize(/** @type {number|string} */(margin.getOption(anychart.opt.BOTTOM)), parentBounds.height);
-      var leftMargin = anychart.utils.normalizeSize(/** @type {number|string} */(margin.getOption(anychart.opt.LEFT)), parentBounds.width);
+      var topMargin = anychart.utils.normalizeSize(/** @type {number|string} */(margin.getOption('top')), parentBounds.height);
+      var rightMargin = anychart.utils.normalizeSize(/** @type {number|string} */(margin.getOption('right')), parentBounds.width);
+      var bottomMargin = anychart.utils.normalizeSize(/** @type {number|string} */(margin.getOption('bottom')), parentBounds.height);
+      var leftMargin = anychart.utils.normalizeSize(/** @type {number|string} */(margin.getOption('left')), parentBounds.width);
 
       var itemSize;
       if (autoLength && !autoSize) {
@@ -735,7 +735,7 @@ anychart.core.ui.Callout.prototype.getPixelBounds = function() {
       }
 
       if (title.enabled()) {
-        var titleOrientation = title.getOption(anychart.opt.ORIENTATION) || title.defaultOrientation();
+        var titleOrientation = title.getOption('orientation') || title.defaultOrientation();
         switch (titleOrientation) {
           case anychart.enums.Orientation.TOP:
             this.labelSpace.left = x;
@@ -824,7 +824,7 @@ anychart.core.ui.Callout.prototype.createPositionProvider = function(index) {
 /**
  * Configure label with series labels settings.
  * @param {anychart.core.ui.LabelsFactory.Label} label Label for settings applying.
- * @param {anychart.core.map.series.Base} series Series of label.
+ * @param {anychart.core.series.Map} series Series of label.
  * @param {anychart.PointState|number} index Point index.
  * @param {number} pointState Point state.
  * @return {anychart.core.ui.LabelsFactory.Label}
@@ -846,7 +846,7 @@ anychart.core.ui.Callout.prototype.configureSeriesLabel = function(label, series
     currentLabelsFactory = /** @type {anychart.core.ui.LabelsFactory} */(series.hoverLabels());
   } else {
     stateLabel = null;
-    currentLabelsFactory = series.labels();
+    currentLabelsFactory = null;
   }
 
   var formatProvider = series.createFormatProvider(true);
@@ -873,7 +873,7 @@ anychart.core.ui.Callout.prototype.configureSeriesLabel = function(label, series
 anychart.core.ui.Callout.prototype.configureLabel = function(item, label, opt_pointState) {
   var pointIndex = item.getIndex();
 
-  var series = /** @type {anychart.core.map.series.Base} */(item.getSeries());
+  var series = /** @type {anychart.core.series.Map} */(item.getSeries());
   var iterator = series.getResetIterator();
   iterator.select(pointIndex);
 
@@ -896,43 +896,50 @@ anychart.core.ui.Callout.prototype.configureLabel = function(item, label, opt_po
 
   var parentSettings = this.labels().getChangedSettings();
   parentSettings['enabled'] = this.labels().enabled();
+
   var currentSettings = calloutLabelsFactory.getChangedSettings();
   currentSettings['enabled'] = goog.isNull(calloutLabelsFactory.enabled()) ? parentSettings['enabled'] : calloutLabelsFactory.enabled();
 
-  label.setSettings(parentSettings, goog.object.extend(label.superSettingsObj, currentSettings));
+  label.setSettings(parentSettings, label.state('pointState') ? goog.object.extend(label.state('pointState'), currentSettings) : currentSettings);
 
   var positionProvider = this.createPositionProvider(label.getIndex());
-  positionProvider['connectorPoint'] = series.getMiddlePoint();
+  positionProvider['connectorPoint'] = {'value': series.getMiddlePoint()};
   label.positionProvider(positionProvider);
 
   if (this.isHorizontal()) {
-    label.width(this.internalItemLength_).height(this.internalItemSize_);
+    label['width'](this.internalItemLength_);
+    label['height'](this.internalItemSize_);
   } else {
-    label.width(this.internalItemSize_).height(this.internalItemLength_);
+    label['width'](this.internalItemSize_);
+    label['height'](this.internalItemLength_);
   }
 
   switch (this.orientation()) {
     case anychart.enums.Orientation.TOP:
-      label.anchor('centerbottom');
+      label['anchor']('centerbottom');
       break;
     case anychart.enums.Orientation.RIGHT:
-      label.anchor('leftcenter');
+      label['anchor']('leftcenter');
       break;
     case anychart.enums.Orientation.BOTTOM:
-      label.anchor('centertop');
+      label['anchor']('centertop');
       break;
     case anychart.enums.Orientation.LEFT:
-      label.anchor('rightcenter');
+      label['anchor']('rightcenter');
       break;
   }
 
-  var fill = series.getFinalFill(true, pointState);
-  var stroke = series.getFinalStroke(true, pointState);
 
-  label.background()
-      .enabled(true)
-      .fill(fill)
-      .stroke(stroke);
+  var shapes = iterator.meta('shapes');
+  if (shapes) {
+    var fill = iterator.meta('fill');
+    var stroke = iterator.meta('stroke');
+
+    label.background()
+        .enabled(true)
+        .fill(fill)
+        .stroke(stroke);
+  }
 
   return label;
 };
@@ -1170,7 +1177,7 @@ anychart.core.ui.Callout.prototype.remove = function() {
 //region --- Setup and dispose
 /** @inheritDoc */
 anychart.core.ui.Callout.prototype.serialize = function() {
-  var json = goog.base(this, 'serialize');
+  var json = anychart.core.ui.Callout.base(this, 'serialize');
   json['title'] = this.title().serialize();
   json['background'] = this.background().serialize();
 
@@ -1202,24 +1209,24 @@ anychart.core.ui.Callout.prototype.serialize = function() {
 /** @inheritDoc */
 anychart.core.ui.Callout.prototype.setupByJSON = function(config, opt_default) {
   this.suspendSignalsDispatching();
-  goog.base(this, 'setupByJSON', config, opt_default);
+  anychart.core.ui.Callout.base(this, 'setupByJSON', config, opt_default);
 
 
-  if (anychart.opt.TITLE in config)
-    this.title(config[anychart.opt.TITLE]);
+  if ('title' in config)
+    this.title(config['title']);
 
-  if (anychart.opt.BACKGROUND in config)
-    this.background(config[anychart.opt.BACKGROUND]);
+  if ('background' in config)
+    this.background(config['background']);
 
-  if (anychart.opt.PADDING in config)
-    this.padding(config[anychart.opt.PADDING]);
+  if ('padding' in config)
+    this.padding(config['padding']);
 
-  if (anychart.opt.MARGIN in config)
-    this.margin(config[anychart.opt.MARGIN]);
+  if ('margin' in config)
+    this.margin(config['margin']);
 
-  this.labels().setup(config['labels']);
-  this.hoverLabels().setup(config['hoverLabels']);
-  this.selectLabels().setup(config['selectLabels']);
+  this.labels().setupByVal(config['labels'], opt_default);
+  this.hoverLabels().setupByVal(config['hoverLabels'], opt_default);
+  this.selectLabels().setupByVal(config['selectLabels'], opt_default);
 
   this.width(config['width']);
   this.length(config['length']);
@@ -1235,7 +1242,7 @@ anychart.core.ui.Callout.prototype.setupByJSON = function(config, opt_default) {
 
 /** @inheritDoc */
 anychart.core.ui.Callout.prototype.disposeInternal = function() {
-  goog.base(this, 'disposeInternal');
+  anychart.core.ui.Callout.base(this, 'disposeInternal');
 
   this.title_ = null;
   this.padding_ = null;
@@ -1249,16 +1256,19 @@ anychart.core.ui.Callout.prototype.disposeInternal = function() {
 //endregion
 //region --- Exports
 //exports
-anychart.core.ui.Callout.prototype['title'] = anychart.core.ui.Callout.prototype.title;
-anychart.core.ui.Callout.prototype['labels'] = anychart.core.ui.Callout.prototype.labels;
-anychart.core.ui.Callout.prototype['hoverLabels'] = anychart.core.ui.Callout.prototype.hoverLabels;
-anychart.core.ui.Callout.prototype['selectLabels'] = anychart.core.ui.Callout.prototype.selectLabels;
-anychart.core.ui.Callout.prototype['background'] = anychart.core.ui.Callout.prototype.background;
-anychart.core.ui.Callout.prototype['padding'] = anychart.core.ui.Callout.prototype.padding;
-anychart.core.ui.Callout.prototype['margin'] = anychart.core.ui.Callout.prototype.margin;
-anychart.core.ui.Callout.prototype['length'] = anychart.core.ui.Callout.prototype.length;
-anychart.core.ui.Callout.prototype['width'] = anychart.core.ui.Callout.prototype.width;
-anychart.core.ui.Callout.prototype['align'] = anychart.core.ui.Callout.prototype.align;
-anychart.core.ui.Callout.prototype['items'] = anychart.core.ui.Callout.prototype.items;
-anychart.core.ui.Callout.prototype['orientation'] = anychart.core.ui.Callout.prototype.orientation;
+(function() {
+  var proto = anychart.core.ui.Callout.prototype;
+  proto['title'] = proto.title;
+  proto['labels'] = proto.labels;
+  proto['hoverLabels'] = proto.hoverLabels;
+  proto['selectLabels'] = proto.selectLabels;
+  proto['background'] = proto.background;
+  proto['padding'] = proto.padding;
+  proto['margin'] = proto.margin;
+  proto['length'] = proto.length;
+  proto['width'] = proto.width;
+  proto['align'] = proto.align;
+  proto['items'] = proto.items;
+  proto['orientation'] = proto.orientation;
+})();
 //endregion

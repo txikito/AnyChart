@@ -13,7 +13,7 @@ goog.require('goog.Disposable');
  * @extends {goog.Disposable}
  */
 anychart.data.csv.Parser = function() {
-  goog.base(this);
+  anychart.data.csv.Parser.base(this, 'constructor');
   this.rowsSepLen_ = this.rowsSeparator_.length - 1;
   this.colsSepLen_ = this.colsSeparator_.length - 1;
   this.processBlock_ = goog.bind(this.processBlock_, this);
@@ -234,12 +234,15 @@ anychart.data.csv.Parser.prototype.ignoreTrailingSpaces = function(opt_value) {
  *    processor.
  * @param {boolean=} opt_async Indicates async processing. Async processing can be activated only if a custom items
  *    processor passed.
- * @return {Array.<Array>|null} If no items processor passed, returns parsed data as an array of rows. Each row is an
+ * @return {?Array.<Array>} If no items processor passed, returns parsed data as an array of rows. Each row is an
  *    array of strings in that case.
  */
 anychart.data.csv.Parser.prototype.parse = function(data, opt_itemsProcessor, opt_async) {
   this.itemsProcessor_ = opt_itemsProcessor || new anychart.data.csv.DefaultItemsProcessor();
-  opt_async = !!(opt_async || opt_itemsProcessor);
+  // commented here for the best future. Caused by DVF-2583
+  // stock uses own itemsProcessor to parse csv, so parser automatically goes async. That's why
+  // large csv isn't parsed completely in stock (restricted with ASYNC_ROWS_COUNT)
+  opt_async = !!(opt_async/* || opt_itemsProcessor*/);
 
   //aggregate the data and calculate its length
   this.content_ = data || '';
@@ -612,7 +615,7 @@ anychart.data.csv.Parser.prototype.disposeInternal = function() {
   this.rowsSepPrefixFunc_ = null;
 
   this.colsSepPrefixFunc_ = null;
-  goog.base(this, 'disposeInternal');
+  anychart.data.csv.Parser.base(this, 'disposeInternal');
 };
 
 
@@ -706,9 +709,12 @@ anychart.data.csv.parser = function() {
 
 
 //exports
-goog.exportSymbol('anychart.data.csv.parser', anychart.data.csv.parser);
-anychart.data.csv.Parser.prototype['parse'] = anychart.data.csv.Parser.prototype.parse;
-anychart.data.csv.Parser.prototype['rowsSeparator'] = anychart.data.csv.Parser.prototype.rowsSeparator;
-anychart.data.csv.Parser.prototype['columnsSeparator'] = anychart.data.csv.Parser.prototype.columnsSeparator;
-anychart.data.csv.Parser.prototype['ignoreTrailingSpaces'] = anychart.data.csv.Parser.prototype.ignoreTrailingSpaces;
-anychart.data.csv.Parser.prototype['ignoreFirstRow'] = anychart.data.csv.Parser.prototype.ignoreFirstRow;
+(function() {
+  var proto = anychart.data.csv.Parser.prototype;
+  goog.exportSymbol('anychart.data.csv.parser', anychart.data.csv.parser);
+  proto['parse'] = proto.parse;
+  proto['rowsSeparator'] = proto.rowsSeparator;
+  proto['columnsSeparator'] = proto.columnsSeparator;
+  proto['ignoreTrailingSpaces'] = proto.ignoreTrailingSpaces;
+  proto['ignoreFirstRow'] = proto.ignoreFirstRow;
+})();

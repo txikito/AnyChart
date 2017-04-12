@@ -1,4 +1,5 @@
 goog.provide('anychart.charts.TreeMap');
+
 goog.require('anychart.core.SeparateChart');
 goog.require('anychart.core.TreeMapPoint');
 goog.require('anychart.core.reporting');
@@ -8,9 +9,9 @@ goog.require('anychart.core.ui.MarkersFactory');
 goog.require('anychart.core.utils.ArrayIterator');
 goog.require('anychart.core.utils.IInteractiveSeries');
 goog.require('anychart.core.utils.InteractivityState');
-goog.require('anychart.core.utils.TreeMapPointContextProvider');
 goog.require('anychart.core.utils.TypedLayer');
 goog.require('anychart.data.Tree');
+goog.require('anychart.format.Context');
 goog.require('anychart.utils');
 
 
@@ -148,6 +149,12 @@ anychart.charts.TreeMap.prototype.isSeries = function() {
 /** @inheritDoc */
 anychart.charts.TreeMap.prototype.isDiscreteBased = function() {
   return true;
+};
+
+
+/** @inheritDoc */
+anychart.charts.TreeMap.prototype.isSizeBased = function() {
+  return false;
 };
 
 
@@ -720,9 +727,7 @@ anychart.charts.TreeMap.prototype.drillTo = function(target) {
     data = this.data();
     // suppose user have only one root, or id in first root of tree
     if (data && data.numChildren()) {
-      node = data.searchItems('id', target);
-      if (node.length > 0)
-        node = node[0];
+      node = data.searchItems('id', target)[0];
     }
   }
   this.setRootNode(node);
@@ -752,7 +757,7 @@ anychart.charts.TreeMap.prototype.legendItemOver = function(item, event) {
 
   var sourceMode = this.legend().itemsSourceMode();
   if (sourceMode == anychart.enums.LegendItemsSourceMode.CATEGORIES) {
-    series = /** @type {anychart.core.map.series.Base} */(meta.series);
+    series = /** @type {anychart.core.SeriesBase} */(meta.series);
     var scale = meta.scale;
     if (scale && series) {
       var range = meta.range;
@@ -810,7 +815,7 @@ anychart.charts.TreeMap.prototype.legendItemOut = function(item, event) {
 
 
 /** @inheritDoc */
-anychart.charts.TreeMap.prototype.createLegendItemsProvider = function(sourceMode, itemsTextFormatter) {
+anychart.charts.TreeMap.prototype.createLegendItemsProvider = function(sourceMode, itemsFormat) {
   var i, count;
   /**
    * @type {!Array.<anychart.core.ui.Legend.LegendItemProvider>}
@@ -914,8 +919,8 @@ anychart.charts.TreeMap.prototype.isMissing = function(value) {
  */
 anychart.charts.TreeMap.prototype.calculateNodeSize = function(node, depth) {
   node
-    .meta('index', this.linearIndex_++)
-    .meta('depth', depth);
+      .meta('index', this.linearIndex_++)
+      .meta('depth', depth);
   this.linearNodes_.push(node);
   var size;
   var value;
@@ -1744,13 +1749,28 @@ anychart.charts.TreeMap.prototype.getBoundsForContent_ = function(bounds, header
 /**
  * Creates format provider for point.
  * @param {boolean=} opt_force Force creating of provider.
- * @return {anychart.core.utils.TreeMapPointContextProvider} Provider.
+ * @return {anychart.format.Context} Provider.
  */
 anychart.charts.TreeMap.prototype.createFormatProvider = function(opt_force) {
   if (!this.pointProvider_ || opt_force)
-    this.pointProvider_ = new anychart.core.utils.TreeMapPointContextProvider(this);
-  this.pointProvider_.applyReferenceValues();
-  return this.pointProvider_;
+    this.pointProvider_ = new anychart.format.Context();
+
+  var iterator = this.getIterator();
+  var dataItem = iterator.getItem();
+
+  var values = {
+    'chart': {value: this, type: anychart.enums.TokenType.UNKNOWN},
+    'index': {value: iterator.getIndex(), type: anychart.enums.TokenType.NUMBER},
+    'name': {value: dataItem.get('name'), type: anychart.enums.TokenType.STRING},
+    'value': {value: dataItem.meta('value'), type: anychart.enums.TokenType.NUMBER},
+    'size': {value: dataItem.meta('size'), type: anychart.enums.TokenType.NUMBER}
+  };
+
+  this.pointProvider_
+      .dataSource(dataItem)
+      .statisticsSources([this]);
+
+  return /** @type {anychart.format.Context} */ (this.pointProvider_.propagate(values));
 };
 
 
@@ -1816,25 +1836,25 @@ anychart.charts.TreeMap.prototype.getLabelsAnchor = function(pointState, isHeade
   var labelHoverAnchor = hoverPointLabel && hoverPointLabel['anchor'] ? hoverPointLabel['anchor'] : null;
   var labelSelectAnchor = selectPointLabel && selectPointLabel['anchor'] ? selectPointLabel['anchor'] : null;
 
-  return hovered || selected ?
+  return /** @type {anychart.enums.Anchor} */(hovered || selected ?
       hovered ?
           labelHoverAnchor ?
               labelHoverAnchor :
-              hoverFactory.anchor() ?
-                  hoverFactory.anchor() :
+              hoverFactory.getOption('anchor') ?
+                  hoverFactory.getOption('anchor') :
                   labelAnchor ?
                       labelAnchor :
-                      factory.anchor() :
+                      factory.getOption('anchor') :
           labelSelectAnchor ?
               labelSelectAnchor :
-              selectFactory.anchor() ?
-                  selectFactory.anchor() :
+              selectFactory.getOption('anchor') ?
+                  selectFactory.getOption('anchor') :
                   labelAnchor ?
                       labelAnchor :
-                      factory.anchor() :
+                      factory.getOption('anchor') :
       labelAnchor ?
           labelAnchor :
-          factory.anchor();
+          factory.getOption('anchor'));
 };
 
 
@@ -2007,11 +2027,11 @@ anychart.charts.TreeMap.prototype.configureLabel = function(pointState, isHeader
 
   var label = factory.getLabel(index);
 
-  var labelsFactory;
+  var labelsFactory, stateFactory = null;
   if (selected) {
-    labelsFactory = /** @type {anychart.core.ui.LabelsFactory} */(selectFactory);
+    stateFactory = labelsFactory = /** @type {anychart.core.ui.LabelsFactory} */(selectFactory);
   } else if (hovered) {
-    labelsFactory = /** @type {anychart.core.ui.LabelsFactory} */(hoverFactory);
+    stateFactory = labelsFactory = /** @type {anychart.core.ui.LabelsFactory} */(hoverFactory);
   } else {
     labelsFactory = /** @type {anychart.core.ui.LabelsFactory} */(factory);
   }
@@ -2060,7 +2080,7 @@ anychart.charts.TreeMap.prototype.configureLabel = function(pointState, isHeader
     }
 
     label.resetSettings();
-    label.currentLabelsFactory(/** @type {anychart.core.ui.LabelsFactory} */ (labelsFactory));
+    label.currentLabelsFactory(/** @type {anychart.core.ui.LabelsFactory} */ (stateFactory));
     label.setSettings(/** @type {Object} */(pointLabel), /** @type {Object} */(hovered ? hoverPointLabel : selectPointLabel));
     return label;
   } else if (label) {
@@ -2114,12 +2134,7 @@ anychart.charts.TreeMap.prototype.drawLabel_ = function(pointState) {
     labelsFactory = /** @type {anychart.core.ui.LabelsFactory} */(factory);
   }
 
-  var adjustFontSize = labelsFactory.adjustFontSize();
-  var needAdjustFontSize = (adjustFontSize['width'] || adjustFontSize['height']) && labelsFactory.enabled();
-
   var displayMode = isHeader ? this.headersDisplayMode() : this.labelsDisplayMode();
-
-  var thickness;
   var fontSize;
   var label = /** @type {anychart.core.ui.LabelsFactory.Label} */ (this.configureLabel(pointState, isHeader));
   if (label) {
@@ -2134,7 +2149,7 @@ anychart.charts.TreeMap.prototype.drawLabel_ = function(pointState) {
           mergedSettings['adjustByWidth'],
           mergedSettings['adjustByHeight']));
     }
-    if (needAdjustFontSize) {
+    if (needAdjust) {
       factory.setAdjustFontSize(/** @type {number} */(fontSize));
     } else {
       factory.setAdjustFontSize(null);
@@ -2143,7 +2158,7 @@ anychart.charts.TreeMap.prototype.drawLabel_ = function(pointState) {
     mergedSettings['width'] = null;
     mergedSettings['height'] = null;
     if (mergedSettings['adjustByWidth'] || mergedSettings['adjustByHeight'])
-      mergedSettings['fontSize'] = label.parentLabelsFactory().adjustFontSizeValue;
+      mergedSettings['fontSize'] = label.parentLabelsFactory().autoSettings['fontSize'];
     var measuredBounds = factory.measure(label.formatProvider(), label.positionProvider(), mergedSettings);
     //measuredBounds = mergedSettings['padding'].widenBounds(measuredBounds);
 
@@ -2153,29 +2168,33 @@ anychart.charts.TreeMap.prototype.drawLabel_ = function(pointState) {
             bounds.getBottom() >= measuredBounds.getBottom());
 
     var dropText = false;
-    var textFormatter;
+    var format;
     if (outOfCellBounds) {
       if (displayMode == anychart.enums.LabelsDisplayMode.DROP) {
         if (isHeader) {
           dropText = true;
-          textFormatter = labelsFactory.getTextFormatterInternal();
-          labelsFactory.textFormatter(anychart.charts.TreeMap.EMPTY_TEXT_FORMATTER);
-          label.width(bounds.width).height(bounds.height);
+          format = labelsFactory.getFormat();
+          labelsFactory['format'](anychart.charts.TreeMap.EMPTY_TEXT_FORMATTER);
+          label['width'](bounds.width);
+          label['height'](bounds.height);
         } else
           factory.clear(index);
       } else {
         if (label.width() != measuredBounds.width || label.height() != measuredBounds.height) {
           label.dropMergedSettings();
-          label.width(bounds.width).height(bounds.height);
+          label['width'](bounds.width);
+          label['height'](bounds.height);
         }
       }
-    } else
-      label.width(bounds.width).height(bounds.height);
+    } else {
+      label['width'](bounds.width);
+      label['height'](bounds.height);
+    }
 
     if (displayMode != anychart.enums.LabelsDisplayMode.ALWAYS_SHOW) {
-      label.clip(bounds);
+      label['clip'](bounds);
     } else {
-      label.clip(null);
+      label['clip'](null);
     }
 
     if (isHeader) {
@@ -2186,15 +2205,15 @@ anychart.charts.TreeMap.prototype.drawLabel_ = function(pointState) {
         emptyText = !labelsFactory.enabled();
       }
       if (emptyText) {
-        textFormatter = labelsFactory.getTextFormatterInternal();
-        labelsFactory.textFormatter(anychart.charts.TreeMap.EMPTY_TEXT_FORMATTER);
+        format = labelsFactory.getFormat();
+        labelsFactory['format'](anychart.charts.TreeMap.EMPTY_TEXT_FORMATTER);
         label.enabled(true);
       }
     }
 
     label.draw();
     if (dropText || emptyText) {
-      labelsFactory.setTextFormatterInternal(/** @type {?Function} */ (textFormatter));
+      labelsFactory.setFormat(/** @type {?Function} */ (format));
     }
   }
 };
@@ -2397,8 +2416,7 @@ anychart.charts.TreeMap.prototype.normalizeColor = function(node, color, var_arg
         args.push(arguments[i]);
       sourceColor = this.normalizeColor.apply(this, args);
     } else {
-      var theme = anychart.getFullTheme();
-      sourceColor = theme['palette']['items'][0];
+      sourceColor = anychart.getFullTheme('palette.items.0');
     }
     var scope = {
       'value': node.meta(anychart.charts.TreeMap.DataFields.VALUE),
@@ -2423,7 +2441,7 @@ anychart.charts.TreeMap.prototype.normalizeHatchFill = function(hatchFill) {
   var index = this.getIterator().getIndex();
   var autoHatch;
   if (goog.isFunction(hatchFill)) {
-    autoHatch = anychart.getFullTheme()['hatchFillPalette']['items'][0];
+    autoHatch = /** @type {string} */(anychart.getFullTheme('hatchFillPalette.items.0'));
     var sourceHatchFill = acgraph.vector.normalizeHatchFill(autoHatch);
     var scope = {
       'index': index,
@@ -2431,7 +2449,7 @@ anychart.charts.TreeMap.prototype.normalizeHatchFill = function(hatchFill) {
     };
     fill = acgraph.vector.normalizeHatchFill(hatchFill.call(scope));
   } else if (goog.isBoolean(hatchFill)) {
-    autoHatch = anychart.getFullTheme()['hatchFillPalette']['items'][0];
+    autoHatch = /** @type {string} */(anychart.getFullTheme('hatchFillPalette.items.0'));
     fill = hatchFill ? acgraph.vector.normalizeHatchFill(autoHatch) : null;
   } else
     fill = acgraph.vector.normalizeHatchFill(hatchFill);
@@ -2657,7 +2675,7 @@ anychart.charts.TreeMap.prototype.drawContent = function(bounds) {
     if (this.dataLayer_)
       this.dataLayer_.clip(this.dataBounds_);
     if (this.headers_)
-      this.headers_.clip(this.dataBounds_);
+      this.headers_['clip'](this.dataBounds_);
   }
 
   if (this.hasInvalidationState(anychart.ConsistencyState.TREEMAP_COLOR_RANGE)) {
@@ -2684,7 +2702,7 @@ anychart.charts.TreeMap.prototype.drawContent = function(bounds) {
       this.dataLayer_.parent(this.rootElement);
 
       this.headers().container(this.rootElement).zIndex(41);
-      this.headers().clip(this.dataBounds_);
+      this.headers()['clip'](this.dataBounds_);
       this.labels().container(this.rootElement).zIndex(40);
       this.markers().container(this.rootElement).zIndex(40);
     }
@@ -2840,9 +2858,9 @@ anychart.charts.TreeMap.prototype.setupByJSON = function(config, opt_default) {
   this.hoverHeaders().setup(config['hoverHeaders']);
   this.headersDisplayMode(config['headersDisplayMode']);
 
-  this.labels().setup(config['labels']);
-  this.hoverLabels().setup(config['hoverLabels']);
-  this.selectLabels().setup(config['selectLabels']);
+  this.labels().setupByVal(config['labels'], opt_default);
+  this.hoverLabels().setupByVal(config['hoverLabels'], opt_default);
+  this.selectLabels().setupByVal(config['selectLabels'], opt_default);
   this.labelsDisplayMode(config['labelsDisplayMode']);
 
   this.markers().setup(config['markers']);
@@ -3017,47 +3035,50 @@ anychart.charts.TreeMap.prototype.disposeInternal = function() {
 
 
 //exports
-anychart.charts.TreeMap.prototype['getType'] = anychart.charts.TreeMap.prototype.getType;
+(function() {
+  var proto = anychart.charts.TreeMap.prototype;
+  proto['getType'] = proto.getType;
 
-anychart.charts.TreeMap.prototype['data'] = anychart.charts.TreeMap.prototype.data;
-anychart.charts.TreeMap.prototype['maxDepth'] = anychart.charts.TreeMap.prototype.maxDepth;
-anychart.charts.TreeMap.prototype['hintDepth'] = anychart.charts.TreeMap.prototype.hintDepth;
-anychart.charts.TreeMap.prototype['hintOpacity'] = anychart.charts.TreeMap.prototype.hintOpacity;
-anychart.charts.TreeMap.prototype['sort'] = anychart.charts.TreeMap.prototype.sort;
+  proto['data'] = proto.data;
+  proto['maxDepth'] = proto.maxDepth;
+  proto['hintDepth'] = proto.hintDepth;
+  proto['hintOpacity'] = proto.hintOpacity;
+  proto['sort'] = proto.sort;
 
-anychart.charts.TreeMap.prototype['selectionMode'] = anychart.charts.TreeMap.prototype.selectionMode;
-anychart.charts.TreeMap.prototype['hoverMode'] = anychart.charts.TreeMap.prototype.hoverMode;
+  proto['selectionMode'] = proto.selectionMode;
+  proto['hoverMode'] = proto.hoverMode;
 
-anychart.charts.TreeMap.prototype['headers'] = anychart.charts.TreeMap.prototype.headers;
-anychart.charts.TreeMap.prototype['hoverHeaders'] = anychart.charts.TreeMap.prototype.hoverHeaders;
-anychart.charts.TreeMap.prototype['headersDisplayMode'] = anychart.charts.TreeMap.prototype.headersDisplayMode;
-anychart.charts.TreeMap.prototype['maxHeadersHeight'] = anychart.charts.TreeMap.prototype.maxHeadersHeight;
+  proto['headers'] = proto.headers;
+  proto['hoverHeaders'] = proto.hoverHeaders;
+  proto['headersDisplayMode'] = proto.headersDisplayMode;
+  proto['maxHeadersHeight'] = proto.maxHeadersHeight;
 
-anychart.charts.TreeMap.prototype['labels'] = anychart.charts.TreeMap.prototype.labels;
-anychart.charts.TreeMap.prototype['hoverLabels'] = anychart.charts.TreeMap.prototype.hoverLabels;
-anychart.charts.TreeMap.prototype['selectLabels'] = anychart.charts.TreeMap.prototype.selectLabels;
+  proto['labels'] = proto.labels;
+  proto['hoverLabels'] = proto.hoverLabels;
+  proto['selectLabels'] = proto.selectLabels;
 
-anychart.charts.TreeMap.prototype['markers'] = anychart.charts.TreeMap.prototype.markers;
-anychart.charts.TreeMap.prototype['hoverMarkers'] = anychart.charts.TreeMap.prototype.hoverMarkers;
-anychart.charts.TreeMap.prototype['selectMarkers'] = anychart.charts.TreeMap.prototype.selectMarkers;
+  proto['markers'] = proto.markers;
+  proto['hoverMarkers'] = proto.hoverMarkers;
+  proto['selectMarkers'] = proto.selectMarkers;
 
-anychart.charts.TreeMap.prototype['colorScale'] = anychart.charts.TreeMap.prototype.colorScale;
-anychart.charts.TreeMap.prototype['colorRange'] = anychart.charts.TreeMap.prototype.colorRange;
+  proto['colorScale'] = proto.colorScale;
+  proto['colorRange'] = proto.colorRange;
 
-anychart.charts.TreeMap.prototype['fill'] = anychart.charts.TreeMap.prototype.fill;
-anychart.charts.TreeMap.prototype['hoverFill'] = anychart.charts.TreeMap.prototype.hoverFill;
-anychart.charts.TreeMap.prototype['selectFill'] = anychart.charts.TreeMap.prototype.selectFill;
+  proto['fill'] = proto.fill;
+  proto['hoverFill'] = proto.hoverFill;
+  proto['selectFill'] = proto.selectFill;
 
-anychart.charts.TreeMap.prototype['stroke'] = anychart.charts.TreeMap.prototype.stroke;
-anychart.charts.TreeMap.prototype['hoverStroke'] = anychart.charts.TreeMap.prototype.hoverStroke;
-anychart.charts.TreeMap.prototype['selectStroke'] = anychart.charts.TreeMap.prototype.selectStroke;
+  proto['stroke'] = proto.stroke;
+  proto['hoverStroke'] = proto.hoverStroke;
+  proto['selectStroke'] = proto.selectStroke;
 
-anychart.charts.TreeMap.prototype['hatchFill'] = anychart.charts.TreeMap.prototype.hatchFill;
-anychart.charts.TreeMap.prototype['hoverHatchFill'] = anychart.charts.TreeMap.prototype.hoverHatchFill;
-anychart.charts.TreeMap.prototype['selectHatchFill'] = anychart.charts.TreeMap.prototype.selectHatchFill;
+  proto['hatchFill'] = proto.hatchFill;
+  proto['hoverHatchFill'] = proto.hoverHatchFill;
+  proto['selectHatchFill'] = proto.selectHatchFill;
 
-anychart.charts.TreeMap.prototype['drillTo'] = anychart.charts.TreeMap.prototype.drillTo;
-anychart.charts.TreeMap.prototype['drillUp'] = anychart.charts.TreeMap.prototype.drillUp;
-anychart.charts.TreeMap.prototype['getDrilldownPath'] = anychart.charts.TreeMap.prototype.getDrilldownPath;
+  proto['drillTo'] = proto.drillTo;
+  proto['drillUp'] = proto.drillUp;
+  proto['getDrilldownPath'] = proto.getDrilldownPath;
 
-anychart.charts.TreeMap.prototype['toCsv'] = anychart.charts.TreeMap.prototype.toCsv;
+  proto['toCsv'] = proto.toCsv;
+})();

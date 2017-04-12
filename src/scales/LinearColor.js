@@ -12,7 +12,7 @@ goog.require('anychart.scales.ScatterTicks');
  * @extends {anychart.scales.ScatterBase}
  */
 anychart.scales.LinearColor = function() {
-  goog.base(this);
+  anychart.scales.LinearColor.base(this, 'constructor');
 
   /**
    * @type {number}
@@ -33,8 +33,6 @@ anychart.scales.LinearColor = function() {
    * @protected
    */
   this.logBaseVal = 10;
-
-  this.setupByJSON(anychart.getFullTheme()['defaultLinearColorScale']);
 };
 goog.inherits(anychart.scales.LinearColor, anychart.scales.ScatterBase);
 
@@ -276,7 +274,7 @@ anychart.scales.LinearColor.prototype.minorTicks = function(opt_value) {
 anychart.scales.LinearColor.prototype.calculate = function() {
   if (this.consistent) return;
 
-  goog.base(this, 'calculate');
+  anychart.scales.LinearColor.base(this, 'calculate');
 
   var setupResult = this.ticks().setupAsMajor(this.min, this.max,
       this.minimumModeAuto && this.min != this.softMin,
@@ -329,10 +327,12 @@ anychart.scales.LinearColor.prototype.createTicks = function() {
  * @param {...(string|acgraph.vector.SolidFill|acgraph.vector.LinearGradientFill |
       acgraph.vector.RadialGradientFill|Array.<string|acgraph.vector.SolidFill|acgraph.vector.LinearGradientFill |
       acgraph.vector.RadialGradientFill>)} var_args Colors set.
- * @return {anychart.scales.LinearColor}
+ * @return {!anychart.scales.LinearColor}
  */
 anychart.scales.linearColor = function(var_args) {
   var scale = new anychart.scales.LinearColor();
+  scale.setupByJSON(/** @type {!Object} */(anychart.getFullTheme('defaultScaleSettings.linear')));
+  scale.setupByJSON(/** @type {!Object} */(anychart.getFullTheme('defaultLinearColorScale')));
   scale.colors.apply(scale, arguments);
   return scale;
 };
@@ -340,7 +340,7 @@ anychart.scales.linearColor = function(var_args) {
 
 /** @inheritDoc */
 anychart.scales.LinearColor.prototype.serialize = function() {
-  var json = goog.base(this, 'serialize');
+  var json = anychart.scales.LinearColor.base(this, 'serialize');
   json['ticks'] = this.ticks().serialize();
   json['minorTicks'] = this.minorTicks().serialize();
   json['colors'] = goog.array.map(/** @type {Array.<Object>} */(this.colors()), function(elem) {
@@ -353,7 +353,7 @@ anychart.scales.LinearColor.prototype.serialize = function() {
 
 /** @inheritDoc */
 anychart.scales.LinearColor.prototype.setupByJSON = function(config, opt_default) {
-  goog.base(this, 'setupByJSON', config, opt_default);
+  anychart.scales.LinearColor.base(this, 'setupByJSON', config, opt_default);
   this.ticks(config['ticks']);
   this.minorTicks(config['minorTicks']);
   this.colors(config['colors']);
@@ -361,11 +361,14 @@ anychart.scales.LinearColor.prototype.setupByJSON = function(config, opt_default
 
 
 //exports
-goog.exportSymbol('anychart.scales.linearColor', anychart.scales.linearColor);
-anychart.scales.LinearColor.prototype['colors'] = anychart.scales.LinearColor.prototype.colors;
-anychart.scales.LinearColor.prototype['valueToColor'] = anychart.scales.LinearColor.prototype.valueToColor;
-anychart.scales.LinearColor.prototype['colorToValue'] = anychart.scales.LinearColor.prototype.colorToValue;
-anychart.scales.LinearColor.prototype['ticks'] = anychart.scales.LinearColor.prototype.ticks;
-anychart.scales.LinearColor.prototype['minorTicks'] = anychart.scales.LinearColor.prototype.minorTicks;
+(function() {
+  var proto = anychart.scales.LinearColor.prototype;
+  goog.exportSymbol('anychart.scales.linearColor', anychart.scales.linearColor);
+  proto['colors'] = proto.colors;
+  proto['valueToColor'] = proto.valueToColor;
+  proto['colorToValue'] = proto.colorToValue;
+  proto['ticks'] = proto.ticks;
+  proto['minorTicks'] = proto.minorTicks;
+})();
 
 

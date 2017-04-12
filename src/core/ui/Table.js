@@ -29,7 +29,7 @@ goog.require('anychart.utils');
  * @implements {anychart.core.IStandaloneBackend}
  */
 anychart.core.ui.Table = function(opt_rowsCount, opt_colsCount) {
-  goog.base(this);
+  anychart.core.ui.Table.base(this, 'constructor');
 
   /**
    * Cells array.
@@ -1396,10 +1396,10 @@ anychart.core.ui.Table.prototype.checkContent_ = function() {
           if (isNaN(cell.overlapper)) {
             bounds = this.getCellBounds(row, col,
                 /** @type {number} */(cell.rowSpan()), /** @type {number} */(cell.colSpan()), bounds);
-            padding[anychart.opt.TOP](this.getPaddingProp_('topPadding', cell, rowObj, colObj, this));
-            padding[anychart.opt.RIGHT](this.getPaddingProp_('rightPadding', cell, rowObj, colObj, this));
-            padding[anychart.opt.BOTTOM](this.getPaddingProp_('bottomPadding', cell, rowObj, colObj, this));
-            padding[anychart.opt.LEFT](this.getPaddingProp_('leftPadding', cell, rowObj, colObj, this));
+            padding['top'](this.getPaddingProp_('topPadding', cell, rowObj, colObj, this));
+            padding['right'](this.getPaddingProp_('rightPadding', cell, rowObj, colObj, this));
+            padding['bottom'](this.getPaddingProp_('bottomPadding', cell, rowObj, colObj, this));
+            padding['left'](this.getPaddingProp_('leftPadding', cell, rowObj, colObj, this));
             bounds = padding.tightenBounds(bounds);
             content.container(this.contentLayer_);
             if (content instanceof anychart.core.ui.LabelsFactory.Label) {
@@ -1408,9 +1408,9 @@ anychart.core.ui.Table.prototype.checkContent_ = function() {
               // if the label is not created by table label factory than we do not modify it's settings - only position
               // it properly due to cell bounds.
               if (label.parentLabelsFactory() == this.labelsFactory_) {
-                label.anchor(anychart.enums.Anchor.LEFT_TOP);
-                label.width(bounds.width);
-                label.height(bounds.height);
+                label['anchor'](anychart.enums.Anchor.LEFT_TOP);
+                label['width'](bounds.width);
+                label['height'](bounds.height);
                 // we apply custom label settings in the next order: table < col < row < cell
                 // keeping in mind, that table-wide settings are already applied to the factory
                 // also we use direct settingsObj reference to avoid unnecessary objects creation
@@ -1423,9 +1423,9 @@ anychart.core.ui.Table.prototype.checkContent_ = function() {
                 label.resumeSignalsDispatching(false);
                 continue; // we don't want to listen labels of table labelsFactory_.
               } else {
-                position = /** @type {string} */(label.position() ||
-                    (label.currentLabelsFactory() && label.currentLabelsFactory().position()) ||
-                    (label.parentLabelsFactory() && label.parentLabelsFactory().position()));
+                position = /** @type {string} */(label.getOption('position') ||
+                    (label.currentLabelsFactory() && label.currentLabelsFactory().getOption('position')) ||
+                    (label.parentLabelsFactory() && label.parentLabelsFactory().getOption('position')));
                 positionProvider = {'value': anychart.utils.getCoordinateByAnchor(bounds, position)};
                 label.positionProvider(positionProvider);
                 label.draw();
@@ -1809,8 +1809,6 @@ anychart.core.ui.Table.prototype.resetFillPaths_ = function() {
  * @private
  */
 anychart.core.ui.Table.prototype.getBorderPath_ = function(stroke) {
-  if (goog.isObject(stroke) && ('keys' in stroke) && !goog.isObject(stroke['mode']))
-    stroke['mode'] = this.getPixelBounds();
   var hash = anychart.utils.hash(stroke);
   if (hash in this.borderPaths_)
     return this.borderPaths_[hash];
@@ -1819,6 +1817,10 @@ anychart.core.ui.Table.prototype.getBorderPath_ = function(stroke) {
         /** @type {!acgraph.vector.Path} */(this.pathsPool_.pop()) :
         acgraph.path();
     this.layer_.addChild(path);
+    if (goog.isObject(stroke) && ('keys' in stroke) && !goog.isObject(stroke['mode'])) {
+      stroke = /** @type {acgraph.vector.Stroke} */(anychart.utils.recursiveClone(stroke));
+      stroke['mode'] = this.getPixelBounds();
+    }
     path.stroke(stroke);
     path.fill(null);
     this.borderPaths_[hash] = path;
@@ -2267,9 +2269,9 @@ anychart.core.ui.Table.prototype.allocCell_ = function(row, col) {
 anychart.core.ui.Table.prototype.getLabelsFactory_ = function() {
   if (!this.labelsFactory_) {
     this.labelsFactory_ = new anychart.core.ui.LabelsFactory();
-    this.labelsFactory_.setup(anychart.getFullTheme()['standalones']['labelsFactory']);
-    this.labelsFactory_.anchor(anychart.enums.Anchor.CENTER);
-    this.labelsFactory_.position(anychart.enums.Position.CENTER);
+    this.labelsFactory_.setup(anychart.getFullTheme('standalones.labelsFactory'));
+    this.labelsFactory_['anchor'](anychart.enums.Anchor.CENTER);
+    this.labelsFactory_['position'](anychart.enums.Position.CENTER);
     // we do not register disposable here, cause we dispose it manually in disposeInternal
   }
   return this.labelsFactory_;
@@ -2316,70 +2318,73 @@ anychart.core.ui.Table.prototype.disposeInternal = function() {
   goog.dispose(this.layer_);
   goog.dispose(this.contentLayer_);
   delete this.settingsObj;
-  goog.base(this, 'disposeInternal');
+  anychart.core.ui.Table.base(this, 'disposeInternal');
 };
 
 
 //exports
-anychart.core.ui.Table.prototype['rowsCount'] = anychart.core.ui.Table.prototype.rowsCount;//doc|ex
-anychart.core.ui.Table.prototype['colsCount'] = anychart.core.ui.Table.prototype.colsCount;//doc|ex
+(function() {
+  var proto = anychart.core.ui.Table.prototype;
+  proto['rowsCount'] = proto.rowsCount;//doc|ex
+  proto['colsCount'] = proto.colsCount;//doc|ex
 
-anychart.core.ui.Table.prototype['getCell'] = anychart.core.ui.Table.prototype.getCell;//doc|ex
-anychart.core.ui.Table.prototype['getRow'] = anychart.core.ui.Table.prototype.getRow;
-anychart.core.ui.Table.prototype['getCol'] = anychart.core.ui.Table.prototype.getCol;
+  proto['getCell'] = proto.getCell;//doc|ex
+  proto['getRow'] = proto.getRow;
+  proto['getCol'] = proto.getCol;
 
-anychart.core.ui.Table.prototype['rowsHeight'] = anychart.core.ui.Table.prototype.rowsHeight;
-anychart.core.ui.Table.prototype['rowsMinHeight'] = anychart.core.ui.Table.prototype.rowsMinHeight;
-anychart.core.ui.Table.prototype['rowsMaxHeight'] = anychart.core.ui.Table.prototype.rowsMaxHeight;
-anychart.core.ui.Table.prototype['colsWidth'] = anychart.core.ui.Table.prototype.colsWidth;
-anychart.core.ui.Table.prototype['colsMinWidth'] = anychart.core.ui.Table.prototype.colsMinWidth;
-anychart.core.ui.Table.prototype['colsMaxWidth'] = anychart.core.ui.Table.prototype.colsMaxWidth;
+  proto['rowsHeight'] = proto.rowsHeight;
+  proto['rowsMinHeight'] = proto.rowsMinHeight;
+  proto['rowsMaxHeight'] = proto.rowsMaxHeight;
+  proto['colsWidth'] = proto.colsWidth;
+  proto['colsMinWidth'] = proto.colsMinWidth;
+  proto['colsMaxWidth'] = proto.colsMaxWidth;
 
-anychart.core.ui.Table.prototype['border'] = anychart.core.ui.Table.prototype.border;
+  proto['border'] = proto.border;
 
-anychart.core.ui.Table.prototype['contents'] = anychart.core.ui.Table.prototype.contents;//doc|ex
+  proto['contents'] = proto.contents;//doc|ex
 
-anychart.core.ui.Table.prototype['draw'] = anychart.core.ui.Table.prototype.draw;//doc
+  proto['draw'] = proto.draw;//doc
 
-anychart.core.ui.Table.prototype['fontSize'] = anychart.core.ui.Table.prototype.fontSize;
-anychart.core.ui.Table.prototype['fontFamily'] = anychart.core.ui.Table.prototype.fontFamily;
-anychart.core.ui.Table.prototype['fontColor'] = anychart.core.ui.Table.prototype.fontColor;
-anychart.core.ui.Table.prototype['fontOpacity'] = anychart.core.ui.Table.prototype.fontOpacity;
-anychart.core.ui.Table.prototype['fontDecoration'] = anychart.core.ui.Table.prototype.fontDecoration;
-anychart.core.ui.Table.prototype['fontStyle'] = anychart.core.ui.Table.prototype.fontStyle;
-anychart.core.ui.Table.prototype['fontVariant'] = anychart.core.ui.Table.prototype.fontVariant;
-anychart.core.ui.Table.prototype['fontWeight'] = anychart.core.ui.Table.prototype.fontWeight;
-anychart.core.ui.Table.prototype['letterSpacing'] = anychart.core.ui.Table.prototype.letterSpacing;
-anychart.core.ui.Table.prototype['textDirection'] = anychart.core.ui.Table.prototype.textDirection;
-anychart.core.ui.Table.prototype['lineHeight'] = anychart.core.ui.Table.prototype.lineHeight;
-anychart.core.ui.Table.prototype['textIndent'] = anychart.core.ui.Table.prototype.textIndent;
-anychart.core.ui.Table.prototype['vAlign'] = anychart.core.ui.Table.prototype.vAlign;
-anychart.core.ui.Table.prototype['hAlign'] = anychart.core.ui.Table.prototype.hAlign;
-anychart.core.ui.Table.prototype['textWrap'] = anychart.core.ui.Table.prototype.textWrap;
-anychart.core.ui.Table.prototype['textOverflow'] = anychart.core.ui.Table.prototype.textOverflow;
-anychart.core.ui.Table.prototype['selectable'] = anychart.core.ui.Table.prototype.selectable;
-anychart.core.ui.Table.prototype['disablePointerEvents'] = anychart.core.ui.Table.prototype.disablePointerEvents;
-anychart.core.ui.Table.prototype['useHtml'] = anychart.core.ui.Table.prototype.useHtml;
+  proto['fontSize'] = proto.fontSize;
+  proto['fontFamily'] = proto.fontFamily;
+  proto['fontColor'] = proto.fontColor;
+  proto['fontOpacity'] = proto.fontOpacity;
+  proto['fontDecoration'] = proto.fontDecoration;
+  proto['fontStyle'] = proto.fontStyle;
+  proto['fontVariant'] = proto.fontVariant;
+  proto['fontWeight'] = proto.fontWeight;
+  proto['letterSpacing'] = proto.letterSpacing;
+  proto['textDirection'] = proto.textDirection;
+  proto['lineHeight'] = proto.lineHeight;
+  proto['textIndent'] = proto.textIndent;
+  proto['vAlign'] = proto.vAlign;
+  proto['hAlign'] = proto.hAlign;
+  proto['textWrap'] = proto.textWrap;
+  proto['textOverflow'] = proto.textOverflow;
+  proto['selectable'] = proto.selectable;
+  proto['disablePointerEvents'] = proto.disablePointerEvents;
+  proto['useHtml'] = proto.useHtml;
 
-anychart.core.ui.Table.prototype['cellFill'] = anychart.core.ui.Table.prototype.cellFill;//doc|ex
+  proto['cellFill'] = proto.cellFill;//doc|ex
 
-anychart.core.ui.Table.prototype['rowEvenFill'] = anychart.core.ui.Table.prototype.rowEvenFill;
-anychart.core.ui.Table.prototype['rowOddFill'] = anychart.core.ui.Table.prototype.rowOddFill;
+  proto['rowEvenFill'] = proto.rowEvenFill;
+  proto['rowOddFill'] = proto.rowOddFill;
 
-anychart.core.ui.Table.prototype['cellBorder'] = anychart.core.ui.Table.prototype.cellBorder;
+  proto['cellBorder'] = proto.cellBorder;
 
-anychart.core.ui.Table.prototype['cellPadding'] = anychart.core.ui.Table.prototype.cellPadding;
+  proto['cellPadding'] = proto.cellPadding;
 
-anychart.core.ui.Table.prototype['saveAsPng'] = anychart.core.ui.Table.prototype.saveAsPng;//inherited
-anychart.core.ui.Table.prototype['saveAsJpg'] = anychart.core.ui.Table.prototype.saveAsJpg;//inherited
-anychart.core.ui.Table.prototype['saveAsPdf'] = anychart.core.ui.Table.prototype.saveAsPdf;//inherited
-anychart.core.ui.Table.prototype['saveAsSvg'] = anychart.core.ui.Table.prototype.saveAsSvg;//inherited
-anychart.core.ui.Table.prototype['shareAsPng'] = anychart.core.ui.Table.prototype.shareAsPng;//inherited
-anychart.core.ui.Table.prototype['shareAsJpg'] = anychart.core.ui.Table.prototype.shareAsJpg;//inherited
-anychart.core.ui.Table.prototype['shareAsPdf'] = anychart.core.ui.Table.prototype.shareAsPdf;//inherited
-anychart.core.ui.Table.prototype['shareAsSvg'] = anychart.core.ui.Table.prototype.shareAsSvg;//inherited
-anychart.core.ui.Table.prototype['getPngBase64String'] = anychart.core.ui.Table.prototype.getPngBase64String;//inherited
-anychart.core.ui.Table.prototype['getJpgBase64String'] = anychart.core.ui.Table.prototype.getJpgBase64String;//inherited
-anychart.core.ui.Table.prototype['getSvgBase64String'] = anychart.core.ui.Table.prototype.getSvgBase64String;//inherited
-anychart.core.ui.Table.prototype['getPdfBase64String'] = anychart.core.ui.Table.prototype.getPdfBase64String;//inherited
-anychart.core.ui.Table.prototype['toSvg'] = anychart.core.ui.Table.prototype.toSvg;//inherited
+  proto['saveAsPng'] = proto.saveAsPng;//inherited
+  proto['saveAsJpg'] = proto.saveAsJpg;//inherited
+  proto['saveAsPdf'] = proto.saveAsPdf;//inherited
+  proto['saveAsSvg'] = proto.saveAsSvg;//inherited
+  proto['shareAsPng'] = proto.shareAsPng;//inherited
+  proto['shareAsJpg'] = proto.shareAsJpg;//inherited
+  proto['shareAsPdf'] = proto.shareAsPdf;//inherited
+  proto['shareAsSvg'] = proto.shareAsSvg;//inherited
+  proto['getPngBase64String'] = proto.getPngBase64String;//inherited
+  proto['getJpgBase64String'] = proto.getJpgBase64String;//inherited
+  proto['getSvgBase64String'] = proto.getSvgBase64String;//inherited
+  proto['getPdfBase64String'] = proto.getPdfBase64String;//inherited
+  proto['toSvg'] = proto.toSvg;//inherited
+})();

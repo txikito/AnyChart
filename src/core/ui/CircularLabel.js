@@ -1,8 +1,9 @@
 goog.provide('anychart.core.ui.CircularLabel');
-goog.require('acgraph.math.Coordinate');
+goog.require('acgraph.math');
 goog.require('anychart.core.ui.Label');
 goog.require('anychart.math.Rect');
 goog.require('anychart.utils');
+goog.require('goog.math.Coordinate');
 
 
 
@@ -12,7 +13,7 @@ goog.require('anychart.utils');
  * @extends {anychart.core.ui.Label}
  */
 anychart.core.ui.CircularLabel = function() {
-  goog.base(this);
+  anychart.core.ui.CircularLabel.base(this, 'constructor');
 
   /**
    * X coord of circular center.
@@ -54,7 +55,7 @@ goog.inherits(anychart.core.ui.CircularLabel, anychart.core.ui.Label);
 
 /**
  * Pix X coord of center.
- * @param {(number|null)=} opt_value Pixel value of radial center.
+ * @param {?(number)=} opt_value Pixel value of radial center.
  * @return {!anychart.core.ui.Label|number} Pix X coord of center or itself for chaining.
  */
 anychart.core.ui.CircularLabel.prototype.cx = function(opt_value) {
@@ -74,7 +75,7 @@ anychart.core.ui.CircularLabel.prototype.cx = function(opt_value) {
 
 /**
  * Pix Y coord of center.
- * @param {(number|null)=} opt_value Pixel value of radial center.
+ * @param {?(number)=} opt_value Pixel value of radial center.
  * @return {!anychart.core.ui.Label|number} Pix Y coord of center or itself for chaining.
  */
 anychart.core.ui.CircularLabel.prototype.cy = function(opt_value) {
@@ -94,7 +95,7 @@ anychart.core.ui.CircularLabel.prototype.cy = function(opt_value) {
 
 /**
  * Parent radius.
- * @param {(number|null)=} opt_value Parent radius.
+ * @param {?(number)=} opt_value Parent radius.
  * @return {!anychart.core.ui.Label|number} Parent radius or itself for chaining.
  */
 anychart.core.ui.CircularLabel.prototype.parentRadius = function(opt_value) {
@@ -161,7 +162,7 @@ anychart.core.ui.CircularLabel.prototype.drawLabel = function() {
   var backgroundBounds = new anychart.math.Rect(0, 0, this.backgroundWidth, this.backgroundHeight);
 
   // calculate position
-  var position = new acgraph.math.Coordinate(0, 0);
+  var position = new goog.math.Coordinate(0, 0);
 
   if (this.parentBounds() || (!isNaN(this.cx_) && !isNaN(this.cy_))) {
     var offsetX = /** @type {number|string} */(this.offsetX());

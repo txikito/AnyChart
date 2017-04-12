@@ -46,7 +46,7 @@ anychart.core.resource.TimeLineLevelHolidaysSettings = function() {
 
   /**
    * Resolution chain cache.
-   * @type {Array.<Object|null|undefined>|null}
+   * @type {?Array.<Object|null|undefined>}
    * @private
    */
   this.resolutionChainCache_ = null;
@@ -212,13 +212,23 @@ anychart.core.resource.TimeLineLevelHolidaysSettings.TEXT_DESCRIPTORS =
         anychart.Signal.NEEDS_REDRAW | anychart.Signal.BOUNDS_CHANGED,
         anychart.Signal.NEEDS_REDRAW
     );
-anychart.core.resource.TimeLineLevelHolidaysSettings.TEXT_DESCRIPTORS[anychart.opt.TEXT_FORMATTER] =
+anychart.core.resource.TimeLineLevelHolidaysSettings.TEXT_DESCRIPTORS['format'] =
     anychart.core.settings.createDescriptor(
         anychart.enums.PropertyHandlerType.SINGLE_ARG,
-        anychart.opt.TEXT_FORMATTER,
-        anychart.core.settings.asIsNormalizer,
+        'format',
+        anychart.core.settings.stringOrFunctionNormalizer,
         anychart.ConsistencyState.APPEARANCE | anychart.ConsistencyState.BOUNDS,
         anychart.Signal.NEEDS_REDRAW | anychart.Signal.BOUNDS_CHANGED);
+//@deprecated Since 7.13.1. Use 'format' instead.
+anychart.core.resource.TimeLineLevelHolidaysSettings.TEXT_DESCRIPTORS['textFormatter'] =
+    anychart.core.settings.createDescriptor(
+        anychart.enums.PropertyHandlerType.SINGLE_ARG_DEPRECATED,
+        'format',
+        anychart.core.settings.stringOrFunctionNormalizer,
+        anychart.ConsistencyState.APPEARANCE | anychart.ConsistencyState.BOUNDS,
+        anychart.Signal.NEEDS_REDRAW | anychart.Signal.BOUNDS_CHANGED,
+        void 0,
+        'textFormatter');
 anychart.core.settings.populate(anychart.core.resource.TimeLineLevelHolidaysSettings, anychart.core.resource.TimeLineLevelHolidaysSettings.TEXT_DESCRIPTORS);
 
 
@@ -230,9 +240,9 @@ anychart.core.resource.TimeLineLevelHolidaysSettings.DESCRIPTORS = (function() {
   /** @type {!Object.<string, anychart.core.settings.PropertyDescriptor>} */
   var map = {};
 
-  map[anychart.opt.FILL] = anychart.core.settings.createDescriptor(
+  map['fill'] = anychart.core.settings.createDescriptor(
       anychart.enums.PropertyHandlerType.MULTI_ARG,
-      anychart.opt.FILL,
+      'fill',
       anychart.core.settings.fillNormalizer,
       anychart.ConsistencyState.ONLY_DISPATCHING,
       anychart.Signal.NEEDS_REDRAW);
@@ -300,7 +310,7 @@ anychart.core.resource.TimeLineLevelHolidaysSettings.prototype.setupByJSON = fun
     anychart.core.settings.deserialize(this, anychart.core.resource.TimeLineLevelHolidaysSettings.DESCRIPTORS, config);
   }
 
-  this.padding().setupByVal(config[anychart.opt.PADDING], opt_default);
+  this.padding().setupByVal(config['padding'], opt_default);
 };
 
 
@@ -329,5 +339,10 @@ anychart.core.resource.TimeLineLevelHolidaysSettings.prototype.disposeInternal =
 //endregion
 //region --- Exports
 //exports
-anychart.core.resource.TimeLineLevelHolidaysSettings.prototype['padding'] = anychart.core.resource.TimeLineLevelHolidaysSettings.prototype.padding;
+(function() {
+  var proto = anychart.core.resource.TimeLineLevelHolidaysSettings.prototype;
+  proto['padding'] = proto.padding;
+})();
+
+
 //endregion

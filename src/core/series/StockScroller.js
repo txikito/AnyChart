@@ -2,7 +2,6 @@ goog.provide('anychart.core.series.StockScroller');
 goog.require('anychart.core.series.Stock');
 goog.require('anychart.core.shapeManagers.PerPoint');
 goog.require('anychart.core.shapeManagers.PerSeries');
-goog.require('anychart.opt');
 
 
 
@@ -57,25 +56,25 @@ goog.inherits(anychart.core.series.StockScroller, anychart.core.series.Stock);
 /**
  * @type {Function}
  */
-anychart.core.series.StockScroller.prototype[anychart.opt.SELECTED_FILL] = anychart.core.series.Base.prototype[anychart.opt.SELECT_FILL];
+anychart.core.series.StockScroller.prototype['selectedFill'] = anychart.core.series.Base.prototype['selectFill'];
 
 
 /**
  * @type {Function}
  */
-anychart.core.series.StockScroller.prototype[anychart.opt.SELECTED_STROKE] = anychart.core.series.Base.prototype[anychart.opt.SELECT_STROKE];
+anychart.core.series.StockScroller.prototype['selectedStroke'] = anychart.core.series.Base.prototype['selectStroke'];
 
 
 /**
  * @type {Function}
  */
-anychart.core.series.StockScroller.prototype[anychart.opt.SELECTED_RISING_STROKE] = anychart.core.series.Base.prototype[anychart.opt.SELECT_RISING_STROKE];
+anychart.core.series.StockScroller.prototype['selectedRisingStroke'] = anychart.core.series.Base.prototype['selectRisingStroke'];
 
 
 /**
  * @type {Function}
  */
-anychart.core.series.StockScroller.prototype[anychart.opt.SELECTED_FALLING_STROKE] = anychart.core.series.Base.prototype[anychart.opt.SELECT_FALLING_STROKE];
+anychart.core.series.StockScroller.prototype['selectedFallingStroke'] = anychart.core.series.Base.prototype['selectFallingStroke'];
 //endregion
 
 
@@ -86,7 +85,7 @@ anychart.core.series.StockScroller.prototype[anychart.opt.SELECTED_FALLING_STROK
 //
 //----------------------------------------------------------------------------------------------------------------------
 /** @inheritDoc */
-anychart.core.series.StockScroller.prototype.applyConfig = function(config) {
+anychart.core.series.StockScroller.prototype.applyConfig = function(config, opt_reapplyClip) {
   // Scroller series MUST have a secondaryShapesConfig and MUST NOT use container as root.
   if (goog.isNull(config.secondaryShapesConfig) ||
       !!(config.capabilities & anychart.core.drawers.Capabilities.USES_CONTAINER_AS_ROOT))
@@ -102,9 +101,9 @@ anychart.core.series.StockScroller.prototype.applyConfig = function(config) {
       anychart.core.shapeManagers.PerSeries;
   this.secondaryShapeManager_ = new smc(this,
       /** @type {!Array.<anychart.core.shapeManagers.ShapeConfig>} */(config.secondaryShapesConfig),
-      interactive, anychart.opt.SECONDARY_SHAPES, config.postProcessor);
+      interactive, 'secondaryShapes', config.postProcessor);
 
-  anychart.core.series.StockScroller.base(this, 'applyConfig', config);
+  anychart.core.series.StockScroller.base(this, 'applyConfig', config, opt_reapplyClip);
 };
 //endregion
 
@@ -117,37 +116,14 @@ anychart.core.series.StockScroller.prototype.applyConfig = function(config) {
 //----------------------------------------------------------------------------------------------------------------------
 /**
  * Container for the second, selected replica of the series.
- * @param {(acgraph.vector.ILayer|string|Element)=} opt_value .
+ * @param {acgraph.vector.ILayer=} opt_value .
  * @return {(acgraph.vector.ILayer|!anychart.core.series.Stock)} .
  */
 anychart.core.series.StockScroller.prototype.secondaryContainer = function(opt_value) {
   if (goog.isDef(opt_value)) {
     if (this.secondaryContainer_ != opt_value) {
-      var containerBounds = this.secondaryContainer_ && this.secondaryContainer_.getStage() && this.secondaryContainer_.getStage().getBounds();
-      if (goog.isString(opt_value) || goog.dom.isElement(opt_value)) {
-        // Should we use registerDisposable in this case?
-        // TODO(Anton Saukh): fix type cast to {Element|string} when this will be fixed in graphics.
-        this.secondaryContainer_ = acgraph.create();
-        this.registerDisposable(this.secondaryContainer_);
-        this.secondaryContainer_.container(/** @type {Element} */(opt_value));
-
-        //if graphics engine can't recognize passed container
-        //we should destroy stage to avoid uncontrolled behaviour
-        if (!this.secondaryContainer_.container()) {
-          this.secondaryContainer_.dispose();
-          this.secondaryContainer_ = null;
-          return this;
-        }
-      } else {
-        this.secondaryContainer_ = /** @type {acgraph.vector.ILayer} */(opt_value);
-      }
-
-      var state = anychart.ConsistencyState.CONTAINER;
-      var newContainerBounds = this.secondaryContainer_ && this.secondaryContainer_.getStage() && this.secondaryContainer_.getStage().getBounds();
-      if (!goog.math.Rect.equals(containerBounds, newContainerBounds))
-        state |= anychart.ConsistencyState.BOUNDS;
-
-      this.invalidate(state, anychart.Signal.NEEDS_REDRAW);
+      this.secondaryContainer_ = opt_value;
+      this.invalidate(anychart.ConsistencyState.CONTAINER, anychart.Signal.NEEDS_REDRAW);
     }
     return this;
   }
@@ -185,6 +161,21 @@ anychart.core.series.StockScroller.prototype.getMainChart = function() {
 /** @inheritDoc */
 anychart.core.series.StockScroller.prototype.getDetachedIterator = function() {
   return this.getSelectableData().getIteratorInternal(true, true);
+};
+//endregion
+
+
+//region Interactivity
+//----------------------------------------------------------------------------------------------------------------------
+//
+//  Interactivity
+//
+//----------------------------------------------------------------------------------------------------------------------
+
+
+/** @inheritDoc */
+anychart.core.series.StockScroller.prototype.getPointState = function(index) {
+  return anychart.PointState.NORMAL;
 };
 //endregion
 
@@ -249,20 +240,6 @@ anychart.core.series.StockScroller.prototype.applyZIndex = function() {
   this.rootLayer.zIndex(zIndex);
   this.secondaryRootLayer_.zIndex(zIndex);
 };
-
-
-/** @inheritDoc */
-anychart.core.series.StockScroller.prototype.updateColors = function() {
-  if (this.shapeManager instanceof anychart.core.shapeManagers.PerPoint) {
-    var iterator = this.getResetIterator();
-    while (iterator.advance()) {
-      this.shapeManager.updateColors(this.getPointState(iterator.getIndex()),
-          /** @type {Object.<string, acgraph.vector.Shape>} */(iterator.meta(anychart.opt.SHAPES)));
-    }
-  } else {
-    this.shapeManager.updateColors(this.getSeriesState());
-  }
-};
 //endregion
 
 
@@ -276,12 +253,12 @@ anychart.core.series.StockScroller.prototype.updateColors = function() {
  * @inheritDoc
  */
 anychart.core.series.StockScroller.prototype.setupByJSON = function(config, opt_default) {
-  goog.base(this, 'setupByJSON', config, opt_default);
+  anychart.core.series.StockScroller.base(this, 'setupByJSON', config, opt_default);
 
   // Legacy
-  this[anychart.opt.SELECTED_FILL](config[anychart.opt.SELECT_FILL]);
-  this[anychart.opt.SELECTED_STROKE](config[anychart.opt.SELECT_STROKE]);
-  this[anychart.opt.SELECTED_RISING_STROKE](config[anychart.opt.SELECT_RISING_STROKE]);
-  this[anychart.opt.SELECTED_FALLING_STROKE](config[anychart.opt.SELECT_FALLING_STROKE]);
+  this['selectedFill'](config['selectFill']);
+  this['selectedStroke'](config['selectStroke']);
+  this['selectedRisingStroke'](config['selectRisingStroke']);
+  this['selectedFallingStroke'](config['selectFallingStroke']);
 };
 //endregion

@@ -4,8 +4,8 @@ goog.require('anychart.color');
 goog.require('anychart.core.VisualBase');
 goog.require('anychart.core.axes.CircularTicks');
 goog.require('anychart.core.ui.CircularLabelsFactory');
-goog.require('anychart.core.utils.AxisLabelsContextProvider');
 goog.require('anychart.enums');
+goog.require('anychart.format.Context');
 goog.require('anychart.math.Rect');
 goog.require('anychart.scales.Base');
 goog.require('anychart.utils');
@@ -18,7 +18,7 @@ goog.require('anychart.utils');
  * @constructor
  */
 anychart.core.axes.Circular = function() {
-  goog.base(this);
+  anychart.core.axes.Circular.base(this, 'constructor');
 
   /**
    * @type {Array.<Array.<number>>}
@@ -725,7 +725,7 @@ anychart.core.axes.Circular.prototype.getLabelRadius_ = function(height, isMajor
   var ticks = isMajor ? this.ticks() : this.minorTicks();
   var labels = isMajor ? this.labels() : this.minorLabels();
 
-  var position = anychart.enums.normalizeGaugeSidePosition(labels.position());
+  var position = anychart.enums.normalizeGaugeSidePosition(labels.getOption('position'));
 
   var radius = this.pixRadius_;
   if (position == anychart.enums.GaugeSidePosition.OUTSIDE) {
@@ -784,9 +784,9 @@ anychart.core.axes.Circular.prototype.getLabelBoundsWithoutTransform_ = function
   var positionProvider = {'value': {'angle': 0, 'radius': 0}};
 
   if (label)
-    boundsWTCache[index] = labels.measure(label);
+    boundsWTCache[index] = labels.measureWithoutAutoRotate(label);
   else
-    boundsWTCache[index] = labels.measure(formatProvider, positionProvider);
+    boundsWTCache[index] = labels.measureWithoutAutoRotate(formatProvider, positionProvider);
 
   return boundsWTCache[index];
 };
@@ -814,9 +814,9 @@ anychart.core.axes.Circular.prototype.getLabelBounds_ = function(index, isMajor)
   var ratio = scale.transform(value);
 
   var label = labels.getLabel(index);
-  var autoRotate = label && goog.isDef(label.autoRotate()) ? label.autoRotate() : labels.autoRotate();
-  var offsetX = label && goog.isDef(label.offsetX()) ? label.offsetX() : labels.offsetX();
-  var offsetY = label && goog.isDef(label.offsetY()) ? label.offsetY() : labels.offsetY();
+  var autoRotate = label && goog.isDef(label.getOption('autoRotate')) ? label.getOption('autoRotate') : labels.getOption('autoRotate');
+  var offsetX = label && goog.isDef(label.getOption('offsetX')) ? label.getOption('offsetX') : labels.getOption('offsetX');
+  var offsetY = label && goog.isDef(label.getOption('offsetY')) ? label.getOption('offsetY') : labels.getOption('offsetY');
 
   var radius = this.getLabelRadius_(bounds.height, isMajor, autoRotate ? bounds.height : 0);
   radius += anychart.utils.normalizeSize(/** @type {number|string} */(offsetY), this.gauge_.getPixRadius());
@@ -832,17 +832,17 @@ anychart.core.axes.Circular.prototype.getLabelBounds_ = function(index, isMajor)
   var x = this.gauge_.getCx() + radius * Math.cos(angleRad);
   var y = this.gauge_.getCy() + radius * Math.sin(angleRad);
 
-  var rotation = label && goog.isDef(label.rotation()) ?
-      label.rotation() :
-      labels.rotation();
+  var rotation = label && goog.isDef(label.getOption('rotation')) ?
+      label.getOption('rotation') :
+      labels.getOption('rotation');
 
   if (autoRotate)
     rotation += this.getLabelAngle_(angle);
 
-  var anchor = label && goog.isDef(label.anchor()) ?
-      label.anchor() :
+  var anchor = label && goog.isDef(label.getOption('anchor')) ?
+      label.getOption('anchor') :
       autoRotate ?
-          labels.anchor() :
+          labels.getOption('anchor') :
           this.getAnchorForLabel_(/** @type {number} */(angle));
 
   bounds.left = x;
@@ -856,7 +856,7 @@ anychart.core.axes.Circular.prototype.getLabelBounds_ = function(index, isMajor)
   bounds.top -= anchorCoordinate.y;
 
   var point = anychart.utils.getCoordinateByAnchor(bounds, /** @type {anychart.enums.Anchor} */(anchor));
-  var tx = goog.graphics.AffineTransform.getRotateInstance(goog.math.toRadians(/** @type {number} */(rotation)), point.x, point.y);
+  var tx = goog.math.AffineTransform.getRotateInstance(goog.math.toRadians(/** @type {number} */(rotation)), point.x, point.y);
 
   var arr = bounds.toCoordinateBox();
   tx.transform(arr, 0, arr, 0, 4);
@@ -873,7 +873,26 @@ anychart.core.axes.Circular.prototype.getLabelBounds_ = function(index, isMajor)
  * @private
  */
 anychart.core.axes.Circular.prototype.getLabelsFormatProvider_ = function(index, value) {
-  return new anychart.core.utils.AxisLabelsContextProvider(this, index, value);
+  var scale = this.scale();
+
+  var values = {
+    'axis': {value: this, type: anychart.enums.TokenType.UNKNOWN},
+    'index': {value: index, type: anychart.enums.TokenType.NUMBER},
+    'value': {value: parseFloat(value), type: anychart.enums.TokenType.NUMBER},
+    'tickValue': {value: parseFloat(value), type: anychart.enums.TokenType.NUMBER},
+    'max': {value: goog.isDef(scale.max) ? scale.max : null, type: anychart.enums.TokenType.NUMBER},
+    'min': {value: goog.isDef(scale.min) ? scale.min : null, type: anychart.enums.TokenType.NUMBER},
+    'scale': {value: scale, type: anychart.enums.TokenType.UNKNOWN}
+  };
+
+  var aliases = {};
+  aliases[anychart.enums.StringToken.AXIS_SCALE_MAX] = 'max';
+  aliases[anychart.enums.StringToken.AXIS_SCALE_MIN] = 'mix';
+
+  var context = new anychart.format.Context(values);
+  context.tokenAliases(aliases);
+
+  return context.propagate();
 };
 
 
@@ -886,7 +905,7 @@ anychart.core.axes.Circular.prototype.getLabelsFormatProvider_ = function(index,
 anychart.core.axes.Circular.prototype.getAnchorForLabel_ = function(angle) {
   angle = goog.math.standardAngle(angle);
   var anchor = anychart.enums.Anchor.CENTER;
-  var position = anychart.enums.normalizeGaugeSidePosition(this.labels().position());
+  var position = anychart.enums.normalizeGaugeSidePosition(this.labels().getOption('position'));
 
   if (position == 'inside') {
     if (!angle) {
@@ -941,7 +960,7 @@ anychart.core.axes.Circular.prototype.drawLabel_ = function(index, angle, isMajo
   var scaleTicksArr = isMajor ? scale.ticks().get() : scale.minorTicks().get();
   var labels = isMajor ? this.labels() : this.minorLabels();
   var label = labels.getLabel(index);
-  var autoRotate = label && goog.isDef(label.autoRotate()) ? label.autoRotate() : labels.autoRotate();
+  var autoRotate = label && goog.isDef(label.getOption('autoRotate')) ? label.getOption('autoRotate') : labels.getOption('autoRotate');
 
   var bounds = this.getLabelBoundsWithoutTransform_(index, isMajor);
   var radius = this.getLabelRadius_(bounds.height, isMajor, autoRotate ? bounds.height : 0);
@@ -952,10 +971,10 @@ anychart.core.axes.Circular.prototype.drawLabel_ = function(index, angle, isMajo
 
   if (!autoRotate) {
     var sweepAngle = goog.isDef(this.sweepAngle_) ? this.sweepAngle_ : this.gauge_.sweepAngle();
-    var offsetX = label && goog.isDef(label.offsetX()) ? label.offsetX() : labels.offsetX();
+    var offsetX = label && goog.isDef(label['offsetX']()) ? label['offsetX']() : labels['offsetX']();
     angle += anychart.utils.normalizeSize(/** @type {number|string} */(offsetX), sweepAngle);
 
-    label.anchor(this.getAnchorForLabel_(angle));
+    label['anchor'](this.getAnchorForLabel_(angle));
   }
 };
 
@@ -1217,7 +1236,7 @@ anychart.core.axes.Circular.prototype.draw = function() {
 //----------------------------------------------------------------------------------------------------------------------
 /** @inheritDoc */
 anychart.core.axes.Circular.prototype.serialize = function() {
-  var json = goog.base(this, 'serialize');
+  var json = anychart.core.axes.Circular.base(this, 'serialize');
 
   json['scale'] = this.scale().serialize();
 
@@ -1250,7 +1269,7 @@ anychart.core.axes.Circular.prototype.serialize = function() {
 
 /** @inheritDoc */
 anychart.core.axes.Circular.prototype.setupByJSON = function(config, opt_default) {
-  goog.base(this, 'setupByJSON', config, opt_default);
+  anychart.core.axes.Circular.base(this, 'setupByJSON', config, opt_default);
 
   var scale;
   var json = config['scale'];
@@ -1268,8 +1287,8 @@ anychart.core.axes.Circular.prototype.setupByJSON = function(config, opt_default
   this.ticks(config['ticks']);
   this.minorTicks(config['minorTicks']);
 
-  this.labels().setup(config['labels']);
-  this.minorLabels().setup(config['minorLabels']);
+  this.labels().setupByVal(config['labels'], opt_default);
+  this.minorLabels().setupByVal(config['minorLabels'], opt_default);
 
   this.startAngle(config['startAngle']);
   this.sweepAngle(config['sweepAngle']);
@@ -1286,25 +1305,28 @@ anychart.core.axes.Circular.prototype.setupByJSON = function(config, opt_default
 
 
 //exports
-anychart.core.axes.Circular.prototype['scale'] = anychart.core.axes.Circular.prototype.scale;
+(function() {
+  var proto = anychart.core.axes.Circular.prototype;
+  proto['scale'] = proto.scale;
 
-anychart.core.axes.Circular.prototype['overlapMode'] = anychart.core.axes.Circular.prototype.overlapMode;
+  proto['overlapMode'] = proto.overlapMode;
 
-anychart.core.axes.Circular.prototype['ticks'] = anychart.core.axes.Circular.prototype.ticks;
-anychart.core.axes.Circular.prototype['minorTicks'] = anychart.core.axes.Circular.prototype.minorTicks;
+  proto['ticks'] = proto.ticks;
+  proto['minorTicks'] = proto.minorTicks;
 
-anychart.core.axes.Circular.prototype['labels'] = anychart.core.axes.Circular.prototype.labels;
-anychart.core.axes.Circular.prototype['minorLabels'] = anychart.core.axes.Circular.prototype.minorLabels;
+  proto['labels'] = proto.labels;
+  proto['minorLabels'] = proto.minorLabels;
 
-anychart.core.axes.Circular.prototype['startAngle'] = anychart.core.axes.Circular.prototype.startAngle;
-anychart.core.axes.Circular.prototype['sweepAngle'] = anychart.core.axes.Circular.prototype.sweepAngle;
+  proto['startAngle'] = proto.startAngle;
+  proto['sweepAngle'] = proto.sweepAngle;
 
-anychart.core.axes.Circular.prototype['fill'] = anychart.core.axes.Circular.prototype.fill;
-anychart.core.axes.Circular.prototype['width'] = anychart.core.axes.Circular.prototype.width;
-anychart.core.axes.Circular.prototype['radius'] = anychart.core.axes.Circular.prototype.radius;
-anychart.core.axes.Circular.prototype['cornersRounding'] = anychart.core.axes.Circular.prototype.cornersRounding;
+  proto['fill'] = proto.fill;
+  proto['width'] = proto.width;
+  proto['radius'] = proto.radius;
+  proto['cornersRounding'] = proto.cornersRounding;
 
-anychart.core.axes.Circular.prototype['drawFirstLabel'] = anychart.core.axes.Circular.prototype.drawFirstLabel;
-anychart.core.axes.Circular.prototype['drawLastLabel'] = anychart.core.axes.Circular.prototype.drawLastLabel;
+  proto['drawFirstLabel'] = proto.drawFirstLabel;
+  proto['drawLastLabel'] = proto.drawLastLabel;
+})();
 
 

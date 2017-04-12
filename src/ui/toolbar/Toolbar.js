@@ -88,17 +88,20 @@ anychart.ui.toolbar.Toolbar.prototype.draw = function() {
 /**
  * Constructor function for toolbar.
  * @return {anychart.ui.toolbar.Toolbar}
- * @deprecated Use anychart.ui.ganttToolbar() instead.
+ * @deprecated Since 7.10.0. Use anychart.ui.ganttToolbar() instead.
  */
 anychart.toolbar = function() {
-  anychart.core.reporting.warning(anychart.enums.WarningCode.DEPRECATED, null, ['anychart.toolbar()', 'anychart.ui.ganttToolbar()'], true);
+  anychart.core.reporting.warning(anychart.enums.WarningCode.DEPRECATED, null, ['anychart.toolbar()', 'anychart.ui.ganttToolbar()', null, 'Constructor'], true);
   return new anychart.ui.toolbar.Toolbar();
 };
 
 
-
 //exports
-goog.exportSymbol('anychart.toolbar', anychart.toolbar);
-anychart.ui.toolbar.Toolbar.prototype['container'] = anychart.ui.toolbar.Toolbar.prototype.container;
-anychart.ui.toolbar.Toolbar.prototype['target'] = anychart.ui.toolbar.Toolbar.prototype.target;
-anychart.ui.toolbar.Toolbar.prototype['draw'] = anychart.ui.toolbar.Toolbar.prototype.draw;
+/** @suppress {deprecated} */
+(function() {
+  var proto = anychart.ui.toolbar.Toolbar.prototype;
+  goog.exportSymbol('anychart.toolbar', anychart.toolbar);
+  proto['container'] = proto.container;
+  proto['target'] = proto.target;
+  proto['draw'] = proto.draw;
+})();

@@ -42,7 +42,7 @@ anychart.core.annotations.FibonacciBase = function(chartController) {
    */
   this.levelsStrokeResolver = /** @type {function(anychart.core.annotations.Base,number,number=):acgraph.vector.Stroke} */(
       anychart.core.annotations.Base.getColorResolver(
-          [anychart.opt.STROKE, anychart.opt.HOVER_STROKE, anychart.opt.SELECT_STROKE],
+          ['stroke', 'hoverStroke', 'selectStroke'],
           anychart.enums.ColorType.STROKE));
 
   /**
@@ -54,7 +54,7 @@ anychart.core.annotations.FibonacciBase = function(chartController) {
    */
   this.trendResolver = /** @type {function(anychart.core.annotations.Base,number,number=):acgraph.vector.Stroke} */(
       anychart.core.annotations.Base.getColorResolver(
-          [anychart.opt.TREND, anychart.opt.HOVER_TREND, anychart.opt.SELECT_TREND],
+          ['trend', 'hoverTrend', 'selectTrend'],
           anychart.enums.ColorType.STROKE));
 
   /**
@@ -296,7 +296,7 @@ anychart.core.annotations.FibonacciBase.prototype.colorize = function(state) {
       .stroke(stroke);
   this.paths[1]
       .fill(anychart.color.TRANSPARENT_HANDLER)
-      .stroke(/** @type {acgraph.vector.SolidFill} */(anychart.color.TRANSPARENT_HANDLER), this[anychart.opt.HOVER_GAP]() * 2);
+      .stroke(/** @type {acgraph.vector.SolidFill} */(anychart.color.TRANSPARENT_HANDLER), this['hoverGap']() * 2);
   for (var i = 0; i < this.levelPaths.length; i++) {
     this.levelPaths[i]
         .fill(null)
@@ -334,8 +334,8 @@ anychart.core.annotations.FibonacciBase.prototype.labels = function(opt_value) {
   }
 
   if (goog.isDef(opt_value)) {
-    if (goog.isObject(opt_value) && !(anychart.opt.ENABLED in opt_value))
-      opt_value[anychart.opt.ENABLED] = true;
+    if (goog.isObject(opt_value) && !('enabled' in opt_value))
+      opt_value['enabled'] = true;
     this.labels_.setup(opt_value);
     return this;
   }
@@ -355,8 +355,8 @@ anychart.core.annotations.FibonacciBase.prototype.hoverLabels = function(opt_val
   }
 
   if (goog.isDef(opt_value)) {
-    if (goog.isObject(opt_value) && !(anychart.opt.ENABLED in opt_value))
-      opt_value[anychart.opt.ENABLED] = true;
+    if (goog.isObject(opt_value) && !('enabled' in opt_value))
+      opt_value['enabled'] = true;
     this.hoverLabels_.setup(opt_value);
     return this;
   }
@@ -375,8 +375,8 @@ anychart.core.annotations.FibonacciBase.prototype.selectLabels = function(opt_va
   }
 
   if (goog.isDef(opt_value)) {
-    if (goog.isObject(opt_value) && !(anychart.opt.ENABLED in opt_value))
-      opt_value[anychart.opt.ENABLED] = true;
+    if (goog.isObject(opt_value) && !('enabled' in opt_value))
+      opt_value['enabled'] = true;
     this.selectLabels_.setup(opt_value);
     return this;
   }
@@ -427,7 +427,7 @@ anychart.core.annotations.FibonacciBase.prototype.drawLabel = function(index, ma
       element = mainFactory.add(formatProvider, positionProvider, index);
     }
     element.resetSettings();
-    element.currentLabelsFactory(stateFactory || mainFactory);
+    element.currentLabelsFactory(stateFactory);
     element.setSettings(opt_settings);
     element.draw();
   } else {
@@ -497,4 +497,7 @@ anychart.core.annotations.FibonacciBase.prototype.disposeInternal = function() {
 
 
 //export
-anychart.core.annotations.FibonacciBase.prototype['levels'] = anychart.core.annotations.FibonacciBase.prototype.levels;
+(function() {
+  var proto = anychart.core.annotations.FibonacciBase.prototype;
+  proto['levels'] = proto.levels;
+})();

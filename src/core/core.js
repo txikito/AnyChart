@@ -64,10 +64,23 @@ anychart.core.IChart.prototype.calculate = function() {};
 
 
 /**
+ * Ensures that all statistics is ready.
+ */
+anychart.core.IChart.prototype.ensureStatisticsReady = function() {};
+
+
+/**
  * Whether IChart supports tooltip.
  * @return {boolean}
  */
 anychart.core.IChart.prototype.supportsTooltip = function() {};
+
+
+/**
+ * Getter for an isVertical property.
+ * @return {boolean}
+ */
+anychart.core.IChart.prototype.isVertical = function() {};
 
 //endregion
 

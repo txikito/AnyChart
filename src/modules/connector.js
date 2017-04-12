@@ -6,7 +6,7 @@
 goog.provide('anychart.modules.connector');
 
 goog.require('anychart.charts.Map');
-goog.require('anychart.core.map.series.Connector');
+goog.require('anychart.core.drawers.map.Connector');
 goog.require('anychart.modules.base');
 
 
@@ -18,14 +18,12 @@ goog.require('anychart.modules.base');
  */
 anychart.connector = function(var_args) {
   var map = new anychart.charts.Map();
-  var theme = anychart.getFullTheme();
-
   map.defaultSeriesType(anychart.enums.MapSeriesType.CONNECTOR);
 
-  map.setupByVal(theme['connector'], true);
+  map.setupByVal(anychart.getFullTheme('connector'), true);
 
   for (var i = 0, count = arguments.length; i < count; i++) {
-    map.connector(arguments[i]);
+    map['connector'](arguments[i]);
   }
 
   return map;

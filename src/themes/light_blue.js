@@ -2,6 +2,7 @@ goog.provide('anychart.themes.light_blue');
 
 
 (function() {
+  var global = this;
   var stockScrollerUnselected = '#999';
 
 
@@ -9,8 +10,8 @@ goog.provide('anychart.themes.light_blue');
    * @this {*}
    * @return {*}
    */
-  var returnSourceColor = function() {
-    return this['sourceColor'];
+  var returnSourceColor50 = function() {
+    return global['anychart']['color']['setOpacity'](this['sourceColor'], 0.5, true);
   };
 
 
@@ -19,7 +20,7 @@ goog.provide('anychart.themes.light_blue');
    * @return {*}
    */
   var returnDarkenSourceColor = function() {
-    return window['anychart']['color']['darken'](this['sourceColor']);
+    return global['anychart']['color']['darken'](this['sourceColor']);
   };
 
 
@@ -28,20 +29,20 @@ goog.provide('anychart.themes.light_blue');
    * @return {*}
    */
   var returnLightenSourceColor = function() {
-    return window['anychart']['color']['lighten'](this['sourceColor']);
+    return global['anychart']['color']['lighten'](this['sourceColor']);
   };
 
 
-  window['anychart'] = window['anychart'] || {};
-  window['anychart']['themes'] = window['anychart']['themes'] || {};
-  window['anychart']['themes']['lightBlue'] = {
+  global['anychart'] = global['anychart'] || {};
+  global['anychart']['themes'] = global['anychart']['themes'] || {};
+  global['anychart']['themes']['lightBlue'] = {
     'palette': {
       'type': 'distinct',
       'items': ['#40c4ff', '#0288d1', '#9fa8da', '#5c6bc0', '#7e57c2', '#54dbdf', '#15a9c7', '#00897b', '#304ffe', '#01579b']
     },
     'defaultOrdinalColorScale': {
       'autoColors': function(rangesCount) {
-        return window['anychart']['color']['blendedHueProgression']('#40c4ff', '#01579b', rangesCount);
+        return global['anychart']['color']['blendedHueProgression']('#40c4ff', '#01579b', rangesCount);
       }
     },
     'defaultLinearColorScale': {'colors': ['#40c4ff', '#01579b']},
@@ -84,10 +85,6 @@ goog.provide('anychart.themes.light_blue');
       'title': {
         'align': 'center',
         'fontSize': 14
-      },
-      'content': {
-        'fontColor': '#78909c',
-        'fontSize': 12
       },
       'padding': {'top': 10, 'right': 15, 'bottom': 10, 'left': 15},
       'separator': {
@@ -263,24 +260,23 @@ goog.provide('anychart.themes.light_blue');
         'outlineStroke': '#b0bec5',
         'defaultSeriesSettings': {
           'base': {
-            'color': '#40c4ff 0.5',
-            'selectStroke': returnSourceColor
+            'selectStroke': returnSourceColor50
           },
           'candlestick': {
             'risingFill': stockScrollerUnselected,
             'risingStroke': stockScrollerUnselected,
             'fallingFill': stockScrollerUnselected,
             'fallingStroke': stockScrollerUnselected,
-            'selectRisingStroke': returnSourceColor,
-            'selectFallingStroke': returnSourceColor,
-            'selectRisingFill': returnSourceColor,
-            'selectFallingFill': returnSourceColor
+            'selectRisingStroke': returnSourceColor50,
+            'selectFallingStroke': returnSourceColor50,
+            'selectRisingFill': returnSourceColor50,
+            'selectFallingFill': returnSourceColor50
           },
           'ohlc': {
             'risingStroke': stockScrollerUnselected,
             'fallingStroke': stockScrollerUnselected,
-            'selectRisingStroke': returnSourceColor,
-            'selectFallingStroke': returnSourceColor
+            'selectRisingStroke': returnSourceColor50,
+            'selectFallingStroke': returnSourceColor50
           }
         }
       },
@@ -291,4 +287,4 @@ goog.provide('anychart.themes.light_blue');
       }
     }
   };
-})();
+}).call(this);

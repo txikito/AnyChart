@@ -6,7 +6,7 @@
 goog.provide('anychart.modules.markerMap');
 
 goog.require('anychart.charts.Map');
-goog.require('anychart.core.map.series.Marker');
+goog.require('anychart.core.drawers.map.Marker');
 goog.require('anychart.modules.base');
 
 
@@ -18,14 +18,12 @@ goog.require('anychart.modules.base');
  */
 anychart.markerMap = function(var_args) {
   var map = new anychart.charts.Map();
-  var theme = anychart.getFullTheme();
-
   map.defaultSeriesType(anychart.enums.MapSeriesType.MARKER);
 
-  map.setupByVal(theme['markerMap'], true);
+  map.setupByVal(anychart.getFullTheme('markerMap'), true);
 
   for (var i = 0, count = arguments.length; i < count; i++) {
-    map.marker(arguments[i]);
+    map['marker'](arguments[i]);
   }
 
   return map;

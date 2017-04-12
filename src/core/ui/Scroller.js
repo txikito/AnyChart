@@ -18,7 +18,7 @@ goog.require('goog.style');
  * @param {boolean=} opt_usesAbsolutePadding
  */
 anychart.core.ui.Scroller = function(opt_usesAbsolutePadding) {
-  goog.base(this);
+  anychart.core.ui.Scroller.base(this, 'constructor');
 
   /**
    * If the scroller should be automatically hidden if it cannot be changed and shows the full range.
@@ -982,15 +982,15 @@ anychart.core.ui.Scroller.prototype.updateBoundsCache = function() {
   } else {
     var padding = this.padding();
     if (this.orientation_ == anychart.enums.Orientation.LEFT) {
-      top = anychart.utils.normalizeSize(/** @type {number|string} */(padding.getOption(anychart.opt.LEFT)), this.fullPixelBoundsCache.width);
-      right = anychart.utils.normalizeSize(/** @type {number|string} */(padding.getOption(anychart.opt.TOP)), this.fullPixelBoundsCache.height);
-      bottom = anychart.utils.normalizeSize(/** @type {number|string} */(padding.getOption(anychart.opt.RIGHT)), this.fullPixelBoundsCache.width);
-      left = anychart.utils.normalizeSize(/** @type {number|string} */(padding.getOption(anychart.opt.BOTTOM)), this.fullPixelBoundsCache.height);
+      top = anychart.utils.normalizeSize(/** @type {number|string} */(padding.getOption('left')), this.fullPixelBoundsCache.width);
+      right = anychart.utils.normalizeSize(/** @type {number|string} */(padding.getOption('top')), this.fullPixelBoundsCache.height);
+      bottom = anychart.utils.normalizeSize(/** @type {number|string} */(padding.getOption('right')), this.fullPixelBoundsCache.width);
+      left = anychart.utils.normalizeSize(/** @type {number|string} */(padding.getOption('bottom')), this.fullPixelBoundsCache.height);
     } else {
-      top = anychart.utils.normalizeSize(/** @type {number|string} */(padding.getOption(anychart.opt.RIGHT)), this.fullPixelBoundsCache.width);
-      right = anychart.utils.normalizeSize(/** @type {number|string} */(padding.getOption(anychart.opt.BOTTOM)), this.fullPixelBoundsCache.height);
-      bottom = anychart.utils.normalizeSize(/** @type {number|string} */(padding.getOption(anychart.opt.LEFT)), this.fullPixelBoundsCache.width);
-      left = anychart.utils.normalizeSize(/** @type {number|string} */(padding.getOption(anychart.opt.TOP)), this.fullPixelBoundsCache.height);
+      top = anychart.utils.normalizeSize(/** @type {number|string} */(padding.getOption('right')), this.fullPixelBoundsCache.width);
+      right = anychart.utils.normalizeSize(/** @type {number|string} */(padding.getOption('bottom')), this.fullPixelBoundsCache.height);
+      bottom = anychart.utils.normalizeSize(/** @type {number|string} */(padding.getOption('left')), this.fullPixelBoundsCache.width);
+      left = anychart.utils.normalizeSize(/** @type {number|string} */(padding.getOption('top')), this.fullPixelBoundsCache.height);
 
     }
     this.pixelBoundsCache.left = this.fullPixelBoundsCache.left + left;
@@ -1099,7 +1099,7 @@ anychart.core.ui.Scroller.prototype.thumbOrRangeMouseDown_ = function(e) {
  */
 anychart.core.ui.Scroller.prototype.nonSelectedRangeClick_ = function(e) {
   // assume we have a stage here
-  var root = goog.style.getClientPosition(/** @type {Element} */(this.rootLayer.getStage().container()));
+  var root = this.rootLayer.getStage().getClientPosition();
   var position;
   if (this.isHorizontal())
     position = e['clientX'] - root.x;
@@ -1425,6 +1425,9 @@ anychart.core.ui.Scroller.prototype.moveHandleTo_ = function(handle, position) {
   }
   startRatio = this.toInternalRatio_(startRatio);
   endRatio = this.toInternalRatio_(endRatio);
+  if (startRatio == endRatio) {
+    endRatio += endRatio < anychart.core.ui.Scroller.MAX_RATIO ? 1 : -1;
+  }
   if (startRatio > endRatio) {
     var tmp = this.startThumb_;
     this.startThumb_ = this.endThumb_;
@@ -1521,13 +1524,13 @@ anychart.core.ui.Scroller.prototype.disposeInternal = function() {
   goog.dispose(this.padding_);
   this.padding_ = null;
 
-  goog.base(this, 'disposeInternal');
+  anychart.core.ui.Scroller.base(this, 'disposeInternal');
 };
 
 
 /** @inheritDoc */
 anychart.core.ui.Scroller.prototype.serialize = function() {
-  var json = goog.base(this, 'serialize');
+  var json = anychart.core.ui.Scroller.base(this, 'serialize');
   json['fill'] = this.fill();
   json['selectedFill'] = this.selectedFill();
   json['outlineStroke'] = this.outlineStroke();
@@ -1544,7 +1547,7 @@ anychart.core.ui.Scroller.prototype.serialize = function() {
 
 /** @inheritDoc */
 anychart.core.ui.Scroller.prototype.setupByJSON = function(config, opt_default) {
-  goog.base(this, 'setupByJSON', config, opt_default);
+  anychart.core.ui.Scroller.base(this, 'setupByJSON', config, opt_default);
   this.orientation(config['orientation']);
   this.autoHide(config['autoHide']);
   this.allowRangeChange(config['allowRangeChange']);
@@ -1568,7 +1571,7 @@ anychart.core.ui.Scroller.prototype.setupByJSON = function(config, opt_default) 
  * @extends {goog.fx.Dragger}
  */
 anychart.core.ui.Scroller.Dragger = function(scroller, target, isThumb) {
-  goog.base(this, target.domElement());
+  anychart.core.ui.Scroller.Dragger.base(this, 'constructor', target.domElement());
 
   /**
    * Scroller reference.
@@ -1917,20 +1920,24 @@ anychart.core.ui.Scroller.Thumbs.prototype.setup = function(var_args) {
 
 
 //exports
-anychart.core.ui.Scroller.prototype['fill'] = anychart.core.ui.Scroller.prototype.fill;
-anychart.core.ui.Scroller.prototype['selectedFill'] = anychart.core.ui.Scroller.prototype.selectedFill;
-anychart.core.ui.Scroller.prototype['outlineStroke'] = anychart.core.ui.Scroller.prototype.outlineStroke;
-anychart.core.ui.Scroller.prototype['height'] = anychart.core.ui.Scroller.prototype.height;
-anychart.core.ui.Scroller.prototype['minHeight'] = anychart.core.ui.Scroller.prototype.minHeight;
-anychart.core.ui.Scroller.prototype['maxHeight'] = anychart.core.ui.Scroller.prototype.maxHeight;
-anychart.core.ui.Scroller.prototype['thumbs'] = anychart.core.ui.Scroller.prototype.thumbs;
-anychart.core.ui.Scroller.prototype['orientation'] = anychart.core.ui.Scroller.prototype.orientation;
-anychart.core.ui.Scroller.prototype['allowRangeChange'] = anychart.core.ui.Scroller.prototype.allowRangeChange;
-anychart.core.ui.Scroller.prototype['autoHide'] = anychart.core.ui.Scroller.prototype.autoHide;
+(function() {
+  var proto = anychart.core.ui.Scroller.prototype;
+  proto['fill'] = proto.fill;
+  proto['selectedFill'] = proto.selectedFill;
+  proto['outlineStroke'] = proto.outlineStroke;
+  proto['height'] = proto.height;
+  proto['minHeight'] = proto.minHeight;
+  proto['maxHeight'] = proto.maxHeight;
+  proto['thumbs'] = proto.thumbs;
+  proto['orientation'] = proto.orientation;
+  proto['allowRangeChange'] = proto.allowRangeChange;
+  proto['autoHide'] = proto.autoHide;
 
-anychart.core.ui.Scroller.Thumbs.prototype['enabled'] = anychart.core.ui.Scroller.Thumbs.prototype.enabled;
-anychart.core.ui.Scroller.Thumbs.prototype['autoHide'] = anychart.core.ui.Scroller.Thumbs.prototype.autoHide;
-anychart.core.ui.Scroller.Thumbs.prototype['fill'] = anychart.core.ui.Scroller.Thumbs.prototype.fill;
-anychart.core.ui.Scroller.Thumbs.prototype['stroke'] = anychart.core.ui.Scroller.Thumbs.prototype.stroke;
-anychart.core.ui.Scroller.Thumbs.prototype['hoverFill'] = anychart.core.ui.Scroller.Thumbs.prototype.hoverFill;
-anychart.core.ui.Scroller.Thumbs.prototype['hoverStroke'] = anychart.core.ui.Scroller.Thumbs.prototype.hoverStroke;
+  proto = anychart.core.ui.Scroller.Thumbs.prototype;
+  proto['enabled'] = proto.enabled;
+  proto['autoHide'] = proto.autoHide;
+  proto['fill'] = proto.fill;
+  proto['stroke'] = proto.stroke;
+  proto['hoverFill'] = proto.hoverFill;
+  proto['hoverStroke'] = proto.hoverStroke;
+})();

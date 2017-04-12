@@ -473,8 +473,7 @@ anychart.core.annotations.PlotController.prototype.handleDrawingMouseMove_ = fun
  * @private
  */
 anychart.core.annotations.PlotController.prototype.updateLastCoords_ = function(e) {
-  var stageReferencePoint = goog.style.getClientPosition(/** @type {Element} */
-      (this.container().getStage().container()));
+  var stageReferencePoint = this.container().getStage().getClientPosition();
   this.lastX = e['clientX'] - stageReferencePoint.x;
   this.lastY = e['clientY'] - stageReferencePoint.y;
 };
@@ -968,7 +967,7 @@ anychart.core.annotations.PlotController.prototype.annotationInvalidated_ = func
 anychart.core.annotations.PlotController.prototype.serialize = function() {
   var json = anychart.core.annotations.PlotController.base(this, 'serialize');
 
-  json[anychart.opt.ANNOTATIONS_LIST] = this.annotationsJson_();
+  json['annotationsList'] = this.annotationsJson_();
 
   return json;
 };
@@ -989,7 +988,7 @@ anychart.core.annotations.PlotController.prototype.setupSpecial = function(var_a
 anychart.core.annotations.PlotController.prototype.setupByJSON = function(config, opt_default) {
   anychart.core.annotations.PlotController.base(this, 'setupByJSON', config, opt_default);
 
-  var list = config[anychart.opt.ANNOTATIONS_LIST];
+  var list = config['annotationsList'];
   if (goog.isArray(list)) {
     this.annotationsJson_(list);
   }
@@ -1229,34 +1228,37 @@ anychart.core.annotations.PlotController.AnchorDragger.prototype.handleDragEnd_ 
 
 
 //exports
-anychart.core.annotations.PlotController.prototype['add'] = anychart.core.annotations.PlotController.prototype.add;
-anychart.core.annotations.PlotController.prototype['startDrawing'] = anychart.core.annotations.PlotController.prototype.startDrawing;
-anychart.core.annotations.PlotController.prototype['cancelDrawing'] = anychart.core.annotations.PlotController.prototype.cancelDrawing;
-anychart.core.annotations.PlotController.prototype['getAnnotationAt'] = anychart.core.annotations.PlotController.prototype.getAnnotationAt;
-anychart.core.annotations.PlotController.prototype['getAnnotationsCount'] = anychart.core.annotations.PlotController.prototype.getAnnotationsCount;
-anychart.core.annotations.PlotController.prototype['removeAnnotation'] = anychart.core.annotations.PlotController.prototype.removeAnnotation;
-anychart.core.annotations.PlotController.prototype['removeAnnotationAt'] = anychart.core.annotations.PlotController.prototype.removeAnnotationAt;
-anychart.core.annotations.PlotController.prototype['removeAllAnnotations'] = anychart.core.annotations.PlotController.prototype.removeAllAnnotations;
-anychart.core.annotations.PlotController.prototype['getSelectedAnnotation'] = anychart.core.annotations.PlotController.prototype.getSelectedAnnotation;
-anychart.core.annotations.PlotController.prototype['select'] = anychart.core.annotations.PlotController.prototype.select;
-anychart.core.annotations.PlotController.prototype['unselect'] = anychart.core.annotations.PlotController.prototype.unselect;
-anychart.core.annotations.PlotController.prototype['ray'] = anychart.core.annotations.PlotController.prototype.ray;
-anychart.core.annotations.PlotController.prototype['line'] = anychart.core.annotations.PlotController.prototype.line;
-anychart.core.annotations.PlotController.prototype['infiniteLine'] = anychart.core.annotations.PlotController.prototype.infiniteLine;
-anychart.core.annotations.PlotController.prototype['verticalLine'] = anychart.core.annotations.PlotController.prototype.verticalLine;
-anychart.core.annotations.PlotController.prototype['horizontalLine'] = anychart.core.annotations.PlotController.prototype.horizontalLine;
-anychart.core.annotations.PlotController.prototype['rectangle'] = anychart.core.annotations.PlotController.prototype.rectangle;
-anychart.core.annotations.PlotController.prototype['ellipse'] = anychart.core.annotations.PlotController.prototype.ellipse;
-anychart.core.annotations.PlotController.prototype['triangle'] = anychart.core.annotations.PlotController.prototype.triangle;
-anychart.core.annotations.PlotController.prototype['trendChannel'] = anychart.core.annotations.PlotController.prototype.trendChannel;
-anychart.core.annotations.PlotController.prototype['andrewsPitchfork'] = anychart.core.annotations.PlotController.prototype.andrewsPitchfork;
-anychart.core.annotations.PlotController.prototype['fibonacciFan'] = anychart.core.annotations.PlotController.prototype.fibonacciFan;
-anychart.core.annotations.PlotController.prototype['fibonacciArc'] = anychart.core.annotations.PlotController.prototype.fibonacciArc;
-anychart.core.annotations.PlotController.prototype['fibonacciRetracement'] = anychart.core.annotations.PlotController.prototype.fibonacciRetracement;
-anychart.core.annotations.PlotController.prototype['fibonacciTimezones'] = anychart.core.annotations.PlotController.prototype.fibonacciTimezones;
-anychart.core.annotations.PlotController.prototype['marker'] = anychart.core.annotations.PlotController.prototype.marker;
-// anychart.core.annotations.PlotController.prototype['label'] = anychart.core.annotations.PlotController.prototype.label;
-anychart.core.annotations.PlotController.prototype['fromJson'] = anychart.core.annotations.PlotController.prototype.fromJson;
-anychart.core.annotations.PlotController.prototype['toJson'] = anychart.core.annotations.PlotController.prototype.toJson;
-anychart.core.annotations.PlotController.prototype['fromXml'] = anychart.core.annotations.PlotController.prototype.fromXml;
-anychart.core.annotations.PlotController.prototype['toXml'] = anychart.core.annotations.PlotController.prototype.toXml;
+(function() {
+  var proto = anychart.core.annotations.PlotController.prototype;
+  proto['add'] = proto.add;
+  proto['startDrawing'] = proto.startDrawing;
+  proto['cancelDrawing'] = proto.cancelDrawing;
+  proto['getAnnotationAt'] = proto.getAnnotationAt;
+  proto['getAnnotationsCount'] = proto.getAnnotationsCount;
+  proto['removeAnnotation'] = proto.removeAnnotation;
+  proto['removeAnnotationAt'] = proto.removeAnnotationAt;
+  proto['removeAllAnnotations'] = proto.removeAllAnnotations;
+  proto['getSelectedAnnotation'] = proto.getSelectedAnnotation;
+  proto['select'] = proto.select;
+  proto['unselect'] = proto.unselect;
+  proto['ray'] = proto.ray;
+  proto['line'] = proto.line;
+  proto['infiniteLine'] = proto.infiniteLine;
+  proto['verticalLine'] = proto.verticalLine;
+  proto['horizontalLine'] = proto.horizontalLine;
+  proto['rectangle'] = proto.rectangle;
+  proto['ellipse'] = proto.ellipse;
+  proto['triangle'] = proto.triangle;
+  proto['trendChannel'] = proto.trendChannel;
+  proto['andrewsPitchfork'] = proto.andrewsPitchfork;
+  proto['fibonacciFan'] = proto.fibonacciFan;
+  proto['fibonacciArc'] = proto.fibonacciArc;
+  proto['fibonacciRetracement'] = proto.fibonacciRetracement;
+  proto['fibonacciTimezones'] = proto.fibonacciTimezones;
+  proto['marker'] = proto.marker;
+  // proto['label'] = proto.label;
+  proto['fromJson'] = proto.fromJson;
+  proto['toJson'] = proto.toJson;
+  proto['fromXml'] = proto.fromXml;
+  proto['toXml'] = proto.toXml;
+})();

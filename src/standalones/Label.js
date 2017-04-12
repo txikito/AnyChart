@@ -20,7 +20,7 @@ anychart.core.makeStandalone(anychart.standalones.Label, anychart.core.ui.Label)
  */
 anychart.standalones.label = function() {
   var label = new anychart.standalones.Label();
-  label.setup(anychart.getFullTheme()['standalones']['label']);
+  label.setup(anychart.getFullTheme('standalones.label'));
   return label;
 };
 
@@ -31,14 +31,18 @@ anychart.standalones.label = function() {
  * @deprecated Since 7.12.0. Use anychart.standalones.label instead.
  */
 anychart.ui.label = function() {
-  anychart.core.reporting.warning(anychart.enums.WarningCode.DEPRECATED, null, ['anychart.ui.label', 'anychart.standalones.label'], true);
+  anychart.core.reporting.warning(anychart.enums.WarningCode.DEPRECATED, null, ['anychart.ui.label()', 'anychart.standalones.label()', null, 'Constructor'], true);
   return anychart.standalones.label();
 };
 
 
 //exports
-goog.exportSymbol('anychart.ui.label', anychart.ui.label);
-goog.exportSymbol('anychart.standalones.label', anychart.standalones.label);
-anychart.standalones.Label.prototype['draw'] = anychart.standalones.Label.prototype.draw;
-anychart.standalones.Label.prototype['parentBounds'] = anychart.standalones.Label.prototype.parentBounds;
-anychart.standalones.Label.prototype['container'] = anychart.standalones.Label.prototype.container;
+/** @suppress {deprecated} */
+(function() {
+  var proto = anychart.standalones.Label.prototype;
+  goog.exportSymbol('anychart.ui.label', anychart.ui.label);
+  goog.exportSymbol('anychart.standalones.label', anychart.standalones.label);
+  proto['draw'] = proto.draw;
+  proto['parentBounds'] = proto.parentBounds;
+  proto['container'] = proto.container;
+})();

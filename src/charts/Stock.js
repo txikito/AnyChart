@@ -25,8 +25,9 @@ goog.require('anychart.utils');
  * @implements {anychart.core.IChartWithAnnotations}
  * @implements {anychart.core.IGroupingProvider}
  * @implements {anychart.core.stock.IKeyIndexTransformer}
+ * @param {boolean=} opt_allowPointSettings Allows to set point settings from data.
  */
-anychart.charts.Stock = function() {
+anychart.charts.Stock = function(opt_allowPointSettings) {
   // See SeparateChart
   this.supportsBaseHighlight = false;
 
@@ -116,6 +117,12 @@ anychart.charts.Stock = function() {
    * @private
    */
   this.defaultAnnotationSettings_ = {};
+
+  /**
+   * Series config.
+   * @type {Object.<string, anychart.core.series.TypeConfig>}
+   */
+  this.seriesConfig = this.createSeriesConfig(!!opt_allowPointSettings);
 };
 goog.inherits(anychart.charts.Stock, anychart.core.Chart);
 
@@ -152,10 +159,11 @@ anychart.charts.Stock.prototype.getType = function() {
 
 
 /**
- * Series config for the chart.
- * @type {Object.<string, anychart.core.series.TypeConfig>}
+ * Creates series config for the chart.
+ * @param {boolean} allowColoring
+ * @return {Object.<string, anychart.core.series.TypeConfig>}
  */
-anychart.charts.Stock.prototype.seriesConfig = (function() {
+anychart.charts.Stock.prototype.createSeriesConfig = function(allowColoring) {
   var res = {};
   var capabilities = (
       // anychart.core.series.Capabilities.ALLOW_INTERACTIVITY |
@@ -164,6 +172,8 @@ anychart.charts.Stock.prototype.seriesConfig = (function() {
       anychart.core.series.Capabilities.SUPPORTS_MARKERS |
       // anychart.core.series.Capabilities.SUPPORTS_LABELS |
       0);
+  capabilities |= (allowColoring && anychart.core.series.Capabilities.ALLOW_POINT_SETTINGS);
+  var discreteShapeManager = allowColoring ? anychart.enums.ShapeManagerTypes.PER_POINT : anychart.enums.ShapeManagerTypes.PER_SERIES;
   res[anychart.enums.StockSeriesType.AREA] = {
     drawerType: anychart.enums.SeriesDrawerTypes.AREA,
     shapeManagerType: anychart.enums.ShapeManagerTypes.PER_SERIES,
@@ -175,12 +185,12 @@ anychart.charts.Stock.prototype.seriesConfig = (function() {
     secondaryShapesConfig: null,
     postProcessor: null,
     capabilities: capabilities,
-    anchoredPositionTop: anychart.opt.VALUE,
-    anchoredPositionBottom: anychart.opt.ZERO
+    anchoredPositionTop: 'value',
+    anchoredPositionBottom: 'zero'
   };
   res[anychart.enums.StockSeriesType.CANDLESTICK] = {
     drawerType: anychart.enums.SeriesDrawerTypes.CANDLESTICK,
-    shapeManagerType: anychart.enums.ShapeManagerTypes.PER_SERIES,
+    shapeManagerType: discreteShapeManager,
     shapesConfig: [
       anychart.core.shapeManagers.pathRisingFillStrokeConfig,
       anychart.core.shapeManagers.pathRisingHatchConfig,
@@ -190,12 +200,12 @@ anychart.charts.Stock.prototype.seriesConfig = (function() {
     secondaryShapesConfig: null,
     postProcessor: null,
     capabilities: capabilities,
-    anchoredPositionTop: anychart.opt.HIGH,
-    anchoredPositionBottom: anychart.opt.LOW
+    anchoredPositionTop: 'high',
+    anchoredPositionBottom: 'low'
   };
   res[anychart.enums.StockSeriesType.COLUMN] = {
     drawerType: anychart.enums.SeriesDrawerTypes.COLUMN,
-    shapeManagerType: anychart.enums.ShapeManagerTypes.PER_SERIES,
+    shapeManagerType: discreteShapeManager,
     shapesConfig: [
       anychart.core.shapeManagers.pathFillStrokeConfig,
       anychart.core.shapeManagers.pathHatchConfig
@@ -203,10 +213,10 @@ anychart.charts.Stock.prototype.seriesConfig = (function() {
     secondaryShapesConfig: null,
     postProcessor: null,
     capabilities: capabilities,
-    anchoredPositionTop: anychart.opt.VALUE,
-    anchoredPositionBottom: anychart.opt.ZERO
+    anchoredPositionTop: 'value',
+    anchoredPositionBottom: 'zero'
   };
-  res[anychart.enums.CartesianSeriesType.JUMP_LINE] = {
+  res[anychart.enums.StockSeriesType.JUMP_LINE] = {
     drawerType: anychart.enums.SeriesDrawerTypes.JUMP_LINE,
     shapeManagerType: anychart.enums.ShapeManagerTypes.PER_POINT,
     shapesConfig: [
@@ -215,10 +225,10 @@ anychart.charts.Stock.prototype.seriesConfig = (function() {
     secondaryShapesConfig: null,
     postProcessor: null,
     capabilities: capabilities,
-    anchoredPositionTop: anychart.opt.VALUE,
-    anchoredPositionBottom: anychart.opt.VALUE
+    anchoredPositionTop: 'value',
+    anchoredPositionBottom: 'value'
   };
-  res[anychart.enums.CartesianSeriesType.STICK] = {
+  res[anychart.enums.StockSeriesType.STICK] = {
     drawerType: anychart.enums.SeriesDrawerTypes.STICK,
     shapeManagerType: anychart.enums.ShapeManagerTypes.PER_POINT,
     shapesConfig: [
@@ -227,8 +237,8 @@ anychart.charts.Stock.prototype.seriesConfig = (function() {
     secondaryShapesConfig: null,
     postProcessor: null,
     capabilities: capabilities,
-    anchoredPositionTop: anychart.opt.VALUE,
-    anchoredPositionBottom: anychart.opt.ZERO
+    anchoredPositionTop: 'value',
+    anchoredPositionBottom: 'zero'
   };
   res[anychart.enums.StockSeriesType.LINE] = {
     drawerType: anychart.enums.SeriesDrawerTypes.LINE,
@@ -239,12 +249,12 @@ anychart.charts.Stock.prototype.seriesConfig = (function() {
     secondaryShapesConfig: null,
     postProcessor: null,
     capabilities: capabilities,
-    anchoredPositionTop: anychart.opt.VALUE,
-    anchoredPositionBottom: anychart.opt.VALUE
+    anchoredPositionTop: 'value',
+    anchoredPositionBottom: 'value'
   };
   res[anychart.enums.StockSeriesType.MARKER] = {
     drawerType: anychart.enums.SeriesDrawerTypes.MARKER,
-    shapeManagerType: anychart.enums.ShapeManagerTypes.PER_SERIES,
+    shapeManagerType: discreteShapeManager,
     shapesConfig: [
       anychart.core.shapeManagers.pathFillStrokeConfig,
       anychart.core.shapeManagers.pathHatchConfig
@@ -252,12 +262,12 @@ anychart.charts.Stock.prototype.seriesConfig = (function() {
     secondaryShapesConfig: null,
     postProcessor: null,
     capabilities: capabilities,
-    anchoredPositionTop: anychart.opt.VALUE,
-    anchoredPositionBottom: anychart.opt.VALUE
+    anchoredPositionTop: 'value',
+    anchoredPositionBottom: 'value'
   };
   res[anychart.enums.StockSeriesType.OHLC] = {
     drawerType: anychart.enums.SeriesDrawerTypes.OHLC,
-    shapeManagerType: anychart.enums.ShapeManagerTypes.PER_SERIES,
+    shapeManagerType: discreteShapeManager,
     shapesConfig: [
       anychart.core.shapeManagers.pathRisingStrokeConfig,
       anychart.core.shapeManagers.pathFallingStrokeConfig
@@ -265,8 +275,8 @@ anychart.charts.Stock.prototype.seriesConfig = (function() {
     secondaryShapesConfig: null,
     postProcessor: null,
     capabilities: capabilities,
-    anchoredPositionTop: anychart.opt.HIGH,
-    anchoredPositionBottom: anychart.opt.LOW
+    anchoredPositionTop: 'high',
+    anchoredPositionBottom: 'low'
   };
   res[anychart.enums.StockSeriesType.RANGE_AREA] = {
     drawerType: anychart.enums.SeriesDrawerTypes.RANGE_AREA,
@@ -280,12 +290,12 @@ anychart.charts.Stock.prototype.seriesConfig = (function() {
     secondaryShapesConfig: null,
     postProcessor: null,
     capabilities: capabilities,
-    anchoredPositionTop: anychart.opt.HIGH,
-    anchoredPositionBottom: anychart.opt.LOW
+    anchoredPositionTop: 'high',
+    anchoredPositionBottom: 'low'
   };
   res[anychart.enums.StockSeriesType.RANGE_COLUMN] = {
     drawerType: anychart.enums.SeriesDrawerTypes.RANGE_COLUMN,
-    shapeManagerType: anychart.enums.ShapeManagerTypes.PER_SERIES,
+    shapeManagerType: discreteShapeManager,
     shapesConfig: [
       anychart.core.shapeManagers.pathFillStrokeConfig,
       anychart.core.shapeManagers.pathHatchConfig
@@ -293,8 +303,8 @@ anychart.charts.Stock.prototype.seriesConfig = (function() {
     secondaryShapesConfig: null,
     postProcessor: null,
     capabilities: capabilities,
-    anchoredPositionTop: anychart.opt.HIGH,
-    anchoredPositionBottom: anychart.opt.LOW
+    anchoredPositionTop: 'high',
+    anchoredPositionBottom: 'low'
   };
   res[anychart.enums.StockSeriesType.RANGE_SPLINE_AREA] = {
     drawerType: anychart.enums.SeriesDrawerTypes.RANGE_SPLINE_AREA,
@@ -308,8 +318,8 @@ anychart.charts.Stock.prototype.seriesConfig = (function() {
     secondaryShapesConfig: null,
     postProcessor: null,
     capabilities: capabilities,
-    anchoredPositionTop: anychart.opt.HIGH,
-    anchoredPositionBottom: anychart.opt.LOW
+    anchoredPositionTop: 'high',
+    anchoredPositionBottom: 'low'
   };
   res[anychart.enums.StockSeriesType.RANGE_STEP_AREA] = {
     drawerType: anychart.enums.SeriesDrawerTypes.RANGE_STEP_AREA,
@@ -323,8 +333,8 @@ anychart.charts.Stock.prototype.seriesConfig = (function() {
     secondaryShapesConfig: null,
     postProcessor: null,
     capabilities: capabilities,
-    anchoredPositionTop: anychart.opt.HIGH,
-    anchoredPositionBottom: anychart.opt.LOW
+    anchoredPositionTop: 'high',
+    anchoredPositionBottom: 'low'
   };
   res[anychart.enums.StockSeriesType.SPLINE] = {
     drawerType: anychart.enums.SeriesDrawerTypes.SPLINE,
@@ -335,8 +345,8 @@ anychart.charts.Stock.prototype.seriesConfig = (function() {
     secondaryShapesConfig: null,
     postProcessor: null,
     capabilities: capabilities,
-    anchoredPositionTop: anychart.opt.VALUE,
-    anchoredPositionBottom: anychart.opt.VALUE
+    anchoredPositionTop: 'value',
+    anchoredPositionBottom: 'value'
   };
   res[anychart.enums.StockSeriesType.SPLINE_AREA] = {
     drawerType: anychart.enums.SeriesDrawerTypes.SPLINE_AREA,
@@ -349,8 +359,8 @@ anychart.charts.Stock.prototype.seriesConfig = (function() {
     secondaryShapesConfig: null,
     postProcessor: null,
     capabilities: capabilities,
-    anchoredPositionTop: anychart.opt.VALUE,
-    anchoredPositionBottom: anychart.opt.ZERO
+    anchoredPositionTop: 'value',
+    anchoredPositionBottom: 'zero'
   };
   res[anychart.enums.StockSeriesType.STEP_AREA] = {
     drawerType: anychart.enums.SeriesDrawerTypes.STEP_AREA,
@@ -363,8 +373,8 @@ anychart.charts.Stock.prototype.seriesConfig = (function() {
     secondaryShapesConfig: null,
     postProcessor: null,
     capabilities: capabilities,
-    anchoredPositionTop: anychart.opt.VALUE,
-    anchoredPositionBottom: anychart.opt.ZERO
+    anchoredPositionTop: 'value',
+    anchoredPositionBottom: 'zero'
   };
   res[anychart.enums.StockSeriesType.STEP_LINE] = {
     drawerType: anychart.enums.SeriesDrawerTypes.STEP_LINE,
@@ -375,11 +385,11 @@ anychart.charts.Stock.prototype.seriesConfig = (function() {
     secondaryShapesConfig: null,
     postProcessor: null,
     capabilities: capabilities,
-    anchoredPositionTop: anychart.opt.VALUE,
-    anchoredPositionBottom: anychart.opt.VALUE
+    anchoredPositionTop: 'value',
+    anchoredPositionBottom: 'value'
   };
   return res;
-})();
+};
 
 
 /** @inheritDoc */
@@ -417,6 +427,14 @@ anychart.charts.Stock.prototype.getConfigByType = function(type) {
     res = null;
   }
   return res;
+};
+
+
+/**
+ * @return {boolean}
+ */
+anychart.charts.Stock.prototype.isVertical = function() {
+  return false;
 };
 //endregion
 
@@ -843,6 +861,15 @@ anychart.charts.Stock.prototype.getCurrentMinDistance = function() {
 anychart.charts.Stock.prototype.getCurrentScrollerMinDistance = function() {
   return this.dataController_.getCurrentScrollerMinDistance();
 };
+
+
+/**
+ * Returns plots count.
+ * @return {number} Number of plots.
+ */
+anychart.charts.Stock.prototype.getPlotsCount = function() {
+  return this.plots_.length;
+};
 //endregion
 
 
@@ -866,6 +893,7 @@ anychart.charts.Stock.prototype.drawContent = function(bounds) {
 
   // means that stock selection range needs to be updated
   if (this.hasInvalidationState(anychart.ConsistencyState.STOCK_DATA)) {
+    anychart.performance.start('Stock data calc');
     var xScale = /** @type {anychart.scales.StockScatterDateTime} */(this.xScale());
     var scrollerXScale = /** @type {anychart.scales.StockScatterDateTime} */(this.scroller().xScale());
     var changed = this.dataController_.refreshSelection(this.minPlotsDrawingWidth_);
@@ -881,14 +909,18 @@ anychart.charts.Stock.prototype.drawContent = function(bounds) {
       this.invalidate(anychart.ConsistencyState.STOCK_SCROLLER);
     }
     this.markConsistent(anychart.ConsistencyState.STOCK_DATA);
+    anychart.performance.end('Stock data calc');
   }
 
   if (this.hasInvalidationState(anychart.ConsistencyState.STOCK_SCALES)) {
+    anychart.performance.start('Stock scales calc');
     this.calculateScales_();
     this.markConsistent(anychart.ConsistencyState.STOCK_SCALES);
+    anychart.performance.end('Stock scales calc');
   }
 
   if (this.hasInvalidationState(anychart.ConsistencyState.STOCK_SCROLLER)) {
+    anychart.performance.start('Stock drawing scroller');
     // we created scroller at least at STOCK_DATA this.scroller().xScale() call
     this.scroller()
         .setRangeByValues(
@@ -897,18 +929,21 @@ anychart.charts.Stock.prototype.drawContent = function(bounds) {
         .container(this.rootElement)
         .draw();
     this.markConsistent(anychart.ConsistencyState.STOCK_SCROLLER);
+    anychart.performance.end('Stock drawing scroller');
   }
 
   if (this.hasInvalidationState(anychart.ConsistencyState.STOCK_PLOTS_APPEARANCE)) {
+    anychart.performance.start('Stock drawing plots');
     for (var i = 0; i < this.plots_.length; i++) {
       var plot = this.plots_[i];
       if (plot) {
         plot
-          .container(this.rootElement)
-          .draw();
+            .container(this.rootElement)
+            .draw();
       }
     }
     this.markConsistent(anychart.ConsistencyState.STOCK_PLOTS_APPEARANCE);
+    anychart.performance.end('Stock drawing plots');
   }
 
   this.refreshHighlight_();
@@ -1162,7 +1197,7 @@ anychart.charts.Stock.prototype.scrollerInvalidated_ = function(e) {
   var state = anychart.ConsistencyState.STOCK_SCROLLER;
   var signal = anychart.Signal.NEEDS_REDRAW;
   if (e.hasSignal(anychart.Signal.BOUNDS_CHANGED)) {
-    state |= anychart.ConsistencyState.BOUNDS;
+    state |= anychart.ConsistencyState.BOUNDS | anychart.ConsistencyState.STOCK_SCALES;
     signal |= anychart.Signal.BOUNDS_CHANGED;
   }
   if (e.hasSignal(anychart.Signal.NEEDS_RECALCULATION))
@@ -1357,9 +1392,8 @@ anychart.charts.Stock.prototype.getLastDate = function() {
 
 /**
  * Prevents chart from highlighting points.
- * @private
  */
-anychart.charts.Stock.prototype.preventHighlight_ = function() {
+anychart.charts.Stock.prototype.preventHighlight = function() {
   this.highlightPrevented_ = true;
   this.unhighlight_();
 };
@@ -1367,9 +1401,8 @@ anychart.charts.Stock.prototype.preventHighlight_ = function() {
 
 /**
  * Turns highlight prevention off and refreshes points highlight if necessary.
- * @private
  */
-anychart.charts.Stock.prototype.allowHighlight_ = function() {
+anychart.charts.Stock.prototype.allowHighlight = function() {
   this.highlightPrevented_ = false;
   this.refreshHighlight_();
 };
@@ -1420,8 +1453,8 @@ anychart.charts.Stock.prototype.highlightAtRatio_ = function(ratio, clientX, cli
    * @type {!anychart.core.ui.Tooltip}
    */
   var tooltip = /** @type {!anychart.core.ui.Tooltip} */(this.tooltip());
-  if (tooltip.getOption(anychart.opt.DISPLAY_MODE) == anychart.enums.TooltipDisplayMode.UNION &&
-      tooltip.getOption(anychart.opt.POSITION_MODE) != anychart.enums.TooltipPositionMode.POINT) {
+  if (tooltip.getOption('displayMode') == anychart.enums.TooltipDisplayMode.UNION &&
+      tooltip.getOption('positionMode') != anychart.enums.TooltipPositionMode.POINT) {
     var points = [];
     var info = eventInfo['infoByPlots'];
     for (i = 0; i < info.length; i++) {
@@ -1438,10 +1471,10 @@ anychart.charts.Stock.prototype.highlightAtRatio_ = function(ratio, clientX, cli
     }
     var grouping = /** @type {anychart.core.stock.Grouping} */(this.grouping());
     tooltip.showForSeriesPoints(points, clientX, clientY, null, false, {
-      'hoveredDate': value,
-      'dataIntervalUnit': grouping.getCurrentDataInterval()['unit'],
-      'dataIntervalUnitCount': grouping.getCurrentDataInterval()['count'],
-      'isGrouped': grouping.isGrouped()
+      'hoveredDate': {value: value, type: anychart.enums.TokenType.DATE_TIME},
+      'dataIntervalUnit': {value: grouping.getCurrentDataInterval()['unit'], type: anychart.enums.TokenType.STRING},
+      'dataIntervalUnitCount': {value: grouping.getCurrentDataInterval()['count'], type: anychart.enums.TokenType.NUMBER},
+      'isGrouped': {value: grouping.isGrouped()}
     });
   }
   //}
@@ -1499,7 +1532,7 @@ anychart.charts.Stock.prototype.scrollerChangeStartHandler_ = function(e) {
       anychart.enums.EventType.SELECTED_RANGE_CHANGE_START,
       this.transformScrollerSource_(e['source']));
   if (res)
-    this.preventHighlight_();
+    this.preventHighlight();
   return res;
 };
 
@@ -1534,7 +1567,7 @@ anychart.charts.Stock.prototype.scrollerChangeFinishHandler_ = function(e) {
   this.dispatchRangeChange_(
       anychart.enums.EventType.SELECTED_RANGE_CHANGE_FINISH,
       this.transformScrollerSource_(e['source']));
-  this.allowHighlight_();
+  this.allowHighlight();
 };
 //endregion
 
@@ -1653,12 +1686,11 @@ anychart.charts.Stock.prototype.limitDragRatio = function(ratio, anchor) {
  * @return {boolean}
  */
 anychart.charts.Stock.prototype.askDragStart = function() {
-  this.annotations().unselect();
   var res = this.dispatchRangeChange_(
       anychart.enums.EventType.SELECTED_RANGE_CHANGE_START,
       anychart.enums.StockRangeChangeSource.PLOT_DRAG);
   if (res) {
-    this.preventHighlight_();
+    this.preventHighlight();
     goog.style.setStyle(document['body'], 'cursor', acgraph.vector.Cursor.EW_RESIZE);
   }
   return res;
@@ -1673,7 +1705,7 @@ anychart.charts.Stock.prototype.dragEnd = function() {
   this.dispatchRangeChange_(
       anychart.enums.EventType.SELECTED_RANGE_CHANGE_FINISH,
       anychart.enums.StockRangeChangeSource.PLOT_DRAG);
-  this.allowHighlight_();
+  this.allowHighlight();
 };
 //endregion
 
@@ -1694,13 +1726,13 @@ anychart.charts.Stock.prototype.disposeInternal = function() {
   delete this.dataController_;
   delete this.defaultAnnotationSettings_;
 
-  goog.base(this, 'disposeInternal');
+  anychart.charts.Stock.base(this, 'disposeInternal');
 };
 
 
 /** @inheritDoc */
 anychart.charts.Stock.prototype.serialize = function() {
-  var json = goog.base(this, 'serialize');
+  var json = anychart.charts.Stock.base(this, 'serialize');
   json['grouping'] = this.grouping().serialize();
   json['scrollerGrouping'] = this.scrollerGrouping().serialize();
   json['xScale'] = this.xScale().serialize();
@@ -1712,7 +1744,7 @@ anychart.charts.Stock.prototype.serialize = function() {
 
 /** @inheritDoc */
 anychart.charts.Stock.prototype.setupByJSON = function(config, opt_default) {
-  goog.base(this, 'setupByJSON', config, opt_default);
+  anychart.charts.Stock.base(this, 'setupByJSON', config, opt_default);
   var json;
 
   if ('xScale' in config)
@@ -1745,11 +1777,12 @@ anychart.charts.Stock.prototype.setupByJSON = function(config, opt_default) {
 
 /**
  * Stock chart constructor function.
+ * @param {boolean=} opt_allowPointSettings Allows to set point settings from data.
  * @return {anychart.charts.Stock}
  */
-anychart.stock = function() {
-  var result = new anychart.charts.Stock();
-  result.setupByVal(anychart.getFullTheme()['stock'], true);
+anychart.stock = function(opt_allowPointSettings) {
+  var result = new anychart.charts.Stock(opt_allowPointSettings);
+  result.setupByVal(anychart.getFullTheme('stock'), true);
   return result;
 };
 
@@ -2032,15 +2065,19 @@ anychart.charts.Stock.prototype.toCsv = function(opt_chartDataExportMode, opt_cs
 
 
 //exports
-goog.exportSymbol('anychart.stock', anychart.stock);
-anychart.charts.Stock.prototype['plot'] = anychart.charts.Stock.prototype.plot;
-anychart.charts.Stock.prototype['scroller'] = anychart.charts.Stock.prototype.scroller;
-anychart.charts.Stock.prototype['xScale'] = anychart.charts.Stock.prototype.xScale;
-anychart.charts.Stock.prototype['selectRange'] = anychart.charts.Stock.prototype.selectRange;
-anychart.charts.Stock.prototype['getSelectedRange'] = anychart.charts.Stock.prototype.getSelectedRange;
-anychart.charts.Stock.prototype['getType'] = anychart.charts.Stock.prototype.getType;
-anychart.charts.Stock.prototype['legend'] = anychart.charts.Stock.prototype.legend;
-anychart.charts.Stock.prototype['toCsv'] = anychart.charts.Stock.prototype.toCsv;
-anychart.charts.Stock.prototype['grouping'] = anychart.charts.Stock.prototype.grouping;
-anychart.charts.Stock.prototype['scrollerGrouping'] = anychart.charts.Stock.prototype.scrollerGrouping;
-anychart.charts.Stock.prototype['annotations'] = anychart.charts.Stock.prototype.annotations;
+(function() {
+  var proto = anychart.charts.Stock.prototype;
+  goog.exportSymbol('anychart.stock', anychart.stock);
+  proto['plot'] = proto.plot;
+  proto['scroller'] = proto.scroller;
+  proto['xScale'] = proto.xScale;
+  proto['selectRange'] = proto.selectRange;
+  proto['getSelectedRange'] = proto.getSelectedRange;
+  proto['getType'] = proto.getType;
+  proto['legend'] = proto.legend;
+  proto['toCsv'] = proto.toCsv;
+  proto['grouping'] = proto.grouping;
+  proto['scrollerGrouping'] = proto.scrollerGrouping;
+  proto['annotations'] = proto.annotations;
+  proto['getPlotsCount'] = proto.getPlotsCount;
+})();

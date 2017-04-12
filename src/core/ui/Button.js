@@ -13,7 +13,7 @@ goog.require('anychart.math');
  * @extends {anychart.core.Text}
  */
 anychart.core.ui.Button = function() {
-  goog.base(this);
+  anychart.core.ui.Button.base(this, 'constructor');
 
   /**
    * Button cursor.
@@ -283,7 +283,7 @@ anychart.core.ui.Button.prototype.applyTextSettings = function(textElement, isIn
     else
       textElement.text(this.settingsObj['text']);
   }
-  goog.base(this, 'applyTextSettings', textElement, isInitial);
+  anychart.core.ui.Button.base(this, 'applyTextSettings', textElement, isInitial);
   this.changedSettings = {};
 };
 
@@ -551,14 +551,14 @@ anychart.core.ui.Button.prototype.calculateButtonBounds_ = function() {
     } else { // in other case - calculating using parent width
       width = anychart.utils.normalizeSize(/** @type {number|string} */ (this.width_), parentWidth);
     }
-    if (hasText) this.textX = anychart.utils.normalizeSize(/** @type {number|string} */ (padding.getOption(anychart.opt.LEFT)), width);
+    if (hasText) this.textX = anychart.utils.normalizeSize(/** @type {number|string} */ (padding.getOption('left')), width);
   } else { // if width is not set  - it is either the same as text width, or 0
     if (hasText) {// if there is text - adjust
       width = textWidth;
     } else { // or set to 0
       width = 0;
     }
-    if (hasText) this.textX = anychart.utils.normalizeSize(/** @type {number|string} */ (padding.getOption(anychart.opt.LEFT)), width);
+    if (hasText) this.textX = anychart.utils.normalizeSize(/** @type {number|string} */ (padding.getOption('left')), width);
     // if width is not set - use padding
     width = padding.widenWidth(width);
   }
@@ -580,14 +580,14 @@ anychart.core.ui.Button.prototype.calculateButtonBounds_ = function() {
     } else { // in other case - calculating using parent height
       height = anychart.utils.normalizeSize(/** @type {number|string} */ (this.height_), parentHeight);
     }
-    if (hasText) this.textY = anychart.utils.normalizeSize(/** @type {number|string} */ (padding.getOption(anychart.opt.TOP)), height);
+    if (hasText) this.textY = anychart.utils.normalizeSize(/** @type {number|string} */ (padding.getOption('top')), height);
   } else { // if height is not set  - it is either the same as text height, or 0
     if (hasText) { // if there is text - adjust
       height = textHeight;
     } else { // or set to 0
       height = 0;
     }
-    if (hasText) this.textY = anychart.utils.normalizeSize(/** @type {number|string} */ (padding.getOption(anychart.opt.TOP)), height);
+    if (hasText) this.textY = anychart.utils.normalizeSize(/** @type {number|string} */ (padding.getOption('top')), height);
     // if height is not set - use padding
     height = padding.widenHeight(height);
   }
@@ -858,16 +858,16 @@ anychart.core.ui.Button.prototype.cursor = function(opt_value) {
 };
 
 
-//anychart.core.ui.Button.prototype['text'] = anychart.core.ui.Button.prototype.text;
-//anychart.core.ui.Button.prototype['padding'] = anychart.core.ui.Button.prototype.padding;
-//anychart.core.ui.Button.prototype['position'] = anychart.core.ui.Button.prototype.position;
-//anychart.core.ui.Button.prototype['width'] = anychart.core.ui.Button.prototype.width;
-//anychart.core.ui.Button.prototype['height'] = anychart.core.ui.Button.prototype.height;
-//anychart.core.ui.Button.prototype['setOnClickListener'] = anychart.core.ui.Button.prototype.setOnClickListener;
-//anychart.core.ui.Button.prototype['normal'] = anychart.core.ui.Button.prototype.normal;
-//anychart.core.ui.Button.prototype['hover'] = anychart.core.ui.Button.prototype.hover;
-//anychart.core.ui.Button.prototype['pushed'] = anychart.core.ui.Button.prototype.pushed;
-//anychart.core.ui.Button.prototype['checked'] = anychart.core.ui.Button.prototype.checked;
-//anychart.core.ui.Button.prototype['disabled'] = anychart.core.ui.Button.prototype.disabled;
+//proto['text'] = proto.text;
+//proto['padding'] = proto.padding;
+//proto['position'] = proto.position;
+//proto['width'] = proto.width;
+//proto['height'] = proto.height;
+//proto['setOnClickListener'] = proto.setOnClickListener;
+//proto['normal'] = proto.normal;
+//proto['hover'] = proto.hover;
+//proto['pushed'] = proto.pushed;
+//proto['checked'] = proto.checked;
+//proto['disabled'] = proto.disabled;
 
 //exports

@@ -2,7 +2,6 @@ goog.provide('anychart.core.drawers.Candlestick');
 goog.require('anychart.core.drawers');
 goog.require('anychart.core.drawers.Base');
 goog.require('anychart.enums');
-goog.require('anychart.opt');
 
 
 
@@ -37,7 +36,7 @@ anychart.core.drawers.Candlestick.prototype.flags = (
     anychart.core.drawers.Capabilities.IS_DISCRETE_BASED |
     anychart.core.drawers.Capabilities.IS_WIDTH_BASED |
     // anychart.core.drawers.Capabilities.IS_3D_BASED |
-    // anychart.core.drawers.Capabilities.IS_BAR_BASED |
+    // anychart.core.drawers.Capabilities.IS_VERTICAL |
     // anychart.core.drawers.Capabilities.IS_MARKER_BASED |
     anychart.core.drawers.Capabilities.IS_OHLC_BASED |
     // anychart.core.drawers.Capabilities.IS_LINE_BASED |
@@ -48,52 +47,65 @@ anychart.core.drawers.Candlestick.prototype.flags = (
 
 
 /** @inheritDoc */
-anychart.core.drawers.Candlestick.prototype.yValueNames = ([anychart.opt.OPEN, anychart.opt.HIGH, anychart.opt.LOW, anychart.opt.CLOSE]);
+anychart.core.drawers.Candlestick.prototype.requiredShapes = (function() {
+  var res = {};
+  res['rising'] = anychart.enums.ShapeType.PATH;
+  res['risingHatchFill'] = anychart.enums.ShapeType.PATH;
+  res['falling'] = anychart.enums.ShapeType.PATH;
+  res['fallingHatchFill'] = anychart.enums.ShapeType.PATH;
+  return res;
+})();
+
+
+/** @inheritDoc */
+anychart.core.drawers.Candlestick.prototype.yValueNames = (['open', 'high', 'low', 'close']);
 
 
 /** @inheritDoc */
 anychart.core.drawers.Candlestick.prototype.drawSubsequentPoint = function(point, state) {
-  var rising = Number(point.get(anychart.opt.OPEN)) < Number(point.get(anychart.opt.CLOSE));
+  var rising = Number(point.get('open')) < Number(point.get('close'));
   var name, hatchName;
   if (rising) {
-    name = anychart.opt.RISING;
-    hatchName = anychart.opt.RISING_HATCH_FILL;
+    name = 'rising';
+    hatchName = 'risingHatchFill';
   } else {
-    name = anychart.opt.FALLING;
-    hatchName = anychart.opt.FALLING_HATCH_FILL;
+    name = 'falling';
+    hatchName = 'fallingHatchFill';
   }
   var shapeNames = {};
   shapeNames[name] = true;
   shapeNames[hatchName] = true;
   var shapes = this.shapesManager.getShapesGroup(state, shapeNames);
 
-  var x = /** @type {number} */(point.meta(anychart.opt.X));
-  var open = /** @type {number} */(point.meta(anychart.opt.OPEN));
-  var high = /** @type {number} */(point.meta(anychart.opt.HIGH));
-  var low = /** @type {number} */(point.meta(anychart.opt.LOW));
-  var close = /** @type {number} */(point.meta(anychart.opt.CLOSE));
+  var x = /** @type {number} */(point.meta('x'));
+  var open = /** @type {number} */(point.meta('open'));
+  var high = /** @type {number} */(point.meta('high'));
+  var low = /** @type {number} */(point.meta('low'));
+  var close = /** @type {number} */(point.meta('close'));
 
   var widthHalf = this.pointWidth / 2;
 
-  shapes[name]
-      .moveTo(x, high)
-      .lineTo(x, rising ? close : open)
-      .moveTo(x - widthHalf, open)
-      .lineTo(x + widthHalf, open)
-      .lineTo(x + widthHalf, close)
-      .lineTo(x - widthHalf, close)
-      .lineTo(x - widthHalf, open)
-      .moveTo(x, low)
-      .lineTo(x, rising ? open : close);
+  var path = /** @type {acgraph.vector.Path} */(shapes[name]);
+  anychart.core.drawers.move(path, this.isVertical, x, high);
+  anychart.core.drawers.line(path, this.isVertical, x, rising ? close : open);
+  anychart.core.drawers.move(path, this.isVertical, x - widthHalf, open);
+  anychart.core.drawers.line(path, this.isVertical,
+      x + widthHalf, open,
+      x + widthHalf, close,
+      x - widthHalf, close,
+      x - widthHalf, open);
+  anychart.core.drawers.move(path, this.isVertical, x, low);
+  anychart.core.drawers.line(path, this.isVertical, x, rising ? open : close);
 
-  shapes[hatchName]
-      .moveTo(x, high)
-      .lineTo(x, rising ? close : open)
-      .moveTo(x - widthHalf, open)
-      .lineTo(x + widthHalf, open)
-      .lineTo(x + widthHalf, close)
-      .lineTo(x - widthHalf, close)
-      .lineTo(x - widthHalf, open)
-      .moveTo(x, low)
-      .lineTo(x, rising ? open : close);
+  path = /** @type {acgraph.vector.Path} */(shapes[hatchName]);
+  anychart.core.drawers.move(path, this.isVertical, x, high);
+  anychart.core.drawers.line(path, this.isVertical, x, rising ? close : open);
+  anychart.core.drawers.move(path, this.isVertical, x - widthHalf, open);
+  anychart.core.drawers.line(path, this.isVertical,
+      x + widthHalf, open,
+      x + widthHalf, close,
+      x - widthHalf, close,
+      x - widthHalf, open);
+  anychart.core.drawers.move(path, this.isVertical, x, low);
+  anychart.core.drawers.line(path, this.isVertical, x, rising ? open : close);
 };

@@ -36,7 +36,7 @@ anychart.standalones.axes.Polar.prototype.serialize = function() {
  */
 anychart.standalones.axes.polar = function() {
   var axis = new anychart.standalones.axes.Polar();
-  axis.setup(anychart.getFullTheme()['standalones']['polarAxis']);
+  axis.setup(anychart.getFullTheme('standalones.polarAxis'));
   return axis;
 };
 
@@ -48,15 +48,19 @@ anychart.standalones.axes.polar = function() {
  * @deprecated Since 7.12.0. Use anychart.standalones.axes.polar instead.
  */
 anychart.axes.polar = function() {
-  anychart.core.reporting.warning(anychart.enums.WarningCode.DEPRECATED, null, ['anychart.axes.polar', 'anychart.standalones.axes.polar'], true);
+  anychart.core.reporting.warning(anychart.enums.WarningCode.DEPRECATED, null, ['anychart.axes.polar()', 'anychart.standalones.axes.polar()', null, 'Constructor'], true);
   return anychart.standalones.axes.polar();
 };
 
 
 //exports
-goog.exportSymbol('anychart.axes.polar', anychart.axes.polar);
-goog.exportSymbol('anychart.standalones.axes.polar', anychart.standalones.axes.polar);
-anychart.standalones.axes.Polar.prototype['draw'] = anychart.standalones.axes.Polar.prototype.draw;
-anychart.standalones.axes.Polar.prototype['parentBounds'] = anychart.standalones.axes.Polar.prototype.parentBounds;
-anychart.standalones.axes.Polar.prototype['container'] = anychart.standalones.axes.Polar.prototype.container;
-anychart.standalones.axes.Polar.prototype['startAngle'] = anychart.standalones.axes.Polar.prototype.startAngle;
+/** @suppress {deprecated} */
+(function() {
+  var proto = anychart.standalones.axes.Polar.prototype;
+  goog.exportSymbol('anychart.axes.polar', anychart.axes.polar);
+  goog.exportSymbol('anychart.standalones.axes.polar', anychart.standalones.axes.polar);
+  proto['draw'] = proto.draw;
+  proto['parentBounds'] = proto.parentBounds;
+  proto['container'] = proto.container;
+  proto['startAngle'] = proto.startAngle;
+})();

@@ -22,7 +22,7 @@ goog.require('anychart.enums');
  * @extends {anychart.core.Base}
  */
 anychart.data.View = function(parentView) {
-  goog.base(this);
+  anychart.data.View.base(this, 'constructor');
 
   /**
    * The parent view to ask data from.
@@ -62,6 +62,13 @@ anychart.data.View.prototype.mask = null;
 
 
 /**
+ * Mappings cache.
+ * @type {Array.<!anychart.data.Mapping>}
+ */
+anychart.data.View.prototype.mappingsCache = null;
+
+
+/**
  * Metadata storage.
  * @type {Array.<Object>}
  * @private
@@ -85,6 +92,7 @@ anychart.data.View.prototype.ensureConsistent = function() {
     return;
   if (this.metadata_)
     this.metadata_.length = 0;
+  this.mappingsCache = null;
   this.mask = this.buildMask();
   this.markConsistent(anychart.ConsistencyState.DATA_MASK);
 };
@@ -340,6 +348,11 @@ anychart.data.View.prototype.getRowsCount = function() {
 */
 anychart.data.View.prototype.getRowMapping = function(rowIndex) {
   this.ensureConsistent();
+  if (!this.mappingsCache) {
+    this.mappingsCache = this.getMappings();
+  }
+  if (this.mappingsCache.length == 1)
+    return this.mappingsCache[0];
   return this.parentView.getRowMapping(this.mask ? this.mask[rowIndex] : rowIndex);
 };
 
@@ -662,6 +675,42 @@ anychart.data.View.prototype.transitionMeta = function(on) {
 
 
 /**
+ * Checks if there exists at least one row in the view, that returns defined value for that name.
+ * @param {string|number} nameOrColumn
+ * @return {boolean}
+ */
+anychart.data.View.prototype.checkFieldExist = function(nameOrColumn) {
+  if (!this.mappingsCache) {
+    this.mappingsCache = this.getMappings();
+  }
+  for (var i = 0; i < this.mappingsCache.length; i++) {
+    var mapping = this.mappingsCache[i];
+    if (mapping.checkFieldExist(nameOrColumn))
+      return true;
+  }
+  return false;
+};
+
+
+/**
+ * Checks whether the view has non-object and non-array rows.
+ * @return {boolean}
+ */
+anychart.data.View.prototype.hasSimpleRows = function() {
+  return this.parentView.hasSimpleRows();
+};
+
+
+/**
+ * Returns all mappings that are related to the view.
+ * @return {Array.<!anychart.data.Mapping>}
+ */
+anychart.data.View.prototype.getMappings = function() {
+  return this.parentView.getMappings();
+};
+
+
+/**
  * Serializes the value.
  * @param {*} val
  * @return {*}
@@ -764,15 +813,18 @@ anychart.data.View.prototype.serialize = function() {
 
 
 //exports
-anychart.data.View.prototype['derive'] = anychart.data.View.prototype.derive;//doc|ex
-anychart.data.View.prototype['filter'] = anychart.data.View.prototype.filter;//doc|ex
-anychart.data.View.prototype['sort'] = anychart.data.View.prototype.sort;//doc|ex
-anychart.data.View.prototype['concat'] = anychart.data.View.prototype.concat;//doc|ex
-anychart.data.View.prototype['row'] = anychart.data.View.prototype.row;//doc|ex
-anychart.data.View.prototype['getRowsCount'] = anychart.data.View.prototype.getRowsCount;//doc|ex
-anychart.data.View.prototype['getIterator'] = anychart.data.View.prototype.getIterator;//doc|ex
-anychart.data.View.prototype['getDataSets'] = anychart.data.View.prototype.getDataSets;//doc|ex
-anychart.data.View.prototype['meta'] = anychart.data.View.prototype.meta;//doc|need-ex
-anychart.data.View.prototype['get'] = anychart.data.View.prototype.get;//doc|ex
-anychart.data.View.prototype['set'] = anychart.data.View.prototype.set;//doc|ex
-anychart.data.View.prototype['find'] = anychart.data.View.prototype.find;//doc|ex
+(function() {
+  var proto = anychart.data.View.prototype;
+  proto['derive'] = proto.derive;//doc|ex
+  proto['filter'] = proto.filter;//doc|ex
+  proto['sort'] = proto.sort;//doc|ex
+  proto['concat'] = proto.concat;//doc|ex
+  proto['row'] = proto.row;//doc|ex
+  proto['getRowsCount'] = proto.getRowsCount;//doc|ex
+  proto['getIterator'] = proto.getIterator;//doc|ex
+  proto['getDataSets'] = proto.getDataSets;//doc|ex
+  proto['meta'] = proto.meta;//doc|need-ex
+  proto['get'] = proto.get;//doc|ex
+  proto['set'] = proto.set;//doc|ex
+  proto['find'] = proto.find;//doc|ex
+})();

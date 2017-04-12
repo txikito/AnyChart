@@ -29,7 +29,7 @@ goog.require('goog.i18n.DateTimeFormat');
  * @extends {anychart.core.ui.BaseGrid}
  */
 anychart.core.ui.DataGrid = function(opt_controller) {
-  goog.base(this, opt_controller);
+  anychart.core.ui.DataGrid.base(this, 'constructor', opt_controller);
 
   /**
    * Array of columns.
@@ -510,7 +510,7 @@ anychart.core.ui.DataGrid.prototype.column = function(opt_indexOrValue, opt_valu
           .width(columnWidth)
           .height('100%');
 
-      column.title()[anychart.opt.TEXT](columnTitle);
+      column.title()['text'](columnTitle);
 
       column.resumeSignalsDispatching(true);
       this.columns_[index] = column;
@@ -579,7 +579,7 @@ anychart.core.ui.DataGrid.prototype.dblClickResizeColumn_ = function(column, col
     var eventY = event['offsetY'] - this.pixelBoundsCache.top;
     if (eventY < height) {
       var titleOriginalBoundsWidth = title.getOriginalBounds().width;
-      titleOriginalBoundsWidth += (title.padding().getOption(anychart.opt.LEFT) + title.padding().getOption(anychart.opt.RIGHT));
+      titleOriginalBoundsWidth += (title.padding().getOption('left') + title.padding().getOption('right'));
       column.width(/** @type {number} */ (column.defaultWidth() ? column.defaultWidth() : titleOriginalBoundsWidth));
     }
   }
@@ -862,7 +862,7 @@ anychart.core.ui.DataGrid.prototype.mouseOutMove = function(event) {
 
 /** @inheritDoc */
 anychart.core.ui.DataGrid.prototype.serialize = function() {
-  var json = goog.base(this, 'serialize');
+  var json = anychart.core.ui.DataGrid.base(this, 'serialize');
 
   json['columnStroke'] = anychart.color.serialize(this.columnStroke_);
   json['headerFill'] = anychart.color.serialize(this.headerFill_);
@@ -884,7 +884,7 @@ anychart.core.ui.DataGrid.prototype.serialize = function() {
 
 /** @inheritDoc */
 anychart.core.ui.DataGrid.prototype.setupByJSON = function(config, opt_default) {
-  goog.base(this, 'setupByJSON', config, opt_default);
+  anychart.core.ui.DataGrid.base(this, 'setupByJSON', config, opt_default);
 
   this.columnStroke(config['columnStroke']);
   this.headerFill(config['headerFill']);
@@ -933,7 +933,7 @@ anychart.core.ui.DataGrid.prototype.disposeInternal = function() {
  * @extends {anychart.core.VisualBase}
  */
 anychart.core.ui.DataGrid.Column = function(dataGrid) {
-  goog.base(this);
+  anychart.core.ui.DataGrid.Column.base(this, 'constructor');
 
   /**
    * Data grid of column.
@@ -1030,7 +1030,7 @@ anychart.core.ui.DataGrid.Column = function(dataGrid) {
    * @type {function(anychart.data.Tree.DataItem=):string}
    * @private
    */
-  this.textFormatter_ = this.defaultTextFormatter_;
+  this.format_ = this.defaultFormat_;
 
   /**
    * Multiplier to choose a left padding in a cell depending on a tree data item's depth.
@@ -1122,7 +1122,7 @@ anychart.core.ui.DataGrid.Column.prototype.setColumnFormat = function(fieldName,
     var width = settings['width'];
     var textStyle = settings['textStyle'];
 
-    if (goog.isDef(formatter)) this.textFormatter(function() {
+    if (goog.isDef(formatter)) this.format(function() {
       var item = this['item'];
       return formatter(item.get(fieldName));
     });
@@ -1143,7 +1143,7 @@ anychart.core.ui.DataGrid.Column.prototype.setColumnFormat = function(fieldName,
  * @return {string} - Text value.
  * @private
  */
-anychart.core.ui.DataGrid.Column.prototype.defaultTextFormatter_ = function(opt_item) {
+anychart.core.ui.DataGrid.Column.prototype.defaultFormat_ = function(opt_item) {
   return '';
 };
 
@@ -1182,17 +1182,30 @@ anychart.core.ui.DataGrid.Column.prototype.defaultCellTextSettingsOverrider_ = g
  * @return {(function(anychart.data.Tree.DataItem=):string|anychart.core.ui.DataGrid.Column)} - Current function or itself
  *  for method chaining.
  */
-anychart.core.ui.DataGrid.Column.prototype.textFormatter = function(opt_value) {
+anychart.core.ui.DataGrid.Column.prototype.format = function(opt_value) {
   if (goog.isDef(opt_value)) {
     if (goog.isFunction(opt_value)) {
-      this.textFormatter_ = opt_value;
+      this.format_ = opt_value;
     } else {
-      this.textFormatter_ = this.defaultTextFormatter_;
+      this.format_ = this.defaultFormat_;
     }
     this.invalidate(anychart.ConsistencyState.DATA_GRID_COLUMN_POSITION, anychart.Signal.NEEDS_REDRAW);
     return this;
   }
-  return this.textFormatter_;
+  return this.format_;
+};
+
+
+/**
+ * Sets cell text value formatter.
+ * @param {(function(anychart.data.Tree.DataItem=):string)=} opt_value - Function to be set.
+ * @return {(function(anychart.data.Tree.DataItem=):string|anychart.core.ui.DataGrid.Column)} - Current function or itself
+ *  for method chaining.
+ * @deprecated Since 7.13.1. Use 'format' instead.
+ */
+anychart.core.ui.DataGrid.Column.prototype.textFormatter = function(opt_value) {
+  anychart.core.reporting.warning(anychart.enums.WarningCode.DEPRECATED, null, ['textFormatter()', 'format()'], true);
+  return this.format(opt_value);
 };
 
 
@@ -1296,9 +1309,9 @@ anychart.core.ui.DataGrid.Column.prototype.title = function(opt_value) {
     this.title_
         .container(this.getTitleLayer_())
         .margin(0);
-    this.title_[anychart.opt.TEXT_WRAP](anychart.enums.TextWrap.NO_WRAP);
-    this.title_[anychart.opt.H_ALIGN](anychart.enums.HAlign.CENTER);
-    this.title_[anychart.opt.V_ALIGN](anychart.enums.VAlign.MIDDLE);
+    this.title_['textWrap'](anychart.enums.TextWrap.NO_WRAP);
+    this.title_['hAlign'](anychart.enums.HAlign.CENTER);
+    this.title_['vAlign'](anychart.enums.VAlign.MIDDLE);
     this.title_.resumeSignalsDispatching(false);
 
     this.title_.listenSignals(this.titleInvalidated_, this);
@@ -1570,13 +1583,13 @@ anychart.core.ui.DataGrid.Column.prototype.draw = function() {
       this.cellTextSettings().suspendSignalsDispatching();
       this.cellTextSettings().clear();
 
-      var paddingLeft = anychart.utils.normalizeSize(/** @type {number|string} */ (this.cellTextSettings().padding().getOption(anychart.opt.LEFT)),
+      var paddingLeft = anychart.utils.normalizeSize(/** @type {number|string} */ (this.cellTextSettings().padding().getOption('left')),
           this.pixelBoundsCache_.width);
-      var paddingRight = anychart.utils.normalizeSize(/** @type {(number|string)} */ (this.cellTextSettings().padding().getOption(anychart.opt.RIGHT)),
+      var paddingRight = anychart.utils.normalizeSize(/** @type {(number|string)} */ (this.cellTextSettings().padding().getOption('right')),
           this.pixelBoundsCache_.width);
-      var paddingTop = anychart.utils.normalizeSize(/** @type {(number|string)} */ (this.cellTextSettings().padding().getOption(anychart.opt.TOP)),
+      var paddingTop = anychart.utils.normalizeSize(/** @type {(number|string)} */ (this.cellTextSettings().padding().getOption('top')),
           this.pixelBoundsCache_.height);
-      var paddingBottom = anychart.utils.normalizeSize(/** @type {(number|string)} */ (this.cellTextSettings().padding().getOption(anychart.opt.BOTTOM)),
+      var paddingBottom = anychart.utils.normalizeSize(/** @type {(number|string)} */ (this.cellTextSettings().padding().getOption('bottom')),
           this.pixelBoundsCache_.height);
 
       var counter = -1;
@@ -1622,9 +1635,9 @@ anychart.core.ui.DataGrid.Column.prototype.draw = function() {
 
         var newTop = totalTop + height;
 
-        var textFormatter = this.dataGrid_.createFormatProvider(item);
+        var format = this.dataGrid_.createFormatProvider(item);
 
-        var labelText = this.textFormatter_.call(textFormatter, item);
+        var labelText = this.format_.call(format, item);
 
         var label = this.cellTextSettings().add({'value': labelText},
             {'value': {'x': this.pixelBoundsCache_.left, 'y': totalTop}});
@@ -1687,7 +1700,7 @@ anychart.core.ui.DataGrid.Column.prototype.draw = function() {
 
 /** @inheritDoc */
 anychart.core.ui.DataGrid.Column.prototype.serialize = function() {
-  var json = goog.base(this, 'serialize');
+  var json = anychart.core.ui.DataGrid.Column.base(this, 'serialize');
 
   json['width'] = this.width_;
   if (goog.isDef(this.defaultWidth_)) json['defaultWidth'] = this.defaultWidth_;
@@ -1697,11 +1710,11 @@ anychart.core.ui.DataGrid.Column.prototype.serialize = function() {
   json['title'] = this.title_.serialize();
   json['buttonCursor'] = this.buttonCursor_;
 
-  if (this.textFormatter_ != this.defaultTextFormatter_) {
+  if (this.format_ != this.defaultFormat_) {
     anychart.core.reporting.warning(
         anychart.enums.WarningCode.CANT_SERIALIZE_FUNCTION,
         null,
-        ['Data Grid Column textFormatter']
+        ['Data Grid Column format']
     );
   }
 
@@ -1717,9 +1730,12 @@ anychart.core.ui.DataGrid.Column.prototype.serialize = function() {
 };
 
 
-/** @inheritDoc */
+/**
+ * @inheritDoc
+ * @suppress {deprecated}
+ */
 anychart.core.ui.DataGrid.Column.prototype.setupByJSON = function(json, opt_default) {
-  goog.base(this, 'setupByJSON', json, opt_default);
+  anychart.core.ui.DataGrid.Column.base(this, 'setupByJSON', json, opt_default);
 
   this.width(json['width']);
   this.defaultWidth(json['defaultWidth']);
@@ -1730,9 +1746,9 @@ anychart.core.ui.DataGrid.Column.prototype.setupByJSON = function(json, opt_defa
 
   this.title(json['title']);
 
-  if ('textFormatter' in json) this.textFormatter(json['textFormatter']);
+  if ('format' in json) this.format(json['format']);
+  if ('textFormatter' in json) this.textFormatter(json['format']);
   if ('cellTextSettingsOverrider' in json) this.cellTextSettingsOverrider(json['cellTextSettingsOverrider']);
-
 };
 
 
@@ -1749,7 +1765,7 @@ anychart.core.ui.DataGrid.Column.prototype.setupByJSON = function(json, opt_defa
  * @extends {anychart.core.ui.Button}
  */
 anychart.core.ui.DataGrid.Button = function(dataGrid) {
-  goog.base(this);
+  anychart.core.ui.DataGrid.Button.base(this, 'constructor');
 
   /**
    * Own data grid.
@@ -1800,7 +1816,7 @@ goog.inherits(anychart.core.ui.DataGrid.Button, anychart.core.ui.Button);
  * @override
  */
 anychart.core.ui.DataGrid.Button.prototype.handleMouseUp = function(event) {
-  goog.base(this, 'handleMouseUp', event);
+  anychart.core.ui.DataGrid.Button.base(this, 'handleMouseUp', event);
   this.switchState();
 };
 
@@ -1846,42 +1862,48 @@ anychart.core.ui.DataGrid.Button.prototype.switchState = function() {
 
 
 //exports
-anychart.core.ui.DataGrid.prototype['backgroundFill'] = anychart.core.ui.DataGrid.prototype.backgroundFill;
-anychart.core.ui.DataGrid.prototype['cellFill'] = anychart.core.ui.DataGrid.prototype.cellFill; //deprecated
-anychart.core.ui.DataGrid.prototype['cellEvenFill'] = anychart.core.ui.DataGrid.prototype.cellEvenFill; //deprecated
-anychart.core.ui.DataGrid.prototype['cellOddFill'] = anychart.core.ui.DataGrid.prototype.cellOddFill; //deprecated
-anychart.core.ui.DataGrid.prototype['rowFill'] = anychart.core.ui.DataGrid.prototype.rowFill;
-anychart.core.ui.DataGrid.prototype['rowEvenFill'] = anychart.core.ui.DataGrid.prototype.rowEvenFill;
-anychart.core.ui.DataGrid.prototype['rowOddFill'] = anychart.core.ui.DataGrid.prototype.rowOddFill;
-anychart.core.ui.DataGrid.prototype['rowHoverFill'] = anychart.core.ui.DataGrid.prototype.rowHoverFill;
-anychart.core.ui.DataGrid.prototype['rowSelectedFill'] = anychart.core.ui.DataGrid.prototype.rowSelectedFill;
-anychart.core.ui.DataGrid.prototype['editing'] = anychart.core.ui.DataGrid.prototype.editing;
+/** @suppress {deprecated} */
+(function() {
+  var proto = anychart.core.ui.DataGrid.prototype;
+  proto['backgroundFill'] = proto.backgroundFill;
+  proto['cellFill'] = proto.cellFill; //deprecated
+  proto['cellEvenFill'] = proto.cellEvenFill; //deprecated
+  proto['cellOddFill'] = proto.cellOddFill; //deprecated
+  proto['rowFill'] = proto.rowFill;
+  proto['rowEvenFill'] = proto.rowEvenFill;
+  proto['rowOddFill'] = proto.rowOddFill;
+  proto['rowHoverFill'] = proto.rowHoverFill;
+  proto['rowSelectedFill'] = proto.rowSelectedFill;
+  proto['editing'] = proto.editing;
 
-anychart.core.ui.DataGrid.prototype['column'] = anychart.core.ui.DataGrid.prototype.column;
-anychart.core.ui.DataGrid.prototype['columnStroke'] = anychart.core.ui.DataGrid.prototype.columnStroke;
+  proto['column'] = proto.column;
+  proto['columnStroke'] = proto.columnStroke;
 
-anychart.core.ui.DataGrid.prototype['data'] = anychart.core.ui.DataGrid.prototype.data;
-anychart.core.ui.DataGrid.prototype['startIndex'] = anychart.core.ui.DataGrid.prototype.startIndex;
-anychart.core.ui.DataGrid.prototype['endIndex'] = anychart.core.ui.DataGrid.prototype.endIndex;
-anychart.core.ui.DataGrid.prototype['getVisibleItems'] = anychart.core.ui.DataGrid.prototype.getVisibleItems;
-anychart.core.ui.DataGrid.prototype['horizontalScrollBar'] = anychart.core.ui.DataGrid.prototype.horizontalScrollBar;
-anychart.core.ui.DataGrid.prototype['horizontalOffset'] = anychart.core.ui.DataGrid.prototype.horizontalOffset;
-anychart.core.ui.DataGrid.prototype['verticalOffset'] = anychart.core.ui.DataGrid.prototype.verticalOffset;
-anychart.core.ui.DataGrid.prototype['tooltip'] = anychart.core.ui.DataGrid.prototype.tooltip;
-anychart.core.ui.DataGrid.prototype['draw'] = anychart.core.ui.DataGrid.prototype.draw;
-anychart.core.ui.DataGrid.prototype['editStructurePreviewFill'] = anychart.core.ui.DataGrid.prototype.editStructurePreviewFill;
-anychart.core.ui.DataGrid.prototype['editStructurePreviewStroke'] = anychart.core.ui.DataGrid.prototype.editStructurePreviewStroke;
-anychart.core.ui.DataGrid.prototype['editStructurePreviewDashStroke'] = anychart.core.ui.DataGrid.prototype.editStructurePreviewDashStroke;
+  proto['data'] = proto.data;
+  proto['startIndex'] = proto.startIndex;
+  proto['endIndex'] = proto.endIndex;
+  proto['getVisibleItems'] = proto.getVisibleItems;
+  proto['horizontalScrollBar'] = proto.horizontalScrollBar;
+  proto['horizontalOffset'] = proto.horizontalOffset;
+  proto['verticalOffset'] = proto.verticalOffset;
+  proto['tooltip'] = proto.tooltip;
+  proto['draw'] = proto.draw;
+  proto['editStructurePreviewFill'] = proto.editStructurePreviewFill;
+  proto['editStructurePreviewStroke'] = proto.editStructurePreviewStroke;
+  proto['editStructurePreviewDashStroke'] = proto.editStructurePreviewDashStroke;
 
-anychart.core.ui.DataGrid.Column.prototype['title'] = anychart.core.ui.DataGrid.Column.prototype.title;
-anychart.core.ui.DataGrid.Column.prototype['width'] = anychart.core.ui.DataGrid.Column.prototype.width;
-anychart.core.ui.DataGrid.Column.prototype['defaultWidth'] = anychart.core.ui.DataGrid.Column.prototype.defaultWidth;
-anychart.core.ui.DataGrid.Column.prototype['enabled'] = anychart.core.ui.DataGrid.Column.prototype.enabled;
-anychart.core.ui.DataGrid.Column.prototype['textFormatter'] = anychart.core.ui.DataGrid.Column.prototype.textFormatter;
-anychart.core.ui.DataGrid.Column.prototype['cellTextSettings'] = anychart.core.ui.DataGrid.Column.prototype.cellTextSettings;
-anychart.core.ui.DataGrid.Column.prototype['cellTextSettingsOverrider'] = anychart.core.ui.DataGrid.Column.prototype.cellTextSettingsOverrider;
-anychart.core.ui.DataGrid.Column.prototype['collapseExpandButtons'] = anychart.core.ui.DataGrid.Column.prototype.collapseExpandButtons;
-anychart.core.ui.DataGrid.Column.prototype['depthPaddingMultiplier'] = anychart.core.ui.DataGrid.Column.prototype.depthPaddingMultiplier;
-anychart.core.ui.DataGrid.Column.prototype['setColumnFormat'] = anychart.core.ui.DataGrid.Column.prototype.setColumnFormat;
-anychart.core.ui.DataGrid.Column.prototype['buttonCursor'] = anychart.core.ui.DataGrid.Column.prototype.buttonCursor;
-anychart.core.ui.DataGrid.Column.prototype['draw'] = anychart.core.ui.DataGrid.Column.prototype.draw;
+  proto = anychart.core.ui.DataGrid.Column.prototype;
+  proto['title'] = proto.title;
+  proto['width'] = proto.width;
+  proto['defaultWidth'] = proto.defaultWidth;
+  proto['enabled'] = proto.enabled;
+  proto['format'] = proto.format;
+  proto['textFormatter'] = proto.textFormatter;
+  proto['cellTextSettings'] = proto.cellTextSettings;
+  proto['cellTextSettingsOverrider'] = proto.cellTextSettingsOverrider;
+  proto['collapseExpandButtons'] = proto.collapseExpandButtons;
+  proto['depthPaddingMultiplier'] = proto.depthPaddingMultiplier;
+  proto['setColumnFormat'] = proto.setColumnFormat;
+  proto['buttonCursor'] = proto.buttonCursor;
+  proto['draw'] = proto.draw;
+})();

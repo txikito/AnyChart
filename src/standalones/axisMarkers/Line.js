@@ -20,7 +20,7 @@ anychart.core.makeStandalone(anychart.standalones.axisMarkers.Line, anychart.cor
  */
 anychart.standalones.axisMarkers.line = function() {
   var line = new anychart.standalones.axisMarkers.Line();
-  line.setup(anychart.getFullTheme()['standalones']['lineAxisMarker']);
+  line.setup(anychart.getFullTheme('standalones.lineAxisMarker'));
   return line;
 };
 
@@ -31,14 +31,18 @@ anychart.standalones.axisMarkers.line = function() {
  * @return {!anychart.standalones.axisMarkers.Line}
  */
 anychart.axisMarkers.line = function() {
-  anychart.core.reporting.warning(anychart.enums.WarningCode.DEPRECATED, null, ['anychart.axisMarkers.line', 'anychart.standalones.axisMarkers.line'], true);
+  anychart.core.reporting.warning(anychart.enums.WarningCode.DEPRECATED, null, ['anychart.axisMarkers.line()', 'anychart.standalones.axisMarkers.line()', null, 'Constructor'], true);
   return anychart.standalones.axisMarkers.line();
 };
 
 
 //exports
-goog.exportSymbol('anychart.axisMarkers.line', anychart.axisMarkers.line);
-goog.exportSymbol('anychart.standalones.axisMarkers.line', anychart.standalones.axisMarkers.line);
-anychart.standalones.axisMarkers.Line.prototype['draw'] = anychart.standalones.axisMarkers.Line.prototype.draw;
-anychart.standalones.axisMarkers.Line.prototype['parentBounds'] = anychart.standalones.axisMarkers.Line.prototype.parentBounds;
-anychart.standalones.axisMarkers.Line.prototype['container'] = anychart.standalones.axisMarkers.Line.prototype.container;
+/** @suppress {deprecated} */
+(function() {
+  var proto = anychart.standalones.axisMarkers.Line.prototype;
+  goog.exportSymbol('anychart.axisMarkers.line', anychart.axisMarkers.line);
+  goog.exportSymbol('anychart.standalones.axisMarkers.line', anychart.standalones.axisMarkers.line);
+  proto['draw'] = proto.draw;
+  proto['parentBounds'] = proto.parentBounds;
+  proto['container'] = proto.container;
+})();

@@ -2,8 +2,8 @@ goog.provide('anychart.core.resource.Conflicts');
 goog.require('anychart.core.VisualBase');
 goog.require('anychart.core.settings');
 goog.require('anychart.core.ui.LabelsFactory');
-goog.require('anychart.core.utils.GenericContextProvider');
 goog.require('anychart.core.utils.TypedLayer');
+goog.require('anychart.format.Context');
 goog.require('anychart.math.Rect');
 
 
@@ -86,6 +86,12 @@ anychart.core.resource.Conflicts = function(chart) {
    * @private
    */
   this.conflicts_ = [];
+
+  /**
+   * @type {anychart.format.Context}
+   * @private
+   */
+  this.formatProvider_ = null;
 };
 goog.inherits(anychart.core.resource.Conflicts, anychart.core.VisualBase);
 
@@ -147,7 +153,7 @@ anychart.core.resource.Conflicts.prototype.clear = function() {
 anychart.core.resource.Conflicts.prototype.evaluate = function(date, allocation, resource, top) {
   if (allocation && allocation.allocated > allocation.vacant) {
     var provider = this.createFormatProvider(date, allocation, resource);
-    var text = this.labels_.callTextFormatter(/** @type {Function} */(this.labels_.textFormatter()), provider, ++this.labelIndex_);
+    var text = this.labels_.callFormat(/** @type {Function} */(this.labels_.getOption('format')), provider, ++this.labelIndex_);
     if (this.current_) {
       if (this.current_.text == text)
         return;
@@ -191,11 +197,11 @@ anychart.core.resource.Conflicts.prototype.finalizeCurrent_ = function(date) {
 anychart.core.resource.Conflicts.prototype.drawConflict_ = function(conflict) {
   var start = conflict.start;
   var end = conflict.end;
-  var stroke = /** @type {acgraph.vector.Stroke} */(this.getOption(anychart.opt.STROKE));
+  var stroke = /** @type {acgraph.vector.Stroke} */(this.getOption('stroke'));
   var xScale = /** @type {anychart.scales.DateTimeWithCalendar} */(this.chart_.xScale());
   var thickness = acgraph.vector.getThickness(stroke);
   var vLineThickness = acgraph.vector.getThickness(
-      /** @type {acgraph.vector.Stroke} */(this.chart_.grid().getOption(anychart.opt.VERTICAL_STROKE)));
+      /** @type {acgraph.vector.Stroke} */(this.chart_.grid().getOption('verticalStroke')));
   var hDiff = vLineThickness / 2 + thickness / 2;
   var left = goog.math.clamp(
       anychart.utils.applyPixelShift(xScale.dateToPix(start) + this.boundsCache_.left, vLineThickness) + hDiff,
@@ -204,16 +210,16 @@ anychart.core.resource.Conflicts.prototype.drawConflict_ = function(conflict) {
       anychart.utils.applyPixelShift(xScale.dateToPix(end) + this.boundsCache_.left, vLineThickness) - hDiff,
       this.boundsCache_.left, this.boundsCache_.getRight());
   var top = anychart.utils.applyPixelShift(conflict.top + thickness / 2, thickness);
-  var bottom = anychart.utils.applyPixelShift(conflict.top + this.getOption(anychart.opt.HEIGHT) - thickness / 2, thickness);
+  var bottom = anychart.utils.applyPixelShift(conflict.top + this.getOption('height') - thickness / 2, thickness);
   var rect = /** @type {acgraph.vector.Rect} */(this.conflictsLayer_.genNextChild());
   rect
       .setX(left)
       .setY(top)
       .setWidth(right - left)
       .setHeight(bottom - top)
-      .fill(/** @type {acgraph.vector.Fill} */(this.getOption(anychart.opt.FILL)))
+      .fill(/** @type {acgraph.vector.Fill} */(this.getOption('fill')))
       .stroke(stroke);
-  var hatchFill = /** @type {acgraph.vector.HatchFill} */(this.getOption(anychart.opt.HATCH_FILL));
+  var hatchFill = /** @type {acgraph.vector.HatchFill} */(this.getOption('hatchFill'));
   if (hatchFill) {
     rect = /** @type {acgraph.vector.Rect} */(this.conflictsLayer_.genNextChild());
     rect
@@ -265,13 +271,13 @@ anychart.core.resource.Conflicts.prototype.draw = function() {
   }
 
   if (this.hasInvalidationState(anychart.ConsistencyState.APPEARANCE)) {
-    var fill = this.getOption(anychart.opt.FILL);
-    var stroke = this.getOption(anychart.opt.STROKE);
+    var fill = this.getOption('fill');
+    var stroke = this.getOption('stroke');
     this.conflictsLayer_.forEachChild(function(child) {
       child.fill(fill);
       child.stroke(stroke);
     });
-    var hatchFill = this.getOption(anychart.opt.HATCH_FILL);
+    var hatchFill = this.getOption('hatchFill');
     this.hatchLayer_.forEachChild(function(child) {
       child.fill(hatchFill);
       child.stroke(null);
@@ -313,8 +319,8 @@ anychart.core.resource.Conflicts.prototype.labels = function(opt_value) {
   }
 
   if (goog.isDef(opt_value)) {
-    if (goog.isObject(opt_value) && !(anychart.opt.ENABLED in opt_value))
-      opt_value[anychart.opt.ENABLED] = true;
+    if (goog.isObject(opt_value) && !('enabled' in opt_value))
+      opt_value['enabled'] = true;
     this.labels_.setup(opt_value);
     return this;
   }
@@ -334,8 +340,8 @@ anychart.core.resource.Conflicts.prototype.labels = function(opt_value) {
 //   }
 //
 //   if (goog.isDef(opt_value)) {
-//     if (goog.isObject(opt_value) && !(anychart.opt.ENABLED in opt_value))
-//       opt_value[anychart.opt.ENABLED] = true;
+//     if (goog.isObject(opt_value) && !('enabled' in opt_value))
+//       opt_value['enabled'] = true;
 //     this.hoverLabels_.setup(opt_value);
 //     return this;
 //   }
@@ -354,8 +360,8 @@ anychart.core.resource.Conflicts.prototype.labels = function(opt_value) {
 //   }
 //
 //   if (goog.isDef(opt_value)) {
-//     if (goog.isObject(opt_value) && !(anychart.opt.ENABLED in opt_value))
-//       opt_value[anychart.opt.ENABLED] = true;
+//     if (goog.isObject(opt_value) && !('enabled' in opt_value))
+//       opt_value['enabled'] = true;
 //     this.selectLabels_.setup(opt_value);
 //     return this;
 //   }
@@ -383,27 +389,24 @@ anychart.core.resource.Conflicts.prototype.labelsInvalidated_ = function(event) 
  * @return {Object}
  */
 anychart.core.resource.Conflicts.prototype.createFormatProvider = function(date, allocation, resource) {
+  if (!this.formatProvider_)
+    this.formatProvider_ = new anychart.format.Context();
+
   var minutes = allocation.allocated - allocation.vacant;
-  return new anychart.core.utils.GenericContextProvider({
-    'minutes': minutes,
-    'hours': minutes / 60,
-    'hoursRounded': Math.ceil(minutes / 30) / 2,
-    'percent': minutes / allocation.vacant * 100,
-    'allocated': allocation.allocated,
-    'vacant': allocation.vacant,
-    'activities': goog.array.map(allocation.activities, function(index) {
+  var values = {
+    'minutes': {value: minutes, type: anychart.enums.TokenType.NUMBER},
+    'hours': {value: minutes / 60, type: anychart.enums.TokenType.NUMBER},
+    'hoursRounded': {value: Math.ceil(minutes / 30) / 2, type: anychart.enums.TokenType.NUMBER},
+    'percent': {value: minutes / allocation.vacant * 100, type: anychart.enums.TokenType.NUMBER},
+    'allocated': {value: allocation.allocated, type: anychart.enums.TokenType.NUMBER},
+    'vacant': {value: allocation.vacant, type: anychart.enums.TokenType.NUMBER},
+    'activities': {value: goog.array.map(allocation.activities, function(index) {
       var activity = resource.getActivity(index);
       return activity ? activity.data : null;
-    })
-  }, {
-    'minutes': anychart.enums.TokenType.NUMBER,
-    'hours': anychart.enums.TokenType.NUMBER,
-    'hoursRounded': anychart.enums.TokenType.NUMBER,
-    'percent': anychart.enums.TokenType.NUMBER,
-    'allocated': anychart.enums.TokenType.NUMBER,
-    'vacant': anychart.enums.TokenType.NUMBER,
-    'activities': anychart.enums.TokenType.UNKNOWN
-  });
+    }), type: anychart.enums.TokenType.UNKNOWN}
+  };
+
+  return this.formatProvider_.propagate(values);
 };
 
 
@@ -428,9 +431,9 @@ anychart.core.resource.Conflicts.prototype.drawLabel = function(index, formatPro
     element.resetSettings();
     // element.currentLabelsFactory(/*stateFactory || */mainFactory);
     element.setSettings(opt_settings);
-    element.width(bounds.width);
-    element.height(bounds.height);
-    element.clip(bounds);
+    element['width'](bounds.width);
+    element['height'](bounds.height);
+    element['clip'](bounds);
     element.draw();
   } else {
     mainFactory.clear(index);
@@ -452,27 +455,27 @@ anychart.core.resource.Conflicts.prototype.drawLabel = function(index, formatPro
 anychart.core.resource.Conflicts.DESCRIPTORS = (function() {
   /** @type {!Object.<string, anychart.core.settings.PropertyDescriptor>} */
   var map = {};
-  map[anychart.opt.FILL] = anychart.core.settings.createDescriptor(
+  map['fill'] = anychart.core.settings.createDescriptor(
       anychart.enums.PropertyHandlerType.MULTI_ARG,
-      anychart.opt.FILL,
+      'fill',
       anychart.core.settings.fillNormalizer,
       anychart.ConsistencyState.APPEARANCE,
       anychart.Signal.NEEDS_REDRAW);
-  map[anychart.opt.STROKE] = anychart.core.settings.createDescriptor(
+  map['stroke'] = anychart.core.settings.createDescriptor(
       anychart.enums.PropertyHandlerType.MULTI_ARG,
-      anychart.opt.STROKE,
+      'stroke',
       anychart.core.settings.strokeNormalizer,
       anychart.ConsistencyState.APPEARANCE,
       anychart.Signal.NEEDS_REDRAW);
-  map[anychart.opt.HATCH_FILL] = anychart.core.settings.createDescriptor(
+  map['hatchFill'] = anychart.core.settings.createDescriptor(
       anychart.enums.PropertyHandlerType.MULTI_ARG,
-      anychart.opt.HATCH_FILL,
+      'hatchFill',
       anychart.core.settings.hatchFillNormalizer,
       anychart.ConsistencyState.APPEARANCE,
       anychart.Signal.NEEDS_REDRAW);
-  map[anychart.opt.HEIGHT] = anychart.core.settings.createDescriptor(
+  map['height'] = anychart.core.settings.createDescriptor(
       anychart.enums.PropertyHandlerType.SINGLE_ARG,
-      anychart.opt.HEIGHT,
+      'height',
       anychart.core.settings.numberNormalizer,
       anychart.ConsistencyState.ONLY_DISPATCHING,
       anychart.Signal.NEEDS_REAPPLICATION);
@@ -581,7 +584,7 @@ anychart.core.resource.Conflicts.prototype.resolveOption = function(name, interv
 //------------------------------------------------------------------------------
 /** @inheritDoc */
 anychart.core.resource.Conflicts.prototype.serialize = function() {
-  var json = goog.base(this, 'serialize');
+  var json = anychart.core.resource.Conflicts.base(this, 'serialize');
   anychart.core.settings.serialize(this, anychart.core.resource.Conflicts.DESCRIPTORS, json, 'Resource Conflicts');
   return json;
 };
@@ -589,9 +592,9 @@ anychart.core.resource.Conflicts.prototype.serialize = function() {
 
 /** @inheritDoc */
 anychart.core.resource.Conflicts.prototype.setupByJSON = function(config) {
-  goog.base(this, 'setupByJSON', config);
+  anychart.core.resource.Conflicts.base(this, 'setupByJSON', config);
   anychart.core.settings.deserialize(this, anychart.core.resource.Conflicts.DESCRIPTORS, config);
-  this.labels(config['labels']);
+  this.labels().setupByVal(config['labels']);
 };
 
 
@@ -599,7 +602,7 @@ anychart.core.resource.Conflicts.prototype.setupByJSON = function(config) {
 anychart.core.resource.Conflicts.prototype.disposeInternal = function() {
   goog.disposeAll(this.conflictsLayer_, this.hatchLayer_, this.clip_);
   this.conflictsLayer_ = this.hatchLayer_ = this.clip_ = null;
-  goog.base(this, 'disposeInternal');
+  anychart.core.resource.Conflicts.base(this, 'disposeInternal');
 };
 
 
@@ -611,11 +614,14 @@ anychart.core.resource.Conflicts.prototype.disposeInternal = function() {
 //
 //------------------------------------------------------------------------------
 //exports
-//anychart.core.resource.Conflicts.prototype['height'] = anychart.core.resource.Conflicts.prototype.height;
-//anychart.core.resource.Conflicts.prototype['stroke'] = anychart.core.resource.Conflicts.prototype.stroke;
-//anychart.core.resource.Conflicts.prototype['fill'] = anychart.core.resource.Conflicts.prototype.fill;
-//anychart.core.resource.Conflicts.prototype['hatchFill'] = anychart.core.resource.Conflicts.prototype.hatchFill;
-anychart.core.resource.Conflicts.prototype['labels'] = anychart.core.resource.Conflicts.prototype.labels;
+(function() {
+  var proto = anychart.core.resource.Conflicts.prototype;
+  //proto['height'] = proto.height;
+  //proto['stroke'] = proto.stroke;
+  //proto['fill'] = proto.fill;
+  //proto['hatchFill'] = proto.hatchFill;
+  proto['labels'] = proto.labels;
+})();
 
 
 //endregion

@@ -56,7 +56,7 @@ anychart.core.axes.MapSettings = function(map) {
 
   /**
    * Resolution chain cache.
-   * @type {Array.<Object|null|undefined>|null}
+   * @type {?Array.<Object|null|undefined>}
    * @private
    */
   this.resolutionChainCache_ = null;
@@ -171,37 +171,37 @@ anychart.core.axes.MapSettings.prototype.getHighPriorityResolutionChain = functi
 anychart.core.axes.MapSettings.prototype.SIMPLE_PROPS_DESCRIPTORS = (function() {
   /** @type {!Object.<string, anychart.core.settings.PropertyDescriptor>} */
   var map = {};
-  map[anychart.opt.STROKE] = anychart.core.settings.createDescriptor(
+  map['stroke'] = anychart.core.settings.createDescriptor(
       anychart.enums.PropertyHandlerType.MULTI_ARG,
-      anychart.opt.STROKE,
+      'stroke',
       anychart.core.settings.strokeNormalizer,
       anychart.ConsistencyState.ONLY_DISPATCHING,
       anychart.Signal.NEEDS_REDRAW);
 
-  map[anychart.opt.OVERLAP_MODE] = anychart.core.settings.createDescriptor(
+  map['overlapMode'] = anychart.core.settings.createDescriptor(
       anychart.enums.PropertyHandlerType.SINGLE_ARG,
-      anychart.opt.OVERLAP_MODE,
+      'overlapMode',
       anychart.enums.normalizeLabelsOverlapMode,
       anychart.ConsistencyState.ONLY_DISPATCHING,
       anychart.Signal.NEEDS_REDRAW | anychart.Signal.BOUNDS_CHANGED);
 
-  map[anychart.opt.DRAW_FIRST_LABEL] = anychart.core.settings.createDescriptor(
+  map['drawFirstLabel'] = anychart.core.settings.createDescriptor(
       anychart.enums.PropertyHandlerType.SINGLE_ARG,
-      anychart.opt.DRAW_FIRST_LABEL,
+      'drawFirstLabel',
       anychart.core.settings.booleanNormalizer,
       anychart.ConsistencyState.ONLY_DISPATCHING,
       anychart.Signal.NEEDS_REDRAW | anychart.Signal.BOUNDS_CHANGED);
 
-  map[anychart.opt.DRAW_LAST_LABEL] = anychart.core.settings.createDescriptor(
+  map['drawLastLabel'] = anychart.core.settings.createDescriptor(
       anychart.enums.PropertyHandlerType.SINGLE_ARG,
-      anychart.opt.DRAW_LAST_LABEL,
+      'drawLastLabel',
       anychart.core.settings.booleanNormalizer,
       anychart.ConsistencyState.ONLY_DISPATCHING,
       anychart.Signal.NEEDS_REDRAW | anychart.Signal.BOUNDS_CHANGED);
 
-  map[anychart.opt.ENABLED] = anychart.core.settings.createDescriptor(
+  map['enabled'] = anychart.core.settings.createDescriptor(
       anychart.enums.PropertyHandlerType.SINGLE_ARG,
-      anychart.opt.ENABLED,
+      'enabled',
       anychart.core.settings.booleanNormalizer,
       anychart.ConsistencyState.ONLY_DISPATCHING,
       anychart.Signal.ENABLED_STATE_CHANGED);
@@ -518,7 +518,7 @@ anychart.core.axes.MapSettings.prototype.setThemeSettings = function(config) {
 anychart.core.axes.MapSettings.prototype.specialSetupByVal = function(value, opt_default) {
   if (goog.isBoolean(value) || goog.isNull(value)) {
     if (opt_default)
-      this.themeSettings[anychart.opt.ENABLED] = !!value;
+      this.themeSettings['enabled'] = !!value;
     else
       this.enabled(!!value);
     return true;
@@ -535,15 +535,15 @@ anychart.core.axes.MapSettings.prototype.setupByJSON = function(config, opt_defa
     this.setThemeSettings(config);
   } else {
     anychart.core.settings.deserialize(this, this.SIMPLE_PROPS_DESCRIPTORS, config);
-    this.setOption(anychart.opt.ENABLED, anychart.opt.ENABLED in config ? config[anychart.opt.ENABLED] : true);
+    this['enabled']('enabled' in config ? config['enabled'] : true);
   }
 
   this.title().setupByVal(config['title'], opt_default);
   this.ticks().setupByVal(config['ticks'], opt_default);
   this.minorTicks().setupByVal(config['minorTicks'], opt_default);
 
-  this.labels().setup(config['labels']);
-  this.minorLabels().setup(config['minorLabels']);
+  this.labels().setupByVal(config['labels'], opt_default);
+  this.minorLabels().setupByVal(config['minorLabels'], opt_default);
 
   this.left().setupByVal(config['left'], opt_default);
   this.top().setupByVal(config['top'], opt_default);
@@ -592,20 +592,23 @@ anychart.core.axes.MapSettings.prototype.disposeInternal = function() {
 //endregion
 //region --- Exports
 //exports
-anychart.core.axes.MapSettings.prototype['left'] = anychart.core.axes.MapSettings.prototype.left;
-anychart.core.axes.MapSettings.prototype['top'] = anychart.core.axes.MapSettings.prototype.top;
-anychart.core.axes.MapSettings.prototype['right'] = anychart.core.axes.MapSettings.prototype.right;
-anychart.core.axes.MapSettings.prototype['bottom'] = anychart.core.axes.MapSettings.prototype.bottom;
+(function() {
+  var proto = anychart.core.axes.MapSettings.prototype;
+  proto['left'] = proto.left;
+  proto['top'] = proto.top;
+  proto['right'] = proto.right;
+  proto['bottom'] = proto.bottom;
 
-anychart.core.axes.MapSettings.prototype['title'] = anychart.core.axes.MapSettings.prototype.title;
-anychart.core.axes.MapSettings.prototype['ticks'] = anychart.core.axes.MapSettings.prototype.ticks;
-anychart.core.axes.MapSettings.prototype['minorTicks'] = anychart.core.axes.MapSettings.prototype.minorTicks;
-anychart.core.axes.MapSettings.prototype['labels'] = anychart.core.axes.MapSettings.prototype.labels;
-anychart.core.axes.MapSettings.prototype['minorLabels'] = anychart.core.axes.MapSettings.prototype.minorLabels;
+  proto['title'] = proto.title;
+  proto['ticks'] = proto.ticks;
+  proto['minorTicks'] = proto.minorTicks;
+  proto['labels'] = proto.labels;
+  proto['minorLabels'] = proto.minorLabels;
 
-// anychart.core.axes.MapSettings.prototype['enabled'] = anychart.core.axes.MapSettings.prototype.enabled;
-// anychart.core.axes.MapSettings.prototype['stroke'] = anychart.core.axes.MapSettings.prototype.stroke;
-// anychart.core.axes.MapSettings.prototype['drawFirstLabel'] = anychart.core.axes.MapSettings.prototype.drawFirstLabel;
-// anychart.core.axes.MapSettings.prototype['drawLastLabel'] = anychart.core.axes.MapSettings.prototype.drawLastLabel;
-// anychart.core.axes.MapSettings.prototype['overlapMode'] = anychart.core.axes.MapSettings.prototype.overlapMode;
+  // proto['enabled'] = proto.enabled;
+  // proto['stroke'] = proto.stroke;
+  // proto['drawFirstLabel'] = proto.drawFirstLabel;
+  // proto['drawLastLabel'] = proto.drawLastLabel;
+  // proto['overlapMode'] = proto.overlapMode;
+})();
 //endregion

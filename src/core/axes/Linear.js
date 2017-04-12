@@ -7,9 +7,9 @@ goog.require('anychart.core.axes.Ticks');
 goog.require('anychart.core.reporting');
 goog.require('anychart.core.ui.LabelsFactory');
 goog.require('anychart.core.ui.Title');
-goog.require('anychart.core.utils.AxisLabelsContextProvider');
 goog.require('anychart.core.utils.Padding');
 goog.require('anychart.enums');
+goog.require('anychart.format.Context');
 goog.require('anychart.math.Rect');
 goog.require('anychart.scales.Base');
 goog.require('anychart.scales.ScatterBase');
@@ -31,7 +31,7 @@ goog.require('anychart.utils');
  */
 anychart.core.axes.Linear = function() {
   this.suspendSignalsDispatching();
-  goog.base(this);
+  anychart.core.axes.Linear.base(this, 'constructor');
 
   this.labelsBounds_ = [];
   this.minorLabelsBounds_ = [];
@@ -341,7 +341,7 @@ anychart.core.axes.Linear.prototype.minorLabels = function(opt_value) {
   if (!this.minorLabels_) {
     this.minorLabels_ = new anychart.core.ui.LabelsFactory();
     this.minorLabels_.setParentEventTarget(this);
-    this.isHorizontal() ? this.minorLabels_.rotation(0) : this.minorLabels_.rotation(-90);
+    this.isHorizontal() ? this.minorLabels_['rotation'](0) : this.minorLabels_['rotation'](-90);
     this.minorLabels_.listenSignals(this.minorLabelsInvalidated_, this);
     this.registerDisposable(this.minorLabels_);
   }
@@ -644,7 +644,7 @@ anychart.core.axes.Linear.prototype.getOverlappedLabels_ = function(opt_bounds) 
     if (this.overlapMode_ == anychart.enums.LabelsOverlapMode.ALLOW_OVERLAP) {
       return false;
     } else {
-      var scale = /** @type {anychart.scales.ScatterBase|anychart.scales.Ordinal} */(this.scale());
+      var scale = /** @type {anychart.scales.Linear|anychart.scales.DateTime|anychart.scales.Ordinal} */(this.scale());
       var labels = [];
       var minorLabels = [];
 
@@ -1253,10 +1253,10 @@ anychart.core.axes.Linear.prototype.getPixelBounds = function() {
 
       var x, y;
       var padding = this.padding();
-      var topPad = anychart.utils.normalizeSize(/** @type {number|string} */(padding.getOption(anychart.opt.TOP)), parentBounds.height);
-      var rightPad = anychart.utils.normalizeSize(/** @type {number|string} */(padding.getOption(anychart.opt.RIGHT)), parentBounds.width);
-      var bottomPad = anychart.utils.normalizeSize(/** @type {number|string} */(padding.getOption(anychart.opt.BOTTOM)), parentBounds.height);
-      var leftPad = anychart.utils.normalizeSize(/** @type {number|string} */(padding.getOption(anychart.opt.LEFT)), parentBounds.width);
+      var topPad = anychart.utils.normalizeSize(/** @type {number|string} */(padding.getOption('top')), parentBounds.height);
+      var rightPad = anychart.utils.normalizeSize(/** @type {number|string} */(padding.getOption('right')), parentBounds.width);
+      var bottomPad = anychart.utils.normalizeSize(/** @type {number|string} */(padding.getOption('bottom')), parentBounds.height);
+      var leftPad = anychart.utils.normalizeSize(/** @type {number|string} */(padding.getOption('left')), parentBounds.width);
 
       var width, height;
       switch (this.orientation()) {
@@ -1470,7 +1470,7 @@ anychart.core.axes.Linear.prototype.staggerMode = function(opt_value) {
 
 /**
  * Getter/setter for staggerLines.
- * @param {(number|null)=} opt_value Fixed/auto.
+ * @param {?number=} opt_value Fixed/auto.
  * @return {null|number|!anychart.core.axes.Linear} .
  */
 anychart.core.axes.Linear.prototype.staggerLines = function(opt_value) {
@@ -1490,7 +1490,7 @@ anychart.core.axes.Linear.prototype.staggerLines = function(opt_value) {
 
 /**
  * Getter/setter for staggerMaxLines.
- * @param {(number|null)=} opt_value .
+ * @param {?number=} opt_value .
  * @return {null|number|!anychart.core.axes.Linear} .
  */
 anychart.core.axes.Linear.prototype.staggerMaxLines = function(opt_value) {
@@ -1631,7 +1631,50 @@ anychart.core.axes.Linear.prototype.drawLine = function() {
  * @protected
  */
 anychart.core.axes.Linear.prototype.getLabelsFormatProvider = function(index, value) {
-  return new anychart.core.utils.AxisLabelsContextProvider(this, index, value);
+  var scale = this.scale();
+
+  var labelText, labelValue;
+  var valueType = anychart.enums.TokenType.NUMBER;
+  var addRange = true;
+  if (scale instanceof anychart.scales.Ordinal) {
+    labelText = scale.ticks().names()[index];
+    labelValue = value;
+    valueType = anychart.enums.TokenType.STRING;
+    addRange = false;
+  } else if (scale instanceof anychart.scales.DateTime) {
+    labelText = anychart.format.date(/** @type {number} */(value));
+    valueType = anychart.enums.TokenType.STRING; //Not DATE_TIME because it's already formatted.
+    labelValue = value;
+  } else {
+    labelText = parseFloat(value);
+    labelValue = parseFloat(value);
+  }
+
+  var values = {
+    'axis': {value: this, type: anychart.enums.TokenType.UNKNOWN},
+    'index': {value: index, type: anychart.enums.TokenType.NUMBER},
+    'value': {value: labelText, type: valueType},
+    'tickValue': {value: labelValue, type: anychart.enums.TokenType.NUMBER},
+    'scale': {value: scale, type: anychart.enums.TokenType.UNKNOWN}
+  };
+
+  if (addRange) {
+    values['max'] = {value: goog.isDef(scale.max) ? scale.max : null, type: anychart.enums.TokenType.NUMBER};
+    values['min'] = {value: goog.isDef(scale.min) ? scale.min : null, type: anychart.enums.TokenType.NUMBER};
+  }
+
+  var aliases = {};
+  aliases[anychart.enums.StringToken.AXIS_SCALE_MAX] = 'max';
+  aliases[anychart.enums.StringToken.AXIS_SCALE_MIN] = 'min';
+
+  var tokenCustomValues = {};
+  tokenCustomValues[anychart.enums.StringToken.AXIS_NAME] = {value: this.title().text(), type: anychart.enums.TokenType.STRING};
+
+  var context = new anychart.format.Context(values);
+  context.tokenAliases(aliases);
+  context.tokenCustomValues(tokenCustomValues);
+
+  return context.propagate();
 };
 
 
@@ -1975,7 +2018,7 @@ anychart.core.axes.Linear.prototype.remove = function() {
 
 /** @inheritDoc */
 anychart.core.axes.Linear.prototype.serialize = function() {
-  var json = goog.base(this, 'serialize');
+  var json = anychart.core.axes.Linear.base(this, 'serialize');
   json['title'] = this.title().serialize();
   json['labels'] = this.labels().serialize();
   json['minorLabels'] = this.minorLabels().serialize();
@@ -1996,13 +2039,13 @@ anychart.core.axes.Linear.prototype.serialize = function() {
 
 /** @inheritDoc */
 anychart.core.axes.Linear.prototype.setupByJSON = function(config, opt_default) {
-  goog.base(this, 'setupByJSON', config, opt_default);
+  anychart.core.axes.Linear.base(this, 'setupByJSON', config, opt_default);
 
-  if (anychart.opt.TITLE in config)
-    this.title(config[anychart.opt.TITLE]);
+  if ('title' in config)
+    this.title(config['title']);
 
-  this.labels().setup(config['labels']);
-  this.minorLabels().setup(config['minorLabels']);
+  this.labels().setupByVal(config['labels'], opt_default);
+  this.minorLabels().setupByVal(config['minorLabels'], opt_default);
   this.ticks(config['ticks']);
   this.minorTicks(config['minorTicks']);
   this.staggerMode(config['staggerMode']);
@@ -2019,7 +2062,7 @@ anychart.core.axes.Linear.prototype.setupByJSON = function(config, opt_default) 
 
 /** @inheritDoc */
 anychart.core.axes.Linear.prototype.disposeInternal = function() {
-  goog.base(this, 'disposeInternal');
+  anychart.core.axes.Linear.base(this, 'disposeInternal');
 
   if (this.internalScale)
     this.internalScale.unlistenSignals(this.scaleInvalidated_, this);
@@ -2028,38 +2071,38 @@ anychart.core.axes.Linear.prototype.disposeInternal = function() {
   this.minorLabelsBounds_ = null;
 
   this.title_ = null;
+
+  goog.disposeAll(this.padding_, this.line, this.labels_, this.minorLabels_);
+
   this.padding_ = null;
-
-  goog.dispose(this.line);
   this.line = null;
-
   this.ticks_ = null;
-
   this.minorTicks_ = null;
-
   this.pixelBounds = null;
-
   this.labels_ = null;
   this.minorLabels_ = null;
 };
 
 
 //exports
-anychart.core.axes.Linear.prototype['staggerMode'] = anychart.core.axes.Linear.prototype.staggerMode;
-anychart.core.axes.Linear.prototype['staggerLines'] = anychart.core.axes.Linear.prototype.staggerLines;
-anychart.core.axes.Linear.prototype['staggerMaxLines'] = anychart.core.axes.Linear.prototype.staggerMaxLines;
-anychart.core.axes.Linear.prototype['title'] = anychart.core.axes.Linear.prototype.title;
-anychart.core.axes.Linear.prototype['labels'] = anychart.core.axes.Linear.prototype.labels;
-anychart.core.axes.Linear.prototype['minorLabels'] = anychart.core.axes.Linear.prototype.minorLabels;
-anychart.core.axes.Linear.prototype['ticks'] = anychart.core.axes.Linear.prototype.ticks;
-anychart.core.axes.Linear.prototype['minorTicks'] = anychart.core.axes.Linear.prototype.minorTicks;
-anychart.core.axes.Linear.prototype['stroke'] = anychart.core.axes.Linear.prototype.stroke;
-anychart.core.axes.Linear.prototype['orientation'] = anychart.core.axes.Linear.prototype.orientation;
-anychart.core.axes.Linear.prototype['scale'] = anychart.core.axes.Linear.prototype.scale;
-anychart.core.axes.Linear.prototype['width'] = anychart.core.axes.Linear.prototype.width;
-anychart.core.axes.Linear.prototype['getRemainingBounds'] = anychart.core.axes.Linear.prototype.getRemainingBounds;
-anychart.core.axes.Linear.prototype['drawFirstLabel'] = anychart.core.axes.Linear.prototype.drawFirstLabel;
-anychart.core.axes.Linear.prototype['drawLastLabel'] = anychart.core.axes.Linear.prototype.drawLastLabel;
-anychart.core.axes.Linear.prototype['overlapMode'] = anychart.core.axes.Linear.prototype.overlapMode;
-anychart.core.axes.Linear.prototype['isHorizontal'] = anychart.core.axes.Linear.prototype.isHorizontal;
-anychart.core.axes.Linear.prototype['padding'] = anychart.core.axes.Linear.prototype.padding;
+(function() {
+  var proto = anychart.core.axes.Linear.prototype;
+  proto['staggerMode'] = proto.staggerMode;
+  proto['staggerLines'] = proto.staggerLines;
+  proto['staggerMaxLines'] = proto.staggerMaxLines;
+  proto['title'] = proto.title;
+  proto['labels'] = proto.labels;
+  proto['minorLabels'] = proto.minorLabels;
+  proto['ticks'] = proto.ticks;
+  proto['minorTicks'] = proto.minorTicks;
+  proto['stroke'] = proto.stroke;
+  proto['orientation'] = proto.orientation;
+  proto['scale'] = proto.scale;
+  proto['width'] = proto.width;
+  proto['getRemainingBounds'] = proto.getRemainingBounds;
+  proto['drawFirstLabel'] = proto.drawFirstLabel;
+  proto['drawLastLabel'] = proto.drawLastLabel;
+  proto['overlapMode'] = proto.overlapMode;
+  proto['isHorizontal'] = proto.isHorizontal;
+  proto['padding'] = proto.padding;
+})();

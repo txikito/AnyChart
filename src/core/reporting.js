@@ -14,6 +14,14 @@ anychart.core.reporting.lastInfoCode_ = -1;
 
 
 /**
+ * Last warning code.
+ * @type {number}
+ * @private
+ */
+anychart.core.reporting.lastWarningCode_ = -1;
+
+
+/**
  * Log en error by code.
  * @param {anychart.enums.ErrorCode} code Error internal code,. @see anychart.enums.ErrorCode.
  * @param {*=} opt_exception Exception.
@@ -49,7 +57,7 @@ anychart.core.reporting.getErrorDescription_ = function(code, opt_arguments) {
       return 'Feature "' + opt_arguments[0] + '" is not supported in this module. See modules list for details.';
 
     case anychart.enums.ErrorCode.INCORRECT_SCALE_TYPE:
-      return opt_arguments[0] + ' should be only scatter type (linear, log).';
+      return opt_arguments[0] + ' should be only ' + opt_arguments[1] + ' type' + (opt_arguments[2] ? ' (' + opt_arguments[2] + ').' : '.');
 
     case anychart.enums.ErrorCode.EMPTY_CONFIG:
       return 'Empty config passed to anychart.fromJson() or anychart.fromXml() method.';
@@ -80,6 +88,15 @@ anychart.core.reporting.getErrorDescription_ = function(code, opt_arguments) {
 
     case anychart.enums.ErrorCode.TABLE_COMPUTER_OUTPUT_FIELD_DUPLICATE:
       return 'Cannot create output field "' + opt_arguments[0] + '" on the computer - field with this name already exists';
+
+    case anychart.enums.ErrorCode.WRONG_SHAPES_CONFIG:
+      var req = opt_arguments[2];
+      var shapes = [];
+      for (var i in req)
+        shapes.push(i + ' (' + req[i] + ')');
+      return ['Series "', opt_arguments[0], '" of type "', opt_arguments[1],
+        '" cannot be drawn, because it requires ', req.length,
+        ' shapes with the following names: ', shapes.join(', ')].join('');
 
     default:
       return 'Unknown error occurred. Please, contact support team at http://support.anychart.com/.\n' +
@@ -142,7 +159,8 @@ anychart.core.reporting.getInfoDescription_ = function(code, opt_arguments) {
  * @param {boolean=} opt_forceProd
  */
 anychart.core.reporting.warning = function(code, opt_exception, opt_descArgs, opt_forceProd) {
-  if (anychart.DEVELOP || opt_forceProd) {
+  if ((anychart.DEVELOP || opt_forceProd) && anychart.core.reporting.lastWarningCode_ != code) {
+    anychart.core.reporting.lastWarningCode_ = code;
     anychart.core.reporting.callLog_(
         'warn',
         ('Warning: ' + code + '\nDescription: ' + anychart.core.reporting.getWarningDescription_(code, opt_descArgs)),
@@ -213,8 +231,11 @@ anychart.core.reporting.getWarningDescription_ = function(code, opt_arguments) {
       return 'No chart is assigned for toolbar. Please set a target chart using toolbar.target() method.';
 
     case anychart.enums.WarningCode.DEPRECATED:
-      return 'Method ' + opt_arguments[0] + ' is deprecated. Use ' + opt_arguments[1] + ' instead' +
+      return (opt_arguments[3] || 'Method') + ' ' + opt_arguments[0] + ' is deprecated. Use ' + opt_arguments[1] + ' instead' +
           (opt_arguments[2] ? (opt_arguments[2] + '.') : '.');
+
+    case anychart.enums.WarningCode.MISSING_PROJ4:
+      return 'The projection that used cannot work correctly without Proj4. Please include Proj4 binary (https://cdnjs.cloudflare.com/ajax/libs/proj4js/2.3.15/proj4.js) into your page, or use another projection';
 
     case anychart.enums.WarningCode.DATA_ITEM_SET_PATH:
       return 'Incorrect arguments passed to treeDataItem.set() method. You try to set a value by path in complex structure, ' +
@@ -246,6 +267,11 @@ anychart.core.reporting.getWarningDescription_ = function(code, opt_arguments) {
 
     case anychart.enums.WarningCode.FEATURE_ID_NOT_FOUND:
       return 'Feature with id "' + opt_arguments[0] + '" not found';
+
+    case anychart.enums.WarningCode.TOO_MANY_TICKS:
+      var interval = /** @type {number} */(opt_arguments[1]);
+      var count = /** @type {number} */(opt_arguments[0]) / interval;
+      return 'Current scale ticks settings resulted in too many ticks: trying to generate about ' + count + ' ticks with interval ' + interval;
 
     default:
       return 'Unknown error. Please, contact support team at http://support.anychart.com/.\n' +

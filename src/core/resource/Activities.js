@@ -1,21 +1,29 @@
 goog.provide('anychart.core.resource.Activities');
+
 goog.require('anychart.core.Base');
 goog.require('anychart.core.settings');
 goog.require('anychart.core.ui.LabelsFactory');
-goog.require('anychart.core.utils.GenericContextProvider');
 goog.require('anychart.enums');
-goog.require('anychart.opt');
+goog.require('anychart.format.Context');
 
 
 
 /**
  * Activity settings representation class.
+ * @param {anychart.charts.Resource} chart
  * @constructor
  * @extends {anychart.core.Base}
  * @implements {anychart.core.settings.IObjectWithSettings}
  */
-anychart.core.resource.Activities = function() {
+anychart.core.resource.Activities = function(chart) {
   anychart.core.resource.Activities.base(this, 'constructor');
+
+  /**
+   * Chart reference.
+   * @type {anychart.charts.Resource}
+   * @private
+   */
+  this.chart_ = chart;
 
   /**
    * Settings map.
@@ -49,6 +57,12 @@ anychart.core.resource.Activities = function() {
    * @private
    */
   this.hatchFillResolver_ = null;
+
+  /**
+   * @type {anychart.format.Context}
+   * @private
+   */
+  this.formatProvider_ = null;
 };
 goog.inherits(anychart.core.resource.Activities, anychart.core.Base);
 
@@ -97,10 +111,10 @@ anychart.core.resource.Activities.DEFAULT_COLOR = 'blue';
 
 
 //endregion
-//region Labels
+//region --- Labels
 //----------------------------------------------------------------------------------------------------------------------
 //
-//  Labels
+//  --- Labels
 //
 //----------------------------------------------------------------------------------------------------------------------
 /**
@@ -111,13 +125,13 @@ anychart.core.resource.Activities.DEFAULT_COLOR = 'blue';
 anychart.core.resource.Activities.prototype.labels = function(opt_value) {
   if (!this.labels_) {
     this.labels_ = new anychart.core.ui.LabelsFactory();
-    this.labels_.setParentEventTarget(this);
+    this.labels_.setParentEventTarget(this.chart_);
     this.labels_.listenSignals(this.labelsInvalidated_, this);
   }
 
   if (goog.isDef(opt_value)) {
-    if (goog.isObject(opt_value) && !(anychart.opt.ENABLED in opt_value))
-      opt_value[anychart.opt.ENABLED] = true;
+    if (goog.isObject(opt_value) && !('enabled' in opt_value))
+      opt_value['enabled'] = true;
     this.labels_.setup(opt_value);
     return this;
   }
@@ -125,45 +139,45 @@ anychart.core.resource.Activities.prototype.labels = function(opt_value) {
 };
 
 
-// /**
-//  * Getter/setter for hoverLabels.
-//  * @param {(Object|boolean|null|string)=} opt_value Series data labels settings.
-//  * @return {!(anychart.core.ui.LabelsFactory|anychart.core.resource.Activities)} Labels instance or itself for chaining call.
-//  */
-// anychart.core.resource.Activities.prototype.hoverLabels = function(opt_value) {
-//   if (!this.hoverLabels_) {
-//     this.hoverLabels_ = new anychart.core.ui.LabelsFactory();
-//     // don't listen to it, for it will be reapplied at the next hover
-//   }
-//
-//   if (goog.isDef(opt_value)) {
-//     if (goog.isObject(opt_value) && !(anychart.opt.ENABLED in opt_value))
-//       opt_value[anychart.opt.ENABLED] = true;
-//     this.hoverLabels_.setup(opt_value);
-//     return this;
-//   }
-//   return this.hoverLabels_;
-// };
-//
-//
-// /**
-//  * @param {(Object|boolean|null|string)=} opt_value Series data labels settings.
-//  * @return {!(anychart.core.ui.LabelsFactory|anychart.core.resource.Activities)} Labels instance or itself for chaining call.
-//  */
-// anychart.core.resource.Activities.prototype.selectLabels = function(opt_value) {
-//   if (!this.selectLabels_) {
-//     this.selectLabels_ = new anychart.core.ui.LabelsFactory();
-//     // don't listen to it, for it will be reapplied at the next hover
-//   }
-//
-//   if (goog.isDef(opt_value)) {
-//     if (goog.isObject(opt_value) && !(anychart.opt.ENABLED in opt_value))
-//       opt_value[anychart.opt.ENABLED] = true;
-//     this.selectLabels_.setup(opt_value);
-//     return this;
-//   }
-//   return this.selectLabels_;
-// };
+/**
+ * Getter/setter for hoverLabels.
+ * @param {(Object|boolean|null|string)=} opt_value Series data labels settings.
+ * @return {!(anychart.core.ui.LabelsFactory|anychart.core.resource.Activities)} Labels instance or itself for chaining call.
+ */
+anychart.core.resource.Activities.prototype.hoverLabels = function(opt_value) {
+  if (!this.hoverLabels_) {
+    this.hoverLabels_ = new anychart.core.ui.LabelsFactory();
+    // don't listen to it, for it will be reapplied at the next hover
+  }
+
+  if (goog.isDef(opt_value)) {
+    if (goog.isObject(opt_value) && !('enabled' in opt_value))
+      opt_value['enabled'] = true;
+    this.hoverLabels_.setup(opt_value);
+    return this;
+  }
+  return this.hoverLabels_;
+};
+
+
+/**
+ * @param {(Object|boolean|null|string)=} opt_value Series data labels settings.
+ * @return {!(anychart.core.ui.LabelsFactory|anychart.core.resource.Activities)} Labels instance or itself for chaining call.
+ */
+anychart.core.resource.Activities.prototype.selectLabels = function(opt_value) {
+  if (!this.selectLabels_) {
+    this.selectLabels_ = new anychart.core.ui.LabelsFactory();
+    // don't listen to it, for it will be reapplied at the next hover
+  }
+
+  if (goog.isDef(opt_value)) {
+    if (goog.isObject(opt_value) && !('enabled' in opt_value))
+      opt_value['enabled'] = true;
+    this.selectLabels_.setup(opt_value);
+    return this;
+  }
+  return this.selectLabels_;
+};
 
 
 /**
@@ -185,40 +199,64 @@ anychart.core.resource.Activities.prototype.labelsInvalidated_ = function(event)
  * @return {Object}
  */
 anychart.core.resource.Activities.prototype.createFormatProvider = function(interval, dataObj) {
-  return new anychart.core.utils.GenericContextProvider({
-    'start': interval.start,
-    'end': interval.end,
-    'minutesPerDay': interval.minutesPerDay,
-    'hoursPerDay': interval.minutesPerDay / 60,
-    'hoursPerDayRounded': Math.ceil(interval.minutesPerDay / 30) / 2,
-    'name': dataObj[anychart.opt.NAME] || 'Unnamed Activity',
-    'activityName': dataObj[anychart.opt.NAME],
-    'activityInfo': dataObj
-  }, {
-    'start': anychart.enums.TokenType.DATE_TIME,
-    'end': anychart.enums.TokenType.DATE_TIME,
-    'minutesPerDay': anychart.enums.TokenType.NUMBER,
-    'hoursPerDay': anychart.enums.TokenType.NUMBER,
-    'hoursPerDayRounded': anychart.enums.TokenType.NUMBER,
-    'name': anychart.enums.TokenType.STRING,
-    'activityName': anychart.enums.TokenType.STRING,
-    'activityInfo': anychart.enums.TokenType.UNKNOWN
-  });
+  if (!this.formatProvider_)
+    this.formatProvider_ = new anychart.format.Context();
+
+  var values = {
+    'start': {value: interval.start, type: anychart.enums.TokenType.DATE_TIME},
+    'end': {value: interval.end, type: anychart.enums.TokenType.DATE_TIME},
+    'minutesPerDay': {value: interval.minutesPerDay, type: anychart.enums.TokenType.NUMBER},
+    'hoursPerDay': {value: interval.minutesPerDay / 60, type: anychart.enums.TokenType.NUMBER},
+    'hoursPerDayRounded': {value: Math.ceil(interval.minutesPerDay / 30) / 2, type: anychart.enums.TokenType.NUMBER},
+    'name': {value: dataObj['name'] || 'Unnamed Activity', type: anychart.enums.TokenType.STRING},
+    'activityName': {value: dataObj['name'], type: anychart.enums.TokenType.STRING},
+    'activityInfo': {value: dataObj, type: anychart.enums.TokenType.UNKNOWN}
+  };
+
+  return this.formatProvider_.propagate(values);
 };
 
 
 /**
  * Draws a label for passed providers and index.
  * @param {number} index
+ * @param {number|anychart.PointState} state
  * @param {*} formatProvider
  * @param {anychart.math.Rect} bounds
- * @param {?Object=} opt_settings
+ * @param {Object} data
  */
-anychart.core.resource.Activities.prototype.drawLabel = function(index, formatProvider, bounds, opt_settings) {
+anychart.core.resource.Activities.prototype.drawLabel = function(index, state, formatProvider, bounds, data) {
   var mainFactory = /** @type {anychart.core.ui.LabelsFactory} */(this.labels());
-  if (formatProvider) {
+  var pointOverride = data['label'];
+  var statePointOverride = undefined;
+  if (state != anychart.PointState.NORMAL)
+    statePointOverride = data[state == anychart.PointState.HOVER ? 'hoverLabel' : 'selectLabel'];
+
+  var pointOverrideEnabled = pointOverride && goog.isDef(pointOverride['enabled']) ? pointOverride['enabled'] : null;
+  var statePointOverrideEnabled = statePointOverride && goog.isDef(statePointOverride['enabled']) ? statePointOverride['enabled'] : null;
+
+  var stateFactory = /** @type {anychart.core.ui.LabelsFactory} */((state == anychart.PointState.SELECT) ?
+      this.selectLabels() :
+      ((state == anychart.PointState.HOVER) ?
+          this.hoverLabels() :
+          null));
+
+  var isDraw = goog.isNull(statePointOverrideEnabled) ? // has no state marker or null "enabled" in it ?
+      (!stateFactory || goog.isNull(stateFactory.enabled()) || !goog.isDef(stateFactory.enabled())) ? // has no state stateFactory or null "enabled" in it ?
+          goog.isNull(pointOverrideEnabled) ? // has no marker in point or null "enabled" in it ?
+              mainFactory.enabled() :
+              pointOverrideEnabled :
+          stateFactory.enabled() :
+      statePointOverrideEnabled;
+
+  if (isDraw) {
+    var position = (statePointOverride && statePointOverride['position']) ||
+        (stateFactory && stateFactory.getOption('position')) ||
+        (pointOverride && pointOverride['position']) ||
+        mainFactory.getOption('position');
+    var positionProvider = {'value': anychart.utils.getCoordinateByAnchor(bounds, position)};
+
     var element = mainFactory.getLabel(/** @type {number} */(index));
-    var positionProvider = {'value': {'x': bounds.left, 'y': bounds.top}};
     if (element) {
       element.formatProvider(formatProvider);
       element.positionProvider(positionProvider);
@@ -226,11 +264,11 @@ anychart.core.resource.Activities.prototype.drawLabel = function(index, formatPr
       element = mainFactory.add(formatProvider, positionProvider, index);
     }
     element.resetSettings();
-    // element.currentLabelsFactory(/*stateFactory || */mainFactory);
-    element.setSettings(opt_settings);
-    element.width(bounds.width);
-    element.height(bounds.height);
-    element.clip(bounds);
+    element.currentLabelsFactory(stateFactory);
+    element.setSettings(pointOverride, statePointOverride);
+    element['width'](bounds.width);
+    element['height'](bounds.height);
+    element['clip'](bounds);
     element.draw();
   } else {
     mainFactory.clear(index);
@@ -289,69 +327,69 @@ anychart.core.resource.Activities.prototype.drawLabels = function() {
 anychart.core.resource.Activities.DESCRIPTORS = (function() {
   /** @type {!Object.<string, anychart.core.settings.PropertyDescriptor>} */
   var map = {};
-  map[anychart.opt.COLOR] = anychart.core.settings.createDescriptor(
+  map['color'] = anychart.core.settings.createDescriptor(
       anychart.enums.PropertyHandlerType.SINGLE_ARG,
-      anychart.opt.COLOR,
+      'color',
       anychart.core.settings.colorNormalizer,
       anychart.ConsistencyState.APPEARANCE,
       anychart.Signal.NEEDS_REDRAW);
 
-  map[anychart.opt.FILL] = anychart.core.settings.createDescriptor(
+  map['fill'] = anychart.core.settings.createDescriptor(
       anychart.enums.PropertyHandlerType.MULTI_ARG,
-      anychart.opt.FILL,
+      'fill',
       anychart.core.settings.fillOrFunctionNormalizer,
       anychart.ConsistencyState.APPEARANCE,
       anychart.Signal.NEEDS_REDRAW);
-  // map[anychart.opt.HOVER_FILL] = anychart.core.settings.createDescriptor(
-  //     anychart.enums.PropertyHandlerType.MULTI_ARG,
-  //     anychart.opt.HOVER_FILL,
-  //     anychart.core.settings.fillOrFunctionNormalizer,
-  //     0,
-  //     0);
-  // map[anychart.opt.SELECT_FILL] = anychart.core.settings.createDescriptor(
-  //     anychart.enums.PropertyHandlerType.MULTI_ARG,
-  //     anychart.opt.SELECT_FILL,
-  //     anychart.core.settings.fillOrFunctionNormalizer,
-  //     0,
-  //     0);
-
-  map[anychart.opt.STROKE] = anychart.core.settings.createDescriptor(
+  map['hoverFill'] = anychart.core.settings.createDescriptor(
       anychart.enums.PropertyHandlerType.MULTI_ARG,
-      anychart.opt.STROKE,
+      'hoverFill',
+      anychart.core.settings.fillOrFunctionNormalizer,
+      0,
+      0);
+  map['selectFill'] = anychart.core.settings.createDescriptor(
+      anychart.enums.PropertyHandlerType.MULTI_ARG,
+      'selectFill',
+      anychart.core.settings.fillOrFunctionNormalizer,
+      0,
+      0);
+
+  map['stroke'] = anychart.core.settings.createDescriptor(
+      anychart.enums.PropertyHandlerType.MULTI_ARG,
+      'stroke',
       anychart.core.settings.strokeOrFunctionNormalizer,
       anychart.ConsistencyState.APPEARANCE,
       anychart.Signal.NEEDS_REDRAW);
-  // map[anychart.opt.HOVER_STROKE] = anychart.core.settings.createDescriptor(
-  //     anychart.enums.PropertyHandlerType.MULTI_ARG,
-  //     anychart.opt.HOVER_STROKE,
-  //     anychart.core.settings.strokeOrFunctionNormalizer,
-  //     0,
-  //     0);
-  // map[anychart.opt.SELECT_STROKE] = anychart.core.settings.createDescriptor(
-  //     anychart.enums.PropertyHandlerType.MULTI_ARG,
-  //     anychart.opt.SELECT_STROKE,
-  //     anychart.core.settings.strokeOrFunctionNormalizer,
-  //     0,
-  //     0);
-
-  map[anychart.opt.HATCH_FILL] = anychart.core.settings.createDescriptor(
+  map['hoverStroke'] = anychart.core.settings.createDescriptor(
       anychart.enums.PropertyHandlerType.MULTI_ARG,
-      anychart.opt.HATCH_FILL,
+      'hoverStroke',
+      anychart.core.settings.strokeOrFunctionNormalizer,
+      0,
+      0);
+  map['selectStroke'] = anychart.core.settings.createDescriptor(
+      anychart.enums.PropertyHandlerType.MULTI_ARG,
+      'selectStroke',
+      anychart.core.settings.strokeOrFunctionNormalizer,
+      0,
+      0);
+
+  map['hatchFill'] = anychart.core.settings.createDescriptor(
+      anychart.enums.PropertyHandlerType.MULTI_ARG,
+      'hatchFill',
       anychart.core.settings.hatchFillOrFunctionNormalizer,
       anychart.ConsistencyState.APPEARANCE,
       anychart.Signal.NEEDS_REDRAW);
-  // map[anychart.opt.HOVER_HATCH_FILL] = anychart.core.settings.createDescriptor(
-  //     anychart.enums.PropertyHandlerType.MULTI_ARG,
-  //     anychart.opt.HOVER_HATCH_FILL,
-  //     anychart.core.settings.hatchFillOrFunctionNormalizer,
-  //     0,
-  //     0);
-  // map[anychart.opt.SELECT_HATCH_FILL] = anychart.core.settings.createDescriptor(
-  //     anychart.enums.PropertyHandlerType.MULTI_ARG,
-  //     anychart.opt.SELECT_HATCH_FILL,
-  //     anychart.core.settings.hatchFillOrFunctionNormalizer,
-  //     0,
-  //     0);
+  map['hoverHatchFill'] = anychart.core.settings.createDescriptor(
+      anychart.enums.PropertyHandlerType.MULTI_ARG,
+      'hoverHatchFill',
+      anychart.core.settings.hatchFillOrFunctionNormalizer,
+      0,
+      0);
+  map['selectHatchFill'] = anychart.core.settings.createDescriptor(
+      anychart.enums.PropertyHandlerType.MULTI_ARG,
+      'selectHatchFill',
+      anychart.core.settings.hatchFillOrFunctionNormalizer,
+      0,
+      0);
 
   return map;
 })();
@@ -457,7 +495,7 @@ anychart.core.resource.Activities.getColor_ = function(colorNames, normalizer, i
  * @private
  */
 anychart.core.resource.Activities.getNullColor_ = function() {
-  return anychart.opt.NONE;
+  return 'none';
 };
 
 
@@ -470,13 +508,13 @@ anychart.core.resource.Activities.getNullColor_ = function() {
  * @return {Object}
  */
 anychart.core.resource.Activities.prototype.getColorResolutionContext = function(interval, dataObj, opt_baseColor) {
-  var source = opt_baseColor || this.getOption(anychart.opt.COLOR) || anychart.core.resource.Activities.DEFAULT_COLOR;
+  var source = opt_baseColor || this.getOption('color') || anychart.core.resource.Activities.DEFAULT_COLOR;
   return {
     'sourceColor': source,
     'start': interval.start,
     'end': interval.end,
     'minutesPerDay': interval.minutesPerDay,
-    'activityName': dataObj[anychart.opt.NAME],
+    'activityName': dataObj['name'],
     'activityInfo': dataObj
   };
 };
@@ -496,7 +534,7 @@ anychart.core.resource.Activities.prototype.getHatchFillResolutionContext = func
     'start': interval.start,
     'end': interval.end,
     'minutesPerDay': interval.minutesPerDay,
-    'activityName': dataObj[anychart.opt.NAME],
+    'activityName': dataObj['name'],
     'activityInfo': dataObj
   };
 };
@@ -506,13 +544,13 @@ anychart.core.resource.Activities.prototype.getHatchFillResolutionContext = func
  * Resolves stroke.
  * @param {Object} dataObj
  * @param {anychart.core.resource.Resource.ActivityInterval} interval
- * @param {anychart.PointState} state
+ * @param {anychart.PointState|number} state
  * @return {acgraph.vector.Stroke}
  */
 anychart.core.resource.Activities.prototype.resolveStroke = function(dataObj, interval, state) {
   if (!this.strokeResolver_)
     this.strokeResolver_ = anychart.core.resource.Activities.getColorResolver(
-        [anychart.opt.STROKE], anychart.enums.ColorType.STROKE);
+        ['stroke', 'hoverStroke', 'selectStroke'], anychart.enums.ColorType.STROKE);
   return /** @type {acgraph.vector.Stroke} */(this.strokeResolver_(this, dataObj, interval, state));
 };
 
@@ -521,13 +559,13 @@ anychart.core.resource.Activities.prototype.resolveStroke = function(dataObj, in
  * Resolves fill.
  * @param {Object} dataObj
  * @param {anychart.core.resource.Resource.ActivityInterval} interval
- * @param {anychart.PointState} state
+ * @param {anychart.PointState|number} state
  * @return {acgraph.vector.Fill}
  */
 anychart.core.resource.Activities.prototype.resolveFill = function(dataObj, interval, state) {
   if (!this.fillResolver_)
     this.fillResolver_ = anychart.core.resource.Activities.getColorResolver(
-        [anychart.opt.FILL], anychart.enums.ColorType.FILL);
+        ['fill', 'hoverFill', 'selectFill'], anychart.enums.ColorType.FILL);
   return /** @type {acgraph.vector.Fill} */(this.fillResolver_(this, dataObj, interval, state));
 };
 
@@ -536,13 +574,13 @@ anychart.core.resource.Activities.prototype.resolveFill = function(dataObj, inte
  * Resolves hatchFill.
  * @param {Object} dataObj
  * @param {anychart.core.resource.Resource.ActivityInterval} interval
- * @param {anychart.PointState} state
+ * @param {anychart.PointState|number} state
  * @return {acgraph.vector.HatchFill}
  */
 anychart.core.resource.Activities.prototype.resolveHatchFill = function(dataObj, interval, state) {
   if (!this.hatchFillResolver_)
     this.hatchFillResolver_ = anychart.core.resource.Activities.getColorResolver(
-        [anychart.opt.HATCH_FILL], anychart.enums.ColorType.HATCH_FILL);
+        ['hatchFill', 'hoverHatchFill', 'selectHatchFill'], anychart.enums.ColorType.HATCH_FILL);
   return /** @type {acgraph.vector.HatchFill} */(this.hatchFillResolver_(this, dataObj, interval, state));
 };
 
@@ -646,7 +684,7 @@ anychart.core.resource.Activities.prototype.resolveOption = function(name, dataO
 //------------------------------------------------------------------------------
 /** @inheritDoc */
 anychart.core.resource.Activities.prototype.serialize = function() {
-  var json = goog.base(this, 'serialize');
+  var json = anychart.core.resource.Activities.base(this, 'serialize');
   anychart.core.settings.serialize(this, anychart.core.resource.Activities.DESCRIPTORS, json, 'Activities');
   json['labels'] = this.labels().serialize();
   return json;
@@ -655,9 +693,9 @@ anychart.core.resource.Activities.prototype.serialize = function() {
 
 /** @inheritDoc */
 anychart.core.resource.Activities.prototype.setupByJSON = function(config, opt_default) {
-  goog.base(this, 'setupByJSON', config);
+  anychart.core.resource.Activities.base(this, 'setupByJSON', config);
   anychart.core.settings.deserialize(this, anychart.core.resource.Activities.DESCRIPTORS, config);
-  this.labels().setup(config['labels']);
+  this.labels().setupByVal(config['labels'], opt_default);
 };
 
 
@@ -666,7 +704,7 @@ anychart.core.resource.Activities.prototype.disposeInternal = function() {
   this.settings = this.defaultSettings = this.strokeResolver_ = this.fillResolver_ = this.hatchFillResolver_ = null;
   goog.disposeAll(this.labels_, this.clip_);
   this.labels_ = this.clip_ = null;
-  goog.base(this, 'disposeInternal');
+  anychart.core.resource.Activities.base(this, 'disposeInternal');
 };
 
 
@@ -678,11 +716,22 @@ anychart.core.resource.Activities.prototype.disposeInternal = function() {
 //
 //------------------------------------------------------------------------------
 //exports
-//anychart.core.resource.Activities.prototype['color'] = anychart.core.resource.Activities.prototype.color;
-//anychart.core.resource.Activities.prototype['stroke'] = anychart.core.resource.Activities.prototype.stroke;
-//anychart.core.resource.Activities.prototype['fill'] = anychart.core.resource.Activities.prototype.fill;
-//anychart.core.resource.Activities.prototype['hatchFill'] = anychart.core.resource.Activities.prototype.hatchFill;
-anychart.core.resource.Activities.prototype['labels'] = anychart.core.resource.Activities.prototype.labels;
+(function() {
+  var proto = anychart.core.resource.Activities.prototype;
+  //proto['color'] = proto.color;
+  //proto['stroke'] = proto.stroke;
+  //proto['hoverStroke'] = proto.hoverStroke;
+  //proto['selectStroke'] = proto.selectStroke;
+  //proto['fill'] = proto.fill;
+  //proto['hoverFill'] = proto.hoverFill;
+  //proto['selectFill'] = proto.selectFill;
+  //proto['hatchFill'] = proto.hatchFill;
+  //proto['hoverHatchFill'] = proto.hoverHatchFill;
+  //proto['selectHatchFill'] = proto.selectHatchFill;
+  proto['labels'] = proto.labels;
+  proto['hoverLabels'] = proto.hoverLabels;
+  proto['selectLabels'] = proto.selectLabels;
+})();
 
 
 //endregion

@@ -15,19 +15,13 @@ goog.require('goog.userAgent');
  * @extends {goog.Disposable}
  */
 anychart.core.utils.TooltipsContainer = function() {
-  goog.base(this);
+  anychart.core.utils.TooltipsContainer.base(this, 'constructor');
 
   /**
    * @type {boolean}
    * @private
    */
   this.selectable_ = false;
-
-  /**
-   * @type {Object.<!string, !anychart.core.ui.Tooltip>}
-   * @private
-   */
-  this.tooltipsMap_ = {};
 
   var document = goog.dom.getDocument();
   if (goog.userAgent.IE && (!goog.userAgent.isVersionOrHigher('7') || document.documentMode && document.documentMode <= 6)) {
@@ -94,9 +88,7 @@ anychart.core.utils.TooltipsContainer.prototype.stage_ = null;
  */
 anychart.core.utils.TooltipsContainer.prototype.updateStageSize_ = function() {
   var newSize = this.bufferedVsm_.getSize();
-
-  this.stage_.width(newSize.width);
-  this.stage_.height(newSize.height);
+  this.stage_.resize(newSize.width, newSize.height);
 };
 
 
@@ -106,7 +98,6 @@ anychart.core.utils.TooltipsContainer.prototype.updateStageSize_ = function() {
  */
 anychart.core.utils.TooltipsContainer.prototype.allocTooltip = function(tooltip) {
   tooltip.container(this.stage_);
-  this.tooltipsMap_[goog.getUid(tooltip).toString()] = tooltip;
 };
 
 
@@ -116,21 +107,6 @@ anychart.core.utils.TooltipsContainer.prototype.allocTooltip = function(tooltip)
  */
 anychart.core.utils.TooltipsContainer.prototype.release = function(tooltip) {
   tooltip.container(null);
-  delete this.tooltipsMap_[goog.getUid(tooltip).toString()];
-};
-
-
-/**
- * Hide all tooltips.
- * @param {boolean=} opt_force Ignore tooltips hide delay.
- */
-anychart.core.utils.TooltipsContainer.prototype.hideTooltips = function(opt_force) {
-  if (goog.isNull(this.tooltipsMap_)) return;
-
-  for (var id in this.tooltipsMap_) {
-    if (!this.tooltipsMap_.hasOwnProperty(id)) continue;
-    this.tooltipsMap_[id].hide(opt_force);
-  }
 };
 
 
@@ -141,9 +117,7 @@ anychart.core.utils.TooltipsContainer.prototype.hideTooltips = function(opt_forc
  */
 anychart.core.utils.TooltipsContainer.prototype.selectable = function(opt_value) {
   if (goog.isDef(opt_value)) {
-    if (this.selectable_ != opt_value) {
-      this.selectable_ = opt_value;
-    }
+    this.selectable_ = opt_value;
     return this;
   } else {
     return this.selectable_;
@@ -155,12 +129,18 @@ anychart.core.utils.TooltipsContainer.prototype.selectable = function(opt_value)
 anychart.core.utils.TooltipsContainer.prototype.disposeInternal = function() {
   //todo this method is never called
 
+  if (this.vsm_) {
+    goog.dispose(this.vsm_);
+    this.vsm_ = null;
+  }
+
   if (goog.isDef(this.bufferedVsm_)) {
     goog.events.unlisten(this.bufferedVsm_, goog.events.EventType.RESIZE, this.updateStageSize_, false, this);
+    goog.dispose(this.bufferedVsm_);
+    this.bufferedVsm_ = null;
   }
-  this.stage_.dispose();
+  goog.dispose(this.stage_);
   this.stage_ = null;
   goog.dom.removeNode(this.root_);
   this.root_ = null;
-  this.tooltipsMap_ = null;
 };

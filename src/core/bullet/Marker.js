@@ -13,7 +13,7 @@ goog.require('anychart.utils');
  * @extends {anychart.core.VisualBase}
  */
 anychart.core.bullet.Marker = function() {
-  goog.base(this);
+  anychart.core.bullet.Marker.base(this, 'constructor');
 
   /**
    * Gap for bullet marker.
@@ -415,7 +415,7 @@ anychart.core.bullet.Marker.getDrawer = function(layout, type) {
           var rx = ry / 1.5;
 
           path.clear()
-          //left line
+              //left line
               .moveTo(x - rx - 1, y - ry)
               .lineTo(x + rx - 1, y + ry)
               .lineTo(x + rx + 1, y + ry)
@@ -501,7 +501,7 @@ anychart.core.bullet.Marker.getDrawer = function(layout, type) {
           var ry = rx / 1.5;
 
           path.clear()
-          //left line
+              //left line
               .moveTo(x - rx - 1, y - ry)
               .lineTo(x + rx - 1, y + ry)
               .lineTo(x + rx + 1, y + ry)
@@ -601,12 +601,12 @@ anychart.core.bullet.Marker.prototype.remove = function() {
 
 
 //goog.exportSymbol('anychart.elements.bulletMarker', anychart.elements.bulletMarker);
-//anychart.core.bullet.Marker.prototype['type'] = anychart.core.bullet.Marker.prototype.type;
-//anychart.core.bullet.Marker.prototype['gap'] = anychart.core.bullet.Marker.prototype.gap;
-//anychart.core.bullet.Marker.prototype['value'] = anychart.core.bullet.Marker.prototype.value;
-//anychart.core.bullet.Marker.prototype['layout'] = anychart.core.bullet.Marker.prototype.layout;
-//anychart.core.bullet.Marker.prototype['scale'] = anychart.core.bullet.Marker.prototype.scale;
-//anychart.core.bullet.Marker.prototype['fill'] = anychart.core.bullet.Marker.prototype.fill;
-//anychart.core.bullet.Marker.prototype['stroke'] = anychart.core.bullet.Marker.prototype.stroke;
-//anychart.core.bullet.Marker.prototype['isHorizontal'] = anychart.core.bullet.Marker.prototype.isHorizontal;
-//anychart.core.bullet.Marker.prototype['draw'] = anychart.core.bullet.Marker.prototype.draw;
+//proto['type'] = proto.type;
+//proto['gap'] = proto.gap;
+//proto['value'] = proto.value;
+//proto['layout'] = proto.layout;
+//proto['scale'] = proto.scale;
+//proto['fill'] = proto.fill;
+//proto['stroke'] = proto.stroke;
+//proto['isHorizontal'] = proto.isHorizontal;
+//proto['draw'] = proto.draw;

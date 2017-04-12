@@ -6,9 +6,9 @@
 goog.provide('anychart.modules.polar');
 
 goog.require('anychart.charts.Polar');
-goog.require('anychart.core.polar.series.Area');
-goog.require('anychart.core.polar.series.Line');
-goog.require('anychart.core.polar.series.Marker');
+// goog.require('anychart.core.polar.series.Area');
+// goog.require('anychart.core.polar.series.Line');
+// goog.require('anychart.core.polar.series.Marker');
 goog.require('anychart.modules.base');
 
 
@@ -23,14 +23,9 @@ goog.require('anychart.modules.base');
  */
 anychart.polar = function(var_args) {
   var chart = new anychart.charts.Polar();
-  var theme = anychart.getFullTheme();
-
-  chart.setupByVal(theme['polar'], true);
-
-  for (var i = 0, count = arguments.length; i < count; i++) {
-    chart.marker(arguments[i]);
-  }
-
+  chart.setupByVal(anychart.getFullTheme('polar'), true);
+  if (arguments.length)
+    chart.addSeries.apply(chart, arguments);
   return chart;
 };
 
@@ -39,4 +34,3 @@ anychart.chartTypesMap[anychart.enums.ChartTypes.POLAR] = anychart.polar;
 
 //exports
 goog.exportSymbol('anychart.polar', anychart.polar);
-goog.exportSymbol('anychart.polarChart', anychart.polar);

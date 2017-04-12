@@ -8,16 +8,18 @@ goog.require('anychart.animations.MapAnimationController');
 goog.require('anychart.animations.MapCrsAnimation');
 goog.require('anychart.animations.MapMoveAnimation');
 goog.require('anychart.animations.MapZoomAnimation');
+goog.require('anychart.core.ChartWithSeries');
+goog.require('anychart.core.IChart');
+goog.require('anychart.core.IPlot');
 goog.require('anychart.core.MapPoint');
-goog.require('anychart.core.SeparateChart');
 // goog.require('anychart.core.axes.Map');
 goog.require('anychart.core.axes.MapSettings');
 goog.require('anychart.core.grids.MapSettings');
 goog.require('anychart.core.map.geom');
 goog.require('anychart.core.map.projections');
 goog.require('anychart.core.map.projections.TwinProjection');
-goog.require('anychart.core.map.series.Base');
 goog.require('anychart.core.reporting');
+goog.require('anychart.core.series.Map');
 goog.require('anychart.core.ui.Callout');
 goog.require('anychart.core.ui.ColorRange');
 goog.require('anychart.core.ui.MapCrosshair');
@@ -36,7 +38,7 @@ goog.require('anychart.scales.Geo');
 goog.require('anychart.scales.LinearColor');
 goog.require('anychart.scales.OrdinalColor');
 goog.require('goog.dom');
-goog.require('goog.graphics.AffineTransform');
+goog.require('goog.math.AffineTransform');
 goog.require('goog.ui.KeyboardShortcutHandler');
 //endregion
 
@@ -44,7 +46,9 @@ goog.require('goog.ui.KeyboardShortcutHandler');
 
 /**
  * AnyChart Map class.
- * @extends {anychart.core.SeparateChart}
+ * @implements {anychart.core.IPlot}
+ * @implements {anychart.core.IChart}
+ * @extends {anychart.core.ChartWithSeries}
  * @constructor
  */
 anychart.charts.Map = function() {
@@ -83,31 +87,6 @@ anychart.charts.Map = function() {
   this.mapPaths = [];
 
   /**
-   * Palette for series colors.
-   * @type {anychart.palettes.RangeColors|anychart.palettes.DistinctColors}
-   * @private
-   */
-  this.palette_ = null;
-
-  /**
-   * @type {anychart.palettes.Markers}
-   * @private
-   */
-  this.markerPalette_ = null;
-
-  /**
-   * @type {anychart.palettes.HatchFills}
-   * @private
-   */
-  this.hatchFillPalette_ = null;
-
-  /**
-   * @type {!Array.<anychart.core.map.series.Base>}
-   * @private
-   */
-  this.series_ = [];
-
-  /**
    * Geo data settings.
    * @type {Node|string|Object|Element}
    * @private
@@ -122,18 +101,11 @@ anychart.charts.Map = function() {
   this.geoDataStringName_ = null;
 
   /**
-   * Max size for all bubbles on the chart.
-   * @type {string|number}
+   * Max stroke thickness of series/unbound regions.
+   * @type {number}
    * @private
    */
-  this.maxBubbleSize_;
-
-  /**
-   * Min size for all bubbles on the chart.
-   * @type {string|number}
-   * @private
-   */
-  this.minBubbleSize_;
+  this.maxStrokeThickness_ = 0;
 
   /**
    * @type {boolean}
@@ -176,12 +148,19 @@ anychart.charts.Map = function() {
 
   goog.events.listen(this, anychart.enums.EventType.ANIMATION_END, function(e) {
     this.zoomingInProgress = false;
-    this.mapTx = this.getMapLayer().getFullTransformation().clone();
-
-    this.invalidateSeries_();
+    var series;
+    for (var i = this.seriesList.length; i--;) {
+      series = this.seriesList[i];
+      if (series.needRedrawOnZoomOrMove()) {
+        series.mapTx = this.getMapLayer().getFullTransformation().clone();
+        series.invalidate(anychart.ConsistencyState.SERIES_POINTS);
+        series.draw();
+      }
+    }
 
     this.applyLabelsOverlapState_ = true;
-    this.applyLabelsOverlapState();
+    if (!this.noOneLabelDrew)
+      this.applyLabelsOverlapState();
   }, false, this);
 
   /**
@@ -271,7 +250,79 @@ anychart.charts.Map = function() {
   if (this.supportsBaseHighlight)
     this.eventsHandler.listen(this, [goog.events.EventType.POINTERDOWN, acgraph.events.EventType.TOUCHSTART], this.tapHandler);
 };
-goog.inherits(anychart.charts.Map, anychart.core.SeparateChart);
+goog.inherits(anychart.charts.Map, anychart.core.ChartWithSeries);
+
+
+/**
+ * Series config for Cartesian chart.
+ * @type {!Object.<string, anychart.core.series.TypeConfig>}
+ */
+anychart.charts.Map.prototype.seriesConfig = (function() {
+  var res = {};
+  var capabilities = (
+      anychart.core.series.Capabilities.ALLOW_INTERACTIVITY |
+      anychart.core.series.Capabilities.ALLOW_POINT_SETTINGS |
+      anychart.core.series.Capabilities.SUPPORTS_MARKERS |
+      anychart.core.series.Capabilities.SUPPORTS_LABELS |
+      0);
+
+  res[anychart.enums.MapSeriesType.CONNECTOR] = {
+    drawerType: anychart.enums.SeriesDrawerTypes.CONNECTOR,
+    shapeManagerType: anychart.enums.ShapeManagerTypes.PER_POINT,
+    shapesConfig: [
+      anychart.core.shapeManagers.pathFillStrokeConfig,
+      anychart.core.shapeManagers.pathHatchConfig,
+      anychart.core.shapeManagers.pathMapConnectorEventHandlerConfig
+    ],
+    secondaryShapesConfig: null,
+    postProcessor: null,
+    capabilities: capabilities
+  };
+  res[anychart.enums.MapSeriesType.MARKER] = {
+    drawerType: anychart.enums.SeriesDrawerTypes.MAP_MARKER,
+    shapeManagerType: anychart.enums.ShapeManagerTypes.PER_POINT,
+    shapesConfig: [
+      anychart.core.shapeManagers.pathFillStrokeConfig,
+      anychart.core.shapeManagers.pathHatchConfig
+    ],
+    secondaryShapesConfig: null,
+    postProcessor: null,
+    capabilities: (
+        anychart.core.series.Capabilities.ALLOW_INTERACTIVITY |
+        anychart.core.series.Capabilities.ALLOW_POINT_SETTINGS |
+        // anychart.core.series.Capabilities.SUPPORTS_MARKERS |
+        anychart.core.series.Capabilities.SUPPORTS_LABELS |
+        0)
+  };
+  res[anychart.enums.MapSeriesType.BUBBLE] = {
+    drawerType: anychart.enums.SeriesDrawerTypes.MAP_BUBBLE,
+    shapeManagerType: anychart.enums.ShapeManagerTypes.PER_POINT,
+    shapesConfig: [
+      anychart.core.shapeManagers.circleFillStrokeConfig,
+      anychart.core.shapeManagers.circleHatchConfig,
+      anychart.core.shapeManagers.circleNegativeFillStrokeConfig,
+      anychart.core.shapeManagers.circleNegativeHatchConfig
+    ],
+    secondaryShapesConfig: null,
+    postProcessor: null,
+    capabilities: capabilities,
+    anchoredPositionTop: 'value',
+    anchoredPositionBottom: 'value'
+  };
+  res[anychart.enums.MapSeriesType.CHOROPLETH] = {
+    drawerType: anychart.enums.SeriesDrawerTypes.CHOROPLETH,
+    shapeManagerType: anychart.enums.ShapeManagerTypes.PER_POINT,
+    shapesConfig: [
+      anychart.core.shapeManagers.foreignPathFillConfig,
+      anychart.core.shapeManagers.pathHatchConfig
+    ],
+    secondaryShapesConfig: null,
+    postProcessor: null,
+    capabilities: capabilities
+  };
+  return res;
+})();
+anychart.core.ChartWithSeries.generateSeriesConstructors(anychart.charts.Map, anychart.charts.Map.prototype.seriesConfig);
 
 
 //region --- Class constants
@@ -280,18 +331,14 @@ goog.inherits(anychart.charts.Map, anychart.core.SeparateChart);
  * @type {number}
  */
 anychart.charts.Map.prototype.SUPPORTED_CONSISTENCY_STATES =
-    anychart.core.SeparateChart.prototype.SUPPORTED_CONSISTENCY_STATES |
+    anychart.core.ChartWithSeries.prototype.SUPPORTED_CONSISTENCY_STATES |
     anychart.ConsistencyState.APPEARANCE |
-    anychart.ConsistencyState.MAP_SERIES |
     anychart.ConsistencyState.MAP_LABELS |
     anychart.ConsistencyState.MAP_SCALE |
     anychart.ConsistencyState.MAP_GEO_DATA |
     anychart.ConsistencyState.MAP_GEO_DATA_INDEX |
-    anychart.ConsistencyState.MAP_PALETTE |
     anychart.ConsistencyState.MAP_COLOR_RANGE |
     anychart.ConsistencyState.MAP_CALLOUT |
-    anychart.ConsistencyState.MAP_MARKER_PALETTE |
-    anychart.ConsistencyState.MAP_HATCH_FILL_PALETTE |
     anychart.ConsistencyState.MAP_MOVE |
     anychart.ConsistencyState.MAP_ZOOM |
     anychart.ConsistencyState.MAP_AXES |
@@ -304,7 +351,7 @@ anychart.charts.Map.prototype.SUPPORTED_CONSISTENCY_STATES =
  * @type {number}
  */
 anychart.charts.Map.prototype.SUPPORTED_SIGNALS =
-    anychart.core.SeparateChart.prototype.SUPPORTED_SIGNALS |
+    anychart.core.ChartWithSeries.prototype.SUPPORTED_SIGNALS |
     anychart.Signal.NEED_UPDATE_OVERLAP;
 
 
@@ -314,7 +361,7 @@ anychart.charts.Map.prototype.SUPPORTED_SIGNALS =
  */
 anychart.charts.Map.TIMINGS = {
   ALL_ANIMATION_FINISHED_DELAY: 100,
-  DEFAULT_ZOOM_DURATION: 20,
+  DEFAULT_ZOOM_DURATION: 200,
   ZOOM_TO_FEATURE_DURATION: 500,
   ZOOM_TO_HOME_DURATION: 300,
   TEST_DRAG_DELAY: 70
@@ -347,24 +394,10 @@ anychart.charts.Map.ZINDEX_MAP = 10;
 
 
 /**
- * Series hatch fill z-index in chart root layer.
+ * Choropleth series z-index in chart root layer.
  * @type {number}
  */
-anychart.charts.Map.ZINDEX_CHORPLETH_HATCH_FILL = 11;
-
-
-/**
- * Series labels z-index in chart root layer.
- * @type {number}
- */
-anychart.charts.Map.ZINDEX_CHORPLETH_LABELS = 12;
-
-
-/**
- * Series markers z-index in chart root layer.
- * @type {number}
- */
-anychart.charts.Map.ZINDEX_CHORPLETH_MARKERS = 13;
+anychart.charts.Map.ZINDEX_CHOROPLETH_SERIES = 15;
 
 
 /**
@@ -372,34 +405,6 @@ anychart.charts.Map.ZINDEX_CHORPLETH_MARKERS = 13;
  * @type {number}
  */
 anychart.charts.Map.ZINDEX_AXIS = 20;
-
-
-/**
- * Series z-index in chart root layer.
- * @type {number}
- */
-anychart.charts.Map.ZINDEX_SERIES = 30;
-
-
-/**
- * Marker z-index in chart root layer.
- * @type {number}
- */
-anychart.charts.Map.ZINDEX_HATCH_FILL = 31;
-
-
-/**
- * Label z-index in chart root layer.
- * @type {number}
- */
-anychart.charts.Map.ZINDEX_LABEL = 40;
-
-
-/**
- * Marker z-index in chart root layer.
- * @type {number}
- */
-anychart.charts.Map.ZINDEX_MARKER = 40;
 
 
 /**
@@ -421,20 +426,6 @@ anychart.charts.Map.ZINDEX_CALLOUT = 60;
  * @type {number}
  */
 anychart.charts.Map.ZINDEX_INCREMENT_MULTIPLIER = 0.00001;
-
-
-/**
- * Maximum zoom ratio.
- * @type {number}
- */
-anychart.charts.Map.ZOOM_MAX_FACTOR = 10;
-
-
-/**
- * Minimum zoom ratio.
- * @type {number}
- */
-anychart.charts.Map.ZOOM_MIN_FACTOR = 1;
 
 
 //endregion
@@ -497,19 +488,29 @@ anychart.charts.Map.prototype.fullZoom = 1;
  * @type {number}
  * @private
  */
-anychart.charts.Map.prototype.maxZoomLevel_ = anychart.charts.Map.ZOOM_MAX_FACTOR;
+anychart.charts.Map.prototype.maxZoomLevel_;
 
 
 /**
  * @type {number}
  * @private
  */
-anychart.charts.Map.prototype.minZoomLevel_ = anychart.charts.Map.ZOOM_MIN_FACTOR;
+anychart.charts.Map.prototype.minZoomLevel_;
 
 
 /**
  * Map transformations object.
- * @type {Object.<string, Object.<{scale: number, src: string, xoffset: number, yoffset: number, heatZone: Object.<{left: number, top: number, width: number, height: number}>}>>}
+ * @type {Object.<string, Object.<{
+ *    scale: number,
+ *    crs: (Object|string|Function),
+ *    srcCrs: (Object|string|Function),
+ *    currProj: anychart.core.map.projections.Base,
+ *    srcProj: anychart.core.map.projections.Base,
+ *    src: string,
+ *    xoffset: number,
+ *    yoffset: number,
+ *    heatZone: Object.<{left: number, top: number, width: number, height: number}>
+ *    }>>}
  */
 anychart.charts.Map.prototype.projectionMap = null;
 
@@ -550,21 +551,6 @@ anychart.charts.Map.prototype.getType = function() {
 };
 
 
-/**
- * Getter/setter for map default series type.
- * @param {anychart.enums.MapSeriesType=} opt_value Series type.
- * @return {anychart.charts.Map|anychart.enums.MapSeriesType}
- */
-anychart.charts.Map.prototype.defaultSeriesType = function(opt_value) {
-  if (goog.isDef(opt_value)) {
-    opt_value = anychart.enums.normalizeMapSeriesType(opt_value);
-    this.defaultSeriesType_ = opt_value;
-    return this;
-  }
-  return this.defaultSeriesType_;
-};
-
-
 //endregion
 //region --- Interactivity
 /**
@@ -572,35 +558,40 @@ anychart.charts.Map.prototype.defaultSeriesType = function(opt_value) {
  * @private
  */
 anychart.charts.Map.prototype.controlsInteractivity_ = function() {
-  if (this.container().getStage() && this.container().getStage().container() && this.getPlotBounds()) {
-    var container = /** @type {Node} */(this.container().getStage().container());
+  if (this.isDisposed())
+    return;
+  var cnt = this.container();
+  var stage = cnt ? cnt.getStage() : null;
+  if (stage && this.getPlotBounds()) {
+    var container = stage.getDomWrapper();
 
     if (goog.userAgent.IE)
       container.style['-ms-touch-action'] = 'none';
 
-    this.mapTextarea = goog.dom.createDom('textarea');
-    this.mapTextarea.setAttribute('readonly', 'readonly');
-    goog.style.setStyle(this.mapTextarea, {
-      'border': 0,
-      'clip': 'rect(0 0 0 0)',
-      'height': '1px',
-      'margin': '-1px',
-      'overflow': 'hidden',
-      'padding': '0',
-      'position': 'absolute',
-      'left': 0,
-      'top': 0,
-      'width': '1px'
-    });
-    goog.dom.appendChild(container, this.mapTextarea);
-
+    if (!anychart.mapTextarea) {
+      anychart.mapTextarea = goog.dom.createDom('textarea');
+      anychart.mapTextarea.setAttribute('readonly', 'readonly');
+      goog.style.setStyle(anychart.mapTextarea, {
+        'border': 0,
+        'clip': 'rect(0 0 0 0)',
+        'height': '1px',
+        'margin': '-1px',
+        'overflow': 'hidden',
+        'padding': '0',
+        'position': 'absolute',
+        'left': 0,
+        'top': 0,
+        'width': '1px'
+      });
+      goog.dom.appendChild(document['body'], anychart.mapTextarea);
+    }
 
     this.listen('pointsselect', function(e) {
-      this.mapTextarea.innerHTML = this.interactivity().copyFormatter().call(e, e);
-      this.mapTextarea.select();
+      anychart.mapTextarea.innerHTML = this.interactivity().copyFormat().call(e, e);
+      anychart.mapTextarea.select();
     }, false, this);
 
-    this.shortcutHandler = new goog.ui.KeyboardShortcutHandler(this.mapTextarea);
+    this.shortcutHandler = new goog.ui.KeyboardShortcutHandler(anychart.mapTextarea);
     var META = goog.ui.KeyboardShortcutHandler.Modifiers.META;
     var CTRL = goog.ui.KeyboardShortcutHandler.Modifiers.CTRL;
 
@@ -654,30 +645,32 @@ anychart.charts.Map.prototype.controlsInteractivity_ = function() {
           break;
         case 'move_up':
           dx = 0;
-          dy = 10 * scene.zoomLevel();
+          dy = 10 * scene.getZoomLevel();
           scene.move(dx, dy);
           break;
         case 'move_left':
-          dx = 10 * scene.zoomLevel();
+          dx = 10 * scene.getZoomLevel();
           dy = 0;
           scene.move(dx, dy);
           break;
         case 'move_down':
           dx = 0;
-          dy = -10 * scene.zoomLevel();
+          dy = -10 * scene.getZoomLevel();
           scene.move(dx, dy);
           break;
         case 'move_right':
-          dx = -10 * scene.zoomLevel();
+          dx = -10 * scene.getZoomLevel();
           dy = 0;
           scene.move(dx, dy);
           break;
         case 'drill_up':
           var tx = scene.getMapLayer().getSelfTransformation();
-          dx = tx.getTranslateX();
-          dy = tx.getTranslateY();
+          var isDefaultPos = anychart.math.roughlyEqual(scene.getZoomLevel(), this.minZoomLevel_) &&
+              anychart.math.roughlyEqual(tx.getTranslateX(), 0) &&
+              anychart.math.roughlyEqual(tx.getTranslateY(), 0);
 
-          if (scene.zoomLevel() == this.minZoomLevel_ && !dx && !dy) {
+          if (isDefaultPos) {
+            scene.getMapLayer().setTransformationMatrix(this.minZoomLevel_, 0, 0, this.minZoomLevel_, 0, 0);
             this.drillUp();
           } else {
             if (!this.drillingInAction) {
@@ -686,12 +679,8 @@ anychart.charts.Map.prototype.controlsInteractivity_ = function() {
               this.doAfterAnimation(scene, function() {
                 this.goingToHome = true;
                 this.zoomDuration = anychart.charts.Map.TIMINGS.ZOOM_TO_HOME_DURATION;
-                if (scene.zoomLevel() != this.minZoomLevel_) {
-                  this.zoomTo(this.minZoomLevel_);
-                } else {
-                  scene.zoomAnimation = new anychart.animations.MapMoveAnimation(scene, [dx, dy], [0, 0], anychart.charts.Map.TIMINGS.ZOOM_TO_FEATURE_DURATION);
-                  scene.zoomAnimation.play();
-                }
+                this.zoomTo(this.minZoomLevel_);
+
                 this.doAfterAnimation(this, function() {
                   this.goingToHome = false;
                 });
@@ -702,9 +691,9 @@ anychart.charts.Map.prototype.controlsInteractivity_ = function() {
       }
     }, false, this);
 
-    var isPreventDefault = goog.bind(function(e) {
-      var containerPosition = goog.style.getClientPosition(/** @type {Element} */(this.container().getStage().container()));
-      var be = e.getBrowserEvent();
+    this.isPreventDefault = goog.bind(function(e) {
+      var containerPosition = this.container().getStage().getClientPosition();
+      var be = e.getBrowserEvent ? e.getBrowserEvent() : e;
 
       var scene = this.getCurrentScene();
       var zoomFactor = goog.math.clamp(1 - be.deltaY / 120, 0.7, 2);
@@ -723,16 +712,16 @@ anychart.charts.Map.prototype.controlsInteractivity_ = function() {
     }, this);
 
     this.mouseWheelHandler = new acgraph.events.MouseWheelHandler(
-        /** @type {Element} */(this.container().getStage().container()),
+        container,
         false,
-        isPreventDefault);
+        this.isPreventDefault);
 
     this.mouseWheelHandler.listen('mousewheel', function(e) {
       var scene = this.getCurrentScene();
       var mapLayer = scene.getMapLayer();
 
       this.isDesktop = true;
-      var containerPosition = goog.style.getClientPosition(/** @type {Element} */(this.container().getStage().container()));
+      var containerPosition = this.container().getStage().getClientPosition();
       var bounds = this.getPlotBounds();
 
       var insideBounds = bounds &&
@@ -745,8 +734,8 @@ anychart.charts.Map.prototype.controlsInteractivity_ = function() {
         if (scene.goingToHome) return;
         var zoomFactor = goog.math.clamp(1 - e.deltaY / 120, 0.7, 2);
 
-        var maxZoomFactor = this.maxZoomLevel_;
-        var minZoomFactor = this.minZoomLevel_;
+        var maxZoomLevel = this.maxZoomLevel_;
+        var minZoomLevel = this.minZoomLevel_;
 
         this.prevZoomState_ = this.zoomState_;
         this.zoomState_ = zoomFactor > 1 ? true : zoomFactor == 1 ? !this.prevZoomState_ : false;
@@ -757,32 +746,34 @@ anychart.charts.Map.prototype.controlsInteractivity_ = function() {
           }
         }
 
-        if (zoomFactor < 1 && anychart.math.round(scene.zoomLevel(), 2) == minZoomFactor && !mapLayer.getSelfTransformation().isIdentity()) {
-          mapLayer.setTransformationMatrix(minZoomFactor, 0, 0, minZoomFactor, 0, 0);
-          scene.fullZoom = minZoomFactor;
+        var curZoom = scene.getZoomLevel();
+        if (zoomFactor < 1 && anychart.math.roughlyEqual(curZoom, minZoomLevel) && !mapLayer.getSelfTransformation().isIdentity()) {
+          mapLayer.setTransformationMatrix(minZoomLevel, 0, 0, minZoomLevel, 0, 0);
+          scene.fullZoom = minZoomLevel;
           scene.goingToHome = false;
           if (scene.zoomAnimation && scene.zoomAnimation.isPlaying()) {
             scene.zoomAnimation.stop();
           }
 
-          scene.scale().setMapZoom(minZoomFactor);
+          scene.scale().setMapZoom(minZoomLevel);
           scene.scale().setOffsetFocusPoint(0, 0);
 
           scene.updateSeriesOnZoomOrMove();
-        } else if ((zoomFactor > 1 && scene.zoomLevel() >= maxZoomFactor) || (zoomFactor < 1 && scene.zoomLevel() <= minZoomFactor)) {
+        } else if ((zoomFactor >= 1 && (anychart.math.roughlyEqual(curZoom, maxZoomLevel) || curZoom > maxZoomLevel)) ||
+            (zoomFactor <= 1 && (anychart.math.roughlyEqual(curZoom, minZoomLevel) || curZoom < minZoomLevel))) {
           return;
         } else {
           var x = e.clientX - containerPosition.x;
           var y = e.clientY - containerPosition.y;
 
-          scene.zoom(zoomFactor, x, y);
+          scene.zoom(zoomFactor, x, y, 20);
         }
       }
     }, false, this);
 
 
     this.mapClickHandler_ = function(e) {
-      var containerPosition = goog.style.getClientPosition(/** @type {Element} */(this.container().getStage().container()));
+      var containerPosition = this.container().getStage().getClientPosition();
       var bounds = this.getPixelBounds();
 
       var insideBounds = bounds &&
@@ -791,17 +782,28 @@ anychart.charts.Map.prototype.controlsInteractivity_ = function() {
           e.clientY >= bounds.top + containerPosition.y &&
           e.clientY <= bounds.top + containerPosition.y + bounds.height;
 
-      if (insideBounds) {
-        var scrollX = window.scrollX;
-        var scrollY = window.scrollY;
-        this.mapTextarea.focus();
-        window.scrollTo(scrollX, scrollY);
+      if (insideBounds && this.isDesktop) {
+        var scrollEl = goog.dom.getDomHelper(anychart.mapTextarea).getDocumentScrollElement();
+        var scrollX = scrollEl.scrollLeft;
+        var scrollY = scrollEl.scrollTop;
+
+        anychart.mapTextarea.focus();
+        if (goog.userAgent.GECKO) {
+          var newScrollX = scrollEl.scrollLeft;
+          var newScrollY = scrollEl.scrollTop;
+          setTimeout(function() {
+            if (scrollEl.scrollLeft == newScrollX && scrollEl.scrollTop == newScrollY)
+              window.scrollTo(scrollX, scrollY);
+          }, 0);
+        } else {
+          window.scrollTo(scrollX, scrollY);
+        }
       }
     };
     this.mapDbClickHandler_ = function(e) {
       if (this.interactivity_.zoomOnDoubleClick()) {
         var scene = this.getCurrentScene();
-        var containerPosition = goog.style.getClientPosition(/** @type {Element} */(this.container().getStage().container()));
+        var containerPosition = this.container().getStage().getClientPosition();
         var bounds = scene.getPlotBounds();
 
         var insideBounds = bounds &&
@@ -822,11 +824,9 @@ anychart.charts.Map.prototype.controlsInteractivity_ = function() {
       }
     };
     this.mapTouchEndHandler_ = function(e) {
-      goog.style.setStyle(document['body'], 'cursor', '');
       this.touchDist = 0;
-      this.drag = false;
+      this.endDrag();
       goog.events.unlisten(document, [goog.events.EventType.POINTERMOVE, goog.events.EventType.TOUCHMOVE], this.touchMoveHandler, false, this);
-      this.updateSeriesOnZoomOrMove();
     };
 
     this.mapMouseLeaveHandler_ = function(e) {
@@ -836,16 +836,23 @@ anychart.charts.Map.prototype.controlsInteractivity_ = function() {
       }
     };
 
-    goog.events.listen(this.container().getStage().container(), goog.events.EventType.CLICK, this.mapClickHandler_, false, this);
+    goog.events.listen(this.legend(), [anychart.enums.EventType.DRAG, anychart.enums.EventType.DRAG_START], function(e) {
+      this.legendDragInProcess = true;
+    }, false, this);
+    goog.events.listen(this.legend(), [anychart.enums.EventType.DRAG_END], function(e) {
+      this.legendDragInProcess = false;
+    }, false, this);
 
-    goog.events.listen(this.container().getStage().container(), goog.events.EventType.DBLCLICK, this.mapDbClickHandler_, false, this);
+    goog.events.listen(container, goog.events.EventType.CLICK, this.mapClickHandler_, false, this);
+
+    goog.events.listen(container, goog.events.EventType.DBLCLICK, this.mapDbClickHandler_, false, this);
 
     this.touchDist = 0;
-    goog.events.listen(this.container().getStage().container(), [goog.events.EventType.POINTERUP, goog.events.EventType.TOUCHEND], this.mapTouchEndHandler_, false, this);
+    goog.events.listen(container, [goog.events.EventType.POINTERUP, goog.events.EventType.TOUCHEND], this.mapTouchEndHandler_, false, this);
 
     var startX, startY;
     this.listen(goog.events.EventType.MOUSEDOWN, function(e) {
-      var containerPosition = goog.style.getClientPosition(/** @type {Element} */(this.container().getStage().container()));
+      var containerPosition = this.container().getStage().getClientPosition();
       var bounds = this.getPlotBounds();
 
       var insideBounds = bounds &&
@@ -858,7 +865,6 @@ anychart.charts.Map.prototype.controlsInteractivity_ = function() {
         this.isDesktop = true;
         startX = e.clientX;
         startY = e.clientY;
-        this.drag = true;
 
         goog.events.listen(document, goog.events.EventType.MOUSEMOVE, this.mouseMoveHandler, true, this);
         goog.events.listen(document, goog.events.EventType.MOUSEUP, this.mouseUpHandler, true, this);
@@ -867,26 +873,28 @@ anychart.charts.Map.prototype.controlsInteractivity_ = function() {
     this.mouseMoveHandler = function(e) {
       var scene = this.getCurrentScene();
 
-      if (this.drag && this.interactivity_.drag() && scene.zoomLevel() != 1) {
-        goog.style.setStyle(document['body'], 'cursor', acgraph.vector.Cursor.MOVE);
+      if (this.interactivity_.drag() && scene.getZoomLevel() != 1 && !this.legendDragInProcess) {
+        scene.startDrag();
+
         scene.move(e.clientX - startX, e.clientY - startY);
+
+        this.dispatchEvent(anychart.enums.EventType.DRAG);
 
         startX = e.clientX;
         startY = e.clientY;
-      } else {
-        goog.style.setStyle(document['body'], 'cursor', '');
       }
     };
     this.mouseUpHandler = function(e) {
-      goog.style.setStyle(document['body'], 'cursor', '');
-      this.drag = false;
-
       if (this.itWasDrag) {
-        this.mapTx = this.getMapLayer().getFullTransformation().clone();
-        for (var i = this.series_.length; i--;) {
-          var series = this.series_[i];
-          series.invalidate(anychart.ConsistencyState.APPEARANCE | anychart.ConsistencyState.SERIES_HATCH_FILL, anychart.Signal.NEEDS_REDRAW);
-          series.updateOnZoomOrMove();
+        this.endDrag();
+
+        for (var i = this.seriesList.length; i--;) {
+          var series = /** @type {anychart.core.series.Map} */(this.seriesList[i]);
+          if (series.needRedrawOnZoomOrMove()) {
+            series.mapTx = this.getMapLayer().getFullTransformation().clone();
+            series.invalidate(anychart.ConsistencyState.SERIES_POINTS, anychart.Signal.NEEDS_REDRAW);
+            series.updateOnZoomOrMove();
+          }
         }
       }
 
@@ -894,9 +902,36 @@ anychart.charts.Map.prototype.controlsInteractivity_ = function() {
       goog.events.unlisten(document, goog.events.EventType.MOUSEUP, this.mouseUpHandler, true, this);
     };
 
-    goog.events.listen(this.container().getStage().container(), goog.events.EventType.MOUSELEAVE, this.mapMouseLeaveHandler_, false, this);
+    goog.events.listen(container, goog.events.EventType.MOUSELEAVE, this.mapMouseLeaveHandler_, false, this);
   } else {
     setTimeout(this.initControlsInteractivity_, 100);
+  }
+};
+
+
+/**
+ * Start drag.
+ */
+anychart.charts.Map.prototype.startDrag = function() {
+  if (!this.drag) {
+    this.drag = true;
+    this.dispatchEvent(anychart.enums.EventType.DRAG_START);
+  }
+};
+
+
+/**
+ * Drag end.
+ */
+anychart.charts.Map.prototype.endDrag = function() {
+  if (this.drag) {
+    this.drag = false;
+
+    if (this.interactivity_.drag() &&
+        this.getCurrentScene().getZoomLevel() != 1 &&
+        !this.legendDragInProcess) {
+      this.dispatchEvent(anychart.enums.EventType.DRAG_END);
+    }
   }
 };
 
@@ -909,7 +944,7 @@ anychart.charts.Map.prototype.tapHandler = function(event) {
   // showing tooltip like on mouseOver
   this.handleMouseOverAndMove(event);
   this.isDesktop = false;
-  var containerPosition = goog.style.getClientPosition(/** @type {Element} */(this.container().getStage().container()));
+  var containerPosition = this.container().getStage().getClientPosition();
   var bounds = this.getPlotBounds();
 
   var insideBounds = bounds &&
@@ -921,35 +956,44 @@ anychart.charts.Map.prototype.tapHandler = function(event) {
   if (insideBounds) {
     var ev = event.originalEvent || event;
     var originalTouchEvent = ev.getOriginalEvent().getBrowserEvent();
-    originalTouchEvent.preventDefault();
+
     var touchCount = originalTouchEvent.touches.length;
     if (touchCount == 2) {
       var firsFinger = originalTouchEvent.touches[0];
       var secondFinger = originalTouchEvent.touches[1];
 
-      var dist = Math.sqrt(
-          (firsFinger.pageX - secondFinger.pageX) * (firsFinger.pageX - secondFinger.pageX) +
-          (firsFinger.pageY - secondFinger.pageY) * (firsFinger.pageY - secondFinger.pageY));
+      var dist = anychart.math.vectorLength(firsFinger.pageX, firsFinger.pageY, secondFinger.pageX, secondFinger.pageY);
 
       this.touchDist = dist;
       this.tap = false;
     } else if (touchCount == 1) {
       this.tap = true;
       this.originEvent = event;
+      // this.touchStartEvent = originalTouchEvent;
       if (!this.tapTesting) {
         this.testTouchStartHandler = this.eventsHandler.listenOnce(this, acgraph.events.EventType.TOUCHSTART, function(e) {
           var originalTouchEvent = e.originalEvent.getOriginalEvent().getBrowserEvent();
           var touchCount = originalTouchEvent.touches.length;
-          if (touchCount > 1)
+          if (touchCount > 1) {
             this.tap = false;
+          }
         });
 
         this.testTouchMoveHandler = this.eventsHandler.listenOnce(this, acgraph.events.EventType.TOUCHMOVE, function(e) {
           this.tap = false;
         });
 
+        if (this.interactivity_.drag() && this.getZoomLevel() != 1) {
+          var mapLayer = this.getMapLayer();
+          var boundsWithoutTx = mapLayer.getBoundsWithoutTransform();
+          var boundsWithTx = mapLayer.getBounds();
+          if (boundsWithTx.contains(boundsWithoutTx)) {
+            originalTouchEvent.preventDefault();
+          }
+        }
+
         this.tapTesting = true;
-        setTimeout(this.tapTestFunc, 200);
+        setTimeout(this.tapTestFunc, 10);
       }
 
       this.startTouchX = event.clientX;
@@ -959,6 +1003,11 @@ anychart.charts.Map.prototype.tapHandler = function(event) {
       this.tap = false;
     }
     goog.events.listen(document, [goog.events.EventType.POINTERMOVE, goog.events.EventType.TOUCHMOVE], this.touchMoveHandler, false, this);
+    goog.events.listen(document['body'], [goog.events.EventType.POINTERMOVE, goog.events.EventType.TOUCHMOVE], function(e) {
+      var originalTouchEvent = e.getBrowserEvent();
+
+      return false;//or return e, doesn't matter
+    }, false, this);
   }
 };
 
@@ -968,11 +1017,11 @@ anychart.charts.Map.prototype.handleMouseDown = function(event) {
   this.itWasDrag = false;
   this.originEvent = event;
 
-  if (this.zoomLevel() == this.minZoomLevel_) {
+  if (this.getZoomLevel() == this.minZoomLevel_) {
     setTimeout(this.acyncMouseDown, 0, event);
   } else if (!this.mouseMoveTesting) {
     this.testDragHandler = this.eventsHandler.listenOnce(this, acgraph.events.EventType.MOUSEMOVE, function(e) {
-      this.itWasDrag = true;
+      this.itWasDrag = !this.legendDragInProcess;
     });
 
     this.mouseMoveTesting = true;
@@ -1109,9 +1158,10 @@ anychart.charts.Map.prototype.handleMouseOut = function(event) {
  * Allows to select points of the Map.
  * @param {boolean=} opt_value Allow or not.
  * @return {boolean|anychart.charts.Map} Returns allow points select state or current map instance for chaining.
- * @deprecated use chart.interactivity().selectionMode().
+ * @deprecated Since 7.8.0. Use chart.interactivity().selectionMode().
  */
 anychart.charts.Map.prototype.allowPointsSelect = function(opt_value) {
+  anychart.core.reporting.warning(anychart.enums.WarningCode.DEPRECATED, null, ['allowPointsSelect()', 'interactivity().selectionMode()'], true);
   if (goog.isDef(opt_value)) {
     this.interactivity().selectionMode(opt_value ?
         anychart.enums.SelectionMode.MULTI_SELECT :
@@ -1135,8 +1185,7 @@ anychart.charts.Map.prototype.handleMouseEvent = function(event) {
  */
 anychart.charts.Map.prototype.touchMoveHandler = function(e) {
   var originalTouchEvent = e.getBrowserEvent();
-  var touchCount = originalTouchEvent.touches.length;
-  originalTouchEvent.preventDefault();
+  var touchCount = originalTouchEvent.touches ? originalTouchEvent.touches.length : 0;
   this.isDesktop = false;
 
   var scene = this.getCurrentScene();
@@ -1144,9 +1193,7 @@ anychart.charts.Map.prototype.touchMoveHandler = function(e) {
   if (touchCount == 2) {
     var firsFinger = originalTouchEvent.touches[0];
     var secondFinger = originalTouchEvent.touches[1];
-    var dist = Math.sqrt(
-        (firsFinger.pageX - secondFinger.pageX) * (firsFinger.pageX - secondFinger.pageX) +
-        (firsFinger.pageY - secondFinger.pageY) * (firsFinger.pageY - secondFinger.pageY));
+    var dist = anychart.math.vectorLength(firsFinger.pageX, firsFinger.pageY, secondFinger.pageX, secondFinger.pageY);
 
     var minX = Math.min(firsFinger.pageX, secondFinger.pageX);
     var minY = Math.min(firsFinger.pageY, secondFinger.pageY);
@@ -1171,7 +1218,7 @@ anychart.charts.Map.prototype.touchMoveHandler = function(e) {
         }
       }
 
-      if (zoomFactor < 1 && anychart.math.round(scene.zoomLevel(), 2) == this.minZoomLevel_ && !mapLayer.getSelfTransformation().isIdentity()) {
+      if (zoomFactor < 1 && anychart.math.round(scene.getZoomLevel(), 2) == this.minZoomLevel_ && !mapLayer.getSelfTransformation().isIdentity()) {
         mapLayer.setTransformationMatrix(this.minZoomLevel_, 0, 0, this.minZoomLevel_, 0, 0);
         scene.fullZoom = this.minZoomLevel_;
         scene.goingToHome = false;
@@ -1183,7 +1230,7 @@ anychart.charts.Map.prototype.touchMoveHandler = function(e) {
         scene.scale().setOffsetFocusPoint(0, 0);
 
         scene.updateSeriesOnZoomOrMove();
-      } else if ((zoomFactor > 1 && scene.zoomLevel() >= this.maxZoomLevel_) || (zoomFactor < 1 && scene.zoomLevel() <= this.minZoomLevel_)) {
+      } else if ((zoomFactor > 1 && scene.getZoomLevel() >= this.maxZoomLevel_) || (zoomFactor < 1 && scene.getZoomLevel() <= this.minZoomLevel_)) {
         return;
       } else {
         var bounds = goog.style.getBounds(this.container().domElement());
@@ -1195,9 +1242,26 @@ anychart.charts.Map.prototype.touchMoveHandler = function(e) {
       }
     }
   } else if (touchCount == 1) {
-    if (this.drag && this.interactivity_.drag() && this.zoomLevel() != 1) {
+    if (this.drag && this.interactivity_.drag() && this.getZoomLevel() != 1) {
+      var dx = e.clientX - scene.startTouchX;
+      var dy = e.clientY - scene.startTouchY;
+
+      // var boundsWithoutTx = mapLayer.getBoundsWithoutTransform();
+      // var boundsWithTx = mapLayer.getBounds();
+      // var dragRight = boundsWithTx.left >= boundsWithoutTx.left && dx < 0;
+      // var dragLeft = boundsWithTx.getRight() <= boundsWithoutTx.getRight() && dx > 0;
+      // var dragTop = boundsWithTx.top >= boundsWithoutTx.top && dy < 0;
+      // var dragBottom = boundsWithTx.getBottom() <= boundsWithoutTx.getBottom() && dy > 0;
+
+      // if (dragRight || dragLeft || dragTop || dragBottom) {
+      //   if (this.touchStartEvent) {
+      //     originalTouchEvent.preventDefault();
+      //     this.touchStartEvent.preventDefault();
+      //   }
+      // }
+
       goog.style.setStyle(document['body'], 'cursor', acgraph.vector.Cursor.MOVE);
-      scene.move(e.clientX - scene.startTouchX, e.clientY - scene.startTouchY);
+      scene.move(dx, dy);
 
       scene.startTouchX = e.clientX;
       scene.startTouchY = e.clientY;
@@ -1221,7 +1285,7 @@ anychart.charts.Map.prototype.getSeriesStatus = function(event) {
 
   var value, index;
 
-  var containerOffset = goog.style.getClientPosition(/** @type {Element} */(this.container().getStage().container()));
+  var containerOffset = this.container().getStage().getClientPosition();
 
   var x = clientX - containerOffset.x;
   var y = clientY - containerOffset.y;
@@ -1241,8 +1305,8 @@ anychart.charts.Map.prototype.getSeriesStatus = function(event) {
   if (interactivity.hoverMode() == anychart.enums.HoverMode.BY_SPOT) {
     var spotRadius = interactivity.spotRadius();
 
-    for (i = 0, len = this.series_.length; i < len; i++) {
-      series = this.series_[i];
+    for (i = 0, len = this.seriesList.length; i < len; i++) {
+      series = this.seriesList[i];
       if (series.enabled()) {
         var iterator = series.getIterator();
 
@@ -1257,7 +1321,7 @@ anychart.charts.Map.prototype.getSeriesStatus = function(event) {
             var pixY = /** @type {number} */(iterator.meta('value'));
 
             index = iterator.getIndex();
-            var length = Math.sqrt(Math.pow(pixX - x, 2) + Math.pow(pixY - y, 2));
+            var length = anychart.math.vectorLength(pixX, pixY, x, y);
             if (length <= spotRadius) {
               indexes.push(index);
               if (length < minLength) {
@@ -1355,11 +1419,11 @@ anychart.charts.Map.prototype.doAdditionActionsOnMouseOverAndMove = function(ind
   var colorRange = this.getCurrentScene().colorRange();
   index = goog.isArray(index) ? index.length ? index[0] : NaN : index;
   if (colorRange && colorRange.target() && !isNaN(index)) {
-    var target = colorRange.target();
+    var target = /** @type {anychart.core.series.Map} */(colorRange.target());
     if (target == series) {
       var iterator = target.getIterator();
       iterator.select(index);
-      var value = iterator.get(target.referenceValueNames[1]);
+      var value = iterator.get(target.drawer.valueFieldName);
       colorRange.showMarker(/** @type {number} */(value));
     }
   }
@@ -1415,21 +1479,25 @@ anychart.charts.Map.prototype.updateSeriesOnZoomOrMove = function() {
     this.crosshair_.update();
   }
 
-  for (i = this.series_.length; i--;) {
-    var series = this.series_[i];
-    series.updateOnZoomOrMove();
+  for (i = this.seriesList.length; i--;) {
+    var series = this.seriesList[i];
+    if (series.enabled()) {
+      series.updateOnZoomOrMove();
+    }
   }
 
   for (i = this.callouts_.length; i--;) {
     var callout = this.callouts_[i];
-    callout.updateOnZoomOrMove();
+    if (callout.enabled())
+      callout.updateOnZoomOrMove();
   }
 
   if (this.axesSettings_) {
     var axes = this.axesSettings_.getItems();
     for (i = 0; i < axes.length; i++) {
       var axis = axes[i];
-      axis.updateOnZoomOrMove(tx);
+      if (axis.enabled())
+        axis.updateOnZoomOrMove(tx);
     }
   }
 
@@ -1437,13 +1505,14 @@ anychart.charts.Map.prototype.updateSeriesOnZoomOrMove = function() {
     var grids = this.gridSettings_.getItems();
     for (i = grids.length; i--;) {
       var grid = grids[i];
-      grid.updateOnZoomOrMove(tx);
+      if (grid.enabled())
+        grid.updateOnZoomOrMove(tx);
     }
   }
 };
 
 
-//endregion                                                  1
+//endregion
 //region --- Animaions
 //----------------------------------------------------------------------------------------------------------------------
 //
@@ -1518,7 +1587,7 @@ anychart.charts.Map.prototype.colorRangeInvalidated_ = function(event) {
   var signal = 0;
   if (event.hasSignal(anychart.Signal.NEEDS_REDRAW)) {
     state |= anychart.ConsistencyState.MAP_COLOR_RANGE |
-        anychart.ConsistencyState.MAP_SERIES | anychart.ConsistencyState.APPEARANCE;
+        anychart.ConsistencyState.SERIES_CHART_SERIES | anychart.ConsistencyState.APPEARANCE;
     signal |= anychart.Signal.NEEDS_REDRAW;
     this.invalidateSeries_();
   }
@@ -1720,430 +1789,49 @@ anychart.charts.Map.prototype.onCrosshairSignal_ = function(event) {
 
 
 //endregion
-//region --- Coloring
-//----------------------------------------------------------------------------------------------------------------------
-//
-//  Coloring
-//
-//----------------------------------------------------------------------------------------------------------------------
-/**
- * @param {(anychart.palettes.RangeColors|anychart.palettes.DistinctColors|Object|Array.<string>)=} opt_value .
- * @return {!(anychart.palettes.RangeColors|anychart.palettes.DistinctColors|anychart.charts.Map)} .
- */
-anychart.charts.Map.prototype.palette = function(opt_value) {
-  if (opt_value instanceof anychart.palettes.RangeColors) {
-    this.setupPalette_(anychart.palettes.RangeColors, opt_value);
-    return this;
-  } else if (opt_value instanceof anychart.palettes.DistinctColors) {
-    this.setupPalette_(anychart.palettes.DistinctColors, opt_value);
-    return this;
-  } else if (goog.isObject(opt_value) && opt_value['type'] == 'range') {
-    this.setupPalette_(anychart.palettes.RangeColors);
-  } else if (goog.isObject(opt_value) || this.palette_ == null)
-    this.setupPalette_(anychart.palettes.DistinctColors);
-
-  if (goog.isDef(opt_value)) {
-    this.palette_.setup(opt_value);
-    return this;
-  }
-  return /** @type {!(anychart.palettes.RangeColors|anychart.palettes.DistinctColors)} */(this.palette_);
-};
-
-
-/**
- * Chart markers palette settings.
- * @param {(anychart.palettes.Markers|Object|Array.<anychart.enums.MarkerType>)=} opt_value Chart marker palette settings to set.
- * @return {!(anychart.palettes.Markers|anychart.charts.Map)} Return current chart markers palette or itself for chaining call.
- */
-anychart.charts.Map.prototype.markerPalette = function(opt_value) {
-  if (!this.markerPalette_) {
-    this.markerPalette_ = new anychart.palettes.Markers();
-    this.markerPalette_.listenSignals(this.markerPaletteInvalidated_, this);
-    this.registerDisposable(this.markerPalette_);
-  }
-
-  if (goog.isDef(opt_value)) {
-    this.markerPalette_.setup(opt_value);
-    return this;
-  } else {
-    return this.markerPalette_;
-  }
-};
-
-
-/**
- * Map hatch fill palette settings.
- * @param {(Array.<acgraph.vector.HatchFill.HatchFillType>|Object|anychart.palettes.HatchFills)=} opt_value Chart
- * hatch fill palette settings to set.
- * @return {!(anychart.palettes.HatchFills|anychart.charts.Map)} Return current chart hatch fill palette or itself
- * for chaining call.
- */
-anychart.charts.Map.prototype.hatchFillPalette = function(opt_value) {
-  if (!this.hatchFillPalette_) {
-    this.hatchFillPalette_ = new anychart.palettes.HatchFills();
-    this.hatchFillPalette_.listenSignals(this.hatchFillPaletteInvalidated_, this);
-  }
-
-  if (goog.isDef(opt_value)) {
-    this.hatchFillPalette_.setup(opt_value);
-    return this;
-  } else {
-    return this.hatchFillPalette_;
-  }
-};
-
-
-/**
- * @param {Function} cls Palette constructor.
- * @param {(anychart.palettes.RangeColors|anychart.palettes.DistinctColors)=} opt_cloneFrom Settings to clone from.
- * @private
- */
-anychart.charts.Map.prototype.setupPalette_ = function(cls, opt_cloneFrom) {
-  if (this.palette_ instanceof cls) {
-    if (opt_cloneFrom)
-      this.palette_.setup(opt_cloneFrom);
-  } else {
-    // we dispatch only if we replace existing palette.
-    var doDispatch = !!this.palette_;
-    goog.dispose(this.palette_);
-    this.palette_ = new cls();
-    if (opt_cloneFrom)
-      this.palette_.setup(opt_cloneFrom);
-    this.palette_.listenSignals(this.paletteInvalidated_, this);
-    if (doDispatch)
-      this.invalidate(anychart.ConsistencyState.MAP_PALETTE | anychart.ConsistencyState.CHART_LEGEND, anychart.Signal.NEEDS_REDRAW);
-  }
-};
-
-
-/**
- * Internal palette invalidation handler.
- * @param {anychart.SignalEvent} event Event object.
- * @private
- */
-anychart.charts.Map.prototype.paletteInvalidated_ = function(event) {
-  if (event.hasSignal(anychart.Signal.NEEDS_REAPPLICATION)) {
-    this.invalidate(anychart.ConsistencyState.MAP_PALETTE | anychart.ConsistencyState.CHART_LEGEND, anychart.Signal.NEEDS_REDRAW);
-  }
-};
-
-
-/**
- * Internal marker palette invalidation handler.
- * @param {anychart.SignalEvent} event Event object.
- * @private
- */
-anychart.charts.Map.prototype.markerPaletteInvalidated_ = function(event) {
-  if (event.hasSignal(anychart.Signal.NEEDS_REAPPLICATION)) {
-    this.invalidate(anychart.ConsistencyState.MAP_MARKER_PALETTE | anychart.ConsistencyState.CHART_LEGEND, anychart.Signal.NEEDS_REDRAW);
-  }
-};
-
-
-/**
- * Internal marker palette invalidation handler.
- * @param {anychart.SignalEvent} event Event object.
- * @private
- */
-anychart.charts.Map.prototype.hatchFillPaletteInvalidated_ = function(event) {
-  if (event.hasSignal(anychart.Signal.NEEDS_REAPPLICATION)) {
-    this.invalidate(anychart.ConsistencyState.MAP_HATCH_FILL_PALETTE | anychart.ConsistencyState.CHART_LEGEND, anychart.Signal.NEEDS_REDRAW);
-  }
-};
-
-
-//endregion
 //region --- Series
 //----------------------------------------------------------------------------------------------------------------------
 //
 //  Series.
 //
 //----------------------------------------------------------------------------------------------------------------------
-/**
- * Creates choropleth series.
- * @param {!(anychart.data.View|anychart.data.Set|Array|string)} data SVG|SVGString|GeoJSON|MapNameString.
- * @param {Object.<string, (string|boolean)>=} opt_csvSettings If CSV string is passed, you can pass CSV parser settings
- *    here as a hash map.
- * @return {anychart.core.map.series.Base} Passed geo data.
- */
-anychart.charts.Map.prototype.choropleth = function(data, opt_csvSettings) {
-  return this.createSeriesByType_(anychart.enums.MapSeriesType.CHOROPLETH, data, opt_csvSettings);
+/** @inheritDoc */
+anychart.charts.Map.prototype.getBaseSeriesZIndex = function(series) {
+  return series.isChoropleth() ?
+      anychart.charts.Map.ZINDEX_CHOROPLETH_SERIES :
+      anychart.core.ChartWithSeries.ZINDEX_SERIES;
 };
 
 
-/**
- * Creates bubble series.
- * @param {!(anychart.data.View|anychart.data.Set|Array|string)} data SVG|SVGString|GeoJSON|MapNameString.
- * @param {Object.<string, (string|boolean)>=} opt_csvSettings If CSV string is passed, you can pass CSV parser settings
- *    here as a hash map.
- * @return {anychart.core.map.series.Base} Passed geo data.
- */
-anychart.charts.Map.prototype.bubble = function(data, opt_csvSettings) {
-  return this.createSeriesByType_(anychart.enums.MapSeriesType.BUBBLE, data, opt_csvSettings);
+/** @inheritDoc */
+anychart.charts.Map.prototype.setupSeries = function(series) {
+  series.setAutoGeoIdField(/** @type {string} */(this.geoIdField()));
+  if (this.internalGeoData)
+    series.setGeoData(this.internalGeoData);
+
+  anychart.charts.Map.base(this, 'setupSeries', series);
 };
 
 
-/**
- * Creates marker series.
- * @param {!(anychart.data.View|anychart.data.Set|Array|string)} data SVG|SVGString|GeoJSON|MapNameString.
- * @param {Object.<string, (string|boolean)>=} opt_csvSettings If CSV string is passed, you can pass CSV parser settings
- *    here as a hash map.
- * @return {anychart.core.map.series.Base} Passed geo data.
- */
-anychart.charts.Map.prototype.marker = function(data, opt_csvSettings) {
-  return this.createSeriesByType_(anychart.enums.MapSeriesType.MARKER, data, opt_csvSettings);
+/** @inheritDoc */
+anychart.charts.Map.prototype.createSeriesInstance = function(type, config) {
+  return new anychart.core.series.Map(this, this, type, config, true);
 };
 
 
-/**
- * Creates bubble series.
- * @param {!(anychart.data.View|anychart.data.Set|Array|string)} data SVG|SVGString|GeoJSON|MapNameString.
- * @param {Object.<string, (string|boolean)>=} opt_csvSettings If CSV string is passed, you can pass CSV parser settings
- *    here as a hash map.
- * @return {anychart.core.map.series.Base} Passed geo data.
- */
-anychart.charts.Map.prototype.connector = function(data, opt_csvSettings) {
-  return this.createSeriesByType_(anychart.enums.MapSeriesType.CONNECTOR, data, opt_csvSettings);
+/** @inheritDoc */
+anychart.charts.Map.prototype.normalizeSeriesType = function(type) {
+  return anychart.enums.normalizeMapSeriesType(type);
 };
 
 
-/**
- * @param {string} type Series type.
- * @param {?(anychart.data.View|anychart.data.Set|Array|string)} data Data for the series.
- * @param {Object.<string, (string|boolean)>=} opt_csvSettings If CSV string is passed, you can pass CSV parser settings
- *    here as a hash map.
- * @private
- * @return {anychart.core.map.series.Base}
- */
-anychart.charts.Map.prototype.createSeriesByType_ = function(type, data, opt_csvSettings) {
-  var ctl;
-  type = ('' + type).toLowerCase();
-  for (var i in anychart.core.map.series.Base.SeriesTypesMap) {
-    if (i.toLowerCase() == type) {
-      ctl = anychart.core.map.series.Base.SeriesTypesMap[i];
-      break;
-    }
-  }
-  var instance;
-
-  if (ctl) {
-    instance = new ctl(data, opt_csvSettings);
-    instance.setChart(this);
-    var lastSeries = this.series_[this.series_.length - 1];
-    var index = lastSeries ? /** @type {number} */ (lastSeries.index()) + 1 : 0;
-    this.series_.push(instance);
-
-    var inc = index * anychart.charts.Map.ZINDEX_INCREMENT_MULTIPLIER;
-    instance.index(index).id(index);
-
-    instance.setAutoZIndex(anychart.charts.Map.ZINDEX_SERIES + inc);
-    instance.labels().setAutoZIndex(anychart.charts.Map.ZINDEX_LABEL + inc + anychart.charts.Map.ZINDEX_INCREMENT_MULTIPLIER / 2);
-
-    instance.setAutoGeoIdField(this.geoIdField());
-    instance.setMap(this);
-    if (this.internalGeoData)
-      instance.setGeoData(this.internalGeoData);
-    instance.setAutoColor(this.palette().itemAt(index));
-    instance.setAutoMarkerType(/** @type {anychart.enums.MarkerType} */(this.markerPalette().itemAt(index)));
-    instance.setAutoHatchFill(/** @type {acgraph.vector.HatchFill|acgraph.vector.PatternFill} */(this.hatchFillPalette().itemAt(index)));
-
-    if (instance.supportsMarkers()) {
-      instance.markers().setAutoZIndex(anychart.charts.Map.ZINDEX_MARKER + inc);
-      instance.markers().setAutoFill((/** @type {anychart.core.map.series.BaseWithMarkers} */ (instance)).getMarkerFill());
-      instance.markers().setAutoStroke((/** @type {anychart.core.map.series.BaseWithMarkers} */ (instance)).getMarkerStroke());
-    }
-
-    instance.setup(this.defaultSeriesSettings()[type]);
-    instance.listenSignals(this.seriesInvalidated_, this);
-    this.invalidate(
-        anychart.ConsistencyState.MAP_SERIES |
-        anychart.ConsistencyState.CHART_LEGEND,
-        anychart.Signal.NEEDS_REDRAW);
-  } else {
-    anychart.core.reporting.error(anychart.enums.ErrorCode.NO_FEATURE_IN_MODULE, null, [type + ' series']);
-    instance = null;
-  }
-
-  return instance;
-};
-
-
-/**
- * Getter/setter for series default settings.
- * @param {Object=} opt_value Object with default series settings.
- * @return {Object}
- */
-anychart.charts.Map.prototype.defaultSeriesSettings = function(opt_value) {
-  if (goog.isDef(opt_value)) {
-    this.defaultSeriesSettings_ = opt_value;
-    return this;
-  }
-  return this.defaultSeriesSettings_ || {};
-};
-
-
-/**
- * Sets max size for all bubbles on the charts.
- * @param {(number|string)=} opt_value
- * @return {number|string|anychart.charts.Map}
- */
-anychart.charts.Map.prototype.maxBubbleSize = function(opt_value) {
-  if (goog.isDef(opt_value)) {
-    if (this.maxBubbleSize_ != opt_value) {
-      this.maxBubbleSize_ = opt_value;
-      this.invalidateSizeBasedSeries_();
-      this.invalidate(anychart.ConsistencyState.MAP_SERIES, anychart.Signal.NEEDS_REDRAW);
-    }
-    return this;
-  }
-  return this.maxBubbleSize_;
-};
-
-
-/**
- * Sets min size for all bubbles on the charts.
- * @param {(number|string)=} opt_value
- * @return {number|string|anychart.charts.Map}
- */
-anychart.charts.Map.prototype.minBubbleSize = function(opt_value) {
-  if (goog.isDef(opt_value)) {
-    if (this.minBubbleSize_ != opt_value) {
-      this.minBubbleSize_ = opt_value;
-      this.invalidateSizeBasedSeries_();
-      this.invalidate(anychart.ConsistencyState.MAP_SERIES, anychart.Signal.NEEDS_REDRAW);
-    }
-    return this;
-  }
-  return this.minBubbleSize_;
-};
-
-
-/**
- * Add series to chart.
- * @param {...(anychart.data.View|anychart.data.Set|Array)} var_args Chart series data.
- * @return {Array.<anychart.core.map.series.Base>} Array of created series.
- */
-anychart.charts.Map.prototype.addSeries = function(var_args) {
-  var zIndex;
-  var rv = [];
-  var type = /** @type {string} */ (this.defaultSeriesType());
-  var count = arguments.length;
-  this.suspendSignalsDispatching();
-  if (!count)
-    rv.push(this.createSeriesByType_(type, null, undefined));
-  else {
-    for (var i = 0; i < count; i++) {
-      rv.push(this.createSeriesByType_(type, arguments[i], undefined));
-    }
-  }
-  this.resumeSignalsDispatching(true);
-  return rv;
-};
-
-
-/**
- * Find series index by its id.
- * @param {number|string} id Series id.
- * @return {number} Series index or -1 if didn't find.
- */
-anychart.charts.Map.prototype.getSeriesIndexBySeriesId = function(id) {
-  return goog.array.findIndex(this.series_, function(item) {
-    return item.id() == id;
-  });
-};
-
-
-/**
- * Gets series by its id.
- * @param {number|string} id Id of the series.
- * @return {anychart.core.map.series.Base} Series instance.
- */
-anychart.charts.Map.prototype.getSeries = function(id) {
-  return this.getSeriesAt(this.getSeriesIndexBySeriesId(id));
-};
-
-
-/**
- * Gets series by its index.
- * @param {number} index Index of the series.
- * @return {?anychart.core.map.series.Base} Series instance.
- */
-anychart.charts.Map.prototype.getSeriesAt = function(index) {
-  return this.series_[index] || null;
-};
-
-
-/**
- * Returns series count.
- * @return {number} Number of series.
- */
-anychart.charts.Map.prototype.getSeriesCount = function() {
-  return this.series_.length;
-};
-
-
-/**
- * Removes one of series from chart by its id.
- * @param {number|string} id Series id.
- * @return {anychart.charts.Map}
- */
-anychart.charts.Map.prototype.removeSeries = function(id) {
-  return this.removeSeriesAt(this.getSeriesIndexBySeriesId(id));
-};
-
-
-/**
- * Removes one of series from chart by its index.
- * @param {number} index Series index.
- * @return {anychart.charts.Map}
- */
-anychart.charts.Map.prototype.removeSeriesAt = function(index) {
-  var series = this.series_[index];
-  if (series) {
-    anychart.globalLock.lock();
-    goog.array.splice(this.series_, index, 1);
-    goog.dispose(series);
-    this.invalidate(
-        anychart.ConsistencyState.APPEARANCE |
-        anychart.ConsistencyState.CHART_LEGEND,
-        anychart.Signal.NEEDS_REDRAW);
-    anychart.globalLock.unlock();
-  }
-  return this;
-};
-
-
-/**
- * Removes all series from chart.
- * @return {anychart.charts.Map} Self for method chaining.
- */
-anychart.charts.Map.prototype.removeAllSeries = function() {
-  if (this.series_.length) {
-    anychart.globalLock.lock();
-    var series = this.series_;
-    this.series_ = [];
-    goog.disposeAll(series);
-    this.invalidate(
-        anychart.ConsistencyState.APPEARANCE |
-        anychart.ConsistencyState.CHART_LEGEND,
-        anychart.Signal.NEEDS_REDRAW);
-    anychart.globalLock.unlock();
-  }
-  return this;
-};
-
-
-/**
- * Series signals handler.
- * @param {anychart.SignalEvent} event Event object.
- * @private
- */
-anychart.charts.Map.prototype.seriesInvalidated_ = function(event) {
+/** @inheritDoc */
+anychart.charts.Map.prototype.seriesInvalidated = function(event) {
   var state = 0;
 
   if (event.hasSignal(anychart.Signal.NEEDS_REDRAW)) {
-    state = anychart.ConsistencyState.MAP_SERIES;
-    if ((/** @type {anychart.core.map.series.Base} */(event['target'])).needsUpdateMapAppearance())
+    state = anychart.ConsistencyState.SERIES_CHART_SERIES;
+    if ((/** @type {anychart.core.series.Map} */(event['target'])).needsUpdateMapAppearance())
       state |= anychart.ConsistencyState.APPEARANCE;
   }
   if (event.hasSignal(anychart.Signal.NEED_UPDATE_OVERLAP)) {
@@ -2156,13 +1844,13 @@ anychart.charts.Map.prototype.seriesInvalidated_ = function(event) {
     state = anychart.ConsistencyState.A11Y;
   }
   if (event.hasSignal(anychart.Signal.DATA_CHANGED)) {
-    state |= anychart.ConsistencyState.MAP_SERIES |
+    state |= anychart.ConsistencyState.SERIES_CHART_SERIES |
         anychart.ConsistencyState.CHART_LEGEND |
         anychart.ConsistencyState.MAP_LABELS;
-    if ((/** @type {anychart.core.map.series.Base} */(event['target'])).needsUpdateMapAppearance())
+    if ((/** @type {anychart.core.series.Map} */(event['target'])).needsUpdateMapAppearance())
       state |= anychart.ConsistencyState.APPEARANCE;
-    for (var i = this.series_.length; i--;)
-      this.series_[i].invalidate(
+    for (var i = this.seriesList.length; i--;)
+      this.seriesList[i].invalidate(
           anychart.ConsistencyState.BOUNDS |
           anychart.ConsistencyState.SERIES_DATA |
           anychart.ConsistencyState.MAP_COLOR_SCALE |
@@ -2185,49 +1873,13 @@ anychart.charts.Map.prototype.seriesInvalidated_ = function(event) {
 };
 
 
-/** @inheritDoc */
-anychart.charts.Map.prototype.getAllSeries = function() {
-  return this.series_;
-};
-
-
-/**
- * Calculates bubble sizes for series.
- * @private
- */
-anychart.charts.Map.prototype.calcBubbleSizes_ = function() {
-  var i;
-  var minMax = [Number.MAX_VALUE, -Number.MAX_VALUE];
-  for (i = this.series_.length; i--;) {
-    if (this.series_[i].isSizeBased())
-      this.series_[i].calculateSizeScale(minMax);
-  }
-  for (i = this.series_.length; i--;) {
-    if (this.series_[i].isSizeBased())
-      this.series_[i].setAutoSizeScale(minMax[0], minMax[1], this.minBubbleSize_, this.maxBubbleSize_);
-  }
-};
-
-
 /**
  * Invalidates APPEARANCE for all width-based series.
  * @private
  */
 anychart.charts.Map.prototype.invalidateSeries_ = function() {
-  for (var i = this.series_.length; i--;)
-    this.series_[i].invalidate(anychart.ConsistencyState.BOUNDS);
-};
-
-
-/**
- * Invalidates APPEARANCE for all size-based series.
- * @private
- */
-anychart.charts.Map.prototype.invalidateSizeBasedSeries_ = function() {
-  for (var i = this.series_.length; i--;) {
-    if (this.series_[i].isSizeBased())
-      this.series_[i].invalidate(anychart.ConsistencyState.APPEARANCE | anychart.ConsistencyState.SERIES_HATCH_FILL);
-  }
+  for (var i = this.seriesList.length; i--;)
+    this.seriesList[i].invalidate(anychart.ConsistencyState.BOUNDS);
 };
 
 
@@ -2385,6 +2037,14 @@ anychart.charts.Map.prototype.geoScaleInvalidated_ = function(event) {
 };
 
 
+/** @inheritDoc */
+anychart.charts.Map.prototype.xScale = function() {return null};
+
+
+/** @inheritDoc */
+anychart.charts.Map.prototype.yScale = function() {return null};
+
+
 /**
  * Sets/gets settings for regions doesn't linked to anything regions.
  * @param {(Object|boolean)=} opt_value Settings object or boolean value like enabled state.
@@ -2463,10 +2123,10 @@ anychart.charts.Map.prototype.geoData = function(opt_data) {
 
       this.invalidate(anychart.ConsistencyState.MAP_SCALE |
           anychart.ConsistencyState.MAP_GEO_DATA |
-          anychart.ConsistencyState.MAP_SERIES |
+          anychart.ConsistencyState.SERIES_CHART_SERIES |
           anychart.ConsistencyState.MAP_GEO_DATA_INDEX |
           anychart.ConsistencyState.MAP_COLOR_RANGE |
-          anychart.ConsistencyState.MAP_HATCH_FILL_PALETTE |
+          anychart.ConsistencyState.SERIES_CHART_HATCH_FILL_PALETTE |
           anychart.ConsistencyState.APPEARANCE, anychart.Signal.NEEDS_REDRAW);
     }
     return this;
@@ -2521,8 +2181,10 @@ anychart.charts.Map.prototype.applyLabelsOverlapState = function() {
 
   var globalOverlapForbidden = !this.overlapMode_;
 
-  for (i = this.series_.length; i--;) {
-    series = this.series_[i];
+  this.noOneLabelDrew = true;
+
+  for (i = this.seriesList.length; i--;) {
+    series = this.seriesList[i];
     var seriesType = series.getType();
 
     if (goog.isBoolean(this.applyLabelsOverlapState_) ? !this.applyLabelsOverlapState_ : !this.applyLabelsOverlapState_[seriesType])
@@ -2540,6 +2202,8 @@ anychart.charts.Map.prototype.applyLabelsOverlapState = function() {
       label = {};
       label.series = series;
       label.bounds = series.getLabelBounds(j, anychart.PointState.NORMAL);
+
+      this.noOneLabelDrew = this.noOneLabelDrew && !label.bounds;
 
       // var ind = 'label_' + series.getIndex() + '_' + j;
       // if (!this[ind]) this[ind] = this.container().rect();
@@ -2641,8 +2305,8 @@ anychart.charts.Map.prototype.applyLabelsOverlapState = function() {
     }
   });
 
-  for (i = this.series_.length; i--;) {
-    series = this.series_[i];
+  for (i = this.seriesList.length; i--;) {
+    series = this.seriesList[i];
     series.suspendSignalsDispatching();
     series.labelsDrawingMap(seriesMap[series.getIndex()]);
     series.draw();
@@ -2858,8 +2522,8 @@ anychart.charts.Map.prototype.drawGeometry_ = function(geometry, parent, opt_tra
   }
 
   if (this.hasInvalidationState(anychart.ConsistencyState.MAP_GEO_DATA)) {
-    for (var i = this.series_.length; i--;) {
-      var series = this.series_[i];
+    for (var i = this.seriesList.length; i--;) {
+      var series = this.seriesList[i];
       series.setGeoData(/** @type {!Array.<anychart.core.map.geom.Point|anychart.core.map.geom.Line|anychart.core.map.geom.Polygon|anychart.core.map.geom.Collection>} */(this.internalGeoData));
     }
 
@@ -3206,7 +2870,7 @@ anychart.charts.Map.prototype.getBoundsWithoutAxes = function(bounds) {
     var axis;
     for (var i = 0; i < axes.length; i++) {
       axis = axes[i];
-      if (axis.getOption(anychart.opt.ENABLED)) {
+      if (axis.getOption('enabled')) {
         axis.parentBounds(bounds);
 
         var remainingBounds = axis.getRemainingBounds();
@@ -3242,15 +2906,8 @@ anychart.charts.Map.prototype.getBoundsWithoutAxes = function(bounds) {
 
 
 /** @inheritDoc */
-anychart.charts.Map.prototype.drawContent = function(bounds) {
-  this.getRootScene();
-
-  var i, series, tx, dx, dy, len, geom, callout;
-  var maxZoomFactor = this.maxZoomLevel_;
-  var minZoomFactor = this.minZoomLevel_;
-  var boundsWithoutTx, boundsWithTx, seriesType;
-  var axes, axis, grids, grid;
-
+anychart.charts.Map.prototype.calculate = function() {
+  var i, series, tx, len, geom;
   var scale = this.scale();
   var needRecalculateLatLonScaleRange = false;
 
@@ -3281,6 +2938,7 @@ anychart.charts.Map.prototype.drawContent = function(bounds) {
       this.projectionMap = {};
 
       var mapTx = geoData['ac-tx'] || {};
+
       var defaultTx = goog.isObject(mapTx) ? mapTx['default'] : (mapTx = {'default': mapTx});
       if (!defaultTx)
         defaultTx = mapTx['default'] = goog.object.clone(anychart.charts.Map.DEFAULT_TX['default']);
@@ -3300,43 +2958,47 @@ anychart.charts.Map.prototype.drawContent = function(bounds) {
         tx_.scale = goog.isDef(value['scale']) ? parseFloat(value['scale']) : 1;
         tx_.xoffset = goog.isDef(value['xoffset']) ? parseFloat(value['xoffset']) : 0;
         tx_.yoffset = goog.isDef(value['yoffset']) ? parseFloat(value['yoffset']) : 0;
-        if (goog.isDef(value['heatZone'])) tx_.heatZone = anychart.math.Rect.fromJSON(value['heatZone']);
+        if (goog.isDef(value['heatZone'])) {
+          tx_.heatZone = goog.isArray(value['heatZone']) ? value['heatZone'] : anychart.math.Rect.fromJSON(value['heatZone']);
+        }
 
         this.projectionMap[key] = tx_;
       }, this);
-
-      if (!this.mapLayer_) {
-        this.mapLayer_ = this.createMapLayer(/** @type {acgraph.vector.ILayer} */(this.rootElement));
-        this.mapLayer_.zIndex(anychart.charts.Map.ZINDEX_MAP);
-        if (this.getRootScene() == this)
-          this.initControlsInteractivity_();
-
-      } else {
-        this.clear();
-      }
-
-      if (this.isSvgGeoData() && !this.svgRootLayer_) {
-        this.svgRootLayer_ = this.createMapLayer(/** @type {acgraph.vector.ILayer} */(this.mapLayer_));
-      }
-
-      if (!this.dataLayer_) {
-        this.dataLayer_ = this.rootElement.layer();
-        this.dataLayer_.zIndex(anychart.charts.Map.ZINDEX_SERIES);
-      }
-
-      needRecalculateLatLonScaleRange = true;
-      this.invalidate(anychart.ConsistencyState.BOUNDS | anychart.ConsistencyState.MAP_SCALE);
     }
+
+    if (!this.mapLayer_) {
+      this.mapLayer_ = this.createMapLayer(/** @type {acgraph.vector.ILayer} */(this.rootElement));
+      this.mapLayer_.zIndex(anychart.charts.Map.ZINDEX_MAP);
+      if (this.getRootScene() == this)
+        this.initControlsInteractivity_();
+    } else {
+      this.clear();
+    }
+
+    if (this.isSvgGeoData() && !this.svgRootLayer_) {
+      this.svgRootLayer_ = this.createMapLayer(/** @type {acgraph.vector.ILayer} */(this.mapLayer_));
+    }
+
+    if (!this.dataLayer_) {
+      this.dataLayer_ = this.rootElement.layer();
+      this.dataLayer_.zIndex(anychart.core.ChartWithSeries.ZINDEX_SERIES);
+    }
+
+    needRecalculateLatLonScaleRange = true;
+    this.invalidate(anychart.ConsistencyState.BOUNDS | anychart.ConsistencyState.MAP_SCALE);
   }
 
   if (this.hasInvalidationState(anychart.ConsistencyState.MAP_SCALE)) {
     if (this.projectionMap) {
       scale.setTxMap(this.projectionMap);
-
       if (this.mapLayer_) {
-        tx = this.mapLayer_.getSelfTransformation();
-        scale.setMapZoom(tx.getScaleX());
-        scale.setOffsetFocusPoint(tx.getTranslateX(), tx.getTranslateY());
+        var mtx = this.mapLayer_.getSelfTransformation();
+        scale.setMapZoom(mtx.getScaleX());
+        scale.setOffsetFocusPoint(mtx.getTranslateX(), mtx.getTranslateY());
+
+        //if (this.getZoomLevel() != this.minZoomLevel_) {
+        //scene.zoomInc = this.minZoomLevel_;
+        //}
       }
 
       var isNotSvg = !this.isSvgGeoData();
@@ -3352,7 +3014,6 @@ anychart.charts.Map.prototype.drawContent = function(bounds) {
         crs['default'] = goog.object.clone(crs['default']);
       }
 
-      debugger;
       var initInternalGeoData = !this.internalGeoData;
       this.newCrs_ = null;
       if ((this.currentCrs_ != defaultProjection.crs) && isNotSvg) {
@@ -3409,11 +3070,15 @@ anychart.charts.Map.prototype.drawContent = function(bounds) {
               defaultProjection,
               /** @type {number} */(this.crsAnimation_.duration()),
               this != this.getCurrentScene());
-          this.crsMapAnimation.listenOnce(goog.fx.Transition.EventType.END, function(e) {
-            this.crsMapAnimation.stop();
-            this.crsMapAnimation.dispose();
-            defaultProjection.curProj = defaultProjection.curProj.destProjection;
-          }, true, this);
+          this.crsMapAnimation.listenOnce(goog.fx.Transition.EventType.END,
+              /**
+               * @this {{map: anychart.charts.Map, tx: Object}}
+               */
+              function() {
+                this.map.crsMapAnimation.stop();
+                this.map.crsMapAnimation.dispose();
+                this.tx.curProj = this.tx.curProj.destProjection;
+              }, true, {map: this, tx: /** @type {Object} */(defaultProjection)});
           this.crsMapAnimation.play();
 
         } else {
@@ -3442,12 +3107,12 @@ anychart.charts.Map.prototype.drawContent = function(bounds) {
           // defaultProjection.curProj = defaultProjection.curProj.destProjection;
 
           if (this.isSvgGeoData()) {
-            scale.inverted(false, true);
+            scale.autoInvert(false, true);
 
             this.svgRootLayer_.parent(this.getMapLayer());
             this.svgRootLayer_.setTransformationMatrix(1, 0, 0, 1, 0, 0);
           } else {
-            scale.inverted(false, false);
+            scale.autoInvert(false, false);
           }
         }
       }
@@ -3457,16 +3122,16 @@ anychart.charts.Map.prototype.drawContent = function(bounds) {
       var sum = 0;
       var pointsCount = 0;
 
-      for (i = this.series_.length; i--;) {
-        series = this.series_[i];
+      for (i = this.seriesList.length; i--;) {
+        series = this.seriesList[i];
         series.invalidate(anychart.ConsistencyState.SERIES_DATA, anychart.Signal.NEEDS_REDRAW);
 
         //----------------------------------calc statistics for series
         series.calculateStatistics();
-        max = Math.max(max, /** @type {number} */(series.statistics('seriesMax')));
-        min = Math.min(min, /** @type {number} */ (series.statistics('seriesMin')));
-        sum += /** @type {number} */(series.statistics('seriesSum'));
-        pointsCount += /** @type {number} */(series.statistics('seriesPointsCount'));
+        max = Math.max(max, /** @type {number} */(series.statistics(anychart.enums.Statistics.SERIES_MAX)));
+        min = Math.min(min, /** @type {number} */ (series.statistics(anychart.enums.Statistics.SERIES_MIN)));
+        sum += /** @type {number} */(series.statistics(anychart.enums.Statistics.SERIES_SUM));
+        pointsCount += /** @type {number} */(series.statistics(anychart.enums.Statistics.SERIES_POINTS_COUNT));
         //----------------------------------end calc statistics for series
         // series.calculate();
       }
@@ -3474,16 +3139,15 @@ anychart.charts.Map.prototype.drawContent = function(bounds) {
       //----------------------------------calc statistics for series
       //todo (Roman Lubushikin): to avoid this loop on series we can store this info in the chart instance and provide it to all series
 
-      this.maxStrokeThickness_ = 0;
       var average = sum / pointsCount;
-      for (i = 0; i < this.series_.length; i++) {
-        series = this.series_[i];
-        series.statistics('max', max);
-        series.statistics('min', min);
-        series.statistics('sum', sum);
-        series.statistics('average', average);
-        series.statistics('pointsCount', pointsCount);
-        var seriesStrokeThickness = acgraph.vector.getThickness(/** @type {acgraph.vector.Stroke} */(series.stroke()));
+      for (i = 0; i < this.seriesList.length; i++) {
+        series = this.seriesList[i];
+        series.statistics(anychart.enums.Statistics.MAX, max);
+        series.statistics(anychart.enums.Statistics.MIN, min);
+        series.statistics(anychart.enums.Statistics.SUM, sum);
+        series.statistics(anychart.enums.Statistics.AVERAGE, average);
+        series.statistics(anychart.enums.Statistics.POINTS_COUNT, pointsCount);
+        var seriesStrokeThickness = acgraph.vector.getThickness(/** @type {acgraph.vector.Stroke} */(series.getOption('stroke')));
         if (seriesStrokeThickness > this.maxStrokeThickness_) {
           this.maxStrokeThickness_ = seriesStrokeThickness;
         }
@@ -3497,8 +3161,8 @@ anychart.charts.Map.prototype.drawContent = function(bounds) {
     this.indexedGeoData_ = {};
     this.indexedGeoData_[this.geoIdField_] = {};
     if (this.internalGeoData) {
-      for (i = this.series_.length; i--;) {
-        series = this.series_[i];
+      for (i = this.seriesList.length; i--;) {
+        series = this.seriesList[i];
         if (goog.isDef(series.geoIdField()) && series.geoIdField() != this.geoIdField_) {
           this.indexedGeoData_[series.geoIdField()] = {};
         }
@@ -3520,18 +3184,33 @@ anychart.charts.Map.prototype.drawContent = function(bounds) {
     }
     this.markConsistent(anychart.ConsistencyState.MAP_GEO_DATA_INDEX);
   }
+};
 
-  if (this.hasInvalidationState(anychart.ConsistencyState.MAP_SERIES)) {
-    for (i = this.series_.length; i--;) {
-      series = this.series_[i];
+
+/** @inheritDoc */
+anychart.charts.Map.prototype.drawContent = function(bounds) {
+  this.getRootScene();
+
+  var i, series, tx, dx, dy, cx, cy, len, geom, callout;
+  var maxZoomLevel = this.maxZoomLevel_;
+  var minZoomLevel = this.minZoomLevel_;
+  var boundsWithoutTx, boundsWithTx, seriesType;
+  var axes, axis, grids, grid;
+
+  var scale = this.scale();
+
+  this.calculate();
+
+  if (this.hasInvalidationState(anychart.ConsistencyState.SERIES_CHART_SERIES)) {
+    for (i = this.seriesList.length; i--;) {
+      series = this.seriesList[i];
       series.suspendSignalsDispatching();
       series.container(this.dataLayer_);
       series.resumeSignalsDispatching(false);
     }
     this.applyLabelsOverlapState_ = {};
-    this.calcBubbleSizes_();
+    this.calcBubbleSizes();
   }
-
 
   if (this.hasInvalidationState(anychart.ConsistencyState.BOUNDS)) {
     for (i = 0, len = this.callouts_.length; i < len; i++) {
@@ -3567,9 +3246,9 @@ anychart.charts.Map.prototype.drawContent = function(bounds) {
   if (this.hasInvalidationState(anychart.ConsistencyState.MAP_COLOR_RANGE)) {
     if (this.colorRange_) {
       var targetSeries;
-      for (i = 0, len = this.series_.length; i < len; i++) {
-        if (this.series_[i].isChoropleth())
-          targetSeries = this.series_[i];
+      for (i = 0, len = this.seriesList.length; i < len; i++) {
+        if (this.seriesList[i].isChoropleth())
+          targetSeries = this.seriesList[i];
       }
       if (targetSeries) {
         targetSeries.calculate();
@@ -3592,8 +3271,8 @@ anychart.charts.Map.prototype.drawContent = function(bounds) {
         var itemIndex = 0;
         for (var j = 0, len_ = items.length; j < len_; j++) {
           var item = items[j];
-          for (var k = 0, len__ = this.series_.length; k < len__; k++) {
-            series = this.series_[k];
+          for (var k = 0, len__ = this.seriesList.length; k < len__; k++) {
+            series = this.seriesList[k];
             var seriesPoint = series.getPointById(item);
             if (seriesPoint) {
               assignedItems[itemIndex] = seriesPoint;
@@ -3663,11 +3342,11 @@ anychart.charts.Map.prototype.drawContent = function(bounds) {
       }
     }
 
-    if (this.mapLayer_) {
+
       //todo (blackart) this is harcode! remove this shit when we to kill world map
-      if (!this.projectionMap['default'].xoffset) {
-        // this.mapLayer_.clip(scale.getViewSpace());
-      }
+      if (this.mapLayer_ && this.mapTX &&!this.projectionMap['default'].xoffset) {
+        //this.mapLayer_.clip(scale.getViewSpace());
+
     }
 
     this.clear();
@@ -3679,7 +3358,7 @@ anychart.charts.Map.prototype.drawContent = function(bounds) {
       this.svgRootLayer_.scale(scale.ratio, scale.ratio, 0, 0);
 
       var xy = scale.scaleToPx(0, 0);
-      defaultProjection = new goog.graphics.AffineTransform(1, 0, 0, 1, xy[0], xy[1]);
+      defaultProjection = new goog.math.AffineTransform(1, 0, 0, 1, xy[0], xy[1]);
 
       defaultProjection.concatenate(this.svgRootLayer_.getSelfTransformation());
       this.svgRootLayer_.setTransformationMatrix(defaultProjection.getScaleX(), defaultProjection.getShearY(), defaultProjection.getShearX(), defaultProjection.getScaleY(), defaultProjection.getTranslateX(), defaultProjection.getTranslateY());
@@ -3694,71 +3373,130 @@ anychart.charts.Map.prototype.drawContent = function(bounds) {
       }
     }
 
-    for (i = this.series_.length; i--;) {
-      this.series_[i].invalidate(anychart.ConsistencyState.BOUNDS, anychart.Signal.NEEDS_REDRAW);
+    for (i = this.seriesList.length; i--;) {
+      series = this.seriesList[i];
+      series.parentBounds(this.dataBounds_);
+      series.invalidate(anychart.ConsistencyState.BOUNDS, anychart.Signal.NEEDS_REDRAW);
     }
     var state = anychart.ConsistencyState.MAP_LABELS;
     if (this.isSvgGeoData())
       state |= anychart.ConsistencyState.APPEARANCE;
-    this.invalidate(state, anychart.Signal.NEEDS_REDRAW);
+    this.invalidate(state);
   }
 
-
   if (this.hasInvalidationState(anychart.ConsistencyState.MAP_ZOOM)) {
-    if (!((this.zoomLevel() == minZoomFactor && this.zoomInc * this.zoomLevel() < minZoomFactor) ||
-        (this.zoomLevel() == maxZoomFactor && this.zoomLevel() * this.zoomInc > maxZoomFactor)) && mapLayer || this.unlimitedZoom) {
+    var srcZoom = this.getZoomLevel();
+    var dstZoom = this.zoomInc * srcZoom;
 
+    tx = this.getMapLayer().getFullTransformation();
+    dx = tx.getTranslateX();
+    dy = tx.getTranslateY();
+
+    if (!((srcZoom == minZoomLevel && dstZoom < minZoomLevel) ||
+        (srcZoom == maxZoomLevel && dstZoom > maxZoomLevel)) &&
+        mapLayer || this.unlimitedZoom) {
+
+      var isInit = !(goog.isDef(this.cx) && goog.isDef(this.cy));
       if (isNaN(this.cx) || isNaN(this.cy)) {
-        boundsWithoutTx = this.scale().getViewSpace().getBoundsWithoutTransform();
+        bounds = this.scale().getViewSpace().getBoundsWithoutTransform();
 
-        var defaultCx = boundsWithoutTx.left + boundsWithoutTx.width / 2;
-        var defaultCy = boundsWithoutTx.top + boundsWithoutTx.height / 2;
+        var plotBoundsCx = bounds.left + bounds.width / 2;
+        var plotBoundsCy = bounds.top + bounds.height / 2;
 
-        if (isNaN(this.cx)) this.cx = defaultCx;
-        if (isNaN(this.cy)) this.cy = defaultCy;
+        cx = (plotBoundsCx - dx) / tx.getScaleX();
+        cy = (plotBoundsCy - dy) / tx.getScaleY();
+
+        if (isNaN(this.cx)) this.cx = cx;
+        if (isNaN(this.cy)) this.cy = cy;
       }
 
-      var zoomIn = this.zoomInc > 1;
       var zoomOut = this.zoomInc < 1;
-      var noZoom = this.zoomInc == 1;
 
       if (!this.unlimitedZoom) {
-        if ((this.zoomLevel() > maxZoomFactor && zoomIn) || (this.zoomLevel() < minZoomFactor && zoomOut))
-          noZoom = true;
-        else if ((this.zoomLevel() > maxZoomFactor && zoomOut) || (this.zoomLevel() < minZoomFactor && zoomIn))
-          noZoom = false;
-        else if (this.zoomLevel() * this.zoomInc > maxZoomFactor)
-          this.zoomInc = maxZoomFactor / this.zoomLevel();
-        else if (this.zoomLevel() * this.zoomInc < minZoomFactor && zoomOut)
-          this.zoomInc = minZoomFactor / this.zoomLevel();
+        if (dstZoom > maxZoomLevel) {
+          this.zoomInc = maxZoomLevel / this.getZoomLevel();
+          dstZoom = this.zoomInc * srcZoom;
+        } else if (dstZoom < minZoomLevel && zoomOut) {
+          this.zoomInc = minZoomLevel / this.getZoomLevel();
+          dstZoom = this.zoomInc * srcZoom;
+        }
       }
 
-      if (!noZoom || this.unlimitedZoom) {
-        if (!this.zoomAnimation || this.zoomAnimation.isStopped()) {
-          this.zoomSource = this.zoomLevel();
-          this.zoomDest = this.zoomInc * this.zoomLevel();
 
-          var duration = this.zoomDuration || anychart.charts.Map.TIMINGS.DEFAULT_ZOOM_DURATION;
+      var duration = this.zoomDuration || anychart.charts.Map.TIMINGS.DEFAULT_ZOOM_DURATION;
 
+      if ((!this.zoomAnimation || this.zoomAnimation.isStopped()) && !isInit) {
+        this.zoomSource = srcZoom;
+        this.zoomDest = dstZoom;
+
+        var equalZoom = anychart.math.roughlyEqual(this.zoomSource, this.zoomDest, 0.00001);
+        var allowZoom = (equalZoom && this.allowMoveOnEqualZoomLevels || !equalZoom) &&
+            this != this.getCurrentScene() ? true : this.getRootScene().dispatchEvent(this.createZoomEvent(anychart.enums.EventType.ZOOM_START));
+
+        if (allowZoom) {
           if (goog.global['anychart']['ui']['ContextMenu']) {
             var contextMenu = this.contextMenu();
             if (contextMenu.isVisible()) contextMenu.hide();
           }
 
-          this.zoomAnimation = new anychart.animations.MapZoomAnimation(this, [this.zoomLevel()], [this.zoomDest], duration, this != this.getCurrentScene());
+          viewSpacePath = this.getMapLayer();
+          boundsWithTx = viewSpacePath.getBounds();
+
+          cx = (this.cx - dx) / this.zoomSource;
+          cy = (this.cy - dy) / this.zoomSource;
+
+          if (!this.unlimitedZoom) {
+            if (cx < boundsWithTx.left)
+              cx = boundsWithTx.left;
+            else if (cx > boundsWithTx.getRight())
+              cx = boundsWithTx.getRight();
+
+            if (cy < boundsWithTx.top)
+              cy = boundsWithTx.top;
+            else if (cy > boundsWithTx.getBottom())
+              cy = boundsWithTx.getBottom();
+          }
+
+          var dx_ = cx * (1 - this.zoomSource);
+          var dy_ = cy * (1 - this.zoomSource);
+
+          this.zoomAnimation = new anychart.animations.MapZoomAnimation(
+              this,
+              [srcZoom, dx, dy],
+              [dstZoom, dx_, dy_],
+              duration,
+              this != this.getCurrentScene());
+
           this.zoomAnimation
               .play();
+        } else if (equalZoom) {
+          var scene = this.getCurrentScene();
+          var sceneLayer = scene.getMapLayer();
+          bounds = sceneLayer.getBounds();
+          cx = bounds.left + bounds.width / 2;
+          cy = bounds.top + bounds.height / 2;
+          tx = sceneLayer.getTransformationMatrix();
+          dx = cx * (1 - scene.fullZoom);
+          dy = cy * (1 - scene.fullZoom);
+
+          this.getMapLayer().setTransformationMatrix(scene.fullZoom, 0, 0, scene.fullZoom, dx, dy);
+
+          this.scale().setMapZoom(scene.fullZoom);
+          this.scale().setOffsetFocusPoint(dx, dy);
+
+          this.updateSeriesOnZoomOrMove();
         }
       }
     }
 
+    this.allowMoveOnEqualZoomLevels = false;
     this.zoomDuration = NaN;
     this.zoomInc = 1;
     this.markConsistent(anychart.ConsistencyState.MAP_ZOOM);
   }
 
   if (this.hasInvalidationState(anychart.ConsistencyState.MAP_MOVE)) {
-    if (this.zoomLevel() != minZoomFactor && mapLayer) {
+    if (this.getZoomLevel() != minZoomLevel && mapLayer) {
       var viewSpacePath = this.scale().getViewSpace();
       boundsWithoutTx = viewSpacePath.getBoundsWithoutTransform();
       boundsWithTx = viewSpacePath.getBoundsWithTransform(mapLayer.getFullTransformation());
@@ -3795,8 +3533,8 @@ anychart.charts.Map.prototype.drawContent = function(bounds) {
         dy = this.offsetY;
       }
 
-      dx = dx / this.zoomLevel();
-      dy = dy / this.zoomLevel();
+      dx = dx / this.getZoomLevel();
+      dy = dy / this.getZoomLevel();
 
       this.offsetX = 0;
       this.offsetY = 0;
@@ -3807,12 +3545,7 @@ anychart.charts.Map.prototype.drawContent = function(bounds) {
 
         defaultProjection = mapLayer.getSelfTransformation();
         this.scale().setOffsetFocusPoint(defaultProjection.getTranslateX(), defaultProjection.getTranslateY());
-
-        if (this.isDesktop) {
-          this.updateSeriesOnZoomOrMove();
-        } else {
-          this.getDataLayer().appendTransformationMatrix(1, 0, 0, 1, dx * this.zoomLevel(), dy * this.zoomLevel());
-        }
+        this.updateSeriesOnZoomOrMove();
       }
     }
 
@@ -3891,72 +3624,15 @@ anychart.charts.Map.prototype.drawContent = function(bounds) {
       }
     }
 
-
     this.invalidateSeries_();
-    this.invalidate(anychart.ConsistencyState.MAP_SERIES);
+    this.invalidate(anychart.ConsistencyState.SERIES_CHART_SERIES);
 
     this.markConsistent(anychart.ConsistencyState.APPEARANCE);
   }
 
-  if (this.hasInvalidationState(anychart.ConsistencyState.MAP_PALETTE) &&
-      this.hasInvalidationState(anychart.ConsistencyState.MAP_MARKER_PALETTE) &&
-      this.hasInvalidationState(anychart.ConsistencyState.MAP_HATCH_FILL_PALETTE) &&
-      this.hasInvalidationState(anychart.ConsistencyState.MAP_SERIES)) {
-    for (i = this.series_.length; i--;) {
-      series = this.series_[i];
-
-      seriesType = series.getType();
-      this.applyLabelsOverlapState_[seriesType] = this.applyLabelsOverlapState_[seriesType] || !series.isConsistent();
-
-      series.suspendSignalsDispatching();
-      series.setParentEventTarget(this.getRootScene());
-      series.invalidate(anychart.ConsistencyState.APPEARANCE | anychart.ConsistencyState.SERIES_HATCH_FILL);
-      series.setAutoGeoIdField(/** @type {string} */(this.geoIdField()));
-      var seriesIndex = /** @type {number} */ (series.index());
-      series.setAutoColor(this.palette().itemAt(seriesIndex));
-      series.setAutoMarkerType(/** @type {anychart.enums.MarkerType} */(this.markerPalette().itemAt(seriesIndex)));
-      series.setAutoHatchFill(/** @type {acgraph.vector.HatchFill|acgraph.vector.PatternFill} */(this.hatchFillPalette().itemAt(seriesIndex)));
-      series.draw();
-
-      series.resumeSignalsDispatching(false);
-    }
-    this.markConsistent(anychart.ConsistencyState.MAP_PALETTE | anychart.ConsistencyState.MAP_MARKER_PALETTE |
-        anychart.ConsistencyState.MAP_HATCH_FILL_PALETTE | anychart.ConsistencyState.MAP_SERIES);
-  }
-
-  if (this.hasInvalidationState(anychart.ConsistencyState.MAP_PALETTE)) {
-    for (i = this.series_.length; i--;) {
-      series = this.series_[i];
-      series.setAutoColor(this.palette().itemAt(/** @type {number} */ (series.index())));
-      series.invalidate(anychart.ConsistencyState.APPEARANCE | anychart.ConsistencyState.SERIES_HATCH_FILL);
-    }
-    this.invalidate(anychart.ConsistencyState.MAP_SERIES);
-    this.markConsistent(anychart.ConsistencyState.MAP_PALETTE);
-  }
-
-  if (this.hasInvalidationState(anychart.ConsistencyState.MAP_MARKER_PALETTE)) {
-    for (i = this.series_.length; i--;) {
-      series = this.series_[i];
-      series.setAutoMarkerType(/** @type {anychart.enums.MarkerType} */(this.markerPalette().itemAt(/** @type {number} */ (series.index()))));
-      series.invalidate(anychart.ConsistencyState.APPEARANCE | anychart.ConsistencyState.SERIES_HATCH_FILL);
-    }
-    this.invalidate(anychart.ConsistencyState.MAP_SERIES);
-    this.markConsistent(anychart.ConsistencyState.MAP_MARKER_PALETTE);
-  }
-
-  if (this.hasInvalidationState(anychart.ConsistencyState.MAP_HATCH_FILL_PALETTE)) {
-    for (i = this.series_.length; i--;) {
-      series = this.series_[i];
-      series.setAutoHatchFill(/** @type {acgraph.vector.HatchFill|acgraph.vector.PatternFill} */(this.hatchFillPalette().itemAt(/** @type {number} */ (series.index()))));
-      series.invalidate(anychart.ConsistencyState.APPEARANCE | anychart.ConsistencyState.SERIES_HATCH_FILL);
-    }
-    this.invalidate(anychart.ConsistencyState.MAP_SERIES);
-    this.markConsistent(anychart.ConsistencyState.MAP_HATCH_FILL_PALETTE);
-  }
-
-  if (this.hasInvalidationState(anychart.ConsistencyState.MAP_SERIES)) {
-    for (i = this.series_.length; i--;) {
-      series = this.series_[i];
+  if (this.hasInvalidationState(anychart.ConsistencyState.SERIES_CHART_SERIES)) {
+    for (i = this.seriesList.length; i--;) {
+      series = this.seriesList[i];
 
       seriesType = series.getType();
       this.applyLabelsOverlapState_[seriesType] = this.applyLabelsOverlapState_[seriesType] || !series.isConsistent();
@@ -3967,7 +3643,7 @@ anychart.charts.Map.prototype.drawContent = function(bounds) {
       series.draw();
       series.resumeSignalsDispatching(false);
     }
-    this.markConsistent(anychart.ConsistencyState.MAP_SERIES);
+    this.markConsistent(anychart.ConsistencyState.SERIES_CHART_SERIES);
   }
 
   if (this.hasInvalidationState(anychart.ConsistencyState.MAP_LABELS)) {
@@ -4007,7 +3683,7 @@ anychart.charts.Map.prototype.drawContent = function(bounds) {
 /**
  * Traverser for complex feature.
  * @param {Object} feature Geo feature.
- * @param {!Function} f Function for applying to feature chilren.
+ * @param {!Function} f Function for applying to feature children.
  * @param {Object=} opt_obj This is used as the 'this' object within f.
  */
 anychart.charts.Map.prototype.featureTraverser = function(feature, f, opt_obj) {
@@ -4056,11 +3732,11 @@ anychart.charts.Map.prototype.translateFeature = function(id, dx, dy) {
     latLon = this.scale().inverseTransform(
         bounds.left + bounds.width / 2,
         bounds.top + bounds.height / 2);
-    current_tx = this.scale().pickTx(latLon[0], latLon[1]);
+    current_tx = this.scale().pickTx(latLon[0], latLon[1])[0];
     featureTx = current_tx == this.projectionMap['default'] ? (this.projectionMap[id] = {}) : current_tx;
 
-    dx = dx / this.zoomLevel();
-    dy = dy / this.zoomLevel();
+    dx = dx / this.getZoomLevel();
+    dy = dy / this.getZoomLevel();
 
     var startCoords_ = this.scale().pxToScale(bounds.left, bounds.top);
     var endCoords_ = this.scale().pxToScale(bounds.left + dx, bounds.top + dy);
@@ -4116,7 +3792,7 @@ anychart.charts.Map.prototype.featureTranslation = function(id, opt_dx, opt_dy) 
     latLon = this.scale().inverseTransform(
         bounds.left + bounds.width / 2,
         bounds.top + bounds.height / 2);
-    current_tx = this.scale().pickTx(latLon[0], latLon[1]);
+    current_tx = this.scale().pickTx(latLon[0], latLon[1])[0];
     featureTx = current_tx == this.projectionMap['default'] ? (this.projectionMap[id] = {}) : current_tx;
   }
 
@@ -4131,8 +3807,8 @@ anychart.charts.Map.prototype.featureTranslation = function(id, opt_dx, opt_dy) 
       opt_dx = goog.isDef(opt_dx) ? opt_dx : offsetX_px;
       opt_dy = goog.isDef(opt_dy) ? opt_dy : offsetY_px;
 
-      opt_dx = opt_dx / this.zoomLevel();
-      opt_dy = opt_dy / this.zoomLevel();
+      opt_dx = opt_dx / this.getZoomLevel();
+      opt_dy = opt_dy / this.getZoomLevel();
 
       var dx_ = (opt_dx - offsetX_px) / this.scale().ratio;
       var dy_ = (opt_dy - offsetY_px) / this.scale().ratio;
@@ -4188,7 +3864,7 @@ anychart.charts.Map.prototype.featureScaleFactor = function(id, opt_ratio) {
     latLon = scale.inverseTransform(
         bounds.left + bounds.width / 2,
         bounds.top + bounds.height / 2);
-    current_tx = scale.pickTx(latLon[0], latLon[1]);
+    current_tx = scale.pickTx(latLon[0], latLon[1])[0];
     featureTx = current_tx == this.projectionMap['default'] ? (this.projectionMap[id] = {}) : current_tx;
   }
 
@@ -4272,7 +3948,7 @@ anychart.charts.Map.prototype.featureCrs_ = function(feature, opt_crs) {
       bounds.left + bounds.width / 2,
       bounds.top + bounds.height / 2);
 
-  var current_tx = scale.pickTx(latLon[0], latLon[1]);
+  var current_tx = scale.pickTx(latLon[0], latLon[1])[0];
 
   if (!goog.isDef(opt_crs)) {
     return goog.isDef(current_tx.crs) ? current_tx.crs : this.projectionMap['default'].crs;
@@ -4629,10 +4305,18 @@ anychart.charts.Map.prototype.drillDown_ = function(id, target) {
   }
 
   var json = newScene.serialize();
-  var theme = anychart.getFullTheme();
+  var theme = {'map': anychart.getFullTheme('map')};
   var diff = anychart.themes.merging.demerge(json, theme);
   var mapDiff = diff['map'];
   var series = mapDiff['series'];
+
+  if (!goog.isDef(mapDiff['maxZoomLevel'])) {
+    newScene.maxZoomLevel(/** @type {number} */(scene.maxZoomLevel()));
+  }
+
+  if (!goog.isDef(mapDiff['minZoomLevel'])) {
+    newScene.minZoomLevel(/** @type {number} */(scene.minZoomLevel()));
+  }
 
   if (series && series.length && !goog.isDef(series[0]['colorScale'])) {
     var sourceScale = /** @type {anychart.scales.OrdinalColor|anychart.scales.LinearColor} */(scene.getSeries(0).colorScale());
@@ -4644,10 +4328,10 @@ anychart.charts.Map.prototype.drillDown_ = function(id, target) {
     newScene.colorRange(sourceColorRange.serialize());
 
     var colorRange = /** @type {anychart.core.ui.ColorRange} */(newScene.colorRange());
-    colorRange.labels().textFormatter(/** @type {Function|string} */(sourceColorRange.labels().textFormatter()));
-    colorRange.labels().positionFormatter(/** @type {Function} */(sourceColorRange.labels().positionFormatter()));
-    colorRange.minorLabels().textFormatter(/** @type {Function|string} */(sourceColorRange.minorLabels().textFormatter()));
-    colorRange.minorLabels().positionFormatter(/** @type {Function} */(sourceColorRange.minorLabels().positionFormatter()));
+    colorRange.labels()['format'](/** @type {Function|string} */(sourceColorRange.labels()['format']()));
+    colorRange.labels()['positionFormatter'](/** @type {Function} */(sourceColorRange.labels()['positionFormatter']()));
+    colorRange.minorLabels()['format'](/** @type {Function|string} */(sourceColorRange.minorLabels()['format']()));
+    colorRange.minorLabels()['positionFormatter'](/** @type {Function} */(sourceColorRange.minorLabels()['positionFormatter']()));
   }
 
   if (!mapDiff['legend']) {
@@ -4666,7 +4350,7 @@ anychart.charts.Map.prototype.drillDown_ = function(id, target) {
   newScene.setParentEventTarget(root);
 
 
-  var zoomParam = newScene.zoomToBounds(featureBounds);
+  var zoomParam = newScene.zoomToBounds(featureBounds, undefined, true);
   newScene.unlimitedZoom = true;
   newScene.zoomDuration = 0;
   newScene.zoomTo(1 / zoomParam[0], zoomParam[1], zoomParam[2]);
@@ -4687,7 +4371,7 @@ anychart.charts.Map.prototype.drillDown_ = function(id, target) {
     newScene.show();
     newScene.tooltip().hide(null);
 
-    var zoomParam = newScene.zoomToBounds(featureBounds);
+    var zoomParam = newScene.zoomToBounds(featureBounds, undefined, true);
     newScene.zoomDuration = 400;
     newScene.unlimitedZoom = true;
 
@@ -4699,6 +4383,27 @@ anychart.charts.Map.prototype.drillDown_ = function(id, target) {
       setTimeout(goog.bind(function() {this.dispatchEvent(this.createDrillChangeEvent())}, root), 0);
     }, root);
   }, newScene, scene, root, featureBounds, featureProperties);
+};
+
+
+/**
+ * @return {boolean}
+ * @private
+ */
+anychart.charts.Map.prototype.readyForDrillUp_ = function() {
+  var scene = this.getCurrentScene();
+  var sceneLayer = scene.getMapLayer();
+  var minZoom = /** @type {number} */(scene.minZoomLevel());
+  var bounds = sceneLayer.getBounds();
+  var cx = bounds.left + bounds.width / 2;
+  var cy = bounds.top + bounds.height / 2;
+  var tx = sceneLayer.getTransformationMatrix();
+  var dx = cx * (1 - minZoom);
+  var dy = cy * (1 - minZoom);
+
+  return anychart.math.roughlyEqual(scene.getZoomLevel(), minZoom) &&
+      anychart.math.roughlyEqual(tx[4], dx) &&
+      anychart.math.roughlyEqual(tx[5], dy);
 };
 
 
@@ -4717,8 +4422,9 @@ anychart.charts.Map.prototype.drillUp_ = function(target, opt_levels) {
   root.drillingInAction = true;
 
   source.zoomDuration = 700;
-  source.zoomTo(/** @type {number} */(this.minZoomLevel_));
-
+  if (!source.readyForDrillUp_()) {
+    source.zoomTo(/** @type {number} */(this.minZoomLevel_));
+  }
   var levels = opt_levels || 1;
 
   this.doAfterAnimation(source, function(target, root) {
@@ -4794,10 +4500,26 @@ anychart.charts.Map.prototype.drillUp = function() {
 //
 //----------------------------------------------------------------------------------------------------------------------
 /**
+ * Creates zoom event.
+ * @param {string} type .
+ * @return {Object}
+ */
+anychart.charts.Map.prototype.createZoomEvent = function(type) {
+  return {
+    'type': type,
+    'target': this.getCurrentScene(),
+    'from': this.zoomSource,
+    'current': this.fullZoom,
+    'to': this.zoomDest
+  };
+};
+
+
+/**
  * Current map zoom level.
  * @return {number}
  */
-anychart.charts.Map.prototype.zoomLevel = function() {
+anychart.charts.Map.prototype.getZoomLevel = function() {
   return this.fullZoom;
 };
 
@@ -4843,72 +4565,97 @@ anychart.charts.Map.prototype.minZoomLevel = function(opt_value) {
  * @param {number} value Zoom level for zooming.
  * @param {number=} opt_cx X coord of zoom point.
  * @param {number=} opt_cy Y coord of zoom point.
+ * @param {number=} opt_duration Duration of zoom animation.
  * @return {anychart.charts.Map}
  */
-anychart.charts.Map.prototype.zoomTo = function(value, opt_cx, opt_cy) {
+anychart.charts.Map.prototype.zoomTo = function(value, opt_cx, opt_cy, opt_duration) {
   if (!this.unlimitedZoom)
     value = goog.math.clamp(value, /** @type {number} */(this.minZoomLevel_), /** @type {number} */(this.maxZoomLevel_));
-  return this.zoom(value / this.zoomLevel(), opt_cx, opt_cy);
+  return this.zoom(value / this.getZoomLevel(), opt_cx, opt_cy, opt_duration);
 };
 
 
 /**
  * Zoom to feature for passed id.
- * @param {string} id Feature id.
+ * @param {string|Array.<string>} id Feature id.
+ * @param {number=} opt_duration Duration of zoom animation.
  */
-anychart.charts.Map.prototype.zoomToFeature = function(id) {
-  var feature = this.getFeatureById(id);
-  if (!feature) {
+anychart.charts.Map.prototype.zoomToFeature = function(id, opt_duration) {
+  var scene = this.getCurrentScene();
+  var features = [];
+  if (!goog.isArray(id))
+    id = [id];
+
+  var bounds, domEl, feature;
+  var zoomSessionId = '';
+  for (var i = 0, len = id.length; i < len; i++) {
+    var featureId = id[i];
+    feature = scene.getFeatureById(featureId);
+    if (feature) {
+      zoomSessionId += featureId + ';';
+      features.push(feature);
+    }
+  }
+
+  if (!features.length) {
     anychart.core.reporting.warning(anychart.enums.WarningCode.FEATURE_ID_NOT_FOUND, null, [id]);
     return;
   }
 
-  var domEl = feature.domElement;
-  var tx = domEl.getFullTransformation();
+  var tx = scene.getMapLayer().getFullTransformation();
+  var goToHome = this.prevZoomedFeature && zoomSessionId == this.prevZoomedFeature && this.prevTx && tx.equals(this.prevTx);
 
-  var goToHome = this.prevZoomedFeature && feature == this.prevZoomedFeature && this.prevTx && tx.equals(this.prevTx);
-
-  var featureBounds;
-  if (goToHome) {
-    featureBounds = domEl.getBounds();
-  } else {
-    featureBounds = domEl.getAbsoluteBounds();
+  for (i = 0, len = features.length; i < len; i++) {
+    feature = features[i];
+    domEl = feature.domElement;
+    if (!bounds) {
+      bounds = goToHome ? domEl.getBounds() : domEl.getAbsoluteBounds();
+    } else {
+      bounds.boundingRect(goToHome ? domEl.getBounds() : domEl.getAbsoluteBounds());
+    }
   }
-  var sourceZoom = tx.getScaleX();
-  var zoomParam = this.zoomToBounds(featureBounds);
+
+  var srcZoom = tx.getScaleX();
+  var dx = tx.getTranslateX();
+  var dy = tx.getTranslateY();
+
+  var zoomParam = scene.zoomToBounds(bounds, undefined, goToHome);
   var zoom = zoomParam[0];
   var cx = zoomParam[1];
   var cy = zoomParam[2];
 
-  var dx = tx.getTranslateX();
-  var dy = tx.getTranslateY();
-
-  this.doAfterAnimation(this, function() {
-    this.zoomDuration = isNaN(this.zoomDuration) ? 500 : this.zoomDuration;
+  this.doAfterAnimation(scene, function() {
+    this.allowMoveOnEqualZoomLevels = true;
+    this.zoomDuration = goog.isDef(opt_duration) ? opt_duration : isNaN(this.zoomDuration) ? anychart.charts.Map.TIMINGS.ZOOM_TO_FEATURE_DURATION : this.zoomDuration;
     if (goToHome) {
-      if (anychart.math.roughlyEqual(sourceZoom, zoom, 0.00001)) {
-        this.zoomAnimation = new anychart.animations.MapMoveAnimation(
-            this, [dx, dy], [0, 0], anychart.charts.Map.TIMINGS.ZOOM_TO_FEATURE_DURATION);
-        this.zoomAnimation.play();
+      if (anychart.math.roughlyEqual(srcZoom, zoom, 0.00001)) {
+        if (this.getRootScene().dispatchEvent(this.createZoomEvent(anychart.enums.EventType.ZOOM_START))) {
+          this.zoomAnimation = new anychart.animations.MapZoomAnimation(
+              this, [1, dx, dy], [1, dx + cx, dy + cy], this.zoomDuration);
+          this.zoomAnimation.play();
+        }
       } else {
-        this.zoomTo(this.minZoomLevel_, cx, cy);
+        this.zoomTo(this.minZoomLevel_, cx, cy, this.zoomDuration);
       }
+
       this.prevZoomedFeature = null;
       this.prevTx = null;
     } else {
-      this.unlimitedZoom = true;
-      if (anychart.math.roughlyEqual(sourceZoom, zoom, 0.00001)) {
-        this.zoomAnimation = new anychart.animations.MapMoveAnimation(
-            this, [dx, dy], [dx + cx, dy + cy], anychart.charts.Map.TIMINGS.ZOOM_TO_FEATURE_DURATION);
-        this.zoomAnimation.play();
+      if (anychart.math.roughlyEqual(srcZoom, zoom, 0.00001)) {
+        if (this.getRootScene().dispatchEvent(this.createZoomEvent(anychart.enums.EventType.ZOOM_START))) {
+          this.zoomAnimation = new anychart.animations.MapZoomAnimation(
+              this, [1, dx, dy], [1, dx + cx, dy + cy], this.zoomDuration);
+          this.zoomAnimation.play();
+        }
       } else {
-        this.zoomTo(zoom, cx, cy);
+        this.zoomTo(zoom, cx, cy, this.zoomDuration);
       }
-      this.prevZoomedFeature = feature;
+      this.prevZoomedFeature = zoomSessionId;
+
       if (this.zoomAnimation) {
         this.zoomAnimation.listenOnce(goog.fx.Transition.EventType.END, function(e) {
           if (this.prevZoomedFeature) {
-            this.prevTx = this.prevZoomedFeature.domElement.getFullTransformation().clone();
+            this.prevTx = this.getCurrentScene().getMapLayer().getFullTransformation().clone();
           } else {
             this.prevTx = null;
           }
@@ -4923,13 +4670,15 @@ anychart.charts.Map.prototype.zoomToFeature = function(id) {
  * Zoom to passed bounds.
  * @param {anychart.math.Rect} bounds .
  * @param {anychart.math.Rect=} opt_sourceBounds .
+ * @param {boolean=} opt_fullZoomOut .
  * @return {Array.<number>}
  */
-anychart.charts.Map.prototype.zoomToBounds = function(bounds, opt_sourceBounds) {
+anychart.charts.Map.prototype.zoomToBounds = function(bounds, opt_sourceBounds, opt_fullZoomOut) {
+  var scene = this.getCurrentScene();
   var x = bounds.left + bounds.width / 2;
   var y = bounds.top + bounds.height / 2;
 
-  var sourceBounds = goog.isDef(opt_sourceBounds) ? opt_sourceBounds : this.getPlotBounds();
+  var sourceBounds = goog.isDef(opt_sourceBounds) ? opt_sourceBounds : scene.getPlotBounds();
   var plotBoundsCx = sourceBounds.left + sourceBounds.width / 2;
   var plotBoundsCy = sourceBounds.top + sourceBounds.height / 2;
 
@@ -4938,6 +4687,10 @@ anychart.charts.Map.prototype.zoomToBounds = function(bounds, opt_sourceBounds) 
 
   var cx, cy;
   var zoom = 1 / Math.max(widthRatio, heightRatio);
+
+  if (!opt_fullZoomOut)
+    zoom = Math.max(Math.min(zoom * scene.getZoomLevel(), scene.maxZoomLevel()), scene.minZoomLevel()) / scene.getZoomLevel();
+
   if (anychart.math.roughlyEqual(zoom, 1, 0.0000001)) {
     cx = plotBoundsCx - x;
     cy = plotBoundsCy - y;
@@ -4945,7 +4698,7 @@ anychart.charts.Map.prototype.zoomToBounds = function(bounds, opt_sourceBounds) 
     cx = (plotBoundsCx - zoom * x) / (1 - zoom);
     cy = (plotBoundsCy - zoom * y) / (1 - zoom);
   }
-  zoom *= this.zoomLevel();
+  zoom *= scene.getZoomLevel();
 
   return [zoom, cx, cy];
 };
@@ -4968,19 +4721,21 @@ anychart.charts.Map.prototype.zoomFactor = function(opt_value) {
 
 /**
  * Zoom in.
+ * @param {number=} opt_duration Duration of zoom animation.
  * @return {anychart.charts.Map}
  */
-anychart.charts.Map.prototype.zoomIn = function() {
-  return this.zoom(this.zoomFactor_);
+anychart.charts.Map.prototype.zoomIn = function(opt_duration) {
+  return this.zoom(this.zoomFactor_, undefined, undefined, opt_duration);
 };
 
 
 /**
  * Zoom out.
+ * @param {number=} opt_duration Duration of zoom animation.
  * @return {anychart.charts.Map}
  */
-anychart.charts.Map.prototype.zoomOut = function() {
-  return this.zoom(1 / this.zoomFactor_);
+anychart.charts.Map.prototype.zoomOut = function(opt_duration) {
+  return this.zoom(1 / this.zoomFactor_, undefined, undefined, opt_duration);
 };
 
 
@@ -4995,16 +4750,10 @@ anychart.charts.Map.prototype.fitAll = function() {
     this.doAfterAnimation(this, function() {
       this.goingToHome = true;
       this.zoomDuration = anychart.charts.Map.TIMINGS.ZOOM_TO_HOME_DURATION;
-      if (this.zoomLevel() != this.minZoomLevel_) {
-        this.zoomTo(this.minZoomLevel_);
-      } else {
-        var tx = this.getMapLayer().getSelfTransformation();
-        var dx = tx.getTranslateX();
-        var dy = tx.getTranslateY();
 
-        this.zoomAnimation = new anychart.animations.MapMoveAnimation(this, [dx, dy], [0, 0], anychart.charts.Map.TIMINGS.ZOOM_TO_FEATURE_DURATION);
-        this.zoomAnimation.play();
-      }
+      var scene = this.getCurrentScene();
+      scene.zoomTo(scene.minZoomLevel());
+
       this.doAfterAnimation(this, function() {
         this.goingToHome = false;
       });
@@ -5019,16 +4768,20 @@ anychart.charts.Map.prototype.fitAll = function() {
  * @param {number} value Zoom value.
  * @param {number=} opt_cx Center X value.
  * @param {number=} opt_cy Center Y value.
+ * @param {number=} opt_duration Duration of zoom animation.
  * @return {anychart.charts.Map} Returns itself for chaining.
  */
-anychart.charts.Map.prototype.zoom = function(value, opt_cx, opt_cy) {
+anychart.charts.Map.prototype.zoom = function(value, opt_cx, opt_cy, opt_duration) {
   if (goog.isDef(value)) {
     var state = 0;
     var signal = 0;
 
+    if (goog.isDef(opt_duration))
+      this.zoomDuration = opt_duration;
+
     value = anychart.utils.toNumber(value);
-    if (((this.zoomLevel() == this.minZoomLevel_ && value < 1) ||
-        (this.zoomLevel() == this.maxZoomLevel_ && value > 1)) && !this.unlimitedZoom) {
+    if (((this.getZoomLevel() == this.minZoomLevel_ && value < 1) ||
+        (this.getZoomLevel() == this.maxZoomLevel_ && value > 1)) && !this.unlimitedZoom) {
       return this;
     }
 
@@ -5047,6 +4800,8 @@ anychart.charts.Map.prototype.zoom = function(value, opt_cx, opt_cy) {
       state = anychart.ConsistencyState.MAP_ZOOM;
       signal = anychart.Signal.NEEDS_REDRAW;
     }
+
+    this.allowMoveOnEqualZoomLevels = true;
     this.invalidate(state, signal);
   }
   return this;
@@ -5130,7 +4885,7 @@ anychart.charts.Map.prototype.inverseTransform = function(x, y) {
 //
 //----------------------------------------------------------------------------------------------------------------------
 /** @inheritDoc */
-anychart.charts.Map.prototype.createLegendItemsProvider = function(sourceMode, itemsTextFormatter) {
+anychart.charts.Map.prototype.createLegendItemsProvider = function(sourceMode, itemsFormat) {
   var i, count;
   /**
    * @type {!Array.<anychart.core.ui.Legend.LegendItemProvider>}
@@ -5139,12 +4894,12 @@ anychart.charts.Map.prototype.createLegendItemsProvider = function(sourceMode, i
 
   var series, scale, itemData;
   if (sourceMode == anychart.enums.LegendItemsSourceMode.DEFAULT) {
-    for (i = 0, count = this.series_.length; i < count; i++) {
-      series = this.series_[i];
+    for (i = 0, count = this.seriesList.length; i < count; i++) {
+      series = this.seriesList[i];
       scale = series.colorScale();
-      itemData = series.getLegendItemData(itemsTextFormatter);
+      itemData = series.getLegendItemData(itemsFormat);
       itemData['sourceUid'] = goog.getUid(this);
-      itemData['sourceKey'] = series.index();
+      itemData['sourceKey'] = series.id();
       itemData['meta'] = {
         scale: scale
       };
@@ -5156,8 +4911,8 @@ anychart.charts.Map.prototype.createLegendItemsProvider = function(sourceMode, i
       scale = this.colorRange_.scale();
       series = this.colorRange_.target();
     } else {
-      for (i = 0, count = this.series_.length; i < count; i++) {
-        series = this.series_[i];
+      for (i = 0, count = this.seriesList.length; i < count; i++) {
+        series = this.seriesList[i];
         if (series.colorScale() instanceof anychart.scales.OrdinalColor) {
           scale = series.colorScale();
           break;
@@ -5220,7 +4975,7 @@ anychart.charts.Map.prototype.legendItemClick = function(item, event) {
       var iterator = series.getResetIterator();
 
       while (iterator.advance()) {
-        var pointValue = iterator.get(series.referenceValueNames[1]);
+        var pointValue = iterator.get(series.drawer.valueFieldName);
         if (range == scale.getRangeByValue(pointValue)) {
           points.push(iterator.getIndex());
         }
@@ -5258,7 +5013,7 @@ anychart.charts.Map.prototype.legendItemOver = function(item, event) {
     if (series)
       series.hoverSeries();
   } else if (sourceMode == anychart.enums.LegendItemsSourceMode.CATEGORIES) {
-    series = /** @type {anychart.core.map.series.Base} */(meta.series);
+    series = /** @type {anychart.core.series.Map} */(meta.series);
     var scale = meta.scale;
     if (scale && series) {
       var range = meta.range;
@@ -5266,7 +5021,7 @@ anychart.charts.Map.prototype.legendItemOver = function(item, event) {
 
       var points = [];
       while (iterator.advance()) {
-        var pointValue = iterator.get(series.referenceValueNames[1]);
+        var pointValue = iterator.get(series.drawer.valueFieldName);
         if (range == scale.getRangeByValue(pointValue)) {
           points.push(iterator.getIndex());
         }
@@ -5334,7 +5089,10 @@ anychart.charts.Map.prototype.toGeoJSON = function() {
 };
 
 
-/** @inheritDoc */
+/**
+ * @inheritDoc
+ * @suppress {deprecated}
+ */
 anychart.charts.Map.prototype.setupByJSON = function(config, opt_default) {
   anychart.charts.Map.base(this, 'setupByJSON', config, opt_default);
 
@@ -5344,24 +5102,19 @@ anychart.charts.Map.prototype.setupByJSON = function(config, opt_default) {
   if ('defaultCalloutSettings' in config)
     this.defaultCalloutSettings(config['defaultCalloutSettings']);
 
-  this.defaultSeriesType(config['defaultSeriesType']);
-  this.palette(config['palette']);
-  this.markerPalette(config['markerPalette']);
-  this.hatchFillPalette(config['hatchFillPalette']);
-  this.colorRange(config['colorRange']);
+  this.colorRange().setupByVal(config['colorRange'], opt_default);
   this.unboundRegions(config['unboundRegions']);
-  this.minBubbleSize(config['minBubbleSize']);
-  this.maxBubbleSize(config['maxBubbleSize']);
   this.geoIdField(config['geoIdField']);
   this.overlapMode(config['overlapMode']);
+  this.minZoomLevel(config['minZoomLevel']);
+  this.maxZoomLevel(config['maxZoomLevel']);
 
   var geoData = config['geoData'];
   if (geoData) {
     this.geoData(/** @type {string} */(goog.string.startsWith(geoData, '{') ? JSON.parse(geoData) : geoData));
   }
   if (goog.isDef(config['allowPointsSelect'])) {
-    this.interactivity().selectionMode(
-        config['allowPointsSelect'] ? anychart.enums.SelectionMode.MULTI_SELECT : anychart.enums.SelectionMode.NONE);
+    this.allowPointsSelect(config['allowPointsSelect']);
   }
 
   this.crsAnimation(config['crsAnimation']);
@@ -5406,13 +5159,13 @@ anychart.charts.Map.prototype.setupByJSON = function(config, opt_default) {
       type = (type + '').toLowerCase();
       switch (type) {
         case 'ordinalcolor':
-          scale = new anychart.scales.OrdinalColor();
+          scale = anychart.scales.ordinalColor();
           break;
         case 'linearcolor':
-          scale = new anychart.scales.LinearColor();
+          scale = anychart.scales.linearColor();
           break;
         default:
-          scale = new anychart.scales.LinearColor();
+          scale = anychart.scales.linearColor();
       }
       if (goog.isObject(json))
         scale.setup(json);
@@ -5425,7 +5178,7 @@ anychart.charts.Map.prototype.setupByJSON = function(config, opt_default) {
       json = series[i];
       var seriesType = (json['seriesType'] || this.defaultSeriesType()).toLowerCase();
       var data = json['data'];
-      var seriesInst = this.createSeriesByType_(seriesType, data);
+      var seriesInst = this.createSeriesByType(seriesType, data);
       if (seriesInst) {
         seriesInst.setup(json);
         if (goog.isObject(json) && 'colorScale' in json) {
@@ -5458,17 +5211,13 @@ anychart.charts.Map.prototype.serialize = function() {
   var json = anychart.charts.Map.base(this, 'serialize');
 
   json['type'] = this.getType();
-  json['defaultSeriesType'] = this.defaultSeriesType();
-  json['palette'] = this.palette().serialize();
-  json['markerPalette'] = this.markerPalette().serialize();
-  json['hatchFillPalette'] = this.hatchFillPalette().serialize();
   json['unboundRegions'] = goog.isString(this.unboundRegions()) ? this.unboundRegions() : this.unboundRegions().serialize();
   json['colorRange'] = this.colorRange().serialize();
   json['geoScale'] = this.scale().serialize();
-  json['minBubbleSize'] = this.minBubbleSize();
-  json['maxBubbleSize'] = this.maxBubbleSize();
   json['geoIdField'] = this.geoIdField();
   json['overlapMode'] = this.overlapMode();
+  json['minZoomLevel'] = this.minZoomLevel();
+  json['maxZoomLevel'] = this.maxZoomLevel();
 
   var geoData;
   if (this.geoDataStringName_) {
@@ -5500,8 +5249,8 @@ anychart.charts.Map.prototype.serialize = function() {
   var series = [];
   var scalesIds = {};
   var scales = [];
-  for (var i = 0; i < this.series_.length; i++) {
-    var series_ = this.series_[i];
+  for (var i = 0; i < this.seriesList.length; i++) {
+    var series_ = this.seriesList[i];
     var config = series_.serialize();
 
     var scale = series_.colorScale();
@@ -5563,18 +5312,13 @@ anychart.charts.Map.prototype.disposeInternal = function() {
   goog.dispose(this.mouseWheelHandler);
   this.mouseWheelHandler = null;
 
-  if (this.container() && this.container().getStage() && this.container().getStage().container()) {
-    var container = this.container().getStage().container();
+  if (this.container() && this.container().getStage()) {
+    var container = this.container().getStage().getDomWrapper();
     if (this.mapClickHandler_) goog.events.unlisten(container, goog.events.EventType.CLICK, this.mapClickHandler_, false, this);
     if (this.mapDbClickHandler_) goog.events.unlisten(container, goog.events.EventType.DBLCLICK, this.mapDbClickHandler_, false, this);
     if (this.mapTouchEndHandler_) goog.events.unlisten(container, goog.events.EventType.POINTERUP, this.mapTouchEndHandler_, false, this);
     if (this.mapTouchEndHandler_) goog.events.unlisten(container, goog.events.EventType.TOUCHEND, this.mapTouchEndHandler_, false, this);
     if (this.mapMouseLeaveHandler_) goog.events.unlisten(container, goog.events.EventType.MOUSELEAVE, this.mapMouseLeaveHandler_, false, this);
-  }
-
-  if (this.mapTextarea) {
-    goog.dom.removeNode(this.mapTextarea);
-    delete this.mapTextarea;
   }
 
   anychart.charts.Map.base(this, 'disposeInternal');
@@ -5584,62 +5328,72 @@ anychart.charts.Map.prototype.disposeInternal = function() {
 //endregion
 //region --- Exports
 //exports
-goog.exportSymbol('anychart.charts.Map.DEFAULT_TX', anychart.charts.Map.DEFAULT_TX);
-anychart.charts.Map.prototype['getType'] = anychart.charts.Map.prototype.getType;
-anychart.charts.Map.prototype['geoData'] = anychart.charts.Map.prototype.geoData;
-anychart.charts.Map.prototype['choropleth'] = anychart.charts.Map.prototype.choropleth;
-anychart.charts.Map.prototype['bubble'] = anychart.charts.Map.prototype.bubble;
-anychart.charts.Map.prototype['marker'] = anychart.charts.Map.prototype.marker;
-anychart.charts.Map.prototype['connector'] = anychart.charts.Map.prototype.connector;
-anychart.charts.Map.prototype['unboundRegions'] = anychart.charts.Map.prototype.unboundRegions;
-anychart.charts.Map.prototype['colorRange'] = anychart.charts.Map.prototype.colorRange;
-anychart.charts.Map.prototype['callout'] = anychart.charts.Map.prototype.callout;
-anychart.charts.Map.prototype['palette'] = anychart.charts.Map.prototype.palette;
-anychart.charts.Map.prototype['markerPalette'] = anychart.charts.Map.prototype.markerPalette;
-anychart.charts.Map.prototype['hatchFillPalette'] = anychart.charts.Map.prototype.hatchFillPalette;
-anychart.charts.Map.prototype['getSeries'] = anychart.charts.Map.prototype.getSeries;
-anychart.charts.Map.prototype['allowPointsSelect'] = anychart.charts.Map.prototype.allowPointsSelect;
-anychart.charts.Map.prototype['minBubbleSize'] = anychart.charts.Map.prototype.minBubbleSize;
-anychart.charts.Map.prototype['maxBubbleSize'] = anychart.charts.Map.prototype.maxBubbleSize;
-anychart.charts.Map.prototype['geoIdField'] = anychart.charts.Map.prototype.geoIdField;
-anychart.charts.Map.prototype['defaultSeriesType'] = anychart.charts.Map.prototype.defaultSeriesType;
-anychart.charts.Map.prototype['addSeries'] = anychart.charts.Map.prototype.addSeries;
-anychart.charts.Map.prototype['getSeriesAt'] = anychart.charts.Map.prototype.getSeriesAt;
-anychart.charts.Map.prototype['getSeriesCount'] = anychart.charts.Map.prototype.getSeriesCount;
-anychart.charts.Map.prototype['removeSeries'] = anychart.charts.Map.prototype.removeSeries;
-anychart.charts.Map.prototype['removeSeriesAt'] = anychart.charts.Map.prototype.removeSeriesAt;
-anychart.charts.Map.prototype['removeAllSeries'] = anychart.charts.Map.prototype.removeAllSeries;
-anychart.charts.Map.prototype['getPlotBounds'] = anychart.charts.Map.prototype.getPlotBounds;
-anychart.charts.Map.prototype['overlapMode'] = anychart.charts.Map.prototype.overlapMode;
-
-anychart.charts.Map.prototype['interactivity'] = anychart.charts.Map.prototype.interactivity;
-
-anychart.charts.Map.prototype['axes'] = anychart.charts.Map.prototype.axes;
-anychart.charts.Map.prototype['grids'] = anychart.charts.Map.prototype.grids;
-anychart.charts.Map.prototype['crosshair'] = anychart.charts.Map.prototype.crosshair;
-
-anychart.charts.Map.prototype['crsAnimation'] = anychart.charts.Map.prototype.crsAnimation;
-
-anychart.charts.Map.prototype['toGeoJSON'] = anychart.charts.Map.prototype.toGeoJSON;
-anychart.charts.Map.prototype['featureTranslation'] = anychart.charts.Map.prototype.featureTranslation;
-anychart.charts.Map.prototype['translateFeature'] = anychart.charts.Map.prototype.translateFeature;
-anychart.charts.Map.prototype['featureScaleFactor'] = anychart.charts.Map.prototype.featureScaleFactor;
-anychart.charts.Map.prototype['featureCrs'] = anychart.charts.Map.prototype.featureCrs;
-anychart.charts.Map.prototype['crs'] = anychart.charts.Map.prototype.crs;
-
-anychart.charts.Map.prototype['zoom'] = anychart.charts.Map.prototype.zoom;
-anychart.charts.Map.prototype['move'] = anychart.charts.Map.prototype.move;
-
-anychart.charts.Map.prototype['transform'] = anychart.charts.Map.prototype.transform;
-anychart.charts.Map.prototype['inverseTransform'] = anychart.charts.Map.prototype.inverseTransform;
-
-anychart.charts.Map.prototype['zoomToFeature'] = anychart.charts.Map.prototype.zoomToFeature;
-anychart.charts.Map.prototype['zoomTo'] = anychart.charts.Map.prototype.zoomTo;
-// anychart.charts.Map.prototype['maxZoomLevel'] = anychart.charts.Map.prototype.maxZoomLevel;
-// anychart.charts.Map.prototype['minZoomLevel'] = anychart.charts.Map.prototype.minZoomLevel;
-
-anychart.charts.Map.prototype['drillTo'] = anychart.charts.Map.prototype.drillTo;
-anychart.charts.Map.prototype['drillUp'] = anychart.charts.Map.prototype.drillUp;
-anychart.charts.Map.prototype['drillDownMap'] = anychart.charts.Map.prototype.drillDownMap;
-anychart.charts.Map.prototype['getDrilldownPath'] = anychart.charts.Map.prototype.getDrilldownPath;
+/** @suppress {deprecated} */
+(function() {
+  var proto = anychart.charts.Map.prototype;
+  //
+  goog.exportSymbol('anychart.charts.Map.DEFAULT_TX', anychart.charts.Map.DEFAULT_TX);
+  proto['getType'] = proto.getType;
+  //geo
+  proto['geoData'] = proto.geoData;
+  proto['unboundRegions'] = proto.unboundRegions;
+  proto['geoIdField'] = proto.geoIdField;
+  proto['toGeoJSON'] = proto.toGeoJSON;
+  //series constructors generated automatically
+  // proto['choropleth'] = proto.choropleth;
+  // proto['bubble'] = proto.bubble;
+  // proto['marker'] = proto.marker;
+  // proto['connector'] = proto.connector;
+  //series
+  proto['getSeries'] = proto.getSeries;
+  proto['addSeries'] = proto.addSeries;
+  proto['getSeriesAt'] = proto.getSeriesAt;
+  proto['getSeriesCount'] = proto.getSeriesCount;
+  proto['removeSeries'] = proto.removeSeries;
+  proto['removeSeriesAt'] = proto.removeSeriesAt;
+  proto['removeAllSeries'] = proto.removeAllSeries;
+  proto['defaultSeriesType'] = proto.defaultSeriesType;
+  proto['overlapMode'] = proto.overlapMode;
+  //bubble
+  proto['maxBubbleSize'] = proto.maxBubbleSize;
+  proto['minBubbleSize'] = proto.minBubbleSize;
+  //ui
+  proto['colorRange'] = proto.colorRange;
+  proto['callout'] = proto.callout;
+  proto['axes'] = proto.axes;
+  proto['grids'] = proto.grids;
+  proto['crosshair'] = proto.crosshair;
+  //palette
+  proto['palette'] = proto.palette;
+  proto['markerPalette'] = proto.markerPalette;
+  proto['hatchFillPalette'] = proto.hatchFillPalette;
+  //bounds
+  proto['getPlotBounds'] = proto.getPlotBounds;
+  //interactivity
+  proto['interactivity'] = proto.interactivity;
+  proto['allowPointsSelect'] = proto.allowPointsSelect;
+  proto['crsAnimation'] = proto.crsAnimation;
+  //feature manipulation
+  proto['featureTranslation'] = proto.featureTranslation;
+  proto['translateFeature'] = proto.translateFeature;
+  proto['featureScaleFactor'] = proto.featureScaleFactor;
+  proto['featureCrs'] = proto.featureCrs;
+  proto['crs'] = proto.crs;
+  //scale
+  proto['transform'] = proto.transform;
+  proto['inverseTransform'] = proto.inverseTransform;
+  //zoom & move
+  proto['zoom'] = proto.zoom;
+  proto['move'] = proto.move;
+  proto['zoomToFeature'] = proto.zoomToFeature;
+  proto['zoomTo'] = proto.zoomTo;
+  proto['getZoomLevel'] = proto.getZoomLevel;
+  proto['maxZoomLevel'] = proto.maxZoomLevel;
+  // proto['minZoomLevel'] = proto.minZoomLevel;
+  //drilling
+  proto['drillTo'] = proto.drillTo;
+  proto['drillUp'] = proto.drillUp;
+  proto['drillDownMap'] = proto.drillDownMap;
+  proto['getDrilldownPath'] = proto.getDrilldownPath;
+})();
 //endregion

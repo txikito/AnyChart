@@ -14,7 +14,7 @@ goog.require('anychart.enums');
  * @extends {anychart.data.View}
  */
 anychart.data.ConcatView = function(parentView, secondView) {
-  goog.base(this, parentView);
+  anychart.data.ConcatView.base(this, 'constructor', parentView);
 
   /**
    * The second parent view to ask for data from.
@@ -41,6 +41,18 @@ anychart.data.ConcatView.prototype.getRowMapping = function(rowIndex) {
   if (rowIndex < count)
     return this.parentView.getRowMapping(rowIndex);
   return this.secondView_.getRowMapping(rowIndex - count);
+};
+
+
+/** @inheritDoc */
+anychart.data.ConcatView.prototype.getMappings = function() {
+  return goog.array.concat(this.parentView.getMappings(), this.secondView_.getMappings());
+};
+
+
+/** @inheritDoc */
+anychart.data.ConcatView.prototype.hasSimpleRows = function() {
+  return this.parentView.hasSimpleRows() || this.secondView_.hasSimpleRows();
 };
 
 
