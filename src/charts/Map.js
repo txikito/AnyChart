@@ -2572,6 +2572,8 @@ anychart.charts.Map.prototype.calcGeom_ = function(coords, index, geom) {
   var x, y, projected, bounds;
   var geoScale = this.geoScale;
 
+  debugger;
+
   if (this.map.isSvgGeoData()) {
     if (geom['type'] == 'image' || geom['type'] == 'text') {
       bounds = acgraph.getRenderer().measureElement(geom['cloneNode']);
@@ -2928,6 +2930,8 @@ anychart.charts.Map.prototype.calculate = function() {
 
       this.internalSourceGeoData = this.parser.parse(/** @type {Object} */(geoData));
 
+      debugger;
+
       goog.dispose(this.internalGeoData);
       this.internalGeoData = null;
 
@@ -3022,6 +3026,8 @@ anychart.charts.Map.prototype.calculate = function() {
       var changeProjection = !!this.newCrs_ && isNotSvg;
       console.log(this.newCrs_);
 
+      debugger;
+
       var destinationProjection, currentProjection, sourceProjection;
 
       if ((defaultProjection.crs != this.newCrs_ && defaultProjection.srcCrs != this.newCrs_) || this.crsAnimation_.enabled()) {
@@ -3092,7 +3098,7 @@ anychart.charts.Map.prototype.calculate = function() {
 
           scale.defWhetherIsSvgDataType(this.isSvgGeoData());
           scale.suspendSignalsDispatching();
-          scale.startAutoCalc(true);
+          scale.startAutoCalc(needRecalculateLatLonScaleRange);
 
           this.postProcessGeoData(
               /** @type {!Array.<anychart.core.map.geom.Point|anychart.core.map.geom.Line|anychart.core.map.geom.Polygon|anychart.core.map.geom.Collection>} */(geoData),
