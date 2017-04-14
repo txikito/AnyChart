@@ -1,6 +1,11 @@
 goog.provide('anychart.magic');
+goog.require('anychart.core.Base');
+goog.require('anychart.core.Chart');
+goog.require('anychart.core.ui.Background');
+goog.require('anychart.format');
 goog.require('goog.dom');
 goog.require('goog.dom.forms');
+
 
 /**
  @namespace
@@ -28,10 +33,10 @@ anychart.magic.get = function(targetOrPath, pathOrPathArgs, var_args) {
     pathArgsIndex = 1;
   }
 
-  var pathParsed = this._parsePath(path);
+  var pathParsed = window['anychart']['magic']._parsePath(path);
   if (pathParsed) {
     var pathArgs = [].slice.call(arguments).slice(pathArgsIndex);
-    target = this._applyPath(target, pathParsed, pathArgs);
+    target = window['anychart']['magic']._applyPath(target, pathParsed, pathArgs);
   }
 
   return target;
@@ -59,10 +64,10 @@ anychart.magic.set = function(targetOrPath, pathOrValue, valueOrPathArgs, var_ar
     pathArgsIndex = 2;
   }
 
-  var pathParts = this._parsePath(path);
+  var pathParts = window['anychart']['magic']._parsePath(path);
   if (pathParts) {
     var pathArgs = [].slice.call(arguments).slice(pathArgsIndex);
-    return this._applyPath(target, pathParts, pathArgs, value);
+    return window['anychart']['magic']._applyPath(target, pathParts, pathArgs, value);
   }
 
   return false;
@@ -196,7 +201,7 @@ anychart.magic.init = function(opt_value) {
     }
 
     if (chartId && key && setValue) {
-      var value = this.get(this.charts[chartId], key);
+      var value = window['anychart']['magic'].get(window['anychart']['magic'].charts[chartId], key);
       if (goog.isDefAndNotNull(value)) {
         switch (type) {
           case goog.dom.InputType.COLOR:
@@ -216,15 +221,15 @@ anychart.magic.init = function(opt_value) {
         goog.dom.forms.setValue(element, value);
       }
     }
-    goog.events.listen(element, event, this._onElementChange, false, this);
+    goog.events.listen(element, event, window['anychart']['magic']._onElementChange, false, this);
 
   } else if (goog.isString(opt_value)) {
     var elements = goog.dom.getElementsByClass(opt_value);
-    this.init(elements);
+    window['anychart']['magic'].init(elements);
 
   } else if (goog.isArray(opt_value) || goog.dom.isNodeList(opt_value)){
     for(var i = 0; i < opt_value.length; i++) {
-      this.init(opt_value[i]);
+      window['anychart']['magic'].init(opt_value[i]);
     }
   }
 };
@@ -236,7 +241,7 @@ anychart.magic._onElementChange = function(event) {
   var chartId = event.target.getAttribute('ac-chart-id');
   var key = event.target.getAttribute('ac-key');
   //debugger;
-  if (chartId && this.charts[chartId] && key) {
+  if (chartId && window['anychart']['magic'].charts[chartId] && key) {
     var type = element.type;
     if (!goog.isDef(type))
       return null;
@@ -252,7 +257,7 @@ anychart.magic._onElementChange = function(event) {
         break;
     }
 
-    this.set(this.charts[chartId], key, value);
+    window['anychart']['magic'].set(window['anychart']['magic'].charts[chartId], key, value);
   }
 };
 
