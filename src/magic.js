@@ -150,9 +150,13 @@ anychart.magic._applyPath = function(target, path, pathArguments, opt_lastArgume
       target = call ? target[name].apply(target, args) : target[name];
     }
   } catch (e) {
-    // todo: work this out
-    console.log('Can\'t get/set by key: \'', name, '\' and arguments: \'', args , '\'');
-    anychart.core.reporting.warning(anychart.enums.WarningCode.BAD_REQUEST, null, null, true);
+    var message = 'Can not apply key \'' + name + '\'';
+    if (call)
+      message += '()';
+    if (args)
+      message += ' with arguments ['+ args +']';
+
+    anychart.core.reporting.warning(anychart.enums.WarningCode.BAD_REQUEST, null, [message], true);
     return null;
   }
 
