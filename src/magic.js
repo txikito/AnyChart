@@ -34,7 +34,10 @@ anychart.magic.get = function(targetOrPath, pathOrPathArgs, var_args) {
 
   var pathParsed = anychart.magic._parsePath(path);
   if (pathParsed) {
-    var pathArgs = [].slice.call(arguments).slice(pathArgsIndex);
+    var pathArgs = [];
+    for (var i = pathArgsIndex; i < arguments.length; i++) {
+      pathArgs.push(arguments[i]);
+    }
     target = anychart.magic._applyPath(/** @type {Object} */(target), /** @type {Array} */(pathParsed), pathArgs);
   }
 
@@ -65,7 +68,10 @@ anychart.magic.set = function(targetOrPath, pathOrValue, valueOrPathArgs, var_ar
 
   var pathParsed = anychart.magic._parsePath(path);
   if (pathParsed) {
-    var pathArgs = [].slice.call(arguments).slice(pathArgsIndex);
+    var pathArgs = [];
+    for (var i = pathArgsIndex; i < arguments.length; i++) {
+      pathArgs.push(arguments[i]);
+    }
     return anychart.magic._applyPath(/** @type {Object} */(target), /** @type {Array} */(pathParsed), pathArgs, value);
     // return anychart.magic._applyPath(target, pathParts, pathArgs, value);
   }
@@ -81,7 +87,7 @@ anychart.magic.set = function(targetOrPath, pathOrValue, valueOrPathArgs, var_ar
  * @private
  */
 anychart.magic._parsePath = function(path) {
-  var elementExp = /\s*\.?\s*(([\w_]+)(\(\s*(,?\s*([\d\.]+|\"[^"]+\"|\'[^']+\'|\{\d+\}))*\s*\))?)/;
+  var elementExp = /\s*\.?\s*(([\w_]+)(\(\s*(,?\s*([\d\.]+|\".+\"|\'.+\'|\{\d+\}))*\s*\))?)/;
   var result = [];
   var error = false;
   var match;
@@ -133,11 +139,15 @@ anychart.magic._applyPath = function(target, path, pathArguments, opt_lastArgume
 
       if (args) {
         for (var j = 0; j < args.length; j++) {
-          args[j] = args[j].replace(/['"](.*)['"]/, '$1');
-          var substMatch = args[j].match(/^\{(\d+)\}$/);
-          if (substMatch) {
-            var a = Number(substMatch[1]);
-            args[j] = pathArguments[a] ? pathArguments[a] : void 0;
+          var tmp = args[j].replace(/^["']{1}(.*)["']{1}$/, '$1');
+          if (tmp == args[j]) {
+            var substMatch = args[j].match(/^\{(\d+)\}$/);
+            if (substMatch) {
+              var a = Number(substMatch[1]);
+              args[j] = goog.isDef(pathArguments[a]) ? pathArguments[a] : void 0;
+            }
+          } else {
+            args[j] = tmp;
           }
         }
       }
@@ -213,8 +223,8 @@ anychart.magic.init = function(opt_value) {
         switch (type) {
           case goog.dom.InputType.COLOR:
             if (goog.isFunction(value)) {
-              // if user uses fill() key which has a function value
-              value = "#ffffff";
+              // if user uses fill() key which value is a function
+              // value = "#ffffff";
             } else if (goog.isObject(value) && goog.isFunction(value['fill'])) {
               // if value instanceof anychart.core.ui.Background
               value = value['fill']();
@@ -223,10 +233,13 @@ anychart.magic.init = function(opt_value) {
           case goog.dom.InputType.DATE:
             value = window['anychart']['format']['dateTime'](value, "yyyy-MM-dd");
             break;
+          default:
+            value = goog.isBoolean(value) ? value : String(value);
+            break;
         }
 
-        value = goog.isBoolean(value) ? value : String(value);
-        goog.dom.forms.setValue(element, value);
+        if (!goog.isFunction(value))
+          goog.dom.forms.setValue(element, value);
       }
     }
     goog.events.listen(element, event, anychart.magic._onElementChange, false, anychart.magic);
