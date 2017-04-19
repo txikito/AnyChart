@@ -1095,6 +1095,59 @@ anychart.ui.rangePicker = anychart.ui.rangePicker || anychart.createNFIMError('R
 anychart.ui.rangeSelector = anychart.ui.rangeSelector || anychart.createNFIMError('Range selector');
 //endregion
 //endregion
+//region ------- Chart Editor
+anychart.trackIdentifiedCharts_ = false;
+
+
+/**
+ * Enables
+ * @param {boolean} opt_value
+ */
+anychart.trackIdentifiedCharts = function(opt_value) {
+  if (goog.isDef(opt_value)) {
+    anychart.trackIdentifiedCharts_ = opt_value;
+    return this;
+  }
+  return this.trackIdentifiedCharts_;
+};
+
+
+/**
+ * Adds chart object for Chart Editor tracking.
+ * @param {Object} chart Chart instance for tracking.
+ * @param {string} id Chart id.
+ * @return {boolean} Returns true if chart was successfully added.
+ */
+anychart.addTrackingChart = function(chart, id) {
+  if (!anychart.trackIdentifiedCharts_)
+    return false;
+
+  anychart.removeTrackingChart(chart);
+
+  if (goog.isNull(id))
+    return false;
+
+  if (anychart.magic.charts[id] && anychart.magic.charts[id] != chart) {
+    anychart.core.reporting.warning(anychart.enums.WarningCode.OBJECT_KEY_COLLISION, null, [id], true);
+    return false;
+  }
+
+  anychart.magic.charts[id] = chart;
+  return true;
+};
+
+
+/**
+ * Removes chart from Chart Editor tracking.
+ * @param {Object} instance
+ */
+anychart.removeTrackingChart = function(instance) {
+  if (anychart.trackIdentifiedCharts_)
+    delete anychart.magic.charts[instance['id']()];
+};
+
+
+//endregion
 
 
 if (COMPILED) {

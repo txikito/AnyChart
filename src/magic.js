@@ -1,10 +1,12 @@
 goog.provide('anychart.magic');
 goog.require('anychart.core.Base');
-goog.require('anychart.core.Chart');
+// goog.require('anychart.core');
 goog.require('anychart.core.ui.Background');
+goog.require('anychart.core.utils.Space');
 goog.require('anychart.format');
 goog.require('goog.dom');
 goog.require('goog.dom.forms');
+
 
 
 /**
@@ -12,14 +14,18 @@ goog.require('goog.dom.forms');
  @name anychart.magic
  */
 
-
+debugger;
 anychart.magic.charts = {};
+
+
+anychart.trackIdentifiedCharts(true);
+
 
 /**
  *
  * @param {(Object|string)} targetOrPath
  * @param {(string|number)} pathOrPathArgs
- * @param {(string|number)=} var_args
+ * @param {...(string|number)} var_args
  * @return {*}
  */
 anychart.magic.get = function(targetOrPath, pathOrPathArgs, var_args) {
@@ -172,7 +178,7 @@ anychart.magic.init = function(opt_value) {
   if (!goog.isDef(opt_value)) opt_value = 'ac-control';
 
   if (goog.dom.isElement(opt_value)) {
-    var element = opt_value;
+    var element = /** @type Element */(opt_value);
     var type = element.type;
 
     if (!goog.isDef(type))
@@ -225,13 +231,13 @@ anychart.magic.init = function(opt_value) {
         goog.dom.forms.setValue(element, value);
       }
     }
-    goog.events.listen(element, event, window['anychart']['magic']._onElementChange, false, this);
+    goog.events.listen(element, event, window['anychart']['magic']._onElementChange, false, window['anychart']['magic']);
 
   } else if (goog.isString(opt_value)) {
     var elements = goog.dom.getElementsByClass(opt_value);
     window['anychart']['magic'].init(elements);
 
-  } else if (goog.isArray(opt_value) || goog.dom.isNodeList(opt_value)){
+  } else if (goog.isArray(opt_value) || goog.dom.isNodeList(/** @type Object */(opt_value))){
     for(var i = 0; i < opt_value.length; i++) {
       window['anychart']['magic'].init(opt_value[i]);
     }
@@ -265,41 +271,12 @@ anychart.magic._onElementChange = function(event) {
   }
 };
 
-/**
- * Patch for anychart.core.Chart.prototype.id()
- * While setting id adds this chart instance to anychart.magic.chart
- * @param opt_value {?string}
- * @return {(anychart.core.Chart|string)} Returns chart id or chart itself for chaining.
- */
-anychart.core.Chart.prototype.id = function(opt_value) {
-  if (goog.isDefAndNotNull(opt_value) && this.id_ != opt_value) {
-    if (anychart.magic.charts[opt_value]) {
-      anychart.core.reporting.warning(anychart.enums.WarningCode.OBJECT_KEY_COLLISION, null, [opt_value], true);
-      return this;
-    }
-
-    delete anychart.magic.charts[this.id_];
-    this.id_ = opt_value;
-    anychart.magic.charts[this.id_] = this;
-    return this;
-  }
-
-  return this.id_;
-};
-
-
-/** @inheritDoc */
-anychart.core.Chart.prototype.dispose = function() {
-  delete anychart.magic.charts[this.id_];
-  anychart.core.Chart.base(this, 'dispose');
-};
-
 
 //exports
 (function() {
-  var proto = anychart.core.Chart.prototype;
-  proto['id'] = proto.id;
-  proto['dispose'] = proto.dispose;
+  // var proto = anychart.core.Chart.prototype;
+  // proto['id'] = proto.id;
+  // proto['dispose'] = proto.dispose;
 
   goog.exportSymbol('anychart.magic.get', anychart.magic.get);
   goog.exportSymbol('anychart.magic.set', anychart.magic.set);

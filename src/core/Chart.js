@@ -266,16 +266,18 @@ anychart.core.Chart.prototype.createStage = function() {
 
 /**
  * Getter/setter for chart id.
- * @param opt_value {?string}
+ * @param {string=} opt_value
  * @return {(anychart.core.Chart|string)} Returns chart id or chart itself for chaining.
  */
 anychart.core.Chart.prototype.id = function(opt_value) {
-  if (goog.isDefAndNotNull(opt_value) && this.id_ != opt_value) {
+  if (goog.isDef(opt_value) && this.id_ != opt_value) {
+    anychart.addTrackingChart(this, opt_value);
     this.id_ = opt_value;
     return this;
   }
   return this.id_;
 };
+
 
 //----------------------------------------------------------------------------------------------------------------------
 //
@@ -1713,6 +1715,8 @@ anychart.core.Chart.prototype.setupByJSON = function(config, opt_default) {
 
 /** @inheritDoc */
 anychart.core.Chart.prototype.disposeInternal = function() {
+  anychart.removeTrackingChart(this);
+
   goog.disposeAll(this.animation_, this.a11y_);
   anychart.core.Chart.base(this, 'disposeInternal');
 
