@@ -32,13 +32,13 @@ anychart.magic.get = function(targetOrPath, pathOrPathArgs, var_args) {
     pathArgsIndex = 1;
   }
 
-  var pathParsed = anychart.magic._parsePath(path);
+  var pathParsed = anychart.magic.parsePath_(path);
   if (pathParsed) {
     var pathArgs = [];
     for (var i = pathArgsIndex; i < arguments.length; i++) {
       pathArgs.push(arguments[i]);
     }
-    target = anychart.magic._applyPath(/** @type {Object} */(target), /** @type {Array} */(pathParsed), pathArgs);
+    target = anychart.magic.applyPath_(/** @type {Object} */(target), /** @type {Array} */(pathParsed), pathArgs);
   }
 
   return target;
@@ -66,14 +66,14 @@ anychart.magic.set = function(targetOrPath, pathOrValue, valueOrPathArgs, var_ar
     pathArgsIndex = 2;
   }
 
-  var pathParsed = anychart.magic._parsePath(path);
+  var pathParsed = anychart.magic.parsePath_(path);
   if (pathParsed) {
     var pathArgs = [];
     for (var i = pathArgsIndex; i < arguments.length; i++) {
       pathArgs.push(arguments[i]);
     }
-    return anychart.magic._applyPath(/** @type {Object} */(target), /** @type {Array} */(pathParsed), pathArgs, value);
-    // return anychart.magic._applyPath(target, pathParts, pathArgs, value);
+    return anychart.magic.applyPath_(/** @type {Object} */(target), /** @type {Array} */(pathParsed), pathArgs, value);
+    // return anychart.magic.applyPath_(target, pathParts, pathArgs, value);
   }
 
   return false;
@@ -82,18 +82,18 @@ anychart.magic.set = function(targetOrPath, pathOrValue, valueOrPathArgs, var_ar
 
 /**
  * Parses settings path for get() or set() methods.
- * @param path
+ * @param {string} path
  * @return {(Array|boolean)} Array of settings with it's arguments or false in case of wrong path format.
  * @private
  */
-anychart.magic._parsePath = function(path) {
+anychart.magic.parsePath_ = function(path) {
   var elementExp = /\s*\.?\s*(([\w_]+)(\(\s*(,?\s*([\d\.]+|\".+\"|\'.+\'|\{\d+\}))*\s*\))?)/;
   var result = [];
   var error = false;
   var match;
   do {
     match = path.match(elementExp);
-    if(!match) {
+    if (!match) {
       error = true;
       break;
     }
@@ -115,7 +115,7 @@ anychart.magic._parsePath = function(path) {
 
 
 /**
- * Tries to apply settings returned by this._parsePath() method in chaining style starting from target object.
+ * Tries to apply settings returned by this.parsePath_() method in chaining style starting from target object.
  * @param {Object} target
  * @param {Array.<Array>} path
  * @param {Array.<(string|number)>} pathArguments
@@ -123,7 +123,7 @@ anychart.magic._parsePath = function(path) {
  * @return {*}
  * @private
  */
-anychart.magic._applyPath = function(target, path, pathArguments, opt_lastArgument) {
+anychart.magic.applyPath_ = function(target, path, pathArguments, opt_lastArgument) {
   var part;
   var name;
   var call;
@@ -161,10 +161,8 @@ anychart.magic._applyPath = function(target, path, pathArguments, opt_lastArgume
     }
   } catch (e) {
     var message = 'Can not apply key \'' + name + '\'';
-    if (call)
-      message += '()';
-    if (args)
-      message += ' with arguments ['+ args +']';
+    if (call) message += '()';
+    if (args) message += ' with arguments [' + args + ']';
 
     // anychart.core.reporting.warning(anychart.enums.WarningCode.BAD_REQUEST, null, [message], true);
     // todo: ?
@@ -178,13 +176,14 @@ anychart.magic._applyPath = function(target, path, pathArguments, opt_lastArgume
 
 /**
  *
- * @param {?(string|Element|Array.<Element|string>|*)} opt_value
+ * @param {(string|Element|Array.<Element|string>|*)=} opt_value
+ * @return {*}
  */
 anychart.magic.init = function(opt_value) {
   if (!goog.isDef(opt_value)) opt_value = 'ac-control';
 
   if (goog.dom.isElement(opt_value)) {
-    var element = /** @type Element */(opt_value);
+    var element = /** @type {Element} */(opt_value);
     var type = element.type;
 
     if (!goog.isDef(type))
@@ -200,7 +199,7 @@ anychart.magic.init = function(opt_value) {
     // }
 
     type = type.toLowerCase();
-    switch(type) {
+    switch (type) {
       case goog.dom.InputType.BUTTON:
       case goog.dom.InputType.SUBMIT:
         setValue = false;
@@ -231,7 +230,7 @@ anychart.magic.init = function(opt_value) {
             }
             break;
           case goog.dom.InputType.DATE:
-            value = window['anychart']['format']['dateTime'](value, "yyyy-MM-dd");
+            value = window['anychart']['format']['dateTime'](value, 'yyyy-MM-dd');
             break;
           default:
             value = goog.isBoolean(value) ? value : String(value);
@@ -242,21 +241,27 @@ anychart.magic.init = function(opt_value) {
           goog.dom.forms.setValue(element, value);
       }
     }
-    goog.events.listen(element, event, anychart.magic._onElementChange, false, anychart.magic);
+    goog.events.listen(element, event, anychart.magic.onElementChange_, false, anychart.magic);
 
   } else if (goog.isString(opt_value)) {
     var elements = goog.dom.getElementsByClass(opt_value);
     anychart.magic.init(elements);
 
-  } else if (goog.isArray(opt_value) || goog.dom.isNodeList(/** @type Object */(opt_value))){
-    for(var i = 0; i < opt_value.length; i++) {
+  } else if (goog.isArray(opt_value) || goog.dom.isNodeList(/** @type {Object} */(opt_value))) {
+    for (var i = 0; i < opt_value.length; i++) {
       anychart.magic.init(opt_value[i]);
     }
   }
 };
 
 
-anychart.magic._onElementChange = function(event) {
+/**
+ * Input's change event handler.
+ * @param {Event} event
+ * @return {null}
+ * @private
+ */
+anychart.magic.onElementChange_ = function(event) {
   /** @type {!HTMLInputElement} */
   var element = event.target;
   var chartId = event.target.getAttribute('ac-chart-id');
@@ -275,7 +280,7 @@ anychart.magic._onElementChange = function(event) {
         value = !!value;
         break;
       case goog.dom.InputType.DATE:
-        value = window['anychart']['format']['parseDateTime'](value, "yyyy-MM-dd");
+        value = window['anychart']['format']['parseDateTime'](value, 'yyyy-MM-dd');
         break;
     }
 

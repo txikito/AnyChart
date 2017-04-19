@@ -1095,8 +1095,9 @@ anychart.ui.rangePicker = anychart.ui.rangePicker || anychart.createNFIMError('R
 anychart.ui.rangeSelector = anychart.ui.rangeSelector || anychart.createNFIMError('Range selector');
 //endregion
 //endregion
-
 //region ------- Chart Editor
+
+
 /**
  * True if Chart Editor tracking is enabled.
  * @type {boolean}
@@ -1115,7 +1116,7 @@ anychart.trackingCharts_ = {};
 
 /**
  * Getter for tracking charts container.
- * @returns {Object}
+ * @return {Object}
  */
 anychart.getTrackingCharts = function() {
   return anychart.trackingCharts_;
@@ -1125,6 +1126,7 @@ anychart.getTrackingCharts = function() {
 /**
  * Enables Chart Editor tracking.
  * @param {boolean=} opt_value
+ * @return {boolean}
  */
 anychart.trackIdentifiedCharts = function(opt_value) {
   if (goog.isDef(opt_value)) {
