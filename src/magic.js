@@ -1,12 +1,7 @@
 goog.provide('anychart.magic');
-goog.require('anychart.core.Base');
-// goog.require('anychart.core');
-goog.require('anychart.core.ui.Background');
-goog.require('anychart.core.utils.Space');
-goog.require('anychart.format');
 goog.require('goog.dom');
 goog.require('goog.dom.forms');
-
+goog.require('goog.events');
 
 
 /**
@@ -14,11 +9,9 @@ goog.require('goog.dom.forms');
  @name anychart.magic
  */
 
-debugger;
-anychart.magic.charts = {};
 
-
-anychart.trackIdentifiedCharts(true);
+/** Enable tracking. */
+window['anychart']['trackIdentifiedCharts'](true);
 
 
 /**
@@ -39,10 +32,10 @@ anychart.magic.get = function(targetOrPath, pathOrPathArgs, var_args) {
     pathArgsIndex = 1;
   }
 
-  var pathParsed = window['anychart']['magic']._parsePath(path);
+  var pathParsed = anychart.magic._parsePath(path);
   if (pathParsed) {
     var pathArgs = [].slice.call(arguments).slice(pathArgsIndex);
-    target = window['anychart']['magic']._applyPath(target, pathParsed, pathArgs);
+    target = anychart.magic._applyPath(/** @type {Object} */(target), /** @type {Array} */(pathParsed), pathArgs);
   }
 
   return target;
@@ -54,7 +47,7 @@ anychart.magic.get = function(targetOrPath, pathOrPathArgs, var_args) {
  * @param {(Object|string)} targetOrPath
  * @param {(string|number|boolean)} pathOrValue
  * @param {(string|number|boolean)} valueOrPathArgs
- * @param {(string|number)=} var_args
+ * @param {...(string|number)} var_args
  * @return {*}
  */
 anychart.magic.set = function(targetOrPath, pathOrValue, valueOrPathArgs, var_args) {
@@ -70,10 +63,11 @@ anychart.magic.set = function(targetOrPath, pathOrValue, valueOrPathArgs, var_ar
     pathArgsIndex = 2;
   }
 
-  var pathParts = window['anychart']['magic']._parsePath(path);
-  if (pathParts) {
+  var pathParsed = anychart.magic._parsePath(path);
+  if (pathParsed) {
     var pathArgs = [].slice.call(arguments).slice(pathArgsIndex);
-    return window['anychart']['magic']._applyPath(target, pathParts, pathArgs, value);
+    return anychart.magic._applyPath(/** @type {Object} */(target), /** @type {Array} */(pathParsed), pathArgs, value);
+    // return anychart.magic._applyPath(target, pathParts, pathArgs, value);
   }
 
   return false;
@@ -119,7 +113,7 @@ anychart.magic._parsePath = function(path) {
  * @param {Object} target
  * @param {Array.<Array>} path
  * @param {Array.<(string|number)>} pathArguments
- * @param {(string|number)=} opt_lastArgument
+ * @param {(string|number|boolean)=} opt_lastArgument
  * @return {*}
  * @private
  */
@@ -162,7 +156,9 @@ anychart.magic._applyPath = function(target, path, pathArguments, opt_lastArgume
     if (args)
       message += ' with arguments ['+ args +']';
 
-    anychart.core.reporting.warning(anychart.enums.WarningCode.BAD_REQUEST, null, [message], true);
+    // anychart.core.reporting.warning(anychart.enums.WarningCode.BAD_REQUEST, null, [message], true);
+    // todo: ?
+    console.warn(message);
     return null;
   }
 
@@ -211,19 +207,21 @@ anychart.magic.init = function(opt_value) {
     }
 
     if (chartId && key && setValue) {
-      var value = window['anychart']['magic'].get(window['anychart']['magic'].charts[chartId], key);
+      var trackingCharts = window['anychart']['getTrackingCharts']();
+      var value = anychart.magic.get(trackingCharts[chartId], key);
       if (goog.isDefAndNotNull(value)) {
         switch (type) {
           case goog.dom.InputType.COLOR:
             if (goog.isFunction(value)) {
               // if user uses fill() key which has a function value
               value = "#ffffff";
-            } else if (value instanceof anychart.core.ui.Background) {
+            } else if (goog.isObject(value) && goog.isFunction(value['fill'])) {
+              // if value instanceof anychart.core.ui.Background
               value = value['fill']();
             }
             break;
           case goog.dom.InputType.DATE:
-            value = anychart.format.dateTime(value, "yyyy-MM-dd");
+            value = window['anychart']['format']['dateTime'](value, "yyyy-MM-dd");
             break;
         }
 
@@ -231,15 +229,15 @@ anychart.magic.init = function(opt_value) {
         goog.dom.forms.setValue(element, value);
       }
     }
-    goog.events.listen(element, event, window['anychart']['magic']._onElementChange, false, window['anychart']['magic']);
+    goog.events.listen(element, event, anychart.magic._onElementChange, false, anychart.magic);
 
   } else if (goog.isString(opt_value)) {
     var elements = goog.dom.getElementsByClass(opt_value);
-    window['anychart']['magic'].init(elements);
+    anychart.magic.init(elements);
 
   } else if (goog.isArray(opt_value) || goog.dom.isNodeList(/** @type Object */(opt_value))){
     for(var i = 0; i < opt_value.length; i++) {
-      window['anychart']['magic'].init(opt_value[i]);
+      anychart.magic.init(opt_value[i]);
     }
   }
 };
@@ -250,8 +248,9 @@ anychart.magic._onElementChange = function(event) {
   var element = event.target;
   var chartId = event.target.getAttribute('ac-chart-id');
   var key = event.target.getAttribute('ac-key');
-  //debugger;
-  if (chartId && window['anychart']['magic'].charts[chartId] && key) {
+  var trackingCharts = window['anychart']['getTrackingCharts']();
+
+  if (chartId && trackingCharts[chartId] && key) {
     var type = element.type;
     if (!goog.isDef(type))
       return null;
@@ -263,21 +262,17 @@ anychart.magic._onElementChange = function(event) {
         value = !!value;
         break;
       case goog.dom.InputType.DATE:
-        value = anychart.format.parseDateTime(value, "yyyy-MM-dd");
+        value = window['anychart']['format']['parseDateTime'](value, "yyyy-MM-dd");
         break;
     }
 
-    window['anychart']['magic'].set(window['anychart']['magic'].charts[chartId], key, value);
+    anychart.magic.set(trackingCharts[chartId], key, value);
   }
 };
 
 
 //exports
 (function() {
-  // var proto = anychart.core.Chart.prototype;
-  // proto['id'] = proto.id;
-  // proto['dispose'] = proto.dispose;
-
   goog.exportSymbol('anychart.magic.get', anychart.magic.get);
   goog.exportSymbol('anychart.magic.set', anychart.magic.set);
   goog.exportSymbol('anychart.magic.init', anychart.magic.init);
