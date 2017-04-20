@@ -32,7 +32,7 @@ anychart.magic.get = function(targetOrPath, pathOrPathArgs, var_args) {
     pathArgsIndex = 1;
   }
 
-  var pathParsed = anychart.magic.parsePath_(path);
+  var pathParsed = anychart.magic.parsePath_(/** @type {string} */(path));
   if (pathParsed) {
     var pathArgs = [];
     for (var i = pathArgsIndex; i < arguments.length; i++) {
@@ -66,7 +66,7 @@ anychart.magic.set = function(targetOrPath, pathOrValue, valueOrPathArgs, var_ar
     pathArgsIndex = 2;
   }
 
-  var pathParsed = anychart.magic.parsePath_(path);
+  var pathParsed = anychart.magic.parsePath_(/** @type {string} */(path));
   if (pathParsed) {
     var pathArgs = [];
     for (var i = pathArgsIndex; i < arguments.length; i++) {
@@ -175,38 +175,25 @@ anychart.magic.applyPath_ = function(target, path, pathArguments, opt_lastArgume
 
 
 /**
- *
- * @param {(string|Element|Array.<Element|string>|*)=} opt_value
+ * Initialize
+ * @param {(string|Element|Array.<HTMLInputElement|string>|*)=} opt_value
  * @return {*}
  */
 anychart.magic.init = function(opt_value) {
-  if (!goog.isDef(opt_value)) opt_value = 'ac-control';
+  if (!goog.isDef(opt_value)) opt_value = '.ac-control';
 
   if (goog.dom.isElement(opt_value)) {
-    var element = /** @type {Element} */(opt_value);
+    var element = /** @type {HTMLInputElement} */(opt_value);
+
     var type = element.type;
-
-    if (!goog.isDef(type))
-      return null;
-
-    var chartId = element.getAttribute('ac-chart-id');
-    var key = element.getAttribute('ac-key');
-    var event = goog.events.EventType.CHANGE;
-    var setValue = true;
-
-    // if (key == 'xAxis(0).orientation()') {
-    //    // debugger;
-    // }
-
+    if (!goog.isDef(type)) return;
     type = type.toLowerCase();
+
+    var event = goog.events.EventType.CHANGE;
     switch (type) {
       case goog.dom.InputType.BUTTON:
       case goog.dom.InputType.SUBMIT:
-        setValue = false;
         event = goog.events.EventType.CLICK;
-        break;
-      case goog.dom.InputType.RADIO:
-        setValue = false;
         break;
       case goog.dom.InputType.TEXT:
       case goog.dom.InputType.TEXTAREA:
@@ -215,36 +202,18 @@ anychart.magic.init = function(opt_value) {
         break;
     }
 
-    if (chartId && key && setValue) {
-      var trackingCharts = window['anychart']['getTrackingCharts']();
-      var value = anychart.magic.get(trackingCharts[chartId], key);
-      if (goog.isDefAndNotNull(value)) {
-        switch (type) {
-          case goog.dom.InputType.COLOR:
-            if (goog.isFunction(value)) {
-              // if user uses fill() key which value is a function
-              // value = "#ffffff";
-            } else if (goog.isObject(value) && goog.isFunction(value['fill'])) {
-              // if value instanceof anychart.core.ui.Background
-              value = value['fill']();
-            }
-            break;
-          case goog.dom.InputType.DATE:
-            value = window['anychart']['format']['dateTime'](value, 'yyyy-MM-dd');
-            break;
-          default:
-            value = goog.isBoolean(value) ? value : String(value);
-            break;
-        }
+    anychart.magic.setRealValue_(element);
 
-        if (!goog.isFunction(value))
-          goog.dom.forms.setValue(element, value);
-      }
-    }
     goog.events.listen(element, event, anychart.magic.onElementChange_, false, anychart.magic);
 
+    var chartId = element.getAttribute('ac-chart-id');
+    var chart = window['anychart']['getTrackingCharts']()[chartId];
+    if (chart && !goog.events.getListener(chart, 'chartdraw', anychart.magic.synchronizeOnChartDraw_, void 0, element)) {
+      goog.events.listen(chart, 'chartdraw', anychart.magic.synchronizeOnChartDraw_, false, element);
+    }
+
   } else if (goog.isString(opt_value)) {
-    var elements = goog.dom.getElementsByClass(opt_value);
+    var elements = goog.dom.getDocument().querySelectorAll(opt_value);
     anychart.magic.init(elements);
 
   } else if (goog.isArray(opt_value) || goog.dom.isNodeList(/** @type {Object} */(opt_value))) {
@@ -258,20 +227,18 @@ anychart.magic.init = function(opt_value) {
 /**
  * Input's change event handler.
  * @param {Event} event
- * @return {null}
  * @private
  */
 anychart.magic.onElementChange_ = function(event) {
-  /** @type {!HTMLInputElement} */
-  var element = event.target;
+  var element = /** @type {!HTMLInputElement} */(event.target);
   var chartId = event.target.getAttribute('ac-chart-id');
   var key = event.target.getAttribute('ac-key');
   var trackingCharts = window['anychart']['getTrackingCharts']();
+  var chart = trackingCharts[chartId];
 
-  if (chartId && trackingCharts[chartId] && key) {
+  if (chartId && chart && key) {
     var type = element.type;
-    if (!goog.isDef(type))
-      return null;
+    if (!goog.isDef(type)) return;
 
     var value = goog.dom.forms.getValue(element);
     // if(type == 'date') debugger;
@@ -284,7 +251,69 @@ anychart.magic.onElementChange_ = function(event) {
         break;
     }
 
-    anychart.magic.set(trackingCharts[chartId], key, value);
+    anychart.magic.set(chart, key, value);
+  }
+};
+
+
+/**
+ * Chartdraw event handler. Updates input value if it was changed by other input.
+ * @private
+ */
+anychart.magic.synchronizeOnChartDraw_ = function() {
+  anychart.magic.setRealValue_(/** @type {!HTMLInputElement} */(this)); // TODO: what to do with this?
+};
+
+
+/**
+ * Tries to sets charts value for input element.
+ * @param {!HTMLInputElement} element
+ * @private
+ */
+anychart.magic.setRealValue_ = function(element) {
+  var type = element.type;
+  if (!goog.isDef(type)) return;
+  type = type.toLowerCase();
+
+  var chartId = element.getAttribute('ac-chart-id');
+  var key = element.getAttribute('ac-key');
+
+  if (chartId && key) {
+    var trackingCharts = window['anychart']['getTrackingCharts']();
+    var value = anychart.magic.get(trackingCharts[chartId], key);
+    var inputValue = goog.dom.forms.getValue(element);
+    var setValue = true;
+
+    if (goog.isDefAndNotNull(value) && !goog.isFunction(value)) {
+      switch (type) {
+        case goog.dom.InputType.BUTTON:
+        case goog.dom.InputType.SUBMIT:
+        case goog.dom.InputType.RADIO:
+          setValue = false;
+          break;
+        case goog.dom.InputType.CHECKBOX:
+          value = !!value;
+          inputValue = !!inputValue;
+          break;
+        case goog.dom.InputType.COLOR:
+          if (goog.isObject(value) && goog.isFunction(value['fill'])) {
+            // if value instanceof anychart.core.ui.Background
+            value = value['fill']();
+          }
+          break;
+        case goog.dom.InputType.DATE:
+          value = window['anychart']['format']['dateTime'](value, 'yyyy-MM-dd');
+          break;
+        default:
+          value = goog.isBoolean(value) ? value : String(value);
+          inputValue = goog.isBoolean(inputValue) ? inputValue : String(inputValue);
+          break;
+      }
+
+      if(setValue && value != inputValue) {
+        goog.dom.forms.setValue(element, value);
+      }
+    }
   }
 };
 
