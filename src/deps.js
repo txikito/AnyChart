@@ -362,7 +362,7 @@ goog.addDependency('../../../../src/enums.js', ['anychart.enums'], [], false);
 goog.addDependency('../../../../src/export.js', ['anychart.exports'], ['anychart', 'anychart.utils'], false);
 goog.addDependency('../../../../src/format/Context.js', ['anychart.format.Context'], ['anychart.core.BaseContext', 'anychart.format'], false);
 goog.addDependency('../../../../src/format/format.js', ['anychart.format'], ['anychart.enums', 'anychart.math', 'anychart.utils', 'goog.i18n.DateTimeFormat', 'goog.i18n.DateTimeParse', 'goog.i18n.TimeZone', 'goog.string'], false);
-goog.addDependency('../../../../src/magic.js', ['anychart.magic'], ['goog.dom', 'goog.dom.forms'], false);
+goog.addDependency('../../../../src/magic.js', ['anychart.magic'], ['goog.dom', 'goog.dom.forms', 'goog.events'], false);
 goog.addDependency('../../../../src/math/CycledQueue.js', ['anychart.math.CycledQueue'], ['anychart.utils', 'goog.math'], false);
 goog.addDependency('../../../../src/math/ama.js', ['anychart.math.ama'], ['anychart.math.CycledQueue', 'anychart.utils'], false);
 goog.addDependency('../../../../src/math/aroon.js', ['anychart.math.aroon'], ['anychart.math.CycledQueue', 'anychart.utils'], false);

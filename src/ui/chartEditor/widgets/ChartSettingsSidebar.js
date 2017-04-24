@@ -74,7 +74,7 @@ anychart.ui.chartEditor.ChartSettingsSideBar.prototype.update = function(list, m
   var count = Math.max(itemsCount, this.getChildCount());
 
   for (var i = 0; i < count; i++) {
-    /** @type {goog.ui.Component} */
+    /** @type {(goog.ui.Component|anychart.ui.chartEditor.group.Base)} */
     var instance = this.instances_[i];
 
     if (i < itemsCount) {

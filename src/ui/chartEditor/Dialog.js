@@ -214,7 +214,7 @@ anychart.ui.chartEditor.Dialog = function(opt_class, opt_useIframeMask, opt_domH
           }
         },
         {
-          type: 'percent-stacked-column3d', caption: 'Percent Stacked Column Chart', image: 'percent-stacked-ccolumn3d-chart/thumb.png',
+          type: 'percent-stacked-column3d', caption: 'Percent Stacked Column Chart', image: 'percent-stacked-column3d-chart/thumb.png',
           ctor: 'column3d', seriesType: 'column', referenceNames: ['x', 'value'],
           settings: {
             'chart.yScale().stackMode()': 'percent'
