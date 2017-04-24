@@ -338,9 +338,10 @@ anychart.ui.chartEditor.Dialog = function(opt_class, opt_useIframeMask, opt_domH
   var imageLoader = new goog.net.ImageLoader();
   this.registerDisposable(imageLoader);
 
+  var self = this;
   goog.events.listen(imageLoader, goog.net.EventType.COMPLETE, function() {
-    this.imagesLoaded_ = true;
-    this.preloader_.visible(false);
+    self.imagesLoaded_ = true;
+    self.preloader_.visible(false);
   }, false, this);
 
   goog.array.forEach(this.sharedModel_.presetsList, function(category) {

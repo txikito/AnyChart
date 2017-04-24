@@ -104,7 +104,7 @@ anychart.ui.chartEditor.group.Series.prototype.onAddSeriesAction_ = function(evt
   this.dispatchEvent({
     type: anychart.ui.chartEditor.events.EventType.ADD_SERIES,
     seriesType: null,
-    mapping: undefined,
+    mapping: void 0,
     rebuild: true
   });
 };

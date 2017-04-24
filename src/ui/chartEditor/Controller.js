@@ -106,13 +106,13 @@ anychart.ui.chartEditor.Controller.prototype.onChangeModel_ = function(evt) {
 anychart.ui.chartEditor.Controller.prototype.onAddSeries_ = function(evt) {
   var id = ++this.model_.lastSeriesId;
   var type = evt.seriesType;
-  var mapping = this.model_.dataMappings.length - 1;
 
+  var mapping;
   if (goog.isDef(evt.mapping)) {
     mapping = evt.mapping;
   } else {
     var unusedMapping = this.getUnusedMapping();
-    if (!isNaN(unusedMapping)) mapping = unusedMapping;
+    mapping = isNaN(unusedMapping) ? (this.model_.dataMappings.length - 1) : unusedMapping;
   }
 
   this.model_.seriesMappings[String(id)] = {type: type, mapping: mapping};

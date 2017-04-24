@@ -240,9 +240,8 @@ anychart.ui.chartEditor.steps.Data.prototype.onChangeStep_ = function(e) {
   for (var i = 0, count = sharedModel.dataMappings.length; i < count; i++) {
     this.dispatchEvent({
       type: anychart.ui.chartEditor.events.EventType.ADD_SERIES,
-      id: ++sharedModel.lastSeriesId,
-      mapping: i,
       seriesType: null,
+      mapping: i,
       rebuild: false
     });
   }
