@@ -129,7 +129,6 @@ anychart.ui.chartEditor.select.Base.prototype.updateOptions = function() {
       var icon = this.icons_[i];
       var content = this.createContentElements(option, caption, icon);
 
-
       if (!optionItem) {
         optionItem = new goog.ui.Option(content, option);
         this.addItemAt(optionItem, i);
