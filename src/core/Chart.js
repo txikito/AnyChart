@@ -264,21 +264,6 @@ anychart.core.Chart.prototype.createStage = function() {
 };
 
 
-/**
- * Getter/setter for chart id.
- * @param {string=} opt_value
- * @return {(anychart.core.Chart|string)} Returns chart id or chart itself for chaining.
- */
-anychart.core.Chart.prototype.id = function(opt_value) {
-  if (goog.isDef(opt_value) && this.id_ != opt_value) {
-    anychart.addTrackingChart(this, opt_value);
-    this.id_ = opt_value;
-    return this;
-  }
-  return this.id_;
-};
-
-
 //----------------------------------------------------------------------------------------------------------------------
 //
 //  Methods to set defaults for multiple entities.
@@ -3295,6 +3280,44 @@ anychart.core.Chart.prototype.shareWithPinterest = function(opt_linkOrOptions, o
   this.shareAsPng(onSuccess, undefined, false, exportOptions['width'], exportOptions['height']);
 };
 
+
+//region ------- Charts tracking
+/**
+ * Container for tracking charts.
+ * @type {Object<string, anychart.core.Chart>}
+ * @private
+ */
+anychart.core.Chart.trackedCharts_ = {};
+
+
+/**
+ * Getter/setter for chart id.
+ * @param {?string=} opt_value
+ * @return {(string|anychart.core.Chart)} Return chart id or chart itself for chaining.
+ */
+anychart.core.Chart.prototype.id = function(opt_value) {
+  if (goog.isDef(opt_value)) {
+    if (this.id_ != opt_value) {
+      if (!goog.isNull(opt_value)) {
+        if (anychart.core.Chart.trackedCharts_[opt_value] && anychart.core.Chart.trackedCharts_[opt_value] != this) {
+          anychart.core.reporting.warning(anychart.enums.WarningCode.OBJECT_KEY_COLLISION, null, [opt_value], true);
+        } else {
+          anychart.core.Chart.trackedCharts_[opt_value] = this;
+        }
+      }
+
+      if (this.id_ && anychart.core.Chart.trackedCharts_.trackedCharts_[this.id_])
+        delete anychart.core.Chart.trackedCharts_.trackedCharts_[this.id_];
+
+      this.id_ = opt_value;
+    }
+    return this;
+  }
+  return this.id_;
+};
+
+
+//endregion
 //exports
 (function() {
   var proto = anychart.core.Chart.prototype;

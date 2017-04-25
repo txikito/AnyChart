@@ -391,6 +391,7 @@ goog.addDependency('../../../../src/modules/area.js', ['anychart.modules.area'],
 goog.addDependency('../../../../src/modules/area3d.js', ['anychart.modules.area3d'], ['anychart.charts.Cartesian3d', 'anychart.core.drawers.Area3d', 'anychart.modules.base'], false);
 goog.addDependency('../../../../src/modules/bar.js', ['anychart.modules.bar'], ['anychart.charts.Cartesian', 'anychart.core.drawers.Column', 'anychart.core.drawers.RangeColumn', 'anychart.modules.base'], false);
 goog.addDependency('../../../../src/modules/bar3d.js', ['anychart.modules.bar3d'], ['anychart.charts.Cartesian3d', 'anychart.core.drawers.Column3d', 'anychart.modules.base'], false);
+goog.addDependency('../../../../src/modules/binding.js', ['anychart.modules.binding'], ['anychart.ui.binding'], false);
 goog.addDependency('../../../../src/modules/box.js', ['anychart.modules.box'], ['anychart.charts.Cartesian', 'anychart.core.drawers.Box', 'anychart.modules.base'], false);
 goog.addDependency('../../../../src/modules/bubbleMap.js', ['anychart.modules.bubbleMap'], ['anychart.charts.Map', 'anychart.core.drawers.map.Bubble', 'anychart.modules.base'], false);
 goog.addDependency('../../../../src/modules/bullet.js', ['anychart.modules.bullet'], ['anychart.charts.Bullet', 'anychart.modules.base'], false);
@@ -409,7 +410,6 @@ goog.addDependency('../../../../src/modules/gauges.js', ['anychart.modules.gauge
 goog.addDependency('../../../../src/modules/heatMap.js', ['anychart.modules.heatMap'], ['anychart.charts.HeatMap', 'anychart.modules.base'], false);
 goog.addDependency('../../../../src/modules/line.js', ['anychart.modules.line'], ['anychart.charts.Cartesian', 'anychart.core.drawers.JumpLine', 'anychart.core.drawers.Line', 'anychart.core.drawers.Spline', 'anychart.core.drawers.StepLine', 'anychart.modules.base'], false);
 goog.addDependency('../../../../src/modules/linearGauge.js', ['anychart.modules.linearGauge'], ['anychart.charts.LinearGauge', 'anychart.modules.base'], false);
-goog.addDependency('../../../../src/modules/magic.js', ['anychart.modules.magic'], ['anychart.magic'], false);
 goog.addDependency('../../../../src/modules/markerMap.js', ['anychart.modules.markerMap'], ['anychart.charts.Map', 'anychart.core.drawers.map.Marker', 'anychart.modules.base'], false);
 goog.addDependency('../../../../src/modules/pareto.js', ['anychart.modules.pareto'], ['anychart.charts.Pareto', 'anychart.core.drawers.Column', 'anychart.core.drawers.Line', 'anychart.core.drawers.Spline', 'anychart.core.drawers.StepLine', 'anychart.modules.base'], false);
 goog.addDependency('../../../../src/modules/pert.js', ['anychart.modules.pert'], ['anychart.charts.Pert', 'anychart.modules.base'], false);
@@ -506,6 +506,7 @@ goog.addDependency('../../../../src/ui/Preloader.js', ['anychart.ui.Preloader'],
 goog.addDependency('../../../../src/ui/RangePicker.js', ['anychart.ui.RangePicker'], ['anychart.enums', 'goog.dom.selection', 'goog.events.KeyHandler', 'goog.ui.Component', 'goog.ui.LabelInput'], false);
 goog.addDependency('../../../../src/ui/RangeSelector.js', ['anychart.ui.RangeSelector', 'anychart.ui.RangeSelector.Range'], ['anychart.enums', 'anychart.ui.button.Toggle', 'goog.ui.ButtonSide', 'goog.ui.Component', 'goog.ui.Component.EventType', 'goog.ui.SelectionModel'], false);
 goog.addDependency('../../../../src/ui/Zoom.js', ['anychart.ui.Zoom'], ['anychart.enums', 'anychart.ui.button.Base', 'goog.ui.Component', 'goog.ui.Component.EventType'], false);
+goog.addDependency('../../../../src/ui/binding.js', ['anychart.ui.binding'], ['goog.dom', 'goog.dom.forms', 'goog.events'], false);
 goog.addDependency('../../../../src/ui/button/Base.js', ['anychart.ui.button.Base'], ['goog.ui.Button'], false);
 goog.addDependency('../../../../src/ui/button/Primary.js', ['anychart.ui.button.Primary'], ['anychart.ui.button.Base'], false);
 goog.addDependency('../../../../src/ui/button/Secondary.js', ['anychart.ui.button.Secondary'], ['anychart.ui.button.Base'], false);

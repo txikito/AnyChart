@@ -1095,80 +1095,14 @@ anychart.ui.rangePicker = anychart.ui.rangePicker || anychart.createNFIMError('R
 anychart.ui.rangeSelector = anychart.ui.rangeSelector || anychart.createNFIMError('Range selector');
 //endregion
 //endregion
-//region ------- Chart Editor
-
-
-/**
- * True if Chart Editor tracking is enabled.
- * @type {boolean}
- * @private
- */
-anychart.trackIdentifiedCharts_ = false;
-
+//region ------- Charts tracking
 
 /**
- * Contrainer for tracking charts.
- * @type {Object}
- * @private
- */
-anychart.trackingCharts_ = {};
-
-
-/**
- * Getter for tracking charts container.
+ * Returns tracking chart by it's id.
  * @return {Object}
  */
-anychart.getTrackingCharts = function() {
-  return anychart.trackingCharts_;
-};
-
-
-/**
- * Enables Chart Editor tracking.
- * @param {boolean=} opt_value
- * @return {boolean}
- */
-anychart.trackIdentifiedCharts = function(opt_value) {
-  if (goog.isDef(opt_value)) {
-    anychart.trackIdentifiedCharts_ = opt_value;
-  }
-  return anychart.trackIdentifiedCharts_;
-};
-
-
-/**
- * Adds chart object for Chart Editor tracking.
- * @param {Object} chart Chart instance for tracking.
- * @param {string} id Chart id.
- * @return {boolean} Returns true if chart was successfully added for tracking.
- */
-anychart.addTrackingChart = function(chart, id) {
-  if (anychart.trackIdentifiedCharts()) {
-    anychart.removeTrackingChart(chart);
-
-    if (goog.isNull(id))
-      return false;
-
-    if (anychart.trackingCharts_[id] && anychart.trackingCharts_[id] != chart) {
-      anychart.core.reporting.warning(anychart.enums.WarningCode.OBJECT_KEY_COLLISION, null, [id], true);
-      return false;
-    }
-
-    anychart.trackingCharts_[id] = chart;
-    return true;
-  }
-
-  return false;
-};
-
-
-/**
- * Removes chart from Chart Editor tracking.
- * @param {Object} instance
- */
-anychart.removeTrackingChart = function(instance) {
-  if (anychart.trackIdentifiedCharts())
-    delete anychart.trackingCharts_[instance['id']()];
+anychart.getChartById = function(id) {
+  return anychart.core.Chart.trackedCharts_[id];
 };
 
 
@@ -1292,10 +1226,9 @@ goog.exportSymbol('anychart.ui.ganttToolbar', anychart.ui.ganttToolbar);
 goog.exportSymbol('anychart.ui.preloader', anychart.ui.preloader);
 goog.exportSymbol('anychart.ui.rangePicker', anychart.ui.rangePicker);
 goog.exportSymbol('anychart.ui.rangeSelector', anychart.ui.rangeSelector);
-goog.exportSymbol('anychart.trackIdentifiedCharts', anychart.trackIdentifiedCharts);
-goog.exportSymbol('anychart.getTrackingCharts', anychart.getTrackingCharts);
 goog.exportSymbol('anychart.addTrackingChart', anychart.addTrackingChart);
 goog.exportSymbol('anychart.removeTrackingChart', anychart.removeTrackingChart);
+goog.exportSymbol('anychart.getChartById', anychart.getChartById);
 (function() {
   var proto = acgraph.vector.Stage.prototype;
   proto['credits'] = proto.credits;
