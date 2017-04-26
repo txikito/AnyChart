@@ -942,7 +942,7 @@ anychart.core.ui.Tooltip.prototype.showAsUnion_ = function(points, clientX, clie
         var series = /** @type {anychart.core.SeriesBase|anychart.core.series.Base} */ (point['series']);
         var tooltip = series.tooltip();
         if (!series.enabled() || !tooltip.enabled())
-          break;
+          continue;
 
         // for compile_each (gantt, bullet)
         if (!goog.isDef(series.createTooltipContextProvider)) {
@@ -1522,7 +1522,8 @@ anychart.core.ui.Tooltip.prototype.calculateContentBounds_ = function() {
     var separator = /** @type {anychart.core.ui.Separator} */(this.separator());
     var content = /** @type {anychart.core.ui.Label} */(this.contentInternal());
 
-    if (!(widthIsSet && heightIsSet)) { //auto width and height calculation.
+    var tWidth, tHeight;
+    if (!widthIsSet || !heightIsSet) { //auto width and height calculation.
       if (title.enabled()) {
         title.parentBounds(null);
         var titleWidth = title.getOption('width');
@@ -1532,12 +1533,22 @@ anychart.core.ui.Tooltip.prototype.calculateContentBounds_ = function() {
 
         if (anychart.utils.isPercent(titleWidth)) {
           tmpWidth = /** @type {number|string|null} */(titleWidth);
-          title['width'](null); //resetting title width.
+          if (widthIsSet) {
+            tWidth = this.padding().tightenWidth(tooltipPixelWidth);
+            title['width'](tWidth);
+          } else {
+            title['width'](null); //resetting title width.
+          }
         }
 
         if (anychart.utils.isPercent(titleHeight)) {
           tmpHeight = /** @type {number|string|null} */(titleHeight);
-          title['height'](null); //resetting title height.
+          if (heightIsSet) {
+            tHeight = this.padding().tightenHeight(tooltipPixelHeight);
+            title['height'](tHeight);
+          } else {
+            title['height'](null);
+          }
         }
 
         var titleBounds = title.getContentBounds();
@@ -1569,12 +1580,22 @@ anychart.core.ui.Tooltip.prototype.calculateContentBounds_ = function() {
 
         if (anychart.utils.isPercent(contentWidth)) {
           tmpWidth = /** @type {number|string|null} */(contentWidth);
-          content.width(null); //resetting content width.
+          if (widthIsSet) {
+            tWidth = this.padding().tightenWidth(tooltipPixelWidth);
+            content.width(tWidth);
+          } else {
+            content.width(null); //resetting content width.
+          }
         }
 
         if (anychart.utils.isPercent(contentHeight)) {
           tmpHeight = /** @type {number|string|null} */(contentHeight);
-          content.height(null); //resetting content height.
+          if (heightIsSet) {
+            tHeight = this.padding().tightenHeight(tooltipPixelHeight);
+            content.height(tHeight);
+          } else {
+            content.height(null); //resetting content height.
+          }
         }
 
         var contentBounds = content.getContentBounds();
