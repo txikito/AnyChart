@@ -175,7 +175,7 @@ anychart.ui.binding.applyPath_ = function(target, path, pathArguments, opt_lastA
  * @param {(string|HTMLInputElement|Array.<HTMLInputElement|string>|*)=} opt_value
  * @return {*}
  */
-anychart.ui.binding.bind = function(opt_value) {
+anychart.ui.binding.init = function(opt_value) {
   if (!goog.isDef(opt_value)) opt_value = '.ac-control';
 
   if (goog.dom.isElement(opt_value)) {
@@ -210,11 +210,11 @@ anychart.ui.binding.bind = function(opt_value) {
 
   } else if (goog.isString(opt_value)) {
     var elements = goog.dom.getDocument().querySelectorAll(opt_value);
-    anychart.ui.binding.bind(elements);
+    anychart.ui.binding.init(elements);
 
   } else if (goog.isArray(opt_value) || goog.dom.isNodeList(/** @type {Object} */(opt_value))) {
     for (var i = 0; i < opt_value.length; i++) {
-      anychart.ui.binding.bind(opt_value[i]);
+      anychart.ui.binding.init(opt_value[i]);
     }
   }
 };
@@ -322,4 +322,4 @@ anychart.ui.binding.setRealValue_ = function(element) {
 
 
 // Start tracking
-window['anychart']['onDocumentLoad'](window['anychart']['ui']['binding']['bind']);
+if (window['anychart']['onDocumentReady']) window['anychart']['onDocumentLoad'](window['anychart']['ui']['binding']['init']);

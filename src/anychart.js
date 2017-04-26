@@ -1097,12 +1097,42 @@ anychart.ui.rangeSelector = anychart.ui.rangeSelector || anychart.createNFIMErro
 //endregion
 //region ------- Charts tracking
 
+
+/**
+ * Container for tracking charts.
+ * @type {Object<string, anychart.core.Chart>}
+ * @private
+ */
+anychart.core.Chart.trackedCharts_ = {};
+
+
 /**
  * Returns tracking chart by it's id.
  * @return {Object}
  */
 anychart.getChartById = function(id) {
-  return anychart.core.Chart.trackedCharts_[id];
+  return anychart.trackedCharts_[id];
+};
+
+
+/**
+ *
+ * @param {anychart.core.Chart} chart
+ * @param {string} newId
+ * @return {boolean}
+ */
+anychart.trackChart = function(chart, newId) {
+
+};
+
+
+/**
+ *
+ * @param {anychart.core.Chart} chart
+ * @return {boolean}
+ */
+anychart.untrackChart = function(chart) {
+  delete anychart.trackedCharts_[chart.id()];
 };
 
 

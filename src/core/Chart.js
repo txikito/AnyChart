@@ -1707,6 +1707,8 @@ anychart.core.Chart.prototype.disposeInternal = function() {
   this.animation_ = null;
   this.a11y_ = null;
   this.tooltip_ = null;
+
+  anychart.untrackChart(this);
 };
 
 
@@ -3280,12 +3282,6 @@ anychart.core.Chart.prototype.shareWithPinterest = function(opt_linkOrOptions, o
 
 
 //region ------- Charts tracking
-/**
- * Container for tracking charts.
- * @type {Object<string, anychart.core.Chart>}
- * @private
- */
-anychart.core.Chart.trackedCharts_ = {};
 
 
 /**
