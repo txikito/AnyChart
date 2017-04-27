@@ -227,9 +227,9 @@ anychart.ui.binding.init = function(opt_value) {
  */
 anychart.ui.binding.onElementChange_ = function(event) {
   var element = /** @type {!HTMLInputElement} */(event.target);
-  var key = event.target.getAttribute('ac-key');
   var chartId = event.target.getAttribute('ac-chart-id');
   var chart = window['anychart']['getChartById'](chartId);
+  var key = event.target.getAttribute('ac-key');
 
   if (chartId && chart && key) {
     var type = element.type;
@@ -271,10 +271,10 @@ anychart.ui.binding.setRealValue_ = function(element) {
   type = type.toLowerCase();
 
   var chartId = element.getAttribute('ac-chart-id');
+  var chart = window['anychart']['getChartById'](chartId);
   var key = element.getAttribute('ac-key');
 
-  if (chartId && key) {
-    var chart = window['anychart']['getChartById'](chartId);
+  if (chartId && chart && key) {
     var value = anychart.ui.binding.get(chart, key);
     var inputValue = goog.dom.forms.getValue(element);
     var setValue = true;
@@ -317,9 +317,9 @@ anychart.ui.binding.setRealValue_ = function(element) {
 (function() {
   goog.exportSymbol('anychart.ui.binding.get', anychart.ui.binding.get);
   goog.exportSymbol('anychart.ui.binding.set', anychart.ui.binding.set);
-  goog.exportSymbol('anychart.ui.binding.bind', anychart.ui.binding.bind);
+  goog.exportSymbol('anychart.ui.binding.init', anychart.ui.binding.init);
 })();
 
 
 // Start tracking
-if (window['anychart']['onDocumentReady']) window['anychart']['onDocumentLoad'](window['anychart']['ui']['binding']['init']);
+//if (window['anychart']['onDocumentReady']) window['anychart']['onDocumentLoad'](window['anychart']['ui']['binding']['init']);

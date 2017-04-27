@@ -1708,7 +1708,7 @@ anychart.core.Chart.prototype.disposeInternal = function() {
   this.a11y_ = null;
   this.tooltip_ = null;
 
-  anychart.untrackChart(this);
+  anychart.untrackChart(this, this.id_);
 };
 
 
@@ -3292,18 +3292,13 @@ anychart.core.Chart.prototype.shareWithPinterest = function(opt_linkOrOptions, o
 anychart.core.Chart.prototype.id = function(opt_value) {
   if (goog.isDef(opt_value)) {
     if (this.id_ != opt_value) {
-      if (!goog.isNull(opt_value)) {
-        if (anychart.core.Chart.trackedCharts_[opt_value] && anychart.core.Chart.trackedCharts_[opt_value] != this) {
-          anychart.core.reporting.warning(anychart.enums.WarningCode.OBJECT_KEY_COLLISION, null, [opt_value], true);
-        } else {
-          anychart.core.Chart.trackedCharts_[opt_value] = this;
-        }
+      if (goog.isNull(opt_value)) {
+        anychart.untrackChart(this, this.id_);
+        this.id_ = opt_value;
+
+      } else if (anychart.trackChart(this, opt_value, this.id_)) {
+        this.id_ = opt_value;
       }
-
-      if (this.id_ && anychart.core.Chart.trackedCharts_.trackedCharts_[this.id_])
-        delete anychart.core.Chart.trackedCharts_.trackedCharts_[this.id_];
-
-      this.id_ = opt_value;
     }
     return this;
   }

@@ -25,6 +25,8 @@ goog.require('goog.events.KeyEvent');
 goog.require('goog.events.KeyHandler');
 goog.require('goog.json.hybrid');
 
+goog.forwardDeclare('anychart.core.Chart');
+
 /**
  * Core space for all anychart components.
  * @namespace
@@ -1103,12 +1105,12 @@ anychart.ui.rangeSelector = anychart.ui.rangeSelector || anychart.createNFIMErro
  * @type {Object<string, anychart.core.Chart>}
  * @private
  */
-anychart.core.Chart.trackedCharts_ = {};
+anychart.trackedCharts_ = {};
 
 
 /**
  * Returns tracking chart by it's id.
- * @return {Object}
+ * @return {?anychart.core.Chart}
  */
 anychart.getChartById = function(id) {
   return anychart.trackedCharts_[id];
@@ -1119,20 +1121,34 @@ anychart.getChartById = function(id) {
  *
  * @param {anychart.core.Chart} chart
  * @param {string} newId
+ * @param {string=} opt_oldId
  * @return {boolean}
  */
-anychart.trackChart = function(chart, newId) {
+anychart.trackChart = function(chart, newId, opt_oldId) {
+  if (anychart.trackedCharts_[newId] && anychart.trackedCharts_[newId] != this) {
+    anychart.core.reporting.warning(anychart.enums.WarningCode.OBJECT_KEY_COLLISION, null, [newId], true);
+    return false;
+  }
 
+  anychart.untrackChart(chart, opt_oldId);
+  anychart.trackedCharts_[newId] = chart;
+  return true;
 };
 
 
 /**
  *
  * @param {anychart.core.Chart} chart
+ * @param {string} oldId
  * @return {boolean}
  */
-anychart.untrackChart = function(chart) {
-  delete anychart.trackedCharts_[chart.id()];
+anychart.untrackChart = function(chart, oldId) {
+  if (anychart.trackedCharts_[oldId] && anychart.trackedCharts_[oldId] == chart) {
+    delete anychart.trackedCharts_[oldId];
+    return true;
+  }
+
+  return false;
 };
 
 
@@ -1256,8 +1272,8 @@ goog.exportSymbol('anychart.ui.ganttToolbar', anychart.ui.ganttToolbar);
 goog.exportSymbol('anychart.ui.preloader', anychart.ui.preloader);
 goog.exportSymbol('anychart.ui.rangePicker', anychart.ui.rangePicker);
 goog.exportSymbol('anychart.ui.rangeSelector', anychart.ui.rangeSelector);
-goog.exportSymbol('anychart.addTrackingChart', anychart.addTrackingChart);
-goog.exportSymbol('anychart.removeTrackingChart', anychart.removeTrackingChart);
+goog.exportSymbol('anychart.trackChart', anychart.trackChart);
+goog.exportSymbol('anychart.untrackChart', anychart.untrackChart);
 goog.exportSymbol('anychart.getChartById', anychart.getChartById);
 (function() {
   var proto = acgraph.vector.Stage.prototype;
