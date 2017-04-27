@@ -13,71 +13,40 @@ goog.require('goog.events');
 /**
  *
  * @param {(Object|string)} targetOrPath
- * @param {(string|number)} pathOrPathArgs
- * @param {...(string|number)} var_args
- * @return {*}
- */
-anychart.ui.binding.get = function(targetOrPath, pathOrPathArgs, var_args) {
-  var target = targetOrPath;
-  var path = pathOrPathArgs;
-  var pathArgsIndex = 2;
-
-  if (goog.isString(targetOrPath)) {
-    target = window;
-    path = targetOrPath;
-    pathArgsIndex = 1;
-  }
-
-  var pathParsed = anychart.ui.binding.parsePath_(/** @type {string} */(path));
-  if (pathParsed) {
-    var pathArgs = [];
-    for (var i = pathArgsIndex; i < arguments.length; i++) {
-      pathArgs.push(arguments[i]);
-    }
-    target = anychart.ui.binding.applyPath_(/** @type {Object} */(target), /** @type {Array} */(pathParsed), pathArgs);
-  }
-
-  return target;
-};
-
-
-/**
- *
- * @param {(Object|string)} targetOrPath
  * @param {(string|number|boolean)} pathOrValue
- * @param {(string|number|boolean)} valueOrPathArgs
+ * @param {(string|number|boolean)=} opt_valueOrPathArgs
  * @param {...(string|number)} var_args
  * @return {*}
  */
-anychart.ui.binding.set = function(targetOrPath, pathOrValue, valueOrPathArgs, var_args) {
-  var target = targetOrPath;
-  var path = pathOrValue;
-  var value = valueOrPathArgs;
+anychart.ui.binding.exec = function(targetOrPath, pathOrValue, opt_valueOrPathArgs, var_args) {
+  if (goog.isString(targetOrPath)) {
+    var args = [window];
+    for (var i = 0; i < arguments.length; i++) {
+      args.push(arguments[i]);
+    }
+    return anychart.ui.binding.exec.apply(anychart.ui.binding, args);
+  }
+
+  var target = /** @type {Object} */(targetOrPath);
+  var path = /** @type {string} */(pathOrValue);
+  var value = opt_valueOrPathArgs;
   var pathArgsIndex = 3;
 
-  if (goog.isString(targetOrPath)) {
-    target = window;
-    path = targetOrPath;
-    value = pathOrValue;
-    pathArgsIndex = 2;
-  }
-
-  var pathParsed = anychart.ui.binding.parsePath_(/** @type {string} */(path));
+  var pathParsed = anychart.ui.binding.parsePath_(path);
   if (pathParsed) {
     var pathArgs = [];
-    for (var i = pathArgsIndex; i < arguments.length; i++) {
-      pathArgs.push(arguments[i]);
+    for (var j = pathArgsIndex; j < arguments.length; j++) {
+      pathArgs.push(arguments[j]);
     }
-    return anychart.ui.binding.applyPath_(/** @type {Object} */(target), /** @type {Array} */(pathParsed), pathArgs, value);
-    // return anychart.ui.binding.applyPath_(target, pathParts, pathArgs, value);
+    return anychart.ui.binding.applyPath_(target, /** @type {Array} */(pathParsed), pathArgs, value);
   }
 
-  return false;
+  return void 0;
 };
 
 
 /**
- * Parses settings path for get() or set() methods.
+ * Parses settings path for exec() methods.
  * @param {string} path
  * @return {(Array|boolean)} Array of settings with it's arguments or false in case of wrong path format.
  * @private
@@ -156,13 +125,14 @@ anychart.ui.binding.applyPath_ = function(target, path, pathArguments, opt_lastA
       target = call ? target[name].apply(target, args) : target[name];
     }
   } catch (e) {
-    var message = 'Can not apply key \'' + name + '\'';
+    var message = 'Could not apply key \'' + name + '\'';
     if (call) message += '()';
     if (args) message += ' with arguments [' + args + ']';
 
-    // anychart.core.reporting.warning(anychart.enums.WarningCode.BAD_REQUEST, null, [message], true);
-    // todo: ?
     console.warn(message);
+    // todo: Так же нельзя? window['anychart']['enums']['WarningCode']['BAD_REQUEST']
+    // window['anychart']['core']['reporting']['warning'](
+    //     window['anychart']['enums']['WarningCode']['BAD_REQUEST'], null, [message], true);
     return null;
   }
 
@@ -226,11 +196,13 @@ anychart.ui.binding.init = function(opt_value) {
  * @private
  */
 anychart.ui.binding.onElementChange_ = function(event) {
+  event.preventDefault();
   var element = /** @type {!HTMLInputElement} */(event.target);
   var chartId = event.target.getAttribute('ac-chart-id');
   var chart = window['anychart']['getChartById'](chartId);
   var key = event.target.getAttribute('ac-key');
 
+  console.log("onElementChange_");
   if (chartId && chart && key) {
     var type = element.type;
     if (!goog.isDef(type)) return;
@@ -246,7 +218,7 @@ anychart.ui.binding.onElementChange_ = function(event) {
         break;
     }
 
-    anychart.ui.binding.set(chart, key, value);
+    anychart.ui.binding.exec(chart, key, value);
   }
 };
 
@@ -275,7 +247,7 @@ anychart.ui.binding.setRealValue_ = function(element) {
   var key = element.getAttribute('ac-key');
 
   if (chartId && chart && key) {
-    var value = anychart.ui.binding.get(chart, key);
+    var value = anychart.ui.binding.exec(chart, key);
     var inputValue = goog.dom.forms.getValue(element);
     var setValue = true;
 
