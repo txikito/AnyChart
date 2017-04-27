@@ -192,17 +192,17 @@ anychart.ui.binding.init = function(opt_value) {
 
 /**
  * Input's change event handler.
- * @param {Event} event
+ * @param {!goog.events.Event} event
  * @private
  */
 anychart.ui.binding.onElementChange_ = function(event) {
-  event.preventDefault();
+  goog.events.Event.preventDefault(event);
+
   var element = /** @type {!HTMLInputElement} */(event.target);
   var chartId = event.target.getAttribute('ac-chart-id');
   var chart = window['anychart']['getChartById'](chartId);
   var key = event.target.getAttribute('ac-key');
 
-  console.log("onElementChange_");
   if (chartId && chart && key) {
     var type = element.type;
     if (!goog.isDef(type)) return;
@@ -287,8 +287,7 @@ anychart.ui.binding.setRealValue_ = function(element) {
 
 //exports
 (function() {
-  goog.exportSymbol('anychart.ui.binding.get', anychart.ui.binding.get);
-  goog.exportSymbol('anychart.ui.binding.set', anychart.ui.binding.set);
+  goog.exportSymbol('anychart.ui.binding.set', anychart.ui.binding.exec);
   goog.exportSymbol('anychart.ui.binding.init', anychart.ui.binding.init);
 })();
 

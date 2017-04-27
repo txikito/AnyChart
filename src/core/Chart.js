@@ -1708,7 +1708,8 @@ anychart.core.Chart.prototype.disposeInternal = function() {
   this.a11y_ = null;
   this.tooltip_ = null;
 
-  anychart.untrackChart(this, this.id_);
+  if(this.id_)
+    anychart.untrackChart(this, /** @type {string} */(this.id_));
 };
 
 
@@ -3293,10 +3294,10 @@ anychart.core.Chart.prototype.id = function(opt_value) {
   if (goog.isDef(opt_value)) {
     if (this.id_ != opt_value) {
       if (goog.isNull(opt_value)) {
-        anychart.untrackChart(this, this.id_);
+        anychart.untrackChart(this, /** @type {string} */(this.id_));
         this.id_ = opt_value;
 
-      } else if (anychart.trackChart(this, opt_value, this.id_)) {
+      } else if (anychart.trackChart(this, opt_value, /** @type {string} */(this.id_))) {
         this.id_ = opt_value;
       }
     }

@@ -1125,12 +1125,14 @@ anychart.getChartById = function(id) {
  * @return {boolean}
  */
 anychart.trackChart = function(chart, newId, opt_oldId) {
-  if (anychart.trackedCharts_[newId] && anychart.trackedCharts_[newId] != this) {
+  if (anychart.trackedCharts_[newId] && anychart.trackedCharts_[newId] != chart) {
     anychart.core.reporting.warning(anychart.enums.WarningCode.OBJECT_KEY_COLLISION, null, [newId], true);
     return false;
   }
 
-  anychart.untrackChart(chart, opt_oldId);
+  if(goog.isDef(opt_oldId))
+    anychart.untrackChart(chart, /** @type {string} */(opt_oldId));
+
   anychart.trackedCharts_[newId] = chart;
   return true;
 };
