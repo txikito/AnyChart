@@ -1,5 +1,6 @@
 goog.provide('anychart.ui.binding');
 goog.require('goog.dom');
+goog.require('goog.dom.classlist');
 goog.require('goog.dom.forms');
 goog.require('goog.events');
 
@@ -277,8 +278,16 @@ anychart.ui.binding.setRealValue_ = function(element) {
           break;
       }
 
-      if(setValue && value != inputValue) {
+      if (setValue && value != inputValue) {
         goog.dom.forms.setValue(element, value);
+      }
+
+      if (type == goog.dom.InputType.BUTTON || type == goog.dom.InputType.SUBMIT) {
+        if (value == inputValue) {
+          goog.dom.classlist.add(element, "btn-primary");
+        } else {
+          goog.dom.classlist.remove(element, "btn-primary");
+        }
       }
     }
   }
