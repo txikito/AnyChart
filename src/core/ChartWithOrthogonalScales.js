@@ -754,6 +754,8 @@ anychart.core.ChartWithOrthogonalScales.prototype.calculateYScales = function() 
           lastIndex = goog.array.binarySearch(data, lastVal, searcher);
           if (lastIndex < 0) lastIndex = ~lastIndex;
           lastIndex = goog.math.clamp(lastIndex, 0, dataLength - 1);
+          // swap indexes if scale is inverted
+          if (xScale['inverted']()) lastIndex = [firstIndex, firstIndex = lastIndex][0];
         } else {
           firstIndex = NaN;
           lastIndex = NaN;
