@@ -274,13 +274,14 @@ anychart.ui.chartEditor.Controller.prototype.onBuildChart_ = function(opt_evt) {
       seriesData = this.model_.seriesMappings[id];
       series = chart['getSeries'](id);
       seriesType = seriesData.type || this.model_.seriesType;
+      var mapping = this.model_.dataMappings[seriesData.mapping];
       if (!series) {
-        series = chart[seriesType](this.model_.dataMappings[seriesData.mapping]);
+        series = chart[seriesType](mapping);
         series['id'](id);
       } else {
         series['id'](id);
         series['seriesType'](seriesType);
-        series['data'](this.model_.dataMappings[seriesData.mapping]);
+        series['data'](mapping);
       }
     }
 
