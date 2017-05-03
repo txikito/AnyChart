@@ -1086,6 +1086,18 @@ anychart.standalones.grids.polar = anychart.getFeatureOrError('anychart.standalo
 anychart.standalones.grids.radar = anychart.getFeatureOrError('anychart.standalones.grids.radar', 'anychart.standalones.grids.Radar');
 
 
+/** @ignoreDoc */
+anychart.mekko = anychart.mekko || anychart.createNFIMError('Mekko chart');
+
+
+/** @ignoreDoc */
+anychart.mosaic = anychart.mosaic || anychart.createNFIMError('Mosaic chart');
+
+
+/** @ignoreDoc */
+anychart.barmekko = anychart.barmekko || anychart.createNFIMError('Barmekko chart');
+
+
 //endregion
 //region ------ UI
 /** @ignoreDoc */
@@ -1238,6 +1250,9 @@ goog.exportSymbol('anychart.ganttToolbar', anychart.ganttToolbar);
 goog.exportSymbol('anychart.treeMap', anychart.treeMap);
 goog.exportSymbol('anychart.pareto', anychart.pareto);
 goog.exportSymbol('anychart.resource', anychart.resource);
+goog.exportSymbol('anychart.mekko', anychart.mekko);
+goog.exportSymbol('anychart.mosaic', anychart.mosaic);
+goog.exportSymbol('anychart.barmekko', anychart.barmekko);
 goog.exportSymbol('anychart.standalones.background', anychart.standalones.background);
 goog.exportSymbol('anychart.ui.background', anychart.ui.background);
 goog.exportSymbol('anychart.standalones.colorRange', anychart.standalones.colorRange);
