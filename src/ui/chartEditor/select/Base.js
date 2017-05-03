@@ -195,12 +195,16 @@ anychart.ui.chartEditor.select.Base.prototype.onChange = function(evt) {
   evt.preventDefault();
   evt.stopPropagation();
 
+  var selectedItem = this.getSelectedItem();
+  if (!selectedItem) return;
+
   var keys = goog.isArray(this.key_) ? this.key_ : [this.key_];
+
   for (var i = 0, count = keys.length; i < count; i++) {
     this.dispatchEvent({
       type: anychart.ui.chartEditor.events.EventType.CHANGE_MODEL,
       key: keys[i],
-      value: this.getSelectedItem().getModel()
+      value: selectedItem.getModel()
     });
   }
   this.dispatchEvent(anychart.ui.chartEditor.events.EventType.UPDATE_EDITOR);
