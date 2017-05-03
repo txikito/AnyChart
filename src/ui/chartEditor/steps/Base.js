@@ -243,18 +243,18 @@ anychart.ui.chartEditor.steps.Base.prototype.updateSharedDataMappings = function
     dataSet = sharedModel.dataSets[i];
     if (!dataSet.rawMappings.length) continue;
 
-    Array.prototype.push.apply(sharedModel.dataMappings, this.getDataMappings_(dataSet));
+    Array.prototype.push.apply(sharedModel.dataMappings, this.createDataMappings_(dataSet));
   }
 };
 
 
 /**
- * Get data mappings from all data sets.
+ * Creates anychart.data.Mapping instances from data set.
  * @param {anychart.ui.chartEditor.steps.Base.DataSet} dataSet
  * @return {Array.<anychart.data.Mapping>}
  * @private
  */
-anychart.ui.chartEditor.steps.Base.prototype.getDataMappings_ = function(dataSet) {
+anychart.ui.chartEditor.steps.Base.prototype.createDataMappings_ = function(dataSet) {
   var dataMappings = [];
 
   var rawMapping;
@@ -275,10 +275,9 @@ anychart.ui.chartEditor.steps.Base.prototype.getDataMappings_ = function(dataSet
     }
 
     if (!goog.object.isEmpty(formattedMapping)) {
-      dataMappings.push(
-          dataSet.instance['mapAs'](
-              isArrayMapping ? formattedMapping : undefined,
-              !isArrayMapping ? formattedMapping : undefined));
+      var mappingInstance = dataSet.instance['mapAs'](isArrayMapping ? formattedMapping : undefined, !isArrayMapping ? formattedMapping : undefined);
+      mappingInstance.meta('custom', 'title', rawMapping['title']);
+      dataMappings.push(mappingInstance);
     }
   }
 

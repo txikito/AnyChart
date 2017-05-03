@@ -77,6 +77,12 @@ anychart.ui.chartEditor.DataMappings.prototype.getContentElement = function() {
 };
 
 
+/** @return {anychart.ui.chartEditor.steps.Base.DataSet} */
+anychart.ui.chartEditor.DataMappings.prototype.getDataSet = function() {
+  return this.dataSet_;
+};
+
+
 /** @inheritDoc */
 anychart.ui.chartEditor.DataMappings.prototype.createDom = function() {
   anychart.ui.chartEditor.DataMappings.base(this, 'createDom');
@@ -114,7 +120,9 @@ anychart.ui.chartEditor.DataMappings.prototype.createDom = function() {
 anychart.ui.chartEditor.DataMappings.prototype.renderMappings_ = function() {
   var rawMappings = this.dataSet_.rawMappings;
   for (var i = 0; i < rawMappings.length; i++) {
-    this.addChild(new anychart.ui.chartEditor.DataMapping(rawMappings[i], this.mappingFieldValues_), true);
+    var dataMapping = new anychart.ui.chartEditor.DataMapping(rawMappings[i], this.mappingFieldValues_);
+    this.addChild(dataMapping, true);
+    rawMappings[i]['title'] = dataMapping.getTitle();
   }
 };
 
