@@ -136,7 +136,7 @@ anychart.ui.chartEditor.DataMappings.prototype.updateMappings_ = function() {
   this.removeChildren(true);
 
   if (!this.dataSet_.rawMappings.length) {
-    this.addMapping_();
+    this.addMapping_(true);
   }
 
   this.renderMappings_();
@@ -147,8 +147,61 @@ anychart.ui.chartEditor.DataMappings.prototype.updateMappings_ = function() {
  * Add mapping to raw mappings.
  * @private
  */
-anychart.ui.chartEditor.DataMappings.prototype.addMapping_ = function() {
-  this.dataSet_.rawMappings.push([]);
+anychart.ui.chartEditor.DataMappings.prototype.addMapping_ = function(opt_setDefault) {
+  var values = [];
+  if (opt_setDefault) {
+    // x
+    // console.log(this.mappingFieldValues_);
+    var field1 = {key: void 0, value: void 0};
+    field1['key'] = 'x';
+    field1['value'] =
+        goog.array.contains(this.mappingFieldValues_, 'x') ? 'x' :
+            goog.array.contains(this.mappingFieldValues_, 'name') ? 'name' : 0;
+    values.push(field1);
+
+    if (this.mappingFieldValues_.length > 4) {
+      // o
+      var field3 = {key: void 0, value: void 0};
+      field3['key'] = 'open';
+      field3['value'] =
+          goog.array.contains(this.mappingFieldValues_, 'open') ? 'open' : 1;
+      values.push(field3);
+
+      // h
+      var field4 = {key: void 0, value: void 0};
+      field4['key'] = 'high';
+      field4['value'] =
+          goog.array.contains(this.mappingFieldValues_, 'high') ? 'high' : 2;
+      values.push(field4);
+
+      // l
+      var field5 = {key: void 0, value: void 0};
+      field5['key'] = 'low';
+      field5['value'] =
+          goog.array.contains(this.mappingFieldValues_, 'low') ? 'low' : 3;
+      values.push(field5);
+
+      // c
+      var field6 = {key: void 0, value: void 0};
+      field6['key'] = 'close';
+      field6['value'] =
+          goog.array.contains(this.mappingFieldValues_, 'close') ? 'close' : 4;
+      values.push(field6);
+
+
+      // console.log(values);
+    } else {
+      // y
+      var field2 = {key: void 0, value: void 0};
+      field2['key'] = 'value';
+      field2['value'] =
+          goog.array.contains(this.mappingFieldValues_, 'value') ? 'value' :
+              goog.array.contains(this.mappingFieldValues_, 'value1') ? 'value1' :
+                  goog.array.contains(this.mappingFieldValues_, 'y') ? 'y' : 1;
+      values.push(field2);
+    }
+  }
+  this.dataSet_.rawMappings.push(values);
 };
 
 

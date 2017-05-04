@@ -286,23 +286,36 @@ anychart.ui.chartEditor.steps.Base.prototype.createDataMappings_ = function(data
 
 
 /**
- * Gets first match chart type by selected data mappings uses mappings reference names.
- * {anychart.ui.chartEditor.steps.Base.Model.presetType} has higher priority when matching.
- * @return {string}
+ * Checks current compatibility of mappings and current chart.
+ * @param {boolean=} opt_getSuggestions 'true' if we need to get suggestion of category and chart type.
+ * @return {{type: string, category: string, isValid: boolean}}
  */
-anychart.ui.chartEditor.steps.Base.prototype.getChartType = function() {
-  var chartType = '';
-  goog.object.forEach(this.sharedModel_.presets, function(preset) {
-    goog.array.forEach(preset.list, function(chartDescriptor) {
-      if (this.isReferenceValuesPresent_(chartDescriptor.referenceNames)) {
-        if (!chartType || chartDescriptor.type == this.sharedModel_.presetType) {
-          chartType = chartDescriptor.type;
+anychart.ui.chartEditor.steps.Base.prototype.checkMappings = function(opt_getSuggestions) {
+  var result = {type: '', category: '', isValid: false};
+  for (var i in this.sharedModel_.presets) {
+    if (this.sharedModel_.presets.hasOwnProperty(i)) {
+      var preset = this.sharedModel_.presets[i];
+      var tmp = preset.category;
+      for (var j in preset.list) {
+        if (preset.list.hasOwnProperty(j)) {
+          var chartDescriptor = preset.list[j];
+          if (opt_getSuggestions && this.isReferenceValuesPresent_(chartDescriptor.referenceNames)) {
+            result.category = tmp;
+            result.type = chartDescriptor.type;
+            break;
+          } else if (chartDescriptor.type == this.sharedModel_.presetType) {
+            result.category = tmp;
+            result.type = chartDescriptor.type;
+            result.isValid = this.isReferenceValuesPresent_(chartDescriptor.referenceNames);
+            break;
+          }
         }
       }
-    }, this);
-  }, this);
+    }
+    if (result.type) break;
+  }
 
-  return chartType;
+  return result;
 };
 
 
