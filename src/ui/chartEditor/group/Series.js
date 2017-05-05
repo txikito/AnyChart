@@ -84,6 +84,7 @@ anychart.ui.chartEditor.group.Series.prototype.update = function() {
         this.seriesContainer_.addChildAt(child, i, true);
       }
       child.setSeriesId(this.model.chart['getSeriesAt'](i)['id']());
+      child.setSeriesTypeOptions({'some': 'options'});
       child.update(this.model);
       goog.style.setElementShown(child.getElement(), true);
     } else {

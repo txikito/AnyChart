@@ -38,6 +38,11 @@ anychart.ui.chartEditor.settings.Series.prototype.setSeriesId = function(value) 
 };
 
 
+anychart.ui.chartEditor.settings.Series.prototype.setSeriesTypeOptions = function(options) {
+  console.log(options);
+};
+
+
 /** @inheritDoc */
 anychart.ui.chartEditor.settings.Series.prototype.disposeInternal = function() {
   this.nameInput_ = null;
