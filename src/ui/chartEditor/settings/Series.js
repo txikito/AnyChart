@@ -39,7 +39,7 @@ anychart.ui.chartEditor.settings.Series.prototype.setSeriesId = function(value) 
 
 
 anychart.ui.chartEditor.settings.Series.prototype.setSeriesTypeOptions = function(options) {
-  console.log(options);
+  // console.log(options);
 };
 
 

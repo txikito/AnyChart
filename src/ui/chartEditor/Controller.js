@@ -209,6 +209,7 @@ anychart.ui.chartEditor.Controller.prototype.onPresetChanged_ = function() {
  * @return {string}
  */
 anychart.ui.chartEditor.Controller.getset = function(model, key, opt_value, opt_dryRun) {
+  // if(key == 'chart.yAxis(0).scale().inverted()') debugger;
   try {
     var keyPath = key.split('.');
     var target = model;
@@ -241,6 +242,7 @@ anychart.ui.chartEditor.Controller.getset = function(model, key, opt_value, opt_
       }
     }
   } catch (e) {
+    // debugger;
     console.log('Can\'t get/set by key: ', key, ' and value: ', opt_value);
   }
 
