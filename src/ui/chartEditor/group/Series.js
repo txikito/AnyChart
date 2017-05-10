@@ -72,7 +72,7 @@ anychart.ui.chartEditor.group.Series.prototype.exitDocument = function() {
 
 
 /** @inheritDoc */
-anychart.ui.chartEditor.group.Series.prototype.update = function() {
+anychart.ui.chartEditor.group.Series.prototype.update = function(model) {
   var seriesCount = this.model.chart['getSeriesCount']();
   var count = Math.max(this.seriesContainer_.getChildCount(), seriesCount);
 
