@@ -182,7 +182,8 @@ anychart.core.ChartWithSeries.prototype.normalizeSeriesType = function(type) {
  *    anychart.enums.ScatterSeriesType |
  *    anychart.enums.RadarSeriesType |
  *    anychart.enums.PolarSeriesType |
- *    anychart.enums.MapSeriesType
+ *    anychart.enums.MapSeriesType |
+ *    anychart.enums.MekkoSeriesType
  * )=} opt_value Default series type.
  * @return {
  *    anychart.core.ChartWithSeries |
@@ -190,7 +191,8 @@ anychart.core.ChartWithSeries.prototype.normalizeSeriesType = function(type) {
  *    anychart.enums.ScatterSeriesType |
  *    anychart.enums.RadarSeriesType |
  *    anychart.enums.PolarSeriesType |
- *    anychart.enums.MapSeriesType
+ *    anychart.enums.MapSeriesType |
+ *    anychart.enums.MekkoSeriesType
  * } Default series type or self for chaining.
  */
 anychart.core.ChartWithSeries.prototype.defaultSeriesType = function(opt_value) {
@@ -862,6 +864,7 @@ anychart.core.ChartWithSeries.seriesReferenceValues = {
   'splineArea': ['value'],
   'jumpLine': ['value'],
   'stick': ['value'],
+  'mekko': ['value'],
   'bubble': ['value', 'size'],
   'rangeBar': ['high', 'low'],
   'rangeArea': ['high', 'low'],
@@ -1153,10 +1156,10 @@ anychart.core.ChartWithSeries.prototype.setupByJSON = function(config, opt_defau
   this.palette(config['palette']);
   this.markerPalette(config['markerPalette']);
   this.hatchFillPalette(config['hatchFillPalette']);
-  this.defaultSeriesSettings(config['defaultSeriesSettings']);
-  this.labels().setupByVal(config['labels'], opt_default);
-  this.hoverLabels().setupByVal(config['hoverLabels'], opt_default);
-  this.selectLabels().setupByVal(config['selectLabels'], opt_default);
+
+  this.labels().setupInternal(!!opt_default, config['labels']);
+  this.hoverLabels().setupInternal(!!opt_default, config['hoverLabels']);
+  this.selectLabels().setupInternal(!!opt_default, config['selectLabels']);
 };
 
 

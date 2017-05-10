@@ -335,6 +335,37 @@ anychart.core.ChartWithAxes.prototype.onGridSignal = function(event) {
 };
 
 
+/**
+ * @return {{vertical: number, horizontal: number}}
+ */
+anychart.core.ChartWithAxes.prototype.calculateGridsThickness = function() {
+  var grids = this.grids_;
+  var maxVerticalThickness = 0;
+  var maxHorizontalThickness = 0;
+  for (var i = 0, len = grids.length; i < len; i++) {
+    var grid = /** @type {anychart.core.grids.Linear} */(grids[i]);
+    if (grid && grid.enabled()) {
+      var thickness = acgraph.vector.getThickness(/** @type {acgraph.vector.Stroke} */(grid.stroke()));
+
+      if (grid.isHorizontal()) {
+        if (thickness > maxHorizontalThickness) {
+          maxHorizontalThickness = thickness;
+        }
+      } else {
+        if (thickness > maxVerticalThickness) {
+          maxVerticalThickness = thickness;
+        }
+      }
+    }
+  }
+
+  return {
+    vertical: maxVerticalThickness,
+    horizontal: maxHorizontalThickness
+  };
+};
+
+
 //endregion
 //region --- Axes
 //----------------------------------------------------------------------------------------------------------------------
@@ -458,6 +489,15 @@ anychart.core.ChartWithAxes.prototype.onAxisSignal_ = function(event) {
  */
 anychart.core.ChartWithAxes.prototype.getAxisByIndex = function(index) {
   return (index >= this.xAxes_.length) ? this.yAxes_[index - this.xAxes_.length] : this.xAxes_[index];
+};
+
+
+/**
+ * @param {anychart.core.axes.Linear} axis
+ * @protected
+ */
+anychart.core.ChartWithAxes.prototype.setYAxisScale = function(axis) {
+  axis.scale(/** @type {anychart.scales.Base} */(this.yScale()));
 };
 
 
@@ -1011,7 +1051,7 @@ anychart.core.ChartWithAxes.prototype.drawContent = function(bounds) {
         item.labels().dropCallsCache();
         item.minorLabels().dropCallsCache();
         if (item && !item.scale())
-          item.scale(/** @type {anychart.scales.Base} */(this.yScale()));
+          this.setYAxisScale(item);
       }
     }
   }
@@ -1112,8 +1152,8 @@ anychart.core.ChartWithAxes.prototype.serializeWithScales = function(json, scale
   json['isVertical'] = this.barChartMode;
 
   var axesIds = [];
-  this.serializeElementsWithScales(json, 'xAxes', this.xAxes_, this.serializeAxis_, scales, scaleIds, axesIds);
-  this.serializeElementsWithScales(json, 'yAxes', this.yAxes_, this.serializeAxis_, scales, scaleIds, axesIds);
+  this.serializeElementsWithScales(json, 'xAxes', this.xAxes_, this.serializeAxis, scales, scaleIds, axesIds);
+  this.serializeElementsWithScales(json, 'yAxes', this.yAxes_, this.serializeAxis, scales, scaleIds, axesIds);
 
   this.serializeElementsWithScales(json, 'grids', this.grids_, this.serializeGrid_, scales, scaleIds, axesIds);
   this.serializeElementsWithScales(json, 'minorGrids', this.minorGrids_, this.serializeGrid_, scales, scaleIds, axesIds);
@@ -1132,9 +1172,9 @@ anychart.core.ChartWithAxes.prototype.serializeWithScales = function(json, scale
  * @param {Object} scaleIds
  * @param {Array} axesIds
  * @return {Object}
- * @private
+ * @protected
  */
-anychart.core.ChartWithAxes.prototype.serializeAxis_ = function(item, scales, scaleIds, axesIds) {
+anychart.core.ChartWithAxes.prototype.serializeAxis = function(item, scales, scaleIds, axesIds) {
   var config = item.serialize();
   this.serializeScale(config, 'scale', /** @type {anychart.scales.Base} */(item.scale()), scales, scaleIds);
   axesIds.push(goog.getUid(item));

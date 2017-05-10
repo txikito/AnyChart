@@ -55,13 +55,13 @@ anychart.core.ChartWithOrthogonalScales = function(categorizeData) {
    * @type {number}
    * @private
    */
-  this.barGroupsPadding_;
+  this.barGroupsPadding_ = 0;
 
   /**
    * @type {number}
    * @private
    */
-  this.barsPadding_;
+  this.barsPadding_ = 0;
 
   /**
    * Y scales hash map by uid.
@@ -80,9 +80,9 @@ anychart.core.ChartWithOrthogonalScales = function(categorizeData) {
   /**
    * Drawing plans for each series.
    * @type {Array.<Object>}
-   * @private
+   * @protected
    */
-  this.drawingPlans_ = [];
+  this.drawingPlans = [];
 
   /**
    * Drawing plans categorised by X scale.
@@ -359,10 +359,17 @@ anychart.core.ChartWithOrthogonalScales.prototype.calculate = function() {
     this.calculateYScales();
   } else {
     this.calculateXYScales();
+    this.applyComplexZoom();
   }
   this.resumeSignalsDispatching(false);
   anychart.performance.end('Scale calculations');
 };
+
+
+/**
+ * Applies both X and Y zooms.
+ */
+anychart.core.ChartWithOrthogonalScales.prototype.applyComplexZoom = function() {};
 
 
 /**
@@ -420,7 +427,7 @@ anychart.core.ChartWithOrthogonalScales.prototype.calculateXScales = function() 
     var xScale;
     var seriesCount = this.seriesList.length;
     var drawingPlan, drawingPlans, drawingPlansByYScale, uid, point, val;
-    this.drawingPlans_ = [];
+    this.drawingPlans = [];
     this.drawingPlansByXScale_ = {};
     /**
      * Drawing plans categorised by Y and X scale (Y scale uid is outer index, X scale uid - inner).
@@ -457,12 +464,12 @@ anychart.core.ChartWithOrthogonalScales.prototype.calculateXScales = function() 
             xHashMap = {};
           }
         }
-        drawingPlan = series.getOrdinalDrawingPlan(xHashMap, xArray, restricted, xScale.getNamesField() || undefined);
+        drawingPlan = series.getOrdinalDrawingPlan(xHashMap, xArray, restricted);
       } else {
         drawingPlan = series.getScatterDrawingPlan(true, xScale instanceof anychart.scales.DateTime);
       }
       drawingPlans.push(drawingPlan);
-      this.drawingPlans_.push(drawingPlan);
+      this.drawingPlans.push(drawingPlan);
       drawingPlansByYScale = this.drawingPlansByYAndXScale_[uid];
       if (!drawingPlansByYScale)
         this.drawingPlansByYAndXScale_[uid] = drawingPlansByYScale = {};
@@ -676,7 +683,7 @@ anychart.core.ChartWithOrthogonalScales.prototype.calculateXScales = function() 
       if (xScale instanceof anychart.scales.Ordinal) {
         var namesField = xScale.getNamesField();
         // retrieving names
-        if (namesField != null) {
+        if (namesField) {
           var remainingNames = drawingPlans[0].xArray.length;
           var autoNames = new Array(remainingNames);
           for (i = 0; i < drawingPlans.length; i++) {
@@ -967,7 +974,7 @@ anychart.core.ChartWithOrthogonalScales.prototype.calculateXYScales = function()
     var xScale, yScale;
     var seriesCount = this.seriesList.length;
     var drawingPlan, drawingPlans, uid, error, val;
-    this.drawingPlans_.length = 0;
+    this.drawingPlans.length = 0;
     this.drawingPlansByXScale_ = {};
     for (uid in this.xScales) {
       xScale = this.xScales[uid];
@@ -985,7 +992,7 @@ anychart.core.ChartWithOrthogonalScales.prototype.calculateXYScales = function()
       xScale = /** @type {anychart.scales.Base} */(series.xScale());
       yScale = /** @type {anychart.scales.Base} */(series.yScale());
       if (xScale instanceof anychart.scales.Ordinal) {
-        drawingPlan = series.getOrdinalDrawingPlan({}, [], false, undefined, true);
+        drawingPlan = series.getOrdinalDrawingPlan({}, [], false, true);
       } else {
         drawingPlan = series.getScatterDrawingPlan(false, xScale instanceof anychart.scales.DateTime);
       }
@@ -1030,7 +1037,7 @@ anychart.core.ChartWithOrthogonalScales.prototype.calculateXYScales = function()
       if (!drawingPlans)
         this.drawingPlansByXScale_[uid] = drawingPlans = [];
       drawingPlans.push(drawingPlan);
-      this.drawingPlans_.push(drawingPlan);
+      this.drawingPlans.push(drawingPlan);
     }
 
     for (uid in this.xScales) {
@@ -1336,7 +1343,7 @@ anychart.core.ChartWithOrthogonalScales.prototype.calculateStatistics = function
     this.statistics(anychart.enums.Statistics.DATA_PLOT_Y_MIN, totalYMin);
     this.statistics(anychart.enums.Statistics.DATA_PLOT_Y_RANGE_MIN, totalYMin);
     this.statistics(anychart.enums.Statistics.DATA_PLOT_Y_AVERAGE, totalPointsCount ? totalYSum / totalPointsCount : 0);
-    this.statistics(anychart.enums.Statistics.DATA_PLOT_SERIES_COUNT, this.drawingPlans_.length);
+    this.statistics(anychart.enums.Statistics.DATA_PLOT_SERIES_COUNT, this.drawingPlans.length);
     this.statistics(anychart.enums.Statistics.DATA_PLOT_POINT_COUNT, totalPointsCount);
     this.statistics(anychart.enums.Statistics.DATA_PLOT_MAX_Y_VALUE_POINT_SERIES_NAME, maxYSeriesName);
     this.statistics(anychart.enums.Statistics.DATA_PLOT_MIN_Y_VALUE_POINT_SERIES_NAME, minYSeriesName);
@@ -1779,7 +1786,7 @@ anychart.core.ChartWithOrthogonalScales.prototype.getSeriesStatus = function(eve
 
         var indexes = this.categorizeData ?
             series.findInRangeByX(minValue, maxValue) :
-            series.data().findInRangeByX(minValue, maxValue);
+            series.data().findInRangeByX(minValue, maxValue, series.xScale() instanceof anychart.scales.Ordinal);
 
         iterator = series.getResetIterator();
         var ind = [];
@@ -1830,7 +1837,7 @@ anychart.core.ChartWithOrthogonalScales.prototype.getSeriesStatus = function(eve
           var tmp = series.findX(value);
           index = tmp >= 0 ? [tmp] : [];
         } else {
-          index = series.data().findInUnsortedDataByX(anychart.utils.toNumber(value));
+          index = series.data().findInUnsortedDataByX(anychart.utils.toNumber(value), 'x', this.getValueFieldToSearchInData());
         }
         iterator = series.getIterator();
         minLength = Infinity;
@@ -1865,6 +1872,15 @@ anychart.core.ChartWithOrthogonalScales.prototype.getSeriesStatus = function(eve
 };
 
 
+/**
+ * This method should be refactored.
+ * @return {string}
+ */
+anychart.core.ChartWithOrthogonalScales.prototype.getValueFieldToSearchInData = function() {
+  return 'value';
+};
+
+
 /** @inheritDoc */
 anychart.core.ChartWithOrthogonalScales.prototype.onInteractivitySignal = function() {
 };
@@ -1877,42 +1893,6 @@ anychart.core.ChartWithOrthogonalScales.prototype.onInteractivitySignal = functi
 //  Serialization / Deserialization / Disposing
 //
 //----------------------------------------------------------------------------------------------------------------------
-/**
- * Setup with scale instances.
- * @param {!Object} config
- * @param {Object.<anychart.scales.Base>} scalesInstances
- * @param {boolean=} opt_default
- * @protected
- */
-anychart.core.ChartWithOrthogonalScales.prototype.setupByJSONWithScales = function(config, scalesInstances, opt_default) {
-  this.defaultSeriesType(config['defaultSeriesType']);
-  this.minBubbleSize(config['minBubbleSize']);
-  this.maxBubbleSize(config['maxBubbleSize']);
-  this.palette(config['palette']);
-  this.markerPalette(config['markerPalette']);
-  this.hatchFillPalette(config['hatchFillPalette']);
-  this.defaultSeriesSettings(config['defaultSeriesSettings']);
-
-  var i, json;
-  var series = config['series'];
-  if (goog.isArray(series)) {
-    for (i = 0; i < series.length; i++) {
-      json = series[i];
-      var seriesType = json['seriesType'] || this.defaultSeriesType();
-      var data = json['data'];
-      var seriesInst = this.createSeriesByType(seriesType, data);
-      if (seriesInst) {
-        seriesInst.setup(json);
-        if (goog.isObject(json)) {
-          if ('xScale' in json && json['xScale'] > 1) seriesInst.xScale(scalesInstances[json['xScale']]);
-          if ('yScale' in json && json['yScale'] > 1) seriesInst.yScale(scalesInstances[json['yScale']]);
-        }
-      }
-    }
-  }
-};
-
-
 /**
  * @inheritDoc
  */
@@ -1985,6 +1965,113 @@ anychart.core.ChartWithOrthogonalScales.prototype.setupByJSON = function(config,
 
 
 /**
+ * @inheritDoc
+ */
+anychart.core.ChartWithOrthogonalScales.prototype.serialize = function() {
+  var json = anychart.core.ChartWithOrthogonalScales.base(this, 'serialize');
+  var scaleIds = {};
+  var scales = [];
+
+  this.serializeScale(json, 'xScale', /** @type {anychart.scales.Base} */(this.xScale()), scales, scaleIds);
+  this.serializeScale(json, 'yScale', /** @type {anychart.scales.Base} */(this.yScale()), scales, scaleIds);
+
+  this.serializeWithScales(json, scales, scaleIds);
+
+  json['scales'] = scales;
+  return json;
+};
+
+
+/**
+ * Setup with scale instances.
+ * @param {!Object} config
+ * @param {Object.<anychart.scales.Base>} scalesInstances
+ * @param {boolean=} opt_default
+ * @protected
+ */
+anychart.core.ChartWithOrthogonalScales.prototype.setupByJSONWithScales = function(config, scalesInstances, opt_default) {
+  this.setupSeriesByJSON(config, scalesInstances, opt_default);
+};
+
+
+/**
+ * Serialization function with scales context.
+ * @param {!Object} json
+ * @param {Array.<Object>} scales
+ * @param {Object} scaleIds
+ * @protected
+ */
+anychart.core.ChartWithOrthogonalScales.prototype.serializeWithScales = function(json, scales, scaleIds) {
+  this.serializeSeries(json, scales, scaleIds);
+};
+
+
+/**
+ * Last index of default scales in scales array.
+ * @return {number}
+ */
+anychart.core.ChartWithOrthogonalScales.prototype.defaultScalesLastIndex = function() {
+  return 1;
+};
+
+
+/**
+ * Setup series with scale instances.
+ * @param {!Object} config
+ * @param {Object.<anychart.scales.Base>} scalesInstances
+ * @param {boolean=} opt_default
+ * @protected
+ */
+anychart.core.ChartWithOrthogonalScales.prototype.setupSeriesByJSON = function(config, scalesInstances, opt_default) {
+  this.defaultSeriesSettings(config['defaultSeriesSettings']);
+  var i, json;
+  var series = config['series'];
+  if (goog.isArray(series)) {
+    for (i = 0; i < series.length; i++) {
+      json = series[i];
+      var seriesType = json['seriesType'] || this.defaultSeriesType();
+      var data = json['data'];
+      var seriesInst = this.createSeriesByType(seriesType, data);
+      if (seriesInst) {
+        seriesInst.setupInternal(!!opt_default, json);
+        if (goog.isObject(json)) {
+          if ('xScale' in json && json['xScale'] > this.defaultScalesLastIndex())
+            seriesInst.xScale(scalesInstances[json['xScale']]);
+          if ('yScale' in json && json['yScale'] > this.defaultScalesLastIndex())
+            seriesInst.yScale(scalesInstances[json['yScale']]);
+        }
+      }
+    }
+  }
+};
+
+
+/**
+ * Serialization function with scales context.
+ * @param {!Object} json
+ * @param {Array.<Object>} scales
+ * @param {Object} scaleIds
+ * @protected
+ */
+anychart.core.ChartWithOrthogonalScales.prototype.serializeSeries = function(json, scales, scaleIds) {
+  var i;
+  var scale;
+  var config;
+  var seriesList = [];
+  for (i = 0; i < this.seriesList.length; i++) {
+    var series = this.seriesList[i];
+    config = series.serialize();
+    scale = series.xScale();
+    this.serializeScale(config, 'xScale', /** @type {anychart.scales.Base} */(series.xScale()), scales, scaleIds);
+    this.serializeScale(config, 'yScale', /** @type {anychart.scales.Base} */(series.yScale()), scales, scaleIds);
+    seriesList.push(config);
+  }
+  if (seriesList.length)
+    json['series'] = seriesList;
+};
+
+
+/**
  * Setups elements defined by an array of json with scale instances map.
  * @param {*} items
  * @param {Function} itemConstructor
@@ -1997,7 +2084,7 @@ anychart.core.ChartWithOrthogonalScales.prototype.setupElementsWithScales = func
       var json = items[i];
       var element = itemConstructor.call(this, i);
       element.setup(json);
-      if (goog.isObject(json) && 'scale' in json && json['scale'] > 1)
+      if (goog.isObject(json) && 'scale' in json && json['scale'] > this.defaultScalesLastIndex())
         element.scale(scaleInstances[json['scale']]);
     }
   }
@@ -2031,31 +2118,6 @@ anychart.core.ChartWithOrthogonalScales.prototype.serializeElementsWithScales = 
 
 
 /**
- * Serialization function with scales context.
- * @param {!Object} json
- * @param {Array.<Object>} scales
- * @param {Object} scaleIds
- * @protected
- */
-anychart.core.ChartWithOrthogonalScales.prototype.serializeWithScales = function(json, scales, scaleIds) {
-  var i;
-  var scale;
-  var config;
-  var seriesList = [];
-  for (i = 0; i < this.seriesList.length; i++) {
-    var series = this.seriesList[i];
-    config = series.serialize();
-    scale = series.xScale();
-    this.serializeScale(config, 'xScale', /** @type {anychart.scales.Base} */(series.xScale()), scales, scaleIds);
-    this.serializeScale(config, 'yScale', /** @type {anychart.scales.Base} */(series.yScale()), scales, scaleIds);
-    seriesList.push(config);
-  }
-  if (seriesList.length)
-    json['series'] = seriesList;
-};
-
-
-/**
  * Serializes scale.
  * @param {Object} json
  * @param {string} propName
@@ -2073,24 +2135,6 @@ anychart.core.ChartWithOrthogonalScales.prototype.serializeScale = function(json
     }
     json[propName] = scaleIds[objId];
   }
-};
-
-
-/**
- * @inheritDoc
- */
-anychart.core.ChartWithOrthogonalScales.prototype.serialize = function() {
-  var json = anychart.core.ChartWithOrthogonalScales.base(this, 'serialize');
-  var scaleIds = {};
-  var scales = [];
-
-  this.serializeScale(json, 'xScale', /** @type {anychart.scales.Base} */(this.xScale()), scales, scaleIds);
-  this.serializeScale(json, 'yScale', /** @type {anychart.scales.Base} */(this.yScale()), scales, scaleIds);
-
-  this.serializeWithScales(json, scales, scaleIds);
-
-  json['scales'] = scales;
-  return json;
 };
 
 
