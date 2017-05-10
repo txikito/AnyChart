@@ -133,7 +133,7 @@ anychart.ui.chartEditor.settings.Axis.prototype.isEnabled = function() {
 /** @override */
 anychart.ui.chartEditor.settings.Axis.prototype.disposeInternal = function() {
   this.orientation_ = null;
-  //this.inverted_ = null;
+  this.inverted_ = null;
   this.title_ = null;
   this.labels_ = null;
   anychart.ui.chartEditor.settings.Axis.base(this, 'disposeInternal');
@@ -242,9 +242,8 @@ anychart.ui.chartEditor.settings.Axis.prototype.createDom = function() {
  * Update model keys.
  */
 anychart.ui.chartEditor.settings.Axis.prototype.updateKeys = function() {
-  console.log("axis updateKeys()");
   if (this.orientation_) this.orientation_.setKey(this.genKey('orientation()'));
-  if (this.inverted_) this.inverted_.setKey(this.genKey('scale().inverted()'));
+  if (this.inverted_) this.inverted_.setKey('chart.' + (this.key_ == 'xAxis' ? 'xScale' : 'yScale') + '().inverted()');
   if (this.title_) {
     this.title_.setKey(this.genKey('title()'));
     this.title_.setOrientationKey(this.genKey('title().orientation()'));
@@ -259,7 +258,7 @@ anychart.ui.chartEditor.settings.Axis.prototype.updateKeys = function() {
  */
 anychart.ui.chartEditor.settings.Axis.prototype.update = function(model) {
   if (this.orientation_) this.orientation_.update(model);
-  //if (this.inverted_) this.inverted_.update(model);
+  if (this.inverted_) this.inverted_.update(model);
   if (this.title_) this.title_.update(model);
   if (this.labels_) this.labels_.update(model);
 };
