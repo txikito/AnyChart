@@ -617,11 +617,15 @@ anychart.ui.chartEditor.Dialog.prototype.data = function(var_args) {
   this.resetSharedModel_();
 
   for (var i = 0; i < arguments.length; i++) {
-    if (goog.isArrayLike(arguments[i])) {
+    var dataSet = arguments[i];
+    if (goog.isArrayLike(dataSet))
+      dataSet = window['anychart']['data']['set'](dataSet);
+
+    if (dataSet instanceof window['anychart']['data']['Set']) {
       this.sharedModel_.dataSets.push({
         index: i,
         name: 'Data Set ' + (i + 1),
-        instance: window['anychart']['data']['set'](arguments[i]),
+        instance: dataSet,
         rawMappings: [],
         mappings: []
       });
