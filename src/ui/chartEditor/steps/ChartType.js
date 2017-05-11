@@ -33,6 +33,7 @@ anychart.ui.chartEditor.steps.ChartType.CssClass = {};
 
 
 /**
+ * @param {boolean=} opt_setDefaultPreset
  * @private
  */
 anychart.ui.chartEditor.steps.ChartType.prototype.checkDataMapping_ = function(opt_setDefaultPreset) {

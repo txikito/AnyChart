@@ -1708,7 +1708,7 @@ anychart.core.Chart.prototype.disposeInternal = function() {
   this.a11y_ = null;
   this.tooltip_ = null;
 
-  if(this.id_)
+  if (this.id_)
     anychart.untrackChart(this, /** @type {string} */(this.id_));
 };
 

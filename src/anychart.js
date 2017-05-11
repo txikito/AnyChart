@@ -1138,6 +1138,7 @@ anychart.trackedCharts_ = {};
 
 /**
  * Returns tracking chart by it's id.
+ * @param {!string} id
  * @return {?anychart.core.Chart}
  */
 anychart.getChartById = function(id) {
@@ -1148,7 +1149,7 @@ anychart.getChartById = function(id) {
 /**
  *
  * @param {anychart.core.Chart} chart
- * @param {string} newId
+ * @param {!string} newId
  * @param {string=} opt_oldId
  * @return {boolean}
  */
@@ -1158,7 +1159,7 @@ anychart.trackChart = function(chart, newId, opt_oldId) {
     return false;
   }
 
-  if(goog.isDef(opt_oldId))
+  if (goog.isDef(opt_oldId))
     anychart.untrackChart(chart, /** @type {string} */(opt_oldId));
 
   anychart.trackedCharts_[newId] = chart;

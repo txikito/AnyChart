@@ -4,6 +4,7 @@ goog.require('anychart.core.BaseContext');
 goog.require('anychart.format');
 
 
+
 /**
  * Common format context class. Actually is parent for anychart.format.Context to hide all not exported
  * methods from user to prototype.
@@ -22,6 +23,7 @@ goog.inherits(anychart.format.Context, anychart.core.BaseContext);
 
 
 window['anychart']['format']['Context'] = goog.global['anychart']['format']['Context'] = anychart.format.Context;
+
 
 /**
  * Gets data value by name.

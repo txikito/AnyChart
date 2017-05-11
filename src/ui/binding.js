@@ -53,7 +53,7 @@ anychart.ui.binding.exec = function(targetOrPath, pathOrValue, opt_valueOrPathAr
  * @private
  */
 anychart.ui.binding.parsePath_ = function(path) {
-  var elementExp = /\s*\.?\s*(([\w_]+)(\(\s*(,?\s*([\d\.]+|\".+\"|\'.+\'|\{\d+\}))*\s*\))?)/;
+  var elementExp = /\s*\.?\s*(([\w_]+)(\(\s*(,?\s*([\d\.]+|\'.+\'|\'.+\'|\{\d+\}))*\s*\))?)/;
   var result = [];
   var error = false;
   var match;
@@ -105,7 +105,7 @@ anychart.ui.binding.applyPath_ = function(target, path, pathArguments, opt_lastA
 
       if (args) {
         for (var j = 0; j < args.length; j++) {
-          var tmp = args[j].replace(/^["']{1}(.*)["']{1}$/, '$1');
+          var tmp = args[j].replace(/^['']{1}(.*)['']{1}$/, '$1');
           if (tmp == args[j]) {
             var substMatch = args[j].match(/^\{(\d+)\}$/);
             if (substMatch) {
@@ -284,9 +284,9 @@ anychart.ui.binding.setRealValue_ = function(element) {
 
       if (type == goog.dom.InputType.BUTTON || type == goog.dom.InputType.SUBMIT) {
         if (value == inputValue) {
-          goog.dom.classlist.add(element, "btn-primary");
+          goog.dom.classlist.add(element, 'btn-primary');
         } else {
-          goog.dom.classlist.remove(element, "btn-primary");
+          goog.dom.classlist.remove(element, 'btn-primary');
         }
       }
     }

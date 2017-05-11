@@ -145,6 +145,7 @@ anychart.ui.chartEditor.DataMappings.prototype.updateMappings_ = function() {
 
 /**
  * Add mapping to raw mappings.
+ * @param {boolean=} opt_setDefault
  * @private
  */
 anychart.ui.chartEditor.DataMappings.prototype.addMapping_ = function(opt_setDefault) {

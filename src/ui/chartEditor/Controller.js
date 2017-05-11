@@ -209,7 +209,9 @@ anychart.ui.chartEditor.Controller.prototype.onPresetChanged_ = function() {
  * @return {string}
  */
 anychart.ui.chartEditor.Controller.getset = function(model, key, opt_value, opt_dryRun) {
-  // if(key == 'chart.yAxis(0).scale().inverted()') debugger;
+  if (typeof opt_value == 'string')
+    opt_value = opt_value.replace(/\\n/g, '\n');
+
   try {
     var keyPath = key.split('.');
     var target = model;
@@ -245,6 +247,9 @@ anychart.ui.chartEditor.Controller.getset = function(model, key, opt_value, opt_
     // debugger;
     console.log('Can\'t get/set by key: ', key, ' and value: ', opt_value);
   }
+
+  if (!goog.isDef(opt_value) && typeof target == 'string')
+    target = target.replace(/\n/g, '\\n');
 
   return opt_dryRun ? success : target;
 };
