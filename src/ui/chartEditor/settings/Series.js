@@ -42,7 +42,7 @@ anychart.ui.chartEditor.settings.Series.prototype.setSeriesId = function(value) 
  * @param {Object} options
  */
 anychart.ui.chartEditor.settings.Series.prototype.setSeriesTypeOptions = function(options) {
-  // console.log(options);
+  // CE: Part 3
 };
 
 

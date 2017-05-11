@@ -53,7 +53,7 @@ anychart.ui.binding.exec = function(targetOrPath, pathOrValue, opt_valueOrPathAr
  * @private
  */
 anychart.ui.binding.parsePath_ = function(path) {
-  var elementExp = /\s*\.?\s*(([\w_]+)(\(\s*(,?\s*([\d\.]+|\'.+\'|\'.+\'|\{\d+\}))*\s*\))?)/;
+  var elementExp = /\s*\.?\s*(([\w_]+)(\(\s*(,?\s*([\d\.]+|\".+\"|\'.+\'|\{\d+\}))*\s*\))?)/;
   var result = [];
   var error = false;
   var match;
@@ -105,7 +105,8 @@ anychart.ui.binding.applyPath_ = function(target, path, pathArguments, opt_lastA
 
       if (args) {
         for (var j = 0; j < args.length; j++) {
-          var tmp = args[j].replace(/^['']{1}(.*)['']{1}$/, '$1');
+          var tmp = args[j].replace(/^'(.*)'$/, '$1');
+          tmp = tmp.replace(/^"(.*)"$/, '$1');
           if (tmp == args[j]) {
             var substMatch = args[j].match(/^\{(\d+)\}$/);
             if (substMatch) {
@@ -126,14 +127,18 @@ anychart.ui.binding.applyPath_ = function(target, path, pathArguments, opt_lastA
       target = call ? target[name].apply(target, args) : target[name];
     }
   } catch (e) {
-    var message = 'Could not apply key \'' + name + '\'';
+    var message = 'Could not apply key \'' + name;
     if (call) message += '()';
+    message += '\'';
     if (args) message += ' with arguments [' + args + ']';
 
-    console.warn(message);
-    // todo: Так же нельзя? window['anychart']['enums']['WarningCode']['BAD_REQUEST']
-    // window['anychart']['core']['reporting']['warning'](
-    //     window['anychart']['enums']['WarningCode']['BAD_REQUEST'], null, [message], true);
+    var console = goog.global['console'];
+    if (console) {
+      var log = console['warn'] || console['log'];
+      if (typeof log != 'object') {
+        log.call(console, message);
+      }
+    }
     return null;
   }
 
@@ -175,9 +180,11 @@ anychart.ui.binding.init = function(opt_value) {
 
     var chartId = element.getAttribute('ac-chart-id');
     var chart = window['anychart']['getChartById'](chartId);
-    if (chart && !goog.events.getListener(chart, 'chartdraw', anychart.ui.binding.synchronizeOnChartDraw_, void 0, element)) {
-      goog.events.listen(chart, 'chartdraw', anychart.ui.binding.synchronizeOnChartDraw_, false, element);
-    }
+    goog.events.listen(chart, 'chartdraw',
+        function() {
+          anychart.ui.binding.setRealValue_(element);
+        },
+        false, element);
 
   } else if (goog.isString(opt_value)) {
     var elements = goog.dom.getDocument().querySelectorAll(opt_value);
@@ -221,15 +228,6 @@ anychart.ui.binding.onElementChange_ = function(event) {
 
     anychart.ui.binding.exec(chart, key, value);
   }
-};
-
-
-/**
- * Chartdraw event handler. Updates input value if it was changed by other input.
- * @private
- */
-anychart.ui.binding.synchronizeOnChartDraw_ = function() {
-  anychart.ui.binding.setRealValue_(/** @type {!HTMLInputElement} */(this)); // TODO: what to do with 'this' (linter)?
 };
 
 
