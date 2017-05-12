@@ -155,7 +155,7 @@ anychart.ui.binding.init = function(opt_value) {
   if (!goog.isDef(opt_value)) opt_value = '.ac-control';
 
   if (goog.dom.isElement(opt_value)) {
-    var element = /** @type {HTMLInputElement} */(opt_value);
+    var element = /** @type {!HTMLInputElement} */(opt_value);
 
     var type = element.type;
     if (!goog.isDef(type)) return;
