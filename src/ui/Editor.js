@@ -12,6 +12,7 @@ goog.require('goog.fx.Transition.EventType');
 goog.require('goog.fx.dom');
 goog.require('goog.net.ImageLoader');
 goog.require('goog.ui.Component');
+goog.require('goog.ui.Dialog');
 
 
 
@@ -25,18 +26,17 @@ anychart.ui.Editor = function(opt_domHelper) {
   anychart.ui.Editor.base(this, 'constructor', opt_domHelper);
 
   /**
+   * @type {?goog.ui.Dialog}
+   * @private
+   */
+  this.dialog_ = null;
+
+  /**
    * Current step.
    * @type {anychart.ui.chartEditor.steps.Base}
    * @private
    */
   this.currentStep_ = null;
-
-  /**
-   * Element for the logo of the title bar.
-   * @type {Element}
-   * @private
-   */
-  // this.titleLogoEl_ = null;
 
   /**
    * Shared model for all steps.
@@ -360,8 +360,8 @@ anychart.ui.Editor.prototype.decorate = function(element) {
 };
 
 
-anychart.ui.Editor.prototype.renderAsDialog = function() {
-
+anychart.ui.Editor.prototype.renderAsDialog = function(opt_class, opt_useIframeMask, opt_domHelper) {
+  this.dialog_ = new anychart.ui.Editor.Dialog(opt_class, opt_useIframeMask, opt_domHelper);
 };
 
 
@@ -372,13 +372,15 @@ anychart.ui.Editor.prototype.renderAsDialog = function() {
  * @return {boolean|!anychart.ui.Editor}
  */
 anychart.ui.Editor.prototype.visible = function(opt_value) {
+  if(!this.dialog_) return true;
+
   if (goog.isDef(opt_value)) {
-    this.setVisible(opt_value);
+    this.dialog_.setVisible(opt_value);
     this.showPreloader_();
     return this;
   }
 
-  return this.isVisible();
+  return this.dialog_.isVisible();
 };
 
 
@@ -392,54 +394,11 @@ anychart.ui.Editor.prototype.showPreloader_ = function() {
 
 
 /** @override */
-anychart.ui.Editor.prototype.createDom = function() {
-  anychart.ui.Editor.base(this, 'createDom');
-
-  // var dom = this.getDomHelper();
-
-  // var titleElement = this.getTitleElement();
-  // this.titleLogoEl_ = dom.createDom(
-  //     goog.dom.TagName.A,
-  //     {'class': goog.getCssName(this.getCssClass(), 'title-logo'), 'href': 'https://anychart.com', 'target': '_blank'});
-  // goog.dom.insertSiblingBefore(this.titleLogoEl_, goog.dom.getFirstElementChild(titleElement));
-  //
-  // var close = this.getTitleCloseElement();
-  // goog.dom.appendChild(close, goog.dom.createDom(goog.dom.TagName.I, ['ac', 'ac-remove']));
-};
-
-
-/** @override */
-anychart.ui.Editor.prototype.decorateInternal = function(element) {
-  anychart.ui.Editor.base(this, 'decorateInternal', element);
-  var dom = this.getDomHelper();
-
-  // var titleElement = this.getTitleElement();
-  // this.titleLogoEl_ = dom.createDom(
-  //     goog.dom.TagName.A,
-  //     {'class': goog.getCssName(this.getCssClass(), 'title-logo'), 'href': 'https://anychart.com', 'target': '_blank'});
-  // goog.dom.insertSiblingBefore(this.titleLogoEl_, goog.dom.getFirstElementChild(titleElement));
-  //
-  // this.setTitle('Chart Editor');
-  //
-  // var close = this.getTitleCloseElement();
-  // goog.dom.appendChild(close, goog.dom.createDom(goog.dom.TagName.I, ['ac', 'ac-remove']));
-};
-
-
-/** @override */
 anychart.ui.Editor.prototype.enterDocument = function() {
   anychart.ui.Editor.base(this, 'enterDocument');
 
   var element = this.getElement();
-  // // //var className = anychart.ui.Preloader.CSS_CLASS;
   goog.dom.classlist.add(element, goog.getCssName('anychart-chart-editor'));
-
-  // var bgEl = this.getBackgroundElement();
-  // if (bgEl) {
-  //   this.getHandler().listen(
-  //       bgEl, goog.events.EventType.CLICK,
-  //       this.onBackgroundClick_);
-  // }
 
   this.setCurrentStepIndex_(0, false);
   this.listen(anychart.ui.chartEditor.events.EventType.CHANGE_STEP, this.onChangeStep_);
@@ -753,6 +712,79 @@ anychart.ui.Editor.prototype.getResultJson = function(opt_stringify, opt_include
   return result;
 };
 // endregion
+
+
+/**
+ *
+ * @constructor
+ * @extends {anychart.core.VisualBase}
+ */
+anychart.ui.Editor.Dialog = function(opt_class, opt_useIframeMask, opt_domHelper) {
+  anychart.ui.Editor.Dialog.base(this, 'constructor', opt_class, opt_useIframeMask, opt_domHelper);
+
+  /**
+   * Element for the logo of the title bar.
+   * @type {Element}
+   * @private
+   */
+  this.titleLogoEl_ = null;
+};
+goog.inherits(anychart.ui.Editor.Dialog, goog.ui.Dialog);
+
+
+/** @override */
+anychart.ui.Editor.Dialog.prototype.createDom = function() {
+  anychart.ui.Editor.Dialog.base(this, 'createDom');
+
+  var dom = this.getDomHelper();
+
+  var titleElement = this.getTitleElement();
+  this.titleLogoEl_ = dom.createDom(
+      goog.dom.TagName.A,
+      {'class': goog.getCssName(this.getCssClass(), 'title-logo'), 'href': 'https://anychart.com', 'target': '_blank'});
+  goog.dom.insertSiblingBefore(this.titleLogoEl_, goog.dom.getFirstElementChild(titleElement));
+
+  var close = this.getTitleCloseElement();
+  goog.dom.appendChild(close, goog.dom.createDom(goog.dom.TagName.I, ['ac', 'ac-remove']));
+};
+
+
+/** @override */
+anychart.ui.Editor.Dialog.prototype.decorateInternal = function(element) {
+  anychart.ui.Editor.Dialog.base(this, 'decorateInternal', element);
+  var dom = this.getDomHelper();
+
+  var titleElement = this.getTitleElement();
+  this.titleLogoEl_ = dom.createDom(
+      goog.dom.TagName.A,
+      {'class': goog.getCssName(this.getCssClass(), 'title-logo'), 'href': 'https://anychart.com', 'target': '_blank'});
+  goog.dom.insertSiblingBefore(this.titleLogoEl_, goog.dom.getFirstElementChild(titleElement));
+
+  this.setTitle('Chart Editor');
+
+  var close = this.getTitleCloseElement();
+  goog.dom.appendChild(close, goog.dom.createDom(goog.dom.TagName.I, ['ac', 'ac-remove']));
+};
+
+
+/** @override */
+anychart.ui.Editor.Dialog.prototype.enterDocument = function() {
+  anychart.ui.Editor.Dialog.base(this, 'enterDocument');
+
+  var bgEl = this.getBackgroundElement();
+  if (bgEl) {
+    this.getHandler().listen(
+        bgEl, goog.events.EventType.CLICK,
+        this.onBackgroundClick_);
+  }
+};
+
+
+/** @override */
+anychart.ui.Editor.Dialog.prototype.disposeInternal = function() {
+  this.titleLogoEl_ = null;
+  anychart.ui.Editor.Dialog.base(this, 'disposeInternal');
+};
 
 
 /**
