@@ -18,7 +18,8 @@ anychart.ui.chartEditor.select.FontFamily = function() {
     'Lucida Sans Unicode, Lucida Grande, sans-serif',
     'Tahoma, Geneva, sans-serif',
     'Trebuchet MS, Helvetica, sans-serif',
-    'Verdana, Helvetica, Arial, sans-serif'
+    'Verdana, Helvetica, Arial, sans-serif',
+    '"Lucida Console", Monaco, monospace'
   ]);
   this.setCaptions([
     'Arial',
@@ -28,7 +29,15 @@ anychart.ui.chartEditor.select.FontFamily = function() {
     'Lucida Sans Unicode',
     'Tahoma',
     'Trebuchet MS',
-    'Verdana'
+    'Verdana',
+    'Lucida Console'
   ]);
 };
 goog.inherits(anychart.ui.chartEditor.select.FontFamily, anychart.ui.chartEditor.select.Base);
+
+
+/** @param {anychart.ui.chartEditor.steps.Base.Model} model */
+anychart.ui.chartEditor.select.FontFamily.prototype.update = function(model) {
+  debugger;
+  anychart.ui.chartEditor.select.FontFamily.base(this, 'update', model);
+};
