@@ -69,6 +69,7 @@ anychart.ui.Editor = function(opt_domHelper) {
     chartConstructor: 'column',
     seriesType: 'column'
   });
+  this.sharedModel_['anychart'] = this.sharedModel_.anychart;
 
   this.controller_ = new anychart.ui.chartEditor.Controller(this);
 

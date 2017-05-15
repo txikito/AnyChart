@@ -325,7 +325,7 @@ anychart.ui.chartEditor.Controller.prototype.getBuildCode = function() {
   // function arguments and data sets
   for (i = 0, count = this.model_.dataSets.length; i < count; i++) {
     fArgs += subs('data%s,', i);
-    fDataSets += subs('var dataSet%s=data%s instanceof anychart.data.Set ? data%s : anychart.data.set(data%s);', i, i, i, i);
+    fDataSets += subs('var dataSet%s=data%s[\'mapAs\'] ? data%s : anychart.data.set(data%s);', i, i, i, i);
   }
   fArgs = fArgs.substring(0, fArgs.length - 1); // remove last comma
 
