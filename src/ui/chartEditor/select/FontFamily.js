@@ -19,7 +19,8 @@ anychart.ui.chartEditor.select.FontFamily = function() {
     'Tahoma, Geneva, sans-serif',
     'Trebuchet MS, Helvetica, sans-serif',
     'Verdana, Helvetica, Arial, sans-serif',
-    '"Lucida Console", Monaco, monospace'
+    '"Lucida Console", Monaco, monospace',
+    '"Source Sans Pro", sans-serif'
   ]);
   this.setCaptions([
     'Arial',
@@ -30,7 +31,14 @@ anychart.ui.chartEditor.select.FontFamily = function() {
     'Tahoma',
     'Trebuchet MS',
     'Verdana',
-    'Lucida Console'
+    'Lucida Console',
+    'Source Sans Pro'
   ]);
 };
 goog.inherits(anychart.ui.chartEditor.select.FontFamily, anychart.ui.chartEditor.select.Base);
+
+
+// anychart.ui.chartEditor.select.FontFamily.prototype.update = function(model) {
+//   debugger;
+//   anychart.ui.chartEditor.select.FontFamily.base(this, 'update', model);
+// };
