@@ -360,6 +360,15 @@ anychart.ui.Editor.prototype.decorate = function(element) {
 };
 
 
+/**
+ * Renders the Chart Editor as modal dialog.
+ * @param {string=} opt_class CSS class name for the dialog element, also used
+ *     as a class name prefix for related elements; defaults to modal-dialog.
+ *     This should be a single, valid CSS class name.
+ * @param {boolean=} opt_useIframeMask Work around windowed controls z-index
+ *     issue by using an iframe instead of a div for bg element.
+ * @param {goog.dom.DomHelper=} opt_domHelper Optional DOM helper; see {@link goog.ui.Component} for semantics.
+ */
 anychart.ui.Editor.prototype.renderAsDialog = function(opt_class, opt_useIframeMask, opt_domHelper) {
   this.dialog_ = new anychart.ui.Editor.Dialog(opt_class, opt_useIframeMask, opt_domHelper);
   this.dialog_.addChild(this, true);
@@ -373,7 +382,7 @@ anychart.ui.Editor.prototype.renderAsDialog = function(opt_class, opt_useIframeM
  * @return {boolean|!anychart.ui.Editor}
  */
 anychart.ui.Editor.prototype.visible = function(opt_value) {
-  if(!this.dialog_) return true;
+  if (!this.dialog_) return true;
 
   if (goog.isDef(opt_value)) {
     this.dialog_.setVisible(opt_value);
@@ -385,6 +394,10 @@ anychart.ui.Editor.prototype.visible = function(opt_value) {
 };
 
 
+/**
+ * Check if images are not fully loaded and shows preloader if need.
+ * @private
+ */
 anychart.ui.Editor.prototype.showPreloader_ = function() {
   if (!this.imagesLoaded_) {
     var element = this.getContentElement();
@@ -394,9 +407,12 @@ anychart.ui.Editor.prototype.showPreloader_ = function() {
 };
 
 
-/** @private */
+/**
+ * Close dialog (if exists) on complete button press.
+ * @private
+ */
 anychart.ui.Editor.prototype.onComplete_ = function() {
-  if(this.dialog_)
+  if (this.dialog_)
     this.dialog_.setVisible(false);
 };
 
@@ -617,7 +633,6 @@ anychart.ui.Editor.prototype.data = function(var_args) {
 
 
 /**
- *
  * @private
  */
 anychart.ui.Editor.prototype.resetSharedModel_ = function() {
@@ -683,6 +698,7 @@ anychart.ui.Editor.prototype.getResultCode = function() {
   return this.controller_.getBuildCode();
 };
 
+
 /**
  * Return chart configuration as XML string or XMLNode.
  * @param {boolean=} opt_asXmlNode Return XML as XMLNode.
@@ -713,10 +729,19 @@ anychart.ui.Editor.prototype.getResultJson = function(opt_stringify, opt_include
 };
 // endregion
 
+
+
 // region Editor.Dialog
 /**
- *
  * @constructor
+ * @param {string=} opt_class CSS class name for the dialog element, also used
+ *     as a class name prefix for related elements; defaults to modal-dialog.
+ *     This should be a single, valid CSS class name.
+ * @param {boolean=} opt_useIframeMask Work around windowed controls z-index
+ *     issue by using an iframe instead of a div for bg element.
+ * @param {goog.dom.DomHelper=} opt_domHelper Optional DOM helper; see {@link
+ *     goog.ui.Component} for semantics.
+ * @extends {goog.ui.ModalPopup}
  * @extends {goog.ui.Dialog}
  */
 anychart.ui.Editor.Dialog = function(opt_class, opt_useIframeMask, opt_domHelper) {
@@ -749,6 +774,7 @@ anychart.ui.Editor.Dialog.prototype.decorateInternal = function(element) {
 };
 
 
+/** @private */
 anychart.ui.Editor.Dialog.prototype.initTitleElements_ = function() {
   var dom = this.getDomHelper();
 
@@ -786,6 +812,7 @@ anychart.ui.Editor.Dialog.prototype.onBackgroundClick_ = function() {
   this.setVisible(false);
 };
 // endregion
+
 
 /**
  * Constructor function for Chart Editor.
