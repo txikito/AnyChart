@@ -276,7 +276,7 @@ anychart.ui.chartEditor.steps.Base.prototype.createDataMappings_ = function(data
 
     if (!goog.object.isEmpty(formattedMapping)) {
       var mappingInstance = dataSet.instance['mapAs'](isArrayMapping ? formattedMapping : undefined, !isArrayMapping ? formattedMapping : undefined);
-      var title = /** @type{Object} */(rawMapping)['title'];
+      var title = /** @type {Object} */(rawMapping)['title'];
       mappingInstance['meta'](0, 'title', title);
       dataMappings.push(mappingInstance);
     }
