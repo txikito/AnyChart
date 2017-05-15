@@ -200,7 +200,7 @@ anychart.ui.chartEditor.settings.Series.prototype.update = function(model) {
 
   for (var i = 0, count = model.dataMappings.length; i < count; i++) {
     mappings.push(i);
-    captions.push(model.dataMappings[i].meta(0, 'title'));
+    captions.push(model.dataMappings[i]['meta'](0, 'title'));
   }
 
   this.mappingSelect_.setOptions(mappings);
