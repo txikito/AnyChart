@@ -51,6 +51,7 @@ anychart.enums.ChartTypes = {
   JUMP_LINE: 'jumpLine',
   STICK: 'stick',
   PARETO: 'pareto',
+  QUADRANT: 'quadrant',
   MEKKO: 'mekko',
   MOSAIC: 'mosaic',
   BARMEKKO: 'barmekko'
@@ -3031,22 +3032,6 @@ anychart.enums.normalizeHeatMapSeriesType = function(value, opt_default) {
  */
 anychart.enums.MekkoSeriesType = {
   MEKKO: 'mekko'
-};
-
-
-/**
- * Normalizes mekko series type.
- * @param {*} value Series type to normalize.
- * @param {anychart.enums.MekkoSeriesType=} opt_default Custom default value (defaults to LINE).
- * @return {anychart.enums.MekkoSeriesType}
- */
-anychart.enums.normalizeMekkoSeriesType = function(value, opt_default) {
-  value = (String(value)).toLowerCase();
-  switch (value) {
-    case 'mekko':
-      return anychart.enums.MekkoSeriesType.MEKKO;
-  }
-  return opt_default || anychart.enums.MekkoSeriesType.MEKKO;
 };
 
 

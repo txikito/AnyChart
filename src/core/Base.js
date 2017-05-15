@@ -88,9 +88,11 @@ anychart.ConsistencyState = {
   AXES_CHART_GRIDS: 1 << 22,
   AXES_CHART_CROSSHAIR: 1 << 23,
   AXES_CHART_ANNOTATIONS: 1 << 24,
+  AXES_CHART_QUARTER: 1 << 25,
+  AXES_CHART_CROSSLINES: 1 << 26,
   //---------------------------------- CARTESIAN STATES (AXES_CHART) ---------------------------------
-  CARTESIAN_ZOOM: 1 << 25,
-  CARTESIAN_X_SCROLLER: 1 << 26,
+  CARTESIAN_ZOOM: 1 << 27,
+  CARTESIAN_X_SCROLLER: 1 << 28,
   //---------------------------------- PYRAMID/FUNNEL STATES (CHART) ---------------------------------
   PYRAMID_FUNNEL_LABELS: 1 << 12,
   PYRAMID_FUNNEL_MARKERS: 1 << 13,
@@ -186,6 +188,7 @@ anychart.ConsistencyState = {
   LABELS_FACTORY_HANDLERS: 1 << 7,
   LABELS_FACTORY_CLIP: 1 << 8,
   LABELS_FACTORY_CONNECTOR: 1 << 9,
+  LABELS_FACTORY_CACHE: 1 << 10,
   //---------------------------------- LEGEND STATES (VB) ---------------------------------
   LEGEND_BACKGROUND: 1 << 6,
   LEGEND_TITLE: 1 << 7,
@@ -329,6 +332,9 @@ anychart.ConsistencyState = {
   //---------------------------------- DATE TIME WITH CALENDAR -----------------------------
   DTWC_TS_GRID: 1 << 0,
   DTWC_TS_GRID_ZERO: 1 << 1,
+  //----------------------------- QUARTER (BACKGROUND) -----------------------------
+  QUARTER_TITLE: 1 << 7,
+  QUARTER_LABELS: 1 << 8,
   /**
    * Combination of all states.
    */
