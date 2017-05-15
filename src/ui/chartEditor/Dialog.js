@@ -378,6 +378,7 @@ anychart.ui.chartEditor.Dialog.prototype.visible = function(opt_value) {
 
 /** @override */
 anychart.ui.chartEditor.Dialog.prototype.createDom = function() {
+  console.log("OLD dialog createDom");
   anychart.ui.chartEditor.Dialog.base(this, 'createDom');
   var dom = this.getDomHelper();
 
@@ -394,6 +395,7 @@ anychart.ui.chartEditor.Dialog.prototype.createDom = function() {
 
 /** @override */
 anychart.ui.chartEditor.Dialog.prototype.decorateInternal = function(element) {
+  console.log("OLD dialog decorateInternal");
   anychart.ui.chartEditor.Dialog.base(this, 'decorateInternal', element);
   var dom = this.getDomHelper();
 

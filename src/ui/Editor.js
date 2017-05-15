@@ -1,4 +1,5 @@
 goog.provide('anychart.ui.Editor');
+goog.provide('anychart.ui.Editor.Dialog');
 
 goog.require('anychart.ui.Preloader');
 goog.require('anychart.ui.chartEditor.Controller');
@@ -70,9 +71,6 @@ anychart.ui.Editor = function(opt_domHelper) {
   });
 
   this.controller_ = new anychart.ui.chartEditor.Controller(this);
-
-  // this.setTitle('Chart Editor');
-  // this.setButtonSet(null);
 
   this.addChild(new anychart.ui.chartEditor.steps.Data());
   this.addChild(new anychart.ui.chartEditor.steps.ChartType());
@@ -666,7 +664,6 @@ anychart.ui.Editor.prototype.update = function() {
 /** @override */
 anychart.ui.Editor.prototype.disposeInternal = function() {
   this.currentStep_ = null;
-  // this.titleLogoEl_ = null;
   this.controller_ = null;
   this.sharedModel_.dataSets.length = 0;
   this.sharedModel_ = null;
@@ -715,12 +712,21 @@ anychart.ui.Editor.prototype.getResultJson = function(opt_stringify, opt_include
 
 
 /**
+ * Constructor function for Chart Editor.
+ * @return {anychart.ui.Editor}
+ */
+anychart.ui.editor = function() {
+  return new anychart.ui.Editor();
+};
+
+
+/**
  *
  * @constructor
- * @extends {anychart.core.VisualBase}
+ * @extends {goog.ui.Dialog}
  */
 anychart.ui.Editor.Dialog = function(opt_class, opt_useIframeMask, opt_domHelper) {
-  anychart.ui.Editor.Dialog.base(this, 'constructor', opt_class, opt_useIframeMask, opt_domHelper);
+  anychart.ui.Editor.Dialog.base(this, 'constructor', opt_class || goog.getCssName('anychart-chart-editor-dialog'), opt_useIframeMask, opt_domHelper);
 
   /**
    * Element for the logo of the title bar.
@@ -728,12 +734,16 @@ anychart.ui.Editor.Dialog = function(opt_class, opt_useIframeMask, opt_domHelper
    * @private
    */
   this.titleLogoEl_ = null;
+
+  this.setTitle('Chart Editor');
+  this.setButtonSet(null);
 };
 goog.inherits(anychart.ui.Editor.Dialog, goog.ui.Dialog);
 
 
 /** @override */
 anychart.ui.Editor.Dialog.prototype.createDom = function() {
+  console.log("dialog createDom");
   anychart.ui.Editor.Dialog.base(this, 'createDom');
 
   var dom = this.getDomHelper();
@@ -751,6 +761,7 @@ anychart.ui.Editor.Dialog.prototype.createDom = function() {
 
 /** @override */
 anychart.ui.Editor.Dialog.prototype.decorateInternal = function(element) {
+  console.log("dialog decorateInternal");
   anychart.ui.Editor.Dialog.base(this, 'decorateInternal', element);
   var dom = this.getDomHelper();
 
@@ -769,6 +780,7 @@ anychart.ui.Editor.Dialog.prototype.decorateInternal = function(element) {
 
 /** @override */
 anychart.ui.Editor.Dialog.prototype.enterDocument = function() {
+  console.log("dialog enterDocument");
   anychart.ui.Editor.Dialog.base(this, 'enterDocument');
 
   var bgEl = this.getBackgroundElement();
@@ -784,15 +796,6 @@ anychart.ui.Editor.Dialog.prototype.enterDocument = function() {
 anychart.ui.Editor.Dialog.prototype.disposeInternal = function() {
   this.titleLogoEl_ = null;
   anychart.ui.Editor.Dialog.base(this, 'disposeInternal');
-};
-
-
-/**
- * Constructor function for Chart Editor.
- * @return {anychart.ui.Editor}
- */
-anychart.ui.editor = function() {
-  return new anychart.ui.Editor();
 };
 
 
@@ -814,4 +817,6 @@ anychart.ui.editor = function() {
   proto['getResultJson'] = proto.getResultJson;
   proto['getResultXml'] = proto.getResultXml;
   proto['getResultCode'] = proto.getResultCode;
+
+  // proto = anychart.ui.Editor.Dialog.prototype;
 })();
