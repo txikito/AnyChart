@@ -340,6 +340,8 @@ anychart.ui.Editor = function(opt_domHelper) {
   });
 
   imageLoader.start();
+
+  goog.events.listen(this, anychart.enums.EventType.COMPLETE, this.onComplete_, false, this);
 };
 goog.inherits(anychart.ui.Editor, goog.ui.Component);
 
@@ -360,6 +362,7 @@ anychart.ui.Editor.prototype.decorate = function(element) {
 
 anychart.ui.Editor.prototype.renderAsDialog = function(opt_class, opt_useIframeMask, opt_domHelper) {
   this.dialog_ = new anychart.ui.Editor.Dialog(opt_class, opt_useIframeMask, opt_domHelper);
+  this.dialog_.addChild(this, true);
 };
 
 
@@ -391,6 +394,13 @@ anychart.ui.Editor.prototype.showPreloader_ = function() {
 };
 
 
+/** @private */
+anychart.ui.Editor.prototype.onComplete_ = function() {
+  if(this.dialog_)
+    this.dialog_.setVisible(false);
+};
+
+
 /** @override */
 anychart.ui.Editor.prototype.enterDocument = function() {
   anychart.ui.Editor.base(this, 'enterDocument');
@@ -400,12 +410,6 @@ anychart.ui.Editor.prototype.enterDocument = function() {
 
   this.setCurrentStepIndex_(0, false);
   this.listen(anychart.ui.chartEditor.events.EventType.CHANGE_STEP, this.onChangeStep_);
-};
-
-
-/** @private */
-anychart.ui.Editor.prototype.onBackgroundClick_ = function() {
-  this.setVisible(false);
 };
 
 
@@ -679,7 +683,6 @@ anychart.ui.Editor.prototype.getResultCode = function() {
   return this.controller_.getBuildCode();
 };
 
-
 /**
  * Return chart configuration as XML string or XMLNode.
  * @param {boolean=} opt_asXmlNode Return XML as XMLNode.
@@ -710,16 +713,7 @@ anychart.ui.Editor.prototype.getResultJson = function(opt_stringify, opt_include
 };
 // endregion
 
-
-/**
- * Constructor function for Chart Editor.
- * @return {anychart.ui.Editor}
- */
-anychart.ui.editor = function() {
-  return new anychart.ui.Editor();
-};
-
-
+// region Editor.Dialog
 /**
  *
  * @constructor
@@ -743,26 +737,19 @@ goog.inherits(anychart.ui.Editor.Dialog, goog.ui.Dialog);
 
 /** @override */
 anychart.ui.Editor.Dialog.prototype.createDom = function() {
-  console.log("dialog createDom");
   anychart.ui.Editor.Dialog.base(this, 'createDom');
-
-  var dom = this.getDomHelper();
-
-  var titleElement = this.getTitleElement();
-  this.titleLogoEl_ = dom.createDom(
-      goog.dom.TagName.A,
-      {'class': goog.getCssName(this.getCssClass(), 'title-logo'), 'href': 'https://anychart.com', 'target': '_blank'});
-  goog.dom.insertSiblingBefore(this.titleLogoEl_, goog.dom.getFirstElementChild(titleElement));
-
-  var close = this.getTitleCloseElement();
-  goog.dom.appendChild(close, goog.dom.createDom(goog.dom.TagName.I, ['ac', 'ac-remove']));
+  this.initTitleElements_();
 };
 
 
 /** @override */
 anychart.ui.Editor.Dialog.prototype.decorateInternal = function(element) {
-  console.log("dialog decorateInternal");
   anychart.ui.Editor.Dialog.base(this, 'decorateInternal', element);
+  this.initTitleElements_();
+};
+
+
+anychart.ui.Editor.Dialog.prototype.initTitleElements_ = function() {
   var dom = this.getDomHelper();
 
   var titleElement = this.getTitleElement();
@@ -780,15 +767,10 @@ anychart.ui.Editor.Dialog.prototype.decorateInternal = function(element) {
 
 /** @override */
 anychart.ui.Editor.Dialog.prototype.enterDocument = function() {
-  console.log("dialog enterDocument");
   anychart.ui.Editor.Dialog.base(this, 'enterDocument');
-
   var bgEl = this.getBackgroundElement();
-  if (bgEl) {
-    this.getHandler().listen(
-        bgEl, goog.events.EventType.CLICK,
-        this.onBackgroundClick_);
-  }
+  if (bgEl)
+    this.getHandler().listen(bgEl, goog.events.EventType.CLICK, this.onBackgroundClick_);
 };
 
 
@@ -798,6 +780,20 @@ anychart.ui.Editor.Dialog.prototype.disposeInternal = function() {
   anychart.ui.Editor.Dialog.base(this, 'disposeInternal');
 };
 
+
+/** @private */
+anychart.ui.Editor.Dialog.prototype.onBackgroundClick_ = function() {
+  this.setVisible(false);
+};
+// endregion
+
+/**
+ * Constructor function for Chart Editor.
+ * @return {anychart.ui.Editor}
+ */
+anychart.ui.editor = function() {
+  return new anychart.ui.Editor();
+};
 
 //exports
 (function() {
@@ -817,6 +813,4 @@ anychart.ui.Editor.Dialog.prototype.disposeInternal = function() {
   proto['getResultJson'] = proto.getResultJson;
   proto['getResultXml'] = proto.getResultXml;
   proto['getResultCode'] = proto.getResultCode;
-
-  // proto = anychart.ui.Editor.Dialog.prototype;
 })();
