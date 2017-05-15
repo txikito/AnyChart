@@ -276,7 +276,8 @@ anychart.ui.chartEditor.steps.Base.prototype.createDataMappings_ = function(data
 
     if (!goog.object.isEmpty(formattedMapping)) {
       var mappingInstance = dataSet.instance['mapAs'](isArrayMapping ? formattedMapping : undefined, !isArrayMapping ? formattedMapping : undefined);
-      mappingInstance.meta('custom', 'title', rawMapping['title']);
+      var title = /** @type{Object} */(rawMapping)['title'];
+      mappingInstance['meta'](0, 'title', title);
       dataMappings.push(mappingInstance);
     }
   }
@@ -296,19 +297,17 @@ anychart.ui.chartEditor.steps.Base.prototype.checkMappings = function(opt_getSug
     if (this.sharedModel_.presets.hasOwnProperty(i)) {
       var preset = this.sharedModel_.presets[i];
       var tmp = preset.category;
-      for (var j in preset.list) {
-        if (preset.list.hasOwnProperty(j)) {
-          var chartDescriptor = preset.list[j];
-          if (opt_getSuggestions && this.isReferenceValuesPresent_(chartDescriptor.referenceNames)) {
-            result.category = tmp;
-            result.type = chartDescriptor.type;
-            break;
-          } else if (chartDescriptor.type == this.sharedModel_.presetType) {
-            result.category = tmp;
-            result.type = chartDescriptor.type;
-            result.isValid = this.isReferenceValuesPresent_(chartDescriptor.referenceNames);
-            break;
-          }
+      for (var j = 0; j < preset.list.length; j++) {
+        var chartDescriptor = preset.list[j];
+        if (opt_getSuggestions && this.isReferenceValuesPresent_(chartDescriptor.referenceNames)) {
+          result.category = tmp;
+          result.type = chartDescriptor.type;
+          break;
+        } else if (chartDescriptor.type == this.sharedModel_.presetType) {
+          result.category = tmp;
+          result.type = chartDescriptor.type;
+          result.isValid = this.isReferenceValuesPresent_(chartDescriptor.referenceNames);
+          break;
         }
       }
     }

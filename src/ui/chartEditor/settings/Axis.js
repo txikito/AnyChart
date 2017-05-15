@@ -1,5 +1,6 @@
 goog.provide('anychart.ui.chartEditor.settings.Axis');
 
+goog.require('anychart.ui.chartEditor.checkbox.Base');
 goog.require('anychart.ui.chartEditor.select.Base');
 goog.require('anychart.ui.chartEditor.settings.Title');
 

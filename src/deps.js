@@ -545,7 +545,7 @@ goog.addDependency('../../../../src/ui/chartEditor/select/Base.js', ['anychart.u
 goog.addDependency('../../../../src/ui/chartEditor/select/FontFamily.js', ['anychart.ui.chartEditor.select.FontFamily'], ['anychart.ui.chartEditor.select.Base'], false);
 goog.addDependency('../../../../src/ui/chartEditor/select/Renderer.js', ['anychart.ui.chartEditor.select.Renderer'], ['goog.ui.FlatMenuButtonRenderer', 'goog.ui.INLINE_BLOCK_CLASSNAME'], false);
 goog.addDependency('../../../../src/ui/chartEditor/settings/Axes.js', ['anychart.ui.chartEditor.settings.Axes'], ['anychart.ui.chartEditor.settings.Axis', 'goog.ui.Component'], false);
-goog.addDependency('../../../../src/ui/chartEditor/settings/Axis.js', ['anychart.ui.chartEditor.settings.Axis'], ['anychart.ui.chartEditor.select.Base', 'anychart.ui.chartEditor.settings.Title', 'goog.ui.Component'], false);
+goog.addDependency('../../../../src/ui/chartEditor/settings/Axis.js', ['anychart.ui.chartEditor.settings.Axis'], ['anychart.ui.chartEditor.checkbox.Base', 'anychart.ui.chartEditor.select.Base', 'anychart.ui.chartEditor.settings.Title', 'goog.ui.Component'], false);
 goog.addDependency('../../../../src/ui/chartEditor/settings/ChartType.js', ['anychart.ui.chartEditor.settings.ChartType'], ['goog.ui.Control'], false);
 goog.addDependency('../../../../src/ui/chartEditor/settings/Input.js', ['anychart.ui.chartEditor.settings.Input'], ['anychart.ui.chartEditor.events', 'goog.Timer', 'goog.events.KeyHandler', 'goog.ui.LabelInput'], false);
 goog.addDependency('../../../../src/ui/chartEditor/settings/MappingSelect.js', ['anychart.ui.chartEditor.settings.MappingSelect'], ['anychart.ui.chartEditor.select.Base'], false);
