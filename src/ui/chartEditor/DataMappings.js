@@ -136,7 +136,7 @@ anychart.ui.chartEditor.DataMappings.prototype.updateMappings_ = function() {
   this.removeChildren(true);
 
   if (!this.dataSet_.rawMappings.length) {
-    this.addMapping_(true);
+    this.addMapping_(false);
   }
 
   this.renderMappings_();
