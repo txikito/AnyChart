@@ -1171,8 +1171,11 @@ def __compile_css(gzip):
 
     print "Compile AnyChart UI css"
     css_src_path = os.path.join(PROJECT_PATH, 'css', 'anychart.less')
-    css_out_path = os.path.join(PROJECT_PATH, 'out', 'anychart-ui.css')
-    css_min_out_path = os.path.join(PROJECT_PATH, 'out', 'anychart-ui.min.css')
+    # css_out_path = os.path.join(PROJECT_PATH, 'out', 'anychart-ui.css')
+    # css_min_out_path = os.path.join(PROJECT_PATH, 'out', 'anychart-ui.min.css')
+    css_out_path = os.path.join(OUT_PATH, 'anychart-ui.css')
+    css_min_out_path = os.path.join(OUT_PATH, 'anychart-ui.min.css')
+
 
     # Less
     f = open(css_out_path, 'w')
