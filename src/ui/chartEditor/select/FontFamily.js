@@ -36,9 +36,3 @@ anychart.ui.chartEditor.select.FontFamily = function() {
   ]);
 };
 goog.inherits(anychart.ui.chartEditor.select.FontFamily, anychart.ui.chartEditor.select.Base);
-
-
-// anychart.ui.chartEditor.select.FontFamily.prototype.update = function(model) {
-//   debugger;
-//   anychart.ui.chartEditor.select.FontFamily.base(this, 'update', model);
-// };

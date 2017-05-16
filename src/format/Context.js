@@ -5,6 +5,13 @@ goog.require('anychart.format');
 
 
 
+window['anychart']['format']['Context'] = function(opt_values, opt_dataSource, opt_statisticsSources) {
+  window['anychart']['format']['Context'].base(this, 'constructor', opt_values, opt_dataSource, opt_statisticsSources);
+};
+goog.inherits(window['anychart']['format']['Context'], anychart.core.BaseContext);
+
+
+
 /**
  * Common format context class. Actually is parent for anychart.format.Context to hide all not exported
  * methods from user to prototype.
@@ -16,13 +23,7 @@ goog.require('anychart.format');
  * @constructor
  * @extends {anychart.core.BaseContext}
  */
-anychart.format.Context = function(opt_values, opt_dataSource, opt_statisticsSources) {
-  anychart.format.Context.base(this, 'constructor', opt_values, opt_dataSource, opt_statisticsSources);
-};
-goog.inherits(anychart.format.Context, anychart.core.BaseContext);
-
-
-window['anychart']['format']['Context'] = goog.global['anychart']['format']['Context'] = anychart.format.Context;
+anychart.format.Context = goog.global['anychart']['format']['Context'];
 
 
 /**

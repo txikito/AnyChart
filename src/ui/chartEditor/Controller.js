@@ -1,6 +1,6 @@
 goog.provide('anychart.ui.chartEditor.Controller');
-goog.require('anychart.ui.chartEditor.events');
 
+goog.require('anychart.ui.chartEditor.events');
 goog.require('goog.ui.PopupBase.EventType');
 
 
@@ -200,15 +200,25 @@ anychart.ui.chartEditor.Controller.prototype.onPresetChanged_ = function() {
  * @return {string}
  */
 anychart.ui.chartEditor.Controller.getset = function(model, key, opt_value, opt_dryRun) {
-  if (typeof opt_value == 'string')
-    opt_value = opt_value.replace(/\\n/g, '\n');
+  if (goog.isString(opt_value))
+    opt_value = opt_value.replace(/\\(r|n|t)/g, function(part, g1) {
+      switch (g1) {
+        case 'r':
+          return '\r';
+        case 'n':
+          return '\n';
+        case 't':
+          return '\t';
+      }
+      return part;
+    });
+
+  var keyPath = key.split('.');
+  var target = model;
+  var name, matchResult, arg, useCall;
+  var success = false;
 
   try {
-    var keyPath = key.split('.');
-    var target = model;
-    var name, matchResult, arg, useCall;
-    var success = false;
-
     for (var i = 0, count = keyPath.length; i < count; i++) {
       name = keyPath[i];
       matchResult = name.match(/(.+)\((.*)\)/);
@@ -235,12 +245,30 @@ anychart.ui.chartEditor.Controller.getset = function(model, key, opt_value, opt_
       }
     }
   } catch (e) {
-    // debugger;
-    console.log('Can\'t get/set by key: ', key, ' and value: ', opt_value);
+    var message = 'Could not apply key \'' + key + '\'';
+    if (arg) message += ' with argument [' + arg + ']';
+
+    var console = goog.global['console'];
+    if (console) {
+      var log = console['warn'] || console['log'];
+      if (typeof log != 'object') {
+        log.call(console, message);
+      }
+    }
   }
 
-  if (!goog.isDef(opt_value) && typeof target == 'string')
-    target = target.replace(/\n/g, '\\n');
+  if (!goog.isDef(opt_value) && goog.isString(target))
+    target = target.replace(/(\r|\n|\t)/g, function(part, g1) {
+      switch (g1) {
+        case '\r':
+          return '\\r';
+        case '\n':
+          return '\\n';
+        case '\t':
+          return '\\t';
+      }
+      return part;
+    });
 
   return opt_dryRun ? success : target;
 };
