@@ -155,9 +155,9 @@ anychart.charts.Scatter.prototype.serialize = function() {
 };
 
 
+
+
 //endregion
-
-
 //exports
 (function() {
   var proto = anychart.charts.Scatter.prototype;
@@ -191,6 +191,8 @@ anychart.charts.Scatter.prototype.serialize = function() {
   proto['removeAllSeries'] = proto.removeAllSeries;
   proto['getPlotBounds'] = proto.getPlotBounds;
   proto['annotations'] = proto.annotations;
+  proto['getXScales'] = proto.getXScales;
+  proto['getYScales'] = proto.getYScales;
   // quadrant
   proto['quarters'] = proto.quarters;
   proto['crossing'] = proto.crossing;
