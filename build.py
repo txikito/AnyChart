@@ -860,13 +860,17 @@ def __build_product_package(output_dir, binary_name, gallery_pass_func=None):
     shutil.copyfile(os.path.join(DIST_PATH, 'json-schema.json'), os.path.join(output_dir, 'schemas', 'json-schema.json'))
 
     # copy UI CSS
+    print 1
     shutil.copyfile(os.path.join(OUT_PATH, 'anychart-ui.css'), os.path.join(output_dir, 'css', 'anychart-ui.css'))
+    print 2
     shutil.copyfile(os.path.join(OUT_PATH, 'anychart-ui.css.gz'), os.path.join(output_dir, 'css', 'anychart-ui.css.gz'))
+    print 3
     shutil.copyfile(os.path.join(OUT_PATH, 'anychart-ui.min.css'),
                     os.path.join(output_dir, 'css', 'anychart-ui.min.css'))
+    print 4
     shutil.copyfile(os.path.join(OUT_PATH, 'anychart-ui.min.css.gz'),
                     os.path.join(output_dir, 'css', 'anychart-ui.min.css.gz'))
-
+    print 5
     # copy UI JS
     shutil.copyfile(os.path.join(OUT_PATH, 'anychart-ui.min.js'), os.path.join(output_dir, 'js', 'anychart-ui.min.js'))
     shutil.copyfile(os.path.join(OUT_PATH, 'anychart-ui.min.js.gz'),
