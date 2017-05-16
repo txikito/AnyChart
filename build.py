@@ -25,14 +25,11 @@ JAVA_HEAP_SIZE = 1024
 
 # project
 PROJECT_PATH = os.path.abspath(os.path.dirname(__file__))
-echo('PROJECT_PATH=%s' % PROJECT_PATH)
 CUR_DIR = os.getcwd()
-echo('CUR_DIR=%s' % CUR_DIR)
 CONTRIB_PATH = os.path.join(PROJECT_PATH, 'libs')
 SRC_PATH = os.path.join(PROJECT_PATH, 'src')
 # OUT_PATH = os.path.join(PROJECT_PATH, 'out')
 OUT_PATH = os.path.join(CUR_DIR, 'out')
-echo( 'OUT_PATH=%s' % OUT_PATH)
 DIST_PATH = os.path.join(PROJECT_PATH, 'dist')
 MODULES_PATH = os.path.join(SRC_PATH, 'modules')
 THEMES_PATH = os.path.join(SRC_PATH, 'themes')
@@ -1271,6 +1268,10 @@ arguments = {}
 
 
 def __exec_main_script():
+    #NOTE: debug
+    echo('PROJECT_PATH=%s' % PROJECT_PATH)
+    echo('CUR_DIR=%s' % CUR_DIR)
+    echo('OUT_PATH=%s' % OUT_PATH)
     # root parser
     parser = argparse.ArgumentParser()
     subparsers = parser.add_subparsers(help='AnyChart framework build script commands:')
