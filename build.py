@@ -48,7 +48,7 @@ CLOSURE_BUILDER_PATH = os.path.join(CLOSURE_BIN_PATH, 'build', 'closurebuilder.p
 
 
 # =======================================================================================================================
-#                            Utils
+#                            Utilscd
 # =======================================================================================================================
 def __create_dir_if_not_exists(path):
     if not os.path.exists(path):
@@ -87,7 +87,8 @@ def __sync_contrib():
 
     # Install lesscpy
     print 'Install lesscpy'
-    commands = [] if platform.system() == 'Windows' else ['sudo']
+    # commands = [] if platform.system() == 'Windows' else ['sudo']
+    commands = []
     commands.append('easy_install')
     commands.append('lesscpy')
     try:
@@ -96,7 +97,8 @@ def __sync_contrib():
         raise StandardError('Sync contribution failed: you should install easy_install module for python')
 
     print 'Install jsbeautifier'
-    commands = [] if platform.system() == 'Windows' else ['sudo']
+    # commands = [] if platform.system() == 'Windows' else ['sudo']
+    commands = []
     commands += ['easy_install', 'jsbeautifier==1.6.2']
     subprocess.call(commands)
 
