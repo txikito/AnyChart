@@ -15,6 +15,8 @@ import gzip
 import shutil
 import multiprocessing
 
+from click import echo
+
 # =======================================================================================================================
 #           Project paths
 # =======================================================================================================================
@@ -23,11 +25,14 @@ JAVA_HEAP_SIZE = 1024
 
 # project
 PROJECT_PATH = os.path.abspath(os.path.dirname(__file__))
+echo('PROJECT_PATH=%s' % PROJECT_PATH)
+CUR_DIR = os.getcwd()
+echo('CUR_DIR=%s' % CUR_DIR)
 CONTRIB_PATH = os.path.join(PROJECT_PATH, 'libs')
 SRC_PATH = os.path.join(PROJECT_PATH, 'src')
 # OUT_PATH = os.path.join(PROJECT_PATH, 'out')
 OUT_PATH = os.path.join('out')
-print 'OUT_PATH', OUT_PATH
+echo( 'OUT_PATH=%s' % OUT_PATH)
 DIST_PATH = os.path.join(PROJECT_PATH, 'dist')
 MODULES_PATH = os.path.join(SRC_PATH, 'modules')
 THEMES_PATH = os.path.join(SRC_PATH, 'themes')
