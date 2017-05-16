@@ -26,7 +26,7 @@ PROJECT_PATH = os.path.abspath(os.path.dirname(__file__))
 CONTRIB_PATH = os.path.join(PROJECT_PATH, 'libs')
 SRC_PATH = os.path.join(PROJECT_PATH, 'src')
 # OUT_PATH = os.path.join(PROJECT_PATH, 'out')
-OUT_PATH = os.path.join('..', '..', 'out')
+OUT_PATH = os.path.join('~', 'out')
 print 'OUT_PATH', OUT_PATH
 DIST_PATH = os.path.join(PROJECT_PATH, 'dist')
 MODULES_PATH = os.path.join(SRC_PATH, 'modules')
