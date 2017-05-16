@@ -209,11 +209,18 @@ anychart.ui.chartEditor.Controller.prototype.onPresetChanged_ = function() {
  * @return {string}
  */
 anychart.ui.chartEditor.Controller.getset = function(model, key, opt_value, opt_dryRun) {
-  if (goog.isString(opt_value)) {
-    opt_value = opt_value.replace(/\\n/g, '\n');
-    opt_value = opt_value.replace(/\\r/g, '\r');
-    opt_value = opt_value.replace(/\\t/g, '\t');
-  }
+  if (goog.isString(opt_value))
+    opt_value = opt_value.replace(/\\(r|n|t)/g, function(part, g1) {
+      switch (g1) {
+        case 'r':
+          return '\r';
+        case 'n':
+          return '\n';
+        case 't':
+          return '\t';
+      }
+      return part;
+    });
 
   var keyPath = key.split('.');
   var target = model;
@@ -259,11 +266,18 @@ anychart.ui.chartEditor.Controller.getset = function(model, key, opt_value, opt_
     }
   }
 
-  if (!goog.isDef(opt_value) && goog.isString(target)) {
-    target = target.replace(/\n/g, '\\n');
-    target = target.replace(/\r/g, '\\r');
-    target = target.replace(/\t/g, '\\t');
-  }
+  if (!goog.isDef(opt_value) && goog.isString(target))
+    target = target.replace(/(\r|\n|\t)/g, function(part, g1) {
+      switch (g1) {
+        case '\r':
+          return '\\r';
+        case '\n':
+          return '\\n';
+        case '\t':
+          return '\\t';
+      }
+      return part;
+    });
 
   return opt_dryRun ? success : target;
 };
