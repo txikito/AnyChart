@@ -27,7 +27,7 @@ CONTRIB_PATH = os.path.join(PROJECT_PATH, 'libs')
 SRC_PATH = os.path.join(PROJECT_PATH, 'src')
 # OUT_PATH = os.path.join(PROJECT_PATH, 'out')
 OUT_PATH = os.path.join('out')
-print OUT_PATH
+print 'OUT_PATH', OUT_PATH
 DIST_PATH = os.path.join(PROJECT_PATH, 'dist')
 MODULES_PATH = os.path.join(SRC_PATH, 'modules')
 THEMES_PATH = os.path.join(SRC_PATH, 'themes')
@@ -101,9 +101,9 @@ def __sync_contrib():
     subprocess.call(commands)
 
     # Install closure linter
-    global arguments
-    if 'linter' in arguments and arguments['linter']:
-        __install_closure_linter()
+    # global arguments
+    # if 'linter' in arguments and arguments['linter']:
+    #     __install_closure_linter()
 
     print 'All contributions installed'
 
