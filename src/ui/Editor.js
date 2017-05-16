@@ -742,7 +742,6 @@ anychart.ui.Editor.prototype.getResultJson = function(opt_stringify, opt_include
  *     issue by using an iframe instead of a div for bg element.
  * @param {goog.dom.DomHelper=} opt_domHelper Optional DOM helper; see {@link
  *     goog.ui.Component} for semantics.
- * @extends {goog.ui.ModalPopup}
  * @extends {goog.ui.Dialog}
  */
 anychart.ui.Editor.Dialog = function(opt_class, opt_useIframeMask, opt_domHelper) {
