@@ -26,7 +26,8 @@ PROJECT_PATH = os.path.abspath(os.path.dirname(__file__))
 CONTRIB_PATH = os.path.join(PROJECT_PATH, 'libs')
 SRC_PATH = os.path.join(PROJECT_PATH, 'src')
 # OUT_PATH = os.path.join(PROJECT_PATH, 'out')
-OUT_PATH = os.path.join('.', 'out')
+OUT_PATH = os.path.join('out')
+print OUT_PATH
 DIST_PATH = os.path.join(PROJECT_PATH, 'dist')
 MODULES_PATH = os.path.join(SRC_PATH, 'modules')
 THEMES_PATH = os.path.join(SRC_PATH, 'themes')
@@ -1304,22 +1305,22 @@ def __exec_main_script():
 
     # create the parser for the "contrib" command
     contrib_parser = subparsers.add_parser('contrib', help='Synchronize project dependencies. Deprecated. Use "./build.py libs" instead')
-    contrib_parser.add_argument('-l', '--linter', action='store_true',
-                                help='Install closure linter with others contributions.')
+    # contrib_parser.add_argument('-l', '--linter', action='store_true',
+    #                             help='Install closure linter with others contributions.')
 
     # create the parser for the "libs" command
     contrib_parser = subparsers.add_parser('libs', help='Synchronize project dependencies')
-    contrib_parser.add_argument('-l', '--linter', action='store_true',
-                                help='Install closure linter with others contributions.')
+    # contrib_parser.add_argument('-l', '--linter', action='store_true',
+    #                             help='Install closure linter with others contributions.')
 
     # create the parser for the "deps" command
     subparsers.add_parser('deps', help='Generate deps.js file')
 
     # create the parser for the "lint" command
-    subparsers.add_parser('lint', help='Exec linter check for whole project')
+    # subparsers.add_parser('lint', help='Exec linter check for whole project')
 
     # create the parser for the "autofix" command
-    subparsers.add_parser('autofix', help='Try to autofix linter warnings and errors')
+    # subparsers.add_parser('autofix', help='Try to autofix linter warnings and errors')
 
     # create the parser for the "theme" command
     themes_parser = subparsers.add_parser('theme',
