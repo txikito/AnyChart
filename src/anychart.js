@@ -1311,8 +1311,6 @@ goog.exportSymbol('anychart.ui.ganttToolbar', anychart.ui.ganttToolbar);
 goog.exportSymbol('anychart.ui.preloader', anychart.ui.preloader);
 goog.exportSymbol('anychart.ui.rangePicker', anychart.ui.rangePicker);
 goog.exportSymbol('anychart.ui.rangeSelector', anychart.ui.rangeSelector);
-goog.exportSymbol('anychart.trackChart', anychart.trackChart);
-goog.exportSymbol('anychart.untrackChart', anychart.untrackChart);
 goog.exportSymbol('anychart.getChartById', anychart.getChartById);
 (function() {
   var proto = acgraph.vector.Stage.prototype;
