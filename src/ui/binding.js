@@ -147,7 +147,7 @@ anychart.ui.binding.applyPath_ = function(target, path, pathArguments, opt_lastA
 
 
 /**
- * Initialize
+ * Initialize html input (or bunch of inputs) for charts tracking.
  * @param {(string|HTMLInputElement|Array.<HTMLInputElement|string>|*)=} opt_value
  * @return {*}
  */

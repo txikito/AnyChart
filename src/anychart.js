@@ -392,9 +392,9 @@ goog.global['anychart']['fontFamily'] = "'Verdana', Helvetica, Arial, sans-serif
  *
  */
 goog.global['anychart']['textDirection'] = acgraph.vector.Text.Direction.LTR;
+
+
 //endregion
-
-
 //----------------------------------------------------------------------------------------------------------------------
 //
 //  Document load event.
@@ -1127,6 +1127,8 @@ anychart.ui.rangePicker = anychart.getFeatureOrError('anychart.ui.rangePicker', 
 
 /** @ignoreDoc */
 anychart.ui.rangeSelector = anychart.getFeatureOrError('anychart.ui.rangeSelector', 'Range selector');
+
+
 //endregion
 //endregion
 //region ------- Charts tracking
