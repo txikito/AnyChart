@@ -1,18 +1,17 @@
 goog.provide('anychart.ui.Editor');
 goog.provide('anychart.ui.Editor.Dialog');
 
+goog.require('anychart.ui.Component');
 goog.require('anychart.ui.Preloader');
 goog.require('anychart.ui.chartEditor.Controller');
 goog.require('anychart.ui.chartEditor.events');
 goog.require('anychart.ui.chartEditor.steps.ChartType');
 goog.require('anychart.ui.chartEditor.steps.Data');
 goog.require('anychart.ui.chartEditor.steps.Settings');
-
 goog.require('goog.fx.AnimationSerialQueue');
 goog.require('goog.fx.Transition.EventType');
 goog.require('goog.fx.dom');
 goog.require('goog.net.ImageLoader');
-goog.require('goog.ui.Component');
 goog.require('goog.ui.Dialog');
 
 
@@ -21,7 +20,7 @@ goog.require('goog.ui.Dialog');
  * Chart Editor Component Class.
  * @constructor
  * @param {goog.dom.DomHelper=} opt_domHelper Optional DOM helper; see {@link goog.ui.Component} for semantics.
- * @extends {goog.ui.Component}
+ * @extends {anychart.ui.Component}
  */
 anychart.ui.Editor = function(opt_domHelper) {
   anychart.ui.Editor.base(this, 'constructor', opt_domHelper);
@@ -344,7 +343,7 @@ anychart.ui.Editor = function(opt_domHelper) {
 
   goog.events.listen(this, anychart.enums.EventType.COMPLETE, this.onComplete_, false, this);
 };
-goog.inherits(anychart.ui.Editor, goog.ui.Component);
+goog.inherits(anychart.ui.Editor, anychart.ui.Component);
 
 
 /** @inheritDoc */
