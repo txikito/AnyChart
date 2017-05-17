@@ -14,6 +14,7 @@ import shlex
 import gzip
 import shutil
 import multiprocessing
+import logging
 
 from click import echo
 
@@ -28,10 +29,7 @@ PROJECT_PATH = os.path.abspath(os.path.dirname(__file__))
 CUR_DIR = os.getcwd()
 CONTRIB_PATH = os.path.join(PROJECT_PATH, 'libs')
 SRC_PATH = os.path.join(PROJECT_PATH, 'src')
-# OUT_PATH = os.path.join(PROJECT_PATH, 'out')
-HOME_DIR = os.environ['HOME']
-OUT_PATH = os.path.join(HOME_DIR, 'out')
-# OUT_PATH = os.path.join(CUR_DIR, 'out')
+OUT_PATH = os.path.join(PROJECT_PATH, 'out')
 DIST_PATH = os.path.join(PROJECT_PATH, 'dist')
 MODULES_PATH = os.path.join(SRC_PATH, 'modules')
 THEMES_PATH = os.path.join(SRC_PATH, 'themes')
@@ -447,7 +445,6 @@ def __build_project(develop, modules, sources, theme, debug, gzip, perf_monitori
 
         # build binary file
         __call_console_commands(commands, module=modules[0])
-
         # gzip binary file
         if gzip:
             __gzip_file(output_file)
@@ -1277,10 +1274,6 @@ arguments = {}
 
 
 def __exec_main_script():
-    #NOTE: debug
-    echo('PROJECT_PATH=%s' % PROJECT_PATH)
-    echo('CUR_DIR=%s' % CUR_DIR)
-    echo('OUT_PATH=%s' % OUT_PATH)
     # root parser
     parser = argparse.ArgumentParser()
     subparsers = parser.add_subparsers(help='AnyChart framework build script commands:')
