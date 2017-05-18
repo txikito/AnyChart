@@ -616,7 +616,7 @@ anychart.ui.Editor.prototype.data = function(var_args) {
     if (goog.isArrayLike(dataSet))
       dataSet = window['anychart']['data']['set'](dataSet);
 
-    if (dataSet instanceof window['anychart']['data']['Set']) {
+    if (dataSet['mapAs']) {
       this.sharedModel_.dataSets.push({
         index: i,
         name: 'Data Set ' + (i + 1),
