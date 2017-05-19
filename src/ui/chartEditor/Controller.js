@@ -248,11 +248,11 @@ anychart.ui.chartEditor.Controller.getset = function(model, key, opt_value, opt_
     var message = 'Could not apply key \'' + key + '\'';
     if (arg) message += ' with argument [' + arg + ']';
 
-    var console = goog.global['console'];
-    if (console) {
-      var log = console['warn'] || console['log'];
+    var logger = goog.global['console'];
+    if (logger) {
+      var log = logger['warn'] || logger['log'];
       if (typeof log != 'object') {
-        log.call(console, message);
+        log.call(logger, message);
       }
     }
   }
