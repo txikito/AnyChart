@@ -294,7 +294,7 @@ anychart.ui.binding.setRealValue_ = function(element) {
 
 //exports
 (function() {
-  goog.exportSymbol('anychart.ui.binding.set', anychart.ui.binding.exec);
+  goog.exportSymbol('anychart.ui.binding.exec', anychart.ui.binding.exec);
   goog.exportSymbol('anychart.ui.binding.init', anychart.ui.binding.init);
 })();
 
