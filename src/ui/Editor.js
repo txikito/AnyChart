@@ -474,15 +474,9 @@ anychart.ui.Editor.prototype.setCurrentStep_ = function(step, doAnimation) {
     return;
   }
 
-  // var contentElement = this.getContentElement();
-  // var contentWidth = contentElement.offsetWidth;
-  // var animationForward = this.getCurrentStepIndex_() < this.indexOfChild(step);
-
   if (this.currentStep_) {
     if (doAnimation) {
       var currentAnimation = new goog.fx.AnimationSerialQueue();
-      // var endCoordX = animationForward ? -contentWidth : contentWidth;
-      // currentAnimation.add(new goog.fx.dom.Slide(this.currentStep_.getElement(), [0, 0], [endCoordX, 0], 300));
       currentAnimation.add(new goog.fx.dom.FadeOut(this.currentStep_.getElement(), 300));
       currentAnimation.play();
       goog.events.listenOnce(
@@ -503,8 +497,6 @@ anychart.ui.Editor.prototype.setCurrentStep_ = function(step, doAnimation) {
     this.sharedModel_.currentStep.isVisited = true;
 
     var stepAnimation = new goog.fx.AnimationSerialQueue();
-    // var startCoordX = doAnimation ? animationForward ? contentWidth : -contentWidth : 0;
-    // stepAnimation.add(new goog.fx.dom.Slide(step.getElement(), [startCoordX, 0], [0, 0], 300));
     stepAnimation.add(new goog.fx.dom.FadeIn(step.getElement(), 300));
     stepAnimation.play();
   }
