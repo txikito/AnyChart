@@ -2,8 +2,8 @@
 goog.provide('anychart.ui.Zoom');
 
 goog.require('anychart.enums');
+goog.require('anychart.ui.Component');
 goog.require('anychart.ui.button.Base');
-goog.require('goog.ui.Component');
 goog.require('goog.ui.Component.EventType');
 
 goog.forwardDeclare('anychart.charts.Map');
@@ -14,7 +14,7 @@ goog.forwardDeclare('anychart.charts.Map');
 /**
  * Zoom ui element (for zoomable chart).
  * @constructor
- * @extends {goog.ui.Component}
+ * @extends {anychart.ui.Component}
  */
 anychart.ui.Zoom = function() {
   anychart.ui.Zoom.base(this, 'constructor');
@@ -26,7 +26,7 @@ anychart.ui.Zoom = function() {
    */
   this.target_ = null;
 };
-goog.inherits(anychart.ui.Zoom, goog.ui.Component);
+goog.inherits(anychart.ui.Zoom, anychart.ui.Component);
 
 
 /** @type {string} */

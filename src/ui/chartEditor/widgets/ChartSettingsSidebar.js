@@ -1,5 +1,6 @@
 goog.provide('anychart.ui.chartEditor.ChartSettingsSideBar');
 
+goog.require('anychart.ui.Component');
 goog.require('anychart.ui.chartEditor.group.CartesianXAxes');
 goog.require('anychart.ui.chartEditor.group.CartesianYAxes');
 goog.require('anychart.ui.chartEditor.group.ChartTitle');
@@ -9,24 +10,22 @@ goog.require('anychart.ui.chartEditor.group.Legend');
 goog.require('anychart.ui.chartEditor.group.Series');
 goog.require('anychart.ui.chartEditor.group.Theme');
 
-goog.require('goog.ui.Component');
-
 
 
 /**
  * @constructor
- * @extends {goog.ui.Component}
+ * @extends {anychart.ui.Component}
  */
 anychart.ui.chartEditor.ChartSettingsSideBar = function() {
   anychart.ui.chartEditor.ChartSettingsSideBar.base(this, 'constructor');
 
   /**
-   * @type {Array.<goog.ui.Component>}
+   * @type {Array.<anychart.ui.Component>}
    * @private
    */
   this.instances_ = [];
 };
-goog.inherits(anychart.ui.chartEditor.ChartSettingsSideBar, goog.ui.Component);
+goog.inherits(anychart.ui.chartEditor.ChartSettingsSideBar, anychart.ui.Component);
 
 
 /** @type {string} */
@@ -71,7 +70,7 @@ anychart.ui.chartEditor.ChartSettingsSideBar.prototype.update = function(list, m
   var count = Math.max(itemsCount, this.getChildCount());
 
   for (var i = 0; i < count; i++) {
-    /** @type {(goog.ui.Component|anychart.ui.chartEditor.group.Base)} */
+    /** @type {(anychart.ui.Component|anychart.ui.chartEditor.group.Base)} */
     var instance = this.instances_[i];
 
     if (i < itemsCount) {

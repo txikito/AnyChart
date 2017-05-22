@@ -1,23 +1,22 @@
 goog.provide('anychart.ui.chartEditor.settings.Axis');
 
+goog.require('anychart.ui.Component');
 goog.require('anychart.ui.chartEditor.checkbox.Base');
 goog.require('anychart.ui.chartEditor.select.Base');
 goog.require('anychart.ui.chartEditor.settings.Title');
-
-goog.require('goog.ui.Component');
 
 
 
 /**
  * @constructor
- * @extends {goog.ui.Component}
+ * @extends {anychart.ui.Component}
  */
 anychart.ui.chartEditor.settings.Axis = function() {
   anychart.ui.chartEditor.settings.Axis.base(this, 'constructor');
 
   this.enabled_ = true;
 };
-goog.inherits(anychart.ui.chartEditor.settings.Axis, goog.ui.Component);
+goog.inherits(anychart.ui.chartEditor.settings.Axis, anychart.ui.Component);
 
 
 /**

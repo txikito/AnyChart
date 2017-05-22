@@ -1,16 +1,15 @@
 goog.provide('anychart.ui.chartEditor.group.Base');
 
+goog.require('anychart.ui.Component');
 goog.require('anychart.ui.chartEditor.checkbox.Base');
-
 goog.require('goog.ui.AnimatedZippy');
-goog.require('goog.ui.Component');
 
 
 
 /**
  * @param {anychart.ui.chartEditor.steps.Base.Model} model
  * @constructor
- * @extends {goog.ui.Component}
+ * @extends {anychart.ui.Component}
  */
 anychart.ui.chartEditor.group.Base = function(model) {
   anychart.ui.chartEditor.group.Base.base(this, 'constructor');
@@ -27,7 +26,7 @@ anychart.ui.chartEditor.group.Base = function(model) {
    */
   this.enabled_ = true;
 };
-goog.inherits(anychart.ui.chartEditor.group.Base, goog.ui.Component);
+goog.inherits(anychart.ui.chartEditor.group.Base, anychart.ui.Component);
 
 
 /** @type {string} */

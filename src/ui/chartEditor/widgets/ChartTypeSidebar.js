@@ -1,19 +1,19 @@
 goog.provide('anychart.ui.chartEditor.ChartTypeSideBar');
 
+goog.require('anychart.ui.Component');
 goog.require('anychart.ui.chartEditor.group.ChartType');
-goog.require('goog.ui.Component');
 
 
 
 /**
  * @constructor
- * @extends {goog.ui.Component}
+ * @extends {anychart.ui.Component}
  */
 anychart.ui.chartEditor.ChartTypeSideBar = function() {
   anychart.ui.chartEditor.ChartTypeSideBar.base(this, 'constructor');
 
 };
-goog.inherits(anychart.ui.chartEditor.ChartTypeSideBar, goog.ui.Component);
+goog.inherits(anychart.ui.chartEditor.ChartTypeSideBar, anychart.ui.Component);
 
 
 /** @type {string} */

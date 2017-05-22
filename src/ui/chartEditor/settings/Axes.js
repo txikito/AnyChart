@@ -1,21 +1,20 @@
 goog.provide('anychart.ui.chartEditor.settings.Axes');
 
+goog.require('anychart.ui.Component');
 goog.require('anychart.ui.chartEditor.settings.Axis');
-
-goog.require('goog.ui.Component');
 
 
 
 /**
  * @constructor
- * @extends {goog.ui.Component}
+ * @extends {anychart.ui.Component}
  */
 anychart.ui.chartEditor.settings.Axes = function() {
   anychart.ui.chartEditor.settings.Axes.base(this, 'constructor');
 
   this.enabled_ = true;
 };
-goog.inherits(anychart.ui.chartEditor.settings.Axes, goog.ui.Component);
+goog.inherits(anychart.ui.chartEditor.settings.Axes, anychart.ui.Component);
 
 
 /** @enum {string} */

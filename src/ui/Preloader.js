@@ -1,18 +1,18 @@
 goog.provide('anychart.ui.Preloader');
 
-goog.require('goog.ui.Component');
+goog.require('anychart.ui.Component');
 
 
 
 /**
  * Preloader.
  * @constructor
- * @extends {goog.ui.Component}
+ * @extends {anychart.ui.Component}
  */
 anychart.ui.Preloader = function() {
   anychart.ui.Preloader.base(this, 'constructor');
 };
-goog.inherits(anychart.ui.Preloader, goog.ui.Component);
+goog.inherits(anychart.ui.Preloader, anychart.ui.Component);
 
 
 /** @type {string} */

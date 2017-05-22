@@ -3,14 +3,13 @@ goog.provide('anychart.ui.chartEditor.steps.Base.DataSet');
 goog.provide('anychart.ui.chartEditor.steps.Base.Descriptor');
 goog.provide('anychart.ui.chartEditor.steps.Base.Model');
 
+goog.require('anychart.ui.Component');
 goog.require('anychart.ui.button.Primary');
 goog.require('anychart.ui.button.Secondary');
-
 goog.require('goog.a11y.aria');
 goog.require('goog.a11y.aria.Role');
 goog.require('goog.dom');
 goog.require('goog.dom.classlist');
-goog.require('goog.ui.Component');
 
 goog.forwardDeclare('anychart.data.Mapping');
 goog.forwardDeclare('anychart.data.Set');
@@ -21,7 +20,7 @@ goog.forwardDeclare('anychart.data.Set');
  * Chart Editor Step Class.
  * @constructor
  * @param {goog.dom.DomHelper=} opt_domHelper Optional DOM helper.
- * @extends {goog.ui.Component}
+ * @extends {anychart.ui.Component}
  */
 anychart.ui.chartEditor.steps.Base = function(opt_domHelper) {
   anychart.ui.chartEditor.steps.Base.base(this, 'constructor', opt_domHelper);
@@ -70,7 +69,7 @@ anychart.ui.chartEditor.steps.Base = function(opt_domHelper) {
   this.enableNextStep_ = true;
 
 };
-goog.inherits(anychart.ui.chartEditor.steps.Base, goog.ui.Component);
+goog.inherits(anychart.ui.chartEditor.steps.Base, anychart.ui.Component);
 
 
 /**

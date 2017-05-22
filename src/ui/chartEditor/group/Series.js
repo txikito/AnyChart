@@ -1,11 +1,10 @@
 goog.provide('anychart.ui.chartEditor.group.Series');
 
+goog.require('anychart.ui.Component');
 goog.require('anychart.ui.button.Secondary');
 goog.require('anychart.ui.chartEditor.events');
 goog.require('anychart.ui.chartEditor.group.Base');
 goog.require('anychart.ui.chartEditor.settings.Series');
-
-goog.require('goog.ui.Component');
 
 
 
@@ -40,7 +39,7 @@ anychart.ui.chartEditor.group.Series.prototype.createDom = function() {
   anychart.ui.chartEditor.group.Series.base(this, 'createDom');
   var content = this.getContentElement();
 
-  var seriesContainer = new goog.ui.Component();
+  var seriesContainer = new anychart.ui.Component();
   this.addChild(seriesContainer, true);
 
   var addSeriesBtn = new anychart.ui.button.Secondary('Add series');

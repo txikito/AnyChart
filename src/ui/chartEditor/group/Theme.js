@@ -1,11 +1,10 @@
 goog.provide('anychart.ui.chartEditor.group.Theme');
 
+goog.require('anychart.ui.Component');
 goog.require('anychart.ui.chartEditor.events');
 goog.require('anychart.ui.chartEditor.group.Base');
 goog.require('anychart.ui.chartEditor.select.Base');
-
 goog.require('goog.array');
-goog.require('goog.ui.Component');
 
 
 

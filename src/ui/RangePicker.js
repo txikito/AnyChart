@@ -1,10 +1,10 @@
 goog.provide('anychart.ui.RangePicker');
 
 goog.require('anychart.enums');
+goog.require('anychart.ui.Component');
 
 goog.require('goog.dom.selection');
 goog.require('goog.events.KeyHandler');
-goog.require('goog.ui.Component');
 goog.require('goog.ui.LabelInput');
 
 goog.forwardDeclare('anychart.charts.Stock');
@@ -14,7 +14,7 @@ goog.forwardDeclare('anychart.charts.Stock');
 /**
  * Range Picker (for stock chart).
  * @constructor
- * @extends {goog.ui.Component}
+ * @extends {anychart.ui.Component}
  */
 anychart.ui.RangePicker = function() {
   anychart.ui.RangePicker.base(this, 'constructor');
@@ -92,7 +92,7 @@ anychart.ui.RangePicker = function() {
    */
   this.toValue_ = NaN;
 };
-goog.inherits(anychart.ui.RangePicker, goog.ui.Component);
+goog.inherits(anychart.ui.RangePicker, anychart.ui.Component);
 
 
 /** @type {string} */

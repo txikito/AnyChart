@@ -1,9 +1,9 @@
 goog.provide('anychart.ui.chartEditor.settings.Title');
 
+goog.require('anychart.ui.Component');
 goog.require('anychart.ui.chartEditor.button.Bold');
 goog.require('anychart.ui.chartEditor.button.Italic');
 goog.require('anychart.ui.chartEditor.button.Underline');
-
 goog.require('anychart.ui.chartEditor.checkbox.Base');
 goog.require('anychart.ui.chartEditor.colorPicker.Base');
 goog.require('anychart.ui.chartEditor.comboBox.Base');
@@ -11,22 +11,20 @@ goog.require('anychart.ui.chartEditor.select.Align');
 goog.require('anychart.ui.chartEditor.select.Base');
 goog.require('anychart.ui.chartEditor.select.FontFamily');
 goog.require('anychart.ui.chartEditor.settings.Input');
-
 goog.require('goog.ui.ButtonSide');
-goog.require('goog.ui.Component');
 
 
 
 /**
  * @constructor
- * @extends {goog.ui.Component}
+ * @extends {anychart.ui.Component}
  */
 anychart.ui.chartEditor.settings.Title = function() {
   anychart.ui.chartEditor.settings.Title.base(this, 'constructor');
 
   this.enabled_ = true;
 };
-goog.inherits(anychart.ui.chartEditor.settings.Title, goog.ui.Component);
+goog.inherits(anychart.ui.chartEditor.settings.Title, anychart.ui.Component);
 
 
 /**

@@ -1,15 +1,15 @@
 goog.provide('anychart.ui.chartEditor.DataMappings');
 
+goog.require('anychart.ui.Component');
 goog.require('anychart.ui.button.Base');
 goog.require('anychart.ui.chartEditor.DataMapping');
-goog.require('goog.ui.Component');
 
 
 
 /**
  * @param {anychart.ui.chartEditor.steps.Base.DataSet} dataSet
  * @constructor
- * @extends {goog.ui.Component}
+ * @extends {anychart.ui.Component}
  */
 anychart.ui.chartEditor.DataMappings = function(dataSet) {
   anychart.ui.chartEditor.DataMappings.base(this, 'constructor');
@@ -55,7 +55,7 @@ anychart.ui.chartEditor.DataMappings = function(dataSet) {
     }, this.mappingFieldValues_);
   }
 };
-goog.inherits(anychart.ui.chartEditor.DataMappings, goog.ui.Component);
+goog.inherits(anychart.ui.chartEditor.DataMappings, anychart.ui.Component);
 
 
 /** @type {string} */
@@ -136,7 +136,7 @@ anychart.ui.chartEditor.DataMappings.prototype.updateMappings_ = function() {
   this.removeChildren(true);
 
   if (!this.dataSet_.rawMappings.length) {
-    this.addMapping_(false); // todo: 'true' only for debug mode! For Part 4
+    this.addMapping_(true); // todo: 'true' only for debug mode! For Part 4
   }
 
   this.renderMappings_();

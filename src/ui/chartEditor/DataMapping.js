@@ -1,9 +1,9 @@
 goog.provide('anychart.ui.chartEditor.DataMapping');
 
+goog.require('anychart.ui.Component');
 goog.require('anychart.ui.IconButtonRenderer');
 goog.require('anychart.ui.button.Base');
 goog.require('anychart.ui.chartEditor.DataMappingField');
-goog.require('goog.ui.Component');
 
 goog.forwardDeclare('anychart.ui.chartEditor.steps.Base.DataSet');
 goog.forwardDeclare('anychart.ui.chartEditor.steps.Base.RawMapping');
@@ -14,7 +14,7 @@ goog.forwardDeclare('anychart.ui.chartEditor.steps.Base.RawMapping');
  * @param {anychart.ui.chartEditor.steps.Base.RawMapping} rawMapping
  * @param {Array<string|number>} values
  * @constructor
- * @extends {goog.ui.Component}
+ * @extends {anychart.ui.Component}
  */
 anychart.ui.chartEditor.DataMapping = function(rawMapping, values) {
   anychart.ui.chartEditor.DataMapping.base(this, 'constructor');
@@ -83,7 +83,7 @@ anychart.ui.chartEditor.DataMapping = function(rawMapping, values) {
    */
   this.dataSetName_ = '';
 };
-goog.inherits(anychart.ui.chartEditor.DataMapping, goog.ui.Component);
+goog.inherits(anychart.ui.chartEditor.DataMapping, anychart.ui.Component);
 
 
 /** @type {string} */

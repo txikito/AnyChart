@@ -1,5 +1,6 @@
 goog.provide('anychart.ui.menu.SubMenu');
 
+goog.require('anychart.ui.Component');
 goog.require('anychart.ui.menu.Menu');
 goog.require('anychart.ui.menu.SubMenuRenderer');
 goog.require('goog.Timer');
@@ -10,7 +11,6 @@ goog.require('goog.events.KeyCodes');
 goog.require('goog.positioning.AnchoredViewportPosition');
 goog.require('goog.positioning.Corner');
 goog.require('goog.style');
-goog.require('goog.ui.Component');
 goog.require('goog.ui.Menu');
 goog.require('goog.ui.MenuItem');
 

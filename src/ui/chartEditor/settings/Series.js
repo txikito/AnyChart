@@ -1,5 +1,6 @@
 goog.provide('anychart.ui.chartEditor.settings.Series');
 
+goog.require('anychart.ui.Component');
 goog.require('anychart.ui.button.Base');
 goog.require('anychart.ui.chartEditor.checkbox.Base');
 goog.require('anychart.ui.chartEditor.colorPicker.Base');
@@ -8,18 +9,16 @@ goog.require('anychart.ui.chartEditor.select.Base');
 goog.require('anychart.ui.chartEditor.settings.Input');
 goog.require('anychart.ui.chartEditor.settings.MappingSelect');
 
-goog.require('goog.ui.Component');
-
 
 
 /**
  * @constructor
- * @extends {goog.ui.Component}
+ * @extends {anychart.ui.Component}
  */
 anychart.ui.chartEditor.settings.Series = function() {
   anychart.ui.chartEditor.settings.Series.base(this, 'constructor');
 };
-goog.inherits(anychart.ui.chartEditor.settings.Series, goog.ui.Component);
+goog.inherits(anychart.ui.chartEditor.settings.Series, anychart.ui.Component);
 
 
 /**
