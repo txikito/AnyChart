@@ -161,16 +161,6 @@ anychart.ui.chartEditor.steps.Data.prototype.updateDataMappings_ = function(inde
 
 
 /**
- * Get selected dataSet.
- * @return {anychart.ui.chartEditor.steps.Base.DataSet}
- * @private
- */
-anychart.ui.chartEditor.steps.Data.prototype.getSelectedDataSet_ = function() {
-  return this.getSharedModel().dataSets[this.selectedDataSetIndex_];
-};
-
-
-/**
  * Select data set.
  * @param {number} index
  * @private

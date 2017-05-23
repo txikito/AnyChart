@@ -1,7 +1,4 @@
 goog.provide('anychart.ui.chartEditor.steps.Base');
-goog.provide('anychart.ui.chartEditor.steps.Base.DataSet');
-goog.provide('anychart.ui.chartEditor.steps.Base.Descriptor');
-goog.provide('anychart.ui.chartEditor.steps.Base.Model');
 
 goog.require('anychart.ui.Component');
 goog.require('anychart.ui.button.Primary');
@@ -26,7 +23,7 @@ anychart.ui.chartEditor.steps.Base = function(opt_domHelper) {
   anychart.ui.chartEditor.steps.Base.base(this, 'constructor', opt_domHelper);
 
   /**
-   * @type {anychart.ui.chartEditor.steps.Base.Model}
+   * @type {anychart.ui.Editor.Model}
    * @private
    */
   this.sharedModel_ = null;
@@ -73,85 +70,6 @@ goog.inherits(anychart.ui.chartEditor.steps.Base, anychart.ui.Component);
 
 
 /**
- * @typedef {{
- *  index: number,
- *  name: string,
- *  isLastStep: boolean,
- *  isVisited: boolean
- * }}
- */
-anychart.ui.chartEditor.steps.Base.Descriptor;
-
-
-/**
- * @typedef {{
- *  index: number,
- *  name: string,
- *  instance: anychart.data.Set,
- *  rawMappings: Array<anychart.ui.chartEditor.steps.Base.RawMapping>,
- *  mappings: Array<anychart.data.Mapping>
- * }}
- */
-anychart.ui.chartEditor.steps.Base.DataSet;
-
-
-/**
- * @typedef {Array<anychart.ui.chartEditor.steps.Base.RawMappingField>}
- */
-anychart.ui.chartEditor.steps.Base.RawMapping;
-
-
-/**
- * @typedef {Object<string, (string|number)>}
- */
-anychart.ui.chartEditor.steps.Base.RawMappingField;
-
-
-/**
- * @typedef {{
- *   category: string,
- *   caption: string,
- *   image: (string|undefined),
- *   ctor: string,
- *   constructor: string,
- *   isSeriesBased: boolean,
- *   list: Array.<{type: string, caption: string, image: string, seriesType: string}>
- * }}
- */
-anychart.ui.chartEditor.steps.Base.Preset;
-
-
-/**
- * @typedef {?{
- *  window: Window,
- *  anychart: Object,
- *
- *  currentStep: ?anychart.ui.chartEditor.steps.Base.Descriptor,
- *  steps: Array<anychart.ui.chartEditor.steps.Base.Descriptor>,
- *
- *  dataSets: Array<anychart.ui.chartEditor.steps.Base.DataSet>,
- *  dataMappings: Array<anychart.data.Mapping>,
- *  seriesMappings: Object<string, {type:? (string), mapping: number}>,
- *  chartMapping: number,
- *  lastSeriesId: number,
- *
- *  presets: Object<string, anychart.ui.chartEditor.steps.Base.Preset>,
- *  presetsList: Array<anychart.ui.chartEditor.steps.Base.Preset>,
- *  presetCategory: string,
- *  presetType: string,
- *  preset: Array<{key: string, value}>,
- *
- *  chart: anychart.core.Chart,
- *  isSeriesBased: boolean,
- *  chartContainer: (Element|string),
- *  chartConstructor: string,
- *  seriesType: string
- * }}
- */
-anychart.ui.chartEditor.steps.Base.Model;
-
-
-/**
  * CSS class name.
  * @type {string}
  */
@@ -167,7 +85,7 @@ anychart.ui.chartEditor.steps.Base.STEP_DATA_ATTRIBUTE_ = 'data-index';
 
 /**
  *
- * @param {anychart.ui.chartEditor.steps.Base.Model} value
+ * @param {anychart.ui.Editor.Model} value
  */
 anychart.ui.chartEditor.steps.Base.prototype.setSharedModel = function(value) {
   this.sharedModel_ = value;
@@ -176,7 +94,7 @@ anychart.ui.chartEditor.steps.Base.prototype.setSharedModel = function(value) {
 
 /**
  *
- * @return {anychart.ui.chartEditor.steps.Base.Model}
+ * @return {anychart.ui.Editor.Model}
  */
 anychart.ui.chartEditor.steps.Base.prototype.getSharedModel = function() {
   return this.sharedModel_;
@@ -249,7 +167,7 @@ anychart.ui.chartEditor.steps.Base.prototype.updateSharedDataMappings = function
 
 /**
  * Creates anychart.data.Mapping instances from data set.
- * @param {anychart.ui.chartEditor.steps.Base.DataSet} dataSet
+ * @param {anychart.ui.Editor.DataSet} dataSet
  * @return {Array.<anychart.data.Mapping>}
  * @private
  */
@@ -527,13 +445,14 @@ anychart.ui.chartEditor.steps.Base.prototype.stepListClickHandler_ = function(e)
 anychart.ui.chartEditor.steps.Base.prototype.enterDocument = function() {
   anychart.ui.chartEditor.steps.Base.base(this, 'enterDocument');
 
-  this.getHandler().listen(this.asideEl_, goog.events.EventType.WHEEL, this.handleWheel);
+  var handler = this.getHandler();
+  handler.listen(this.asideEl_, goog.events.EventType.WHEEL, this.handleWheel);
 
   this.nextBtn_.setEnabled(this.enableNextStep_);
   this.updateProgressList_();
 
-  this.getHandler().listen(this.progressListEl_, goog.events.EventType.CLICK, this.stepListClickHandler_);
-  this.getHandler().listen(this.nextBtn_,
+  handler.listen(this.progressListEl_, goog.events.EventType.CLICK, this.stepListClickHandler_);
+  handler.listen(this.nextBtn_,
       goog.ui.Component.EventType.ACTION,
       function() {
         if (this.sharedModel_.currentStep.isLastStep) {
@@ -545,14 +464,16 @@ anychart.ui.chartEditor.steps.Base.prototype.enterDocument = function() {
           });
         }
       });
-  this.getHandler().listen(this.prevBtn_, goog.ui.Component.EventType.ACTION, function() {
-    if (this.sharedModel_.currentStep.index > 0) {
-      this.dispatchEvent({
-        type: anychart.ui.chartEditor.events.EventType.CHANGE_STEP,
-        stepIndex: this.sharedModel_.currentStep.index - 1
+  handler.listen(this.prevBtn_,
+      goog.ui.Component.EventType.ACTION,
+      function() {
+        if (this.sharedModel_.currentStep.index > 0) {
+          this.dispatchEvent({
+            type: anychart.ui.chartEditor.events.EventType.CHANGE_STEP,
+            stepIndex: this.sharedModel_.currentStep.index - 1
+          });
+        }
       });
-    }
-  });
 };
 
 

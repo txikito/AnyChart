@@ -1,5 +1,8 @@
 goog.provide('anychart.ui.Editor');
 goog.provide('anychart.ui.Editor.Dialog');
+goog.provide('anychart.ui.Editor.DataSet');
+goog.provide('anychart.ui.Editor.Descriptor');
+goog.provide('anychart.ui.Editor.Model');
 
 goog.require('anychart.ui.Component');
 goog.require('anychart.ui.Preloader');
@@ -40,28 +43,24 @@ anychart.ui.Editor = function(opt_domHelper) {
 
   /**
    * Shared model for all steps.
-   * @type {anychart.ui.chartEditor.steps.Base.Model}
+   * @type {anychart.ui.Editor.Model}
    * @private
    */
-  this.sharedModel_ = /** @type {anychart.ui.chartEditor.steps.Base.Model} */({
+  this.sharedModel_ = /** @type {anychart.ui.Editor.Model} */({
     window: goog.dom.getWindow(),
     anychart: /** @type {Object} */(goog.dom.getWindow()['anychart']),
-
     currentStep: null,
     steps: [],
-
     dataSets: [],
     dataMappings: [],
     seriesMappings: {},
     chartMapping: 0,
     lastSeriesId: 0,
-
     presets: {},
     presetsList: [],
     presetCategory: 'column',
     presetType: 'column',
     presetSettings: [],
-
     chart: null,
     isSeriesBased: true,
     chartContainer: null,
@@ -340,10 +339,87 @@ anychart.ui.Editor = function(opt_domHelper) {
   });
 
   imageLoader.start();
-
-  goog.events.listen(this, anychart.enums.EventType.COMPLETE, this.onComplete_, false, this);
 };
 goog.inherits(anychart.ui.Editor, anychart.ui.Component);
+
+
+/**
+ * @typedef {{
+ *  index: number,
+ *  name: string,
+ *  isLastStep: boolean,
+ *  isVisited: boolean
+ * }}
+ */
+anychart.ui.Editor.Descriptor;
+
+
+/**
+ * @typedef {{
+ *  index: number,
+ *  name: string,
+ *  instance: anychart.data.Set,
+ *  rawMappings: Array<anychart.ui.Editor.RawMapping>,
+ *  mappings: Array<anychart.data.Mapping>
+ * }}
+ */
+anychart.ui.Editor.DataSet;
+
+
+/**
+ * @typedef {Array<anychart.ui.Editor.RawMappingField>}
+ */
+anychart.ui.Editor.RawMapping;
+
+
+/**
+ * @typedef {Object<string, (string|number)>}
+ */
+anychart.ui.Editor.RawMappingField;
+
+
+/**
+ * @typedef {{
+ *   category: string,
+ *   caption: string,
+ *   image: (string|undefined),
+ *   ctor: string,
+ *   constructor: string,
+ *   isSeriesBased: boolean,
+ *   list: Array.<{type: string, caption: string, image: string, seriesType: string}>
+ * }}
+ */
+anychart.ui.Editor.Preset;
+
+
+/**
+ * @typedef {?{
+ *  window: Window,
+ *  anychart: Object,
+ *
+ *  currentStep: ?anychart.ui.Editor.Descriptor,
+ *  steps: Array<anychart.ui.Editor.Descriptor>,
+ *
+ *  dataSets: Array<anychart.ui.Editor.DataSet>,
+ *  dataMappings: Array<anychart.data.Mapping>,
+ *  seriesMappings: Object<string, {type:? (string), mapping: number}>,
+ *  chartMapping: number,
+ *  lastSeriesId: number,
+ *
+ *  presets: Object<string, anychart.ui.Editor.Preset>,
+ *  presetsList: Array<anychart.ui.Editor.Preset>,
+ *  presetCategory: string,
+ *  presetType: string,
+ *  preset: Array<{key: string, value}>,
+ *
+ *  chart: anychart.core.Chart,
+ *  isSeriesBased: boolean,
+ *  chartContainer: (Element|string),
+ *  chartConstructor: string,
+ *  seriesType: string
+ * }}
+ */
+anychart.ui.Editor.Model;
 
 
 /** @inheritDoc */
@@ -407,16 +483,6 @@ anychart.ui.Editor.prototype.showPreloader_ = function() {
 };
 
 
-/**
- * Close dialog (if exists) on complete button press.
- * @private
- */
-anychart.ui.Editor.prototype.onComplete_ = function() {
-  if (this.dialog_)
-    this.dialog_.setVisible(false);
-};
-
-
 /** @override */
 anychart.ui.Editor.prototype.enterDocument = function() {
   anychart.ui.Editor.base(this, 'enterDocument');
@@ -424,7 +490,7 @@ anychart.ui.Editor.prototype.enterDocument = function() {
   var element = this.getElement();
   goog.dom.classlist.add(element, goog.getCssName('anychart-chart-editor'));
 
-  this.setCurrentStepIndex_(0, false);
+  this.setCurrentStep_(0, false);
   this.listen(anychart.ui.chartEditor.events.EventType.CHANGE_STEP, this.onChangeStep_);
 };
 
@@ -435,8 +501,49 @@ anychart.ui.Editor.prototype.enterDocument = function() {
  * @private
  */
 anychart.ui.Editor.prototype.onChangeStep_ = function(e) {
-  this.setCurrentStepIndex_(e.stepIndex, true);
+  this.setCurrentStep_(e.stepIndex, true);
   this.currentStep_.update();
+};
+
+
+/**
+ * Render the step by the given index.
+ * @param {number} index Index of the step to render (-1 to render none).
+ * @param {boolean} doAnimation
+ * @private
+ */
+anychart.ui.Editor.prototype.setCurrentStep_ = function(index, doAnimation) {
+  if (!this.isInDocument()) return;
+
+  var step = /** @type {anychart.ui.chartEditor.steps.Base} */ (this.getChildAt(index));
+  if (!step || step.isInDocument()) return;
+
+  if (this.currentStep_) {
+    if (doAnimation) {
+      var currentAnimation = new goog.fx.AnimationSerialQueue();
+      currentAnimation.add(new goog.fx.dom.FadeOut(this.currentStep_.getElement(), 300));
+      currentAnimation.play();
+      goog.events.listenOnce(
+          currentAnimation, goog.fx.Transition.EventType.END, goog.bind(this.removeStep_, this, this.currentStep_));
+    } else {
+      this.removeStep_(this.currentStep_);
+    }
+    this.currentStep_ = null;
+    this.sharedModel_.currentStep = null;
+    this.sharedModel_.currentStepIndex = NaN;
+  }
+
+  this.currentStep_ = step;
+  this.sharedModel_.currentStep = this.getCurrentStepDescriptor_();
+  step.render(this.getContentElement());
+  step.setParentEventTarget(this);
+  this.sharedModel_.currentStep.isVisited = true;
+
+  if (doAnimation) {
+    var stepAnimation = new goog.fx.AnimationSerialQueue();
+    stepAnimation.add(new goog.fx.dom.FadeIn(step.getElement(), 300));
+    stepAnimation.play();
+  }
 };
 
 
@@ -454,76 +561,6 @@ anychart.ui.Editor.prototype.removeStep_ = function(step) {
 
 
 /**
- * @return {?anychart.ui.chartEditor.steps.Base} The currently step (null if none).
- * @private
- */
-anychart.ui.Editor.prototype.getCurrentStep_ = function() {
-  return this.currentStep_;
-};
-
-
-/**
- * Render the given step.
- * @param {anychart.ui.chartEditor.steps.Base} step
- * @param {boolean} doAnimation
- * @private
- */
-anychart.ui.Editor.prototype.setCurrentStep_ = function(step, doAnimation) {
-  if (!this.isInDocument()) return;
-  if (!step || step.isInDocument()) {
-    return;
-  }
-
-  if (this.currentStep_) {
-    if (doAnimation) {
-      var currentAnimation = new goog.fx.AnimationSerialQueue();
-      currentAnimation.add(new goog.fx.dom.FadeOut(this.currentStep_.getElement(), 300));
-      currentAnimation.play();
-      goog.events.listenOnce(
-          currentAnimation, goog.fx.Transition.EventType.END, goog.bind(this.removeStep_, this, this.currentStep_));
-    } else {
-      this.removeStep_(this.currentStep_);
-    }
-    this.currentStep_ = null;
-    this.sharedModel_.currentStep = null;
-    this.sharedModel_.currentStepIndex = NaN;
-  }
-
-  if (step) {
-    this.currentStep_ = step;
-    this.sharedModel_.currentStep = this.getCurrentStepDescriptor_();
-    step.render(this.getContentElement());
-    step.setParentEventTarget(this);
-    this.sharedModel_.currentStep.isVisited = true;
-
-    var stepAnimation = new goog.fx.AnimationSerialQueue();
-    stepAnimation.add(new goog.fx.dom.FadeIn(step.getElement(), 300));
-    stepAnimation.play();
-  }
-};
-
-
-/**
- * @return {number} Index of the currently step (-1 if none).
- * @private
- */
-anychart.ui.Editor.prototype.getCurrentStepIndex_ = function() {
-  return this.indexOfChild(this.getCurrentStep_());
-};
-
-
-/**
- * Render the step at the given index.
- * @param {number} index Index of the step to render (-1 to render none).
- * @param {boolean} doAnimation
- * @private
- */
-anychart.ui.Editor.prototype.setCurrentStepIndex_ = function(index, doAnimation) {
-  this.setCurrentStep_(/** @type {anychart.ui.chartEditor.steps.Base} */ (this.getChildAt(index)), doAnimation);
-};
-
-
-/**
  * Check passed step is last step.
  * @param {anychart.ui.chartEditor.steps.Base} step
  * @return {boolean}
@@ -535,36 +572,7 @@ anychart.ui.Editor.prototype.isLastStep_ = function(step) {
 
 
 /**
- * Check passed step is current step.
- * @param {anychart.ui.chartEditor.steps.Base} step
- * @return {boolean}
- * @private
- */
-anychart.ui.Editor.prototype.isCurrentStep_ = function(step) {
-  return Boolean(step && step == this.getCurrentStep_());
-};
-
-
-/**
- * Go to next step.
- * @private
- */
-anychart.ui.Editor.prototype.nextStep_ = function() {
-  this.setCurrentStepIndex_(this.getCurrentStepIndex_() + 1, true);
-};
-
-
-/**
- * Go to previous step.
- * @private
- */
-anychart.ui.Editor.prototype.prevStep_ = function() {
-  this.setCurrentStepIndex_(this.getCurrentStepIndex_() - 1, true);
-};
-
-
-/**
- * @return {anychart.ui.chartEditor.steps.Base.Descriptor}
+ * @return {anychart.ui.Editor.Descriptor}
  * @private
  */
 anychart.ui.Editor.prototype.getCurrentStepDescriptor_ = function() {
@@ -577,12 +585,10 @@ anychart.ui.Editor.prototype.getCurrentStepDescriptor_ = function() {
  * @private
  */
 anychart.ui.Editor.prototype.updateStepsDescriptors_ = function() {
-  /**
-   * @type {Array.<anychart.ui.chartEditor.steps.Base.Descriptor>}
-   */
+  /** @type {Array.<anychart.ui.Editor.Descriptor>} */
   var view = [];
   this.forEachChild(function(step) {
-    view.push(/** @type {anychart.ui.chartEditor.steps.Base.Descriptor} */({
+    view.push(/** @type {anychart.ui.Editor.Descriptor} */({
       index: this.indexOfChild(step),
       name: step.getName(),
       isLastStep: this.isLastStep_(step),
@@ -619,7 +625,7 @@ anychart.ui.Editor.prototype.data = function(var_args) {
     }
   }
 
-  this.setCurrentStepIndex_(0, goog.isObject(this.currentStep_));
+  this.setCurrentStep_(0, goog.isObject(this.currentStep_));
   this.update();
 };
 
@@ -747,6 +753,10 @@ anychart.ui.Editor.Dialog = function(opt_class, opt_useIframeMask, opt_domHelper
 
   this.setTitle('Chart Editor');
   this.setButtonSet(null);
+
+  goog.events.listen(this, anychart.enums.EventType.COMPLETE, function() {
+    this.setVisible(false);
+  }, false, this);
 };
 goog.inherits(anychart.ui.Editor.Dialog, goog.ui.Dialog);
 

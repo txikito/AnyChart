@@ -11,7 +11,7 @@ goog.require('goog.ui.PopupBase.EventType');
  */
 anychart.ui.chartEditor.Controller = function(editor) {
   /**
-   * @type {anychart.ui.chartEditor.steps.Base.Model}
+   * @type {anychart.ui.Editor.Model}
    * @private
    */
   this.model_ = null;
@@ -29,7 +29,6 @@ anychart.ui.chartEditor.Controller = function(editor) {
   this.settingsMap_ = {};
 
   // internal events
-  goog.events.listen(editor, goog.ui.PopupBase.EventType.HIDE, this.onHide_, false, this);
   goog.events.listen(editor, anychart.ui.chartEditor.events.EventType.ADD_SERIES, this.onAddSeries_, false, this);
   goog.events.listen(editor, anychart.ui.chartEditor.events.EventType.REMOVE_SERIES, this.onRemoveSeries_, false, this);
   goog.events.listen(editor, anychart.ui.chartEditor.events.EventType.REMOVE_ALL_SERIES, this.onRemoveAllSeries_, false, this);
@@ -44,7 +43,7 @@ anychart.ui.chartEditor.Controller = function(editor) {
 
 /**
  *
- * @param {anychart.ui.chartEditor.steps.Base.Model} value
+ * @param {anychart.ui.Editor.Model} value
  */
 anychart.ui.chartEditor.Controller.prototype.setModel = function(value) {
   this.model_ = value;
@@ -58,17 +57,6 @@ anychart.ui.chartEditor.Controller.prototype.setModel = function(value) {
  */
 anychart.ui.chartEditor.Controller.prototype.onEditorUpdate_ = function(evt) {
   this.editor_.update();
-};
-
-
-/**
- * @param {!goog.events.Event} evt Event object.
- * @private
- */
-anychart.ui.chartEditor.Controller.prototype.onHide_ = function(evt) {
-  if (evt.target == this.editor_) {
-    this.editor_.dispatchEvent(anychart.enums.EventType.CLOSE);
-  }
 };
 
 
@@ -193,7 +181,7 @@ anychart.ui.chartEditor.Controller.prototype.onPresetChanged_ = function() {
 
 /**
  * todo: move it from controller to model class
- * @param {anychart.ui.chartEditor.steps.Base.Model} model
+ * @param {anychart.ui.Editor.Model} model
  * @param {string} key
  * @param {*=} opt_value
  * @param {boolean=} opt_dryRun
@@ -409,7 +397,7 @@ anychart.ui.chartEditor.Controller.prototype.getBuildCode = function() {
 
 /**
  * @param {Object.<*>} map
- * @param {anychart.ui.chartEditor.steps.Base.Model} model
+ * @param {anychart.ui.Editor.Model} model
  * @return {Array.<string>}
  */
 anychart.ui.chartEditor.Controller.settingsMapToString = function(map, model) {

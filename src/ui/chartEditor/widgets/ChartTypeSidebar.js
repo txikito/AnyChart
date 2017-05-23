@@ -34,8 +34,8 @@ anychart.ui.chartEditor.ChartTypeSideBar.prototype.createDom = function() {
 
 
 /**
- * @param {Array.<anychart.ui.chartEditor.steps.Base.Preset>} list
- * @param {anychart.ui.chartEditor.steps.Base.Model} model
+ * @param {Array.<anychart.ui.Editor.Preset>} list
+ * @param {anychart.ui.Editor.Model} model
  */
 anychart.ui.chartEditor.ChartTypeSideBar.prototype.update = function(list, model) {
   var itemsCount = list.length;
