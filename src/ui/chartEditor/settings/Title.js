@@ -436,7 +436,7 @@ anychart.ui.chartEditor.settings.Title.prototype.createDom = function() {
 
 /**
  * Update controls.
- * @param {anychart.ui.chartEditor.steps.Base.Model} model
+ * @param {anychart.ui.Editor.Model} model
  */
 anychart.ui.chartEditor.settings.Title.prototype.update = function(model) {
   if (this.enabledBtn_) this.enabledBtn_.update(model);

@@ -63,7 +63,7 @@ anychart.ui.chartEditor.ChartSettingsSideBar.ClsMap = {
 
 /**
  * @param {Array.<string>} list
- * @param {anychart.ui.chartEditor.steps.Base.Model} model
+ * @param {anychart.ui.Editor.Model} model
  */
 anychart.ui.chartEditor.ChartSettingsSideBar.prototype.update = function(list, model) {
   var itemsCount = list.length;

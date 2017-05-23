@@ -7,14 +7,14 @@ goog.require('goog.ui.Option');
 goog.require('goog.ui.Select');
 goog.require('goog.ui.Separator');
 
-goog.forwardDeclare('anychart.ui.chartEditor.steps.Base.RawMappingField');
+goog.forwardDeclare('anychart.ui.Editor.RawMappingField');
 
 
 
 /**
  * @param {Array} keys
  * @param {Array} values
- * @param {anychart.ui.chartEditor.steps.Base.RawMappingField} rawMappingField
+ * @param {anychart.ui.Editor.RawMappingField} rawMappingField
  * @constructor
  * @extends {anychart.ui.Component}
  */
@@ -37,7 +37,7 @@ anychart.ui.chartEditor.DataMappingField = function(keys, values, rawMappingFiel
 
   /**
    * Key-value pair for mapping row.
-   * @type {anychart.ui.chartEditor.steps.Base.RawMappingField}
+   * @type {anychart.ui.Editor.RawMappingField}
    * @private
    */
   this.rawMappingField_ = rawMappingField;

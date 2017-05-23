@@ -1,7 +1,7 @@
 goog.provide('anychart.ui.Editor');
-goog.provide('anychart.ui.Editor.Dialog');
 goog.provide('anychart.ui.Editor.DataSet');
 goog.provide('anychart.ui.Editor.Descriptor');
+goog.provide('anychart.ui.Editor.Dialog');
 goog.provide('anychart.ui.Editor.Model');
 
 goog.require('anychart.ui.Component');

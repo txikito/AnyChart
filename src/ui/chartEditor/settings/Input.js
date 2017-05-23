@@ -91,7 +91,7 @@ anychart.ui.chartEditor.settings.Input.prototype.enterDocument = function() {
 };
 
 
-/** @param {anychart.ui.chartEditor.steps.Base.Model} model */
+/** @param {anychart.ui.Editor.Model} model */
 anychart.ui.chartEditor.settings.Input.prototype.update = function(model) {
   var value = anychart.ui.chartEditor.Controller.getset(model, goog.isArray(this.key_) ? this.key_[0] : this.key_);
   this.lastValue_ = value;

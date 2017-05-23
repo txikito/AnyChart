@@ -63,7 +63,7 @@ anychart.ui.chartEditor.checkbox.Base.prototype.setKey = function(value) {
 };
 
 
-/** @param {anychart.ui.chartEditor.steps.Base.Model} model */
+/** @param {anychart.ui.Editor.Model} model */
 anychart.ui.chartEditor.checkbox.Base.prototype.update = function(model) {
   var value = anychart.ui.chartEditor.Controller.getset(model, goog.isArray(this.key_) ? this.key_[0] : this.key_);
   this.setChecked(value == this.checkedValue_);

@@ -254,7 +254,7 @@ anychart.ui.chartEditor.settings.Axis.prototype.updateKeys = function() {
 
 /**
  * Update controls.
- * @param {anychart.ui.chartEditor.steps.Base.Model} model
+ * @param {anychart.ui.Editor.Model} model
  */
 anychart.ui.chartEditor.settings.Axis.prototype.update = function(model) {
   if (this.orientation_) this.orientation_.update(model);

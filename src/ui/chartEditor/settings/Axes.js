@@ -134,7 +134,7 @@ anychart.ui.chartEditor.settings.Axes.prototype.createDom = function() {
 
 /**
  * Update controls.
- * @param {anychart.ui.chartEditor.steps.Base.Model} model
+ * @param {anychart.ui.Editor.Model} model
  */
 anychart.ui.chartEditor.settings.Axes.prototype.update = function(model) {
   var axesCount = anychart.ui.chartEditor.Controller.getset(model, this.countKey_);

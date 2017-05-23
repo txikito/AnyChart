@@ -191,7 +191,7 @@ anychart.ui.chartEditor.settings.Series.prototype.updateKeys = function() {
 
 /**
  * Update controls.
- * @param {anychart.ui.chartEditor.steps.Base.Model} model
+ * @param {anychart.ui.Editor.Model} model
  */
 anychart.ui.chartEditor.settings.Series.prototype.update = function(model) {
   var mappings = [];

@@ -6,7 +6,7 @@ goog.require('anychart.ui.chartEditor.settings.ChartType');
 
 
 /**
- * @param {anychart.ui.chartEditor.steps.Base.Model} model
+ * @param {anychart.ui.Editor.Model} model
  * @constructor
  * @extends {anychart.ui.chartEditor.group.Base}
  */
@@ -68,7 +68,7 @@ anychart.ui.chartEditor.group.ChartType.prototype.update = function(item) {
 
 /**
  * @param {Array<string>} values
- * @param {anychart.ui.chartEditor.steps.Base.Model} model
+ * @param {anychart.ui.Editor.Model} model
  * @return {boolean}
  */
 anychart.ui.chartEditor.group.ChartType.isReferenceValuesPresent = function(values, model) {

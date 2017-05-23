@@ -160,7 +160,7 @@ anychart.ui.chartEditor.select.Base.prototype.createContentElements = function(o
 };
 
 
-/** @param {anychart.ui.chartEditor.steps.Base.Model} model */
+/** @param {anychart.ui.Editor.Model} model */
 anychart.ui.chartEditor.select.Base.prototype.update = function(model) {
   //todo: rework, need silently update selects
   goog.events.unlisten(this, goog.ui.Component.EventType.CHANGE, this.onChange, false, this);

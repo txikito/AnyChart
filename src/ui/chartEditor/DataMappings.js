@@ -7,7 +7,7 @@ goog.require('anychart.ui.chartEditor.DataMapping');
 
 
 /**
- * @param {anychart.ui.chartEditor.steps.Base.DataSet} dataSet
+ * @param {anychart.ui.Editor.DataSet} dataSet
  * @constructor
  * @extends {anychart.ui.Component}
  */
@@ -22,7 +22,7 @@ anychart.ui.chartEditor.DataMappings = function(dataSet) {
 
   /**
    * Data set from data step.
-   * @type {anychart.ui.chartEditor.steps.Base.DataSet}
+   * @type {anychart.ui.Editor.DataSet}
    * @private
    */
   this.dataSet_ = dataSet;
@@ -77,7 +77,7 @@ anychart.ui.chartEditor.DataMappings.prototype.getContentElement = function() {
 };
 
 
-/** @return {anychart.ui.chartEditor.steps.Base.DataSet} */
+/** @return {anychart.ui.Editor.DataSet} */
 anychart.ui.chartEditor.DataMappings.prototype.getDataSet = function() {
   return this.dataSet_;
 };
@@ -208,7 +208,7 @@ anychart.ui.chartEditor.DataMappings.prototype.addMapping_ = function(opt_setDef
 
 /**
  * Remove mapping from raw mappings.
- * @param {anychart.ui.chartEditor.steps.Base.RawMapping} rawMapping
+ * @param {anychart.ui.Editor.RawMapping} rawMapping
  * @private
  */
 anychart.ui.chartEditor.DataMappings.prototype.removeMapping_ = function(rawMapping) {

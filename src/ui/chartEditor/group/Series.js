@@ -9,7 +9,7 @@ goog.require('anychart.ui.chartEditor.settings.Series');
 
 
 /**
- * @param {anychart.ui.chartEditor.steps.Base.Model} model
+ * @param {anychart.ui.Editor.Model} model
  * @constructor
  * @extends {anychart.ui.chartEditor.group.Base}
  */

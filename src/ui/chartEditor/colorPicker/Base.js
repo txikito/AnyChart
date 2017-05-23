@@ -137,7 +137,7 @@ anychart.ui.chartEditor.colorPicker.Base.prototype.setKey = function(value) {
 };
 
 
-/** @param {anychart.ui.chartEditor.steps.Base.Model} model */
+/** @param {anychart.ui.Editor.Model} model */
 anychart.ui.chartEditor.colorPicker.Base.prototype.update = function(model) {
   var color = anychart.ui.chartEditor.Controller.getset(model, goog.isArray(this.key_) ? this.key_[0] : this.key_);
   this.setSelectedColor(color);

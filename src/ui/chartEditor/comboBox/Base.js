@@ -189,7 +189,7 @@ anychart.ui.chartEditor.comboBox.Base.prototype.updateOptions = function() {
 
 
 /**
- * @param {anychart.ui.chartEditor.steps.Base.Model} model
+ * @param {anychart.ui.Editor.Model} model
  */
 anychart.ui.chartEditor.comboBox.Base.prototype.update = function(model) {
   //todo: rework, need silently update selects

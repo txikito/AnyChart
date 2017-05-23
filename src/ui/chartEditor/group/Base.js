@@ -7,7 +7,7 @@ goog.require('goog.ui.AnimatedZippy');
 
 
 /**
- * @param {anychart.ui.chartEditor.steps.Base.Model} model
+ * @param {anychart.ui.Editor.Model} model
  * @constructor
  * @extends {anychart.ui.Component}
  */
@@ -16,7 +16,7 @@ anychart.ui.chartEditor.group.Base = function(model) {
 
   /**
    * @protected
-   * @type {anychart.ui.chartEditor.steps.Base.Model}
+   * @type {anychart.ui.Editor.Model}
    */
   this.model = model;
 
@@ -269,7 +269,7 @@ anychart.ui.chartEditor.group.Base.prototype.enterDocument = function() {
 
 /**
  * Update controls.
- * @param {anychart.ui.chartEditor.steps.Base.Model|anychart.ui.chartEditor.steps.Base.Preset} model
+ * @param {anychart.ui.Editor.Model|anychart.ui.Editor.Preset} model
  */
 anychart.ui.chartEditor.group.Base.prototype.update = function(model) {
   if (this.enabledBtn_) this.enabledBtn_.update(model);
@@ -277,7 +277,7 @@ anychart.ui.chartEditor.group.Base.prototype.update = function(model) {
   if (this.isEnabled()) {
     var enabledKey = this.genKey('.enabled()');
     var enabled = Boolean(anychart.ui.chartEditor.Controller.getset(
-        /** @type {anychart.ui.chartEditor.steps.Base.Model} */(model),
+        /** @type {anychart.ui.Editor.Model} */(model),
         goog.isArray(enabledKey) ? enabledKey[0] : enabledKey));
 
     this.setContentEnabled(enabled);

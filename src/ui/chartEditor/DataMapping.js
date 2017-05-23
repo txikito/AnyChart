@@ -5,13 +5,13 @@ goog.require('anychart.ui.IconButtonRenderer');
 goog.require('anychart.ui.button.Base');
 goog.require('anychart.ui.chartEditor.DataMappingField');
 
-goog.forwardDeclare('anychart.ui.chartEditor.steps.Base.DataSet');
-goog.forwardDeclare('anychart.ui.chartEditor.steps.Base.RawMapping');
+goog.forwardDeclare('anychart.ui.Editor.DataSet');
+goog.forwardDeclare('anychart.ui.Editor.RawMapping');
 
 
 
 /**
- * @param {anychart.ui.chartEditor.steps.Base.RawMapping} rawMapping
+ * @param {anychart.ui.Editor.RawMapping} rawMapping
  * @param {Array<string|number>} values
  * @constructor
  * @extends {anychart.ui.Component}
@@ -26,7 +26,7 @@ anychart.ui.chartEditor.DataMapping = function(rawMapping, values) {
   this.content_ = null;
 
   /**
-   * @type {anychart.ui.chartEditor.steps.Base.RawMapping}
+   * @type {anychart.ui.Editor.RawMapping}
    * @private
    */
   this.rawMapping_ = rawMapping;
@@ -179,7 +179,7 @@ anychart.ui.chartEditor.DataMapping.prototype.addField_ = function() {
 
 /**
  * Remove mapping field from raw mapping.
- * @param {anychart.ui.chartEditor.steps.Base.RawMappingField} rawMappingField
+ * @param {anychart.ui.Editor.RawMappingField} rawMappingField
  * @private
  */
 anychart.ui.chartEditor.DataMapping.prototype.removeField_ = function(rawMappingField) {
