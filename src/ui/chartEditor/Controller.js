@@ -175,7 +175,7 @@ anychart.ui.chartEditor.Controller.prototype.onPresetChanged_ = function() {
   this.model_.chartConstructor = preset.ctor || presetCategory.ctor;
   this.model_.isSeriesBased = presetCategory.isSeriesBased;
   this.model_.seriesType = preset.seriesType;
-  this.model_.presetSettings = preset.settings || [];
+  this.model_['presetSettings'] = preset.settings || [];
 };
 
 
@@ -312,8 +312,8 @@ anychart.ui.chartEditor.Controller.prototype.onBuildChart_ = function(opt_evt) {
   var key;
 
   // presets
-  for (key in this.model_.presetSettings) {
-    anychart.ui.chartEditor.Controller.getset(this.model_, key, this.model_.presetSettings[key]);
+  for (key in this.model_['presetSettings']) {
+    anychart.ui.chartEditor.Controller.getset(this.model_, key, this.model_['presetSettings'][key]);
   }
 
   // settings set by user
@@ -356,13 +356,11 @@ anychart.ui.chartEditor.Controller.prototype.getBuildCode = function() {
         'undefined' :
         stringify(mapping['getObjectMapping']());
     fMappings += subs('var mapping%s=dataSet%s.mapAs(%s,%s);', i, this.indexOfDataSet(dataSet), arrayMapping, objectMapping);
-
   }
 
   // chart type
   fChart += subs('var chart = anychart.%s();', this.model_.chartConstructor);
-
-
+  
   if (this.model_.isSeriesBased) {
     // chart series
     for (var id in this.model_.seriesMappings) {
@@ -379,7 +377,7 @@ anychart.ui.chartEditor.Controller.prototype.getBuildCode = function() {
   }
 
   // presets
-  var presets = anychart.ui.chartEditor.Controller.settingsMapToString(this.model_.presetSettings, this.model_);
+  var presets = anychart.ui.chartEditor.Controller.settingsMapToString(this.model_['presetSettings'], this.model_);
   fChart += presets[0];
   fGlobalSettings += presets[1];
 
@@ -407,9 +405,9 @@ anychart.ui.chartEditor.Controller.settingsMapToString = function(map, model) {
   for (var key in map) {
     var rawValue = map[key];
     var value = rawValue;
-    var settingsCanByApplyed = anychart.ui.chartEditor.Controller.getset(model, key, rawValue, true);
+    var settingsCanByApplied = anychart.ui.chartEditor.Controller.getset(model, key, rawValue, true);
 
-    if (settingsCanByApplyed) {
+    if (settingsCanByApplied) {
       if (goog.isObject(rawValue)) {
         value = window['JSON']['stringify'](value);
       } else if (goog.isString(rawValue)) {
