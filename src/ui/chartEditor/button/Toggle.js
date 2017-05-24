@@ -2,7 +2,6 @@ goog.provide('anychart.ui.chartEditor.button.Toggle');
 
 goog.require('anychart.ui.button.Base');
 goog.require('anychart.ui.chartEditor.events');
-
 goog.require('goog.ui.INLINE_BLOCK_CLASSNAME');
 
 
@@ -25,6 +24,24 @@ anychart.ui.chartEditor.button.Toggle = function(opt_content, opt_renderer, opt_
 
   this.setSupportedState(goog.ui.Component.State.CHECKED, true);
   this.setAutoStates(goog.ui.Component.State.CHECKED, false);
+
+  /**
+   * @type {*}
+   * @private
+   */
+  this.normalValue_ = '';
+
+  /**
+   * @type {*}
+   * @private
+   */
+  this.checkedValue_ = '';
+
+  /**
+   * @type {string|Array.<string>}
+   * @private
+   */
+  this.key_ = '';
 };
 goog.inherits(anychart.ui.chartEditor.button.Toggle, anychart.ui.button.Base);
 
@@ -33,24 +50,10 @@ goog.inherits(anychart.ui.chartEditor.button.Toggle, anychart.ui.button.Base);
 anychart.ui.chartEditor.button.Toggle.CSS_CLASS = goog.getCssName('anychart-button-toggle');
 
 
-/**
- * @type {*}
- * @private
- */
-anychart.ui.chartEditor.button.Toggle.prototype.normalValue_ = '';
-
-
 /** @param {*} value */
 anychart.ui.chartEditor.button.Toggle.prototype.setNormalValue = function(value) {
   this.normalValue_ = value;
 };
-
-
-/**
- * @type {*}
- * @private
- */
-anychart.ui.chartEditor.button.Toggle.prototype.checkedValue_ = '';
 
 
 /** @param {*} value */
@@ -63,13 +66,6 @@ anychart.ui.chartEditor.button.Toggle.prototype.setCheckedValue = function(value
 anychart.ui.chartEditor.button.Toggle.prototype.setOptions = function(value) {
   this.options_ = value;
 };
-
-
-/**
- * @type {string|Array.<string>}
- * @private
- */
-anychart.ui.chartEditor.button.Toggle.prototype.key_ = '';
 
 
 /** @param {string|Array.<string>} value */

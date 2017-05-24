@@ -20,15 +20,26 @@ goog.require('goog.ui.Checkbox.State');
 anychart.ui.chartEditor.checkbox.Base = function(opt_checked, opt_domHelper, opt_renderer) {
   anychart.ui.chartEditor.checkbox.Base.base(this, 'constructor', opt_checked, opt_domHelper,
       opt_renderer || anychart.ui.chartEditor.checkbox.Renderer.getInstance());
+
+  /**
+   * @type {*}
+   * @private
+   */
+  this.normalValue_ = '';
+
+  /**
+   * @type {*}
+   * @private
+   */
+  this.checkedValue_ = '';
+
+  /**
+   * @type {string|Array.<string>}
+   * @private
+   */
+  this.key_ = '';
 };
 goog.inherits(anychart.ui.chartEditor.checkbox.Base, goog.ui.Checkbox);
-
-
-/**
- * @type {*}
- * @private
- */
-anychart.ui.chartEditor.checkbox.Base.prototype.normalValue_ = '';
 
 
 /** @param {*} value */
@@ -37,24 +48,10 @@ anychart.ui.chartEditor.checkbox.Base.prototype.setNormalValue = function(value)
 };
 
 
-/**
- * @type {*}
- * @private
- */
-anychart.ui.chartEditor.checkbox.Base.prototype.checkedValue_ = '';
-
-
 /** @param {*} value */
 anychart.ui.chartEditor.checkbox.Base.prototype.setCheckedValue = function(value) {
   this.checkedValue_ = value;
 };
-
-
-/**
- * @type {string|Array.<string>}
- * @private
- */
-anychart.ui.chartEditor.checkbox.Base.prototype.key_ = '';
 
 
 /** @param {string|Array.<string>} value */
