@@ -105,7 +105,6 @@ anychart.ui.chartEditor.button.Toggle.prototype.exitDocument = function() {
  */
 anychart.ui.chartEditor.button.Toggle.prototype.onAction_ = function(evt) {
   evt.stopPropagation();
-
   var keys = goog.isArray(this.key_) ? this.key_ : [this.key_];
   for (var i = 0, count = keys.length; i < count; i++) {
     this.dispatchEvent({
