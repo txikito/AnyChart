@@ -3352,7 +3352,10 @@ anychart.core.Chart.prototype.toCsv = function(opt_chartDataExportMode, opt_csvS
   var dataSetsCount = 0;
 
   for (i = 0; i < seriesListLength; i++) {
-    series = /** @type {anychart.core.series.Base|anychart.core.Chart} */ (seriesList[i]);
+    series = /** @type {anychart.core.series.Base|anychart.core.ChartWithSeries|anychart.charts.Resource|
+        anychart.core.PyramidFunnelBase|anychart.charts.Venn|anychart.charts.LinearGauge|anychart.charts.Bullet|
+        anychart.charts.TreeMap|anychart.charts.TagCloud|anychart.charts.Sparkline|anychart.charts.Gantt|
+        anychart.charts.Pert|anychart.charts.CircularGauge} */ (seriesList[i]);
     seriesData = /** @type {anychart.data.View} */ (series.data());
     seriesDataSets = seriesData.getDataSets();
     for (j = 0, len = seriesDataSets.length; j < len; j++) {
