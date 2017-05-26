@@ -63,7 +63,8 @@ anychart.core.utils.LocalTooltipContainer.LOCAL_CONTAINER_STYLE = {
   'left': 0,
   'top': 0,
   'width': '100%',
-  'height': '100%'
+  'height': '100%',
+  'pointer-events': 'none'
 };
 
 
@@ -91,7 +92,8 @@ anychart.core.utils.LocalTooltipContainer.LOCAL_STAGE_DOM_ELEMENT_STYLE = {
   'position': 'relative',
   'left': 0,
   'top': 0,
-  'opacity': 1
+  'opacity': 1,
+  'pointer-events': 'none'
 };
 
 
