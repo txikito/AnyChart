@@ -1392,6 +1392,8 @@ anychart.utils.getNodeNames_ = function(arrayPropName) {
       return ['quarter_labels', 'label'];
     case 'weights':
       return ['weights', 'weight'];
+    case 'angles':
+      return ['angles', 'angle'];
   }
   return null;
 };
@@ -1483,6 +1485,8 @@ anychart.utils.getArrayPropName_ = function(nodeName) {
       return ['labels', 'label'];
     case 'weights':
       return ['weights', 'weight'];
+    case 'angles':
+      return ['angles', 'angle'];
   }
   return null;
 };
