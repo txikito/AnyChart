@@ -910,7 +910,7 @@ anychart.core.Chart.prototype.contextMenu = function(opt_value) {
  * @protected
  */
 anychart.core.Chart.prototype.getVersionHistoryLink = function() {
-  return 'http://anychart.com/products/anychart/history';
+  return 'https://anychart.com/products/anychart/history';
 };
 
 
@@ -1131,14 +1131,14 @@ anychart.core.Chart.contextMenuItems = {
     'text': 'AnyChart ' + (anychart.VERSION ?
         goog.string.subs.apply(null, ['v%s.%s.%s'].concat(anychart.VERSION.split('.'))) :
         ' develop version'),
-    'href': 'http://anychart.com'
+    'href': 'https://anychart.com'
   },
 
   // Item 'Link to help'.
   linkToHelp: {
     'iconClass': 'ac ac-question',
     'text': 'Need help? Go to support center!',
-    'href': 'http://anychart.com/support'
+    'href': 'https://anychart.com/support'
   }
 };
 
@@ -3791,7 +3791,7 @@ anychart.core.Chart.prototype.shareWithPinterest = function(opt_linkOrOptions, o
   var popup = window.open('', '_blank', 'scrollbars=yes, width=' + w + ', height=' + h + ', top=' + top + ', left=' + left);
 
   var onSuccess = function(imgUrl) {
-    var urlBase = 'http://pinterest.com/pin/create/link';
+    var urlBase = 'https://pinterest.com/pin/create/link';
     var urlOptions = {
       'media' : imgUrl
     };
