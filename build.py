@@ -486,7 +486,7 @@ def __get_copyrigth(modules):
     contains = ''
     build = 'Development' if __is_develop() else 'Production'
     version = __get_version(True)
-    url = 'http://anychart.com'
+    url = 'https://anychart.com'
 
     if len(modules) == 1 and modules[0] in ['anychart_bundle', 'anychart', 'anymap', 'anygantt', 'anystock',
                                             'anychart_ui', 'data_adapter']:
@@ -497,16 +497,16 @@ def __get_copyrigth(modules):
             contains = 'AnyChart, AnyMap, AnyGantt, AnyStock, AnyChart UI'
         elif module == 'anychart':
             title = 'AnyChart - Robust JavaScript HTML5 Web Charts'
-            url = 'http://anychart.com/products/anychart/'
+            url = 'https://anychart.com/products/anychart/'
         elif module == 'anymap':
             title = 'AnyMap - JavaScript HTML5 Web Maps'
-            url = 'http://anychart.com/products/anymap/'
+            url = 'https://anychart.com/products/anymap/'
         elif module == 'anygantt':
             title = 'AnyGantt - JavaScript HTML5 Web Gantt Charts'
-            url = 'http://anychart.com/products/anygantt/'
+            url = 'https://anychart.com/products/anygantt/'
         elif module == 'anystock':
             title = 'AnyStock - JavaScript HTML5 Web Financial Charts'
-            url = 'http://anychart.com/products/anystock/'
+            url = 'https://anychart.com/products/anystock/'
         elif module == 'anychart_ui':
             title = 'AnyChart UI - JavaScript HTML5 Web Charting User Interface'
         elif module == 'data_adapter':
@@ -768,7 +768,7 @@ def __build_release():
     print "    Download demos from PG"
     if os.path.exists(os.path.join(OUT_PATH, 'gallery_demos')):
         shutil.rmtree(os.path.join(OUT_PATH, 'gallery_demos'))
-    __download_and_unzip_from_http('http://playground.anychart.stg/gallery/develop/download', OUT_PATH, 'gallery_demos')
+    __download_and_unzip_from_http('https://playground.anychart.stg/gallery/develop/download', OUT_PATH, 'gallery_demos')
 
     print "    Build AnyGantt install packages"
     __build_product_package(
