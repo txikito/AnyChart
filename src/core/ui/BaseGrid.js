@@ -568,7 +568,7 @@ anychart.core.ui.BaseGrid.prototype.createFormatProvider = function(item, opt_pe
   var values = {
     'item': {value: item, type: anychart.enums.TokenType.UNKNOWN},
     'name': {value: item.get(anychart.enums.GanttDataFields.NAME), type: anychart.enums.TokenType.STRING},
-    'id': {value: item.get(anychart.enums.GanttDataFields.ID), type: anychart.enums.TokenType.STRING},
+    'id': {value: item.get(anychart.enums.GanttDataFields.ID), type: anychart.enums.TokenType.STRING}
   };
 
   if (isResources) {
@@ -732,7 +732,8 @@ anychart.core.ui.BaseGrid.prototype.handleDblMouseClick_ = function(event) {
   var evt = this.getInteractivityEvent(event);
   this.addMouseDblClick(evt);
   if (this.interactive) {
-    this.interactivityHandler.rowDblClick(evt);
+    if (evt && this.interactivityHandler.dispatchEvent(evt))
+      this.interactivityHandler.rowDblClick(evt);
   } else {
     this.interactive = true;
   }
@@ -2541,7 +2542,7 @@ anychart.core.ui.BaseGrid.prototype.setupByJSON = function(config, opt_default) 
   this.rowSelectedFill(config['rowSelectedFill']);
 
   if ('tooltip' in config)
-    this.tooltip().setupByVal(config['tooltip'], opt_default);
+    this.tooltip().setupInternal(!!opt_default, config['tooltip']);
 
   if (goog.isDef(config['titleHeight']))
     this.titleHeight(config['titleHeight']);
