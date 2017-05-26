@@ -34,10 +34,10 @@ anychart.core.utils.LocalTooltipContainer = function() {
    * @private
    */
   this.stage_ = goog.userAgent.IE && !goog.userAgent.isVersionOrHigher('9') ?
-      acgraph.create(this.root_, 1, 1) :
-      acgraph.create(this.root_);
+      acgraph.create(null, 1, 1) :
+      acgraph.create();
   this.stage_.allowCreditsDisabling = true;
-  this.stage_.credits(false);
+  this.stage_.container(this.root_);
   // do not wrap TooltipsContainer stage into relative div
   // DVF-791
   this.stage_.wrapped_ = true;
@@ -63,8 +63,7 @@ anychart.core.utils.LocalTooltipContainer.LOCAL_CONTAINER_STYLE = {
   'left': 0,
   'top': 0,
   'width': '100%',
-  'height': '100%',
-  'pointer-events': 'none'
+  'height': '100%'
 };
 
 
@@ -92,8 +91,7 @@ anychart.core.utils.LocalTooltipContainer.LOCAL_STAGE_DOM_ELEMENT_STYLE = {
   'position': 'relative',
   'left': 0,
   'top': 0,
-  'opacity': 1,
-  'pointer-events': 'none'
+  'opacity': 1
 };
 
 
