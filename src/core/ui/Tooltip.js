@@ -2480,7 +2480,9 @@ anychart.core.ui.Tooltip.prototype.disposeInternal = function() {
   delete this.padding_;
   delete this.delay_;
 
-  if (this.tooltipContainer_ && this.tooltipContainer_.isLocal() && this.getContainer_(this)) {
+  var container = this.getContainer_(this);
+
+  if (this.tooltipContainer_ && this.tooltipContainer_.isLocal() && container && container.isOwnStage()) {
     var stageUid = this.getCurrentStageUid_();
     delete anychart.utils.tooltipContainersRegistry[stageUid];
     goog.dispose(this.tooltipContainer_);
