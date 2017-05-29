@@ -193,6 +193,12 @@ anychart.charts.Venn.prototype.isSizeBased = function() {
 };
 
 
+/** @inheritDoc */
+anychart.charts.Venn.prototype.supportsPointSettings = function() {
+  return true;
+};
+
+
 /** @inheritDoc **/
 anychart.charts.Venn.prototype.applyAppearanceToSeries = function(pointState) {
   var iterator = this.getIterator();
