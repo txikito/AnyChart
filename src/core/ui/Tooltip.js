@@ -2481,8 +2481,12 @@ anychart.core.ui.Tooltip.prototype.disposeInternal = function() {
   delete this.delay_;
 
   var container = this.getContainer_(this);
+  // this check needed cause 2 charts may own 1 stage (e.g. dashboard) and when one of them is disposed -
+  // second should has correct local tooltip container.
+  // true in case of ILayer container (for example when legend is container provider)
+  var isOwnStage = container.isOwnStage ? container.isOwnStage() : true;
 
-  if (this.tooltipContainer_ && this.tooltipContainer_.isLocal() && container && container.isOwnStage()) {
+  if (this.tooltipContainer_ && this.tooltipContainer_.isLocal() && container && isOwnStage) {
     var stageUid = this.getCurrentStageUid_();
     delete anychart.utils.tooltipContainersRegistry[stageUid];
     goog.dispose(this.tooltipContainer_);
