@@ -502,11 +502,11 @@
         },
         "connectorStroke": {
           "$ref": "#/definitions/stroke"
-        },
-        "required": [
-          "type"
-        ]
-      }
+        }
+      },
+      "required": [
+        "type"
+      ]
     },
     "anychart.charts.Funnel": {
       "type": "object",
