@@ -223,7 +223,7 @@
         {"$ref": "#/definitions/anychart.core.SeparateChart"}
       ],
       "properties": {
-        "type": {"enum": ["cartesian", "cartesian3d", "area", "verticalArea", "area3d", "bar", "bar3d", "box", "bubble", "column", "column3d", "financial", "line", "verticalLine", "marker", "jumpLine", "stick", "pareto", "hilo"]},
+        "type": {"enum": ["cartesian", "cartesian3d", "area", "verticalArea", "area3d", "bar", "bar3d", "box", "bubble", "column", "column3d", "financial", "line", "verticalLine", "marker", "jumpLine", "stick", "pareto", "hilo", "waterfall"]},
         "grids": {
           "type": "array",
           "items": {
@@ -492,21 +492,13 @@
         }
       ],
       "properties": {
-        "type": {
-          "enum": [
-            "waterfall"
-          ]
-        },
         "dataMode": {
           "$ref": "#/definitions/anychart.enums.WaterfallDataMode"
         },
         "connectorStroke": {
           "$ref": "#/definitions/stroke"
         }
-      },
-      "required": [
-        "type"
-      ]
+      }
     },
     "anychart.charts.Funnel": {
       "type": "object",
