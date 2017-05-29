@@ -164,6 +164,7 @@ anychart.enums.HoverMode = {
  * @param {anychart.enums.HoverMode=} opt_default Default value, if input cannot be recognized. Defaults to BY_X.
  * @return {anychart.enums.HoverMode}
  */
+// todo: enums\.normalize\w+\(.+,\s*\w+\)
 anychart.enums.normalizeHoverMode = function(value, opt_default) {
   value = (String(value)).toLowerCase();
   switch (value) {
