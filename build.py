@@ -14,9 +14,6 @@ import shlex
 import gzip
 import shutil
 import multiprocessing
-import logging
-
-from click import echo
 
 # =======================================================================================================================
 #           Project paths
@@ -26,7 +23,6 @@ JAVA_HEAP_SIZE = 1024
 
 # project
 PROJECT_PATH = os.path.abspath(os.path.dirname(__file__))
-CUR_DIR = os.getcwd()
 CONTRIB_PATH = os.path.join(PROJECT_PATH, 'libs')
 SRC_PATH = os.path.join(PROJECT_PATH, 'src')
 OUT_PATH = os.path.join(PROJECT_PATH, 'out')
@@ -50,7 +46,7 @@ CLOSURE_BUILDER_PATH = os.path.join(CLOSURE_BIN_PATH, 'build', 'closurebuilder.p
 
 
 # =======================================================================================================================
-#                            Utilscd
+#                            Utils
 # =======================================================================================================================
 def __create_dir_if_not_exists(path):
     if not os.path.exists(path):
@@ -71,6 +67,11 @@ def __need_sync_contrib():
 
 
 def __sync_contrib():
+    global arguments
+    skip_linter = 'skip_linter' in arguments and arguments['skip_linter']
+    skip_lesscpy = 'skip_lesscpy' in arguments and arguments['skip_lesscpy']
+    skip_jsbeautifier = 'skip_jsbeautifier' in arguments and arguments['skip_jsbeautifier']
+
     __create_dir_if_not_exists(CONTRIB_PATH)
 
     subprocess.call(['git', 'submodule', 'init'])
@@ -87,27 +88,14 @@ def __sync_contrib():
             'compiler'
         )
 
-    # Install lesscpy
-    print 'Install lesscpy'
-    # commands = [] if platform.system() == 'Windows' else ['sudo']
-    commands = []
-    commands.append('easy_install')
-    commands.append('lesscpy')
-    try:
-        subprocess.call(commands)
-    except StandardError:
-        raise StandardError('Sync contribution failed: you should install easy_install module for python')
+    if not skip_lesscpy:
+        __install_lesscpy()
 
-    print 'Install jsbeautifier'
-    # commands = [] if platform.system() == 'Windows' else ['sudo']
-    commands = []
-    commands += ['easy_install', 'jsbeautifier==1.6.2']
-    subprocess.call(commands)
+    if not skip_jsbeautifier:
+        __install_jsbeautifier()
 
-    # Install closure linter
-    # global arguments
-    # if 'linter' in arguments and arguments['linter']:
-    #     __install_closure_linter()
+    if not skip_linter:
+        __install_closure_linter()
 
     print 'All contributions installed'
 
@@ -140,6 +128,27 @@ def __install_closure_linter():
     commands.append('pip')
     commands.append('install')
     commands.append('git+git://github.com/google/closure-linter.git@v2.3.19')
+    try:
+        subprocess.call(commands)
+    except StandardError:
+        raise StandardError('Sync contribution failed: you should install easy_install module for python')
+
+
+def __install_lesscpy():
+    print 'Install lesscpy'
+    commands = [] if platform.system() == 'Windows' else ['sudo']
+    commands.append('easy_install')
+    commands.append('lesscpy')
+    try:
+        subprocess.call(commands)
+    except StandardError:
+        raise StandardError('Sync contribution failed: you should install easy_install module for python')
+
+
+def __install_jsbeautifier():
+    print 'Install jsbeautifier'
+    commands = [] if platform.system() == 'Windows' else ['sudo']
+    commands += ['easy_install', 'jsbeautifier==1.6.2']
     try:
         subprocess.call(commands)
     except StandardError:
@@ -220,11 +229,12 @@ def __get_performance_monitoring_compiler_args(is_performance_monitoring):
         '--define "anychart.PERFORMANCE_MONITORING=%s"' % flag,
     ]
 
+
 def is_not_theme_build(modules):
     return modules and len(modules) == 1 and \
-    ('anychart_ui' in modules or \
-     'chart_editor' in modules or \
-     'data_adapter' in modules)
+           ('anychart_ui' in modules or \
+            'chart_editor' in modules or \
+            'data_adapter' in modules)
 
 
 def __get_optimized_compiler_args():
@@ -289,6 +299,8 @@ def __get_default_compiler_args(theme, modules):
         '--charset UTF-8',
         '--define "anychart.VERSION=\'%s\'"' % __get_version(True),
         '--dependency_mode=STRICT',
+        '--language_in ECMASCRIPT3',
+        '--language_out ECMASCRIPT3',
         # '--externs ' + EXTERNS_PATH,
         '--extra_annotation_name "includeDoc"',
         '--extra_annotation_name "illustration"',
@@ -386,7 +398,7 @@ def __build_project(develop, modules, sources, theme, debug, gzip, perf_monitori
 
         # print build log
         __log_compilation(output_file, args)
-        
+
         # compile css
         if allow_compile_css:
             if 'anychart_ui' in modules or 'anychart_bundle' or 'chart_editor' in modules:
@@ -400,16 +412,16 @@ def __build_project(develop, modules, sources, theme, debug, gzip, perf_monitori
             output += open(line.replace('\n', ''), 'r').read()
         f.close()
 
-        output = output\
-            .replace('var COMPILED = false;', 'var COMPILED = true;')\
-            .replace('var goog = goog || {};', 'this.goog = this.goog || {};\nvar goog = this.goog;\nthis.anychart = this.anychart || {};\nvar anychart = this.anychart')
+        output = output \
+            .replace('var COMPILED = false;', 'var COMPILED = true;') \
+            .replace('var goog = goog || {};',
+                     'this.goog = this.goog || {};\nvar goog = this.goog;\nthis.anychart = this.anychart || {};\nvar anychart = this.anychart')
         wrapper = wrapper.replace('%output%', output)
 
         open(output_file, 'w').write(copyright + wrapper)
 
         os.remove(tmp_output_file)
         os.remove(deps_manifest_file)
-
 
         # gzip binary file
         if gzip:
@@ -440,12 +452,13 @@ def __build_project(develop, modules, sources, theme, debug, gzip, perf_monitori
         __log_compilation(output_file, args)
 
         # compile css
-        if allow_compile_css:            
+        if allow_compile_css:
             if 'anychart_ui' in modules or 'anychart_bundle' in modules:
                 __compile_css(__should_gen_gzip())
 
         # build binary file
         __call_console_commands(commands, module=modules[0])
+
         # gzip binary file
         if gzip:
             __gzip_file(output_file)
@@ -538,7 +551,7 @@ def __get_wrapper(file_name):
                          '(window.anychart_init_start=(typeof window.performance==\'object\')' + \
                          '&&(typeof window.performance.now==\'function\')?window.performance.now():+new Date()-window.anychart_init_start).toFixed(5),\'ms\');delete window.anychart_init_start'
     sourceMapping = ('//# sourceMappingURL=%s.map' % file_name) if __should_gen_debug_files() else ''
-    return '(function(global,factory){if(typeof module===\'object\'&&typeof module.exports===\'object\'){module.exports=function(w){if(!w.document){throw new Error(\'AnyChart requires a window with a document\');}factory.call(w,w,w.document);w.anychart.getGlobal=function(){return w;};return w.anychart;};}else{factory.call(global,window,document)}})(typeof window!==\'undefined\'?window:this,function(window,document){%s%s%s})%s' % (
+    return '(function(global,factory){if(typeof module===\'object\'&&typeof module.exports===\'object\'){var wrapper=function(w){if(!w.document){throw new Error(\'AnyChart requires a window with a document\');}factory.call(w,w,w.document);w.anychart.getGlobal=function(){return w;};return w.anychart;};module.exports=global.document?wrapper(global):wrapper;}else{factory.call(global,window,document)}})(typeof window!==\'undefined\'?window:this,function(window,document,opt_noGlobal){%s%s%s})%s' % (
         performanceStart, '%output%', performanceEnd, sourceMapping)
 
 
@@ -826,7 +839,7 @@ def __build_release():
                         os.path.join(OUT_PATH, 'export-server.jar'))
         shutil.copyfile(os.path.join(export_server_project_path, 'target', 'export-server-standalone.jar'),
                         os.path.join(OUT_PATH, 'export-server-%s-bundle-%s.jar' % (
-                        export_server_version, export_server_bundle_version)))
+                            export_server_version, export_server_bundle_version)))
     else:
         print "Error: Unable to build export server, there is no project at path: %s" % export_server_project_path
 
@@ -856,20 +869,17 @@ def __build_product_package(output_dir, binary_name, gallery_pass_func=None):
 
     # copy schemas
     shutil.copyfile(os.path.join(DIST_PATH, 'xml-schema.xsd'), os.path.join(output_dir, 'schemas', 'xml-schema.xsd'))
-    shutil.copyfile(os.path.join(DIST_PATH, 'json-schema.json'), os.path.join(output_dir, 'schemas', 'json-schema.json'))
+    shutil.copyfile(os.path.join(DIST_PATH, 'json-schema.json'),
+                    os.path.join(output_dir, 'schemas', 'json-schema.json'))
 
     # copy UI CSS
-    print 1
     shutil.copyfile(os.path.join(OUT_PATH, 'anychart-ui.css'), os.path.join(output_dir, 'css', 'anychart-ui.css'))
-    print 2
     shutil.copyfile(os.path.join(OUT_PATH, 'anychart-ui.css.gz'), os.path.join(output_dir, 'css', 'anychart-ui.css.gz'))
-    print 3
     shutil.copyfile(os.path.join(OUT_PATH, 'anychart-ui.min.css'),
                     os.path.join(output_dir, 'css', 'anychart-ui.min.css'))
-    print 4
     shutil.copyfile(os.path.join(OUT_PATH, 'anychart-ui.min.css.gz'),
                     os.path.join(output_dir, 'css', 'anychart-ui.min.css.gz'))
-    print 5
+
     # copy UI JS
     shutil.copyfile(os.path.join(OUT_PATH, 'anychart-ui.min.js'), os.path.join(output_dir, 'js', 'anychart-ui.min.js'))
     shutil.copyfile(os.path.join(OUT_PATH, 'anychart-ui.min.js.gz'),
@@ -891,14 +901,14 @@ def __build_product_package(output_dir, binary_name, gallery_pass_func=None):
 
     # copy chart editor (anychart install package only)
     if binary_name == 'anychart':
-            shutil.copyfile(os.path.join(OUT_PATH, 'chart-editor.min.js'),
-                            os.path.join(output_dir, 'js', 'chart-editor.min.js'))
-            shutil.copyfile(os.path.join(OUT_PATH, 'chart-editor.min.js.gz'),
-                            os.path.join(output_dir, 'js', 'chart-editor.min.js.gz'))
-            shutil.copyfile(os.path.join(OUT_PATH, 'chart-editor.dev.min.js'),
-                            os.path.join(output_dir, 'js', 'chart-editor.dev.min.js'))
-            shutil.copyfile(os.path.join(OUT_PATH, 'chart-editor.dev.min.js.gz'),
-                            os.path.join(output_dir, 'js', 'chart-editor.dev.min.js.gz'))
+        shutil.copyfile(os.path.join(OUT_PATH, 'chart-editor.min.js'),
+                        os.path.join(output_dir, 'js', 'chart-editor.min.js'))
+        shutil.copyfile(os.path.join(OUT_PATH, 'chart-editor.min.js.gz'),
+                        os.path.join(output_dir, 'js', 'chart-editor.min.js.gz'))
+        shutil.copyfile(os.path.join(OUT_PATH, 'chart-editor.dev.min.js'),
+                        os.path.join(output_dir, 'js', 'chart-editor.dev.min.js'))
+        shutil.copyfile(os.path.join(OUT_PATH, 'chart-editor.dev.min.js.gz'),
+                        os.path.join(output_dir, 'js', 'chart-editor.dev.min.js.gz'))
 
     # copy themes
     for theme in __get_themes_list():
@@ -1074,7 +1084,7 @@ def __upload_release():
     export_server_version, export_server_bundle_version = __get_export_server_version(export_server_project_path)
     upload_list.append({'source_file': '%s/export-server.jar' % OUT_PATH, 'target': '/export-server/'})
     upload_list.append({'source_file': '%s/export-server-%s-bundle-%s.jar' % (
-    OUT_PATH, export_server_version, export_server_bundle_version), 'target': '/export-server/'})
+        OUT_PATH, export_server_version, export_server_bundle_version), 'target': '/export-server/'})
 
     # check all files exists
     should_exit = False
@@ -1170,8 +1180,6 @@ def __compile_css(gzip):
 
     print "Compile AnyChart UI css"
     css_src_path = os.path.join(PROJECT_PATH, 'css', 'anychart.less')
-    # css_out_path = os.path.join(PROJECT_PATH, 'out', 'anychart-ui.css')
-    # css_min_out_path = os.path.join(PROJECT_PATH, 'out', 'anychart-ui.min.css')
     css_out_path = os.path.join(OUT_PATH, 'anychart-ui.css')
     css_min_out_path = os.path.join(OUT_PATH, 'anychart-ui.min.css')
 
@@ -1268,7 +1276,7 @@ def __should_gen_gzip():
     return 'gzip' in arguments and str(arguments['gzip']) == 'True'
 
 
-#=======================================================================================================================
+# =======================================================================================================================
 #           Main
 # =======================================================================================================================
 arguments = {}
@@ -1313,25 +1321,39 @@ def __exec_main_script():
     compile_each_parser.add_argument('-p', '--process', action='store', type=int,
                                      help="Specify the number of parallel processes to compile. By default 2 process",
                                      default=2)
+    compile_each_parser.add_argument('-ac', '--allow_compile_css', action='store_false',
+                                     help="Allow or reject build script to compile css for module")
 
     # create the parser for the "contrib" command
-    contrib_parser = subparsers.add_parser('contrib', help='Synchronize project dependencies. Deprecated. Use "./build.py libs" instead')
-    # contrib_parser.add_argument('-l', '--linter', action='store_true',
-    #                             help='Install closure linter with others contributions.')
+    contrib_parser = subparsers.add_parser('contrib',
+                                           help='Download project requirements. Deprecated. Use "./build.py libs" instead')
+    contrib_parser.add_argument('-sl', '--skip-linter', action='store_false',
+                                default=False,
+                                help='Skip linter installation')
+    contrib_parser.add_argument('-ss', '--skip-lesscpy', action='store_false',
+                                default=False,
+                                help='Skip lesscpy installation')
+    contrib_parser.add_argument('-sj', '--skip-jsbeautifier', action='store_false',
+                                default=False,
+                                help='Skip jsbeautifier installation.')
 
     # create the parser for the "libs" command
-    contrib_parser = subparsers.add_parser('libs', help='Synchronize project dependencies')
-    # contrib_parser.add_argument('-l', '--linter', action='store_true',
-    #                             help='Install closure linter with others contributions.')
+    libs_parser = subparsers.add_parser('libs', help='Download project requirements')
+    libs_parser.add_argument('-sl', '--skip-linter', action='store_true',
+                             help='Skip linter installation')
+    libs_parser.add_argument('-ss', '--skip-lesscpy', action='store_true',
+                             help='Skip lesscpy installation')
+    libs_parser.add_argument('-sj', '--skip-jsbeautifier', action='store_true',
+                             help='Skip jsbeautifier installation.')
 
     # create the parser for the "deps" command
     subparsers.add_parser('deps', help='Generate deps.js file')
 
     # create the parser for the "lint" command
-    # subparsers.add_parser('lint', help='Exec linter check for whole project')
+    subparsers.add_parser('lint', help='Exec linter check for whole project')
 
     # create the parser for the "autofix" command
-    # subparsers.add_parser('autofix', help='Try to autofix linter warnings and errors')
+    subparsers.add_parser('autofix', help='Try to autofix linter warnings and errors')
 
     # create the parser for the "theme" command
     themes_parser = subparsers.add_parser('theme',
@@ -1358,11 +1380,16 @@ def __exec_main_script():
     css_parser = subparsers.add_parser('css', help='Compile AnyChart UI css')
     css_parser.add_argument('-gz', '--gzip', action='store_true', help='Create gzip copy of output files.')
 
-    upload_release_parser = subparsers.add_parser('upload_release', help='Uploads release related files from /out folder to static.anychart.com and cdn.anychart.com. Invalidates CDN cache.')
-    upload_release_parser.add_argument('-v', '--version', action='store', help="Version of the release, affects only folder on the remote server. Doesn't affect code version, export server version or wherever else version. ")
-    upload_release_parser.add_argument('-nl', '--not-latest', dest='is_latest', action='store_false', help="Prevent to upload release files to 'latest' directory")
-    upload_release_parser.add_argument('-dr', '--dry-run', dest='dry_run', action='store_true', help="Print what will happen, don't really upload files.")
-    upload_release_parser.add_argument('-esp', '--export-server-path', dest='export_server_path', action='store', default=os.path.join(PROJECT_PATH, '..', 'export-server'))
+    upload_release_parser = subparsers.add_parser('upload_release',
+                                                  help='Uploads release related files from /out folder to static.anychart.com and cdn.anychart.com. Invalidates CDN cache.')
+    upload_release_parser.add_argument('-v', '--version', action='store',
+                                       help="Version of the release, affects only folder on the remote server. Doesn't affect code version, export server version or wherever else version. ")
+    upload_release_parser.add_argument('-nl', '--not-latest', dest='is_latest', action='store_false',
+                                       help="Prevent to upload release files to 'latest' directory")
+    upload_release_parser.add_argument('-dr', '--dry-run', dest='dry_run', action='store_true',
+                                       help="Print what will happen, don't really upload files.")
+    upload_release_parser.add_argument('-esp', '--export-server-path', dest='export_server_path', action='store',
+                                       default=os.path.join(PROJECT_PATH, '..', 'export-server'))
     upload_release_parser.add_argument('-hs', '--host_string', dest='host_string', action='store')
     upload_release_parser.add_argument('-ma', '--max_cdn_alias', dest='max_cdn_alias', action='store')
     upload_release_parser.add_argument('-mk', '--max_cdn_key', dest='max_cdn_key', action='store')
