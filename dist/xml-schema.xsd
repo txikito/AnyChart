@@ -990,6 +990,9 @@
     </xsd:complexType>
 
     <xsd:complexType name="anychart.core.TagCloudStateSettings">
+        <xsd:all>
+            <xsd:element minOccurs="0" maxOccurs="1" name="fill" type="Fill"/>
+        </xsd:all>
         <xsd:attribute name="font_size" type="xsd:string"/>
         <xsd:attribute name="fill" type="xsd:string"/>
         <xsd:attribute name="font_family" type="xsd:string"/>
