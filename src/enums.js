@@ -1295,26 +1295,7 @@ anychart.enums.SidePosition = {
  * @return {anychart.enums.SidePosition}
  */
 anychart.enums.normalizeSidePosition = function(value, opt_default) {
-  value = (String(value)).toLowerCase();
-  switch (value) {
-    case 'inside':
-    case 'in':
-    case 'i':
-    case 'inner':
-      return anychart.enums.SidePosition.INSIDE;
-    case 'outside':
-    case 'out':
-    case 'o':
-    case 'outer':
-      return anychart.enums.SidePosition.OUTSIDE;
-    case 'middle':
-    case 'mid':
-    case 'm':
-    case 'center':
-    case 'c':
-      return anychart.enums.SidePosition.CENTER;
-  }
-  return opt_default || anychart.enums.SidePosition.INSIDE;
+  return anychart.enums.normalizeValue(value, opt_default) || anychart.enums.SidePosition.INSIDE;
 };
 
 
@@ -1358,53 +1339,7 @@ anychart.enums.PyramidLabelsPosition = {
  * @return {anychart.enums.PyramidLabelsPosition}
  */
 anychart.enums.normalizePyramidLabelsPosition = function(value, opt_default) {
-  value = (String(value)).toLowerCase();
-  switch (value) {
-    case 'inside':
-    case 'in':
-    case 'i':
-    case 'inner':
-      return anychart.enums.PyramidLabelsPosition.INSIDE;
-    case 'outside':
-    case 'out':
-    case 'o':
-    case 'outer':
-    case 'l':
-    case 'left':
-    case 'outsideleft':
-    case 'outleft':
-    case 'ol':
-    case 'outerleft':
-      return anychart.enums.PyramidLabelsPosition.OUTSIDE_LEFT;
-    case 'outsideleftincolumn':
-    case 'outsideleftcolumn':
-    case 'outleftincolumn':
-    case 'outleftcolumn':
-    case 'olic':
-    case 'olc':
-    case 'lc':
-    case 'outerleftincolumn':
-    case 'outerleftcolumn':
-      return anychart.enums.PyramidLabelsPosition.OUTSIDE_LEFT_IN_COLUMN;
-    case 'r':
-    case 'right':
-    case 'outsideright':
-    case 'outright':
-    case 'or':
-    case 'outerright':
-      return anychart.enums.PyramidLabelsPosition.OUTSIDE_RIGHT;
-    case 'outsiderightincolumn':
-    case 'outsiderightcolumn':
-    case 'outrightincolumn':
-    case 'outrightcolumn':
-    case 'oric':
-    case 'orc':
-    case 'rc':
-    case 'outerrightincolumn':
-    case 'outerrightcolumn':
-      return anychart.enums.PyramidLabelsPosition.OUTSIDE_RIGHT_IN_COLUMN;
-  }
-  return opt_default || anychart.enums.PyramidLabelsPosition.OUTSIDE_LEFT_IN_COLUMN;
+  return anychart.enums.normalizeValue(value, opt_default) || anychart.enums.PyramidLabelsPosition.OUTSIDE_LEFT_IN_COLUMN;
 };
 
 
@@ -1533,34 +1468,7 @@ anychart.enums.ScaleStackMode = {
  * @return {anychart.enums.ScaleStackMode}
  */
 anychart.enums.normalizeScaleStackMode = function(value, opt_default) {
-  value = (String(value)).toLowerCase();
-  switch (value) {
-    case 'value':
-    case 'values':
-    case 'val':
-    case 'v':
-    case 'true':
-    case 'yes':
-    case 'y':
-    case 't':
-    case '1':
-      return anychart.enums.ScaleStackMode.VALUE;
-    case 'percent':
-    case 'ratio':
-    case 'relative':
-    case 'p':
-    case 'r':
-      return anychart.enums.ScaleStackMode.PERCENT;
-    case 'none':
-    case 'null':
-    case 'no':
-    case 'false':
-    case 'f':
-    case '0':
-    case 'n':
-      return anychart.enums.ScaleStackMode.NONE;
-  }
-  return opt_default || anychart.enums.ScaleStackMode.NONE;
+  return anychart.enums.normalizeValue(value, opt_default) || anychart.enums.ScaleStackMode.NONE;
 };
 
 
@@ -1597,18 +1505,7 @@ anychart.enums.ScaleCompareWithMode = {
  * @return {?anychart.enums.ScaleCompareWithMode}
  */
 anychart.enums.normalizeScaleCompareWithModeMode = function(value) {
-  value = (String(value)).toLowerCase();
-  switch (value) {
-    case 'series':
-    case 'datastart':
-    case 'seriesstart':
-      return anychart.enums.ScaleCompareWithMode.SERIES_START;
-    case 'firstvisible':
-    case 'first':
-    case 'default':
-      return anychart.enums.ScaleCompareWithMode.FIRST_VISIBLE;
-  }
-  return null;
+  return anychart.enums.normalizeValue(value);
 };
 
 
@@ -1657,18 +1554,7 @@ anychart.enums.MapSeriesType = {
  * @return {anychart.enums.MapSeriesType}
  */
 anychart.enums.normalizeMapSeriesType = function(value, opt_default) {
-  value = (String(value)).toLowerCase();
-  switch (value) {
-    case 'choropleth':
-      return anychart.enums.MapSeriesType.CHOROPLETH;
-    case 'bubble':
-      return anychart.enums.MapSeriesType.BUBBLE;
-    case 'marker':
-      return anychart.enums.MapSeriesType.MARKER;
-    case 'connector':
-      return anychart.enums.MapSeriesType.CONNECTOR;
-  }
-  return opt_default || anychart.enums.MapSeriesType.CHOROPLETH;
+  return anychart.enums.normalizeValue(value, opt_default) || anychart.enums.MapSeriesType.CHOROPLETH;
 };
 
 
@@ -1699,56 +1585,7 @@ anychart.enums.MapProjections = {
  * @return {Object|Function|anychart.enums.MapProjections|string}
  */
 anychart.enums.normalizeMapProjections = function(value) {
-  switch (String(value).toLowerCase()) {
-    case 'bonne':
-      return anychart.enums.MapProjections.BONNE;
-      break;
-    case 'eckert1':
-      return anychart.enums.MapProjections.ECKERT1;
-      break;
-    case 'eckert3':
-      return anychart.enums.MapProjections.ECKERT3;
-      break;
-    case 'fahey':
-      return anychart.enums.MapProjections.FAHEY;
-      break;
-    case 'hammeraitoff':
-    case 'hammer-aitoff':
-    case 'hammer':
-      return anychart.enums.MapProjections.HAMMER;
-      break;
-    case 'aitoff':
-      return anychart.enums.MapProjections.AITOFF;
-      break;
-    case 'mercator':
-      return anychart.enums.MapProjections.MERCATOR;
-      break;
-    case 'orthographic':
-      return anychart.enums.MapProjections.ORTHOGRAPHIC;
-      break;
-    case 'robinson':
-      return anychart.enums.MapProjections.ROBINSON;
-      break;
-    case 'wagner':
-    case 'wagner6':
-      return anychart.enums.MapProjections.WAGNER6;
-      break;
-    case 'undefined':
-    case 'null':
-    case 'none':
-    case 'wsg84':
-    case 'base':
-    case '+proj=longlat +datum=WGS84 +no_defs':
-      return anychart.enums.MapProjections.WSG84;
-      break;
-    case 'equirectangular':
-      return anychart.enums.MapProjections.EQUIRECTANGULAR;
-      break;
-    case 'august':
-      return anychart.enums.MapProjections.AUGUST;
-      break;
-  }
-  return /** @type {Object|Function|anychart.enums.MapProjections|string} */(value);
+  return /** @type {Object|Function|anychart.enums.MapProjections|string} */(anychart.enums.normalizeValue(value));
 };
 
 
@@ -1829,52 +1666,7 @@ anychart.enums.CartesianSeriesType = {
  * @return {anychart.enums.CartesianSeriesType}
  */
 anychart.enums.normalizeCartesianSeriesType = function(value, opt_default) {
-  value = (String(value)).toLowerCase();
-  switch (value) {
-    case 'area':
-      return anychart.enums.CartesianSeriesType.AREA;
-    case 'bar':
-      return anychart.enums.CartesianSeriesType.BAR;
-    case 'box':
-      return anychart.enums.CartesianSeriesType.BOX;
-    case 'bubble':
-      return anychart.enums.CartesianSeriesType.BUBBLE;
-    case 'candlestick':
-      return anychart.enums.CartesianSeriesType.CANDLESTICK;
-    case 'column':
-      return anychart.enums.CartesianSeriesType.COLUMN;
-    case 'jumpline':
-      return anychart.enums.CartesianSeriesType.JUMP_LINE;
-    case 'stick':
-      return anychart.enums.CartesianSeriesType.STICK;
-    case 'line':
-      return anychart.enums.CartesianSeriesType.LINE;
-    case 'marker':
-      return anychart.enums.CartesianSeriesType.MARKER;
-    case 'ohlc':
-      return anychart.enums.CartesianSeriesType.OHLC;
-    case 'rangearea':
-      return anychart.enums.CartesianSeriesType.RANGE_AREA;
-    case 'rangebar':
-      return anychart.enums.CartesianSeriesType.RANGE_BAR;
-    case 'rangecolumn':
-      return anychart.enums.CartesianSeriesType.RANGE_COLUMN;
-    case 'rangesplinearea':
-      return anychart.enums.CartesianSeriesType.RANGE_SPLINE_AREA;
-    case 'rangesteparea':
-      return anychart.enums.CartesianSeriesType.RANGE_STEP_AREA;
-    case 'spline':
-      return anychart.enums.CartesianSeriesType.SPLINE;
-    case 'splinearea':
-      return anychart.enums.CartesianSeriesType.SPLINE_AREA;
-    case 'steparea':
-      return anychart.enums.CartesianSeriesType.STEP_AREA;
-    case 'stepline':
-      return anychart.enums.CartesianSeriesType.STEP_LINE;
-    case 'hilo':
-      return anychart.enums.CartesianSeriesType.HILO;
-  }
-  return opt_default || anychart.enums.CartesianSeriesType.LINE;
+  return anychart.enums.normalizeValue(value, opt_default) || anychart.enums.CartesianSeriesType.LINE;
 };
 
 
@@ -1901,16 +1693,7 @@ anychart.enums.Cartesian3dSeriesType = {
  * @return {anychart.enums.Cartesian3dSeriesType}
  */
 anychart.enums.normalizeCartesian3dSeriesType = function(value, opt_default) {
-  value = (String(value)).toLowerCase();
-  switch (value) {
-    case 'area':
-      return anychart.enums.Cartesian3dSeriesType.AREA;
-    case 'bar':
-      return anychart.enums.Cartesian3dSeriesType.BAR;
-    case 'column':
-      return anychart.enums.Cartesian3dSeriesType.COLUMN;
-  }
-  return opt_default || anychart.enums.Cartesian3dSeriesType.COLUMN;
+  return anychart.enums.normalizeValue(value, opt_default) || anychart.enums.Cartesian3dSeriesType.COLUMN;
 };
 
 
@@ -1954,50 +1737,7 @@ anychart.enums.StockSeriesType = {
  * @return {anychart.enums.StockSeriesType}
  */
 anychart.enums.normalizeStockSeriesType = function(value, opt_default) {
-  value = (String(value)).toLowerCase();
-  switch (value) {
-    case 'area':
-      return anychart.enums.StockSeriesType.AREA;
-    // case 'bar':
-    //   return anychart.enums.StockSeriesType.BAR;
-    // case 'box':
-    //   return anychart.enums.StockSeriesType.BOX;
-    // case 'bubble':
-    //   return anychart.enums.StockSeriesType.BUBBLE;
-    case 'candlestick':
-      return anychart.enums.StockSeriesType.CANDLESTICK;
-    case 'column':
-      return anychart.enums.StockSeriesType.COLUMN;
-    case 'jumpline':
-      return anychart.enums.StockSeriesType.JUMP_LINE;
-    case 'stick':
-      return anychart.enums.StockSeriesType.STICK;
-    case 'line':
-      return anychart.enums.StockSeriesType.LINE;
-    case 'marker':
-      return anychart.enums.StockSeriesType.MARKER;
-    case 'ohlc':
-      return anychart.enums.StockSeriesType.OHLC;
-    case 'rangearea':
-      return anychart.enums.StockSeriesType.RANGE_AREA;
-    // case 'rangebar':
-    //   return anychart.enums.StockSeriesType.RANGE_BAR;
-    case 'rangecolumn':
-      return anychart.enums.StockSeriesType.RANGE_COLUMN;
-    case 'rangesplinearea':
-      return anychart.enums.StockSeriesType.RANGE_SPLINE_AREA;
-    case 'rangesteparea':
-      return anychart.enums.StockSeriesType.RANGE_STEP_AREA;
-    case 'spline':
-      return anychart.enums.StockSeriesType.SPLINE;
-    case 'splinearea':
-      return anychart.enums.StockSeriesType.SPLINE_AREA;
-    case 'steparea':
-      return anychart.enums.StockSeriesType.STEP_AREA;
-    case 'stepline':
-      return anychart.enums.StockSeriesType.STEP_LINE;
-  }
-  return opt_default || anychart.enums.StockSeriesType.LINE;
+  return anychart.enums.normalizeValue(value, opt_default) || anychart.enums.StockSeriesType.LINE;
 };
 
 
@@ -2023,14 +1763,7 @@ anychart.enums.MovingAverageType = {
  * @return {anychart.enums.MovingAverageType}
  */
 anychart.enums.normalizeMovingAverageType = function(value, opt_default) {
-  value = (String(value)).toLowerCase();
-  switch (value) {
-    case 'sma':
-      return anychart.enums.MovingAverageType.SMA;
-    case 'ema':
-      return anychart.enums.MovingAverageType.EMA;
-  }
-  return opt_default || anychart.enums.MovingAverageType.SMA;
+  return anychart.enums.normalizeValue(value, opt_default) || anychart.enums.MovingAverageType.SMA;
 };
 
 
@@ -2058,29 +1791,7 @@ anychart.enums.SparklineSeriesType = {
  * @return {anychart.enums.SparklineSeriesType}
  */
 anychart.enums.normalizeSparklineSeriesType = function(value, opt_default) {
-  value = (String(value)).toLowerCase();
-  switch (value) {
-    case 'area':
-    case 'are':
-    case 'ar':
-    case 'a':
-      return anychart.enums.SparklineSeriesType.AREA;
-    case 'column':
-    case 'col':
-    case 'c':
-      return anychart.enums.SparklineSeriesType.COLUMN;
-    case 'line':
-    case 'lin':
-    case 'l':
-      return anychart.enums.SparklineSeriesType.LINE;
-    case 'win':
-    case 'loss':
-    case 'winloss':
-    case 'win_loss':
-    case 'wl':
-      return anychart.enums.SparklineSeriesType.WIN_LOSS;
-  }
-  return opt_default || anychart.enums.SparklineSeriesType.LINE;
+  return anychart.enums.normalizeValue(value, opt_default) || anychart.enums.SparklineSeriesType.LINE;
 };
 
 
@@ -2110,31 +1821,7 @@ anychart.enums.LinearGaugePointerType = {
  * @return {anychart.enums.LinearGaugePointerType}
  */
 anychart.enums.normalizeLinearGaugePointerType = function(value, opt_default) {
-  value = (String(value)).toLowerCase();
-  switch (value) {
-    case 'bar':
-    case 'b':
-      return anychart.enums.LinearGaugePointerType.BAR;
-    case 'rangebar':
-    case 'range':
-    case 'rb':
-    case 'r':
-      return anychart.enums.LinearGaugePointerType.RANGE_BAR;
-    case 'marker':
-    case 'm':
-      return anychart.enums.LinearGaugePointerType.MARKER;
-    case 'thermometer':
-    case 'ther':
-    case 'th':
-      return anychart.enums.LinearGaugePointerType.THERMOMETER;
-    case 'tank':
-    case 't':
-      return anychart.enums.LinearGaugePointerType.TANK;
-    case 'led':
-    case 'l':
-      return anychart.enums.LinearGaugePointerType.LED;
-  }
-  return opt_default || anychart.enums.LinearGaugePointerType.BAR;
+  return anychart.enums.normalizeValue(value, opt_default) || anychart.enums.LinearGaugePointerType.BAR;
 };
 
 
