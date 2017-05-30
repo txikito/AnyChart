@@ -1002,41 +1002,7 @@ anychart.enums.StockLabelsOverlapMode = {
  * @return {anychart.enums.StockLabelsOverlapMode}
  */
 anychart.enums.normalizeStockLabelsOverlapMode = function(value, opt_default) {
-  value = (String(value)).toLowerCase();
-  switch (value) {
-    case 'no':
-    case 'false':
-    case 'nooverlap':
-    case 'none':
-    case 'null':
-    case 'forbid':
-    case '0':
-      return anychart.enums.StockLabelsOverlapMode.NO_OVERLAP;
-    case 'min':
-    case 'minor':
-    case 'nomajor':
-    case 'notmajor':
-    case 'forbidmajor':
-    case 'allowminor':
-    case 'allowminoroverlap':
-      return anychart.enums.StockLabelsOverlapMode.ALLOW_MINOR_OVERLAP;
-    case 'maj':
-    case 'major':
-    case 'nominor':
-    case 'notminor':
-    case 'forbidminor':
-    case 'allowmajor':
-    case 'allowmajoroverlap':
-      return anychart.enums.StockLabelsOverlapMode.ALLOW_MAJOR_OVERLAP;
-    case 'yes':
-    case 'allow':
-    case 'overlap':
-    case 'allowoverlap':
-    case 'true':
-    case '1':
-      return anychart.enums.StockLabelsOverlapMode.ALLOW_OVERLAP;
-  }
-  return opt_default || anychart.enums.StockLabelsOverlapMode.NO_OVERLAP;
+  return anychart.enums.normalizeValue(value, opt_default) || anychart.enums.StockLabelsOverlapMode.NO_OVERLAP;
 };
 
 
@@ -1057,14 +1023,7 @@ anychart.enums.TagCloudMode = {
  * @return {anychart.enums.TagCloudMode}
  */
 anychart.enums.normalizeTagCloudMode = function(value, opt_default) {
-  value = (String(value)).toLowerCase();
-  switch (value) {
-    case 'spiral':
-      return anychart.enums.TagCloudMode.SPIRAL;
-    case 'rect':
-      return anychart.enums.TagCloudMode.RECT;
-  }
-  return opt_default || anychart.enums.TagCloudMode.SPIRAL;
+  return anychart.enums.normalizeValue(value, opt_default) || anychart.enums.TagCloudMode.SPIRAL;
 };
 
 
@@ -1153,18 +1112,7 @@ anychart.enums.BackgroundCornersType = {
  * @return {anychart.enums.BackgroundCornersType} normalized value.
  */
 anychart.enums.normalizeBackgroundCornerType = function(value, opt_default) {
-  value = (String(value)).toLowerCase();
-  switch (value) {
-    case 'none':
-      return anychart.enums.BackgroundCornersType.NONE;
-    case 'round':
-      return anychart.enums.BackgroundCornersType.ROUND;
-    case 'cut':
-      return anychart.enums.BackgroundCornersType.CUT;
-    case 'roundinner':
-      return anychart.enums.BackgroundCornersType.ROUND_INNER;
-  }
-  return opt_default || anychart.enums.BackgroundCornersType.NONE;
+  return anychart.enums.normalizeValue(value, opt_default) || anychart.enums.BackgroundCornersType.NONE;
 };
 
 
@@ -1226,81 +1174,7 @@ anychart.enums.LegendItemIconType = {
  * @return {anychart.enums.LegendItemIconType} normalized value.
  */
 anychart.enums.normalizeLegendItemIconType = function(value, opt_default) {
-  value = (String(value)).toLowerCase();
-  switch (value) {
-    case 'area':
-      return anychart.enums.LegendItemIconType.AREA;
-    case 'bar':
-      return anychart.enums.LegendItemIconType.BAR;
-    case 'bubble':
-      return anychart.enums.LegendItemIconType.BUBBLE;
-    case 'candlestick':
-      return anychart.enums.LegendItemIconType.CANDLESTICK;
-    case 'column':
-      return anychart.enums.LegendItemIconType.COLUMN;
-    case 'line':
-      return anychart.enums.LegendItemIconType.LINE;
-    case 'marker':
-      return anychart.enums.LegendItemIconType.MARKER;
-    case 'ohlc':
-      return anychart.enums.LegendItemIconType.OHLC;
-    case 'rangearea':
-      return anychart.enums.LegendItemIconType.RANGE_AREA;
-    case 'rangebar':
-      return anychart.enums.LegendItemIconType.RANGE_BAR;
-    case 'rangecolumn':
-      return anychart.enums.LegendItemIconType.RANGE_COLUMN;
-    case 'rangesplinearea':
-      return anychart.enums.LegendItemIconType.RANGE_SPLINE_AREA;
-    case 'rangesteparea':
-      return anychart.enums.LegendItemIconType.RANGE_STEP_AREA;
-    case 'spline':
-      return anychart.enums.LegendItemIconType.SPLINE;
-    case 'splinearea':
-      return anychart.enums.LegendItemIconType.SPLINE_AREA;
-    case 'stepline':
-      return anychart.enums.LegendItemIconType.STEP_LINE;
-    case 'steparea':
-      return anychart.enums.LegendItemIconType.STEP_AREA;
-    case 'circle':
-      return anychart.enums.LegendItemIconType.CIRCLE;
-    case 'square':
-      return anychart.enums.LegendItemIconType.SQUARE;
-    case 'star4':
-      return anychart.enums.LegendItemIconType.STAR4;
-    case 'star5':
-      return anychart.enums.LegendItemIconType.STAR5;
-    case 'star6':
-      return anychart.enums.LegendItemIconType.STAR6;
-    case 'star7':
-      return anychart.enums.LegendItemIconType.STAR7;
-    case 'star10':
-      return anychart.enums.LegendItemIconType.STAR10;
-    case 'diamond':
-      return anychart.enums.LegendItemIconType.DIAMOND;
-    case 'triangleup':
-      return anychart.enums.LegendItemIconType.TRIANGLE_UP;
-    case 'triangledown':
-      return anychart.enums.LegendItemIconType.TRIANGLE_DOWN;
-    case 'cross':
-      return anychart.enums.LegendItemIconType.CROSS;
-    case 'diagonalcross':
-      return anychart.enums.LegendItemIconType.DIAGONAL_CROSS;
-    case 'trapezoid':
-    case 'trapezium':
-      return anychart.enums.LegendItemIconType.TRAPEZIUM;
-    case 'pentagon':
-      return anychart.enums.LegendItemIconType.PENTAGON;
-    case 'arrow':
-    case 'arrowhead':
-      return anychart.enums.LegendItemIconType.ARROWHEAD;
-    case 'vline':
-      return anychart.enums.LegendItemIconType.V_LINE;
-    case 'rf':
-    case 'risingfalling':
-      return anychart.enums.LegendItemIconType.RISING_FALLING;
-  }
-  return opt_default || anychart.enums.LegendItemIconType.SQUARE;
+  return anychart.enums.normalizeValue(value, opt_default) || anychart.enums.LegendItemIconType.SQUARE;
 };
 
 
@@ -1326,18 +1200,7 @@ anychart.enums.LegendItemsSourceMode = {
  * @return {anychart.enums.LegendItemsSourceMode} normalized value.
  */
 anychart.enums.normalizeLegendItemsSourceMode = function(value, opt_default) {
-  value = (String(value)).toLowerCase();
-  switch (value) {
-    case 'd':
-    case 'def':
-    case 'default':
-      return anychart.enums.LegendItemsSourceMode.DEFAULT;
-    case 'c':
-    case 'cat':
-    case 'categories':
-      return anychart.enums.LegendItemsSourceMode.CATEGORIES;
-  }
-  return opt_default || anychart.enums.LegendItemsSourceMode.DEFAULT;
+  return anychart.enums.normalizeValue(value, opt_default) || anychart.enums.LegendItemsSourceMode.DEFAULT;
 };
 
 
@@ -1365,18 +1228,7 @@ anychart.enums.BulletMarkerType = {
  * @return {anychart.enums.BulletMarkerType}
  */
 anychart.enums.normalizeBulletMarkerType = function(value, opt_default) {
-  value = (String(value)).toLowerCase();
-  switch (value) {
-    case 'x':
-      return anychart.enums.BulletMarkerType.X;
-    case 'line':
-      return anychart.enums.BulletMarkerType.LINE;
-    case 'ellipse':
-      return anychart.enums.BulletMarkerType.ELLIPSE;
-    case 'bar':
-      return anychart.enums.BulletMarkerType.BAR;
-  }
-  return opt_default || anychart.enums.BulletMarkerType.BAR;
+  return anychart.enums.normalizeValue(value, opt_default) || anychart.enums.BulletMarkerType.BAR;
 };
 
 
@@ -1412,27 +1264,7 @@ anychart.enums.GaugeSidePosition = {
  * @return {anychart.enums.GaugeSidePosition}
  */
 anychart.enums.normalizeGaugeSidePosition = function(value, opt_default) {
-  value = (String(value)).toLowerCase();
-  switch (value) {
-    case 'inside':
-    case 'in':
-    case 'i':
-    case 'inner':
-      return anychart.enums.GaugeSidePosition.INSIDE;
-    case 'center':
-    case 'cen':
-    case 'c':
-    case 'middle':
-    case 'mid':
-    case 'm':
-      return anychart.enums.GaugeSidePosition.CENTER;
-    case 'outside':
-    case 'out':
-    case 'o':
-    case 'outer':
-      return anychart.enums.GaugeSidePosition.OUTSIDE;
-  }
-  return opt_default || anychart.enums.GaugeSidePosition.CENTER;
+  return anychart.enums.normalizeValue(value, opt_default) || anychart.enums.GaugeSidePosition.CENTER;
 };
 
 
