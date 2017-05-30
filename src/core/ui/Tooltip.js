@@ -2488,7 +2488,7 @@ anychart.core.ui.Tooltip.prototype.disposeInternal = function() {
   delete this.padding_;
   delete this.delay_;
 
-  if (this.tooltipContainer_ && this.tooltipContainer_.isLocal()) {
+  if (this.tooltipContainer_ && this.tooltipContainer_.isLocal() && this.getContainer_(this)) {
     var allowDisposing = true;
     for (var key in anychart.utils.tooltipsRegistry) {
       if (anychart.utils.tooltipsRegistry.hasOwnProperty(key)) {
