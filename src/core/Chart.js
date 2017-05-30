@@ -1828,13 +1828,12 @@ anychart.core.Chart.prototype.setupByJSON = function(config, opt_default) {
 
 /** @inheritDoc */
 anychart.core.Chart.prototype.disposeInternal = function() {
-  goog.disposeAll(this.animation_, this.a11y_);
-  anychart.core.Chart.base(this, 'disposeInternal');
-
   goog.disposeAll(this.animation_, this.a11y_, this.tooltip_);
   this.animation_ = null;
   this.a11y_ = null;
   this.tooltip_ = null;
+
+  anychart.core.Chart.base(this, 'disposeInternal');
 
   if (this.id_)
     anychart.untrackChart(this, /** @type {string} */(this.id_));
