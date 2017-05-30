@@ -122,6 +122,17 @@ anychart.enums.MapUnboundRegionsMode = {
 
 
 /**
+ * Common normalization of value and default value.
+ * @param {*} value
+ * @param {*=} opt_default
+ * @return {*}
+ */
+anychart.enums.normalizeValue = function(value, opt_default) {
+  return (String(value)).toLowerCase() || (goog.isDef(opt_default) ? (String(opt_default)).toLowerCase() : null);
+};
+
+
+/**
  * Normalizes value to MapUnboundRegionsMode enum.
  * @param {*} value Input to normalize.
  * @param {anychart.enums.MapUnboundRegionsMode=} opt_default Default value, if input cannot be recognized. Defaults to HIDE.
@@ -129,7 +140,7 @@ anychart.enums.MapUnboundRegionsMode = {
  */
 // todo: enums\.normalize\w+\(.+,\s*\w+\)
 anychart.enums.normalizeMapUnboundRegionsMode = function(value, opt_default) {
-  return (String(value)).toLowerCase() || (String(opt_default)).toLowerCase() || anychart.enums.MapUnboundRegionsMode.HIDE;
+  return anychart.enums.normalizeValue(value, opt_default) || anychart.enums.MapUnboundRegionsMode.HIDE;
 };
 
 
@@ -151,7 +162,7 @@ anychart.enums.HoverMode = {
  * @return {anychart.enums.HoverMode}
  */
 anychart.enums.normalizeHoverMode = function(value, opt_default) {
-  return (String(value)).toLowerCase() || (String(opt_default)).toLowerCase() || anychart.enums.HoverMode.BY_X;
+  return anychart.enums.normalizeValue(value, opt_default) || anychart.enums.HoverMode.BY_X;
 };
 
 
@@ -174,7 +185,7 @@ anychart.enums.SelectionMode = {
  * @return {anychart.enums.SelectionMode}
  */
 anychart.enums.normalizeSelectMode = function(value, opt_default) {
-  return (String(value)).toLowerCase() || (String(opt_default)).toLowerCase() || anychart.enums.SelectionMode.NONE;
+  return anychart.enums.normalizeValue(value, opt_default) || anychart.enums.SelectionMode.NONE;
 };
 
 
@@ -254,60 +265,7 @@ anychart.enums.Cursor = {
  * @return {anychart.enums.Cursor}
  */
 anychart.enums.normalizeCursor = function(value, opt_default) {
-  value = (String(value)).toLowerCase();
-  switch (value) {
-    case 'default':
-    case 'def':
-    case 'd':
-      return anychart.enums.Cursor.DEFAULT;
-    case 'crosshair':
-    case 'cross':
-      return anychart.enums.Cursor.CROSSHAIR;
-    case 'pointer':
-    case 'point':
-      return anychart.enums.Cursor.POINTER;
-    case 'move':
-      return anychart.enums.Cursor.MOVE;
-    case 'text':
-      return anychart.enums.Cursor.TEXT;
-    case 'wait':
-      return anychart.enums.Cursor.WAIT;
-    case 'help':
-      return anychart.enums.Cursor.HELP;
-    case 'n-resize':
-    case 'north':
-    case 'n':
-      return anychart.enums.Cursor.N_RESIZE;
-    case 'ne-resize':
-    case 'northeast':
-    case 'ne':
-      return anychart.enums.Cursor.NE_RESIZE;
-    case 'e-resize':
-    case 'east':
-    case 'e':
-      return anychart.enums.Cursor.E_RESIZE;
-    case 'se-resize':
-    case 'southeast':
-    case 'se':
-      return anychart.enums.Cursor.SE_RESIZE;
-    case 's-resize':
-    case 'south':
-    case 's':
-      return anychart.enums.Cursor.S_RESIZE;
-    case 'sw-resize':
-    case 'southwest':
-    case 'sw':
-      return anychart.enums.Cursor.SW_RESIZE;
-    case 'w-resize':
-    case 'west':
-    case 'w':
-      return anychart.enums.Cursor.W_RESIZE;
-    case 'nw-resize':
-    case 'northwest':
-    case 'nw':
-      return anychart.enums.Cursor.NW_RESIZE;
-  }
-  return opt_default || anychart.enums.Cursor.DEFAULT;
+  return anychart.enums.normalizeValue(value, opt_default) || anychart.enums.Cursor.DEFAULT;
 };
 
 
@@ -389,65 +347,7 @@ anychart.enums.Anchor = {
  * @template T
  */
 anychart.enums.normalizeAnchor = function(value, opt_default) {
-  value = (String(value)).toLowerCase();
-  switch (value) {
-    case 'lefttop':
-    case 'topleft':
-    case 'lt':
-    case 'tl':
-      return anychart.enums.Anchor.LEFT_TOP;
-    case 'leftcenter':
-    case 'centerleft':
-    case 'left':
-    case 'lc':
-    case 'cl':
-    case 'l':
-      return anychart.enums.Anchor.LEFT_CENTER;
-    case 'leftbottom':
-    case 'bottomleft':
-    case 'lb':
-    case 'bl':
-      return anychart.enums.Anchor.LEFT_BOTTOM;
-    case 'centertop':
-    case 'topcenter':
-    case 'top':
-    case 'ct':
-    case 'tc':
-    case 't':
-      return anychart.enums.Anchor.CENTER_TOP;
-    case 'centercenter':
-    case 'center':
-    case 'c':
-      return anychart.enums.Anchor.CENTER;
-    case 'centerbottom':
-    case 'bottomcenter':
-    case 'bottom':
-    case 'cb':
-    case 'bc':
-    case 'b':
-      return anychart.enums.Anchor.CENTER_BOTTOM;
-    case 'righttop':
-    case 'topright':
-    case 'tr':
-    case 'rt':
-      return anychart.enums.Anchor.RIGHT_TOP;
-    case 'rightcenter':
-    case 'centerright':
-    case 'right':
-    case 'rc':
-    case 'cr':
-    case 'r':
-      return anychart.enums.Anchor.RIGHT_CENTER;
-    case 'rightbottom':
-    case 'bottomright':
-    case 'rb':
-    case 'br':
-      return anychart.enums.Anchor.RIGHT_BOTTOM;
-    case 'auto':
-    case 'null':
-      return anychart.enums.Anchor.AUTO;
-  }
-  return goog.isDef(opt_default) ? opt_default : anychart.enums.Anchor.LEFT_TOP;
+  return anychart.enums.normalizeValue(value, opt_default) || anychart.enums.Anchor.LEFT_TOP;
 };
 
 
@@ -548,26 +448,7 @@ anychart.enums.ChartScrollerPosition = {
  * @return {anychart.enums.ChartScrollerPosition}
  */
 anychart.enums.normalizeChartScrollerPosition = function(value, opt_default) {
-  value = (String(value)).toLowerCase();
-  switch (value) {
-    case 'beforeaxes':
-    case 'before':
-    case 'ba':
-    case 'b':
-    case 'inside':
-    case 'in':
-    case 'i':
-      return anychart.enums.ChartScrollerPosition.BEFORE_AXES;
-    case 'afteraxes':
-    case 'after':
-    case 'aa':
-    case 'a':
-    case 'outside':
-    case 'out':
-    case 'o':
-      return anychart.enums.ChartScrollerPosition.AFTER_AXES;
-  }
-  return opt_default || anychart.enums.ChartScrollerPosition.AFTER_AXES;
+  return anychart.enums.normalizeValue(value, opt_default) || anychart.enums.ChartScrollerPosition.AFTER_AXES;
 };
 
 
@@ -613,21 +494,7 @@ anychart.enums.Align = {
  * @return {anychart.enums.Align} Normalized align.
  */
 anychart.enums.normalizeAlign = function(value, opt_default) {
-  value = (String(value)).toLowerCase();
-  switch (value) {
-    case 'left':
-      return anychart.enums.Align.LEFT;
-    case 'right':
-      return anychart.enums.Align.RIGHT;
-    case 'center':
-    case 'middle':
-      return anychart.enums.Align.CENTER;
-    case 'top':
-      return anychart.enums.Align.TOP;
-    case 'bottom':
-      return anychart.enums.Align.BOTTOM;
-  }
-  return opt_default || anychart.enums.Align.CENTER;
+  return anychart.enums.normalizeValue(value, opt_default) || anychart.enums.Align.CENTER;
 };
 
 
@@ -660,19 +527,7 @@ anychart.enums.Layout = {
  * @return {anychart.enums.Layout} Normalized orientation.
  */
 anychart.enums.normalizeLayout = function(value, opt_default) {
-  value = (String(value)).toLowerCase();
-  switch (value) {
-    case 'vertical':
-    case 'v':
-    case 'vert':
-      return anychart.enums.Layout.VERTICAL;
-    case 'horizontal':
-    case 'h':
-    case 'horz':
-    case 'horiz':
-      return anychart.enums.Layout.HORIZONTAL;
-  }
-  return opt_default || anychart.enums.Layout.VERTICAL;
+  return anychart.enums.normalizeValue(value, opt_default) || anychart.enums.Layout.VERTICAL;
 };
 
 
@@ -708,32 +563,7 @@ anychart.enums.LegendLayout = {
  * @return {anychart.enums.LegendLayout} Normalized orientation.
  */
 anychart.enums.normalizeLegendLayout = function(value, opt_default) {
-  value = (String(value)).toLowerCase();
-  switch (value) {
-    case 'vertical':
-    case 'v':
-    case 'vert':
-      return anychart.enums.LegendLayout.VERTICAL;
-    case 'horizontal':
-    case 'h':
-    case 'horz':
-    case 'horiz':
-      return anychart.enums.LegendLayout.HORIZONTAL;
-    case 'verticalexpandable':
-    case 'vexpandable':
-    case 'evertical':
-    case 've':
-    case 'vertical_expandable':
-      return anychart.enums.LegendLayout.VERTICAL_EXPANDABLE;
-    case 'horizontalexpandable':
-    case 'expandable':
-    case 'hexpandable':
-    case 'ehorizontal':
-    case 'he':
-    case 'horizontal_expandable':
-      return anychart.enums.LegendLayout.HORIZONTAL_EXPANDABLE;
-  }
-  return opt_default || anychart.enums.LegendLayout.VERTICAL;
+  return anychart.enums.normalizeValue(value, opt_default) || anychart.enums.LegendLayout.VERTICAL;
 };
 
 
@@ -761,18 +591,7 @@ anychart.enums.RadialGridLayout = {
  * @return {anychart.enums.RadialGridLayout} Normalized orientation.
  */
 anychart.enums.normalizePolarLayout = function(value, opt_default) {
-  value = (String(value)).toLowerCase();
-  switch (value) {
-    case 'radial':
-    case 'r':
-    case 'rad':
-      return anychart.enums.RadialGridLayout.RADIAL;
-    case 'circuit':
-    case 'c':
-    case 'cir':
-      return anychart.enums.RadialGridLayout.CIRCUIT;
-  }
-  return opt_default || anychart.enums.RadialGridLayout.RADIAL;
+  return anychart.enums.normalizeValue(value, opt_default) || anychart.enums.RadialGridLayout.RADIAL;
 };
 
 
@@ -813,34 +632,7 @@ anychart.enums.Orientation = {
  * @return {anychart.enums.Orientation} Normalized orientation.
  */
 anychart.enums.normalizeOrientation = function(value, opt_default) {
-  value = (String(value)).toLowerCase();
-  switch (value) {
-    case 'centertop':
-    case 'topcenter':
-    case 'top':
-    case 't':
-    case 'up':
-    case 'u':
-      return anychart.enums.Orientation.TOP;
-    case 'rightcenter':
-    case 'centerright':
-    case 'right':
-    case 'r':
-      return anychart.enums.Orientation.RIGHT;
-    case 'bottomcenter':
-    case 'centerbottom':
-    case 'bottom':
-    case 'b':
-    case 'down':
-    case 'd':
-      return anychart.enums.Orientation.BOTTOM;
-    case 'leftcenter':
-    case 'centerleft':
-    case 'left':
-    case 'l':
-      return anychart.enums.Orientation.LEFT;
-  }
-  return opt_default || anychart.enums.Orientation.TOP;
+  return anychart.enums.normalizeValue(value, opt_default) || anychart.enums.Orientation.TOP;
 };
 
 
@@ -873,14 +665,7 @@ anychart.enums.LegendPositionMode = {
  * @return {anychart.enums.LegendPositionMode} Normalized position mode.
  */
 anychart.enums.normalizeLegendPositionMode = function(value, opt_default) {
-  value = (String(value)).toLowerCase();
-  switch (value) {
-    case 'inside':
-      return anychart.enums.LegendPositionMode.INSIDE;
-    case 'outside':
-      return anychart.enums.LegendPositionMode.OUTSIDE;
-  }
-  return opt_default || anychart.enums.LegendPositionMode.OUTSIDE;
+  return anychart.enums.normalizeValue(value, opt_default) || anychart.enums.LegendPositionMode.OUTSIDE;
 };
 
 
@@ -917,32 +702,7 @@ anychart.enums.Sort = {
  * @return {anychart.enums.Sort} Normalized sort.
  */
 anychart.enums.normalizeSort = function(value, opt_default) {
-  value = (String(value)).toLowerCase();
-  switch (value) {
-    case 'asc':
-    case 'a':
-    case 'forward':
-    case 'f':
-    case 'straight':
-    case 's':
-    case 'yes':
-    case 'y':
-      return anychart.enums.Sort.ASC;
-    case 'desc':
-    case 'd':
-    case 'backward':
-    case 'b':
-    case 'reversed':
-    case 'reverse':
-    case 'r':
-      return anychart.enums.Sort.DESC;
-    case 'none':
-    case 'null':
-    case 'no':
-    case 'nosort':
-      return anychart.enums.Sort.NONE;
-  }
-  return opt_default || anychart.enums.Sort.NONE;
+  return anychart.enums.normalizeValue(value, opt_default) || anychart.enums.Sort.NONE;
 };
 
 
@@ -1062,138 +822,22 @@ anychart.enums.MarkerType = {
 
 /**
  * Method to get marker drawer.
- * @param {*} type Marker type.
+ * @param {*} value Marker type.
  * @param {anychart.enums.MarkerType=} opt_default Default marker type. Defaults to anychart.enums.MarkerType.STAR5.
  * @return {anychart.enums.MarkerType} Normalized marker type.
  */
-anychart.enums.normalizeMarkerType = function(type, opt_default) {
-  type = (String(type)).toLowerCase();
-  switch (type) {
-    case 'line':
-      return anychart.enums.MarkerType.LINE;
-    case 'vline':
-      return anychart.enums.MarkerType.V_LINE;
-    case 'star4':
-      return anychart.enums.MarkerType.STAR4;
-    case 'star5':
-      return anychart.enums.MarkerType.STAR5;
-    case 'star6':
-      return anychart.enums.MarkerType.STAR6;
-    case 'star7':
-      return anychart.enums.MarkerType.STAR7;
-    case 'star10':
-      return anychart.enums.MarkerType.STAR10;
-    case 'diamond':
-      return anychart.enums.MarkerType.DIAMOND;
-    case 'triangleup':
-      return anychart.enums.MarkerType.TRIANGLE_UP;
-    case 'triangledown':
-      return anychart.enums.MarkerType.TRIANGLE_DOWN;
-    case 'triangleleft':
-      return anychart.enums.MarkerType.TRIANGLE_LEFT;
-    case 'triangleright':
-      return anychart.enums.MarkerType.TRIANGLE_RIGHT;
-    case 'cross':
-      return anychart.enums.MarkerType.CROSS;
-    case 'diagonalcross':
-      return anychart.enums.MarkerType.DIAGONAL_CROSS;
-    case 'circle':
-      return anychart.enums.MarkerType.CIRCLE;
-    case 'square':
-      return anychart.enums.MarkerType.SQUARE;
-    case 'trapezoid':
-    case 'trapezium':
-      return anychart.enums.MarkerType.TRAPEZIUM;
-    case 'pentagon':
-      return anychart.enums.MarkerType.PENTAGON;
-    case 'arrow':
-    case 'arrowhead':
-      return anychart.enums.MarkerType.ARROWHEAD;
-    case 'arrowup':
-    case 'up':
-      return anychart.enums.MarkerType.ARROW_UP;
-    case 'arrowdown':
-    case 'down':
-      return anychart.enums.MarkerType.ARROW_DOWN;
-    case 'arrowright':
-    case 'right':
-      return anychart.enums.MarkerType.ARROW_RIGHT;
-    case 'arrowleft':
-    case 'left':
-      return anychart.enums.MarkerType.ARROW_LEFT;
-  }
-  return opt_default || anychart.enums.MarkerType.STAR5;
+anychart.enums.normalizeMarkerType = function(value, opt_default) {
+  return anychart.enums.normalizeValue(value, opt_default) || anychart.enums.MarkerType.STAR5;
 };
 
 
 /**
  * Method to get marker drawer.
- * @param {*} type Marker type.
+ * @param {*} value Marker type.
  * @return {anychart.enums.MarkerType|anychart.enums.BulletMarkerType|null} Normalized marker type.
  */
-anychart.enums.normalizeAnyMarkerType = function(type) {
-  type = (String(type)).toLowerCase();
-  switch (type) {
-    case 'star4':
-      return anychart.enums.MarkerType.STAR4;
-    case 'star5':
-      return anychart.enums.MarkerType.STAR5;
-    case 'star6':
-      return anychart.enums.MarkerType.STAR6;
-    case 'star7':
-      return anychart.enums.MarkerType.STAR7;
-    case 'star10':
-      return anychart.enums.MarkerType.STAR10;
-    case 'diamond':
-      return anychart.enums.MarkerType.DIAMOND;
-    case 'triangleup':
-      return anychart.enums.MarkerType.TRIANGLE_UP;
-    case 'triangledown':
-      return anychart.enums.MarkerType.TRIANGLE_DOWN;
-    case 'triangleleft':
-      return anychart.enums.MarkerType.TRIANGLE_LEFT;
-    case 'triangleright':
-      return anychart.enums.MarkerType.TRIANGLE_RIGHT;
-    case 'cross':
-      return anychart.enums.MarkerType.CROSS;
-    case 'diagonalcross':
-      return anychart.enums.MarkerType.DIAGONAL_CROSS;
-    case 'circle':
-      return anychart.enums.MarkerType.CIRCLE;
-    case 'square':
-      return anychart.enums.MarkerType.SQUARE;
-    case 'x':
-      return anychart.enums.BulletMarkerType.X;
-    case 'line':
-      return anychart.enums.BulletMarkerType.LINE;
-    case 'ellipse':
-      return anychart.enums.BulletMarkerType.ELLIPSE;
-    case 'bar':
-      return anychart.enums.BulletMarkerType.BAR;
-    case 'trapezoid':
-    case 'trapezium':
-      return anychart.enums.MarkerType.TRAPEZIUM;
-    case 'pentagon':
-      return anychart.enums.MarkerType.PENTAGON;
-    case 'arrow':
-    case 'arrowhead':
-      return anychart.enums.MarkerType.ARROWHEAD;
-    case 'vline':
-      return anychart.enums.MarkerType.V_LINE;
-    case 'arrowup':
-    case 'up':
-      return anychart.enums.MarkerType.ARROW_UP;
-    case 'arrowdown':
-    case 'down':
-      return anychart.enums.MarkerType.ARROW_DOWN;
-    case 'arrowright':
-    case 'right':
-      return anychart.enums.MarkerType.ARROW_RIGHT;
-    case 'arrowleft':
-    case 'left':
-      return anychart.enums.MarkerType.ARROW_LEFT;
-  }
-  return null;
+anychart.enums.normalizeAnyMarkerType = function(value) {
+  return anychart.enums.normalizeValue(value);
 };
 
 
@@ -1321,28 +965,9 @@ anychart.enums.LabelsOverlapMode = {
  * @return {anychart.enums.LabelsOverlapMode}
  */
 anychart.enums.normalizeLabelsOverlapMode = function(value, opt_default, opt_allowAutoWidth) {
-  value = (String(value)).toLowerCase();
-  switch (value) {
-    case 'no':
-    case 'false':
-    case 'nooverlap':
-    case 'none':
-    case 'null':
-    case 'forbid':
-    case '0':
-      return anychart.enums.LabelsOverlapMode.NO_OVERLAP;
-    case 'yes':
-    case 'allow':
-    case 'overlap':
-    case 'allowoverlap':
-    case 'true':
-    case '1':
-      return anychart.enums.LabelsOverlapMode.ALLOW_OVERLAP;
-    case 'autowidth':
-      if (opt_allowAutoWidth)
-        return anychart.enums.LabelsOverlapMode.AUTO_WIDTH;
-  }
-  return opt_default || anychart.enums.LabelsOverlapMode.ALLOW_OVERLAP;
+  value = ((String(value)).toLowerCase() == 'autowidth' && opt_allowAutoWidth) ? value : null;
+  opt_default = anychart.enums.normalizeLabelsOverlapMode(opt_default, void 0, opt_allowAutoWidth);
+  return anychart.enums.normalizeValue(value, opt_default) || anychart.enums.LabelsOverlapMode.ALLOW_OVERLAP;
 };
 
 
