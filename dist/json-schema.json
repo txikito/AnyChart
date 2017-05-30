@@ -492,13 +492,21 @@
         }
       ],
       "properties": {
+        "type": {
+          "enum": [
+            "waterfall"
+          ]
+        },
         "dataMode": {
           "$ref": "#/definitions/anychart.enums.WaterfallDataMode"
         },
         "connectorStroke": {
           "$ref": "#/definitions/stroke"
         }
-      }
+      },
+      "required": [
+        "type"
+      ]
     },
     "anychart.charts.Funnel": {
       "type": "object",
