@@ -78,6 +78,14 @@ anychart.scales.Base.prototype.inverseTransform = goog.abstractMethod;
 
 
 /**
+ * Gets or sets a set of scale ticks in terms of data values.
+ * @param {(Object|Array)=} opt_value An array of ticks to set.
+ * @return {!(anychart.scales.Base|*)} Ticks or itself for chaining.
+ */
+anychart.scales.Base.prototype.ticks = goog.nullFunction;
+
+
+/**
  * This is an internal method to maintain compatibility with Stock scales in X scale transformation.
  * @param {*} key Key of the point to transform.
  * @param {number} index Point index. If it is needed but not passed it would be retrieved automatically.
