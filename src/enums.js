@@ -127,23 +127,9 @@ anychart.enums.MapUnboundRegionsMode = {
  * @param {anychart.enums.MapUnboundRegionsMode=} opt_default Default value, if input cannot be recognized. Defaults to HIDE.
  * @return {anychart.enums.MapUnboundRegionsMode}
  */
+// todo: enums\.normalize\w+\(.+,\s*\w+\)
 anychart.enums.normalizeMapUnboundRegionsMode = function(value, opt_default) {
-  value = (String(value)).toLowerCase();
-  switch (value) {
-    case 'asis':
-    case 'as-is':
-    case 'as is':
-    case 'true':
-    case '1':
-      return anychart.enums.MapUnboundRegionsMode.AS_IS;
-    case 'hide':
-    case 'none':
-    case 'null':
-    case 'false':
-    case '0':
-      return anychart.enums.MapUnboundRegionsMode.HIDE;
-  }
-  return opt_default || anychart.enums.MapUnboundRegionsMode.HIDE;
+  return (String(value)).toLowerCase() || (String(opt_default)).toLowerCase() || anychart.enums.MapUnboundRegionsMode.HIDE;
 };
 
 
@@ -164,22 +150,8 @@ anychart.enums.HoverMode = {
  * @param {anychart.enums.HoverMode=} opt_default Default value, if input cannot be recognized. Defaults to BY_X.
  * @return {anychart.enums.HoverMode}
  */
-// todo: enums\.normalize\w+\(.+,\s*\w+\)
 anychart.enums.normalizeHoverMode = function(value, opt_default) {
-  value = (String(value)).toLowerCase();
-  switch (value) {
-    case 'byspot':
-    case 'spot':
-    case 'sp':
-      return anychart.enums.HoverMode.BY_SPOT;
-    case 'byx':
-    case 'x':
-      return anychart.enums.HoverMode.BY_X;
-    case 'single':
-    case 's':
-      return anychart.enums.HoverMode.SINGLE;
-  }
-  return opt_default || anychart.enums.HoverMode.BY_X;
+  return (String(value)).toLowerCase() || (String(opt_default)).toLowerCase() || anychart.enums.HoverMode.BY_X;
 };
 
 
@@ -202,33 +174,7 @@ anychart.enums.SelectionMode = {
  * @return {anychart.enums.SelectionMode}
  */
 anychart.enums.normalizeSelectMode = function(value, opt_default) {
-  value = (String(value)).toLowerCase();
-  switch (value) {
-    case 'none':
-    case 'null':
-    case 'false':
-    case 'n':
-    case 'no':
-      return anychart.enums.SelectionMode.NONE;
-    case 'singleselect':
-    case 'single':
-    case 'single_select':
-    case 's':
-    case 'ss':
-      return anychart.enums.SelectionMode.SINGLE_SELECT;
-    case 'multiselect':
-    case 'multi_select':
-    case 'multi':
-    case 'm':
-    case 'ms':
-      return anychart.enums.SelectionMode.MULTI_SELECT;
-    case 'drill':
-    case 'drilldown':
-    case 'drill_down':
-    case 'd':
-      return anychart.enums.SelectionMode.DRILL_DOWN;
-  }
-  return opt_default || anychart.enums.SelectionMode.NONE;
+  return (String(value)).toLowerCase() || (String(opt_default)).toLowerCase() || anychart.enums.SelectionMode.NONE;
 };
 
 
