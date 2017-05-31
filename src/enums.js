@@ -3050,27 +3050,8 @@ anychart.enums.LabelsDisplayMode = {
  * @return {anychart.enums.LabelsDisplayMode}
  */
 anychart.enums.normalizeLabelsDisplayMode = function(value, opt_default) {
-  value = (String(value)).toLowerCase();
-  switch (value) {
-    case 'clip':
-    case 'c':
-      return anychart.enums.LabelsDisplayMode.CLIP;
-    case 'drop':
-    case 'd':
-      return anychart.enums.LabelsDisplayMode.DROP;
-    case 'alwaysshow':
-    case 'always':
-    case 'show':
-    case 'none':
-    case 'null':
-    case 'no':
-    case 'false':
-    case 'f':
-    case '0':
-    case 'n':
-      return anychart.enums.LabelsDisplayMode.ALWAYS_SHOW;
-  }
-  return opt_default || anychart.enums.LabelsDisplayMode.CLIP;
+  return /** @type {anychart.enums.LabelsDisplayMode} */(anychart.enums.normalizeValues(anychart.enums.LabelsDisplayMode, value, opt_default)) ||
+      anychart.enums.LabelsDisplayMode.CLIP;
 };
 
 
@@ -3090,17 +3071,8 @@ anychart.enums.AdjustFontSizeMode = {
  * @return {anychart.enums.AdjustFontSizeMode}
  */
 anychart.enums.normalizeAdjustFontSizeMode = function(value, opt_default) {
-  value = (String(value)).toLowerCase();
-  switch (value) {
-    case 'same':
-    case 's':
-      return anychart.enums.AdjustFontSizeMode.SAME;
-    case 'different':
-    case 'diff':
-    case 'd':
-      return anychart.enums.AdjustFontSizeMode.DIFFERENT;
-  }
-  return opt_default || anychart.enums.AdjustFontSizeMode.DIFFERENT;
+  return /** @type {anychart.enums.AdjustFontSizeMode} */(anychart.enums.normalizeValues(anychart.enums.AdjustFontSizeMode, value, opt_default)) ||
+      anychart.enums.AdjustFontSizeMode.DIFFERENT;
 };
 
 
@@ -3121,18 +3093,8 @@ anychart.enums.StepDirection = {
  * @return {anychart.enums.StepDirection}
  */
 anychart.enums.normalizeStepDirection = function(value, opt_default) {
-  value = (String(value)).toLowerCase();
-  switch (value) {
-    case 'forward':
-    case 'fwd':
-    case 'f':
-      return anychart.enums.StepDirection.FORWARD;
-    case 'backward':
-    case 'bwd':
-    case 'b':
-      return anychart.enums.StepDirection.BACKWARD;
-  }
-  return opt_default || anychart.enums.StepDirection.CENTER;
+  return /** @type {anychart.enums.StepDirection} */(anychart.enums.normalizeValues(anychart.enums.StepDirection, value, opt_default)) ||
+      anychart.enums.StepDirection.CENTER;
 };
 
 
@@ -4473,18 +4435,12 @@ anychart.enums.A11yMode = {
 
 /**
  * Normalizes a11y mode.
- * @param {anychart.enums.A11yMode|string} mode - A11y mode.
+ * @param {anychart.enums.A11yMode|string} value - A11y mode.
  * @return {anychart.enums.A11yMode} - Normalized mode.
  */
-anychart.enums.normalizeA11yMode = function(mode) {
-  var value = (String(mode)).toLowerCase();
-  switch (value) {
-    case 'chartelements':
-      return anychart.enums.A11yMode.CHART_ELEMENTS;
-    case 'datatable':
-      return anychart.enums.A11yMode.DATA_TABLE;
-  }
-  return anychart.enums.A11yMode.CHART_ELEMENTS;
+anychart.enums.normalizeA11yMode = function(value) {
+  return /** @type {anychart.enums.A11yMode} */(anychart.enums.normalizeValues(anychart.enums.A11yMode, value)) ||
+      anychart.enums.A11yMode.CHART_ELEMENTS;
 };
 
 
@@ -4524,65 +4480,8 @@ anychart.enums.AnnotationTypes = {
  * @return {anychart.enums.AnnotationTypes}
  */
 anychart.enums.normalizeAnnotationType = function(value) {
-  value = String(value).toLowerCase();
-  switch (value) {
-    case 'ray':
-      return anychart.enums.AnnotationTypes.RAY;
-    case 'line':
-    case 'interval':
-      return anychart.enums.AnnotationTypes.LINE;
-    case 'iline':
-    case 'infiniteline':
-      return anychart.enums.AnnotationTypes.INFINITE_LINE;
-    case 'vline':
-    case 'verticalline':
-      return anychart.enums.AnnotationTypes.VERTICAL_LINE;
-    case 'hline':
-    case 'horizontalline':
-      return anychart.enums.AnnotationTypes.HORIZONTAL_LINE;
-    case 'rect':
-    case 'rectangle':
-      return anychart.enums.AnnotationTypes.RECTANGLE;
-    case 'circle':
-    case 'ellipse':
-      return anychart.enums.AnnotationTypes.ELLIPSE;
-    case 'tri':
-    case 'triangle':
-      return anychart.enums.AnnotationTypes.TRIANGLE;
-    case 'trend':
-    case 'channel':
-    case 'trendchannel':
-      return anychart.enums.AnnotationTypes.TREND_CHANNEL;
-    case 'fork':
-    case 'pitchfork':
-    case 'andrewspitchfork':
-      return anychart.enums.AnnotationTypes.ANDREWS_PITCHFORK;
-    case 'fan':
-    case 'ffan':
-    case 'fibonaccifan':
-      return anychart.enums.AnnotationTypes.FIBONACCI_FAN;
-    case 'arc':
-    case 'farc':
-    case 'fibonacciarc':
-      return anychart.enums.AnnotationTypes.FIBONACCI_ARC;
-    case 'ret':
-    case 'retracement':
-    case 'fretracement':
-    case 'fibonacciretracement':
-      return anychart.enums.AnnotationTypes.FIBONACCI_RETRACEMENT;
-    case 'tz':
-    case 'ftz':
-    case 'timezones':
-    case 'ftimezones':
-    case 'fibonaccitimezones':
-      return anychart.enums.AnnotationTypes.FIBONACCI_TIMEZONES;
-    case 'arrow':
-    case 'marker':
-      return anychart.enums.AnnotationTypes.MARKER;
-      // case 'label':
-      //   return anychart.enums.AnnotationTypes.LABEL;
-  }
-  return anychart.enums.AnnotationTypes.LINE;
+  return /** @type {anychart.enums.AnnotationTypes} */(anychart.enums.normalizeValues(anychart.enums.AnnotationTypes, value)) ||
+      anychart.enums.AnnotationTypes.LINE;
 };
 
 
@@ -4667,17 +4566,8 @@ anychart.enums.MilestoneShape = {
  * @return {anychart.enums.MilestoneShape}
  */
 anychart.enums.normalizeMilestoneShape = function(value) {
-  value = String(value).toLowerCase();
-  switch (value) {
-    case 'rhomb':
-    case 'rhombus':
-      return anychart.enums.MilestoneShape.RHOMBUS;
-    case 'rect':
-    case 'rectangle':
-      return anychart.enums.MilestoneShape.RECTANGLE;
-    default:
-      return anychart.enums.MilestoneShape.CIRCLE;
-  }
+  return /** @type {anychart.enums.MilestoneShape} */(anychart.enums.normalizeValues(anychart.enums.MilestoneShape, value)) ||
+      anychart.enums.MilestoneShape.CIRCLE;
 };
 
 
