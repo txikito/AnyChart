@@ -958,7 +958,7 @@ anychart.core.Chart.prototype.contextMenuItemsProvider = function(context) {
  * @protected
  */
 anychart.core.Chart.prototype.specificContextMenuItems = function(items, context, isPointContext) {
-  return /** @type {Array.<anychart.ui.ContextMenu.Item>} */(goog.array.concat(anychart.utils.recursiveClone(anychart.core.Chart.contextMenuMap.selectMarquee), items));
+  return items;
 };
 
 
