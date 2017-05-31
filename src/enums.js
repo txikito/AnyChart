@@ -2660,22 +2660,7 @@ anychart.enums.FontVariant = {
  * @return {anychart.enums.FontVariant}
  */
 anychart.enums.normalizeFontVariant = function(value) {
-  value = (String(value)).toLowerCase();
-  switch (value) {
-    case 'normal':
-    case 'n':
-      return anychart.enums.FontVariant.NORMAL;
-    case 'small-caps':
-    case 'small_caps':
-    case 'smallcaps':
-    case 'small':
-    case 'caps':
-    case 'sc':
-    case 's':
-    case 'c':
-      return anychart.enums.FontVariant.SMALL_CAP;
-  }
-  return anychart.enums.FontVariant.NORMAL;
+  return anychart.enums.normalizeValues(anychart.enums.FontVariant, value) || anychart.enums.FontVariant.NORMAL;
 };
 
 
@@ -2701,16 +2686,7 @@ anychart.enums.TextDirection = {
  * @return {anychart.enums.TextDirection}
  */
 anychart.enums.normalizeTextDirection = function(value) {
-  value = (String(value)).toLowerCase();
-  switch (value) {
-    case 'ltr':
-    case 'l':
-      return anychart.enums.TextDirection.LTR;
-    case 'rtl':
-    case 'r':
-      return anychart.enums.TextDirection.RTL;
-  }
-  return anychart.enums.TextDirection.LTR;
+  return anychart.enums.normalizeValues(anychart.enums.TextDirection, value) || anychart.enums.TextDirection.LTR;
 };
 
 
@@ -2740,17 +2716,7 @@ anychart.enums.TextWrap = {
  * @return {anychart.enums.TextWrap}
  */
 anychart.enums.normalizeTextWrap = function(value) {
-  value = (String(value)).toLowerCase();
-  switch (value) {
-    case 'nowrap':
-    case 'no':
-    case 'n':
-      return anychart.enums.TextWrap.NO_WRAP;
-    case 'byword':
-      return anychart.enums.TextWrap.BY_WORD;
-    default:
-      return anychart.enums.TextWrap.BY_LETTER;
-  }
+  return anychart.enums.normalizeValues(anychart.enums.TextWrap, value) || anychart.enums.TextWrap.BY_LETTER;
 };
 
 
@@ -2822,77 +2788,7 @@ anychart.enums.AggregationType = {
  * @return {anychart.enums.AggregationType}
  */
 anychart.enums.normalizeAggregationType = function(value) {
-  value = String(value).toLowerCase();
-  switch (value) {
-    case 'first':
-    case 'open':
-      return anychart.enums.AggregationType.FIRST;
-    case 'last':
-    case 'close':
-      return anychart.enums.AggregationType.LAST;
-    case 'max':
-    case 'high':
-    case 'maximum':
-    case 'highest':
-      return anychart.enums.AggregationType.MAX;
-    case 'min':
-    case 'low':
-    case 'minimum':
-    case 'lowest':
-      return anychart.enums.AggregationType.MIN;
-    case 'average':
-    case 'avg':
-      return anychart.enums.AggregationType.AVERAGE;
-    case 'weightedaverage':
-    case 'weightedavg':
-    case 'wavg':
-    case 'weights':
-    case 'weighted':
-      return anychart.enums.AggregationType.WEIGHTED_AVERAGE;
-    case 'firstvalue':
-    case 'firstval':
-    case 'openvalue':
-    case 'openval':
-      return anychart.enums.AggregationType.FIRST_VALUE;
-    case 'lastvalue':
-    case 'lastval':
-    case 'closevalue':
-    case 'closeval':
-    case 'fill':
-    case 'hoverfill':
-    case 'risingfill':
-    case 'hoverrisingfill':
-    case 'fallingfill':
-    case 'hoverfallingfill':
-    case 'stroke':
-    case 'hoverstroke':
-    case 'lowstroke':
-    case 'hoverlowstroke':
-    case 'highstroke':
-    case 'hoverhighstroke':
-    case 'risingstroke':
-    case 'hoverrisingstroke':
-    case 'fallingstroke':
-    case 'hoverfallingstroke':
-    case 'hatchfill':
-    case 'hoverhatchfill':
-    case 'risinghatchfill':
-    case 'hoverrisinghatchfill':
-    case 'fallinghatchfill':
-    case 'hoverfallinghatchfill':
-    case 'marker':
-    case 'hovermarker':
-      return anychart.enums.AggregationType.LAST_VALUE;
-    case 'sum':
-    case 'add':
-      return anychart.enums.AggregationType.SUM;
-    case 'list':
-    case 'group':
-    case 'array':
-      return anychart.enums.AggregationType.LIST;
-    default:
-      return anychart.enums.AggregationType.LAST;
-  }
+  return anychart.enums.normalizeValues(anychart.enums.AggregationType, value) || anychart.enums.AggregationType.LAST;
 };
 
 
@@ -2942,28 +2838,7 @@ anychart.enums.TableSearchMode = {
  * @return {anychart.enums.TableSearchMode}
  */
 anychart.enums.normalizeTableSearchMode = function(value) {
-  if (!value) return anychart.enums.TableSearchMode.EXACT;
-  value = String(value).toLowerCase();
-  switch (value) {
-    case 'exact':
-    case 'e':
-    default:
-      return anychart.enums.TableSearchMode.EXACT;
-    case 'exactornext':
-    case 'next':
-    case 'n':
-      return anychart.enums.TableSearchMode.EXACT_OR_NEXT;
-    case 'exactorprev':
-    case 'prev':
-    case 'p':
-      return anychart.enums.TableSearchMode.EXACT_OR_PREV;
-    case 'nearest':
-    case 'near':
-    case 'closest':
-    case 'close':
-    case 'c':
-      return anychart.enums.TableSearchMode.NEAREST;
-  }
+  return anychart.enums.normalizeValues(anychart.enums.TableSearchMode, value) || anychart.enums.TableSearchMode.EXACT;
 };
 
 
@@ -3014,21 +2889,7 @@ anychart.enums.StockRangeType = {
  * @return {?anychart.enums.StockRangeType}
  */
 anychart.enums.normalizeStockRangeType = function(value, opt_default) {
-  value = (String(value)).toLowerCase();
-  switch (value) {
-    case 'unit':
-    case 'u':
-      return anychart.enums.StockRangeType.UNIT;
-    case 'ytd':
-      return anychart.enums.StockRangeType.YTD;
-    case 'qtd':
-      return anychart.enums.StockRangeType.QTD;
-    case 'mtd':
-      return anychart.enums.StockRangeType.MTD;
-    case 'max':
-      return anychart.enums.StockRangeType.MAX;
-  }
-  return goog.isDef(opt_default) ? opt_default : anychart.enums.StockRangeType.MAX;
+  return anychart.enums.normalizeValues(anychart.enums.StockRangeType, value) || anychart.enums.StockRangeType.MAX;
 };
 
 
