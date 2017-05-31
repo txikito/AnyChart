@@ -124,17 +124,19 @@ anychart.enums.MapUnboundRegionsMode = {
 /**
  * Common normalization of value and default value.
  * @param {Object} enumeration
- * @param {*} value
+ * @param {*=} opt_value
  * @param {*=} opt_default
  * @return {*}
  */
-anychart.enums.normalizeValue = function(enumeration, value, opt_default) {
-  value = (String(value)).toLowerCase();
-  for (var i in enumeration) {
-    if (enumeration[i].toLowerCase() == value)
-      return enumeration[i];
+anychart.enums.normalizeValue = function(enumeration, opt_value, opt_default) {
+  if (goog.isDefAndNotNull(opt_value)) {
+    opt_value = (String(opt_value)).toLowerCase();
+    for (var i in enumeration) {
+      if (enumeration[i].toLowerCase() == opt_value)
+        return enumeration[i];
+    }
   }
-  return goog.isDef(opt_default) ? anychart.enums.normalizeValue(enumeration, opt_default) : null;
+  return goog.isDefAndNotNull(opt_default) ? anychart.enums.normalizeValue(enumeration, opt_default) : null;
 };
 
 
@@ -970,8 +972,8 @@ anychart.enums.LabelsOverlapMode = {
  * @return {anychart.enums.LabelsOverlapMode}
  */
 anychart.enums.normalizeLabelsOverlapMode = function(value, opt_default, opt_allowAutoWidth) {
-  opt_default = anychart.enums.normalizeLabelsOverlapMode(opt_default, void 0, opt_allowAutoWidth);
-  value = ((String(value)).toLowerCase() == 'autowidth' && opt_allowAutoWidth) ? value : opt_default;
+  opt_default = (String(value)).toLowerCase() == 'autowidth' && !opt_allowAutoWidth ? void 0 : opt_default;
+  value = (String(value)).toLowerCase() == 'autowidth' && !opt_allowAutoWidth ? opt_default : value;
   return anychart.enums.normalizeValue(anychart.enums.LabelsOverlapMode, value, opt_default) || anychart.enums.LabelsOverlapMode.ALLOW_OVERLAP;
 };
 
@@ -2072,16 +2074,7 @@ anychart.enums.ScatterSeriesType = {
  * @return {anychart.enums.ScatterSeriesType}
  */
 anychart.enums.normalizeScatterSeriesType = function(value, opt_default) {
-  value = (String(value)).toLowerCase();
-  switch (value) {
-    case 'bubble':
-      return anychart.enums.ScatterSeriesType.BUBBLE;
-    case 'line':
-      return anychart.enums.ScatterSeriesType.LINE;
-    case 'marker':
-      return anychart.enums.ScatterSeriesType.MARKER;
-  }
-  return opt_default || anychart.enums.ScatterSeriesType.LINE;
+  return anychart.enums.normalizeValue(anychart.enums.ScatterSeriesType, value, opt_default) || anychart.enums.ScatterSeriesType.LINE;
 };
 
 
@@ -2106,12 +2099,7 @@ anychart.enums.HeatMapSeriesType = {
  * @return {anychart.enums.HeatMapSeriesType}
  */
 anychart.enums.normalizeHeatMapSeriesType = function(value, opt_default) {
-  value = (String(value)).toLowerCase();
-  switch (value) {
-    case 'heatmap':
-      return anychart.enums.HeatMapSeriesType.HEAT_MAP;
-  }
-  return opt_default || anychart.enums.HeatMapSeriesType.HEAT_MAP;
+  return anychart.enums.normalizeValue(anychart.enums.HeatMapSeriesType, value, opt_default) || anychart.enums.HeatMapSeriesType.HEAT_MAP;
 };
 
 
@@ -2160,14 +2148,7 @@ anychart.enums.WaterfallDataMode = {
  * @return {anychart.enums.WaterfallDataMode}
  */
 anychart.enums.normalizeWaterfallDataMode = function(value, opt_default) {
-  value = (String(value)).toLowerCase();
-  switch (value) {
-    case 'diff':
-      return anychart.enums.WaterfallDataMode.DIFF;
-    case 'absolute':
-      return anychart.enums.WaterfallDataMode.ABSOLUTE;
-  }
-  return opt_default || anychart.enums.WaterfallDataMode.ABSOLUTE;
+  return anychart.enums.normalizeValue(anychart.enums.WaterfallDataMode, value, opt_default) || anychart.enums.WaterfallDataMode.ABSOLUTE;
 };
 
 
@@ -2242,18 +2223,7 @@ anychart.enums.MapsScaleTypes = {
  * @return {anychart.enums.GaugeScaleTypes|string} .
  */
 anychart.enums.normalizeGaugeScaleTypes = function(value) {
-  value = (String(value)).toLowerCase();
-
-  switch (value) {
-    case 'lin':
-    case 'linear':
-      return anychart.enums.GaugeScaleTypes.LINEAR;
-    case 'log':
-    case 'logarithmic':
-      return anychart.enums.GaugeScaleTypes.LOG;
-  }
-
-  return anychart.enums.GaugeScaleTypes.LINEAR;
+  return anychart.enums.normalizeValue(anychart.enums.GaugeScaleTypes, value) || anychart.enums.GaugeScaleTypes.LINEAR;
 };
 
 
@@ -2280,18 +2250,7 @@ anychart.enums.ChartDataExportMode = {
  * @return {anychart.enums.ChartDataExportMode} Normalized csv mode.
  */
 anychart.enums.normalizeChartDataExportMode = function(opt_value) {
-  opt_value = (String(opt_value)).toLowerCase();
-
-  switch (opt_value) {
-    case 'raw':
-      return anychart.enums.ChartDataExportMode.RAW;
-    case 'specific':
-      return anychart.enums.ChartDataExportMode.SPECIFIC;
-    case 'grouped':
-      return anychart.enums.ChartDataExportMode.GROUPED;
-  }
-
-  return anychart.enums.ChartDataExportMode.SPECIFIC;
+  return anychart.enums.normalizeValue(anychart.enums.ChartDataExportMode, opt_value) || anychart.enums.ChartDataExportMode.SPECIFIC;
 };
 
 
