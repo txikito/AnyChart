@@ -63,6 +63,15 @@ anychart.scales.Base.prototype.SUPPORTED_SIGNALS =
 
 
 /**
+ * If the scale is a color scale.
+ * @return {boolean}
+ */
+anychart.scales.Base.prototype.isColorScale = function() {
+  return false;
+};
+
+
+/**
  * @param {*} value Value to transform in input scope.
  * @param {number=} opt_subRangeRatio Sub range ratio.
  * @return {number} Value transformed to [0, 1] scope.

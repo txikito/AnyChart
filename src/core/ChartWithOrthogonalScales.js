@@ -177,7 +177,7 @@ anychart.core.ChartWithOrthogonalScales.prototype.allowLegendCategoriesMode = fu
  * @return {boolean}
  */
 anychart.core.ChartWithOrthogonalScales.prototype.checkXScaleType = function(scale) {
-  return scale instanceof anychart.scales.Base;
+  return (scale instanceof anychart.scales.Base) && !scale.isColorScale();
 };
 
 
