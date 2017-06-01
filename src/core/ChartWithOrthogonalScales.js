@@ -209,7 +209,7 @@ anychart.core.ChartWithOrthogonalScales.prototype.createScaleByType = function(v
 anychart.core.ChartWithOrthogonalScales.prototype.xScale = function(opt_value) {
   if (goog.isDef(opt_value)) {
     if (goog.isString(opt_value)) {
-      opt_value = this.createScaleByType(opt_value, true, false);
+      opt_value = this.createScaleByType(opt_value, true, true);
     }
     if (this.checkXScaleType(opt_value) && this.xScale_ != opt_value) {
       if (this.xScale_)
@@ -269,7 +269,7 @@ anychart.core.ChartWithOrthogonalScales.prototype.xScaleInvalidated = function(e
 anychart.core.ChartWithOrthogonalScales.prototype.yScale = function(opt_value) {
   if (goog.isDef(opt_value)) {
     if (goog.isString(opt_value)) {
-      opt_value = this.createScaleByType(opt_value, false, false);
+      opt_value = this.createScaleByType(opt_value, false, true);
     }
     if (this.checkYScaleType(opt_value) && this.yScale_ != opt_value) {
       if (this.yScale_)
