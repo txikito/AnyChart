@@ -649,6 +649,15 @@ anychart.core.ui.Tooltip.prototype.onSeparatorSignal_ = function(event) {
 };
 
 
+/**
+ * Gets current tooltip container.
+ * @return {?anychart.core.utils.LocalTooltipContainer}
+ */
+anychart.core.ui.Tooltip.prototype.getTooltipContainer = function() {
+  return this.tooltipContainer_;
+};
+
+
 //endregion
 //region -- Internal public API (not exported).
 //----------------------------------------------------------------------------------------------------------------------
@@ -2455,7 +2464,6 @@ anychart.core.ui.Tooltip.prototype.disposeInternal = function() {
   delete this.ownSettings;
   delete this.themeSettings;
 
-
   if (this.parent_) {
     var uid = String(goog.getUid(this));
     this.parent_.unlistenSignals(this.parentInvalidated_, this);
@@ -2480,10 +2488,29 @@ anychart.core.ui.Tooltip.prototype.disposeInternal = function() {
   delete this.padding_;
   delete this.delay_;
 
-  if (this.tooltipContainer_ && this.tooltipContainer_.isLocal() && this.getContainer_(this)) {
-    var stageUid = this.getCurrentStageUid_();
-    delete anychart.utils.tooltipContainersRegistry[stageUid];
-    goog.dispose(this.tooltipContainer_);
+  var container = this.getContainer_(this);
+  // this check needed cause 2 charts may own 1 stage (e.g. dashboard) and when one of them is disposed -
+  // second should has correct local tooltip container.
+  // true in case of ILayer container (for example when legend is container provider)
+  var isOwnStage = (container && container.isOwnStage) ? container.isOwnStage() : true;
+
+  if (this.tooltipContainer_ && this.tooltipContainer_.isLocal() && container && isOwnStage) {
+    var allowDisposing = true;
+    for (var key in anychart.utils.tooltipsRegistry) {
+      if (anychart.utils.tooltipsRegistry.hasOwnProperty(key)) {
+        var tooltip = anychart.utils.tooltipsRegistry[key];
+        if (tooltip != this && this.tooltipContainer_ == tooltip.getTooltipContainer()) {
+          allowDisposing = false;
+          break;
+        }
+      }
+    }
+
+    if (allowDisposing) {
+      var stageUid = this.getCurrentStageUid_();
+      delete anychart.utils.tooltipContainersRegistry[stageUid];
+      goog.dispose(this.tooltipContainer_);
+    }
   }
 
   delete this.tooltipContainer_;

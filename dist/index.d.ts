@@ -1,4 +1,4 @@
-// Type definitions for anychart vDVF-2121_common_api_improvement
+// Type definitions for anychart
 // Project: http://anychart.com/
 // Definitions by: AnyChart <http://anychart.com>
 // Definitions: https://github.com/DefinitelyTyped/DefinitelyType
@@ -10,6 +10,7 @@ declare namespace anychart {
     function area3d(...var_args: (anychart.data.View | anychart.data.Set | Array<any>)[]): anychart.charts.Cartesian3d;
     function bar(...var_args: (anychart.data.View | anychart.data.Set | Array<any>)[]): anychart.charts.Cartesian;
     function bar3d(...var_args: (anychart.data.View | anychart.data.Set | Array<any>)[]): anychart.charts.Cartesian3d;
+    function barmekko(...var_args: (anychart.data.View | anychart.data.Set | Array<any>)[]): anychart.charts.Mekko;
     function box(...var_args: (anychart.data.View | anychart.data.Set | Array<any>)[]): anychart.charts.Cartesian;
     function bubble(...var_args: (anychart.data.View | anychart.data.Set | Array<any>)[]): anychart.charts.Scatter;
     function bubbleMap(...var_args: (anychart.data.View | anychart.data.Set | Array<any>)[]): anychart.charts.Map;
@@ -25,33 +26,41 @@ declare namespace anychart {
     function fromJsonFile(url: string, onSuccessOrContainer?: string | (() => void), onError?: (() => void), method?: string, content?: ArrayBuffer | ArrayBufferView | Blob | Document | FormData | string, headers?: Object, timeoutInterval?: number, withCredentials?: boolean, context?: any): void;
     function fromXml(xmlConfig: string | Node): any;
     function fromXmlFile(url: string, onSuccessOrContainer?: string | (() => void), onError?: (() => void), method?: string, content?: ArrayBuffer | ArrayBufferView | Blob | Document | FormData | string, headers?: Object, timeoutInterval?: number, withCredentials?: boolean, context?: any): void;
-    function funnel(data?: anychart.data.View | anychart.data.Set | Array<any> | string, csvSettings?: {[prop: string]: (string|boolean)}): anychart.charts.Funnel;
+    function funnel(data?: anychart.data.View | anychart.data.Set | Array<any> | string, csvSettings?: anychart.enums.TextParsingMode | anychart.data.TextParsingSettings): anychart.charts.Funnel;
     function ganttProject(): anychart.charts.Gantt;
     function ganttResource(): anychart.charts.Gantt;
     function ganttToolbar(): anychart.ui.GanttToolbar;
-    function heatMap(data?: anychart.data.View | anychart.data.Set | Array<any> | string, csvSettings?: {[prop: string]: (string|boolean)}): anychart.charts.HeatMap;
+    function heatMap(data?: anychart.data.View | anychart.data.Set | Array<any> | string, csvSettings?: anychart.enums.TextParsingMode | anychart.data.TextParsingSettings): anychart.charts.HeatMap;
     function licenseKey(value?: string): string;
     function line(...var_args: (anychart.data.View | anychart.data.Set | Array<any>)[]): anychart.charts.Cartesian;
     function map(): anychart.charts.Map;
     function marker(...var_args: (anychart.data.View | anychart.data.Set | Array<any>)[]): anychart.charts.Scatter;
     function markerMap(...var_args: (anychart.data.View | anychart.data.Set | Array<any>)[]): anychart.charts.Map;
+    function mekko(...var_args: (anychart.data.View | anychart.data.Set | Array<any>)[]): anychart.charts.Mekko;
+    function mosaic(...var_args: (anychart.data.View | anychart.data.Set | Array<any>)[]): anychart.charts.Mekko;
     function onDocumentLoad(func: (() => void), scope?: any): void;
     function onDocumentReady(func: (() => void), scope?: any): void;
     function pareto(data?: anychart.data.View | anychart.data.Set | Array<any>): anychart.charts.Pareto;
     function pert(): anychart.charts.Pert;
     function pie(data?: anychart.data.View | anychart.data.Set | Array<any> | string): anychart.charts.Pie;
-    function pie3d(data?: anychart.data.View | anychart.data.Set | Array<any> | string, csvSettings?: {[prop: string]: (string|boolean)}): anychart.charts.Pie;
+    function pie3d(data?: anychart.data.View | anychart.data.Set | Array<any> | string, csvSettings?: anychart.enums.TextParsingMode | anychart.data.TextParsingSettings): anychart.charts.Pie;
     function polar(...var_args: (anychart.data.View | anychart.data.Set | Array<any>)[]): anychart.charts.Polar;
-    function pyramid(data?: anychart.data.View | anychart.data.Set | Array<any> | string, csvSettings?: {[prop: string]: (string|boolean)}): anychart.charts.Pyramid;
+    function pyramid(data?: anychart.data.View | anychart.data.Set | Array<any> | string, csvSettings?: anychart.enums.TextParsingMode | anychart.data.TextParsingSettings): anychart.charts.Pyramid;
+    function quadrant(...var_args: (anychart.data.View | anychart.data.Set | Array<any>)[]): anychart.charts.Scatter;
     function radar(...var_args: (anychart.data.View | anychart.data.Set | Array<any>)[]): anychart.charts.Radar;
+    function resource(data?: anychart.data.View | anychart.data.Set | Array<any> | string, csvSettings?: anychart.enums.TextParsingMode | anychart.data.TextParsingSettings): anychart.charts.Resource;
     function scatter(...var_args: (anychart.data.View | anychart.data.Set | Array<any>)[]): anychart.charts.Scatter;
     function seatMap(...var_args: (anychart.data.View | anychart.data.Set | Array<any>)[]): anychart.charts.Map;
-    function sparkline(data?: anychart.data.View | anychart.data.Set | Array<any> | string, csvSettings?: {[prop: string]: (string|boolean)}): anychart.charts.Sparkline;
-    function stock(): anychart.charts.Stock;
+    function sparkline(data?: anychart.data.View | anychart.data.Set | Array<any> | string, csvSettings?: anychart.enums.TextParsingMode | anychart.data.TextParsingSettings): anychart.charts.Sparkline;
+    function stock(allowPointSettings?: boolean): anychart.charts.Stock;
+    function tagCloud(data?: anychart.data.View | anychart.data.Set | Array<any> | string, settings?: anychart.enums.TextParsingMode | anychart.data.TextParsingSettings): anychart.charts.TagCloud;
     function theme(value?: string | Object | Array<(string|Object)>): string | Object | Array<(string|Object)>;
     function treeMap(data?: anychart.data.Tree | anychart.data.TreeView | Array<Object>, fillMethod?: anychart.enums.TreeFillingMethod): anychart.charts.TreeMap;
+    function venn(data?: anychart.data.View | anychart.data.Set | Array<any> | string, csvSettings?: {[prop: string]: (string|boolean)}): anychart.charts.Venn;
+    function vertical(...var_args: (anychart.data.View | anychart.data.Set | Array<any>)[]): anychart.charts.Cartesian;
     function verticalArea(...var_args: (anychart.data.View | anychart.data.Set | Array<any>)[]): anychart.charts.Cartesian;
     function verticalLine(...var_args: (anychart.data.View | anychart.data.Set | Array<any>)[]): anychart.charts.Cartesian;
+    function waterfall(...var_args: (anychart.data.View | anychart.data.Set | Array<any>)[]): anychart.charts.Waterfall;
     interface SignalEvent {
         targetBoundsChanged(): boolean;
         targetDataChanged(): boolean;
@@ -74,6 +83,7 @@ declare namespace anychart.charts {
         bounds(): anychart.core.utils.Bounds;
         bounds(value?: anychart.utils.RectObj | anychart.math.Rect | anychart.core.utils.Bounds): anychart.core.VisualBase;
         bounds(x?: number | string, y?: number | string, width?: number | string, height?: number | string): anychart.core.VisualBase;
+        cancelMarquee(): anychart.core.Chart;
         colorRange(): anychart.core.ui.ColorRange;
         colorRange(value?: Object): anychart.charts.TreeMap;
         colorScale(): anychart.scales.OrdinalColor | anychart.scales.LinearColor;
@@ -128,7 +138,8 @@ declare namespace anychart.charts {
         hoverMarkers(value?: Object | boolean | string): anychart.charts.TreeMap;
         hoverStroke(): anychart.graphics.vector.Stroke | (() => void);
         hoverStroke(strokeFunction?: anychart.graphics.vector.Stroke | (() => void)): anychart.charts.TreeMap;
-        hoverStroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.charts.TreeMap;
+        hoverStroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.charts.TreeMap;
+        inMarquee(): boolean;
         interactivity(): anychart.core.utils.Interactivity;
         interactivity(value?: Object | anychart.enums.HoverMode): anychart.core.SeparateChart;
         label(index?: string | number): anychart.core.ui.Label;
@@ -185,16 +196,25 @@ declare namespace anychart.charts {
         selectLabels(value?: Object | boolean): anychart.charts.TreeMap;
         selectMarkers(): anychart.core.ui.MarkersFactory;
         selectMarkers(value?: Object | boolean | string): anychart.charts.TreeMap;
+        selectMarqueeFill(): anychart.graphics.vector.Fill;
+        selectMarqueeFill(value: anychart.graphics.vector.Fill): anychart.core.Chart;
+        selectMarqueeFill(color: string, opacity?: number): anychart.core.Chart;
+        selectMarqueeFill(keys: Array<(anychart.graphics.vector.GradientKey|string)>, angle?: number, mode?: boolean | anychart.graphics.vector.Rect | Object, opacity?: number): anychart.core.Chart;
+        selectMarqueeFill(keys: Array<(anychart.graphics.vector.GradientKey|string)>, cx: number, cy: number, mode?: anychart.graphics.math.Rect, opacity?: number, fx?: number, fy?: number): anychart.core.Chart;
+        selectMarqueeFill(imageSettings: anychart.graphics.vector.Fill): anychart.core.Chart;
+        selectMarqueeStroke(): anychart.graphics.vector.Stroke;
+        selectMarqueeStroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string, thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.Chart;
         selectStroke(): anychart.graphics.vector.Stroke | (() => void);
         selectStroke(strokeFunction?: (() => void)): anychart.charts.TreeMap;
-        selectStroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.charts.TreeMap;
+        selectStroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.charts.TreeMap;
         selectionMode(): anychart.enums.SelectionMode;
         selectionMode(value?: anychart.enums.SelectionMode | string): anychart.charts.TreeMap;
         sort(): anychart.enums.Sort;
         sort(value?: anychart.enums.Sort | string): anychart.charts.TreeMap;
+        startSelectMarquee(repeat?: boolean): anychart.core.Chart;
         stroke(): anychart.graphics.vector.Stroke | (() => void);
         stroke(fillFunction?: (() => void)): anychart.charts.TreeMap;
-        stroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string, thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.charts.TreeMap;
+        stroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string, thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.charts.TreeMap;
         title(): anychart.core.ui.Title;
         title(value?: boolean | Object | string): anychart.core.Chart;
         toJson(stringify?: boolean, includeTheme?: boolean): Object | string;
@@ -219,10 +239,10 @@ declare namespace anychart.charts {
         animation(enabled: boolean, duration: number): anychart.charts.Cartesian;
         annotations(): anychart.core.annotations.PlotController;
         annotations(annotationsList?: Array<any>): anychart.charts.Cartesian;
-        area(data: anychart.data.View | anychart.data.Set | Array<any>, csvSettings?: {[prop: string]: (string|boolean)}): anychart.core.cartesian.series.Area;
+        area(data: anychart.data.View | anychart.data.Set | Array<any>, csvSettings?: anychart.enums.TextParsingMode | anychart.data.TextParsingSettings): anychart.core.cartesian.series.Area;
         background(): anychart.core.ui.Background;
         background(value?: string | Object | boolean): anychart.charts.Cartesian;
-        bar(data: anychart.data.View | anychart.data.Set | Array<any> | string, csvSettings?: {[prop: string]: (string|boolean)}): anychart.core.cartesian.series.Bar;
+        bar(data: anychart.data.View | anychart.data.Set | Array<any> | string, csvSettings?: anychart.enums.TextParsingMode | anychart.data.TextParsingSettings): anychart.core.cartesian.series.Bar;
         barGroupsPadding(): number;
         barGroupsPadding(value?: number): anychart.charts.Cartesian;
         barsPadding(): number;
@@ -232,10 +252,11 @@ declare namespace anychart.charts {
         bounds(): anychart.core.utils.Bounds;
         bounds(value?: anychart.utils.RectObj | anychart.math.Rect | anychart.core.utils.Bounds): anychart.core.VisualBase;
         bounds(x?: number | string, y?: number | string, width?: number | string, height?: number | string): anychart.core.VisualBase;
-        box(data: anychart.data.View | anychart.data.Set | Array<any> | string, csvSettings?: {[prop: string]: (string|boolean)}): anychart.core.cartesian.series.Box;
-        bubble(data: anychart.data.View | anychart.data.Set | Array<any> | string, csvSettings?: {[prop: string]: (string|boolean)}): anychart.core.cartesian.series.Bubble;
-        candlestick(data: anychart.data.View | anychart.data.Set | Array<any> | string, csvSettings?: {[prop: string]: (string|boolean)}): anychart.core.cartesian.series.Candlestick;
-        column(data: anychart.data.View | anychart.data.Set | Array<any> | string, csvSettings?: {[prop: string]: (string|boolean)}): anychart.core.cartesian.series.Column;
+        box(data: anychart.data.View | anychart.data.Set | Array<any> | string, csvSettings?: anychart.enums.TextParsingMode | anychart.data.TextParsingSettings): anychart.core.cartesian.series.Box;
+        bubble(data: anychart.data.View | anychart.data.Set | Array<any> | string, csvSettings?: anychart.enums.TextParsingMode | anychart.data.TextParsingSettings): anychart.core.cartesian.series.Bubble;
+        cancelMarquee(): anychart.core.Chart;
+        candlestick(data: anychart.data.View | anychart.data.Set | Array<any> | string, csvSettings?: anychart.enums.TextParsingMode | anychart.data.TextParsingSettings): anychart.core.cartesian.series.Candlestick;
+        column(data: anychart.data.View | anychart.data.Set | Array<any> | string, csvSettings?: anychart.enums.TextParsingMode | anychart.data.TextParsingSettings): anychart.core.cartesian.series.Column;
         container(): anychart.graphics.vector.Layer | anychart.graphics.vector.Stage;
         container(value?: anychart.graphics.vector.Layer | anychart.graphics.vector.Stage | string | Element): anychart.core.Chart;
         contextMenu(): anychart.ui.ContextMenu;
@@ -245,10 +266,10 @@ declare namespace anychart.charts {
         crosshair(): anychart.core.ui.Crosshair;
         crosshair(value?: Object | boolean): anychart.charts.Cartesian;
         data(): anychart.data.View;
-        data(value?: anychart.data.Set | anychart.data.TableData | Array<any>): anychart.charts.Cartesian;
+        data(value?: anychart.data.Set | anychart.data.DataSettings | Array<any>): anychart.charts.Cartesian;
         defaultSeriesType(): string | anychart.enums.CartesianSeriesType;
         defaultSeriesType(value?: string | anychart.enums.CartesianSeriesType): anychart.charts.Cartesian;
-        draw(): anychart.charts.Cartesian;
+        draw(async?: boolean): anychart.charts.Cartesian;
         getPixelBounds(): anychart.math.Rect;
         getPlotBounds(): anychart.math.Rect;
         getSelectedPoints(): Array<anychart.core.Point>;
@@ -258,7 +279,9 @@ declare namespace anychart.charts {
         getStat(key: string | anychart.enums.Statistics): any;
         getType(): string;
         getXAxesCount(): number;
+        getXScales(): Array<any>;
         getYAxesCount(): number;
+        getYScales(): Array<any>;
         globalToLocal(xCoord: number, yCoord: number): {[prop: string]: number};
         grid(index?: number): anychart.core.grids.Linear;
         grid(value?: Object | boolean): anychart.charts.Cartesian;
@@ -267,17 +290,22 @@ declare namespace anychart.charts {
         hatchFillPalette(value?: Array<anychart.graphics.vector.HatchFill.HatchFillType> | Object | anychart.palettes.HatchFills): anychart.charts.Cartesian;
         height(): number | string;
         height(value?: number | string): anychart.charts.Cartesian;
+        hoverLabels(): anychart.core.ui.LabelsFactory;
+        hoverLabels(value?: Object | boolean): anychart.charts.Cartesian;
+        inMarquee(): boolean;
         interactivity(): anychart.core.utils.Interactivity;
         interactivity(value?: Object | anychart.enums.HoverMode): anychart.core.SeparateChart;
-        jumpLine(data: anychart.data.View | anychart.data.Set | Array<any> | string, csvSettings?: {[prop: string]: (string|boolean)}): anychart.core.cartesian.series.JumpLine;
+        jumpLine(data: anychart.data.View | anychart.data.Set | Array<any> | string, csvSettings?: anychart.enums.TextParsingMode | anychart.data.TextParsingSettings): anychart.core.cartesian.series.JumpLine;
         label(index?: string | number): anychart.core.ui.Label;
         label(value?: boolean | Object | string): anychart.charts.Cartesian;
         label(index?: string | number, value?: boolean | Object | string): anychart.charts.Cartesian;
+        labels(): anychart.core.ui.LabelsFactory;
+        labels(value?: Object | boolean): anychart.charts.Cartesian;
         left(): number | string;
         left(value?: number | string): anychart.charts.Cartesian;
         legend(): anychart.core.ui.Legend;
         legend(value?: Object | boolean): anychart.charts.Cartesian;
-        line(data: anychart.data.View | anychart.data.Set | Array<any> | string, csvSettings?: {[prop: string]: (string|boolean)}): anychart.core.cartesian.series.Line;
+        line(data: anychart.data.View | anychart.data.Set | Array<any> | string, csvSettings?: anychart.enums.TextParsingMode | anychart.data.TextParsingSettings): anychart.core.cartesian.series.Line;
         lineMarker(index?: number): anychart.core.axisMarkers.Line;
         lineMarker(value?: Object | boolean): anychart.charts.Cartesian;
         lineMarker(index?: number, value?: Object | boolean): anychart.charts.Cartesian;
@@ -287,7 +315,7 @@ declare namespace anychart.charts {
         margin(): anychart.core.utils.Margin;
         margin(value?: Array<(number|string)> | Object): anychart.charts.Cartesian;
         margin(value1?: string | number, value2?: string | number, value3?: string | number, value4?: string | number): anychart.charts.Cartesian;
-        marker(data: anychart.data.View | anychart.data.Set | Array<any> | string, csvSettings?: {[prop: string]: (string|boolean)}): anychart.core.cartesian.series.Marker;
+        marker(data: anychart.data.View | anychart.data.Set | Array<any> | string, csvSettings?: anychart.enums.TextParsingMode | anychart.data.TextParsingSettings): anychart.core.cartesian.series.Marker;
         markerPalette(): anychart.palettes.Markers;
         markerPalette(value?: anychart.palettes.Markers | Object | Array<anychart.enums.MarkerType>): anychart.charts.Cartesian;
         maxBubbleSize(): number | string;
@@ -305,21 +333,21 @@ declare namespace anychart.charts {
         minorGrid(index?: number): anychart.core.grids.Linear;
         minorGrid(value?: Object | boolean): anychart.charts.Cartesian;
         minorGrid(index?: number, value?: Object | boolean): anychart.charts.Cartesian;
-        ohlc(data: anychart.data.View | anychart.data.Set | Array<any> | string, csvSettings?: {[prop: string]: (string|boolean)}): anychart.core.cartesian.series.OHLC;
+        ohlc(data: anychart.data.View | anychart.data.Set | Array<any> | string, csvSettings?: anychart.enums.TextParsingMode | anychart.data.TextParsingSettings): anychart.core.cartesian.series.OHLC;
         padding(): anychart.core.utils.Padding;
         padding(value?: Array<(number|string)> | Object): anychart.charts.Cartesian;
         padding(value1?: string | number, value2?: string | number, value3?: string | number, value4?: string | number): anychart.charts.Cartesian;
         palette(): anychart.palettes.RangeColors | anychart.palettes.DistinctColors;
         palette(value?: anychart.palettes.RangeColors | anychart.palettes.DistinctColors | Object | Array<string>): anychart.charts.Cartesian;
         print(paperSize?: anychart.graphics.vector.PaperSize, landscape?: boolean): void;
-        rangeArea(data: anychart.data.View | anychart.data.Set | Array<any> | string, csvSettings?: {[prop: string]: (string|boolean)}): anychart.core.cartesian.series.RangeArea;
-        rangeBar(data: anychart.data.View | anychart.data.Set | Array<any> | string, csvSettings?: {[prop: string]: (string|boolean)}): anychart.core.cartesian.series.RangeBar;
-        rangeColumn(data: anychart.data.View | anychart.data.Set | Array<any> | string, csvSettings?: {[prop: string]: (string|boolean)}): anychart.core.cartesian.series.RangeColumn;
+        rangeArea(data: anychart.data.View | anychart.data.Set | Array<any> | string, csvSettings?: anychart.enums.TextParsingMode | anychart.data.TextParsingSettings): anychart.core.cartesian.series.RangeArea;
+        rangeBar(data: anychart.data.View | anychart.data.Set | Array<any> | string, csvSettings?: anychart.enums.TextParsingMode | anychart.data.TextParsingSettings): anychart.core.cartesian.series.RangeBar;
+        rangeColumn(data: anychart.data.View | anychart.data.Set | Array<any> | string, csvSettings?: anychart.enums.TextParsingMode | anychart.data.TextParsingSettings): anychart.core.cartesian.series.RangeColumn;
         rangeMarker(index?: number): anychart.core.axisMarkers.Range;
         rangeMarker(value?: Object | boolean): anychart.charts.Cartesian;
         rangeMarker(index?: number, value?: Object | boolean): anychart.charts.Cartesian;
-        rangeSplineArea(data: anychart.data.View | anychart.data.Set | Array<any> | string, csvSettings?: {[prop: string]: (string|boolean)}): anychart.core.cartesian.series.RangeSplineArea;
-        rangeStepArea(data: anychart.data.View | anychart.data.Set | Array<any> | string, csvSettings?: {[prop: string]: (string|boolean)}): anychart.core.cartesian.series.RangeStepArea;
+        rangeSplineArea(data: anychart.data.View | anychart.data.Set | Array<any> | string, csvSettings?: anychart.enums.TextParsingMode | anychart.data.TextParsingSettings): anychart.core.cartesian.series.RangeSplineArea;
+        rangeStepArea(data: anychart.data.View | anychart.data.Set | Array<any> | string, csvSettings?: anychart.enums.TextParsingMode | anychart.data.TextParsingSettings): anychart.core.cartesian.series.RangeStepArea;
         removeAllListeners(type?: string): number;
         removeAllSeries(): anychart.charts.Cartesian;
         removeSeries(id: number | string): anychart.charts.Cartesian;
@@ -335,11 +363,22 @@ declare namespace anychart.charts {
         saveAsSvg(width?: number, height?: number): void;
         saveAsXlsx(chartDataExportMode?: string | anychart.enums.ChartDataExportMode, filename?: string): void;
         saveAsXml(includeTheme?: boolean, filename?: string): void;
-        spline(data: anychart.data.View | anychart.data.Set | Array<any> | string, csvSettings?: {[prop: string]: (string|boolean)}): anychart.core.cartesian.series.Spline;
-        splineArea(data: anychart.data.View | anychart.data.Set | Array<any> | string, csvSettings?: {[prop: string]: (string|boolean)}): anychart.core.cartesian.series.SplineArea;
-        stepArea(data: anychart.data.View | anychart.data.Set | Array<any> | string, csvSettings?: {[prop: string]: (string|boolean)}): anychart.core.cartesian.series.StepArea;
-        stepLine(data: anychart.data.View | anychart.data.Set | Array<any> | string, csvSettings?: {[prop: string]: (string|boolean)}): anychart.core.cartesian.series.StepLine;
-        stick(data: anychart.data.View | anychart.data.Set | Array<any> | string, csvSettings?: {[prop: string]: (string|boolean)}): anychart.core.cartesian.series.Stick;
+        selectLabels(): anychart.core.ui.LabelsFactory;
+        selectLabels(value?: Object | boolean): anychart.core.ui.LabelsFactory;
+        selectMarqueeFill(): anychart.graphics.vector.Fill;
+        selectMarqueeFill(value: anychart.graphics.vector.Fill): anychart.core.Chart;
+        selectMarqueeFill(color: string, opacity?: number): anychart.core.Chart;
+        selectMarqueeFill(keys: Array<(anychart.graphics.vector.GradientKey|string)>, angle?: number, mode?: boolean | anychart.graphics.vector.Rect | Object, opacity?: number): anychart.core.Chart;
+        selectMarqueeFill(keys: Array<(anychart.graphics.vector.GradientKey|string)>, cx: number, cy: number, mode?: anychart.graphics.math.Rect, opacity?: number, fx?: number, fy?: number): anychart.core.Chart;
+        selectMarqueeFill(imageSettings: anychart.graphics.vector.Fill): anychart.core.Chart;
+        selectMarqueeStroke(): anychart.graphics.vector.Stroke;
+        selectMarqueeStroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string, thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.Chart;
+        spline(data: anychart.data.View | anychart.data.Set | Array<any> | string, csvSettings?: anychart.enums.TextParsingMode | anychart.data.TextParsingSettings): anychart.core.cartesian.series.Spline;
+        splineArea(data: anychart.data.View | anychart.data.Set | Array<any> | string, csvSettings?: anychart.enums.TextParsingMode | anychart.data.TextParsingSettings): anychart.core.cartesian.series.SplineArea;
+        startSelectMarquee(repeat?: boolean): anychart.core.Chart;
+        stepArea(data: anychart.data.View | anychart.data.Set | Array<any> | string, csvSettings?: anychart.enums.TextParsingMode | anychart.data.TextParsingSettings): anychart.core.cartesian.series.StepArea;
+        stepLine(data: anychart.data.View | anychart.data.Set | Array<any> | string, csvSettings?: anychart.enums.TextParsingMode | anychart.data.TextParsingSettings): anychart.core.cartesian.series.StepLine;
+        stick(data: anychart.data.View | anychart.data.Set | Array<any> | string, csvSettings?: anychart.enums.TextParsingMode | anychart.data.TextParsingSettings): anychart.core.cartesian.series.Stick;
         textMarker(index?: number): anychart.core.axisMarkers.Text;
         textMarker(value?: Object | boolean): anychart.charts.Cartesian;
         textMarker(index?: number, value?: Object | boolean): anychart.charts.Cartesian;
@@ -388,13 +427,14 @@ declare namespace anychart.charts {
         bounds(): anychart.core.utils.Bounds;
         bounds(value?: anychart.utils.RectObj | anychart.math.Rect | anychart.core.utils.Bounds): anychart.core.VisualBase;
         bounds(x?: number | string, y?: number | string, width?: number | string, height?: number | string): anychart.core.VisualBase;
+        cancelMarquee(): anychart.core.Chart;
         container(): anychart.graphics.vector.Layer | anychart.graphics.vector.Stage;
         container(value?: anychart.graphics.vector.Layer | anychart.graphics.vector.Stage | string | Element): anychart.core.Chart;
         contextMenu(): anychart.ui.ContextMenu;
         contextMenu(value?: Object | boolean): anychart.core.Chart;
         data(): anychart.data.View;
-        data(value?: anychart.data.View | anychart.data.Set | Array<any> | string, csvSettings?: {[prop: string]: (string|boolean)}): anychart.charts.Bullet;
-        draw(): anychart.charts.Bullet;
+        data(value?: anychart.data.View | anychart.data.Set | Array<any> | string, csvSettings?: anychart.enums.TextParsingMode | anychart.data.TextParsingSettings): anychart.charts.Bullet;
+        draw(async?: boolean): anychart.charts.Bullet;
         getPixelBounds(): anychart.math.Rect;
         getSelectedPoints(): Array<anychart.core.Point>;
         getStat(key: string | anychart.enums.Statistics): any;
@@ -402,6 +442,7 @@ declare namespace anychart.charts {
         globalToLocal(xCoord: number, yCoord: number): {[prop: string]: number};
         height(): number | string;
         height(value?: number | string): anychart.core.VisualBaseWithBounds;
+        inMarquee(): boolean;
         isHorizontal(): boolean;
         label(index?: string | number): anychart.core.ui.Label;
         label(value?: boolean | Object | string): anychart.core.Chart;
@@ -449,6 +490,15 @@ declare namespace anychart.charts {
         saveAsXml(includeTheme?: boolean, filename?: string): void;
         scale(): anychart.scales.Base;
         scale(value?: anychart.scales.Base | anychart.enums.ScaleTypes | string): anychart.charts.Bullet;
+        selectMarqueeFill(): anychart.graphics.vector.Fill;
+        selectMarqueeFill(value: anychart.graphics.vector.Fill): anychart.core.Chart;
+        selectMarqueeFill(color: string, opacity?: number): anychart.core.Chart;
+        selectMarqueeFill(keys: Array<(anychart.graphics.vector.GradientKey|string)>, angle?: number, mode?: boolean | anychart.graphics.vector.Rect | Object, opacity?: number): anychart.core.Chart;
+        selectMarqueeFill(keys: Array<(anychart.graphics.vector.GradientKey|string)>, cx: number, cy: number, mode?: anychart.graphics.math.Rect, opacity?: number, fx?: number, fy?: number): anychart.core.Chart;
+        selectMarqueeFill(imageSettings: anychart.graphics.vector.Fill): anychart.core.Chart;
+        selectMarqueeStroke(): anychart.graphics.vector.Stroke;
+        selectMarqueeStroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string, thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.Chart;
+        startSelectMarquee(repeat?: boolean): anychart.core.Chart;
         title(): anychart.core.ui.Title;
         title(value?: boolean | Object | string): anychart.core.Chart;
         toCsv(chartDataExportMode?: string | anychart.enums.ChartDataExportMode, csvSettings?: {[prop: string]: (string|boolean)}): string;
@@ -472,14 +522,20 @@ declare namespace anychart.charts {
         animation(): anychart.core.utils.Animation;
         animation(value?: boolean | Object): anychart.core.Chart;
         animation(enabled: boolean, duration: number): anychart.core.Chart;
-        area(data: anychart.data.View | anychart.data.Set | Array<any>, csvSettings?: {[prop: string]: (string|boolean)}): anychart.core.polar.series.Area;
+        area(data: anychart.data.View | anychart.data.Set | Array<any>, csvSettings?: anychart.enums.TextParsingMode | anychart.data.TextParsingSettings): anychart.core.polar.series.Area;
         background(): anychart.core.ui.Background;
         background(value?: Object): anychart.core.Chart;
+        barGroupsPadding(): number;
+        barGroupsPadding(value?: number): anychart.charts.Polar;
+        barsPadding(): number;
+        barsPadding(value?: number): anychart.charts.Polar;
         bottom(): number | string;
         bottom(value?: number | string): anychart.core.VisualBaseWithBounds;
         bounds(): anychart.core.utils.Bounds;
         bounds(value?: anychart.utils.RectObj | anychart.math.Rect | anychart.core.utils.Bounds): anychart.core.VisualBase;
         bounds(x?: number | string, y?: number | string, width?: number | string, height?: number | string): anychart.core.VisualBase;
+        cancelMarquee(): anychart.core.Chart;
+        column(data: anychart.data.View | anychart.data.Set | Array<any> | string, csvSettings?: anychart.enums.TextParsingMode | anychart.data.TextParsingSettings): anychart.core.polar.series.Column;
         container(): anychart.graphics.vector.Layer | anychart.graphics.vector.Stage;
         container(value?: anychart.graphics.vector.Layer | anychart.graphics.vector.Stage | string | Element): anychart.core.Chart;
         contextMenu(): anychart.ui.ContextMenu;
@@ -497,6 +553,8 @@ declare namespace anychart.charts {
         getSeriesCount(): number;
         getStat(key: string | anychart.enums.Statistics): any;
         getType(): string;
+        getXScales(): Array<any>;
+        getYScales(): Array<any>;
         globalToLocal(xCoord: number, yCoord: number): {[prop: string]: number};
         grid(index?: number): anychart.core.grids.Polar;
         grid(value?: Object | boolean): anychart.charts.Polar;
@@ -505,23 +563,30 @@ declare namespace anychart.charts {
         hatchFillPalette(value?: Array<anychart.graphics.vector.HatchFill.HatchFillType> | Object | anychart.palettes.HatchFills): anychart.charts.Polar;
         height(): number | string;
         height(value?: number | string): anychart.core.VisualBaseWithBounds;
+        hoverLabels(): anychart.core.ui.LabelsFactory;
+        hoverLabels(value?: Object | boolean): anychart.charts.Polar;
+        inMarquee(): boolean;
+        innerRadius(): number | string;
+        innerRadius(value?: number | string): anychart.charts.Polar;
         interactivity(): anychart.core.utils.Interactivity;
         interactivity(value?: Object | anychart.enums.HoverMode): anychart.core.SeparateChart;
         label(index?: string | number): anychart.core.ui.Label;
         label(value?: boolean | Object | string): anychart.core.Chart;
         label(index?: string | number, value?: boolean | Object | string): anychart.core.Chart;
+        labels(): anychart.core.ui.LabelsFactory;
+        labels(value?: Object | boolean): anychart.charts.Polar;
         left(): number | string;
         left(value?: number | string): anychart.core.VisualBaseWithBounds;
         legend(): anychart.core.ui.Legend;
         legend(value?: Object | boolean): anychart.core.Chart;
-        line(data: anychart.data.View | anychart.data.Set | Array<any> | string, csvSettings?: {[prop: string]: (string|boolean)}): anychart.core.polar.series.Line;
+        line(data: anychart.data.View | anychart.data.Set | Array<any> | string, csvSettings?: anychart.enums.TextParsingMode | anychart.data.TextParsingSettings): anychart.core.polar.series.Line;
         listen(type: string, listener: (() => void), useCapture?: boolean, listenerScope?: Object): Object;
         listenOnce(type: string, listener: (() => void), useCapture?: boolean, listenerScope?: Object): Object;
         localToGlobal(xCoord: number, yCoord: number): {[prop: string]: number};
         margin(): anychart.core.utils.Margin;
         margin(value?: Array<(number|string)> | Object): anychart.core.Chart;
         margin(value1?: string | number, value2?: string | number, value3?: string | number, value4?: string | number): anychart.core.Chart;
-        marker(data: anychart.data.View | anychart.data.Set | Array<any> | string, csvSettings?: {[prop: string]: (string|boolean)}): anychart.core.polar.series.Marker;
+        marker(data: anychart.data.View | anychart.data.Set | Array<any> | string, csvSettings?: anychart.enums.TextParsingMode | anychart.data.TextParsingSettings): anychart.core.polar.series.Marker;
         markerPalette(): anychart.palettes.Markers;
         markerPalette(value?: anychart.palettes.Markers | Object | Array<anychart.enums.MarkerType>): anychart.charts.Polar;
         maxHeight(): number | string;
@@ -540,7 +605,10 @@ declare namespace anychart.charts {
         padding(value1?: string | number, value2?: string | number, value3?: string | number, value4?: string | number): anychart.core.Chart;
         palette(): anychart.palettes.RangeColors | anychart.palettes.DistinctColors;
         palette(value?: anychart.palettes.RangeColors | anychart.palettes.DistinctColors | Object | Array<string>): anychart.charts.Polar;
+        polygon(data: anychart.data.View | anychart.data.Set | Array<any> | string, csvSettings?: anychart.enums.TextParsingMode | anychart.data.TextParsingSettings): anychart.core.polar.series.Polygon;
+        polyline(data: anychart.data.View | anychart.data.Set | Array<any> | string, csvSettings?: anychart.enums.TextParsingMode | anychart.data.TextParsingSettings): anychart.core.polar.series.Polyline;
         print(paperSizeOrOptions?: anychart.graphics.vector.PaperSize | Object, landscape?: boolean): void;
+        rangeColumn(data: anychart.data.View | anychart.data.Set | Array<any> | string, csvSettings?: anychart.enums.TextParsingMode | anychart.data.TextParsingSettings): anychart.core.polar.series.RangeColumn;
         removeAllListeners(type?: string): number;
         removeAllSeries(): anychart.charts.Polar;
         removeSeries(id: number | string): anychart.charts.Polar;
@@ -556,8 +624,21 @@ declare namespace anychart.charts {
         saveAsSvg(width?: number, height?: number): void;
         saveAsXlsx(chartDataExportMode?: string | anychart.enums.ChartDataExportMode, filename?: string): void;
         saveAsXml(includeTheme?: boolean, filename?: string): void;
+        selectLabels(): anychart.core.ui.LabelsFactory;
+        selectLabels(value?: Object | boolean): anychart.charts.Polar;
+        selectMarqueeFill(): anychart.graphics.vector.Fill;
+        selectMarqueeFill(value: anychart.graphics.vector.Fill): anychart.core.Chart;
+        selectMarqueeFill(color: string, opacity?: number): anychart.core.Chart;
+        selectMarqueeFill(keys: Array<(anychart.graphics.vector.GradientKey|string)>, angle?: number, mode?: boolean | anychart.graphics.vector.Rect | Object, opacity?: number): anychart.core.Chart;
+        selectMarqueeFill(keys: Array<(anychart.graphics.vector.GradientKey|string)>, cx: number, cy: number, mode?: anychart.graphics.math.Rect, opacity?: number, fx?: number, fy?: number): anychart.core.Chart;
+        selectMarqueeFill(imageSettings: anychart.graphics.vector.Fill): anychart.core.Chart;
+        selectMarqueeStroke(): anychart.graphics.vector.Stroke;
+        selectMarqueeStroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string, thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.Chart;
+        sortPointsByX(): boolean;
+        sortPointsByX(value?: boolean): anychart.charts.Polar;
         startAngle(): string | number;
         startAngle(value?: string | number): anychart.charts.Polar;
+        startSelectMarquee(repeat?: boolean): anychart.core.Chart;
         title(): anychart.core.ui.Title;
         title(value?: boolean | Object | string): anychart.core.Chart;
         toCsv(chartDataExportMode?: string | anychart.enums.ChartDataExportMode, csvSettings?: {[prop: string]: (string|boolean)}): string;
@@ -575,8 +656,8 @@ declare namespace anychart.charts {
         width(value?: number | string): anychart.core.VisualBaseWithBounds;
         xAxis(): anychart.core.axes.Radar;
         xAxis(value?: Object | boolean): anychart.charts.Radar;
-        xScale(): anychart.scales.ScatterBase;
-        xScale(value?: anychart.enums.ScatterScaleTypes | anychart.scales.ScatterBase): anychart.charts.Polar;
+        xScale(): anychart.scales.Base;
+        xScale(value?: anychart.enums.ScaleTypes | anychart.scales.Base): anychart.charts.Polar;
         yAxis(): anychart.core.axes.Radial;
         yAxis(value?: Object | boolean): anychart.charts.Polar;
         yScale(): anychart.scales.ScatterBase;
@@ -595,6 +676,7 @@ declare namespace anychart.charts {
         bounds(): anychart.core.utils.Bounds;
         bounds(value?: anychart.utils.RectObj | anychart.math.Rect | anychart.core.utils.Bounds): anychart.core.VisualBase;
         bounds(x?: number | string, y?: number | string, width?: number | string, height?: number | string): anychart.core.VisualBase;
+        cancelMarquee(): anychart.core.Chart;
         container(): anychart.graphics.vector.Layer | anychart.graphics.vector.Stage;
         container(value?: anychart.graphics.vector.Layer | anychart.graphics.vector.Stage | string | Element): anychart.core.Chart;
         contextMenu(): anychart.ui.ContextMenu;
@@ -616,6 +698,7 @@ declare namespace anychart.charts {
         height(value?: number | string): anychart.core.VisualBaseWithBounds;
         horizontalSpacing(): string | number;
         horizontalSpacing(value?: number | string): anychart.charts.Pert;
+        inMarquee(): boolean;
         interactivity(): anychart.core.utils.Interactivity;
         interactivity(value?: Object | anychart.enums.HoverMode): anychart.core.SeparateChart;
         label(index?: string | number): anychart.core.ui.Label;
@@ -657,6 +740,15 @@ declare namespace anychart.charts {
         saveAsSvg(width?: number, height?: number): void;
         saveAsXlsx(chartDataExportMode?: string | anychart.enums.ChartDataExportMode, filename?: string): void;
         saveAsXml(includeTheme?: boolean, filename?: string): void;
+        selectMarqueeFill(): anychart.graphics.vector.Fill;
+        selectMarqueeFill(value: anychart.graphics.vector.Fill): anychart.core.Chart;
+        selectMarqueeFill(color: string, opacity?: number): anychart.core.Chart;
+        selectMarqueeFill(keys: Array<(anychart.graphics.vector.GradientKey|string)>, angle?: number, mode?: boolean | anychart.graphics.vector.Rect | Object, opacity?: number): anychart.core.Chart;
+        selectMarqueeFill(keys: Array<(anychart.graphics.vector.GradientKey|string)>, cx: number, cy: number, mode?: anychart.graphics.math.Rect, opacity?: number, fx?: number, fy?: number): anychart.core.Chart;
+        selectMarqueeFill(imageSettings: anychart.graphics.vector.Fill): anychart.core.Chart;
+        selectMarqueeStroke(): anychart.graphics.vector.Stroke;
+        selectMarqueeStroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string, thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.Chart;
+        startSelectMarquee(repeat?: boolean): anychart.core.Chart;
         tasks(): anychart.core.pert.Tasks;
         tasks(value?: Object): anychart.charts.Pert;
         title(): anychart.core.ui.Title;
@@ -691,7 +783,8 @@ declare namespace anychart.charts {
         bounds(): anychart.core.utils.Bounds;
         bounds(value?: anychart.utils.RectObj | anychart.math.Rect | anychart.core.utils.Bounds): anychart.core.VisualBase;
         bounds(x?: number | string, y?: number | string, width?: number | string, height?: number | string): anychart.core.VisualBase;
-        bubble(data: anychart.data.View | anychart.data.Set | Array<any> | string, csvSettings?: {[prop: string]: (string|boolean)}): anychart.core.scatter.series.Bubble;
+        bubble(data: anychart.data.View | anychart.data.Set | Array<any> | string, csvSettings?: anychart.enums.TextParsingMode | anychart.data.TextParsingSettings): anychart.core.scatter.series.Bubble;
+        cancelMarquee(): anychart.core.Chart;
         container(): anychart.graphics.vector.Layer | anychart.graphics.vector.Stage;
         container(value?: anychart.graphics.vector.Layer | anychart.graphics.vector.Stage | string | Element): anychart.core.Chart;
         contextMenu(): anychart.ui.ContextMenu;
@@ -700,6 +793,8 @@ declare namespace anychart.charts {
         credits(value?: Object | boolean): anychart.core.Chart;
         crosshair(): anychart.core.ui.Crosshair;
         crosshair(value?: Object | boolean): anychart.charts.Scatter;
+        crossing(): anychart.core.utils.Crossing;
+        crossing(value?: Object): anychart.charts.Scatter;
         defaultSeriesType(): string;
         defaultSeriesType(value?: string): anychart.charts.Scatter;
         draw(async?: boolean): anychart.core.Chart;
@@ -711,6 +806,8 @@ declare namespace anychart.charts {
         getSeriesCount(): number;
         getStat(key: string | anychart.enums.Statistics): any;
         getType(): string;
+        getXScales(): Array<any>;
+        getYScales(): Array<any>;
         globalToLocal(xCoord: number, yCoord: number): {[prop: string]: number};
         grid(index?: number): anychart.core.grids.Linear;
         grid(value?: Object | boolean): anychart.charts.Scatter;
@@ -719,16 +816,21 @@ declare namespace anychart.charts {
         hatchFillPalette(value?: Array<anychart.graphics.vector.HatchFill.HatchFillType> | Object | anychart.palettes.HatchFills): anychart.charts.Scatter;
         height(): number | string;
         height(value?: number | string): anychart.core.VisualBaseWithBounds;
+        hoverLabels(): anychart.core.ui.LabelsFactory;
+        hoverLabels(value?: Object | boolean): anychart.charts.Scatter;
+        inMarquee(): boolean;
         interactivity(): anychart.core.utils.Interactivity;
         interactivity(value?: Object | anychart.enums.HoverMode): anychart.core.SeparateChart;
         label(index?: string | number): anychart.core.ui.Label;
         label(value?: boolean | Object | string): anychart.core.Chart;
         label(index?: string | number, value?: boolean | Object | string): anychart.core.Chart;
+        labels(): anychart.core.ui.LabelsFactory;
+        labels(value?: Object | boolean): anychart.charts.Scatter;
         left(): number | string;
         left(value?: number | string): anychart.core.VisualBaseWithBounds;
         legend(): anychart.core.ui.Legend;
         legend(value?: Object | boolean): anychart.core.Chart;
-        line(data: anychart.data.View | anychart.data.Set | Array<any> | string, csvSettings?: {[prop: string]: (string|boolean)}): anychart.core.scatter.series.Line;
+        line(data: anychart.data.View | anychart.data.Set | Array<any> | string, csvSettings?: anychart.enums.TextParsingMode | anychart.data.TextParsingSettings): anychart.core.scatter.series.Line;
         lineMarker(index?: number): anychart.core.axisMarkers.Line;
         lineMarker(value?: Object | boolean): anychart.charts.Scatter;
         lineMarker(index?: number, value?: Object | boolean): anychart.charts.Scatter;
@@ -738,7 +840,7 @@ declare namespace anychart.charts {
         margin(): anychart.core.utils.Margin;
         margin(value?: Array<(number|string)> | Object): anychart.core.Chart;
         margin(value1?: string | number, value2?: string | number, value3?: string | number, value4?: string | number): anychart.core.Chart;
-        marker(data: anychart.data.View | anychart.data.Set | Array<any> | string, csvSettings?: {[prop: string]: (string|boolean)}): anychart.core.scatter.series.Marker;
+        marker(data: anychart.data.View | anychart.data.Set | Array<any> | string, csvSettings?: anychart.enums.TextParsingMode | anychart.data.TextParsingSettings): anychart.core.scatter.series.Marker;
         markerPalette(): anychart.palettes.Markers;
         markerPalette(value?: anychart.palettes.Markers | Object | Array<anychart.enums.MarkerType>): anychart.charts.Scatter;
         maxBubbleSize(): number | string;
@@ -762,6 +864,8 @@ declare namespace anychart.charts {
         palette(): anychart.palettes.RangeColors | anychart.palettes.DistinctColors;
         palette(value?: anychart.palettes.RangeColors | anychart.palettes.DistinctColors | Object | Array<string>): anychart.charts.Scatter;
         print(paperSizeOrOptions?: anychart.graphics.vector.PaperSize | Object, landscape?: boolean): void;
+        quarters(): anychart.core.utils.QuarterSettings;
+        quarters(value?: Object): anychart.charts.Scatter;
         rangeMarker(index?: number): anychart.core.axisMarkers.Range;
         rangeMarker(value?: Object | boolean): anychart.charts.Scatter;
         rangeMarker(index?: number, value?: Object | boolean): anychart.charts.Scatter;
@@ -780,6 +884,17 @@ declare namespace anychart.charts {
         saveAsSvg(width?: number, height?: number): void;
         saveAsXlsx(chartDataExportMode?: string | anychart.enums.ChartDataExportMode, filename?: string): void;
         saveAsXml(includeTheme?: boolean, filename?: string): void;
+        selectLabels(): anychart.core.ui.LabelsFactory;
+        selectLabels(value?: Object | boolean): anychart.core.ui.LabelsFactory;
+        selectMarqueeFill(): anychart.graphics.vector.Fill;
+        selectMarqueeFill(value: anychart.graphics.vector.Fill): anychart.core.Chart;
+        selectMarqueeFill(color: string, opacity?: number): anychart.core.Chart;
+        selectMarqueeFill(keys: Array<(anychart.graphics.vector.GradientKey|string)>, angle?: number, mode?: boolean | anychart.graphics.vector.Rect | Object, opacity?: number): anychart.core.Chart;
+        selectMarqueeFill(keys: Array<(anychart.graphics.vector.GradientKey|string)>, cx: number, cy: number, mode?: anychart.graphics.math.Rect, opacity?: number, fx?: number, fy?: number): anychart.core.Chart;
+        selectMarqueeFill(imageSettings: anychart.graphics.vector.Fill): anychart.core.Chart;
+        selectMarqueeStroke(): anychart.graphics.vector.Stroke;
+        selectMarqueeStroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string, thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.Chart;
+        startSelectMarquee(repeat?: boolean): anychart.core.Chart;
         textMarker(index?: number): anychart.core.axisMarkers.Text;
         textMarker(value?: Object | boolean): anychart.charts.Scatter;
         textMarker(index?: number, value?: Object | boolean): anychart.charts.Scatter;
@@ -819,10 +934,11 @@ declare namespace anychart.charts {
         barGroupsPadding(value?: number): anychart.charts.Pareto;
         barsPadding(): number;
         barsPadding(value?: number): anychart.charts.Pareto;
+        cancelMarquee(): anychart.core.Chart;
         crosshair(): anychart.core.ui.Crosshair;
         crosshair(value?: Object | boolean): anychart.charts.Pareto;
         data(): anychart.data.View;
-        data(value?: anychart.data.View | anychart.data.Set | anychart.data.TableData | Array<any> | string, csvSettings?: {[prop: string]: (string|boolean)}): anychart.charts.Pareto;
+        data(value?: anychart.data.View | anychart.data.Set | anychart.data.DataSettings | Array<any> | string, csvSettings?: anychart.enums.TextParsingMode | anychart.data.TextParsingSettings): anychart.charts.Pareto;
         defaultSeriesType(): string | anychart.enums.CartesianSeriesType;
         defaultSeriesType(value?: string | anychart.enums.CartesianSeriesType): anychart.charts.Pareto;
         getPlotBounds(): anychart.math.Rect;
@@ -832,12 +948,19 @@ declare namespace anychart.charts {
         getStat(key: string | anychart.enums.Statistics): any;
         getType(): string;
         getXAxesCount(): number;
+        getXScales(): Array<any>;
         getYAxesCount(): number;
+        getYScales(): Array<any>;
         grid(index?: number): anychart.core.grids.Linear;
         grid(value?: Object | boolean): anychart.charts.Pareto;
         grid(index?: number, value?: Object | boolean): anychart.charts.Pareto;
         hatchFillPalette(): anychart.palettes.HatchFills;
         hatchFillPalette(value?: Array<anychart.graphics.vector.HatchFill.HatchFillType> | Object | anychart.palettes.HatchFills): anychart.charts.Pareto;
+        hoverLabels(): anychart.core.ui.LabelsFactory;
+        hoverLabels(value?: Object | boolean): anychart.charts.Pareto;
+        inMarquee(): boolean;
+        labels(): anychart.core.ui.LabelsFactory;
+        labels(value?: Object | boolean): anychart.charts.Pareto;
         lineMarker(index?: number): anychart.core.axisMarkers.Line;
         lineMarker(value?: Object | boolean): anychart.charts.Pareto;
         lineMarker(index?: number, value?: Object | boolean): anychart.charts.Pareto;
@@ -858,6 +981,17 @@ declare namespace anychart.charts {
         removeAllSeries(): anychart.charts.Pareto;
         removeSeries(id: number | string): anychart.charts.Pareto;
         removeSeriesAt(index: number): anychart.charts.Pareto;
+        selectLabels(): anychart.core.ui.LabelsFactory;
+        selectLabels(value?: Object | boolean): anychart.core.ui.LabelsFactory;
+        selectMarqueeFill(): anychart.graphics.vector.Fill;
+        selectMarqueeFill(value: anychart.graphics.vector.Fill): anychart.core.Chart;
+        selectMarqueeFill(color: string, opacity?: number): anychart.core.Chart;
+        selectMarqueeFill(keys: Array<(anychart.graphics.vector.GradientKey|string)>, angle?: number, mode?: boolean | anychart.graphics.vector.Rect | Object, opacity?: number): anychart.core.Chart;
+        selectMarqueeFill(keys: Array<(anychart.graphics.vector.GradientKey|string)>, cx: number, cy: number, mode?: anychart.graphics.math.Rect, opacity?: number, fx?: number, fy?: number): anychart.core.Chart;
+        selectMarqueeFill(imageSettings: anychart.graphics.vector.Fill): anychart.core.Chart;
+        selectMarqueeStroke(): anychart.graphics.vector.Stroke;
+        selectMarqueeStroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string, thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.Chart;
+        startSelectMarquee(repeat?: boolean): anychart.core.Chart;
         textMarker(index?: number): anychart.core.axisMarkers.Text;
         textMarker(value?: Object | boolean): anychart.charts.Pareto;
         textMarker(index?: number, value?: Object | boolean): anychart.charts.Pareto;
@@ -876,20 +1010,14 @@ declare namespace anychart.charts {
         yScale(): anychart.scales.Base;
         yScale(value?: anychart.enums.ScaleTypes | anychart.scales.Base): anychart.charts.Pareto;
     }
-    interface Cartesian3d extends anychart.core.SeparateChart {
-        animation(): anychart.core.utils.Animation;
-        animation(value?: boolean | Object): anychart.core.Chart;
-        animation(enabled: boolean, duration: number): anychart.core.Chart;
-        area(data: anychart.data.View | anychart.data.Set | Array<any> | string, csvSettings?: {[prop: string]: (string|boolean)}): anychart.core.cartesian.series.Area3d;
+    interface Venn extends anychart.core.SeparateChart {
         background(): anychart.core.ui.Background;
         background(value?: Object): anychart.core.Chart;
-        bar(data: anychart.data.View | anychart.data.Set | Array<any> | string, csvSettings?: {[prop: string]: (string|boolean)}): anychart.core.cartesian.series.Bar3d;
         bottom(): number | string;
         bottom(value?: number | string): anychart.core.VisualBaseWithBounds;
         bounds(): anychart.core.utils.Bounds;
         bounds(value?: anychart.utils.RectObj | anychart.math.Rect | anychart.core.utils.Bounds): anychart.core.VisualBase;
         bounds(x?: number | string, y?: number | string, width?: number | string, height?: number | string): anychart.core.VisualBase;
-        column(data: anychart.data.View | anychart.data.Set | Array<any> | string, csvSettings?: {[prop: string]: (string|boolean)}): anychart.core.cartesian.series.Column3d;
         container(): anychart.graphics.vector.Layer | anychart.graphics.vector.Stage;
         container(value?: anychart.graphics.vector.Layer | anychart.graphics.vector.Stage | string | Element): anychart.core.Chart;
         contextMenu(): anychart.ui.ContextMenu;
@@ -897,14 +1025,179 @@ declare namespace anychart.charts {
         credits(): anychart.core.ui.ChartCredits;
         credits(value?: Object | boolean): anychart.core.Chart;
         data(): anychart.data.View;
-        data(value?: anychart.data.Set | Array<any> | anychart.data.TableData): anychart.charts.Cartesian3d;
+        data(value?: anychart.data.View | anychart.data.Mapping | anychart.data.Set | Array<any> | string | anychart.data.DataSettings, csvSettings?: {[prop: string]: (string|boolean)}): anychart.charts.Venn;
+        dataSeparator(): string;
+        dataSeparator(value?: string): anychart.charts.Venn;
         draw(async?: boolean): anychart.core.Chart;
-        enabled(): boolean;
-        enabled(value?: boolean): anychart.core.VisualBase;
+        fill(): anychart.graphics.vector.Fill | (() => void);
+        fill(value: anychart.graphics.vector.Fill): anychart.charts.Venn;
+        fill(fillFunction?: (() => void)): anychart.charts.Venn;
+        fill(color: string, opacity?: number): anychart.charts.Venn;
+        fill(keys: Array<(anychart.graphics.vector.GradientKey|string)>, angle?: number, mode?: boolean | anychart.graphics.vector.Rect | Object, opacity?: number): anychart.charts.Venn;
+        fill(keys: Array<(anychart.graphics.vector.GradientKey|string)>, cx: number, cy: number, mode?: anychart.graphics.math.Rect, opacity?: number, fx?: number, fy?: number): anychart.charts.Venn;
+        fill(imageSettings: anychart.graphics.vector.Fill): anychart.charts.Venn;
         getPixelBounds(): anychart.math.Rect;
         getSelectedPoints(): Array<anychart.core.Point>;
         getStat(key: string | anychart.enums.Statistics): any;
         globalToLocal(xCoord: number, yCoord: number): {[prop: string]: number};
+        hatchFill(): anychart.graphics.vector.PatternFill | anychart.graphics.vector.HatchFill | (() => void);
+        hatchFill(patternFillOrType?: anychart.graphics.vector.PatternFill | anychart.graphics.vector.HatchFill | (() => void) | anychart.graphics.vector.HatchFill.HatchFillType | string | boolean, color?: string, thickness?: number, size?: number): anychart.charts.Venn;
+        hatchFillPalette(): anychart.palettes.HatchFills;
+        hatchFillPalette(value?: Array<anychart.graphics.vector.HatchFill.HatchFillType> | Object | anychart.palettes.HatchFills): anychart.charts.Venn;
+        height(): number | string;
+        height(value?: number | string): anychart.core.VisualBaseWithBounds;
+        hover(): anychart.charts.Venn;
+        hover(index?: number): anychart.charts.Venn;
+        hover(indexes?: Array<number>): anychart.charts.Venn;
+        hoverFill(): anychart.graphics.vector.Fill | (() => void);
+        hoverFill(value: anychart.graphics.vector.Fill): anychart.charts.Venn;
+        hoverFill(fillFunction?: (() => void)): anychart.charts.Venn;
+        hoverFill(color: string, opacity?: number): anychart.charts.Venn;
+        hoverFill(keys: Array<(anychart.graphics.vector.GradientKey|string)>, angle?: number, mode?: boolean | anychart.graphics.vector.Rect | Object, opacity?: number): anychart.charts.Venn;
+        hoverFill(keys: Array<(anychart.graphics.vector.GradientKey|string)>, cx: number, cy: number, mode?: anychart.graphics.math.Rect, opacity?: number, fx?: number, fy?: number): anychart.charts.Venn;
+        hoverFill(imageSettings: anychart.graphics.vector.Fill): anychart.charts.Venn;
+        hoverHatchFill(): anychart.graphics.vector.PatternFill | anychart.graphics.vector.HatchFill | (() => void);
+        hoverHatchFill(patternFillOrType?: anychart.graphics.vector.PatternFill | anychart.graphics.vector.HatchFill | (() => void) | anychart.graphics.vector.HatchFill.HatchFillType | string | boolean, color?: string, thickness?: number, size?: number): anychart.charts.Venn;
+        hoverLabels(): anychart.core.ui.LabelsFactory;
+        hoverLabels(value?: Object | boolean): anychart.charts.Venn;
+        hoverMarkers(): anychart.core.ui.MarkersFactory;
+        hoverMarkers(value?: Object | boolean | string): anychart.charts.Venn;
+        hoverStroke(): anychart.graphics.vector.Stroke | (() => void);
+        hoverStroke(value?: anychart.graphics.vector.Stroke | (() => void)): anychart.charts.Venn;
+        hoverStroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.charts.Venn;
+        intersections(): anychart.core.venn.Intersections;
+        intersections(value?: Object): anychart.charts.Venn;
+        label(index?: string | number): anychart.core.ui.Label;
+        label(value?: boolean | Object | string): anychart.core.Chart;
+        label(index?: string | number, value?: boolean | Object | string): anychart.core.Chart;
+        labels(): anychart.core.ui.LabelsFactory;
+        labels(value?: Object | boolean): anychart.charts.Venn;
+        left(): number | string;
+        left(value?: number | string): anychart.core.VisualBaseWithBounds;
+        legend(): anychart.core.ui.Legend;
+        legend(value?: Object | boolean): anychart.core.Chart;
+        listen(type: string, listener: (() => void), useCapture?: boolean, listenerScope?: Object): Object;
+        listenOnce(type: string, listener: (() => void), useCapture?: boolean, listenerScope?: Object): Object;
+        localToGlobal(xCoord: number, yCoord: number): {[prop: string]: number};
+        margin(): anychart.core.utils.Margin;
+        margin(value?: Array<(number|string)> | Object): anychart.core.Chart;
+        margin(value1?: string | number, value2?: string | number, value3?: string | number, value4?: string | number): anychart.core.Chart;
+        markerPalette(): anychart.palettes.Markers;
+        markerPalette(value?: anychart.palettes.Markers | Object | Array<anychart.enums.MarkerType>): anychart.charts.Venn;
+        markers(): anychart.core.ui.MarkersFactory;
+        markers(value?: Object | boolean | string): anychart.charts.Venn;
+        maxHeight(): number | string;
+        maxHeight(value?: number | string): anychart.core.VisualBase;
+        maxWidth(): number | string;
+        maxWidth(value?: number | string): anychart.core.VisualBase;
+        minHeight(): number | string;
+        minHeight(value?: number | string): anychart.core.VisualBase;
+        minWidth(): number | string;
+        minWidth(value?: number | string): anychart.core.VisualBase;
+        padding(): anychart.core.utils.Padding;
+        padding(value?: Array<(number|string)> | Object): anychart.core.Chart;
+        padding(value1?: string | number, value2?: string | number, value3?: string | number, value4?: string | number): anychart.core.Chart;
+        palette(): anychart.palettes.RangeColors | anychart.palettes.DistinctColors;
+        palette(value?: anychart.palettes.RangeColors | anychart.palettes.DistinctColors | Object | Array<string>): anychart.charts.Venn;
+        print(paperSizeOrOptions?: anychart.graphics.vector.PaperSize | Object, landscape?: boolean): void;
+        removeAllListeners(type?: string): number;
+        right(): number | string;
+        right(value?: number | string): anychart.core.VisualBaseWithBounds;
+        saveAsCsv(chartDataExportMode?: string | anychart.enums.ChartDataExportMode, csvSettings?: {[prop: string]: (string|boolean)}, filename?: string): void;
+        saveAsJpg(width?: number | Object, height?: number, quality?: number, forceTransparentWhite?: boolean, filename?: string): void;
+        saveAsJson(includeTheme?: boolean, filename?: string): void;
+        saveAsPdf(paperSizeOrWidthOrOptions?: number | string | Object, landscape?: boolean, x?: number, y?: number, filename?: string): void;
+        saveAsPng(width?: number | Object, height?: number, quality?: number, filename?: string): void;
+        saveAsSvg(paperSize?: string | Object, landscape?: boolean, filename?: string): void;
+        saveAsSvg(width?: number, height?: number): void;
+        saveAsXlsx(chartDataExportMode?: string | anychart.enums.ChartDataExportMode, filename?: string): void;
+        saveAsXml(includeTheme?: boolean, filename?: string): void;
+        select(index?: number): anychart.charts.Venn;
+        select(indexes?: number | Array<number>): anychart.charts.Venn;
+        selectFill(): anychart.graphics.vector.Fill | (() => void);
+        selectFill(value: anychart.graphics.vector.Fill): anychart.charts.Venn;
+        selectFill(fillFunction?: (() => void)): anychart.charts.Venn;
+        selectFill(color: string, opacity?: number): anychart.charts.Venn;
+        selectFill(keys: Array<(anychart.graphics.vector.GradientKey|string)>, angle?: number, mode?: boolean | anychart.graphics.vector.Rect | Object, opacity?: number): anychart.charts.Venn;
+        selectFill(keys: Array<(anychart.graphics.vector.GradientKey|string)>, cx: number, cy: number, mode?: anychart.graphics.math.Rect, opacity?: number, fx?: number, fy?: number): anychart.charts.Venn;
+        selectFill(imageSettings: anychart.graphics.vector.Fill): anychart.charts.Venn;
+        selectHatchFill(): anychart.graphics.vector.PatternFill | anychart.graphics.vector.HatchFill | (() => void) | boolean;
+        selectHatchFill(patternFillOrTypeOrState?: anychart.graphics.vector.PatternFill | anychart.graphics.vector.HatchFill | (() => void) | anychart.graphics.vector.HatchFill.HatchFillType | string | boolean, color?: string, thickness?: number, size?: number): anychart.charts.Venn;
+        selectLabels(): anychart.core.ui.LabelsFactory;
+        selectLabels(value?: Object | boolean): anychart.charts.Venn;
+        selectMarkers(): anychart.core.ui.MarkersFactory;
+        selectMarkers(value?: Object | boolean | string): anychart.charts.Venn;
+        selectStroke(): anychart.graphics.vector.Stroke | (() => void);
+        selectStroke(strokeFunction?: (() => void)): anychart.charts.Venn;
+        selectStroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.charts.Venn;
+        stroke(): anychart.graphics.vector.Stroke | (() => void);
+        stroke(fillFunction?: (() => void)): anychart.charts.Venn;
+        stroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string, thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.charts.Venn;
+        title(): anychart.core.ui.Title;
+        title(value?: boolean | Object | string): anychart.core.Chart;
+        toCsv(chartDataExportMode?: string | anychart.enums.ChartDataExportMode, csvSettings?: {[prop: string]: (string|boolean)}): string;
+        toJson(stringify?: boolean, includeTheme?: boolean): Object | string;
+        toSvg(paperSize?: string | Object, landscape?: boolean): string;
+        toSvg(width?: number, height?: number): string;
+        toXml(asXmlNode?: boolean, includeTheme?: boolean): string | Node;
+        tooltip(): anychart.core.ui.Tooltip;
+        tooltip(value?: Object | boolean): anychart.core.Chart;
+        top(): number | string;
+        top(value?: number | string): anychart.core.VisualBaseWithBounds;
+        unhover(indexOrIndexes?: number | Array<number>): anychart.charts.Venn;
+        unlisten(type: string, listener: (() => void), useCapture?: boolean, listenerScope?: Object): boolean;
+        unlistenByKey(key: Object): boolean;
+        unselect(): anychart.charts.Venn;
+        unselect(index?: number): anychart.charts.Venn;
+        unselect(indexes?: Array<number>): anychart.charts.Venn;
+        width(): number | string;
+        width(value?: number | string): anychart.core.VisualBaseWithBounds;
+        zIndex(): number;
+        zIndex(value?: number): anychart.core.VisualBase;
+    }
+    interface Waterfall extends anychart.core.SeparateChart {
+        addSeries(...var_args: (anychart.data.View | anychart.data.Set | Array<any>)[]): Array<anychart.core.cartesian.series.Base>;
+        annotations(): anychart.core.annotations.PlotController;
+        annotations(annotationsList?: Array<any>): anychart.charts.Waterfall;
+        background(): anychart.core.ui.Background;
+        background(value?: Object): anychart.core.Chart;
+        bottom(): number | string;
+        bottom(value?: number | string): anychart.core.VisualBaseWithBounds;
+        bounds(): anychart.core.utils.Bounds;
+        bounds(value?: anychart.utils.RectObj | anychart.math.Rect | anychart.core.utils.Bounds): anychart.core.VisualBase;
+        bounds(x?: number | string, y?: number | string, width?: number | string, height?: number | string): anychart.core.VisualBase;
+        connectorStroke(): anychart.graphics.vector.Stroke;
+        connectorStroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string, thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.charts.Waterfall;
+        container(): anychart.graphics.vector.Layer | anychart.graphics.vector.Stage;
+        container(value?: anychart.graphics.vector.Layer | anychart.graphics.vector.Stage | string | Element): anychart.core.Chart;
+        contextMenu(): anychart.ui.ContextMenu;
+        contextMenu(value?: Object | boolean): anychart.core.Chart;
+        credits(): anychart.core.ui.ChartCredits;
+        credits(value?: Object | boolean): anychart.core.Chart;
+        crosshair(): anychart.core.ui.Crosshair;
+        crosshair(value?: Object | boolean): anychart.charts.Waterfall;
+        data(): anychart.data.View;
+        data(value?: anychart.data.Set | anychart.data.DataSettings | Array<any>): anychart.charts.Waterfall;
+        dataMode(): anychart.enums.WaterfallDataMode | string;
+        dataMode(value?: string | anychart.enums.WaterfallDataMode): anychart.charts.Waterfall;
+        draw(async?: boolean): anychart.core.Chart;
+        getPixelBounds(): anychart.math.Rect;
+        getPlotBounds(): anychart.math.Rect;
+        getSeries(id: number | string): anychart.core.waterfall.series.Waterfall;
+        getSeriesAt(index: number): anychart.core.cartesian.series.Base;
+        getSeriesCount(): number;
+        getStat(key: string | anychart.enums.Statistics): any;
+        getType(): string;
+        getXAxesCount(): number;
+        getXScales(): Array<any>;
+        getYAxesCount(): number;
+        getYScales(): Array<any>;
+        globalToLocal(xCoord: number, yCoord: number): {[prop: string]: number};
+        grid(index?: number): anychart.core.grids.Linear;
+        grid(value?: Object | boolean): anychart.charts.Waterfall;
+        grid(index?: number, value?: Object | boolean): anychart.charts.Waterfall;
+        hatchFillPalette(): anychart.palettes.HatchFills;
+        hatchFillPalette(value?: Array<anychart.graphics.vector.HatchFill.HatchFillType> | Object | anychart.palettes.HatchFills): anychart.charts.Waterfall;
         height(): number | string;
         height(value?: number | string): anychart.core.VisualBaseWithBounds;
         interactivity(): anychart.core.utils.Interactivity;
@@ -912,6 +1205,249 @@ declare namespace anychart.charts {
         label(index?: string | number): anychart.core.ui.Label;
         label(value?: boolean | Object | string): anychart.core.Chart;
         label(index?: string | number, value?: boolean | Object | string): anychart.core.Chart;
+        left(): number | string;
+        left(value?: number | string): anychart.core.VisualBaseWithBounds;
+        legend(): anychart.core.ui.Legend;
+        legend(value?: Object | boolean): anychart.core.Chart;
+        lineMarker(index?: number): anychart.core.axisMarkers.Line;
+        lineMarker(value?: Object | boolean): anychart.charts.Waterfall;
+        lineMarker(index?: number, value?: Object | boolean): anychart.charts.Waterfall;
+        listen(type: string, listener: (() => void), useCapture?: boolean, listenerScope?: Object): Object;
+        listenOnce(type: string, listener: (() => void), useCapture?: boolean, listenerScope?: Object): Object;
+        localToGlobal(xCoord: number, yCoord: number): {[prop: string]: number};
+        margin(): anychart.core.utils.Margin;
+        margin(value?: Array<(number|string)> | Object): anychart.core.Chart;
+        margin(value1?: string | number, value2?: string | number, value3?: string | number, value4?: string | number): anychart.core.Chart;
+        markerPalette(): anychart.palettes.Markers;
+        markerPalette(value?: anychart.palettes.Markers | Object | Array<anychart.enums.MarkerType>): anychart.charts.Waterfall;
+        maxHeight(): number | string;
+        maxHeight(value?: number | string): anychart.core.VisualBase;
+        maxWidth(): number | string;
+        maxWidth(value?: number | string): anychart.core.VisualBase;
+        minHeight(): number | string;
+        minHeight(value?: number | string): anychart.core.VisualBase;
+        minWidth(): number | string;
+        minWidth(value?: number | string): anychart.core.VisualBase;
+        minorGrid(index?: number): anychart.core.grids.Linear;
+        minorGrid(value?: Object | boolean): anychart.charts.Waterfall;
+        minorGrid(index?: number, value?: Object | boolean): anychart.charts.Waterfall;
+        padding(): anychart.core.utils.Padding;
+        padding(value?: Array<(number|string)> | Object): anychart.core.Chart;
+        padding(value1?: string | number, value2?: string | number, value3?: string | number, value4?: string | number): anychart.core.Chart;
+        palette(): anychart.palettes.RangeColors | anychart.palettes.DistinctColors;
+        palette(value?: anychart.palettes.RangeColors | anychart.palettes.DistinctColors | Object | Array<string>): anychart.charts.Waterfall;
+        print(paperSizeOrOptions?: anychart.graphics.vector.PaperSize | Object, landscape?: boolean): void;
+        rangeMarker(index?: number): anychart.core.axisMarkers.Range;
+        rangeMarker(value?: Object | boolean): anychart.charts.Waterfall;
+        rangeMarker(index?: number, value?: Object | boolean): anychart.charts.Waterfall;
+        removeAllListeners(type?: string): number;
+        removeAllSeries(): anychart.charts.Waterfall;
+        removeSeries(id: number | string): anychart.charts.Waterfall;
+        removeSeriesAt(index: number): anychart.charts.Waterfall;
+        right(): number | string;
+        right(value?: number | string): anychart.core.VisualBaseWithBounds;
+        saveAsCsv(chartDataExportMode?: string | anychart.enums.ChartDataExportMode, csvSettings?: {[prop: string]: (string|boolean)}, filename?: string): void;
+        saveAsJpg(width?: number | Object, height?: number, quality?: number, forceTransparentWhite?: boolean, filename?: string): void;
+        saveAsJson(includeTheme?: boolean, filename?: string): void;
+        saveAsPdf(paperSizeOrWidthOrOptions?: number | string | Object, landscape?: boolean, x?: number, y?: number, filename?: string): void;
+        saveAsPng(width?: number | Object, height?: number, quality?: number, filename?: string): void;
+        saveAsSvg(paperSize?: string | Object, landscape?: boolean, filename?: string): void;
+        saveAsSvg(width?: number, height?: number): void;
+        saveAsXlsx(chartDataExportMode?: string | anychart.enums.ChartDataExportMode, filename?: string): void;
+        saveAsXml(includeTheme?: boolean, filename?: string): void;
+        textMarker(index?: number): anychart.core.axisMarkers.Text;
+        textMarker(value?: Object | boolean): anychart.charts.Waterfall;
+        textMarker(index?: number, value?: Object | boolean): anychart.charts.Waterfall;
+        title(): anychart.core.ui.Title;
+        title(value?: boolean | Object | string): anychart.core.Chart;
+        toCsv(chartDataExportMode?: string | anychart.enums.ChartDataExportMode, csvSettings?: {[prop: string]: (string|boolean)}): string;
+        toJson(stringify?: boolean, includeTheme?: boolean): Object | string;
+        toSvg(paperSize?: string | Object, landscape?: boolean): string;
+        toSvg(width?: number, height?: number): string;
+        toXml(asXmlNode?: boolean, includeTheme?: boolean): string | Node;
+        tooltip(): anychart.core.ui.Tooltip;
+        tooltip(value?: Object | boolean): anychart.core.Chart;
+        top(): number | string;
+        top(value?: number | string): anychart.core.VisualBaseWithBounds;
+        unlisten(type: string, listener: (() => void), useCapture?: boolean, listenerScope?: Object): boolean;
+        unlistenByKey(key: Object): boolean;
+        width(): number | string;
+        width(value?: number | string): anychart.core.VisualBaseWithBounds;
+        xAxis(index?: number): anychart.core.axes.Linear;
+        xAxis(value?: Object | boolean): anychart.charts.Waterfall;
+        xAxis(index?: number, value?: Object | boolean): anychart.charts.Waterfall;
+        xScale(): anychart.scales.Base;
+        xScale(value?: anychart.enums.ScaleTypes | anychart.scales.Base): anychart.charts.Waterfall;
+        xScroller(): anychart.core.ui.ChartScroller;
+        xScroller(value?: Object | boolean): anychart.charts.Waterfall;
+        xZoom(): anychart.core.utils.OrdinalZoom;
+        xZoom(value?: number | boolean | Object): anychart.charts.Waterfall;
+        yAxis(index?: number): anychart.core.axes.Linear;
+        yAxis(value?: Object | boolean): anychart.charts.Waterfall;
+        yAxis(index?: number, value?: Object | boolean): anychart.charts.Waterfall;
+        yScale(): anychart.scales.Base;
+        yScale(value?: anychart.enums.ScaleTypes | anychart.scales.Base): anychart.charts.Waterfall;
+        zIndex(): number;
+        zIndex(value?: number): anychart.core.VisualBase;
+    }
+    interface TagCloud extends anychart.core.SeparateChart {
+        angles(): Array<number>;
+        angles(value?: Array<number>): anychart.charts.TagCloud;
+        anglesCount(): number;
+        anglesCount(value?: number): anychart.charts.TagCloud;
+        animation(): anychart.core.utils.Animation;
+        animation(value?: boolean | Object): anychart.core.Chart;
+        animation(enabled: boolean, duration: number): anychart.core.Chart;
+        background(): anychart.core.ui.Background;
+        background(value?: Object): anychart.core.Chart;
+        bottom(): number | string;
+        bottom(value?: number | string): anychart.core.VisualBaseWithBounds;
+        bounds(): anychart.core.utils.Bounds;
+        bounds(value?: anychart.utils.RectObj | anychart.math.Rect | anychart.core.utils.Bounds): anychart.core.VisualBase;
+        bounds(x?: number | string, y?: number | string, width?: number | string, height?: number | string): anychart.core.VisualBase;
+        colorRange(): anychart.core.ui.ColorRange;
+        colorRange(value?: Object | boolean): anychart.charts.TagCloud;
+        colorScale(): anychart.scales.OrdinalColor | anychart.scales.LinearColor;
+        colorScale(value?: anychart.scales.LinearColor | anychart.scales.OrdinalColor): anychart.charts.TagCloud;
+        container(): anychart.graphics.vector.Layer | anychart.graphics.vector.Stage;
+        container(value?: anychart.graphics.vector.Layer | anychart.graphics.vector.Stage | string | Element): anychart.core.Chart;
+        contextMenu(): anychart.ui.ContextMenu;
+        contextMenu(value?: Object | boolean): anychart.core.Chart;
+        credits(): anychart.core.ui.ChartCredits;
+        credits(value?: Object | boolean): anychart.core.Chart;
+        data(): anychart.data.View;
+        data(value?: anychart.data.View | anychart.data.Set | Array<any> | anychart.data.DataSettings | string, settings?: anychart.enums.TextParsingMode | anychart.data.TextParsingSettings): anychart.charts.TagCloud;
+        draw(async?: boolean): anychart.core.Chart;
+        fromAngle(): number;
+        fromAngle(value?: number): anychart.charts.TagCloud;
+        getPixelBounds(): anychart.math.Rect;
+        getPoint(index: number): anychart.core.Point;
+        getSelectedPoints(): Array<anychart.core.Point>;
+        getStat(key: string | anychart.enums.Statistics): any;
+        getType(): string;
+        globalToLocal(xCoord: number, yCoord: number): {[prop: string]: number};
+        height(): number | string;
+        height(value?: number | string): anychart.core.VisualBaseWithBounds;
+        hover(index: number | Array<number>): anychart.charts.TagCloud;
+        hovered(): anychart.core.TagCloudStateSettings;
+        hovered(value?: Object): anychart.charts.TagCloud;
+        interactivity(): anychart.core.utils.Interactivity;
+        interactivity(value?: Object | anychart.enums.HoverMode): anychart.core.SeparateChart;
+        label(index?: string | number): anychart.core.ui.Label;
+        label(value?: boolean | Object | string): anychart.core.Chart;
+        label(index?: string | number, value?: boolean | Object | string): anychart.core.Chart;
+        left(): number | string;
+        left(value?: number | string): anychart.core.VisualBaseWithBounds;
+        legend(): anychart.core.ui.Legend;
+        legend(value?: Object | boolean): anychart.core.Chart;
+        listen(type: string, listener: (() => void), useCapture?: boolean, listenerScope?: Object): Object;
+        listenOnce(type: string, listener: (() => void), useCapture?: boolean, listenerScope?: Object): Object;
+        localToGlobal(xCoord: number, yCoord: number): {[prop: string]: number};
+        margin(): anychart.core.utils.Margin;
+        margin(value?: Array<(number|string)> | Object): anychart.core.Chart;
+        margin(value1?: string | number, value2?: string | number, value3?: string | number, value4?: string | number): anychart.core.Chart;
+        maxHeight(): number | string;
+        maxHeight(value?: number | string): anychart.core.VisualBase;
+        maxWidth(): number | string;
+        maxWidth(value?: number | string): anychart.core.VisualBase;
+        minHeight(): number | string;
+        minHeight(value?: number | string): anychart.core.VisualBase;
+        minWidth(): number | string;
+        minWidth(value?: number | string): anychart.core.VisualBase;
+        mode(): anychart.enums.TagCloudMode;
+        mode(value?: anychart.enums.TagCloudMode | string): anychart.charts.TagCloud;
+        normal(): anychart.core.TagCloudStateSettings;
+        normal(value?: Object): anychart.charts.TagCloud;
+        padding(): anychart.core.utils.Padding;
+        padding(value?: Array<(number|string)> | Object): anychart.core.Chart;
+        padding(value1?: string | number, value2?: string | number, value3?: string | number, value4?: string | number): anychart.core.Chart;
+        palette(): anychart.palettes.RangeColors | anychart.palettes.DistinctColors;
+        palette(value?: anychart.palettes.RangeColors | anychart.palettes.DistinctColors | Object | Array<string>): anychart.charts.TagCloud;
+        print(paperSizeOrOptions?: anychart.graphics.vector.PaperSize | Object, landscape?: boolean): void;
+        removeAllListeners(type?: string): number;
+        right(): number | string;
+        right(value?: number | string): anychart.core.VisualBaseWithBounds;
+        saveAsCsv(chartDataExportMode?: string | anychart.enums.ChartDataExportMode, csvSettings?: {[prop: string]: (string|boolean)}, filename?: string): void;
+        saveAsJpg(width?: number | Object, height?: number, quality?: number, forceTransparentWhite?: boolean, filename?: string): void;
+        saveAsJson(includeTheme?: boolean, filename?: string): void;
+        saveAsPdf(paperSizeOrWidthOrOptions?: number | string | Object, landscape?: boolean, x?: number, y?: number, filename?: string): void;
+        saveAsPng(width?: number | Object, height?: number, quality?: number, filename?: string): void;
+        saveAsSvg(paperSize?: string | Object, landscape?: boolean, filename?: string): void;
+        saveAsSvg(width?: number, height?: number): void;
+        saveAsXlsx(chartDataExportMode?: string | anychart.enums.ChartDataExportMode, filename?: string): void;
+        saveAsXml(includeTheme?: boolean, filename?: string): void;
+        scale(): anychart.scales.Base;
+        scale(value?: anychart.enums.ScaleTypes | anychart.scales.Base): anychart.charts.TagCloud;
+        select(index?: number): anychart.charts.TagCloud;
+        select(indexes?: Array<number>): anychart.charts.TagCloud;
+        selected(): anychart.core.TagCloudStateSettings;
+        selected(value?: Object): anychart.charts.TagCloud;
+        textSpacing(): number;
+        textSpacing(value?: number): anychart.charts.TagCloud;
+        title(): anychart.core.ui.Title;
+        title(value?: boolean | Object | string): anychart.core.Chart;
+        toAngle(): number;
+        toAngle(value?: number): anychart.charts.TagCloud;
+        toCsv(chartDataExportMode?: string | anychart.enums.ChartDataExportMode, csvSettings?: {[prop: string]: (string|boolean)}): string;
+        toJson(stringify?: boolean, includeTheme?: boolean): Object | string;
+        toSvg(paperSize?: string | Object, landscape?: boolean): string;
+        toSvg(width?: number, height?: number): string;
+        toXml(asXmlNode?: boolean, includeTheme?: boolean): string | Node;
+        top(): number | string;
+        top(value?: number | string): anychart.core.VisualBaseWithBounds;
+        unhover(): anychart.charts.TagCloud;
+        unlisten(type: string, listener: (() => void), useCapture?: boolean, listenerScope?: Object): boolean;
+        unlistenByKey(key: Object): boolean;
+        unselect(indexOrIndexes?: number | Array<number>): void;
+        width(): number | string;
+        width(value?: number | string): anychart.core.VisualBaseWithBounds;
+        zIndex(): number;
+        zIndex(value?: number): anychart.core.VisualBase;
+    }
+    interface Cartesian3d extends anychart.core.SeparateChart {
+        animation(): anychart.core.utils.Animation;
+        animation(value?: boolean | Object): anychart.core.Chart;
+        animation(enabled: boolean, duration: number): anychart.core.Chart;
+        area(data: anychart.data.View | anychart.data.Set | Array<any> | string, csvSettings?: anychart.enums.TextParsingMode | anychart.data.TextParsingSettings): anychart.core.cartesian.series.Area3d;
+        background(): anychart.core.ui.Background;
+        background(value?: Object): anychart.core.Chart;
+        bar(data: anychart.data.View | anychart.data.Set | Array<any> | string, csvSettings?: anychart.enums.TextParsingMode | anychart.data.TextParsingSettings): anychart.core.cartesian.series.Bar3d;
+        bottom(): number | string;
+        bottom(value?: number | string): anychart.core.VisualBaseWithBounds;
+        bounds(): anychart.core.utils.Bounds;
+        bounds(value?: anychart.utils.RectObj | anychart.math.Rect | anychart.core.utils.Bounds): anychart.core.VisualBase;
+        bounds(x?: number | string, y?: number | string, width?: number | string, height?: number | string): anychart.core.VisualBase;
+        cancelMarquee(): anychart.core.Chart;
+        column(data: anychart.data.View | anychart.data.Set | Array<any> | string, csvSettings?: anychart.enums.TextParsingMode | anychart.data.TextParsingSettings): anychart.core.cartesian.series.Column3d;
+        container(): anychart.graphics.vector.Layer | anychart.graphics.vector.Stage;
+        container(value?: anychart.graphics.vector.Layer | anychart.graphics.vector.Stage | string | Element): anychart.core.Chart;
+        contextMenu(): anychart.ui.ContextMenu;
+        contextMenu(value?: Object | boolean): anychart.core.Chart;
+        credits(): anychart.core.ui.ChartCredits;
+        credits(value?: Object | boolean): anychart.core.Chart;
+        data(): anychart.data.View;
+        data(value?: anychart.data.Set | Array<any> | anychart.data.DataSettings): anychart.charts.Cartesian3d;
+        draw(async?: boolean): anychart.core.Chart;
+        enabled(): boolean;
+        enabled(value?: boolean): anychart.core.VisualBase;
+        getPixelBounds(): anychart.math.Rect;
+        getSelectedPoints(): Array<anychart.core.Point>;
+        getStat(key: string | anychart.enums.Statistics): any;
+        getXScales(): Array<any>;
+        getYScales(): Array<any>;
+        globalToLocal(xCoord: number, yCoord: number): {[prop: string]: number};
+        height(): number | string;
+        height(value?: number | string): anychart.core.VisualBaseWithBounds;
+        hoverLabels(): anychart.core.ui.LabelsFactory;
+        hoverLabels(value?: Object | boolean): anychart.charts.Cartesian3d;
+        inMarquee(): boolean;
+        interactivity(): anychart.core.utils.Interactivity;
+        interactivity(value?: Object | anychart.enums.HoverMode): anychart.core.SeparateChart;
+        label(index?: string | number): anychart.core.ui.Label;
+        label(value?: boolean | Object | string): anychart.core.Chart;
+        label(index?: string | number, value?: boolean | Object | string): anychart.core.Chart;
+        labels(): anychart.core.ui.LabelsFactory;
+        labels(value?: Object | boolean): anychart.charts.Cartesian3d;
         left(): number | string;
         left(value?: number | string): anychart.core.VisualBaseWithBounds;
         legend(): anychart.core.ui.Legend;
@@ -946,6 +1482,17 @@ declare namespace anychart.charts {
         saveAsSvg(width?: number, height?: number): void;
         saveAsXlsx(chartDataExportMode?: string | anychart.enums.ChartDataExportMode, filename?: string): void;
         saveAsXml(includeTheme?: boolean, filename?: string): void;
+        selectLabels(): anychart.core.ui.LabelsFactory;
+        selectLabels(value?: Object | boolean): anychart.core.ui.LabelsFactory;
+        selectMarqueeFill(): anychart.graphics.vector.Fill;
+        selectMarqueeFill(value: anychart.graphics.vector.Fill): anychart.core.Chart;
+        selectMarqueeFill(color: string, opacity?: number): anychart.core.Chart;
+        selectMarqueeFill(keys: Array<(anychart.graphics.vector.GradientKey|string)>, angle?: number, mode?: boolean | anychart.graphics.vector.Rect | Object, opacity?: number): anychart.core.Chart;
+        selectMarqueeFill(keys: Array<(anychart.graphics.vector.GradientKey|string)>, cx: number, cy: number, mode?: anychart.graphics.math.Rect, opacity?: number, fx?: number, fy?: number): anychart.core.Chart;
+        selectMarqueeFill(imageSettings: anychart.graphics.vector.Fill): anychart.core.Chart;
+        selectMarqueeStroke(): anychart.graphics.vector.Stroke;
+        selectMarqueeStroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string, thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.Chart;
+        startSelectMarquee(repeat?: boolean): anychart.core.Chart;
         title(): anychart.core.ui.Title;
         title(value?: boolean | Object | string): anychart.core.Chart;
         toCsv(chartDataExportMode?: string | anychart.enums.ChartDataExportMode, csvSettings?: {[prop: string]: (string|boolean)}): string;
@@ -984,12 +1531,14 @@ declare namespace anychart.charts {
         bounds(): anychart.core.utils.Bounds;
         bounds(value?: anychart.utils.RectObj | anychart.math.Rect | anychart.core.utils.Bounds): anychart.core.VisualBase;
         bounds(x?: number | string, y?: number | string, width?: number | string, height?: number | string): anychart.core.VisualBase;
+        cancelMarquee(): anychart.core.Chart;
         container(): anychart.graphics.vector.Layer | anychart.graphics.vector.Stage;
         container(value?: anychart.graphics.vector.Layer | anychart.graphics.vector.Stage | string | Element): anychart.core.Chart;
         contextMenu(): anychart.ui.ContextMenu;
         contextMenu(value?: Object | boolean): anychart.core.Chart;
         draw(async?: boolean): anychart.core.Chart;
         getPixelBounds(): anychart.math.Rect;
+        getPlotsCount(): number;
         getSelectedPoints(): Array<anychart.core.Point>;
         getSelectedRange(): Object;
         getStat(key: string | anychart.enums.Statistics): any;
@@ -998,6 +1547,9 @@ declare namespace anychart.charts {
         grouping(value?: boolean | Array<(string|anychart.core.stock.Grouping.Level)> | Object): anychart.charts.Stock;
         height(): number | string;
         height(value?: number | string): anychart.core.VisualBaseWithBounds;
+        inMarquee(): boolean;
+        interactivity(): anychart.core.utils.StockInteractivity;
+        interactivity(value?: Object | anychart.enums.HoverMode): anychart.core.SeparateChart;
         label(index?: string | number): anychart.core.ui.Label;
         label(value?: boolean | Object | string): anychart.core.Chart;
         label(index?: string | number, value?: boolean | Object | string): anychart.core.Chart;
@@ -1040,7 +1592,17 @@ declare namespace anychart.charts {
         scroller(value?: Object | boolean): anychart.charts.Stock;
         scrollerGrouping(): anychart.core.stock.Grouping;
         scrollerGrouping(value?: boolean | Array<(string|anychart.core.stock.Grouping.Level)> | Object): anychart.charts.Stock;
+        selectMarqueeFill(): anychart.graphics.vector.Fill;
+        selectMarqueeFill(value: anychart.graphics.vector.Fill): anychart.core.Chart;
+        selectMarqueeFill(color: string, opacity?: number): anychart.core.Chart;
+        selectMarqueeFill(keys: Array<(anychart.graphics.vector.GradientKey|string)>, angle?: number, mode?: boolean | anychart.graphics.vector.Rect | Object, opacity?: number): anychart.core.Chart;
+        selectMarqueeFill(keys: Array<(anychart.graphics.vector.GradientKey|string)>, cx: number, cy: number, mode?: anychart.graphics.math.Rect, opacity?: number, fx?: number, fy?: number): anychart.core.Chart;
+        selectMarqueeFill(imageSettings: anychart.graphics.vector.Fill): anychart.core.Chart;
+        selectMarqueeStroke(): anychart.graphics.vector.Stroke;
+        selectMarqueeStroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string, thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.Chart;
         selectRange(typeOrUnitOrStart: number | string | Date | anychart.enums.StockRangeType | anychart.enums.Interval, endOrCountOrDispatchEvent?: number | string | Date | boolean, anchorOrDispatchEvent?: anychart.enums.StockRangeAnchor | boolean, dispatchEvent?: boolean): anychart.charts.Stock;
+        startSelectMarquee(repeat?: boolean): anychart.core.Chart;
+        startZoomMarquee(repeat?: boolean, asRect?: boolean): anychart.charts.Stock;
         title(): anychart.core.ui.Title;
         title(value?: boolean | Object | string): anychart.core.Chart;
         toCsv(chartDataExportMode?: string | anychart.enums.ChartDataExportMode, csvSettings?: {[prop: string]: (string|boolean)}): string;
@@ -1060,6 +1622,14 @@ declare namespace anychart.charts {
         xScale(value?: string): anychart.charts.Stock;
         zIndex(): number;
         zIndex(value?: number): anychart.core.VisualBase;
+        zoomMarqueeFill(): anychart.graphics.vector.Fill;
+        zoomMarqueeFill(value: anychart.graphics.vector.Fill): anychart.charts.Stock;
+        zoomMarqueeFill(color: string, opacity?: number): anychart.charts.Stock;
+        zoomMarqueeFill(keys: Array<(anychart.graphics.vector.GradientKey|string)>, angle?: number, mode?: boolean | anychart.graphics.vector.Rect | Object, opacity?: number): anychart.charts.Stock;
+        zoomMarqueeFill(keys: Array<(anychart.graphics.vector.GradientKey|string)>, cx: number, cy: number, mode?: anychart.graphics.math.Rect, opacity?: number, fx?: number, fy?: number): anychart.charts.Stock;
+        zoomMarqueeFill(imageSettings: anychart.graphics.vector.Fill): anychart.charts.Stock;
+        zoomMarqueeStroke(): anychart.graphics.vector.Stroke;
+        zoomMarqueeStroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string, thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.Chart;
     }
     interface Resource extends anychart.core.Chart {
         activities(): anychart.core.resource.Activities;
@@ -1076,6 +1646,7 @@ declare namespace anychart.charts {
         bounds(x?: number | string, y?: number | string, width?: number | string, height?: number | string): anychart.core.VisualBase;
         calendar(): anychart.scales.Calendar;
         calendar(value?: Object): anychart.charts.Resource;
+        cancelMarquee(): anychart.core.Chart;
         cellPadding(): anychart.core.utils.Padding;
         cellPadding(value?: Array<(number|string)> | Object): anychart.charts.Resource;
         cellPadding(value1?: string | number, value2?: string | number, value3?: string | number, value4?: string | number): anychart.charts.Resource;
@@ -1086,7 +1657,7 @@ declare namespace anychart.charts {
         contextMenu(): anychart.ui.ContextMenu;
         contextMenu(value?: Object | boolean): anychart.core.Chart;
         data(): anychart.data.View;
-        data(value?: anychart.data.View | anychart.data.Set | Array<any> | string, csvSettings?: {[prop: string]: (string|boolean)}): anychart.charts.Resource;
+        data(value?: anychart.data.View | anychart.data.Set | Array<any> | string, csvSettings?: anychart.enums.TextParsingMode | anychart.data.TextParsingSettings): anychart.charts.Resource;
         defaultMinutesPerDay(): number;
         defaultMinutesPerDay(value?: number): anychart.charts.Resource;
         draw(async?: boolean): anychart.core.Chart;
@@ -1101,6 +1672,9 @@ declare namespace anychart.charts {
         height(value?: number | string): anychart.core.VisualBaseWithBounds;
         horizontalScrollBar(): anychart.core.ui.Scroller;
         horizontalScrollBar(value?: Object | boolean): anychart.charts.Resource;
+        hover(resourceIndex: number, activityIndex: number): anychart.charts.Resource;
+        hoverPoint(globalIndex: number): anychart.charts.Resource;
+        inMarquee(): boolean;
         label(index?: string | number): anychart.core.ui.Label;
         label(value?: boolean | Object | string): anychart.core.Chart;
         label(index?: string | number, value?: boolean | Object | string): anychart.core.Chart;
@@ -1146,8 +1720,19 @@ declare namespace anychart.charts {
         saveAsSvg(width?: number, height?: number): void;
         saveAsXlsx(chartDataExportMode?: string | anychart.enums.ChartDataExportMode, filename?: string): void;
         saveAsXml(includeTheme?: boolean, filename?: string): void;
+        select(resourceIndex: number, activityIndex: number): anychart.charts.Resource;
+        selectMarqueeFill(): anychart.graphics.vector.Fill;
+        selectMarqueeFill(value: anychart.graphics.vector.Fill): anychart.core.Chart;
+        selectMarqueeFill(color: string, opacity?: number): anychart.core.Chart;
+        selectMarqueeFill(keys: Array<(anychart.graphics.vector.GradientKey|string)>, angle?: number, mode?: boolean | anychart.graphics.vector.Rect | Object, opacity?: number): anychart.core.Chart;
+        selectMarqueeFill(keys: Array<(anychart.graphics.vector.GradientKey|string)>, cx: number, cy: number, mode?: anychart.graphics.math.Rect, opacity?: number, fx?: number, fy?: number): anychart.core.Chart;
+        selectMarqueeFill(imageSettings: anychart.graphics.vector.Fill): anychart.core.Chart;
+        selectMarqueeStroke(): anychart.graphics.vector.Stroke;
+        selectMarqueeStroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string, thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.Chart;
+        selectPoint(globalIndex: number, event?: anychart.core.MouseEvent): anychart.charts.Resource;
         splitterStroke(): anychart.graphics.vector.Stroke;
-        splitterStroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string, thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.charts.Resource;
+        splitterStroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string, thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.charts.Resource;
+        startSelectMarquee(repeat?: boolean): anychart.core.Chart;
         timeLine(): anychart.core.resource.TimeLine;
         timeLine(value?: Object | boolean): anychart.charts.Resource;
         timeLineHeight(): number | string;
@@ -1165,8 +1750,10 @@ declare namespace anychart.charts {
         tooltip(value?: Object | boolean): anychart.core.Chart;
         top(): number | string;
         top(value?: number | string): anychart.core.VisualBaseWithBounds;
+        unhover(resourceIndex?: number | Array<number>, activityIndex?: number): anychart.charts.Resource;
         unlisten(type: string, listener: (() => void), useCapture?: boolean, listenerScope?: Object): boolean;
         unlistenByKey(key: Object): boolean;
+        unselect(resourceIndex?: number | Array<number>, activityIndex?: number): void;
         verticalScrollBar(): anychart.core.ui.Scroller;
         verticalScrollBar(value?: Object | boolean): anychart.charts.Resource;
         width(): number | string;
@@ -1200,6 +1787,7 @@ declare namespace anychart.charts {
         bounds(): anychart.core.utils.Bounds;
         bounds(value?: anychart.utils.RectObj | anychart.math.Rect | anychart.core.utils.Bounds): anychart.core.VisualBase;
         bounds(x?: number | string, y?: number | string, width?: number | string, height?: number | string): anychart.core.VisualBase;
+        cancelMarquee(): anychart.core.Chart;
         clip(): boolean | anychart.math.Rect;
         clip(value?: anychart.math.Rect): anychart.charts.Sparkline;
         connectMissingPoints(): boolean;
@@ -1209,7 +1797,7 @@ declare namespace anychart.charts {
         contextMenu(): anychart.ui.ContextMenu;
         contextMenu(value?: Object | boolean): anychart.core.Chart;
         data(): anychart.data.View;
-        data(value?: anychart.data.View | anychart.data.Set | Array<any> | string, csvSettings?: {[prop: string]: (string|boolean)}): anychart.charts.Sparkline;
+        data(value?: anychart.data.View | anychart.data.Set | Array<any> | string, csvSettings?: anychart.enums.TextParsingMode | anychart.data.TextParsingSettings): anychart.charts.Sparkline;
         draw(async?: boolean): anychart.core.Chart;
         fill(): anychart.graphics.vector.Fill;
         fill(value: anychart.graphics.vector.Fill): anychart.charts.Sparkline;
@@ -1238,6 +1826,7 @@ declare namespace anychart.charts {
         hatchFill(patternFillOrType?: anychart.graphics.vector.PatternFill | anychart.graphics.vector.HatchFill | (() => void) | anychart.graphics.vector.HatchFill.HatchFillType | string, color?: string, thickness?: number, size?: number): anychart.charts.Sparkline;
         height(): number | string;
         height(value?: number | string): anychart.core.VisualBaseWithBounds;
+        inMarquee(): boolean;
         label(index?: string | number): anychart.core.ui.Label;
         label(value?: boolean | Object | string): anychart.core.Chart;
         label(index?: string | number, value?: boolean | Object | string): anychart.core.Chart;
@@ -1333,9 +1922,18 @@ declare namespace anychart.charts {
         saveAsSvg(width?: number, height?: number): void;
         saveAsXlsx(chartDataExportMode?: string | anychart.enums.ChartDataExportMode, filename?: string): void;
         saveAsXml(includeTheme?: boolean, filename?: string): void;
+        selectMarqueeFill(): anychart.graphics.vector.Fill;
+        selectMarqueeFill(value: anychart.graphics.vector.Fill): anychart.core.Chart;
+        selectMarqueeFill(color: string, opacity?: number): anychart.core.Chart;
+        selectMarqueeFill(keys: Array<(anychart.graphics.vector.GradientKey|string)>, angle?: number, mode?: boolean | anychart.graphics.vector.Rect | Object, opacity?: number): anychart.core.Chart;
+        selectMarqueeFill(keys: Array<(anychart.graphics.vector.GradientKey|string)>, cx: number, cy: number, mode?: anychart.graphics.math.Rect, opacity?: number, fx?: number, fy?: number): anychart.core.Chart;
+        selectMarqueeFill(imageSettings: anychart.graphics.vector.Fill): anychart.core.Chart;
+        selectMarqueeStroke(): anychart.graphics.vector.Stroke;
+        selectMarqueeStroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string, thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.Chart;
+        startSelectMarquee(repeat?: boolean): anychart.core.Chart;
         stroke(): anychart.graphics.vector.Stroke;
         stroke(func?: (() => void)): anychart.charts.Sparkline;
-        stroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.charts.Sparkline;
+        stroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.charts.Sparkline;
         textMarker(index?: number): anychart.core.axisMarkers.Text;
         textMarker(value?: Object | boolean): anychart.charts.Sparkline;
         textMarker(index?: number, value?: Object | boolean): anychart.charts.Sparkline;
@@ -1368,7 +1966,7 @@ declare namespace anychart.charts {
         animation(): anychart.core.utils.Animation;
         animation(value?: boolean | Object): anychart.core.Chart;
         animation(enabled: boolean, duration: number): anychart.core.Chart;
-        area(data: anychart.data.View | anychart.data.Set | Array<any>, csvSettings?: {[prop: string]: (string|boolean)}): anychart.core.radar.series.Area;
+        area(data: anychart.data.View | anychart.data.Set | Array<any>, csvSettings?: anychart.enums.TextParsingMode | anychart.data.TextParsingSettings): anychart.core.radar.series.Area;
         background(): anychart.core.ui.Background;
         background(value?: Object): anychart.core.Chart;
         bottom(): number | string;
@@ -1376,6 +1974,7 @@ declare namespace anychart.charts {
         bounds(): anychart.core.utils.Bounds;
         bounds(value?: anychart.utils.RectObj | anychart.math.Rect | anychart.core.utils.Bounds): anychart.core.VisualBase;
         bounds(x?: number | string, y?: number | string, width?: number | string, height?: number | string): anychart.core.VisualBase;
+        cancelMarquee(): anychart.core.Chart;
         container(): anychart.graphics.vector.Layer | anychart.graphics.vector.Stage;
         container(value?: anychart.graphics.vector.Layer | anychart.graphics.vector.Stage | string | Element): anychart.core.Chart;
         contextMenu(): anychart.ui.ContextMenu;
@@ -1393,29 +1992,40 @@ declare namespace anychart.charts {
         getSeriesCount(): number;
         getStat(key: string | anychart.enums.Statistics): any;
         getType(): string;
+        getXScales(): Array<any>;
+        getYScales(): Array<any>;
         globalToLocal(xCoord: number, yCoord: number): {[prop: string]: number};
         grid(index?: number): anychart.core.grids.Radar;
         grid(value?: Object | boolean): anychart.charts.Radar;
         grid(index?: number, value?: Object | boolean): anychart.charts.Radar;
+        hatchFillPalette(): anychart.palettes.HatchFills;
+        hatchFillPalette(value?: Array<anychart.graphics.vector.HatchFill.HatchFillType> | Object | anychart.palettes.HatchFills): anychart.charts.Radar;
         height(): number | string;
         height(value?: number | string): anychart.core.VisualBaseWithBounds;
+        hoverLabels(): anychart.core.ui.LabelsFactory;
+        hoverLabels(value?: Object | boolean): anychart.charts.Radar;
+        inMarquee(): boolean;
+        innerRadius(): number | string;
+        innerRadius(value?: number | string): anychart.charts.Radar;
         interactivity(): anychart.core.utils.Interactivity;
         interactivity(value?: Object | anychart.enums.HoverMode): anychart.core.SeparateChart;
         label(index?: string | number): anychart.core.ui.Label;
         label(value?: boolean | Object | string): anychart.core.Chart;
         label(index?: string | number, value?: boolean | Object | string): anychart.core.Chart;
+        labels(): anychart.core.ui.LabelsFactory;
+        labels(value?: Object | boolean): anychart.charts.Radar;
         left(): number | string;
         left(value?: number | string): anychart.core.VisualBaseWithBounds;
         legend(): anychart.core.ui.Legend;
         legend(value?: Object | boolean): anychart.core.Chart;
-        line(data: anychart.data.View | anychart.data.Set | Array<any> | string, csvSettings?: {[prop: string]: (string|boolean)}): anychart.core.radar.series.Line;
+        line(data: anychart.data.View | anychart.data.Set | Array<any> | string, csvSettings?: anychart.enums.TextParsingMode | anychart.data.TextParsingSettings): anychart.core.radar.series.Line;
         listen(type: string, listener: (() => void), useCapture?: boolean, listenerScope?: Object): Object;
         listenOnce(type: string, listener: (() => void), useCapture?: boolean, listenerScope?: Object): Object;
         localToGlobal(xCoord: number, yCoord: number): {[prop: string]: number};
         margin(): anychart.core.utils.Margin;
         margin(value?: Array<(number|string)> | Object): anychart.core.Chart;
         margin(value1?: string | number, value2?: string | number, value3?: string | number, value4?: string | number): anychart.core.Chart;
-        marker(data: anychart.data.View | anychart.data.Set | Array<any> | string, csvSettings?: {[prop: string]: (string|boolean)}): anychart.core.radar.series.Marker;
+        marker(data: anychart.data.View | anychart.data.Set | Array<any> | string, csvSettings?: anychart.enums.TextParsingMode | anychart.data.TextParsingSettings): anychart.core.radar.series.Marker;
         markerPalette(): anychart.palettes.Markers;
         markerPalette(value?: anychart.palettes.Markers | Object | Array<anychart.enums.MarkerType>): anychart.charts.Radar;
         maxHeight(): number | string;
@@ -1450,8 +2060,19 @@ declare namespace anychart.charts {
         saveAsSvg(width?: number, height?: number): void;
         saveAsXlsx(chartDataExportMode?: string | anychart.enums.ChartDataExportMode, filename?: string): void;
         saveAsXml(includeTheme?: boolean, filename?: string): void;
+        selectLabels(): anychart.core.ui.LabelsFactory;
+        selectLabels(value?: Object | boolean): anychart.core.ui.LabelsFactory;
+        selectMarqueeFill(): anychart.graphics.vector.Fill;
+        selectMarqueeFill(value: anychart.graphics.vector.Fill): anychart.core.Chart;
+        selectMarqueeFill(color: string, opacity?: number): anychart.core.Chart;
+        selectMarqueeFill(keys: Array<(anychart.graphics.vector.GradientKey|string)>, angle?: number, mode?: boolean | anychart.graphics.vector.Rect | Object, opacity?: number): anychart.core.Chart;
+        selectMarqueeFill(keys: Array<(anychart.graphics.vector.GradientKey|string)>, cx: number, cy: number, mode?: anychart.graphics.math.Rect, opacity?: number, fx?: number, fy?: number): anychart.core.Chart;
+        selectMarqueeFill(imageSettings: anychart.graphics.vector.Fill): anychart.core.Chart;
+        selectMarqueeStroke(): anychart.graphics.vector.Stroke;
+        selectMarqueeStroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string, thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.Chart;
         startAngle(): string | number;
         startAngle(value?: string | number): anychart.charts.Radar;
+        startSelectMarquee(repeat?: boolean): anychart.core.Chart;
         title(): anychart.core.ui.Title;
         title(value?: boolean | Object | string): anychart.core.Chart;
         toCsv(chartDataExportMode?: string | anychart.enums.ChartDataExportMode, csvSettings?: {[prop: string]: (string|boolean)}): string;
@@ -1494,6 +2115,7 @@ declare namespace anychart.charts {
         bounds(): anychart.core.utils.Bounds;
         bounds(value?: anychart.utils.RectObj | anychart.math.Rect | anychart.core.utils.Bounds): anychart.core.VisualBase;
         bounds(x?: number | string, y?: number | string, width?: number | string, height?: number | string): anychart.core.VisualBase;
+        cancelMarquee(): anychart.core.Chart;
         container(): anychart.graphics.vector.Layer | anychart.graphics.vector.Stage;
         container(value?: anychart.graphics.vector.Layer | anychart.graphics.vector.Stage | string | Element): anychart.core.Chart;
         contextMenu(): anychart.ui.ContextMenu;
@@ -1501,7 +2123,7 @@ declare namespace anychart.charts {
         credits(): anychart.core.ui.ChartCredits;
         credits(value?: Object | boolean): anychart.core.Chart;
         data(): anychart.data.View;
-        data(value?: anychart.data.View | anychart.data.Set | Array<any> | string, csvSettings?: {[prop: string]: (string|boolean)}): anychart.charts.LinearGauge;
+        data(value?: anychart.data.View | anychart.data.Set | Array<any> | string, csvSettings?: anychart.enums.TextParsingMode | anychart.data.TextParsingSettings): anychart.charts.LinearGauge;
         defaultPointerType(): anychart.enums.LinearGaugePointerType | string;
         defaultPointerType(value?: string | anychart.enums.LinearGaugePointerType): anychart.charts.LinearGauge;
         draw(async?: boolean): anychart.core.Chart;
@@ -1518,6 +2140,7 @@ declare namespace anychart.charts {
         hatchFillPalette(value?: Array<anychart.graphics.vector.HatchFill.HatchFillType> | Object | anychart.palettes.HatchFills): anychart.charts.LinearGauge;
         height(): number | string;
         height(value?: number | string): anychart.core.VisualBaseWithBounds;
+        inMarquee(): boolean;
         interactivity(): anychart.core.utils.Interactivity;
         interactivity(value?: Object | anychart.enums.HoverMode): anychart.core.SeparateChart;
         isVertical(): boolean;
@@ -1575,6 +2198,15 @@ declare namespace anychart.charts {
         scaleBar(index?: number): anychart.core.linearGauge.ScaleBar;
         scaleBar(value?: Object | boolean): anychart.charts.LinearGauge;
         scaleBar(index?: number, value?: Object | boolean): anychart.charts.LinearGauge;
+        selectMarqueeFill(): anychart.graphics.vector.Fill;
+        selectMarqueeFill(value: anychart.graphics.vector.Fill): anychart.core.Chart;
+        selectMarqueeFill(color: string, opacity?: number): anychart.core.Chart;
+        selectMarqueeFill(keys: Array<(anychart.graphics.vector.GradientKey|string)>, angle?: number, mode?: boolean | anychart.graphics.vector.Rect | Object, opacity?: number): anychart.core.Chart;
+        selectMarqueeFill(keys: Array<(anychart.graphics.vector.GradientKey|string)>, cx: number, cy: number, mode?: anychart.graphics.math.Rect, opacity?: number, fx?: number, fy?: number): anychart.core.Chart;
+        selectMarqueeFill(imageSettings: anychart.graphics.vector.Fill): anychart.core.Chart;
+        selectMarqueeStroke(): anychart.graphics.vector.Stroke;
+        selectMarqueeStroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string, thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.Chart;
+        startSelectMarquee(repeat?: boolean): anychart.core.Chart;
         tank(dataIndex: number): anychart.core.linearGauge.pointers.Tank;
         thermometer(dataIndex: number): anychart.core.linearGauge.pointers.Thermometer;
         title(): anychart.core.ui.Title;
@@ -1604,6 +2236,7 @@ declare namespace anychart.charts {
         bounds(): anychart.core.utils.Bounds;
         bounds(value?: anychart.utils.RectObj | anychart.math.Rect | anychart.core.utils.Bounds): anychart.core.VisualBase;
         bounds(x?: number | string, y?: number | string, width?: number | string, height?: number | string): anychart.core.VisualBase;
+        cancelMarquee(): anychart.core.Chart;
         colorScale(): anychart.scales.OrdinalColor;
         colorScale(value?: anychart.scales.OrdinalColor): anychart.charts.HeatMap;
         container(): anychart.graphics.vector.Layer | anychart.graphics.vector.Stage;
@@ -1613,7 +2246,7 @@ declare namespace anychart.charts {
         credits(): anychart.core.ui.ChartCredits;
         credits(value?: Object | boolean): anychart.core.Chart;
         data(): anychart.data.View;
-        data(value?: anychart.data.View | anychart.data.Set | Array<any> | string | anychart.data.TableData, csvSettings?: {[prop: string]: (string|boolean)}): anychart.charts.HeatMap;
+        data(value?: anychart.data.View | anychart.data.Set | Array<any> | string | anychart.data.DataSettings, csvSettings?: anychart.enums.TextParsingMode | anychart.data.TextParsingSettings): anychart.charts.HeatMap;
         draw(async?: boolean): anychart.core.Chart;
         fill(): anychart.graphics.vector.Fill | (() => void);
         fill(value: anychart.graphics.vector.Fill): anychart.charts.HeatMap;
@@ -1648,7 +2281,8 @@ declare namespace anychart.charts {
         hoverMarkers(value?: Object | boolean | string): anychart.charts.HeatMap;
         hoverStroke(): anychart.graphics.vector.Stroke | (() => void);
         hoverStroke(value?: (() => void)): anychart.charts.HeatMap;
-        hoverStroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.charts.HeatMap;
+        hoverStroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.charts.HeatMap;
+        inMarquee(): boolean;
         interactivity(): anychart.core.utils.Interactivity;
         interactivity(value?: Object | anychart.enums.HoverMode): anychart.core.SeparateChart;
         label(index?: string | number): anychart.core.ui.Label;
@@ -1708,12 +2342,21 @@ declare namespace anychart.charts {
         selectLabels(value?: Object | boolean): anychart.charts.HeatMap;
         selectMarkers(): anychart.core.ui.MarkersFactory;
         selectMarkers(value?: Object | boolean | string): anychart.charts.HeatMap;
+        selectMarqueeFill(): anychart.graphics.vector.Fill;
+        selectMarqueeFill(value: anychart.graphics.vector.Fill): anychart.core.Chart;
+        selectMarqueeFill(color: string, opacity?: number): anychart.core.Chart;
+        selectMarqueeFill(keys: Array<(anychart.graphics.vector.GradientKey|string)>, angle?: number, mode?: boolean | anychart.graphics.vector.Rect | Object, opacity?: number): anychart.core.Chart;
+        selectMarqueeFill(keys: Array<(anychart.graphics.vector.GradientKey|string)>, cx: number, cy: number, mode?: anychart.graphics.math.Rect, opacity?: number, fx?: number, fy?: number): anychart.core.Chart;
+        selectMarqueeFill(imageSettings: anychart.graphics.vector.Fill): anychart.core.Chart;
+        selectMarqueeStroke(): anychart.graphics.vector.Stroke;
+        selectMarqueeStroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string, thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.Chart;
         selectStroke(): anychart.graphics.vector.Stroke | (() => void);
         selectStroke(value?: anychart.graphics.vector.Stroke | (() => void)): anychart.charts.HeatMap;
-        selectStroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.charts.HeatMap;
+        selectStroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.charts.HeatMap;
+        startSelectMarquee(repeat?: boolean): anychart.core.Chart;
         stroke(): anychart.graphics.vector.Stroke | (() => void);
         stroke(value?: (() => void)): anychart.charts.HeatMap;
-        stroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string, thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.charts.HeatMap;
+        stroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string, thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.charts.HeatMap;
         title(): anychart.core.ui.Title;
         title(value?: boolean | Object | string): anychart.core.Chart;
         toCsv(chartDataExportMode?: string | anychart.enums.ChartDataExportMode, csvSettings?: {[prop: string]: (string|boolean)}): string;
@@ -1736,6 +2379,8 @@ declare namespace anychart.charts {
         xScale(value?: anychart.enums.ScaleTypes | anychart.scales.Ordinal): anychart.charts.HeatMap;
         xScroller(): anychart.core.ui.ChartScroller;
         xScroller(value?: Object | boolean): anychart.charts.HeatMap;
+        xZoom(): anychart.core.utils.OrdinalZoom;
+        xZoom(value?: number | boolean | Object): anychart.charts.HeatMap;
         yAxis(index?: number): anychart.core.axes.Linear;
         yAxis(value?: Object | boolean): anychart.charts.HeatMap;
         yAxis(index?: number, value?: Object | boolean): anychart.charts.HeatMap;
@@ -1743,6 +2388,8 @@ declare namespace anychart.charts {
         yScale(value?: anychart.enums.ScaleTypes | anychart.scales.Ordinal): anychart.charts.HeatMap;
         yScroller(): anychart.core.ui.ChartScroller;
         yScroller(value?: Object | boolean): anychart.charts.HeatMap;
+        yZoom(): anychart.core.utils.OrdinalZoom;
+        yZoom(value?: number | boolean | Object): anychart.charts.HeatMap;
         zIndex(): number;
         zIndex(value?: number): anychart.core.VisualBase;
     }
@@ -1757,6 +2404,7 @@ declare namespace anychart.charts {
         bounds(): anychart.core.utils.Bounds;
         bounds(value?: anychart.utils.RectObj | anychart.math.Rect | anychart.core.utils.Bounds): anychart.core.VisualBase;
         bounds(x?: number | string, y?: number | string, width?: number | string, height?: number | string): anychart.core.VisualBase;
+        cancelMarquee(): anychart.core.Chart;
         collapseAll(): anychart.charts.Gantt;
         collapseTask(taskId: string): anychart.charts.Gantt;
         columnStroke(): string | anychart.graphics.vector.Stroke;
@@ -1773,7 +2421,7 @@ declare namespace anychart.charts {
         dataGrid(enabled?: boolean): anychart.charts.Gantt;
         defaultRowHeight(): number;
         defaultRowHeight(value?: number): anychart.charts.Gantt;
-        draw(): anychart.charts.Gantt;
+        draw(async?: boolean): anychart.charts.Gantt;
         editing(): boolean;
         editing(value?: boolean): anychart.charts.Gantt;
         expandAll(): anychart.charts.Gantt;
@@ -1790,6 +2438,7 @@ declare namespace anychart.charts {
         headerHeight(value?: number | string): anychart.charts.Gantt;
         height(): number | string;
         height(value?: number | string): anychart.core.VisualBaseWithBounds;
+        inMarquee(): boolean;
         interactivity(): anychart.core.utils.Interactivity;
         interactivity(value?: Object | anychart.enums.HoverMode): anychart.core.SeparateChart;
         label(index?: string | number): anychart.core.ui.Label;
@@ -1844,8 +2493,17 @@ declare namespace anychart.charts {
         scrollTo(pxOffset: number): anychart.charts.Gantt;
         scrollToEnd(index?: number): anychart.charts.Gantt;
         scrollToRow(rowIndex: number): anychart.charts.Gantt;
+        selectMarqueeFill(): anychart.graphics.vector.Fill;
+        selectMarqueeFill(value: anychart.graphics.vector.Fill): anychart.core.Chart;
+        selectMarqueeFill(color: string, opacity?: number): anychart.core.Chart;
+        selectMarqueeFill(keys: Array<(anychart.graphics.vector.GradientKey|string)>, angle?: number, mode?: boolean | anychart.graphics.vector.Rect | Object, opacity?: number): anychart.core.Chart;
+        selectMarqueeFill(keys: Array<(anychart.graphics.vector.GradientKey|string)>, cx: number, cy: number, mode?: anychart.graphics.math.Rect, opacity?: number, fx?: number, fy?: number): anychart.core.Chart;
+        selectMarqueeFill(imageSettings: anychart.graphics.vector.Fill): anychart.core.Chart;
+        selectMarqueeStroke(): anychart.graphics.vector.Stroke;
+        selectMarqueeStroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string, thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.Chart;
         splitterPosition(): number | string;
         splitterPosition(value?: string | number): anychart.charts.Gantt;
+        startSelectMarquee(repeat?: boolean): anychart.core.Chart;
         title(): anychart.core.ui.Title;
         title(value?: boolean | Object | string): anychart.core.Chart;
         toCsv(chartDataExportMode?: string | anychart.enums.ChartDataExportMode, csvSettings?: {[prop: string]: (string|boolean)}): string;
@@ -1887,6 +2545,7 @@ declare namespace anychart.charts {
         bounds(): anychart.core.utils.Bounds;
         bounds(value?: anychart.utils.RectObj | anychart.math.Rect | anychart.core.utils.Bounds): anychart.core.VisualBase;
         bounds(x?: number | string, y?: number | string, width?: number | string, height?: number | string): anychart.core.VisualBase;
+        cancelMarquee(): anychart.core.Chart;
         cap(): anychart.core.gauge.Cap;
         cap(value?: Object | boolean): anychart.charts.CircularGauge;
         circularPadding(): string;
@@ -1896,14 +2555,14 @@ declare namespace anychart.charts {
         contextMenu(): anychart.ui.ContextMenu;
         contextMenu(value?: Object | boolean): anychart.core.Chart;
         data(): anychart.data.View;
-        data(value?: anychart.data.View | anychart.data.Set | Array<any> | string, csvSettings?: {[prop: string]: (string|boolean)}): anychart.charts.CircularGauge;
+        data(value?: anychart.data.View | anychart.data.Set | Array<any> | string, csvSettings?: anychart.enums.TextParsingMode | anychart.data.TextParsingSettings): anychart.charts.CircularGauge;
         draw(async?: boolean): anychart.core.Chart;
         enabled(): boolean;
         enabled(value?: boolean): anychart.core.VisualBase;
         encloseWithStraightLine(): boolean;
         encloseWithStraightLine(value?: boolean): anychart.charts.CircularGauge;
         fill(): anychart.graphics.vector.Fill;
-        fill(value: anychart.graphics.vector.Fill): anychart.charts.CircularGauge;
+        fill(value: anychart.graphics.vector.Fill | string): anychart.charts.CircularGauge;
         fill(color: string, opacity?: number): anychart.charts.CircularGauge;
         fill(keys: Array<(anychart.graphics.vector.GradientKey|string)>, angle?: number, mode?: boolean | anychart.graphics.vector.Rect | Object, opacity?: number): anychart.charts.CircularGauge;
         fill(keys: Array<(anychart.graphics.vector.GradientKey|string)>, cx: number, cy: number, mode?: anychart.graphics.math.Rect, opacity?: number, fx?: number, fy?: number): anychart.charts.CircularGauge;
@@ -1914,6 +2573,7 @@ declare namespace anychart.charts {
         globalToLocal(xCoord: number, yCoord: number): {[prop: string]: number};
         height(): number | string;
         height(value?: number | string): anychart.core.VisualBaseWithBounds;
+        inMarquee(): boolean;
         knob(index?: number): anychart.core.gauge.pointers.Knob;
         knob(value?: Object | boolean): anychart.charts.CircularGauge;
         knob(index?: number, value?: Object | boolean): anychart.charts.CircularGauge;
@@ -1961,8 +2621,17 @@ declare namespace anychart.charts {
         saveAsSvg(width?: number, height?: number): void;
         saveAsXlsx(chartDataExportMode?: string | anychart.enums.ChartDataExportMode, filename?: string): void;
         saveAsXml(includeTheme?: boolean, filename?: string): void;
+        selectMarqueeFill(): anychart.graphics.vector.Fill;
+        selectMarqueeFill(value: anychart.graphics.vector.Fill): anychart.core.Chart;
+        selectMarqueeFill(color: string, opacity?: number): anychart.core.Chart;
+        selectMarqueeFill(keys: Array<(anychart.graphics.vector.GradientKey|string)>, angle?: number, mode?: boolean | anychart.graphics.vector.Rect | Object, opacity?: number): anychart.core.Chart;
+        selectMarqueeFill(keys: Array<(anychart.graphics.vector.GradientKey|string)>, cx: number, cy: number, mode?: anychart.graphics.math.Rect, opacity?: number, fx?: number, fy?: number): anychart.core.Chart;
+        selectMarqueeFill(imageSettings: anychart.graphics.vector.Fill): anychart.core.Chart;
+        selectMarqueeStroke(): anychart.graphics.vector.Stroke;
+        selectMarqueeStroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string, thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.Chart;
         startAngle(): number;
         startAngle(value?: string | number): anychart.charts.CircularGauge;
+        startSelectMarquee(repeat?: boolean): anychart.core.Chart;
         stroke(): anychart.graphics.vector.Stroke;
         stroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string, thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.charts.CircularGauge;
         sweepAngle(): number;
@@ -1985,6 +2654,40 @@ declare namespace anychart.charts {
         zIndex(): number;
         zIndex(value?: number): anychart.core.VisualBase;
     }
+    interface Mekko extends anychart.core.SeparateChart {
+        addSeries(...var_args: (anychart.data.View | anychart.data.Set | Array<any>)[]): Array<anychart.core.mekko.series.Mekko>;
+        annotations(): anychart.core.annotations.PlotController;
+        annotations(annotationsList?: Array<any>): anychart.charts.Mekko;
+        crosshair(): anychart.core.ui.Crosshair;
+        crosshair(value?: Object | boolean): anychart.charts.Mekko;
+        getPlotBounds(): anychart.math.Rect;
+        getSeries(id: number | string): anychart.core.mekko.series.Mekko;
+        getSeriesAt(index: number): anychart.core.mekko.series.Mekko;
+        getSeriesCount(): number;
+        getType(): string;
+        getXAxesCount(): number;
+        getYAxesCount(): number;
+        hatchFillPalette(): anychart.palettes.HatchFills;
+        hatchFillPalette(value?: Array<anychart.graphics.vector.HatchFill.HatchFillType> | Object | anychart.palettes.HatchFills): anychart.charts.Mekko;
+        mekko(data: anychart.data.View | anychart.data.Set | Array<any>, csvSettings?: {[prop: string]: (string|boolean)}): anychart.core.mekko.series.Mekko;
+        palette(): anychart.palettes.RangeColors | anychart.palettes.DistinctColors;
+        palette(value?: anychart.palettes.RangeColors | anychart.palettes.DistinctColors | Object | Array<string>): anychart.charts.Mekko;
+        pointsPadding(): number;
+        pointsPadding(value?: number): anychart.charts.Mekko;
+        removeAllSeries(): anychart.charts.Mekko;
+        removeSeries(id: number | string): anychart.charts.Mekko;
+        removeSeriesAt(index: number): anychart.charts.Mekko;
+        xAxis(index?: number): anychart.core.axes.Linear;
+        xAxis(value?: Object | boolean): anychart.charts.Mekko;
+        xAxis(index?: number, value?: Object | boolean): anychart.charts.Mekko;
+        xScale(): anychart.scales.Ordinal;
+        xScale(value?: anychart.enums.ScaleTypes | anychart.scales.Ordinal): anychart.charts.Mekko;
+        yAxis(index?: number): anychart.core.axes.Linear;
+        yAxis(value?: Object | boolean): anychart.charts.Mekko;
+        yAxis(index?: number, value?: Object | boolean): anychart.charts.Mekko;
+        yScale(): anychart.scales.Base;
+        yScale(value?: anychart.enums.ScaleTypes | anychart.scales.Base): anychart.charts.Mekko;
+    }
     interface Pie extends anychart.core.SeparateChart {
         animation(): anychart.core.utils.Animation;
         animation(value?: boolean | Object): anychart.core.Chart;
@@ -1996,6 +2699,7 @@ declare namespace anychart.charts {
         bounds(): anychart.core.utils.Bounds;
         bounds(value?: anychart.utils.RectObj | anychart.math.Rect | anychart.core.utils.Bounds): anychart.core.VisualBase;
         bounds(x?: number | string, y?: number | string, width?: number | string, height?: number | string): anychart.core.VisualBase;
+        cancelMarquee(): anychart.core.Chart;
         connectorLength(): number | string;
         connectorLength(value?: number | string): anychart.charts.Pie;
         connectorStroke(): anychart.graphics.vector.Stroke;
@@ -2007,7 +2711,7 @@ declare namespace anychart.charts {
         credits(): anychart.core.ui.ChartCredits;
         credits(value?: Object | boolean): anychart.core.Chart;
         data(): anychart.data.View;
-        data(value?: anychart.data.View | anychart.data.Mapping | anychart.data.Set | anychart.data.TableData | Array<any>, csvSettings?: {[prop: string]: (string|boolean)}): anychart.charts.Pie;
+        data(value?: anychart.data.View | anychart.data.Mapping | anychart.data.Set | anychart.data.DataSettings | Array<any>, csvSettings?: anychart.enums.TextParsingMode | anychart.data.TextParsingSettings): anychart.charts.Pie;
         draw(async?: boolean): anychart.core.Chart;
         explode(): string | number;
         explode(value?: string | number): anychart.charts.Pie;
@@ -2054,6 +2758,7 @@ declare namespace anychart.charts {
         hoverStroke(): anychart.graphics.vector.Stroke | (() => void);
         hoverStroke(strokeFunction?: (() => void)): anychart.charts.Pie;
         hoverStroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string, thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.charts.Pie;
+        inMarquee(): boolean;
         innerRadius(): string | number | (() => void);
         innerRadius(value?: string | number | (() => void)): anychart.charts.Pie;
         insideLabelsOffset(): number | string;
@@ -2109,10 +2814,19 @@ declare namespace anychart.charts {
         saveAsSvg(width?: number, height?: number): void;
         saveAsXlsx(chartDataExportMode?: string | anychart.enums.ChartDataExportMode, filename?: string): void;
         saveAsXml(includeTheme?: boolean, filename?: string): void;
+        selectMarqueeFill(): anychart.graphics.vector.Fill;
+        selectMarqueeFill(value: anychart.graphics.vector.Fill): anychart.core.Chart;
+        selectMarqueeFill(color: string, opacity?: number): anychart.core.Chart;
+        selectMarqueeFill(keys: Array<(anychart.graphics.vector.GradientKey|string)>, angle?: number, mode?: boolean | anychart.graphics.vector.Rect | Object, opacity?: number): anychart.core.Chart;
+        selectMarqueeFill(keys: Array<(anychart.graphics.vector.GradientKey|string)>, cx: number, cy: number, mode?: anychart.graphics.math.Rect, opacity?: number, fx?: number, fy?: number): anychart.core.Chart;
+        selectMarqueeFill(imageSettings: anychart.graphics.vector.Fill): anychart.core.Chart;
+        selectMarqueeStroke(): anychart.graphics.vector.Stroke;
+        selectMarqueeStroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string, thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.Chart;
         sort(): anychart.enums.Sort;
         sort(value?: anychart.enums.Sort | string): anychart.charts.Pie;
         startAngle(): string | number;
         startAngle(value?: string | number): anychart.charts.Pie;
+        startSelectMarquee(repeat?: boolean): anychart.core.Chart;
         stroke(): anychart.graphics.vector.Stroke | (() => void);
         stroke(fillFunction?: (() => void)): anychart.charts.Pie;
         stroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string, thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.charts.Pie;
@@ -2148,6 +2862,7 @@ declare namespace anychart.charts {
         bounds(): anychart.core.utils.Bounds;
         bounds(value?: anychart.utils.RectObj | anychart.math.Rect | anychart.core.utils.Bounds): anychart.core.VisualBase;
         bounds(x?: number | string, y?: number | string, width?: number | string, height?: number | string): anychart.core.VisualBase;
+        cancelMarquee(): anychart.core.Chart;
         connectorLength(): number | string;
         connectorLength(value?: number | string): anychart.charts.Funnel;
         connectorStroke(): anychart.graphics.vector.Stroke | (() => void);
@@ -2159,7 +2874,7 @@ declare namespace anychart.charts {
         credits(): anychart.core.ui.ChartCredits;
         credits(value?: Object | boolean): anychart.core.Chart;
         data(): anychart.data.View;
-        data(value?: anychart.data.View | anychart.data.Mapping | anychart.data.Set | Array<any> | string | anychart.data.TableData, csvSettings?: {[prop: string]: (string|boolean)}): anychart.charts.Funnel;
+        data(value?: anychart.data.View | anychart.data.Mapping | anychart.data.Set | Array<any> | string | anychart.data.DataSettings, csvSettings?: anychart.enums.TextParsingMode | anychart.data.TextParsingSettings): anychart.charts.Funnel;
         draw(async?: boolean): anychart.core.Chart;
         fill(): anychart.graphics.vector.Fill | (() => void);
         fill(fillFunction?: (() => void)): anychart.charts.Funnel;
@@ -2195,7 +2910,8 @@ declare namespace anychart.charts {
         hoverMarkers(value?: Object | boolean | string): anychart.charts.Funnel;
         hoverStroke(): anychart.graphics.vector.Stroke | (() => void);
         hoverStroke(value?: anychart.graphics.vector.Stroke | (() => void)): anychart.charts.Funnel;
-        hoverStroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.charts.Funnel;
+        hoverStroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.charts.Funnel;
+        inMarquee(): boolean;
         interactivity(): anychart.core.utils.Interactivity;
         interactivity(value?: Object | anychart.enums.HoverMode): anychart.core.SeparateChart;
         label(index?: string | number): anychart.core.ui.Label;
@@ -2254,7 +2970,6 @@ declare namespace anychart.charts {
         select(index?: number): anychart.charts.Funnel;
         select(indexes?: Array<number>): anychart.charts.Funnel;
         select(): anychart.charts.Funnel;
-        select(): anychart.charts.Pyramid;
         selectFill(): anychart.graphics.vector.Fill | (() => void);
         selectFill(func?: (() => void)): anychart.charts.Funnel;
         selectFill(value: anychart.graphics.vector.Fill): anychart.charts.Funnel;
@@ -2268,12 +2983,21 @@ declare namespace anychart.charts {
         selectLabels(value?: Object | boolean): anychart.charts.Funnel;
         selectMarkers(): anychart.core.ui.MarkersFactory;
         selectMarkers(value?: Object | boolean | string): anychart.charts.Funnel;
+        selectMarqueeFill(): anychart.graphics.vector.Fill;
+        selectMarqueeFill(value: anychart.graphics.vector.Fill): anychart.core.Chart;
+        selectMarqueeFill(color: string, opacity?: number): anychart.core.Chart;
+        selectMarqueeFill(keys: Array<(anychart.graphics.vector.GradientKey|string)>, angle?: number, mode?: boolean | anychart.graphics.vector.Rect | Object, opacity?: number): anychart.core.Chart;
+        selectMarqueeFill(keys: Array<(anychart.graphics.vector.GradientKey|string)>, cx: number, cy: number, mode?: anychart.graphics.math.Rect, opacity?: number, fx?: number, fy?: number): anychart.core.Chart;
+        selectMarqueeFill(imageSettings: anychart.graphics.vector.Fill): anychart.core.Chart;
+        selectMarqueeStroke(): anychart.graphics.vector.Stroke;
+        selectMarqueeStroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string, thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.Chart;
         selectStroke(): anychart.graphics.vector.Stroke | (() => void);
         selectStroke(func?: (() => void)): anychart.charts.Funnel;
-        selectStroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.charts.Funnel;
+        selectStroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.charts.Funnel;
+        startSelectMarquee(repeat?: boolean): anychart.core.Chart;
         stroke(): anychart.graphics.vector.Stroke | (() => void);
         stroke(value?: anychart.graphics.vector.Stroke | (() => void)): anychart.charts.Funnel;
-        stroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.charts.Funnel;
+        stroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.charts.Funnel;
         title(): anychart.core.ui.Title;
         title(value?: boolean | Object | string): anychart.core.Chart;
         toCsv(chartDataExportMode?: string | anychart.enums.ChartDataExportMode, csvSettings?: {[prop: string]: (string|boolean)}): string;
@@ -2308,14 +3032,15 @@ declare namespace anychart.charts {
         bounds(): anychart.core.utils.Bounds;
         bounds(value?: anychart.utils.RectObj | anychart.math.Rect | anychart.core.utils.Bounds): anychart.core.VisualBase;
         bounds(x?: number | string, y?: number | string, width?: number | string, height?: number | string): anychart.core.VisualBase;
-        bubble(data: anychart.data.View | anychart.data.Set | Array<any> | string, csvSettings?: {[prop: string]: (string|boolean)}): anychart.core.map.series.Bubble;
+        bubble(data: anychart.data.View | anychart.data.Set | Array<any> | string, csvSettings?: anychart.enums.TextParsingMode | anychart.data.TextParsingSettings): anychart.core.map.series.Bubble;
         callout(index?: number): anychart.core.ui.Callout;
         callout(value?: Object | boolean): anychart.charts.Map;
         callout(index?: number, value?: Object | boolean): anychart.charts.Map;
-        choropleth(data: anychart.data.View | anychart.data.Set | Array<any> | string, csvSettings?: {[prop: string]: (string|boolean)}): anychart.core.map.series.Choropleth;
+        cancelMarquee(): anychart.core.Chart;
+        choropleth(data: anychart.data.View | anychart.data.Set | Array<any> | string, csvSettings?: anychart.enums.TextParsingMode | anychart.data.TextParsingSettings): anychart.core.map.series.Choropleth;
         colorRange(): anychart.core.ui.ColorRange;
         colorRange(value?: Object): anychart.charts.Map;
-        connector(data: anychart.data.View | anychart.data.Set | Array<any> | string, csvSettings?: {[prop: string]: (string|boolean)}): anychart.core.map.series.Connector;
+        connector(data: anychart.data.View | anychart.data.Set | Array<any> | string, csvSettings?: anychart.enums.TextParsingMode | anychart.data.TextParsingSettings): anychart.core.map.series.Connector;
         container(): anychart.graphics.vector.Layer | anychart.graphics.vector.Stage;
         container(value?: anychart.graphics.vector.Layer | anychart.graphics.vector.Stage | string | Element): anychart.core.Chart;
         contextMenu(): anychart.ui.ContextMenu;
@@ -2352,6 +3077,7 @@ declare namespace anychart.charts {
         getSeriesCount(): number;
         getStat(key: string | anychart.enums.Statistics): any;
         getType(): string;
+        getZoomLevel(): number;
         globalToLocal(xCoord: number, yCoord: number): {[prop: string]: number};
         grids(): anychart.core.grids.MapSettings;
         grids(value?: Object | boolean): anychart.charts.Map;
@@ -2359,12 +3085,17 @@ declare namespace anychart.charts {
         hatchFillPalette(value?: Array<anychart.graphics.vector.HatchFill.HatchFillType> | Object | anychart.palettes.HatchFills): anychart.charts.Map;
         height(): number | string;
         height(value?: number | string): anychart.core.VisualBaseWithBounds;
+        hoverLabels(): anychart.core.ui.LabelsFactory;
+        hoverLabels(value?: Object | boolean): anychart.charts.Map;
+        inMarquee(): boolean;
         interactivity(): anychart.core.utils.Interactivity;
         interactivity(value?: Object | anychart.enums.HoverMode): anychart.core.SeparateChart;
         inverseTransform(x: number, y: number): {[prop: string]: number};
         label(index?: string | number): anychart.core.ui.Label;
         label(value?: boolean | Object | string): anychart.core.Chart;
         label(index?: string | number, value?: boolean | Object | string): anychart.core.Chart;
+        labels(): anychart.core.ui.LabelsFactory;
+        labels(value?: Object | boolean): anychart.charts.Map;
         left(): number | string;
         left(value?: number | string): anychart.core.VisualBaseWithBounds;
         legend(): anychart.core.ui.Legend;
@@ -2375,7 +3106,7 @@ declare namespace anychart.charts {
         margin(): anychart.core.utils.Margin;
         margin(value?: Array<(number|string)> | Object): anychart.core.Chart;
         margin(value1?: string | number, value2?: string | number, value3?: string | number, value4?: string | number): anychart.core.Chart;
-        marker(data: anychart.data.View | anychart.data.Set | Array<any> | string, csvSettings?: {[prop: string]: (string|boolean)}): anychart.core.map.series.Marker;
+        marker(data: anychart.data.View | anychart.data.Set | Array<any> | string, csvSettings?: anychart.enums.TextParsingMode | anychart.data.TextParsingSettings): anychart.core.map.series.Marker;
         markerPalette(): anychart.palettes.Markers;
         markerPalette(value?: anychart.palettes.Markers | Object | Array<anychart.enums.MarkerType>): anychart.charts.Map;
         maxBubbleSize(): number | string;
@@ -2384,6 +3115,8 @@ declare namespace anychart.charts {
         maxHeight(value?: number | string): anychart.core.VisualBase;
         maxWidth(): number | string;
         maxWidth(value?: number | string): anychart.core.VisualBase;
+        maxZoomLevel(): number;
+        maxZoomLevel(value?: number): anychart.charts.Map;
         minBubbleSize(): number | string;
         minBubbleSize(value?: number | string): anychart.charts.Map;
         minHeight(): number | string;
@@ -2415,6 +3148,17 @@ declare namespace anychart.charts {
         saveAsXlsx(chartDataExportMode?: string | anychart.enums.ChartDataExportMode, filename?: string): void;
         saveAsXml(includeTheme?: boolean, filename?: string): void;
         scale(): anychart.scales.Geo;
+        selectLabels(): anychart.core.ui.LabelsFactory;
+        selectLabels(value?: Object | boolean): anychart.core.ui.LabelsFactory;
+        selectMarqueeFill(): anychart.graphics.vector.Fill;
+        selectMarqueeFill(value: anychart.graphics.vector.Fill): anychart.core.Chart;
+        selectMarqueeFill(color: string, opacity?: number): anychart.core.Chart;
+        selectMarqueeFill(keys: Array<(anychart.graphics.vector.GradientKey|string)>, angle?: number, mode?: boolean | anychart.graphics.vector.Rect | Object, opacity?: number): anychart.core.Chart;
+        selectMarqueeFill(keys: Array<(anychart.graphics.vector.GradientKey|string)>, cx: number, cy: number, mode?: anychart.graphics.math.Rect, opacity?: number, fx?: number, fy?: number): anychart.core.Chart;
+        selectMarqueeFill(imageSettings: anychart.graphics.vector.Fill): anychart.core.Chart;
+        selectMarqueeStroke(): anychart.graphics.vector.Stroke;
+        selectMarqueeStroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string, thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.Chart;
+        startSelectMarquee(repeat?: boolean): anychart.core.Chart;
         title(): anychart.core.ui.Title;
         title(value?: boolean | Object | string): anychart.core.Chart;
         toCsv(chartDataExportMode?: string | anychart.enums.ChartDataExportMode, csvSettings?: {[prop: string]: (string|boolean)}): string;
@@ -2437,7 +3181,7 @@ declare namespace anychart.charts {
         width(value?: number | string): anychart.core.VisualBaseWithBounds;
         zIndex(): number;
         zIndex(value?: number): anychart.core.VisualBase;
-        zoom(value: number, cx?: number, cy?: number): anychart.charts.Map;
+        zoom(value: number, cx?: number, cy?: number, duration?: number): anychart.charts.Map;
         zoomTo(value: number, cx?: number, cy?: number): anychart.charts.Map;
         zoomToFeature(id: string): void;
     }
@@ -2454,6 +3198,7 @@ declare namespace anychart.charts {
         bounds(): anychart.core.utils.Bounds;
         bounds(value?: anychart.utils.RectObj | anychart.math.Rect | anychart.core.utils.Bounds): anychart.core.VisualBase;
         bounds(x?: number | string, y?: number | string, width?: number | string, height?: number | string): anychart.core.VisualBase;
+        cancelMarquee(): anychart.core.Chart;
         connectorLength(): number | string;
         connectorLength(value?: number | string): anychart.charts.Pyramid;
         connectorStroke(): anychart.graphics.vector.Stroke | (() => void);
@@ -2465,7 +3210,7 @@ declare namespace anychart.charts {
         credits(): anychart.core.ui.ChartCredits;
         credits(value?: Object | boolean): anychart.core.Chart;
         data(): anychart.data.View;
-        data(value?: anychart.data.View | anychart.data.Mapping | anychart.data.Set | Array<any> | string | anychart.data.TableData, csvSettings?: {[prop: string]: (string|boolean)}): anychart.charts.Pyramid;
+        data(value?: anychart.data.View | anychart.data.Mapping | anychart.data.Set | Array<any> | string | anychart.data.DataSettings, csvSettings?: anychart.enums.TextParsingMode | anychart.data.TextParsingSettings): anychart.charts.Pyramid;
         draw(async?: boolean): anychart.core.Chart;
         fill(): anychart.graphics.vector.Fill | (() => void);
         fill(value?: anychart.graphics.vector.Fill | (() => void)): anychart.charts.Pyramid;
@@ -2501,7 +3246,8 @@ declare namespace anychart.charts {
         hoverMarkers(value?: Object | boolean | string): anychart.charts.Pyramid;
         hoverStroke(): anychart.graphics.vector.Stroke | (() => void);
         hoverStroke(strokeFunction?: anychart.graphics.vector.Stroke | (() => void)): anychart.charts.Pyramid;
-        hoverStroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.charts.Pyramid;
+        hoverStroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.charts.Pyramid;
+        inMarquee(): boolean;
         interactivity(): anychart.core.utils.Interactivity;
         interactivity(value?: Object | anychart.enums.HoverMode): anychart.core.SeparateChart;
         label(index?: string | number): anychart.core.ui.Label;
@@ -2555,6 +3301,7 @@ declare namespace anychart.charts {
         saveAsSvg(width?: number, height?: number): void;
         saveAsXlsx(chartDataExportMode?: string | anychart.enums.ChartDataExportMode, filename?: string): void;
         saveAsXml(includeTheme?: boolean, filename?: string): void;
+        select(): anychart.charts.Pyramid;
         select(index?: number): anychart.charts.Pyramid;
         select(indexes?: Array<number>): anychart.charts.Pyramid;
         selectFill(): anychart.graphics.vector.Fill | (() => void);
@@ -2570,12 +3317,21 @@ declare namespace anychart.charts {
         selectLabels(value?: Object | boolean): anychart.charts.Pyramid;
         selectMarkers(): anychart.core.ui.MarkersFactory;
         selectMarkers(value?: Object | boolean | string): anychart.charts.Pyramid;
+        selectMarqueeFill(): anychart.graphics.vector.Fill;
+        selectMarqueeFill(value: anychart.graphics.vector.Fill): anychart.core.Chart;
+        selectMarqueeFill(color: string, opacity?: number): anychart.core.Chart;
+        selectMarqueeFill(keys: Array<(anychart.graphics.vector.GradientKey|string)>, angle?: number, mode?: boolean | anychart.graphics.vector.Rect | Object, opacity?: number): anychart.core.Chart;
+        selectMarqueeFill(keys: Array<(anychart.graphics.vector.GradientKey|string)>, cx: number, cy: number, mode?: anychart.graphics.math.Rect, opacity?: number, fx?: number, fy?: number): anychart.core.Chart;
+        selectMarqueeFill(imageSettings: anychart.graphics.vector.Fill): anychart.core.Chart;
+        selectMarqueeStroke(): anychart.graphics.vector.Stroke;
+        selectMarqueeStroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string, thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.Chart;
         selectStroke(): anychart.graphics.vector.Stroke | (() => void);
         selectStroke(func?: (() => void)): anychart.charts.Pyramid;
-        selectStroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.charts.Pyramid;
+        selectStroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.charts.Pyramid;
+        startSelectMarquee(repeat?: boolean): anychart.core.Chart;
         stroke(): anychart.graphics.vector.Stroke | (() => void);
         stroke(value?: anychart.graphics.vector.Stroke | (() => void)): anychart.charts.Pyramid;
-        stroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.charts.Pyramid;
+        stroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.charts.Pyramid;
         title(): anychart.core.ui.Title;
         title(value?: boolean | Object | string): anychart.core.Chart;
         toCsv(chartDataExportMode?: string | anychart.enums.ChartDataExportMode, csvSettings?: {[prop: string]: (string|boolean)}): string;
@@ -2600,7 +3356,7 @@ declare namespace anychart.charts {
 
 declare namespace anychart.color {
     function bipolarHueProgression(color1?: string, color2?: string, count?: number): Array<string>;
-    function blend(rgb1: Array<number>, rgb2: Array<number>, factor: number): Array<number>;
+    function blend(rgb1: Array<number>, rgb2: Array<number>, factor: number): anychart.graphics.vector.SolidFill;
     function blendedHueProgression(color1?: string, color2?: string, count?: number): Array<string>;
     function darken(fillOrStroke: anychart.graphics.vector.Fill | anychart.graphics.vector.Stroke, factor?: number): string | anychart.graphics.vector.Fill | anychart.graphics.vector.Stroke;
     function lighten(fillOrStroke: anychart.graphics.vector.Fill | anychart.graphics.vector.Stroke, factor?: number): string | anychart.graphics.vector.Fill | anychart.graphics.vector.Stroke;
@@ -2653,6 +3409,20 @@ declare namespace anychart.core {
         selected(): boolean;
         selected(value?: boolean): anychart.core.Point;
         set(field: string, value: any): anychart.core.Point;
+    }
+    interface TagCloudStateSettings extends anychart.core.Base {
+        fill(): anychart.graphics.vector.SolidFill | string | (() => void);
+        fill(value: anychart.graphics.vector.SolidFill | string | (() => void)): anychart.core.TagCloudStateSettings;
+        fontFamily(): string;
+        fontFamily(value?: string): anychart.core.TagCloudStateSettings;
+        fontSize(): number;
+        fontSize(value?: number | string): anychart.core.TagCloudStateSettings;
+        fontStyle(): anychart.graphics.vector.Text.FontStyle | string;
+        fontStyle(value?: anychart.graphics.vector.Text.FontStyle | string): anychart.core.TagCloudStateSettings;
+        fontVariant(): anychart.graphics.vector.Text.FontVariant | string;
+        fontVariant(value?: anychart.graphics.vector.Text.FontVariant | string): anychart.core.TagCloudStateSettings;
+        fontWeight(): string | number;
+        fontWeight(value?: string | number): anychart.core.TagCloudStateSettings;
     }
     interface Base {
         listen(type: string, listener: (() => void), useCapture?: boolean, listenerScope?: Object): Object;
@@ -2757,6 +3527,7 @@ declare namespace anychart.core {
         bounds(): anychart.core.utils.Bounds;
         bounds(value?: anychart.utils.RectObj | anychart.math.Rect | anychart.core.utils.Bounds): anychart.core.VisualBase;
         bounds(x?: number | string, y?: number | string, width?: number | string, height?: number | string): anychart.core.VisualBase;
+        cancelMarquee(): anychart.core.Chart;
         container(): anychart.graphics.vector.Layer | anychart.graphics.vector.Stage;
         container(value?: anychart.graphics.vector.Layer | anychart.graphics.vector.Stage | string | Element): anychart.core.Chart;
         contextMenu(): anychart.ui.ContextMenu;
@@ -2774,6 +3545,7 @@ declare namespace anychart.core {
         globalToLocal(xCoord: number, yCoord: number): {[prop: string]: number};
         height(): number | string;
         height(value?: number | string): anychart.core.VisualBaseWithBounds;
+        inMarquee(): boolean;
         label(index?: string | number): anychart.core.ui.Label;
         label(value?: boolean | Object | string): anychart.core.Chart;
         label(index?: string | number, value?: boolean | Object | string): anychart.core.Chart;
@@ -2809,6 +3581,14 @@ declare namespace anychart.core {
         saveAsSvg(width?: number, height?: number): void;
         saveAsXlsx(chartDataExportMode?: string | anychart.enums.ChartDataExportMode, filename?: string): void;
         saveAsXml(includeTheme?: boolean, filename?: string): void;
+        selectMarqueeFill(): anychart.graphics.vector.Fill;
+        selectMarqueeFill(value: anychart.graphics.vector.Fill): anychart.core.Chart;
+        selectMarqueeFill(color: string, opacity?: number): anychart.core.Chart;
+        selectMarqueeFill(keys: Array<(anychart.graphics.vector.GradientKey|string)>, angle?: number, mode?: boolean | anychart.graphics.vector.Rect | Object, opacity?: number): anychart.core.Chart;
+        selectMarqueeFill(keys: Array<(anychart.graphics.vector.GradientKey|string)>, cx: number, cy: number, mode?: anychart.graphics.math.Rect, opacity?: number, fx?: number, fy?: number): anychart.core.Chart;
+        selectMarqueeFill(imageSettings: anychart.graphics.vector.Fill): anychart.core.Chart;
+        selectMarqueeStroke(): anychart.graphics.vector.Stroke;
+        selectMarqueeStroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string, thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.Chart;
         shareAsJpg(onSuccessOrOptions: (() => void) | Object, onError?: (() => void), asBase64?: boolean, width?: number, height?: number, quality?: number, forceTransparentWhite?: boolean, filename?: string): void;
         shareAsPdf(onSuccessOrOptions: (() => void) | Object, onError?: (() => void), asBase64?: boolean, paperSizeOrWidth?: number | string, landscapeOrWidth?: number | boolean, x?: number, y?: number, filename?: string): void;
         shareAsPng(onSuccessOrOptions: (() => void) | Object, onError?: (() => void), asBase64?: boolean, width?: number, height?: number, quality?: number, filename?: string): void;
@@ -2817,6 +3597,7 @@ declare namespace anychart.core {
         shareWithLinkedIn(captionOrOptions?: string | Object, description?: string): void;
         shareWithPinterest(linkOrOptions?: string | Object, description?: string): void;
         shareWithTwitter(): void;
+        startSelectMarquee(repeat?: boolean): anychart.core.Chart;
         title(): anychart.core.ui.Title;
         title(value?: boolean | Object | string): anychart.core.Chart;
         toA11yTable(title?: string, asString?: boolean): Element | string;
@@ -2939,13 +3720,10 @@ declare namespace anychart.core {
         bounds(): anychart.core.utils.Bounds;
         bounds(value?: anychart.utils.RectObj | anychart.math.Rect | anychart.core.utils.Bounds): anychart.core.VisualBase;
         bounds(x?: number | string, y?: number | string, width?: number | string, height?: number | string): anychart.core.VisualBase;
-        color(): anychart.graphics.vector.Fill;
-        color(value: anychart.graphics.vector.Fill): anychart.core.SeriesBase;
-        color(color: string, opacity?: number): anychart.core.SeriesBase;
-        color(keys: Array<(anychart.graphics.vector.GradientKey|string)>, angle?: number, mode?: boolean | anychart.graphics.vector.Rect | Object, opacity?: number): anychart.core.SeriesBase;
-        color(keys: Array<(anychart.graphics.vector.GradientKey|string)>, cx: number, cy: number, mode?: anychart.graphics.math.Rect, opacity?: number, fx?: number, fy?: number): anychart.core.SeriesBase;
+        color(): string;
+        color(value: string): anychart.core.SeriesBase;
         data(): anychart.data.View;
-        data(value?: anychart.data.View | anychart.data.Set | Array<any> | string, csvSettings?: {[prop: string]: (string|boolean)}): anychart.core.SeriesBase;
+        data(value?: anychart.data.View | anychart.data.Set | Array<any> | string, csvSettings?: anychart.enums.TextParsingMode | anychart.data.TextParsingSettings): anychart.core.SeriesBase;
         enabled(): boolean;
         enabled(value?: boolean): anychart.core.VisualBase;
         getPixelBounds(): anychart.math.Rect;
@@ -3220,8 +3998,8 @@ declare namespace anychart.core.annotations {
     interface Ray extends anychart.core.annotations.Base {
         allowEdit(): boolean;
         allowEdit(value: any): anychart.core.annotations.Base;
-        color(): anychart.graphics.vector.Fill;
-        color(value: anychart.graphics.vector.Fill): anychart.core.annotations.Base;
+        color(): string;
+        color(value: string): anychart.core.annotations.Base;
         getChart(): anychart.core.SeparateChart;
         getPlot(): anychart.core.stock.Plot;
         getType(): anychart.enums.AnnotationTypes | string;
@@ -3231,7 +4009,7 @@ declare namespace anychart.core.annotations {
         hoverMarkers(value?: Object | boolean | string): anychart.core.annotations.Base;
         hoverStroke(): anychart.graphics.vector.Stroke;
         hoverStroke(strokeFunction?: (() => void)): anychart.core.annotations.Ray;
-        hoverStroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.annotations.Ray;
+        hoverStroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.annotations.Ray;
         markers(): anychart.core.ui.MarkersFactory;
         markers(value?: Object | boolean | string): anychart.core.annotations.Base;
         secondValueAnchor(): any;
@@ -3242,10 +4020,10 @@ declare namespace anychart.core.annotations {
         selectMarkers(value?: Object | boolean | string): anychart.core.annotations.Base;
         selectStroke(): anychart.graphics.vector.Stroke;
         selectStroke(strokeFunction?: (() => void)): anychart.core.annotations.Ray;
-        selectStroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.annotations.Ray;
+        selectStroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.annotations.Ray;
         stroke(): anychart.graphics.vector.Stroke;
         stroke(strokeFunction?: (() => void)): anychart.core.annotations.Ray;
-        stroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.annotations.Ray;
+        stroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.annotations.Ray;
         valueAnchor(): any;
         valueAnchor(value: any): anychart.core.annotations.Ray;
         xAnchor(): any;
@@ -3258,8 +4036,8 @@ declare namespace anychart.core.annotations {
     interface InfiniteLine extends anychart.core.annotations.Base {
         allowEdit(): boolean;
         allowEdit(value: any): anychart.core.annotations.Base;
-        color(): anychart.graphics.vector.Fill;
-        color(value: anychart.graphics.vector.Fill): anychart.core.annotations.Base;
+        color(): string;
+        color(value: string): anychart.core.annotations.Base;
         getChart(): anychart.core.SeparateChart;
         getPlot(): anychart.core.stock.Plot;
         getType(): anychart.enums.AnnotationTypes | string;
@@ -3269,7 +4047,7 @@ declare namespace anychart.core.annotations {
         hoverMarkers(value?: Object | boolean | string): anychart.core.annotations.Base;
         hoverStroke(): anychart.graphics.vector.Stroke;
         hoverStroke(strokeFunction?: (() => void)): anychart.core.annotations.InfiniteLine;
-        hoverStroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.annotations.InfiniteLine;
+        hoverStroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.annotations.InfiniteLine;
         markers(): anychart.core.ui.MarkersFactory;
         markers(value?: Object | boolean | string): anychart.core.annotations.Base;
         secondValueAnchor(): any;
@@ -3280,10 +4058,10 @@ declare namespace anychart.core.annotations {
         selectMarkers(value?: Object | boolean | string): anychart.core.annotations.Base;
         selectStroke(): anychart.graphics.vector.Stroke;
         selectStroke(strokeFunction?: (() => void)): anychart.core.annotations.InfiniteLine;
-        selectStroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.annotations.InfiniteLine;
+        selectStroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.annotations.InfiniteLine;
         stroke(): anychart.graphics.vector.Stroke;
         stroke(strokeFunction?: (() => void)): anychart.core.annotations.InfiniteLine;
-        stroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.annotations.InfiniteLine;
+        stroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.annotations.InfiniteLine;
         valueAnchor(): any;
         valueAnchor(value: any): anychart.core.annotations.InfiniteLine;
         xAnchor(): any;
@@ -3296,8 +4074,8 @@ declare namespace anychart.core.annotations {
     interface FibonacciFan extends anychart.core.annotations.FibonacciBase {
         allowEdit(): boolean;
         allowEdit(value: any): anychart.core.annotations.Base;
-        color(): anychart.graphics.vector.Fill;
-        color(value: anychart.graphics.vector.Fill): anychart.core.annotations.Base;
+        color(): string;
+        color(value: string): anychart.core.annotations.Base;
         getChart(): anychart.core.SeparateChart;
         getPlot(): anychart.core.stock.Plot;
         getType(): anychart.enums.AnnotationTypes | string;
@@ -3313,7 +4091,7 @@ declare namespace anychart.core.annotations {
         hoverMarkers(value?: Object | boolean | string): anychart.core.annotations.Base;
         hoverStroke(): anychart.graphics.vector.Stroke;
         hoverStroke(strokeFunction?: (() => void)): anychart.core.annotations.FibonacciFan;
-        hoverStroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.annotations.FibonacciFan;
+        hoverStroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.annotations.FibonacciFan;
         hoverTrend(): anychart.graphics.vector.Stroke;
         hoverTrend(trendFunction?: (() => void)): anychart.core.annotations.FibonacciFan;
         hoverTrend(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.annotations.FibonacciFan;
@@ -3327,18 +4105,18 @@ declare namespace anychart.core.annotations {
         secondXAnchor(Second: any): anychart.core.annotations.FibonacciFan;
         selectGrid(): anychart.graphics.vector.Stroke;
         selectGrid(gridFunction?: (() => void)): anychart.core.annotations.FibonacciFan;
-        selectGrid(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.annotations.FibonacciFan;
+        selectGrid(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string, thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.annotations.FibonacciFan;
         selectMarkers(): anychart.core.ui.MarkersFactory;
         selectMarkers(value?: Object | boolean | string): anychart.core.annotations.Base;
         selectStroke(): anychart.graphics.vector.Stroke;
         selectStroke(strokeFunction?: (() => void)): anychart.core.annotations.FibonacciFan;
-        selectStroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.annotations.FibonacciFan;
+        selectStroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.annotations.FibonacciFan;
         selectTrend(): anychart.graphics.vector.Stroke;
         selectTrend(trendFunction?: (() => void)): anychart.core.annotations.FibonacciFan;
         selectTrend(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.annotations.FibonacciFan;
         stroke(): anychart.graphics.vector.Stroke;
         stroke(strokeFunction?: (() => void)): anychart.core.annotations.FibonacciFan;
-        stroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.annotations.FibonacciFan;
+        stroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.annotations.FibonacciFan;
         timeLevels(): Array<number>;
         timeLevels(values?: Array<any>): anychart.core.annotations.FibonacciBase;
         trend(): anychart.graphics.vector.Stroke;
@@ -3356,8 +4134,8 @@ declare namespace anychart.core.annotations {
     interface Rectangle extends anychart.core.annotations.Base {
         allowEdit(): boolean;
         allowEdit(value: any): anychart.core.annotations.Base;
-        color(): anychart.graphics.vector.Fill;
-        color(value: anychart.graphics.vector.Fill): anychart.core.annotations.Base;
+        color(): string;
+        color(value: string): anychart.core.annotations.Base;
         fill(): anychart.graphics.vector.Fill;
         fill(value: anychart.graphics.vector.Fill): anychart.core.annotations.Rectangle;
         fill(fillFunction?: (() => void)): anychart.core.annotations.Rectangle;
@@ -3385,7 +4163,7 @@ declare namespace anychart.core.annotations {
         hoverMarkers(value?: Object | boolean | string): anychart.core.annotations.Base;
         hoverStroke(): anychart.graphics.vector.Stroke;
         hoverStroke(strokeFunction?: (() => void)): anychart.core.annotations.Rectangle;
-        hoverStroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.annotations.Rectangle;
+        hoverStroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.annotations.Rectangle;
         markers(): anychart.core.ui.MarkersFactory;
         markers(value?: Object | boolean | string): anychart.core.annotations.Base;
         secondValueAnchor(): any;
@@ -3405,10 +4183,10 @@ declare namespace anychart.core.annotations {
         selectMarkers(value?: Object | boolean | string): anychart.core.annotations.Base;
         selectStroke(): anychart.graphics.vector.Stroke;
         selectStroke(strokeFunction?: (() => void)): anychart.core.annotations.Rectangle;
-        selectStroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.annotations.Rectangle;
+        selectStroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.annotations.Rectangle;
         stroke(): anychart.graphics.vector.Stroke;
         stroke(strokeFunction?: (() => void)): anychart.core.annotations.Rectangle;
-        stroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.annotations.Rectangle;
+        stroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.annotations.Rectangle;
         valueAnchor(): any;
         valueAnchor(value: any): anychart.core.annotations.Rectangle;
         xAnchor(): any;
@@ -3419,8 +4197,8 @@ declare namespace anychart.core.annotations {
         yScale(value?: anychart.scales.Base): anychart.core.annotations.Base;
     }
     interface AndrewsPitchfork extends anychart.core.annotations.Base {
-        color(): anychart.graphics.vector.Fill;
-        color(value: anychart.graphics.vector.Fill): anychart.core.annotations.AndrewsPitchfork;
+        color(): string;
+        color(value: string): anychart.core.annotations.AndrewsPitchfork;
         getChart(): anychart.core.SeparateChart;
         getPlot(): anychart.core.stock.Plot;
         getType(): anychart.enums.AnnotationTypes | string;
@@ -3430,7 +4208,7 @@ declare namespace anychart.core.annotations {
         hoverMarkers(value?: Object | boolean | string): anychart.core.annotations.Base;
         hoverStroke(): anychart.graphics.vector.Stroke;
         hoverStroke(strokeFunction?: (() => void)): anychart.core.annotations.AndrewsPitchfork;
-        hoverStroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.annotations.AndrewsPitchfork;
+        hoverStroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.annotations.AndrewsPitchfork;
         markers(): anychart.core.ui.MarkersFactory;
         markers(value?: Object | boolean | string): anychart.core.annotations.Base;
         secondValueAnchor(): any;
@@ -3441,10 +4219,10 @@ declare namespace anychart.core.annotations {
         selectMarkers(value?: Object | boolean | string): anychart.core.annotations.Base;
         selectStroke(): anychart.graphics.vector.Stroke;
         selectStroke(strokeFunction?: (() => void)): anychart.core.annotations.AndrewsPitchfork;
-        selectStroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.annotations.AndrewsPitchfork;
+        selectStroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.annotations.AndrewsPitchfork;
         stroke(): anychart.graphics.vector.Stroke;
         stroke(strokeFunction?: (() => void)): anychart.core.annotations.AndrewsPitchfork;
-        stroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.annotations.AndrewsPitchfork;
+        stroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.annotations.AndrewsPitchfork;
         thirdValueAnchor(): any;
         thirdValueAnchor(Third: any): anychart.core.annotations.AndrewsPitchfork;
         thirdXAnchor(): any;
@@ -3466,8 +4244,8 @@ declare namespace anychart.core.annotations {
         bounds(): anychart.core.utils.Bounds;
         bounds(value?: anychart.utils.RectObj | anychart.math.Rect | anychart.core.utils.Bounds): anychart.core.VisualBase;
         bounds(x?: number | string, y?: number | string, width?: number | string, height?: number | string): anychart.core.VisualBase;
-        color(): anychart.graphics.vector.Fill;
-        color(value: anychart.graphics.vector.Fill): anychart.core.annotations.Base;
+        color(): string;
+        color(value: string): anychart.core.annotations.Base;
         enabled(): boolean;
         enabled(value?: boolean): anychart.core.VisualBase;
         getChart(): anychart.core.SeparateChart;
@@ -3558,8 +4336,8 @@ declare namespace anychart.core.annotations {
     interface FibonacciBase extends anychart.core.annotations.Base {
         allowEdit(): boolean;
         allowEdit(value: any): anychart.core.annotations.Base;
-        color(): anychart.graphics.vector.Fill;
-        color(value: anychart.graphics.vector.Fill): anychart.core.annotations.Base;
+        color(): string;
+        color(value: string): anychart.core.annotations.Base;
         getChart(): anychart.core.SeparateChart;
         getPlot(): anychart.core.stock.Plot;
         getType(): anychart.enums.AnnotationTypes | string;
@@ -3569,7 +4347,7 @@ declare namespace anychart.core.annotations {
         hoverMarkers(value?: Object | boolean | string): anychart.core.annotations.Base;
         hoverStroke(): anychart.graphics.vector.Stroke;
         hoverStroke(strokeFunction?: (() => void)): anychart.core.annotations.FibonacciBase;
-        hoverStroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.annotations.FibonacciBase;
+        hoverStroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.annotations.FibonacciBase;
         hoverTrend(): anychart.graphics.vector.Stroke;
         hoverTrend(trendFunction?: (() => void)): anychart.core.annotations.FibonacciBase;
         hoverTrend(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.annotations.FibonacciBase;
@@ -3585,13 +4363,13 @@ declare namespace anychart.core.annotations {
         selectMarkers(value?: Object | boolean | string): anychart.core.annotations.Base;
         selectStroke(): anychart.graphics.vector.Stroke;
         selectStroke(strokeFunction?: (() => void)): anychart.core.annotations.FibonacciBase;
-        selectStroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.annotations.FibonacciBase;
+        selectStroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.annotations.FibonacciBase;
         selectTrend(): anychart.graphics.vector.Stroke;
         selectTrend(trendFunction?: (() => void)): anychart.core.annotations.FibonacciBase;
         selectTrend(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.annotations.FibonacciBase;
         stroke(): anychart.graphics.vector.Stroke;
         stroke(strokeFunction?: (() => void)): anychart.core.annotations.FibonacciBase;
-        stroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.annotations.FibonacciBase;
+        stroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.annotations.FibonacciBase;
         trend(): anychart.graphics.vector.Stroke;
         trend(trendFunction?: (() => void)): anychart.core.annotations.FibonacciBase;
         trend(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.annotations.FibonacciBase;
@@ -3607,8 +4385,8 @@ declare namespace anychart.core.annotations {
     interface Triangle extends anychart.core.annotations.Base {
         allowEdit(): boolean;
         allowEdit(value: any): anychart.core.annotations.Base;
-        color(): anychart.graphics.vector.Fill;
-        color(value: anychart.graphics.vector.Fill): anychart.core.annotations.Base;
+        color(): string;
+        color(value: string): anychart.core.annotations.Base;
         fill(): anychart.graphics.vector.Fill;
         fill(value: anychart.graphics.vector.Fill): anychart.core.annotations.Triangle;
         fill(fillFunction?: (() => void)): anychart.core.annotations.Triangle;
@@ -3636,7 +4414,7 @@ declare namespace anychart.core.annotations {
         hoverMarkers(value?: Object | boolean | string): anychart.core.annotations.Base;
         hoverStroke(): anychart.graphics.vector.Stroke;
         hoverStroke(strokeFunction?: (() => void)): anychart.core.annotations.Triangle;
-        hoverStroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.annotations.Triangle;
+        hoverStroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.annotations.Triangle;
         markers(): anychart.core.ui.MarkersFactory;
         markers(value?: Object | boolean | string): anychart.core.annotations.Base;
         secondValueAnchor(): any;
@@ -3656,10 +4434,10 @@ declare namespace anychart.core.annotations {
         selectMarkers(value?: Object | boolean | string): anychart.core.annotations.Base;
         selectStroke(): anychart.graphics.vector.Stroke;
         selectStroke(strokeFunction?: (() => void)): anychart.core.annotations.Triangle;
-        selectStroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.annotations.Triangle;
+        selectStroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.annotations.Triangle;
         stroke(): anychart.graphics.vector.Stroke;
         stroke(strokeFunction?: (() => void)): anychart.core.annotations.Triangle;
-        stroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.annotations.Triangle;
+        stroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.annotations.Triangle;
         valueAnchor(): any;
         valueAnchor(value: any): anychart.core.annotations.Triangle;
         xAnchor(): any;
@@ -3672,8 +4450,8 @@ declare namespace anychart.core.annotations {
     interface FibonacciRetracement extends anychart.core.annotations.FibonacciBase {
         allowEdit(): boolean;
         allowEdit(value: any): anychart.core.annotations.Base;
-        color(): anychart.graphics.vector.Fill;
-        color(value: anychart.graphics.vector.Fill): anychart.core.annotations.Base;
+        color(): string;
+        color(value: string): anychart.core.annotations.Base;
         getChart(): anychart.core.SeparateChart;
         getPlot(): anychart.core.stock.Plot;
         getType(): anychart.enums.AnnotationTypes | string;
@@ -3683,7 +4461,7 @@ declare namespace anychart.core.annotations {
         hoverMarkers(value?: Object | boolean | string): anychart.core.annotations.Base;
         hoverStroke(): anychart.graphics.vector.Stroke;
         hoverStroke(strokeFunction?: (() => void)): anychart.core.annotations.FibonacciBase;
-        hoverStroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.annotations.FibonacciBase;
+        hoverStroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.annotations.FibonacciBase;
         hoverTrend(): anychart.graphics.vector.Stroke;
         hoverTrend(trendFunction?: (() => void)): anychart.core.annotations.FibonacciBase;
         hoverTrend(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.annotations.FibonacciBase;
@@ -3699,13 +4477,13 @@ declare namespace anychart.core.annotations {
         selectMarkers(value?: Object | boolean | string): anychart.core.annotations.Base;
         selectStroke(): anychart.graphics.vector.Stroke;
         selectStroke(strokeFunction?: (() => void)): anychart.core.annotations.FibonacciBase;
-        selectStroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.annotations.FibonacciBase;
+        selectStroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.annotations.FibonacciBase;
         selectTrend(): anychart.graphics.vector.Stroke;
         selectTrend(trendFunction?: (() => void)): anychart.core.annotations.FibonacciBase;
         selectTrend(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.annotations.FibonacciBase;
         stroke(): anychart.graphics.vector.Stroke;
         stroke(strokeFunction?: (() => void)): anychart.core.annotations.FibonacciBase;
-        stroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.annotations.FibonacciBase;
+        stroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.annotations.FibonacciBase;
         trend(): anychart.graphics.vector.Stroke;
         trend(trendFunction?: (() => void)): anychart.core.annotations.FibonacciBase;
         trend(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.annotations.FibonacciBase;
@@ -3721,8 +4499,8 @@ declare namespace anychart.core.annotations {
     interface TrendChannel extends anychart.core.annotations.Base {
         allowEdit(): boolean;
         allowEdit(value: any): anychart.core.annotations.Base;
-        color(): anychart.graphics.vector.Fill;
-        color(value: anychart.graphics.vector.Fill): anychart.core.annotations.Base;
+        color(): string;
+        color(value: string): anychart.core.annotations.Base;
         fill(): anychart.graphics.vector.Fill;
         fill(value: anychart.graphics.vector.Fill): anychart.core.annotations.TrendChannel;
         fill(fillFunction?: (() => void)): anychart.core.annotations.TrendChannel;
@@ -3750,7 +4528,7 @@ declare namespace anychart.core.annotations {
         hoverMarkers(value?: Object | boolean | string): anychart.core.annotations.Base;
         hoverStroke(): anychart.graphics.vector.Stroke;
         hoverStroke(strokeFunction?: (() => void)): anychart.core.annotations.TrendChannel;
-        hoverStroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.annotations.TrendChannel;
+        hoverStroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.annotations.TrendChannel;
         markers(): anychart.core.ui.MarkersFactory;
         markers(value?: Object | boolean | string): anychart.core.annotations.Base;
         secondValueAnchor(): any;
@@ -3770,10 +4548,10 @@ declare namespace anychart.core.annotations {
         selectMarkers(value?: Object | boolean | string): anychart.core.annotations.Base;
         selectStroke(): anychart.graphics.vector.Stroke;
         selectStroke(strokeFunction?: (() => void)): anychart.core.annotations.TrendChannel;
-        selectStroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.annotations.TrendChannel;
+        selectStroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.annotations.TrendChannel;
         stroke(): anychart.graphics.vector.Stroke;
         stroke(strokeFunction?: (() => void)): anychart.core.annotations.TrendChannel;
-        stroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.annotations.TrendChannel;
+        stroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.annotations.TrendChannel;
         thirdValueAnchor(): any;
         thirdValueAnchor(Third: any): anychart.core.annotations.TrendChannel;
         thirdXAnchor(): any;
@@ -3790,8 +4568,8 @@ declare namespace anychart.core.annotations {
     interface VerticalLine extends anychart.core.annotations.Base {
         allowEdit(): boolean;
         allowEdit(value: any): anychart.core.annotations.Base;
-        color(): anychart.graphics.vector.Fill;
-        color(value: anychart.graphics.vector.Fill): anychart.core.annotations.Base;
+        color(): string;
+        color(value: string): anychart.core.annotations.Base;
         getChart(): anychart.core.SeparateChart;
         getPlot(): anychart.core.stock.Plot;
         getType(): anychart.enums.AnnotationTypes | string;
@@ -3801,17 +4579,17 @@ declare namespace anychart.core.annotations {
         hoverMarkers(value?: Object | boolean | string): anychart.core.annotations.Base;
         hoverStroke(): anychart.graphics.vector.Stroke;
         hoverStroke(strokeFunction?: (() => void)): anychart.core.annotations.VerticalLine;
-        hoverStroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.annotations.VerticalLine;
+        hoverStroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.annotations.VerticalLine;
         markers(): anychart.core.ui.MarkersFactory;
         markers(value?: Object | boolean | string): anychart.core.annotations.Base;
         selectMarkers(): anychart.core.ui.MarkersFactory;
         selectMarkers(value?: Object | boolean | string): anychart.core.annotations.Base;
         selectStroke(): anychart.graphics.vector.Stroke;
         selectStroke(strokeFunction?: (() => void)): anychart.core.annotations.VerticalLine;
-        selectStroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.annotations.VerticalLine;
+        selectStroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.annotations.VerticalLine;
         stroke(): anychart.graphics.vector.Stroke;
         stroke(strokeFunction?: (() => void)): anychart.core.annotations.VerticalLine;
-        stroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.annotations.VerticalLine;
+        stroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.annotations.VerticalLine;
         xAnchor(): any;
         xAnchor(value: any): anychart.core.annotations.VerticalLine;
         xScale(): anychart.scales.Base | anychart.scales.StockScatterDateTime;
@@ -3822,8 +4600,8 @@ declare namespace anychart.core.annotations {
     interface HorizontalLine extends anychart.core.annotations.Base {
         allowEdit(): boolean;
         allowEdit(value: any): anychart.core.annotations.Base;
-        color(): anychart.graphics.vector.Fill;
-        color(value: anychart.graphics.vector.Fill): anychart.core.annotations.Base;
+        color(): string;
+        color(value: string): anychart.core.annotations.Base;
         getChart(): anychart.core.SeparateChart;
         getPlot(): anychart.core.stock.Plot;
         getType(): anychart.enums.AnnotationTypes | string;
@@ -3833,17 +4611,17 @@ declare namespace anychart.core.annotations {
         hoverMarkers(value?: Object | boolean | string): anychart.core.annotations.Base;
         hoverStroke(): anychart.graphics.vector.Stroke;
         hoverStroke(strokeFunction?: (() => void)): anychart.core.annotations.HorizontalLine;
-        hoverStroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.annotations.HorizontalLine;
+        hoverStroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.annotations.HorizontalLine;
         markers(): anychart.core.ui.MarkersFactory;
         markers(value?: Object | boolean | string): anychart.core.annotations.Base;
         selectMarkers(): anychart.core.ui.MarkersFactory;
         selectMarkers(value?: Object | boolean | string): anychart.core.annotations.Base;
         selectStroke(): anychart.graphics.vector.Stroke;
         selectStroke(strokeFunction?: (() => void)): anychart.core.annotations.HorizontalLine;
-        selectStroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.annotations.HorizontalLine;
+        selectStroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.annotations.HorizontalLine;
         stroke(): anychart.graphics.vector.Stroke;
         stroke(strokeFunction?: (() => void)): anychart.core.annotations.HorizontalLine;
-        stroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.annotations.HorizontalLine;
+        stroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.annotations.HorizontalLine;
         valueAnchor(): any;
         valueAnchor(value: any): anychart.core.annotations.HorizontalLine;
         xScale(): anychart.scales.Base | anychart.scales.StockScatterDateTime;
@@ -3866,8 +4644,8 @@ declare namespace anychart.core.annotations {
         unselect(): anychart.core.annotations.ChartController;
     }
     interface FibonacciArc extends anychart.core.annotations.FibonacciBase {
-        color(): anychart.graphics.vector.Fill;
-        color(value: anychart.graphics.vector.Fill): anychart.core.annotations.FibonacciArc;
+        color(): string;
+        color(value: string): anychart.core.annotations.FibonacciArc;
         getChart(): anychart.core.SeparateChart;
         getPlot(): anychart.core.stock.Plot;
         getType(): anychart.enums.AnnotationTypes | string;
@@ -3877,7 +4655,7 @@ declare namespace anychart.core.annotations {
         hoverMarkers(value?: Object | boolean | string): anychart.core.annotations.Base;
         hoverStroke(): anychart.graphics.vector.Stroke;
         hoverStroke(strokeFunction?: (() => void)): anychart.core.annotations.FibonacciArc;
-        hoverStroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.annotations.FibonacciArc;
+        hoverStroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.annotations.FibonacciArc;
         hoverTrend(): anychart.graphics.vector.Stroke;
         hoverTrend(trendFunction?: (() => void)): anychart.core.annotations.FibonacciArc;
         hoverTrend(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.annotations.FibonacciArc;
@@ -3893,13 +4671,13 @@ declare namespace anychart.core.annotations {
         selectMarkers(value?: Object | boolean | string): anychart.core.annotations.Base;
         selectStroke(): anychart.graphics.vector.Stroke;
         selectStroke(strokeFunction?: (() => void)): anychart.core.annotations.FibonacciArc;
-        selectStroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.annotations.FibonacciArc;
+        selectStroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.annotations.FibonacciArc;
         selectTrend(): anychart.graphics.vector.Stroke;
         selectTrend(trendFunction?: (() => void)): anychart.core.annotations.FibonacciArc;
         selectTrend(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.annotations.FibonacciArc;
         stroke(): anychart.graphics.vector.Stroke;
         stroke(strokeFunction?: (() => void)): anychart.core.annotations.FibonacciArc;
-        stroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.annotations.FibonacciArc;
+        stroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.annotations.FibonacciArc;
         trend(): anychart.graphics.vector.Stroke;
         trend(trendFunction?: (() => void)): anychart.core.annotations.FibonacciArc;
         trend(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.annotations.FibonacciArc;
@@ -3915,8 +4693,8 @@ declare namespace anychart.core.annotations {
     interface Line extends anychart.core.annotations.Base {
         allowEdit(): boolean;
         allowEdit(value: any): anychart.core.annotations.Base;
-        color(): anychart.graphics.vector.Fill;
-        color(value: anychart.graphics.vector.Fill): anychart.core.annotations.Base;
+        color(): string;
+        color(value: string): anychart.core.annotations.Base;
         getChart(): anychart.core.SeparateChart;
         getPlot(): anychart.core.stock.Plot;
         getType(): anychart.enums.AnnotationTypes | string;
@@ -3926,7 +4704,7 @@ declare namespace anychart.core.annotations {
         hoverMarkers(value?: Object | boolean | string): anychart.core.annotations.Base;
         hoverStroke(): anychart.graphics.vector.Stroke;
         hoverStroke(strokeFunction?: (() => void)): anychart.core.annotations.Line;
-        hoverStroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.annotations.Line;
+        hoverStroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.annotations.Line;
         markers(): anychart.core.ui.MarkersFactory;
         markers(value?: Object | boolean | string): anychart.core.annotations.Base;
         secondValueAnchor(): any;
@@ -3937,10 +4715,10 @@ declare namespace anychart.core.annotations {
         selectMarkers(value?: Object | boolean | string): anychart.core.annotations.Base;
         selectStroke(): anychart.graphics.vector.Stroke;
         selectStroke(strokeFunction?: (() => void)): anychart.core.annotations.Line;
-        selectStroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.annotations.Line;
+        selectStroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.annotations.Line;
         stroke(): anychart.graphics.vector.Stroke;
         stroke(strokeFunction?: (() => void)): anychart.core.annotations.Line;
-        stroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.annotations.Line;
+        stroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.annotations.Line;
         valueAnchor(): any;
         valueAnchor(value: any): anychart.core.annotations.Line;
         xAnchor(): any;
@@ -3953,8 +4731,8 @@ declare namespace anychart.core.annotations {
     interface FibonacciTimezones extends anychart.core.annotations.FibonacciBase {
         allowEdit(): boolean;
         allowEdit(value: any): anychart.core.annotations.Base;
-        color(): anychart.graphics.vector.Fill;
-        color(value: anychart.graphics.vector.Fill): anychart.core.annotations.Base;
+        color(): string;
+        color(value: string): anychart.core.annotations.Base;
         getChart(): anychart.core.SeparateChart;
         getPlot(): anychart.core.stock.Plot;
         getType(): anychart.enums.AnnotationTypes | string;
@@ -3964,7 +4742,7 @@ declare namespace anychart.core.annotations {
         hoverMarkers(value?: Object | boolean | string): anychart.core.annotations.Base;
         hoverStroke(): anychart.graphics.vector.Stroke;
         hoverStroke(strokeFunction?: (() => void)): anychart.core.annotations.FibonacciTimezones;
-        hoverStroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.annotations.FibonacciTimezones;
+        hoverStroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.annotations.FibonacciTimezones;
         hoverTrend(): anychart.graphics.vector.Stroke;
         hoverTrend(trendFunction?: (() => void)): anychart.core.annotations.FibonacciTimezones;
         hoverTrend(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.annotations.FibonacciTimezones;
@@ -3980,13 +4758,13 @@ declare namespace anychart.core.annotations {
         selectMarkers(value?: Object | boolean | string): anychart.core.annotations.Base;
         selectStroke(): anychart.graphics.vector.Stroke;
         selectStroke(strokeFunction?: (() => void)): anychart.core.annotations.FibonacciTimezones;
-        selectStroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.annotations.FibonacciTimezones;
+        selectStroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.annotations.FibonacciTimezones;
         selectTrend(): anychart.graphics.vector.Stroke;
         selectTrend(trendFunction?: (() => void)): anychart.core.annotations.FibonacciTimezones;
         selectTrend(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.annotations.FibonacciTimezones;
         stroke(): anychart.graphics.vector.Stroke;
         stroke(strokeFunction?: (() => void)): anychart.core.annotations.FibonacciTimezones;
-        stroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.annotations.FibonacciTimezones;
+        stroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.annotations.FibonacciTimezones;
         trend(): anychart.graphics.vector.Stroke;
         trend(trendFunction?: (() => void)): anychart.core.annotations.FibonacciTimezones;
         trend(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.annotations.FibonacciTimezones;
@@ -4000,8 +4778,8 @@ declare namespace anychart.core.annotations {
         yScale(value?: anychart.scales.Base): anychart.core.annotations.Base;
     }
     interface Ellipse extends anychart.core.annotations.Base {
-        color(): anychart.graphics.vector.Fill;
-        color(value: anychart.graphics.vector.Fill): anychart.core.annotations.Ellipse;
+        color(): string;
+        color(value: string): anychart.core.annotations.Ellipse;
         fill(): anychart.graphics.vector.Fill;
         fill(value: anychart.graphics.vector.Fill): anychart.core.annotations.Ellipse;
         fill(fillFunction?: (() => void)): anychart.core.annotations.Ellipse;
@@ -4029,7 +4807,7 @@ declare namespace anychart.core.annotations {
         hoverMarkers(value?: Object | boolean | string): anychart.core.annotations.Base;
         hoverStroke(): anychart.graphics.vector.Stroke;
         hoverStroke(strokeFunction?: (() => void)): anychart.core.annotations.Ellipse;
-        hoverStroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.annotations.Ellipse;
+        hoverStroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.annotations.Ellipse;
         markers(): anychart.core.ui.MarkersFactory;
         markers(value?: Object | boolean | string): anychart.core.annotations.Base;
         secondValueAnchor(): any;
@@ -4049,10 +4827,10 @@ declare namespace anychart.core.annotations {
         selectMarkers(value?: Object | boolean | string): anychart.core.annotations.Base;
         selectStroke(): anychart.graphics.vector.Stroke;
         selectStroke(strokeFunction?: (() => void)): anychart.core.annotations.Ellipse;
-        selectStroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.annotations.Ellipse;
+        selectStroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.annotations.Ellipse;
         stroke(): anychart.graphics.vector.Stroke;
         stroke(strokeFunction?: (() => void)): anychart.core.annotations.Ellipse;
-        stroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.annotations.Ellipse;
+        stroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.annotations.Ellipse;
         valueAnchor(): any;
         valueAnchor(value: any): anychart.core.annotations.Ellipse;
         xAnchor(): any;
@@ -4067,8 +4845,8 @@ declare namespace anychart.core.annotations {
         allowEdit(value: any): anychart.core.annotations.Base;
         anchor(): anychart.enums.Anchor | string;
         anchor(value: anychart.enums.Anchor | string): anychart.core.annotations.Marker;
-        color(): anychart.graphics.vector.Fill;
-        color(value: anychart.graphics.vector.Fill): anychart.core.annotations.Base;
+        color(): string;
+        color(value: string): anychart.core.annotations.Base;
         fill(): anychart.graphics.vector.Fill;
         fill(value: anychart.graphics.vector.Fill): anychart.core.annotations.Marker;
         fill(fillFunction?: (() => void)): anychart.core.annotations.Marker;
@@ -4098,7 +4876,7 @@ declare namespace anychart.core.annotations {
         hoverSize(value?: number): anychart.core.annotations.Marker;
         hoverStroke(): anychart.graphics.vector.Stroke;
         hoverStroke(strokeFunction?: (() => void)): anychart.core.annotations.Marker;
-        hoverStroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.annotations.Marker;
+        hoverStroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.annotations.Marker;
         markerType(): anychart.enums.MarkerType | string;
         markerType(value: anychart.enums.MarkerType | string): anychart.core.annotations.Marker;
         markers(): anychart.core.ui.MarkersFactory;
@@ -4122,12 +4900,12 @@ declare namespace anychart.core.annotations {
         selectSize(value?: number): anychart.core.annotations.Marker;
         selectStroke(): anychart.graphics.vector.Stroke;
         selectStroke(strokeFunction?: (() => void)): anychart.core.annotations.Marker;
-        selectStroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.annotations.Marker;
+        selectStroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.annotations.Marker;
         size(): number;
         size(value?: number): anychart.core.annotations.Marker;
         stroke(): anychart.graphics.vector.Stroke;
         stroke(strokeFunction?: (() => void)): anychart.core.annotations.Marker;
-        stroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.annotations.Marker;
+        stroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.annotations.Marker;
         valueAnchor(): any;
         valueAnchor(value: any): anychart.core.annotations.Marker;
         xAnchor(): any;
@@ -4173,7 +4951,7 @@ declare namespace anychart.core.axes {
         enabled(): boolean;
         enabled(value?: boolean): anychart.core.VisualBase;
         getRemainingBounds(): anychart.math.Rect;
-        labels(): anychart.core.ui.LabelsFactory;
+        labels(): anychart.core.ui.CircularLabelsFactory;
         labels(value?: Object | boolean): anychart.core.axes.Polar;
         listen(type: string, listener: (() => void), useCapture?: boolean, listenerScope?: Object): Object;
         listenOnce(type: string, listener: (() => void), useCapture?: boolean, listenerScope?: Object): Object;
@@ -4287,7 +5065,7 @@ declare namespace anychart.core.axes {
         removeAllListeners(type?: string): number;
         stroke(): anychart.graphics.vector.Stroke;
         stroke(value?: anychart.graphics.vector.Stroke): anychart.core.axes.Ticks;
-        stroke(value?: string, thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.axes.StockTicks;
+        stroke(color?: string, thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.axes.StockTicks;
         unlisten(type: string, listener: (() => void), useCapture?: boolean, listenerScope?: Object): boolean;
         unlistenByKey(key: Object): boolean;
         zIndex(): number;
@@ -4333,7 +5111,8 @@ declare namespace anychart.core.axes {
         print(paperSizeOrOptions?: anychart.graphics.vector.PaperSize | Object, landscape?: boolean): void;
         removeAllListeners(type?: string): number;
         stroke(): anychart.graphics.vector.Stroke;
-        stroke(value?: anychart.graphics.vector.Stroke): anychart.core.axes.RadialTicks;
+        stroke(value?: anychart.graphics.vector.Stroke): anychart.core.axes.Ticks;
+        stroke(color?: string, thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.axes.RadialTicks;
         unlisten(type: string, listener: (() => void), useCapture?: boolean, listenerScope?: Object): boolean;
         unlistenByKey(key: Object): boolean;
         zIndex(): number;
@@ -4352,7 +5131,7 @@ declare namespace anychart.core.axes {
         removeAllListeners(type?: string): number;
         stroke(): anychart.graphics.vector.Stroke;
         stroke(value?: anychart.graphics.vector.Stroke): anychart.core.axes.Ticks;
-        stroke(value?: string, thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.axes.Ticks;
+        stroke(color?: string, thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.axes.Ticks;
         unlisten(type: string, listener: (() => void), useCapture?: boolean, listenerScope?: Object): boolean;
         unlistenByKey(key: Object): boolean;
         zIndex(): number;
@@ -4509,7 +5288,7 @@ declare namespace anychart.core.axes {
         print(paperSizeOrOptions?: anychart.graphics.vector.PaperSize | Object, landscape?: boolean): void;
         removeAllListeners(type?: string): number;
         stroke(): anychart.graphics.vector.Stroke;
-        stroke(value?: anychart.graphics.vector.Stroke | string, thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.axes.MapTicks;
+        stroke(color?: anychart.graphics.vector.Stroke | string, thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.axes.MapTicks;
         unlisten(type: string, listener: (() => void), useCapture?: boolean, listenerScope?: Object): boolean;
         unlistenByKey(key: Object): boolean;
         zIndex(): number;
@@ -4535,7 +5314,7 @@ declare namespace anychart.core.axes {
         print(paperSizeOrOptions?: anychart.graphics.vector.PaperSize | Object, landscape?: boolean): void;
         removeAllListeners(type?: string): number;
         stroke(): anychart.graphics.vector.Stroke;
-        stroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.axes.Map;
+        stroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.axes.Map;
         ticks(): anychart.core.axes.MapTicks;
         ticks(value?: Object | boolean): anychart.core.axes.Map;
         title(): anychart.core.ui.Title;
@@ -4848,15 +5627,12 @@ declare namespace anychart.core.cartesian.series {
         bounds(x?: number | string, y?: number | string, width?: number | string, height?: number | string): anychart.core.VisualBase;
         clip(): boolean | anychart.math.Rect;
         clip(value?: boolean | anychart.math.Rect): anychart.core.cartesian.series.Base;
-        color(): anychart.graphics.vector.Fill;
-        color(value: anychart.graphics.vector.Fill): anychart.core.SeriesBase;
-        color(color: string, opacity?: number): anychart.core.SeriesBase;
-        color(keys: Array<(anychart.graphics.vector.GradientKey|string)>, angle?: number, mode?: boolean | anychart.graphics.vector.Rect | Object, opacity?: number): anychart.core.SeriesBase;
-        color(keys: Array<(anychart.graphics.vector.GradientKey|string)>, cx: number, cy: number, mode?: anychart.graphics.math.Rect, opacity?: number, fx?: number, fy?: number): anychart.core.SeriesBase;
+        color(): string;
+        color(value: string): anychart.core.SeriesBase;
         connectMissingPoints(): boolean;
         connectMissingPoints(value?: boolean): anychart.core.cartesian.series.Base;
         data(): anychart.data.View;
-        data(value?: anychart.data.View | anychart.data.Set | Array<any> | string, csvSettings?: {[prop: string]: (string|boolean)}): anychart.core.SeriesBase;
+        data(value?: anychart.data.View | anychart.data.Set | Array<any> | string, csvSettings?: anychart.enums.TextParsingMode | anychart.data.TextParsingSettings): anychart.core.SeriesBase;
         enabled(): boolean;
         enabled(value?: boolean): anychart.core.VisualBase;
         error(): anychart.core.utils.Error;
@@ -4946,17 +5722,12 @@ declare namespace anychart.core.cartesian.series {
         bounds(x?: number | string, y?: number | string, width?: number | string, height?: number | string): anychart.core.VisualBase;
         clip(): boolean | anychart.math.Rect;
         clip(value?: boolean | anychart.math.Rect): anychart.core.cartesian.series.Base;
-        color(): anychart.graphics.vector.Fill;
-        color(value: anychart.graphics.vector.Fill): anychart.core.SeriesBase;
-        color(color: string, opacity?: number): anychart.core.SeriesBase;
-        color(keys: Array<(anychart.graphics.vector.GradientKey|string)>, angle?: number, mode?: boolean | anychart.graphics.vector.Rect | Object, opacity?: number): anychart.core.SeriesBase;
-        color(keys: Array<(anychart.graphics.vector.GradientKey|string)>, cx: number, cy: number, mode?: anychart.graphics.math.Rect, opacity?: number, fx?: number, fy?: number): anychart.core.SeriesBase;
+        color(): string;
+        color(value: string): anychart.core.SeriesBase;
         data(): anychart.data.View;
-        data(value?: anychart.data.View | anychart.data.Set | Array<any> | string, csvSettings?: {[prop: string]: (string|boolean)}): anychart.core.SeriesBase;
+        data(value?: anychart.data.View | anychart.data.Set | Array<any> | string, csvSettings?: anychart.enums.TextParsingMode | anychart.data.TextParsingSettings): anychart.core.SeriesBase;
         enabled(): boolean;
         enabled(value?: boolean): anychart.core.VisualBase;
-        error(): anychart.core.utils.Error;
-        error(value?: Object | boolean | string | number): anychart.core.cartesian.series.Base;
         excludePoint(indexes: number | Array<number>): boolean;
         fill(): anychart.graphics.vector.Fill;
         fill(value: anychart.graphics.vector.Fill): anychart.core.cartesian.series.Box;
@@ -4991,12 +5762,12 @@ declare namespace anychart.core.cartesian.series {
         hoverMarkers(value?: Object | boolean | string): anychart.core.cartesian.series.BaseWithMarkers;
         hoverMedianStroke(): anychart.graphics.vector.Stroke | (() => void);
         hoverMedianStroke(value?: (() => void)): anychart.core.cartesian.series.Box;
-        hoverMedianStroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.cartesian.series.Box;
+        hoverMedianStroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.cartesian.series.Box;
         hoverOutlierMarkers(): anychart.core.ui.MarkersFactory;
         hoverOutlierMarkers(value?: Object | boolean | string): anychart.core.cartesian.series.Box;
         hoverStemStroke(): anychart.graphics.vector.Stroke | (() => void);
         hoverStemStroke(value?: (() => void)): anychart.core.cartesian.series.Box;
-        hoverStemStroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.cartesian.series.Box;
+        hoverStemStroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.cartesian.series.Box;
         hoverStroke(): anychart.graphics.vector.Stroke;
         hoverStroke(strokeFunction?: (() => void)): anychart.core.cartesian.series.Box;
         hoverStroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.cartesian.series.Box;
@@ -5028,7 +5799,7 @@ declare namespace anychart.core.cartesian.series {
         maxWidth(value?: number | string): anychart.core.VisualBase;
         medianStroke(): anychart.graphics.vector.Stroke | (() => void);
         medianStroke(value?: (() => void)): anychart.core.cartesian.series.Box;
-        medianStroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.cartesian.series.Box;
+        medianStroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.cartesian.series.Box;
         meta(key?: any): any;
         meta(object?: any, value?: any): anychart.core.SeriesBase;
         meta(key?: any, value?: any): anychart.core.SeriesBase;
@@ -5044,6 +5815,8 @@ declare namespace anychart.core.cartesian.series {
         pointWidth(value?: number | string): anychart.core.cartesian.series.WidthBased;
         print(paperSizeOrOptions?: anychart.graphics.vector.PaperSize | Object, landscape?: boolean): void;
         removeAllListeners(type?: string): number;
+        rendering(): anychart.core.series.RenderingSettings;
+        rendering(value?: Object | (() => void)): anychart.core.cartesian.series.Base;
         right(): number | string;
         right(value?: number | string): anychart.core.VisualBaseWithBounds;
         select(index?: number): anychart.core.SeriesBase;
@@ -5068,10 +5841,10 @@ declare namespace anychart.core.cartesian.series {
         selectOutlierMarkers(value?: Object | boolean | string): anychart.core.cartesian.series.Box;
         selectStemStroke(): anychart.graphics.vector.Stroke | (() => void);
         selectStemStroke(value?: (() => void)): anychart.core.cartesian.series.Box;
-        selectStemStroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.cartesian.series.Box;
+        selectStemStroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.cartesian.series.Box;
         selectStroke(): anychart.graphics.vector.Stroke;
         selectStroke(strokeFunction?: (() => void)): anychart.core.cartesian.series.Box;
-        selectStroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.cartesian.series.Box;
+        selectStroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.cartesian.series.Box;
         selectWhiskerStroke(): anychart.graphics.vector.Stroke | (() => void);
         selectWhiskerStroke(value?: (() => void)): anychart.core.cartesian.series.Box;
         selectWhiskerStroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.cartesian.series.Box;
@@ -5083,10 +5856,10 @@ declare namespace anychart.core.cartesian.series {
         seriesType(value?: string): anychart.core.cartesian.series.Base;
         stemStroke(): anychart.graphics.vector.Stroke | (() => void);
         stemStroke(value?: (() => void)): anychart.core.cartesian.series.Box;
-        stemStroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.cartesian.series.Box;
+        stemStroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.cartesian.series.Box;
         stroke(): anychart.graphics.vector.Stroke;
         stroke(strokeFunction?: (() => void)): anychart.core.cartesian.series.Box;
-        stroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.cartesian.series.Box;
+        stroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.cartesian.series.Box;
         tooltip(): anychart.core.ui.Tooltip;
         tooltip(value?: Object | boolean): anychart.core.SeriesBase;
         top(): number | string;
@@ -5101,7 +5874,7 @@ declare namespace anychart.core.cartesian.series {
         unselect(indexes?: Array<number>): anychart.core.SeriesBase;
         whiskerStroke(): anychart.graphics.vector.Stroke | (() => void);
         whiskerStroke(value?: (() => void)): anychart.core.cartesian.series.Box;
-        whiskerStroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.cartesian.series.Box;
+        whiskerStroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.cartesian.series.Box;
         whiskerWidth(): number | string;
         whiskerWidth(value?: number | string): anychart.core.cartesian.series.Box;
         width(): number | string;
@@ -5123,15 +5896,12 @@ declare namespace anychart.core.cartesian.series {
         bounds(x?: number | string, y?: number | string, width?: number | string, height?: number | string): anychart.core.VisualBase;
         clip(): boolean | anychart.math.Rect;
         clip(value?: boolean | anychart.math.Rect): anychart.core.cartesian.series.Base;
-        color(): anychart.graphics.vector.Fill;
-        color(value: anychart.graphics.vector.Fill): anychart.core.SeriesBase;
-        color(color: string, opacity?: number): anychart.core.SeriesBase;
-        color(keys: Array<(anychart.graphics.vector.GradientKey|string)>, angle?: number, mode?: boolean | anychart.graphics.vector.Rect | Object, opacity?: number): anychart.core.SeriesBase;
-        color(keys: Array<(anychart.graphics.vector.GradientKey|string)>, cx: number, cy: number, mode?: anychart.graphics.math.Rect, opacity?: number, fx?: number, fy?: number): anychart.core.SeriesBase;
+        color(): string;
+        color(value: string): anychart.core.SeriesBase;
         connectMissingPoints(): boolean;
         connectMissingPoints(value?: boolean): anychart.core.cartesian.series.Base;
         data(): anychart.data.View;
-        data(value?: anychart.data.View | anychart.data.Set | Array<any> | string, csvSettings?: {[prop: string]: (string|boolean)}): anychart.core.SeriesBase;
+        data(value?: anychart.data.View | anychart.data.Set | Array<any> | string, csvSettings?: anychart.enums.TextParsingMode | anychart.data.TextParsingSettings): anychart.core.SeriesBase;
         enabled(): boolean;
         enabled(value?: boolean): anychart.core.VisualBase;
         error(): anychart.core.utils.Error;
@@ -5170,7 +5940,7 @@ declare namespace anychart.core.cartesian.series {
         hoverMarkers(value?: Object | boolean | string): anychart.core.cartesian.series.BaseWithMarkers;
         hoverStroke(): anychart.graphics.vector.Stroke;
         hoverStroke(strokeFunction?: (() => void)): anychart.core.cartesian.series.SplineArea;
-        hoverStroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.cartesian.series.Area;
+        hoverStroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.cartesian.series.Area;
         id(): string | number;
         id(value?: string | number): anychart.core.SeriesBase;
         includeAllPoints(): boolean;
@@ -5203,6 +5973,8 @@ declare namespace anychart.core.cartesian.series {
         name(value?: string): anychart.core.SeriesBase;
         print(paperSizeOrOptions?: anychart.graphics.vector.PaperSize | Object, landscape?: boolean): void;
         removeAllListeners(type?: string): number;
+        rendering(): anychart.core.series.RenderingSettings;
+        rendering(value?: Object | (() => void)): anychart.core.cartesian.series.Base;
         right(): number | string;
         right(value?: number | string): anychart.core.VisualBaseWithBounds;
         select(index?: number): anychart.core.SeriesBase;
@@ -5222,14 +5994,14 @@ declare namespace anychart.core.cartesian.series {
         selectMarkers(value?: Object | boolean | string): anychart.core.cartesian.series.BaseWithMarkers;
         selectStroke(): anychart.graphics.vector.Stroke;
         selectStroke(strokeFunction?: (() => void)): anychart.core.cartesian.series.SplineArea;
-        selectStroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.cartesian.series.SplineArea;
+        selectStroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.cartesian.series.SplineArea;
         selectionMode(): anychart.enums.SelectionMode;
         selectionMode(value?: anychart.enums.SelectionMode | string): anychart.core.SeriesBase;
         seriesType(): string;
         seriesType(value?: string): anychart.core.cartesian.series.Base;
         stroke(): anychart.graphics.vector.Stroke;
         stroke(strokeFunction?: (() => void)): anychart.core.cartesian.series.SplineArea;
-        stroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.cartesian.series.SplineArea;
+        stroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.cartesian.series.SplineArea;
         tooltip(): anychart.core.ui.Tooltip;
         tooltip(value?: Object | boolean): anychart.core.SeriesBase;
         top(): number | string;
@@ -5261,15 +6033,12 @@ declare namespace anychart.core.cartesian.series {
         bounds(x?: number | string, y?: number | string, width?: number | string, height?: number | string): anychart.core.VisualBase;
         clip(): boolean | anychart.math.Rect;
         clip(value?: boolean | anychart.math.Rect): anychart.core.cartesian.series.Base;
-        color(): anychart.graphics.vector.Fill;
-        color(value: anychart.graphics.vector.Fill): anychart.core.SeriesBase;
-        color(color: string, opacity?: number): anychart.core.SeriesBase;
-        color(keys: Array<(anychart.graphics.vector.GradientKey|string)>, angle?: number, mode?: boolean | anychart.graphics.vector.Rect | Object, opacity?: number): anychart.core.SeriesBase;
-        color(keys: Array<(anychart.graphics.vector.GradientKey|string)>, cx: number, cy: number, mode?: anychart.graphics.math.Rect, opacity?: number, fx?: number, fy?: number): anychart.core.SeriesBase;
+        color(): string;
+        color(value: string): anychart.core.SeriesBase;
         connectMissingPoints(): boolean;
         connectMissingPoints(value?: boolean): anychart.core.cartesian.series.Base;
         data(): anychart.data.View;
-        data(value?: anychart.data.View | anychart.data.Set | Array<any> | string, csvSettings?: {[prop: string]: (string|boolean)}): anychart.core.SeriesBase;
+        data(value?: anychart.data.View | anychart.data.Set | Array<any> | string, csvSettings?: anychart.enums.TextParsingMode | anychart.data.TextParsingSettings): anychart.core.SeriesBase;
         enabled(): boolean;
         enabled(value?: boolean): anychart.core.VisualBase;
         error(): anychart.core.utils.Error;
@@ -5290,7 +6059,7 @@ declare namespace anychart.core.cartesian.series {
         hoverMarkers(value?: Object | boolean | string): anychart.core.cartesian.series.BaseWithMarkers;
         hoverStroke(): anychart.graphics.vector.Stroke;
         hoverStroke(strokeFunction?: (() => void)): anychart.core.cartesian.series.Spline;
-        hoverStroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.cartesian.series.Spline;
+        hoverStroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.cartesian.series.Spline;
         id(): string | number;
         id(value?: string | number): anychart.core.SeriesBase;
         includeAllPoints(): boolean;
@@ -5323,6 +6092,8 @@ declare namespace anychart.core.cartesian.series {
         name(value?: string): anychart.core.SeriesBase;
         print(paperSizeOrOptions?: anychart.graphics.vector.PaperSize | Object, landscape?: boolean): void;
         removeAllListeners(type?: string): number;
+        rendering(): anychart.core.series.RenderingSettings;
+        rendering(value?: Object | (() => void)): anychart.core.cartesian.series.Base;
         right(): number | string;
         right(value?: number | string): anychart.core.VisualBaseWithBounds;
         select(index?: number): anychart.core.SeriesBase;
@@ -5333,14 +6104,14 @@ declare namespace anychart.core.cartesian.series {
         selectMarkers(value?: Object | boolean | string): anychart.core.cartesian.series.BaseWithMarkers;
         selectStroke(): anychart.graphics.vector.Stroke;
         selectStroke(strokeFunction?: (() => void)): anychart.core.cartesian.series.Spline;
-        selectStroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.cartesian.series.Spline;
+        selectStroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.cartesian.series.Spline;
         selectionMode(): anychart.enums.SelectionMode;
         selectionMode(value?: anychart.enums.SelectionMode | string): anychart.core.SeriesBase;
         seriesType(): string;
         seriesType(value?: string): anychart.core.cartesian.series.Base;
         stroke(): anychart.graphics.vector.Stroke;
         stroke(strokeFunction?: (() => void)): anychart.core.cartesian.series.Spline;
-        stroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.cartesian.series.Spline;
+        stroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.cartesian.series.Spline;
         tooltip(): anychart.core.ui.Tooltip;
         tooltip(value?: Object | boolean): anychart.core.SeriesBase;
         top(): number | string;
@@ -5385,19 +6156,14 @@ declare namespace anychart.core.cartesian.series {
         bounds(x?: number | string, y?: number | string, width?: number | string, height?: number | string): anychart.core.VisualBase;
         clip(): boolean | anychart.math.Rect;
         clip(value?: boolean | anychart.math.Rect): anychart.core.cartesian.series.Base;
-        color(): anychart.graphics.vector.Fill;
-        color(value: anychart.graphics.vector.Fill): anychart.core.SeriesBase;
-        color(color: string, opacity?: number): anychart.core.SeriesBase;
-        color(keys: Array<(anychart.graphics.vector.GradientKey|string)>, angle?: number, mode?: boolean | anychart.graphics.vector.Rect | Object, opacity?: number): anychart.core.SeriesBase;
-        color(keys: Array<(anychart.graphics.vector.GradientKey|string)>, cx: number, cy: number, mode?: anychart.graphics.math.Rect, opacity?: number, fx?: number, fy?: number): anychart.core.SeriesBase;
+        color(): string;
+        color(value: string): anychart.core.SeriesBase;
         connectMissingPoints(): boolean;
         connectMissingPoints(value?: boolean): anychart.core.cartesian.series.Base;
         data(): anychart.data.View;
-        data(value?: anychart.data.View | anychart.data.Set | Array<any> | string, csvSettings?: {[prop: string]: (string|boolean)}): anychart.core.SeriesBase;
+        data(value?: anychart.data.View | anychart.data.Set | Array<any> | string, csvSettings?: anychart.enums.TextParsingMode | anychart.data.TextParsingSettings): anychart.core.SeriesBase;
         enabled(): boolean;
         enabled(value?: boolean): anychart.core.VisualBase;
-        error(): anychart.core.utils.Error;
-        error(value?: Object | boolean | string | number): anychart.core.cartesian.series.Base;
         excludePoint(indexes: number | Array<number>): boolean;
         fill(): anychart.graphics.vector.Fill;
         fill(value: anychart.graphics.vector.Fill): anychart.core.cartesian.series.RangeStepArea;
@@ -5416,7 +6182,7 @@ declare namespace anychart.core.cartesian.series {
         height(value?: number | string): anychart.core.VisualBaseWithBounds;
         highStroke(): anychart.graphics.vector.Stroke | (() => void);
         highStroke(strokeFunction?: (() => void)): anychart.core.cartesian.series.RangeStepArea;
-        highStroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.cartesian.series.RangeStepArea;
+        highStroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string, thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.cartesian.series.RangeStepArea;
         hover(): anychart.core.SeriesBase;
         hover(index?: number): anychart.core.SeriesBase;
         hover(indexes?: Array<number>): anychart.core.SeriesBase;
@@ -5431,12 +6197,12 @@ declare namespace anychart.core.cartesian.series {
         hoverHatchFill(patternFillOrType?: anychart.graphics.vector.PatternFill | anychart.graphics.vector.HatchFill | (() => void) | anychart.graphics.vector.HatchFill.HatchFillType | string, color?: string, thickness?: number, size?: number): anychart.core.cartesian.series.RangeStepArea;
         hoverHighStroke(): anychart.graphics.vector.Stroke | (() => void);
         hoverHighStroke(strokeFunction?: (() => void)): anychart.core.cartesian.series.RangeStepArea;
-        hoverHighStroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.cartesian.series.RangeStepArea;
+        hoverHighStroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string, thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.cartesian.series.RangeStepArea;
         hoverLabels(): anychart.core.ui.LabelsFactory;
         hoverLabels(value?: Object | boolean): anychart.core.SeriesBase;
         hoverLowStroke(): anychart.graphics.vector.Stroke | (() => void);
         hoverLowStroke(strokeFunction?: (() => void)): anychart.core.cartesian.series.RangeStepArea;
-        hoverLowStroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.cartesian.series.RangeStepArea;
+        hoverLowStroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string, thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.cartesian.series.RangeStepArea;
         hoverMarkers(): anychart.core.ui.MarkersFactory;
         hoverMarkers(value?: Object | boolean | string): anychart.core.cartesian.series.BaseWithMarkers;
         id(): string | number;
@@ -5456,7 +6222,7 @@ declare namespace anychart.core.cartesian.series {
         listenOnce(type: string, listener: (() => void), useCapture?: boolean, listenerScope?: Object): Object;
         lowStroke(): anychart.graphics.vector.Stroke | (() => void);
         lowStroke(strokeFunction?: (() => void)): anychart.core.cartesian.series.RangeStepArea;
-        lowStroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.cartesian.series.RangeStepArea;
+        lowStroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string, thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.cartesian.series.RangeStepArea;
         markers(): anychart.core.ui.MarkersFactory;
         markers(value?: Object | boolean | string): anychart.core.cartesian.series.BaseWithMarkers;
         maxHeight(): number | string;
@@ -5474,6 +6240,8 @@ declare namespace anychart.core.cartesian.series {
         name(value?: string): anychart.core.SeriesBase;
         print(paperSizeOrOptions?: anychart.graphics.vector.PaperSize | Object, landscape?: boolean): void;
         removeAllListeners(type?: string): number;
+        rendering(): anychart.core.series.RenderingSettings;
+        rendering(value?: Object | (() => void)): anychart.core.cartesian.series.Base;
         right(): number | string;
         right(value?: number | string): anychart.core.VisualBaseWithBounds;
         select(index?: number): anychart.core.SeriesBase;
@@ -5489,12 +6257,12 @@ declare namespace anychart.core.cartesian.series {
         selectHatchFill(patternFillOrType?: anychart.graphics.vector.PatternFill | anychart.graphics.vector.HatchFill | (() => void) | anychart.graphics.vector.HatchFill.HatchFillType | string, color?: string, thickness?: number, size?: number): anychart.core.cartesian.series.RangeStepArea;
         selectHighStroke(): anychart.graphics.vector.Stroke | (() => void);
         selectHighStroke(strokeFunction?: (() => void)): anychart.core.cartesian.series.RangeStepArea;
-        selectHighStroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.cartesian.series.RangeStepArea;
+        selectHighStroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string, thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.cartesian.series.RangeStepArea;
         selectLabels(): anychart.core.ui.LabelsFactory;
         selectLabels(value?: Object | boolean): anychart.core.SeriesBase;
         selectLowStroke(): anychart.graphics.vector.Stroke | (() => void);
         selectLowStroke(strokeFunction?: (() => void)): anychart.core.cartesian.series.RangeStepArea;
-        selectLowStroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.cartesian.series.RangeStepArea;
+        selectLowStroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string, thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.cartesian.series.RangeStepArea;
         selectMarkers(): anychart.core.ui.MarkersFactory;
         selectMarkers(value?: Object | boolean | string): anychart.core.cartesian.series.BaseWithMarkers;
         selectionMode(): anychart.enums.SelectionMode;
@@ -5534,15 +6302,12 @@ declare namespace anychart.core.cartesian.series {
         bounds(x?: number | string, y?: number | string, width?: number | string, height?: number | string): anychart.core.VisualBase;
         clip(): boolean | anychart.math.Rect;
         clip(value?: boolean | anychart.math.Rect): anychart.core.cartesian.series.Base;
-        color(): anychart.graphics.vector.Fill;
-        color(value: anychart.graphics.vector.Fill): anychart.core.SeriesBase;
-        color(color: string, opacity?: number): anychart.core.SeriesBase;
-        color(keys: Array<(anychart.graphics.vector.GradientKey|string)>, angle?: number, mode?: boolean | anychart.graphics.vector.Rect | Object, opacity?: number): anychart.core.SeriesBase;
-        color(keys: Array<(anychart.graphics.vector.GradientKey|string)>, cx: number, cy: number, mode?: anychart.graphics.math.Rect, opacity?: number, fx?: number, fy?: number): anychart.core.SeriesBase;
+        color(): string;
+        color(value: string): anychart.core.SeriesBase;
         connectMissingPoints(): boolean;
         connectMissingPoints(value?: boolean): anychart.core.cartesian.series.Base;
         data(): anychart.data.View;
-        data(value?: anychart.data.View | anychart.data.Set | Array<any> | string, csvSettings?: {[prop: string]: (string|boolean)}): anychart.core.SeriesBase;
+        data(value?: anychart.data.View | anychart.data.Set | Array<any> | string, csvSettings?: anychart.enums.TextParsingMode | anychart.data.TextParsingSettings): anychart.core.SeriesBase;
         enabled(): boolean;
         enabled(value?: boolean): anychart.core.VisualBase;
         error(): anychart.core.utils.Error;
@@ -5581,7 +6346,7 @@ declare namespace anychart.core.cartesian.series {
         hoverMarkers(value?: Object | boolean | string): anychart.core.cartesian.series.BaseWithMarkers;
         hoverStroke(): anychart.graphics.vector.Stroke;
         hoverStroke(strokeFunction?: (() => void)): anychart.core.cartesian.series.StepArea;
-        hoverStroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.cartesian.series.StepArea;
+        hoverStroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.cartesian.series.StepArea;
         id(): string | number;
         id(value?: string | number): anychart.core.SeriesBase;
         includeAllPoints(): boolean;
@@ -5614,6 +6379,8 @@ declare namespace anychart.core.cartesian.series {
         name(value?: string): anychart.core.SeriesBase;
         print(paperSizeOrOptions?: anychart.graphics.vector.PaperSize | Object, landscape?: boolean): void;
         removeAllListeners(type?: string): number;
+        rendering(): anychart.core.series.RenderingSettings;
+        rendering(value?: Object | (() => void)): anychart.core.cartesian.series.Base;
         right(): number | string;
         right(value?: number | string): anychart.core.VisualBaseWithBounds;
         select(index?: number): anychart.core.SeriesBase;
@@ -5633,7 +6400,7 @@ declare namespace anychart.core.cartesian.series {
         selectMarkers(value?: Object | boolean | string): anychart.core.cartesian.series.BaseWithMarkers;
         selectStroke(): anychart.graphics.vector.Stroke;
         selectStroke(strokeFunction?: (() => void)): anychart.core.cartesian.series.StepArea;
-        selectStroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.cartesian.series.StepArea;
+        selectStroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.cartesian.series.StepArea;
         selectionMode(): anychart.enums.SelectionMode;
         selectionMode(value?: anychart.enums.SelectionMode | string): anychart.core.SeriesBase;
         seriesType(): string;
@@ -5642,7 +6409,7 @@ declare namespace anychart.core.cartesian.series {
         stepDirection(value?: anychart.enums.StepDirection | string): anychart.core.cartesian.series.StepArea;
         stroke(): anychart.graphics.vector.Stroke;
         stroke(strokeFunction?: (() => void)): anychart.core.cartesian.series.StepArea;
-        stroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.cartesian.series.StepArea;
+        stroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.cartesian.series.StepArea;
         tooltip(): anychart.core.ui.Tooltip;
         tooltip(value?: Object | boolean): anychart.core.SeriesBase;
         top(): number | string;
@@ -5706,6 +6473,8 @@ declare namespace anychart.core.cartesian.series {
         minWidth(value?: number | string): anychart.core.VisualBase;
         print(paperSizeOrOptions?: anychart.graphics.vector.PaperSize | Object, landscape?: boolean): void;
         removeAllListeners(type?: string): number;
+        rendering(): anychart.core.series.RenderingSettings;
+        rendering(value?: Object | (() => void)): anychart.core.cartesian.series.Base;
         right(): number | string;
         right(value?: number | string): anychart.core.VisualBaseWithBounds;
         selectionMode(): anychart.enums.SelectionMode;
@@ -5741,17 +6510,12 @@ declare namespace anychart.core.cartesian.series {
         bounds(x?: number | string, y?: number | string, width?: number | string, height?: number | string): anychart.core.VisualBase;
         clip(): boolean | anychart.math.Rect;
         clip(value?: boolean | anychart.math.Rect): anychart.core.cartesian.series.Base;
-        color(): anychart.graphics.vector.Fill;
-        color(value: anychart.graphics.vector.Fill): anychart.core.SeriesBase;
-        color(color: string, opacity?: number): anychart.core.SeriesBase;
-        color(keys: Array<(anychart.graphics.vector.GradientKey|string)>, angle?: number, mode?: boolean | anychart.graphics.vector.Rect | Object, opacity?: number): anychart.core.SeriesBase;
-        color(keys: Array<(anychart.graphics.vector.GradientKey|string)>, cx: number, cy: number, mode?: anychart.graphics.math.Rect, opacity?: number, fx?: number, fy?: number): anychart.core.SeriesBase;
+        color(): string;
+        color(value: string): anychart.core.SeriesBase;
         data(): anychart.data.View;
-        data(value?: anychart.data.View | anychart.data.Set | Array<any> | string, csvSettings?: {[prop: string]: (string|boolean)}): anychart.core.SeriesBase;
+        data(value?: anychart.data.View | anychart.data.Set | Array<any> | string, csvSettings?: anychart.enums.TextParsingMode | anychart.data.TextParsingSettings): anychart.core.SeriesBase;
         enabled(): boolean;
         enabled(value?: boolean): anychart.core.VisualBase;
-        error(): anychart.core.utils.Error;
-        error(value?: Object | boolean | string | number): anychart.core.cartesian.series.Base;
         excludePoint(indexes: number | Array<number>): boolean;
         fill(): anychart.graphics.vector.Fill;
         fill(value: anychart.graphics.vector.Fill): anychart.core.cartesian.series.RangeBar;
@@ -5786,7 +6550,7 @@ declare namespace anychart.core.cartesian.series {
         hoverMarkers(value?: Object | boolean | string): anychart.core.cartesian.series.BaseWithMarkers;
         hoverStroke(): anychart.graphics.vector.Stroke;
         hoverStroke(strokeFunction?: (() => void)): anychart.core.cartesian.series.RangeBar;
-        hoverStroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.cartesian.series.RangeBar;
+        hoverStroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.cartesian.series.RangeBar;
         id(): string | number;
         id(value?: string | number): anychart.core.SeriesBase;
         includeAllPoints(): boolean;
@@ -5821,6 +6585,8 @@ declare namespace anychart.core.cartesian.series {
         pointWidth(value?: number | string): anychart.core.cartesian.series.WidthBased;
         print(paperSizeOrOptions?: anychart.graphics.vector.PaperSize | Object, landscape?: boolean): void;
         removeAllListeners(type?: string): number;
+        rendering(): anychart.core.series.RenderingSettings;
+        rendering(value?: Object | (() => void)): anychart.core.cartesian.series.Base;
         right(): number | string;
         right(value?: number | string): anychart.core.VisualBaseWithBounds;
         select(index?: number): anychart.core.SeriesBase;
@@ -5840,14 +6606,14 @@ declare namespace anychart.core.cartesian.series {
         selectMarkers(value?: Object | boolean | string): anychart.core.cartesian.series.BaseWithMarkers;
         selectStroke(): anychart.graphics.vector.Stroke;
         selectStroke(strokeFunction?: (() => void)): anychart.core.cartesian.series.RangeBar;
-        selectStroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.cartesian.series.RangeBar;
+        selectStroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.cartesian.series.RangeBar;
         selectionMode(): anychart.enums.SelectionMode;
         selectionMode(value?: anychart.enums.SelectionMode | string): anychart.core.SeriesBase;
         seriesType(): string;
         seriesType(value?: string): anychart.core.cartesian.series.Base;
         stroke(): anychart.graphics.vector.Stroke;
         stroke(strokeFunction?: (() => void)): anychart.core.cartesian.series.RangeBar;
-        stroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.cartesian.series.RangeBar;
+        stroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.cartesian.series.RangeBar;
         tooltip(): anychart.core.ui.Tooltip;
         tooltip(value?: Object | boolean): anychart.core.SeriesBase;
         top(): number | string;
@@ -5879,17 +6645,12 @@ declare namespace anychart.core.cartesian.series {
         bounds(x?: number | string, y?: number | string, width?: number | string, height?: number | string): anychart.core.VisualBase;
         clip(): boolean | anychart.math.Rect;
         clip(value?: boolean | anychart.math.Rect): anychart.core.cartesian.series.Base;
-        color(): anychart.graphics.vector.Fill;
-        color(value: anychart.graphics.vector.Fill): anychart.core.SeriesBase;
-        color(color: string, opacity?: number): anychart.core.SeriesBase;
-        color(keys: Array<(anychart.graphics.vector.GradientKey|string)>, angle?: number, mode?: boolean | anychart.graphics.vector.Rect | Object, opacity?: number): anychart.core.SeriesBase;
-        color(keys: Array<(anychart.graphics.vector.GradientKey|string)>, cx: number, cy: number, mode?: anychart.graphics.math.Rect, opacity?: number, fx?: number, fy?: number): anychart.core.SeriesBase;
+        color(): string;
+        color(value: string): anychart.core.SeriesBase;
         data(): anychart.data.View;
-        data(value?: anychart.data.View | anychart.data.Set | Array<any> | string, csvSettings?: {[prop: string]: (string|boolean)}): anychart.core.SeriesBase;
+        data(value?: anychart.data.View | anychart.data.Set | Array<any> | string, csvSettings?: anychart.enums.TextParsingMode | anychart.data.TextParsingSettings): anychart.core.SeriesBase;
         enabled(): boolean;
         enabled(value?: boolean): anychart.core.VisualBase;
-        error(): anychart.core.utils.Error;
-        error(value?: Object | boolean | string | number): anychart.core.cartesian.series.Base;
         excludePoint(indexes: number | Array<number>): boolean;
         getExcludedPoints(): Array<anychart.core.Point>;
         getPixelBounds(): anychart.math.Rect;
@@ -5938,6 +6699,8 @@ declare namespace anychart.core.cartesian.series {
         pointWidth(value?: number | string): anychart.core.cartesian.series.WidthBased;
         print(paperSizeOrOptions?: anychart.graphics.vector.PaperSize | Object, landscape?: boolean): void;
         removeAllListeners(type?: string): number;
+        rendering(): anychart.core.series.RenderingSettings;
+        rendering(value?: Object | (() => void)): anychart.core.cartesian.series.Base;
         right(): number | string;
         right(value?: number | string): anychart.core.VisualBaseWithBounds;
         select(index?: number): anychart.core.SeriesBase;
@@ -5981,15 +6744,12 @@ declare namespace anychart.core.cartesian.series {
         bounds(x?: number | string, y?: number | string, width?: number | string, height?: number | string): anychart.core.VisualBase;
         clip(): boolean | anychart.math.Rect;
         clip(value?: boolean | anychart.math.Rect): anychart.core.cartesian.series.Base;
-        color(): anychart.graphics.vector.Fill;
-        color(value: anychart.graphics.vector.Fill): anychart.core.SeriesBase;
-        color(color: string, opacity?: number): anychart.core.SeriesBase;
-        color(keys: Array<(anychart.graphics.vector.GradientKey|string)>, angle?: number, mode?: boolean | anychart.graphics.vector.Rect | Object, opacity?: number): anychart.core.SeriesBase;
-        color(keys: Array<(anychart.graphics.vector.GradientKey|string)>, cx: number, cy: number, mode?: anychart.graphics.math.Rect, opacity?: number, fx?: number, fy?: number): anychart.core.SeriesBase;
+        color(): string;
+        color(value: string): anychart.core.SeriesBase;
         connectMissingPoints(): boolean;
         connectMissingPoints(value?: boolean): anychart.core.cartesian.series.Base;
         data(): anychart.data.View;
-        data(value?: anychart.data.View | anychart.data.Set | Array<any> | string, csvSettings?: {[prop: string]: (string|boolean)}): anychart.core.SeriesBase;
+        data(value?: anychart.data.View | anychart.data.Set | Array<any> | string, csvSettings?: anychart.enums.TextParsingMode | anychart.data.TextParsingSettings): anychart.core.SeriesBase;
         enabled(): boolean;
         enabled(value?: boolean): anychart.core.VisualBase;
         error(): anychart.core.utils.Error;
@@ -6012,7 +6772,7 @@ declare namespace anychart.core.cartesian.series {
         height(value?: number | string): anychart.core.VisualBaseWithBounds;
         highStroke(): anychart.graphics.vector.Stroke | (() => void);
         highStroke(strokeFunction?: (() => void)): anychart.core.cartesian.series.ContinuousRangeBase;
-        highStroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.cartesian.series.ContinuousRangeBase;
+        highStroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.cartesian.series.ContinuousRangeBase;
         hover(): anychart.core.SeriesBase;
         hover(index?: number): anychart.core.SeriesBase;
         hover(indexes?: Array<number>): anychart.core.SeriesBase;
@@ -6027,12 +6787,12 @@ declare namespace anychart.core.cartesian.series {
         hoverHatchFill(patternFillOrType?: anychart.graphics.vector.PatternFill | anychart.graphics.vector.HatchFill | (() => void) | anychart.graphics.vector.HatchFill.HatchFillType | string, color?: string, thickness?: number, size?: number): anychart.core.cartesian.series.ContinuousRangeBase;
         hoverHighStroke(): anychart.graphics.vector.Stroke | (() => void);
         hoverHighStroke(strokeFunction?: (() => void)): anychart.core.cartesian.series.ContinuousRangeBase;
-        hoverHighStroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.cartesian.series.ContinuousRangeBase;
+        hoverHighStroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.cartesian.series.ContinuousRangeBase;
         hoverLabels(): anychart.core.ui.LabelsFactory;
         hoverLabels(value?: Object | boolean): anychart.core.SeriesBase;
         hoverLowStroke(): anychart.graphics.vector.Stroke | (() => void);
         hoverLowStroke(strokeFunction?: (() => void)): anychart.core.cartesian.series.ContinuousRangeBase;
-        hoverLowStroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.cartesian.series.ContinuousRangeBase;
+        hoverLowStroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.cartesian.series.ContinuousRangeBase;
         hoverMarkers(): anychart.core.ui.MarkersFactory;
         hoverMarkers(value?: Object | boolean | string): anychart.core.cartesian.series.BaseWithMarkers;
         id(): string | number;
@@ -6050,7 +6810,7 @@ declare namespace anychart.core.cartesian.series {
         listenOnce(type: string, listener: (() => void), useCapture?: boolean, listenerScope?: Object): Object;
         lowStroke(): anychart.graphics.vector.Stroke | (() => void);
         lowStroke(strokeFunction?: (() => void)): anychart.core.cartesian.series.ContinuousRangeBase;
-        lowStroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.cartesian.series.ContinuousRangeBase;
+        lowStroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.cartesian.series.ContinuousRangeBase;
         markers(): anychart.core.ui.MarkersFactory;
         markers(value?: Object | boolean | string): anychart.core.cartesian.series.BaseWithMarkers;
         maxHeight(): number | string;
@@ -6083,12 +6843,12 @@ declare namespace anychart.core.cartesian.series {
         selectHatchFill(patternFillOrType?: anychart.graphics.vector.PatternFill | anychart.graphics.vector.HatchFill | (() => void) | anychart.graphics.vector.HatchFill.HatchFillType | string, color?: string, thickness?: number, size?: number): anychart.core.cartesian.series.ContinuousRangeBase;
         selectHighStroke(): anychart.graphics.vector.Stroke | (() => void);
         selectHighStroke(strokeFunction?: (() => void)): anychart.core.cartesian.series.ContinuousRangeBase;
-        selectHighStroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.cartesian.series.ContinuousRangeBase;
+        selectHighStroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.cartesian.series.ContinuousRangeBase;
         selectLabels(): anychart.core.ui.LabelsFactory;
         selectLabels(value?: Object | boolean): anychart.core.SeriesBase;
         selectLowStroke(): anychart.graphics.vector.Stroke | (() => void);
         selectLowStroke(strokeFunction?: (() => void)): anychart.core.cartesian.series.ContinuousRangeBase;
-        selectLowStroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.cartesian.series.ContinuousRangeBase;
+        selectLowStroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.cartesian.series.ContinuousRangeBase;
         selectMarkers(): anychart.core.ui.MarkersFactory;
         selectMarkers(value?: Object | boolean | string): anychart.core.cartesian.series.BaseWithMarkers;
         selectionMode(): anychart.enums.SelectionMode;
@@ -6124,15 +6884,12 @@ declare namespace anychart.core.cartesian.series {
         bounds(x?: number | string, y?: number | string, width?: number | string, height?: number | string): anychart.core.VisualBase;
         clip(): boolean | anychart.math.Rect;
         clip(value?: boolean | anychart.math.Rect): anychart.core.cartesian.series.Base;
-        color(): anychart.graphics.vector.Fill;
-        color(value: anychart.graphics.vector.Fill): anychart.core.SeriesBase;
-        color(color: string, opacity?: number): anychart.core.SeriesBase;
-        color(keys: Array<(anychart.graphics.vector.GradientKey|string)>, angle?: number, mode?: boolean | anychart.graphics.vector.Rect | Object, opacity?: number): anychart.core.SeriesBase;
-        color(keys: Array<(anychart.graphics.vector.GradientKey|string)>, cx: number, cy: number, mode?: anychart.graphics.math.Rect, opacity?: number, fx?: number, fy?: number): anychart.core.SeriesBase;
+        color(): string;
+        color(value: string): anychart.core.SeriesBase;
         connectMissingPoints(): boolean;
         connectMissingPoints(value?: boolean): anychart.core.cartesian.series.Base;
         data(): anychart.data.View;
-        data(value?: anychart.data.View | anychart.data.Set | Array<any> | string, csvSettings?: {[prop: string]: (string|boolean)}): anychart.core.SeriesBase;
+        data(value?: anychart.data.View | anychart.data.Set | Array<any> | string, csvSettings?: anychart.enums.TextParsingMode | anychart.data.TextParsingSettings): anychart.core.SeriesBase;
         enabled(): boolean;
         enabled(value?: boolean): anychart.core.VisualBase;
         error(): anychart.core.utils.Error;
@@ -6171,7 +6928,7 @@ declare namespace anychart.core.cartesian.series {
         hoverMarkers(value?: Object | boolean | string): anychart.core.cartesian.series.BaseWithMarkers;
         hoverStroke(): anychart.graphics.vector.Stroke;
         hoverStroke(strokeFunction?: (() => void)): anychart.core.cartesian.series.Area;
-        hoverStroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.cartesian.series.Area;
+        hoverStroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.cartesian.series.Area;
         id(): string | number;
         id(value?: string | number): anychart.core.SeriesBase;
         includeAllPoints(): boolean;
@@ -6204,6 +6961,8 @@ declare namespace anychart.core.cartesian.series {
         name(value?: string): anychart.core.SeriesBase;
         print(paperSizeOrOptions?: anychart.graphics.vector.PaperSize | Object, landscape?: boolean): void;
         removeAllListeners(type?: string): number;
+        rendering(): anychart.core.series.RenderingSettings;
+        rendering(value?: Object | (() => void)): anychart.core.cartesian.series.Base;
         right(): number | string;
         right(value?: number | string): anychart.core.VisualBaseWithBounds;
         select(index?: number): anychart.core.SeriesBase;
@@ -6223,14 +6982,14 @@ declare namespace anychart.core.cartesian.series {
         selectMarkers(value?: Object | boolean | string): anychart.core.cartesian.series.BaseWithMarkers;
         selectStroke(): anychart.graphics.vector.Stroke;
         selectStroke(strokeFunction?: (() => void)): anychart.core.cartesian.series.Area;
-        selectStroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.cartesian.series.Area;
+        selectStroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.cartesian.series.Area;
         selectionMode(): anychart.enums.SelectionMode;
         selectionMode(value?: anychart.enums.SelectionMode | string): anychart.core.SeriesBase;
         seriesType(): string;
         seriesType(value?: string): anychart.core.cartesian.series.Base;
         stroke(): anychart.graphics.vector.Stroke;
         stroke(strokeFunction?: (() => void)): anychart.core.cartesian.series.Area;
-        stroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.cartesian.series.Area;
+        stroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.cartesian.series.Area;
         tooltip(): anychart.core.ui.Tooltip;
         tooltip(value?: Object | boolean): anychart.core.SeriesBase;
         top(): number | string;
@@ -6262,13 +7021,10 @@ declare namespace anychart.core.cartesian.series {
         bounds(x?: number | string, y?: number | string, width?: number | string, height?: number | string): anychart.core.VisualBase;
         clip(): boolean | anychart.math.Rect;
         clip(value?: boolean | anychart.math.Rect): anychart.core.cartesian.series.Base;
-        color(): anychart.graphics.vector.Fill;
-        color(value: anychart.graphics.vector.Fill): anychart.core.SeriesBase;
-        color(color: string, opacity?: number): anychart.core.SeriesBase;
-        color(keys: Array<(anychart.graphics.vector.GradientKey|string)>, angle?: number, mode?: boolean | anychart.graphics.vector.Rect | Object, opacity?: number): anychart.core.SeriesBase;
-        color(keys: Array<(anychart.graphics.vector.GradientKey|string)>, cx: number, cy: number, mode?: anychart.graphics.math.Rect, opacity?: number, fx?: number, fy?: number): anychart.core.SeriesBase;
+        color(): string;
+        color(value: string): anychart.core.SeriesBase;
         data(): anychart.data.View;
-        data(value?: anychart.data.View | anychart.data.Set | Array<any> | string, csvSettings?: {[prop: string]: (string|boolean)}): anychart.core.SeriesBase;
+        data(value?: anychart.data.View | anychart.data.Set | Array<any> | string, csvSettings?: anychart.enums.TextParsingMode | anychart.data.TextParsingSettings): anychart.core.SeriesBase;
         enabled(): boolean;
         enabled(value?: boolean): anychart.core.VisualBase;
         error(): anychart.core.utils.Error;
@@ -6289,11 +7045,13 @@ declare namespace anychart.core.cartesian.series {
         hoverMarkers(value?: Object | boolean | string): anychart.core.cartesian.series.BaseWithMarkers;
         hoverStroke(): anychart.graphics.vector.Stroke;
         hoverStroke(strokeFunction?: (() => void)): anychart.core.cartesian.series.Stick;
-        hoverStroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.cartesian.series.Stick;
+        hoverStroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.cartesian.series.Stick;
         id(): string | number;
         id(value?: string | number): anychart.core.SeriesBase;
         includeAllPoints(): boolean;
         includePoint(indexes: number | Array<number>): boolean;
+        isVertical(): boolean;
+        isVertical(value?: boolean): anychart.core.cartesian.series.Base;
         keepOnlyPoints(indexes: number | Array<number>): void;
         labels(): anychart.core.ui.LabelsFactory;
         labels(value?: Object | boolean): anychart.core.SeriesBase;
@@ -6322,6 +7080,8 @@ declare namespace anychart.core.cartesian.series {
         pointWidth(value?: number | string): anychart.core.cartesian.series.WidthBased;
         print(paperSizeOrOptions?: anychart.graphics.vector.PaperSize | Object, landscape?: boolean): void;
         removeAllListeners(type?: string): number;
+        rendering(): anychart.core.series.RenderingSettings;
+        rendering(value?: Object | (() => void)): anychart.core.cartesian.series.Base;
         right(): number | string;
         right(value?: number | string): anychart.core.VisualBaseWithBounds;
         select(index?: number): anychart.core.SeriesBase;
@@ -6332,14 +7092,14 @@ declare namespace anychart.core.cartesian.series {
         selectMarkers(value?: Object | boolean | string): anychart.core.cartesian.series.BaseWithMarkers;
         selectStroke(): anychart.graphics.vector.Stroke;
         selectStroke(strokeFunction?: (() => void)): anychart.core.cartesian.series.Stick;
-        selectStroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.cartesian.series.Stick;
+        selectStroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.cartesian.series.Stick;
         selectionMode(): anychart.enums.SelectionMode;
         selectionMode(value?: anychart.enums.SelectionMode | string): anychart.core.SeriesBase;
         seriesType(): string;
         seriesType(value?: string): anychart.core.cartesian.series.Base;
         stroke(): anychart.graphics.vector.Stroke;
         stroke(strokeFunction?: (() => void)): anychart.core.cartesian.series.Stick;
-        stroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.cartesian.series.Stick;
+        stroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.cartesian.series.Stick;
         tooltip(): anychart.core.ui.Tooltip;
         tooltip(value?: Object | boolean): anychart.core.SeriesBase;
         top(): number | string;
@@ -6371,19 +7131,14 @@ declare namespace anychart.core.cartesian.series {
         bounds(x?: number | string, y?: number | string, width?: number | string, height?: number | string): anychart.core.VisualBase;
         clip(): boolean | anychart.math.Rect;
         clip(value?: boolean | anychart.math.Rect): anychart.core.cartesian.series.Base;
-        color(): anychart.graphics.vector.Fill;
-        color(value: anychart.graphics.vector.Fill): anychart.core.SeriesBase;
-        color(color: string, opacity?: number): anychart.core.SeriesBase;
-        color(keys: Array<(anychart.graphics.vector.GradientKey|string)>, angle?: number, mode?: boolean | anychart.graphics.vector.Rect | Object, opacity?: number): anychart.core.SeriesBase;
-        color(keys: Array<(anychart.graphics.vector.GradientKey|string)>, cx: number, cy: number, mode?: anychart.graphics.math.Rect, opacity?: number, fx?: number, fy?: number): anychart.core.SeriesBase;
+        color(): string;
+        color(value: string): anychart.core.SeriesBase;
         data(): anychart.data.View;
-        data(value?: anychart.data.View | anychart.data.Set | Array<any> | string, csvSettings?: {[prop: string]: (string|boolean)}): anychart.core.SeriesBase;
+        data(value?: anychart.data.View | anychart.data.Set | Array<any> | string, csvSettings?: anychart.enums.TextParsingMode | anychart.data.TextParsingSettings): anychart.core.SeriesBase;
         displayNegative(): boolean;
         displayNegative(value?: boolean): anychart.core.cartesian.series.Bubble;
         enabled(): boolean;
         enabled(value?: boolean): anychart.core.VisualBase;
-        error(): anychart.core.utils.Error;
-        error(value?: Object | boolean | string | number): anychart.core.cartesian.series.Base;
         excludePoint(indexes: number | Array<number>): boolean;
         fill(): anychart.graphics.vector.Fill;
         fill(value: anychart.graphics.vector.Fill): anychart.core.cartesian.series.Bubble;
@@ -6427,10 +7182,10 @@ declare namespace anychart.core.cartesian.series {
         hoverNegativeHatchFill(patternFillOrType?: anychart.graphics.vector.PatternFill | anychart.graphics.vector.HatchFill | (() => void) | anychart.graphics.vector.HatchFill.HatchFillType | string, color?: string, thickness?: number, size?: number): anychart.core.cartesian.series.Bubble;
         hoverNegativeStroke(): anychart.graphics.vector.Stroke | (() => void);
         hoverNegativeStroke(strokeFunction?: (() => void)): anychart.core.cartesian.series.Bubble;
-        hoverNegativeStroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.cartesian.series.Bubble;
+        hoverNegativeStroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.cartesian.series.Bubble;
         hoverStroke(): anychart.graphics.vector.Stroke;
         hoverStroke(strokeFunction?: (() => void)): anychart.core.cartesian.series.Bubble;
-        hoverStroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.cartesian.series.Bubble;
+        hoverStroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.cartesian.series.Bubble;
         id(): string | number;
         id(value?: string | number): anychart.core.SeriesBase;
         includeAllPoints(): boolean;
@@ -6472,9 +7227,11 @@ declare namespace anychart.core.cartesian.series {
         negativeHatchFill(patternFillOrType?: anychart.graphics.vector.PatternFill | anychart.graphics.vector.HatchFill | (() => void) | anychart.graphics.vector.HatchFill.HatchFillType | string, color?: string, thickness?: number, size?: number): anychart.core.cartesian.series.Bubble;
         negativeStroke(): anychart.graphics.vector.Stroke | (() => void);
         negativeStroke(strokeFunction?: (() => void)): anychart.core.cartesian.series.Bubble;
-        negativeStroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.cartesian.series.Bubble;
+        negativeStroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.cartesian.series.Bubble;
         print(paperSizeOrOptions?: anychart.graphics.vector.PaperSize | Object, landscape?: boolean): void;
         removeAllListeners(type?: string): number;
+        rendering(): anychart.core.series.RenderingSettings;
+        rendering(value?: Object | (() => void)): anychart.core.cartesian.series.Base;
         right(): number | string;
         right(value?: number | string): anychart.core.VisualBaseWithBounds;
         select(index?: number): anychart.core.SeriesBase;
@@ -6503,17 +7260,17 @@ declare namespace anychart.core.cartesian.series {
         selectNegativeHatchFill(patternFillOrType?: anychart.graphics.vector.PatternFill | anychart.graphics.vector.HatchFill | (() => void) | anychart.graphics.vector.HatchFill.HatchFillType | string | boolean, color?: string, thickness?: number, size?: number): anychart.core.cartesian.series.Bubble;
         selectNegativeStroke(): anychart.graphics.vector.Stroke | (() => void);
         selectNegativeStroke(strokeFunction?: (() => void)): anychart.core.cartesian.series.Bubble;
-        selectNegativeStroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.cartesian.series.Bubble;
+        selectNegativeStroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.cartesian.series.Bubble;
         selectStroke(): anychart.graphics.vector.Stroke;
         selectStroke(strokeFunction?: (() => void)): anychart.core.cartesian.series.Bubble;
-        selectStroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.cartesian.series.Bubble;
+        selectStroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.cartesian.series.Bubble;
         selectionMode(): anychart.enums.SelectionMode;
         selectionMode(value?: anychart.enums.SelectionMode | string): anychart.core.SeriesBase;
         seriesType(): string;
         seriesType(value?: string): anychart.core.cartesian.series.Base;
         stroke(): anychart.graphics.vector.Stroke;
         stroke(strokeFunction?: (() => void)): anychart.core.cartesian.series.Bubble;
-        stroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.cartesian.series.Bubble;
+        stroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.cartesian.series.Bubble;
         tooltip(): anychart.core.ui.Tooltip;
         tooltip(value?: Object | boolean): anychart.core.SeriesBase;
         top(): number | string;
@@ -6545,13 +7302,10 @@ declare namespace anychart.core.cartesian.series {
         bounds(x?: number | string, y?: number | string, width?: number | string, height?: number | string): anychart.core.VisualBase;
         clip(): boolean | anychart.math.Rect;
         clip(value?: boolean | anychart.math.Rect): anychart.core.cartesian.series.Base;
-        color(): anychart.graphics.vector.Fill;
-        color(value: anychart.graphics.vector.Fill): anychart.core.SeriesBase;
-        color(color: string, opacity?: number): anychart.core.SeriesBase;
-        color(keys: Array<(anychart.graphics.vector.GradientKey|string)>, angle?: number, mode?: boolean | anychart.graphics.vector.Rect | Object, opacity?: number): anychart.core.SeriesBase;
-        color(keys: Array<(anychart.graphics.vector.GradientKey|string)>, cx: number, cy: number, mode?: anychart.graphics.math.Rect, opacity?: number, fx?: number, fy?: number): anychart.core.SeriesBase;
+        color(): string;
+        color(value: string): anychart.core.SeriesBase;
         data(): anychart.data.View;
-        data(value?: anychart.data.View | anychart.data.Set | Array<any> | string, csvSettings?: {[prop: string]: (string|boolean)}): anychart.core.SeriesBase;
+        data(value?: anychart.data.View | anychart.data.Set | Array<any> | string, csvSettings?: anychart.enums.TextParsingMode | anychart.data.TextParsingSettings): anychart.core.SeriesBase;
         enabled(): boolean;
         enabled(value?: boolean): anychart.core.VisualBase;
         error(): anychart.core.utils.Error;
@@ -6590,7 +7344,7 @@ declare namespace anychart.core.cartesian.series {
         hoverMarkers(value?: Object | boolean | string): anychart.core.cartesian.series.BaseWithMarkers;
         hoverStroke(): anychart.graphics.vector.Stroke;
         hoverStroke(strokeFunction?: (() => void)): anychart.core.cartesian.series.Bar;
-        hoverStroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.cartesian.series.Bar;
+        hoverStroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.cartesian.series.Bar;
         id(): string | number;
         id(value?: string | number): anychart.core.SeriesBase;
         includeAllPoints(): boolean;
@@ -6625,6 +7379,8 @@ declare namespace anychart.core.cartesian.series {
         pointWidth(value?: number | string): anychart.core.cartesian.series.WidthBased;
         print(paperSizeOrOptions?: anychart.graphics.vector.PaperSize | Object, landscape?: boolean): void;
         removeAllListeners(type?: string): number;
+        rendering(): anychart.core.series.RenderingSettings;
+        rendering(value?: Object | (() => void)): anychart.core.cartesian.series.Base;
         right(): number | string;
         right(value?: number | string): anychart.core.VisualBaseWithBounds;
         select(index?: number): anychart.core.SeriesBase;
@@ -6644,14 +7400,14 @@ declare namespace anychart.core.cartesian.series {
         selectMarkers(value?: Object | boolean | string): anychart.core.cartesian.series.BaseWithMarkers;
         selectStroke(): anychart.graphics.vector.Stroke;
         selectStroke(strokeFunction?: (() => void)): anychart.core.cartesian.series.Bar;
-        selectStroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.cartesian.series.Bar;
+        selectStroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.cartesian.series.Bar;
         selectionMode(): anychart.enums.SelectionMode;
         selectionMode(value?: anychart.enums.SelectionMode | string): anychart.core.SeriesBase;
         seriesType(): string;
         seriesType(value?: string): anychart.core.cartesian.series.Base;
         stroke(): anychart.graphics.vector.Stroke;
         stroke(strokeFunction?: (() => void)): anychart.core.cartesian.series.Bar;
-        stroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.cartesian.series.Bar;
+        stroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.cartesian.series.Bar;
         tooltip(): anychart.core.ui.Tooltip;
         tooltip(value?: Object | boolean): anychart.core.SeriesBase;
         top(): number | string;
@@ -6683,19 +7439,14 @@ declare namespace anychart.core.cartesian.series {
         bounds(x?: number | string, y?: number | string, width?: number | string, height?: number | string): anychart.core.VisualBase;
         clip(): boolean | anychart.math.Rect;
         clip(value?: boolean | anychart.math.Rect): anychart.core.cartesian.series.Base;
-        color(): anychart.graphics.vector.Fill;
-        color(value: anychart.graphics.vector.Fill): anychart.core.SeriesBase;
-        color(color: string, opacity?: number): anychart.core.SeriesBase;
-        color(keys: Array<(anychart.graphics.vector.GradientKey|string)>, angle?: number, mode?: boolean | anychart.graphics.vector.Rect | Object, opacity?: number): anychart.core.SeriesBase;
-        color(keys: Array<(anychart.graphics.vector.GradientKey|string)>, cx: number, cy: number, mode?: anychart.graphics.math.Rect, opacity?: number, fx?: number, fy?: number): anychart.core.SeriesBase;
+        color(): string;
+        color(value: string): anychart.core.SeriesBase;
         connectMissingPoints(): boolean;
         connectMissingPoints(value?: boolean): anychart.core.cartesian.series.Base;
         data(): anychart.data.View;
-        data(value?: anychart.data.View | anychart.data.Set | Array<any> | string, csvSettings?: {[prop: string]: (string|boolean)}): anychart.core.SeriesBase;
+        data(value?: anychart.data.View | anychart.data.Set | Array<any> | string, csvSettings?: anychart.enums.TextParsingMode | anychart.data.TextParsingSettings): anychart.core.SeriesBase;
         enabled(): boolean;
         enabled(value?: boolean): anychart.core.VisualBase;
-        error(): anychart.core.utils.Error;
-        error(value?: Object | boolean | string | number): anychart.core.cartesian.series.Base;
         excludePoint(indexes: number | Array<number>): boolean;
         getExcludedPoints(): Array<anychart.core.Point>;
         getPixelBounds(): anychart.math.Rect;
@@ -6714,8 +7465,6 @@ declare namespace anychart.core.cartesian.series {
         id(value?: string | number): anychart.core.SeriesBase;
         includeAllPoints(): boolean;
         includePoint(indexes: number | Array<number>): boolean;
-        isVertical(): boolean;
-        isVertical(value?: boolean): anychart.core.cartesian.series.Base;
         keepOnlyPoints(indexes: number | Array<number>): void;
         labels(): anychart.core.ui.LabelsFactory;
         labels(value?: Object | boolean): anychart.core.SeriesBase;
@@ -6742,6 +7491,8 @@ declare namespace anychart.core.cartesian.series {
         name(value?: string): anychart.core.SeriesBase;
         print(paperSizeOrOptions?: anychart.graphics.vector.PaperSize | Object, landscape?: boolean): void;
         removeAllListeners(type?: string): number;
+        rendering(): anychart.core.series.RenderingSettings;
+        rendering(value?: Object | (() => void)): anychart.core.cartesian.series.Base;
         right(): number | string;
         right(value?: number | string): anychart.core.VisualBaseWithBounds;
         select(index?: number): anychart.core.SeriesBase;
@@ -6785,17 +7536,12 @@ declare namespace anychart.core.cartesian.series {
         bounds(x?: number | string, y?: number | string, width?: number | string, height?: number | string): anychart.core.VisualBase;
         clip(): boolean | anychart.math.Rect;
         clip(value?: boolean | anychart.math.Rect): anychart.core.cartesian.series.Base;
-        color(): anychart.graphics.vector.Fill;
-        color(value: anychart.graphics.vector.Fill): anychart.core.SeriesBase;
-        color(color: string, opacity?: number): anychart.core.SeriesBase;
-        color(keys: Array<(anychart.graphics.vector.GradientKey|string)>, angle?: number, mode?: boolean | anychart.graphics.vector.Rect | Object, opacity?: number): anychart.core.SeriesBase;
-        color(keys: Array<(anychart.graphics.vector.GradientKey|string)>, cx: number, cy: number, mode?: anychart.graphics.math.Rect, opacity?: number, fx?: number, fy?: number): anychart.core.SeriesBase;
+        color(): string;
+        color(value: string): anychart.core.SeriesBase;
         data(): anychart.data.View;
-        data(value?: anychart.data.View | anychart.data.Set | Array<any> | string, csvSettings?: {[prop: string]: (string|boolean)}): anychart.core.SeriesBase;
+        data(value?: anychart.data.View | anychart.data.Set | Array<any> | string, csvSettings?: anychart.enums.TextParsingMode | anychart.data.TextParsingSettings): anychart.core.SeriesBase;
         enabled(): boolean;
         enabled(value?: boolean): anychart.core.VisualBase;
-        error(): anychart.core.utils.Error;
-        error(value?: Object | boolean | string | number): anychart.core.cartesian.series.Base;
         excludePoint(indexes: number | Array<number>): boolean;
         fallingStroke(): anychart.graphics.vector.Stroke | (() => void);
         fallingStroke(fillFunction?: (() => void)): anychart.core.cartesian.series.OHLC;
@@ -6811,7 +7557,7 @@ declare namespace anychart.core.cartesian.series {
         hover(indexes?: Array<number>): anychart.core.SeriesBase;
         hoverFallingStroke(): anychart.graphics.vector.Stroke | (() => void);
         hoverFallingStroke(strokeFunction?: (() => void)): anychart.core.cartesian.series.OHLC;
-        hoverFallingStroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.cartesian.series.OHLC;
+        hoverFallingStroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.cartesian.series.OHLC;
         hoverLabels(): anychart.core.ui.LabelsFactory;
         hoverLabels(value?: Object | boolean): anychart.core.SeriesBase;
         hoverMarkers(): anychart.core.ui.MarkersFactory;
@@ -6853,16 +7599,18 @@ declare namespace anychart.core.cartesian.series {
         pointWidth(value?: number | string): anychart.core.cartesian.series.WidthBased;
         print(paperSizeOrOptions?: anychart.graphics.vector.PaperSize | Object, landscape?: boolean): void;
         removeAllListeners(type?: string): number;
+        rendering(): anychart.core.series.RenderingSettings;
+        rendering(value?: Object | (() => void)): anychart.core.cartesian.series.Base;
         right(): number | string;
         right(value?: number | string): anychart.core.VisualBaseWithBounds;
         risingStroke(): anychart.graphics.vector.Stroke | (() => void);
         risingStroke(strokeFunction?: (() => void)): anychart.core.cartesian.series.OHLC;
-        risingStroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.cartesian.series.OHLC;
+        risingStroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.cartesian.series.OHLC;
         select(index?: number): anychart.core.SeriesBase;
         select(indexes?: number | Array<number>): anychart.core.SeriesBase;
         selectFallingStroke(): anychart.graphics.vector.Stroke | (() => void);
         selectFallingStroke(strokeFunction?: (() => void)): anychart.core.cartesian.series.OHLC;
-        selectFallingStroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.cartesian.series.OHLC;
+        selectFallingStroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.cartesian.series.OHLC;
         selectLabels(): anychart.core.ui.LabelsFactory;
         selectLabels(value?: Object | boolean): anychart.core.SeriesBase;
         selectMarkers(): anychart.core.ui.MarkersFactory;
@@ -6905,17 +7653,12 @@ declare namespace anychart.core.cartesian.series {
         bounds(x?: number | string, y?: number | string, width?: number | string, height?: number | string): anychart.core.VisualBase;
         clip(): boolean | anychart.math.Rect;
         clip(value?: boolean | anychart.math.Rect): anychart.core.cartesian.series.Base;
-        color(): anychart.graphics.vector.Fill;
-        color(value: anychart.graphics.vector.Fill): anychart.core.SeriesBase;
-        color(color: string, opacity?: number): anychart.core.SeriesBase;
-        color(keys: Array<(anychart.graphics.vector.GradientKey|string)>, angle?: number, mode?: boolean | anychart.graphics.vector.Rect | Object, opacity?: number): anychart.core.SeriesBase;
-        color(keys: Array<(anychart.graphics.vector.GradientKey|string)>, cx: number, cy: number, mode?: anychart.graphics.math.Rect, opacity?: number, fx?: number, fy?: number): anychart.core.SeriesBase;
+        color(): string;
+        color(value: string): anychart.core.SeriesBase;
         data(): anychart.data.View;
-        data(value?: anychart.data.View | anychart.data.Set | Array<any> | string, csvSettings?: {[prop: string]: (string|boolean)}): anychart.core.SeriesBase;
+        data(value?: anychart.data.View | anychart.data.Set | Array<any> | string, csvSettings?: anychart.enums.TextParsingMode | anychart.data.TextParsingSettings): anychart.core.SeriesBase;
         enabled(): boolean;
         enabled(value?: boolean): anychart.core.VisualBase;
-        error(): anychart.core.utils.Error;
-        error(value?: Object | boolean | string | number): anychart.core.cartesian.series.Base;
         excludePoint(indexes: number | Array<number>): boolean;
         fallingFill(): anychart.graphics.vector.Fill;
         fallingFill(value: anychart.graphics.vector.Fill): anychart.core.cartesian.series.Base;
@@ -6948,7 +7691,7 @@ declare namespace anychart.core.cartesian.series {
         hoverFallingHatchFill(patternFillOrType?: anychart.graphics.vector.PatternFill | anychart.graphics.vector.HatchFill | (() => void) | anychart.graphics.vector.HatchFill.HatchFillType | string, color?: string, thickness?: number, size?: number): anychart.core.cartesian.series.Base;
         hoverFallingStroke(): anychart.graphics.vector.Stroke | (() => void);
         hoverFallingStroke(strokeFunction?: (() => void)): anychart.core.cartesian.series.OHLC;
-        hoverFallingStroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.cartesian.series.OHLC;
+        hoverFallingStroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.cartesian.series.OHLC;
         hoverLabels(): anychart.core.ui.LabelsFactory;
         hoverLabels(value?: Object | boolean): anychart.core.SeriesBase;
         hoverMarkers(): anychart.core.ui.MarkersFactory;
@@ -6999,6 +7742,8 @@ declare namespace anychart.core.cartesian.series {
         pointWidth(value?: number | string): anychart.core.cartesian.series.WidthBased;
         print(paperSizeOrOptions?: anychart.graphics.vector.PaperSize | Object, landscape?: boolean): void;
         removeAllListeners(type?: string): number;
+        rendering(): anychart.core.series.RenderingSettings;
+        rendering(value?: Object | (() => void)): anychart.core.cartesian.series.Base;
         right(): number | string;
         right(value?: number | string): anychart.core.VisualBaseWithBounds;
         risingFill(): anychart.graphics.vector.Fill;
@@ -7012,7 +7757,7 @@ declare namespace anychart.core.cartesian.series {
         risingHatchFill(patternFillOrTypeOrState?: anychart.graphics.vector.PatternFill | anychart.graphics.vector.HatchFill | (() => void) | anychart.graphics.vector.HatchFill.HatchFillType | string | boolean, color?: string, thickness?: number, size?: number): anychart.core.cartesian.series.Base;
         risingStroke(): anychart.graphics.vector.Stroke | (() => void);
         risingStroke(strokeFunction?: (() => void)): anychart.core.cartesian.series.OHLC;
-        risingStroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.cartesian.series.OHLC;
+        risingStroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.cartesian.series.OHLC;
         select(index?: number): anychart.core.SeriesBase;
         select(indexes?: number | Array<number>): anychart.core.SeriesBase;
         selectFallingFill(): anychart.graphics.vector.Fill;
@@ -7026,7 +7771,7 @@ declare namespace anychart.core.cartesian.series {
         selectFallingHatchFill(patternFillOrTypeOrState?: anychart.graphics.vector.PatternFill | anychart.graphics.vector.HatchFill | (() => void) | anychart.graphics.vector.HatchFill.HatchFillType | string | boolean, color?: string, thickness?: number, size?: number): anychart.core.cartesian.series.Base;
         selectFallingStroke(): anychart.graphics.vector.Stroke | (() => void);
         selectFallingStroke(strokeFunction?: (() => void)): anychart.core.cartesian.series.OHLC;
-        selectFallingStroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.cartesian.series.OHLC;
+        selectFallingStroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.cartesian.series.OHLC;
         selectLabels(): anychart.core.ui.LabelsFactory;
         selectLabels(value?: Object | boolean): anychart.core.SeriesBase;
         selectMarkers(): anychart.core.ui.MarkersFactory;
@@ -7078,13 +7823,10 @@ declare namespace anychart.core.cartesian.series {
         bounds(x?: number | string, y?: number | string, width?: number | string, height?: number | string): anychart.core.VisualBase;
         clip(): boolean | anychart.math.Rect;
         clip(value?: boolean | anychart.math.Rect): anychart.core.cartesian.series.Base;
-        color(): anychart.graphics.vector.Fill;
-        color(value: anychart.graphics.vector.Fill): anychart.core.SeriesBase;
-        color(color: string, opacity?: number): anychart.core.SeriesBase;
-        color(keys: Array<(anychart.graphics.vector.GradientKey|string)>, angle?: number, mode?: boolean | anychart.graphics.vector.Rect | Object, opacity?: number): anychart.core.SeriesBase;
-        color(keys: Array<(anychart.graphics.vector.GradientKey|string)>, cx: number, cy: number, mode?: anychart.graphics.math.Rect, opacity?: number, fx?: number, fy?: number): anychart.core.SeriesBase;
+        color(): string;
+        color(value: string): anychart.core.SeriesBase;
         data(): anychart.data.View;
-        data(value?: anychart.data.View | anychart.data.Set | Array<any> | string, csvSettings?: {[prop: string]: (string|boolean)}): anychart.core.SeriesBase;
+        data(value?: anychart.data.View | anychart.data.Set | Array<any> | string, csvSettings?: anychart.enums.TextParsingMode | anychart.data.TextParsingSettings): anychart.core.SeriesBase;
         enabled(): boolean;
         enabled(value?: boolean): anychart.core.VisualBase;
         error(): anychart.core.utils.Error;
@@ -7123,7 +7865,7 @@ declare namespace anychart.core.cartesian.series {
         hoverMarkers(value?: Object | boolean | string): anychart.core.cartesian.series.BaseWithMarkers;
         hoverStroke(): anychart.graphics.vector.Stroke;
         hoverStroke(strokeFunction?: (() => void)): anychart.core.cartesian.series.Column;
-        hoverStroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.cartesian.series.Column;
+        hoverStroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.cartesian.series.Column;
         id(): string | number;
         id(value?: string | number): anychart.core.SeriesBase;
         includeAllPoints(): boolean;
@@ -7158,6 +7900,8 @@ declare namespace anychart.core.cartesian.series {
         pointWidth(value?: number | string): anychart.core.cartesian.series.WidthBased;
         print(paperSizeOrOptions?: anychart.graphics.vector.PaperSize | Object, landscape?: boolean): void;
         removeAllListeners(type?: string): number;
+        rendering(): anychart.core.series.RenderingSettings;
+        rendering(value?: Object | (() => void)): anychart.core.cartesian.series.Base;
         right(): number | string;
         right(value?: number | string): anychart.core.VisualBaseWithBounds;
         select(index?: number): anychart.core.SeriesBase;
@@ -7177,14 +7921,14 @@ declare namespace anychart.core.cartesian.series {
         selectMarkers(value?: Object | boolean | string): anychart.core.cartesian.series.BaseWithMarkers;
         selectStroke(): anychart.graphics.vector.Stroke;
         selectStroke(strokeFunction?: (() => void)): anychart.core.cartesian.series.Column;
-        selectStroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.cartesian.series.Column;
+        selectStroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.cartesian.series.Column;
         selectionMode(): anychart.enums.SelectionMode;
         selectionMode(value?: anychart.enums.SelectionMode | string): anychart.core.SeriesBase;
         seriesType(): string;
         seriesType(value?: string): anychart.core.cartesian.series.Base;
         stroke(): anychart.graphics.vector.Stroke;
         stroke(strokeFunction?: (() => void)): anychart.core.cartesian.series.Column;
-        stroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.cartesian.series.Column;
+        stroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.cartesian.series.Column;
         tooltip(): anychart.core.ui.Tooltip;
         tooltip(value?: Object | boolean): anychart.core.SeriesBase;
         top(): number | string;
@@ -7216,13 +7960,10 @@ declare namespace anychart.core.cartesian.series {
         bounds(x?: number | string, y?: number | string, width?: number | string, height?: number | string): anychart.core.VisualBase;
         clip(): boolean | anychart.math.Rect;
         clip(value?: boolean | anychart.math.Rect): anychart.core.cartesian.series.Base;
-        color(): anychart.graphics.vector.Fill;
-        color(value: anychart.graphics.vector.Fill): anychart.core.SeriesBase;
-        color(color: string, opacity?: number): anychart.core.SeriesBase;
-        color(keys: Array<(anychart.graphics.vector.GradientKey|string)>, angle?: number, mode?: boolean | anychart.graphics.vector.Rect | Object, opacity?: number): anychart.core.SeriesBase;
-        color(keys: Array<(anychart.graphics.vector.GradientKey|string)>, cx: number, cy: number, mode?: anychart.graphics.math.Rect, opacity?: number, fx?: number, fy?: number): anychart.core.SeriesBase;
+        color(): string;
+        color(value: string): anychart.core.SeriesBase;
         data(): anychart.data.View;
-        data(value?: anychart.data.View | anychart.data.Set | Array<any> | string, csvSettings?: {[prop: string]: (string|boolean)}): anychart.core.SeriesBase;
+        data(value?: anychart.data.View | anychart.data.Set | Array<any> | string, csvSettings?: anychart.enums.TextParsingMode | anychart.data.TextParsingSettings): anychart.core.SeriesBase;
         enabled(): boolean;
         enabled(value?: boolean): anychart.core.VisualBase;
         error(): anychart.core.utils.Error;
@@ -7314,19 +8055,14 @@ declare namespace anychart.core.cartesian.series {
         bounds(x?: number | string, y?: number | string, width?: number | string, height?: number | string): anychart.core.VisualBase;
         clip(): boolean | anychart.math.Rect;
         clip(value?: boolean | anychart.math.Rect): anychart.core.cartesian.series.Base;
-        color(): anychart.graphics.vector.Fill;
-        color(value: anychart.graphics.vector.Fill): anychart.core.SeriesBase;
-        color(color: string, opacity?: number): anychart.core.SeriesBase;
-        color(keys: Array<(anychart.graphics.vector.GradientKey|string)>, angle?: number, mode?: boolean | anychart.graphics.vector.Rect | Object, opacity?: number): anychart.core.SeriesBase;
-        color(keys: Array<(anychart.graphics.vector.GradientKey|string)>, cx: number, cy: number, mode?: anychart.graphics.math.Rect, opacity?: number, fx?: number, fy?: number): anychart.core.SeriesBase;
+        color(): string;
+        color(value: string): anychart.core.SeriesBase;
         connectMissingPoints(): boolean;
         connectMissingPoints(value?: boolean): anychart.core.cartesian.series.Base;
         data(): anychart.data.View;
-        data(value?: anychart.data.View | anychart.data.Set | Array<any> | string, csvSettings?: {[prop: string]: (string|boolean)}): anychart.core.SeriesBase;
+        data(value?: anychart.data.View | anychart.data.Set | Array<any> | string, csvSettings?: anychart.enums.TextParsingMode | anychart.data.TextParsingSettings): anychart.core.SeriesBase;
         enabled(): boolean;
         enabled(value?: boolean): anychart.core.VisualBase;
-        error(): anychart.core.utils.Error;
-        error(value?: Object | boolean | string | number): anychart.core.cartesian.series.Base;
         excludePoint(indexes: number | Array<number>): boolean;
         fill(): anychart.graphics.vector.Fill;
         fill(value: anychart.graphics.vector.Fill): anychart.core.cartesian.series.RangeArea;
@@ -7345,7 +8081,7 @@ declare namespace anychart.core.cartesian.series {
         height(value?: number | string): anychart.core.VisualBaseWithBounds;
         highStroke(): anychart.graphics.vector.Stroke | (() => void);
         highStroke(strokeFunction?: (() => void)): anychart.core.cartesian.series.RangeArea;
-        highStroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.cartesian.series.RangeArea;
+        highStroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.cartesian.series.RangeArea;
         hover(): anychart.core.SeriesBase;
         hover(index?: number): anychart.core.SeriesBase;
         hover(indexes?: Array<number>): anychart.core.SeriesBase;
@@ -7360,12 +8096,12 @@ declare namespace anychart.core.cartesian.series {
         hoverHatchFill(patternFillOrType?: anychart.graphics.vector.PatternFill | anychart.graphics.vector.HatchFill | (() => void) | anychart.graphics.vector.HatchFill.HatchFillType | string, color?: string, thickness?: number, size?: number): anychart.core.cartesian.series.RangeArea;
         hoverHighStroke(): anychart.graphics.vector.Stroke | (() => void);
         hoverHighStroke(strokeFunction?: (() => void)): anychart.core.cartesian.series.RangeArea;
-        hoverHighStroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.cartesian.series.RangeArea;
+        hoverHighStroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.cartesian.series.RangeArea;
         hoverLabels(): anychart.core.ui.LabelsFactory;
         hoverLabels(value?: Object | boolean): anychart.core.SeriesBase;
         hoverLowStroke(): anychart.graphics.vector.Stroke | (() => void);
         hoverLowStroke(strokeFunction?: (() => void)): anychart.core.cartesian.series.RangeArea;
-        hoverLowStroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.cartesian.series.RangeArea;
+        hoverLowStroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.cartesian.series.RangeArea;
         hoverMarkers(): anychart.core.ui.MarkersFactory;
         hoverMarkers(value?: Object | boolean | string): anychart.core.cartesian.series.BaseWithMarkers;
         id(): string | number;
@@ -7385,7 +8121,7 @@ declare namespace anychart.core.cartesian.series {
         listenOnce(type: string, listener: (() => void), useCapture?: boolean, listenerScope?: Object): Object;
         lowStroke(): anychart.graphics.vector.Stroke | (() => void);
         lowStroke(strokeFunction?: (() => void)): anychart.core.cartesian.series.RangeArea;
-        lowStroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.cartesian.series.RangeArea;
+        lowStroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.cartesian.series.RangeArea;
         markers(): anychart.core.ui.MarkersFactory;
         markers(value?: Object | boolean | string): anychart.core.cartesian.series.BaseWithMarkers;
         maxHeight(): number | string;
@@ -7403,6 +8139,8 @@ declare namespace anychart.core.cartesian.series {
         name(value?: string): anychart.core.SeriesBase;
         print(paperSizeOrOptions?: anychart.graphics.vector.PaperSize | Object, landscape?: boolean): void;
         removeAllListeners(type?: string): number;
+        rendering(): anychart.core.series.RenderingSettings;
+        rendering(value?: Object | (() => void)): anychart.core.cartesian.series.Base;
         right(): number | string;
         right(value?: number | string): anychart.core.VisualBaseWithBounds;
         select(index?: number): anychart.core.SeriesBase;
@@ -7418,12 +8156,12 @@ declare namespace anychart.core.cartesian.series {
         selectHatchFill(patternFillOrType?: anychart.graphics.vector.PatternFill | anychart.graphics.vector.HatchFill | (() => void) | anychart.graphics.vector.HatchFill.HatchFillType | string, color?: string, thickness?: number, size?: number): anychart.core.cartesian.series.RangeArea;
         selectHighStroke(): anychart.graphics.vector.Stroke | (() => void);
         selectHighStroke(strokeFunction?: (() => void)): anychart.core.cartesian.series.RangeArea;
-        selectHighStroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.cartesian.series.RangeArea;
+        selectHighStroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.cartesian.series.RangeArea;
         selectLabels(): anychart.core.ui.LabelsFactory;
         selectLabels(value?: Object | boolean): anychart.core.SeriesBase;
         selectLowStroke(): anychart.graphics.vector.Stroke | (() => void);
         selectLowStroke(strokeFunction?: (() => void)): anychart.core.cartesian.series.RangeArea;
-        selectLowStroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.cartesian.series.RangeArea;
+        selectLowStroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.cartesian.series.RangeArea;
         selectMarkers(): anychart.core.ui.MarkersFactory;
         selectMarkers(value?: Object | boolean | string): anychart.core.cartesian.series.BaseWithMarkers;
         selectionMode(): anychart.enums.SelectionMode;
@@ -7461,13 +8199,10 @@ declare namespace anychart.core.cartesian.series {
         bounds(x?: number | string, y?: number | string, width?: number | string, height?: number | string): anychart.core.VisualBase;
         clip(): boolean | anychart.math.Rect;
         clip(value?: boolean | anychart.math.Rect): anychart.core.cartesian.series.Base;
-        color(): anychart.graphics.vector.Fill;
-        color(value: anychart.graphics.vector.Fill): anychart.core.SeriesBase;
-        color(color: string, opacity?: number): anychart.core.SeriesBase;
-        color(keys: Array<(anychart.graphics.vector.GradientKey|string)>, angle?: number, mode?: boolean | anychart.graphics.vector.Rect | Object, opacity?: number): anychart.core.SeriesBase;
-        color(keys: Array<(anychart.graphics.vector.GradientKey|string)>, cx: number, cy: number, mode?: anychart.graphics.math.Rect, opacity?: number, fx?: number, fy?: number): anychart.core.SeriesBase;
+        color(): string;
+        color(value: string): anychart.core.SeriesBase;
         data(): anychart.data.View;
-        data(value?: anychart.data.View | anychart.data.Set | Array<any> | string, csvSettings?: {[prop: string]: (string|boolean)}): anychart.core.SeriesBase;
+        data(value?: anychart.data.View | anychart.data.Set | Array<any> | string, csvSettings?: anychart.enums.TextParsingMode | anychart.data.TextParsingSettings): anychart.core.SeriesBase;
         enabled(): boolean;
         enabled(value?: boolean): anychart.core.VisualBase;
         error(): anychart.core.utils.Error;
@@ -7557,13 +8292,10 @@ declare namespace anychart.core.cartesian.series {
         bounds(x?: number | string, y?: number | string, width?: number | string, height?: number | string): anychart.core.VisualBase;
         clip(): boolean | anychart.math.Rect;
         clip(value?: boolean | anychart.math.Rect): anychart.core.cartesian.series.Base;
-        color(): anychart.graphics.vector.Fill;
-        color(value: anychart.graphics.vector.Fill): anychart.core.SeriesBase;
-        color(color: string, opacity?: number): anychart.core.SeriesBase;
-        color(keys: Array<(anychart.graphics.vector.GradientKey|string)>, angle?: number, mode?: boolean | anychart.graphics.vector.Rect | Object, opacity?: number): anychart.core.SeriesBase;
-        color(keys: Array<(anychart.graphics.vector.GradientKey|string)>, cx: number, cy: number, mode?: anychart.graphics.math.Rect, opacity?: number, fx?: number, fy?: number): anychart.core.SeriesBase;
+        color(): string;
+        color(value: string): anychart.core.SeriesBase;
         data(): anychart.data.View;
-        data(value?: anychart.data.View | anychart.data.Set | Array<any> | string, csvSettings?: {[prop: string]: (string|boolean)}): anychart.core.SeriesBase;
+        data(value?: anychart.data.View | anychart.data.Set | Array<any> | string, csvSettings?: anychart.enums.TextParsingMode | anychart.data.TextParsingSettings): anychart.core.SeriesBase;
         enabled(): boolean;
         enabled(value?: boolean): anychart.core.VisualBase;
         error(): anychart.core.utils.Error;
@@ -7584,11 +8316,13 @@ declare namespace anychart.core.cartesian.series {
         hoverMarkers(value?: Object | boolean | string): anychart.core.cartesian.series.BaseWithMarkers;
         hoverStroke(): anychart.graphics.vector.Stroke;
         hoverStroke(strokeFunction?: (() => void)): anychart.core.cartesian.series.JumpLine;
-        hoverStroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.cartesian.series.JumpLine;
+        hoverStroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.cartesian.series.JumpLine;
         id(): string | number;
         id(value?: string | number): anychart.core.SeriesBase;
         includeAllPoints(): boolean;
         includePoint(indexes: number | Array<number>): boolean;
+        isVertical(): boolean;
+        isVertical(value?: boolean): anychart.core.cartesian.series.Base;
         keepOnlyPoints(indexes: number | Array<number>): void;
         labels(): anychart.core.ui.LabelsFactory;
         labels(value?: Object | boolean): anychart.core.SeriesBase;
@@ -7615,6 +8349,8 @@ declare namespace anychart.core.cartesian.series {
         name(value?: string): anychart.core.SeriesBase;
         print(paperSizeOrOptions?: anychart.graphics.vector.PaperSize | Object, landscape?: boolean): void;
         removeAllListeners(type?: string): number;
+        rendering(): anychart.core.series.RenderingSettings;
+        rendering(value?: Object | (() => void)): anychart.core.cartesian.series.Base;
         right(): number | string;
         right(value?: number | string): anychart.core.VisualBaseWithBounds;
         select(index?: number): anychart.core.SeriesBase;
@@ -7625,14 +8361,14 @@ declare namespace anychart.core.cartesian.series {
         selectMarkers(value?: Object | boolean | string): anychart.core.cartesian.series.BaseWithMarkers;
         selectStroke(): anychart.graphics.vector.Stroke;
         selectStroke(strokeFunction?: (() => void)): anychart.core.cartesian.series.JumpLine;
-        selectStroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.cartesian.series.JumpLine;
+        selectStroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.cartesian.series.JumpLine;
         selectionMode(): anychart.enums.SelectionMode;
         selectionMode(value?: anychart.enums.SelectionMode | string): anychart.core.SeriesBase;
         seriesType(): string;
         seriesType(value?: string): anychart.core.cartesian.series.Base;
         stroke(): anychart.graphics.vector.Stroke;
         stroke(strokeFunction?: (() => void)): anychart.core.cartesian.series.JumpLine;
-        stroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.cartesian.series.JumpLine;
+        stroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.cartesian.series.JumpLine;
         tooltip(): anychart.core.ui.Tooltip;
         tooltip(value?: Object | boolean): anychart.core.SeriesBase;
         top(): number | string;
@@ -7664,15 +8400,12 @@ declare namespace anychart.core.cartesian.series {
         bounds(x?: number | string, y?: number | string, width?: number | string, height?: number | string): anychart.core.VisualBase;
         clip(): boolean | anychart.math.Rect;
         clip(value?: boolean | anychart.math.Rect): anychart.core.cartesian.series.Base;
-        color(): anychart.graphics.vector.Fill;
-        color(value: anychart.graphics.vector.Fill): anychart.core.SeriesBase;
-        color(color: string, opacity?: number): anychart.core.SeriesBase;
-        color(keys: Array<(anychart.graphics.vector.GradientKey|string)>, angle?: number, mode?: boolean | anychart.graphics.vector.Rect | Object, opacity?: number): anychart.core.SeriesBase;
-        color(keys: Array<(anychart.graphics.vector.GradientKey|string)>, cx: number, cy: number, mode?: anychart.graphics.math.Rect, opacity?: number, fx?: number, fy?: number): anychart.core.SeriesBase;
+        color(): string;
+        color(value: string): anychart.core.SeriesBase;
         connectMissingPoints(): boolean;
         connectMissingPoints(value?: boolean): anychart.core.cartesian.series.Base;
         data(): anychart.data.View;
-        data(value?: anychart.data.View | anychart.data.Set | Array<any> | string, csvSettings?: {[prop: string]: (string|boolean)}): anychart.core.SeriesBase;
+        data(value?: anychart.data.View | anychart.data.Set | Array<any> | string, csvSettings?: anychart.enums.TextParsingMode | anychart.data.TextParsingSettings): anychart.core.SeriesBase;
         enabled(): boolean;
         enabled(value?: boolean): anychart.core.VisualBase;
         error(): anychart.core.utils.Error;
@@ -7693,7 +8426,7 @@ declare namespace anychart.core.cartesian.series {
         hoverMarkers(value?: Object | boolean | string): anychart.core.cartesian.series.BaseWithMarkers;
         hoverStroke(): anychart.graphics.vector.Stroke;
         hoverStroke(strokeFunction?: (() => void)): anychart.core.cartesian.series.StepLine;
-        hoverStroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.cartesian.series.StepLine;
+        hoverStroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.cartesian.series.StepLine;
         id(): string | number;
         id(value?: string | number): anychart.core.SeriesBase;
         includeAllPoints(): boolean;
@@ -7726,6 +8459,8 @@ declare namespace anychart.core.cartesian.series {
         name(value?: string): anychart.core.SeriesBase;
         print(paperSizeOrOptions?: anychart.graphics.vector.PaperSize | Object, landscape?: boolean): void;
         removeAllListeners(type?: string): number;
+        rendering(): anychart.core.series.RenderingSettings;
+        rendering(value?: Object | (() => void)): anychart.core.cartesian.series.Base;
         right(): number | string;
         right(value?: number | string): anychart.core.VisualBaseWithBounds;
         select(index?: number): anychart.core.SeriesBase;
@@ -7736,7 +8471,7 @@ declare namespace anychart.core.cartesian.series {
         selectMarkers(value?: Object | boolean | string): anychart.core.cartesian.series.BaseWithMarkers;
         selectStroke(): anychart.graphics.vector.Stroke;
         selectStroke(strokeFunction?: (() => void)): anychart.core.cartesian.series.StepLine;
-        selectStroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.cartesian.series.StepLine;
+        selectStroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.cartesian.series.StepLine;
         selectionMode(): anychart.enums.SelectionMode;
         selectionMode(value?: anychart.enums.SelectionMode | string): anychart.core.SeriesBase;
         seriesType(): string;
@@ -7745,7 +8480,7 @@ declare namespace anychart.core.cartesian.series {
         stepDirection(value?: anychart.enums.StepDirection | string): anychart.core.cartesian.series.StepLine;
         stroke(): anychart.graphics.vector.Stroke;
         stroke(strokeFunction?: (() => void)): anychart.core.cartesian.series.StepLine;
-        stroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.cartesian.series.StepLine;
+        stroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.cartesian.series.StepLine;
         tooltip(): anychart.core.ui.Tooltip;
         tooltip(value?: Object | boolean): anychart.core.SeriesBase;
         top(): number | string;
@@ -7777,15 +8512,12 @@ declare namespace anychart.core.cartesian.series {
         bounds(x?: number | string, y?: number | string, width?: number | string, height?: number | string): anychart.core.VisualBase;
         clip(): boolean | anychart.math.Rect;
         clip(value?: boolean | anychart.math.Rect): anychart.core.cartesian.series.Base;
-        color(): anychart.graphics.vector.Fill;
-        color(value: anychart.graphics.vector.Fill): anychart.core.SeriesBase;
-        color(color: string, opacity?: number): anychart.core.SeriesBase;
-        color(keys: Array<(anychart.graphics.vector.GradientKey|string)>, angle?: number, mode?: boolean | anychart.graphics.vector.Rect | Object, opacity?: number): anychart.core.SeriesBase;
-        color(keys: Array<(anychart.graphics.vector.GradientKey|string)>, cx: number, cy: number, mode?: anychart.graphics.math.Rect, opacity?: number, fx?: number, fy?: number): anychart.core.SeriesBase;
+        color(): string;
+        color(value: string): anychart.core.SeriesBase;
         connectMissingPoints(): boolean;
         connectMissingPoints(value?: boolean): anychart.core.cartesian.series.Base;
         data(): anychart.data.View;
-        data(value?: anychart.data.View | anychart.data.Set | Array<any> | string, csvSettings?: {[prop: string]: (string|boolean)}): anychart.core.SeriesBase;
+        data(value?: anychart.data.View | anychart.data.Set | Array<any> | string, csvSettings?: anychart.enums.TextParsingMode | anychart.data.TextParsingSettings): anychart.core.SeriesBase;
         enabled(): boolean;
         enabled(value?: boolean): anychart.core.VisualBase;
         error(): anychart.core.utils.Error;
@@ -7806,7 +8538,7 @@ declare namespace anychart.core.cartesian.series {
         hoverMarkers(value?: Object | boolean | string): anychart.core.cartesian.series.BaseWithMarkers;
         hoverStroke(): anychart.graphics.vector.Stroke;
         hoverStroke(strokeFunction?: (() => void)): anychart.core.cartesian.series.Line;
-        hoverStroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.cartesian.series.Line;
+        hoverStroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.cartesian.series.Line;
         id(): string | number;
         id(value?: string | number): anychart.core.SeriesBase;
         includeAllPoints(): boolean;
@@ -7839,6 +8571,8 @@ declare namespace anychart.core.cartesian.series {
         name(value?: string): anychart.core.SeriesBase;
         print(paperSizeOrOptions?: anychart.graphics.vector.PaperSize | Object, landscape?: boolean): void;
         removeAllListeners(type?: string): number;
+        rendering(): anychart.core.series.RenderingSettings;
+        rendering(value?: Object | (() => void)): anychart.core.cartesian.series.Base;
         right(): number | string;
         right(value?: number | string): anychart.core.VisualBaseWithBounds;
         select(index?: number): anychart.core.SeriesBase;
@@ -7849,14 +8583,14 @@ declare namespace anychart.core.cartesian.series {
         selectMarkers(value?: Object | boolean | string): anychart.core.cartesian.series.BaseWithMarkers;
         selectStroke(): anychart.graphics.vector.Stroke;
         selectStroke(strokeFunction?: (() => void)): anychart.core.cartesian.series.Line;
-        selectStroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.cartesian.series.Line;
+        selectStroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.cartesian.series.Line;
         selectionMode(): anychart.enums.SelectionMode;
         selectionMode(value?: anychart.enums.SelectionMode | string): anychart.core.SeriesBase;
         seriesType(): string;
         seriesType(value?: string): anychart.core.cartesian.series.Base;
         stroke(): anychart.graphics.vector.Stroke;
         stroke(strokeFunction?: (() => void)): anychart.core.cartesian.series.Line;
-        stroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.cartesian.series.Line;
+        stroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.cartesian.series.Line;
         tooltip(): anychart.core.ui.Tooltip;
         tooltip(value?: Object | boolean): anychart.core.SeriesBase;
         top(): number | string;
@@ -7888,17 +8622,12 @@ declare namespace anychart.core.cartesian.series {
         bounds(x?: number | string, y?: number | string, width?: number | string, height?: number | string): anychart.core.VisualBase;
         clip(): boolean | anychart.math.Rect;
         clip(value?: boolean | anychart.math.Rect): anychart.core.cartesian.series.Base;
-        color(): anychart.graphics.vector.Fill;
-        color(value: anychart.graphics.vector.Fill): anychart.core.SeriesBase;
-        color(color: string, opacity?: number): anychart.core.SeriesBase;
-        color(keys: Array<(anychart.graphics.vector.GradientKey|string)>, angle?: number, mode?: boolean | anychart.graphics.vector.Rect | Object, opacity?: number): anychart.core.SeriesBase;
-        color(keys: Array<(anychart.graphics.vector.GradientKey|string)>, cx: number, cy: number, mode?: anychart.graphics.math.Rect, opacity?: number, fx?: number, fy?: number): anychart.core.SeriesBase;
+        color(): string;
+        color(value: string): anychart.core.SeriesBase;
         data(): anychart.data.View;
-        data(value?: anychart.data.View | anychart.data.Set | Array<any> | string, csvSettings?: {[prop: string]: (string|boolean)}): anychart.core.SeriesBase;
+        data(value?: anychart.data.View | anychart.data.Set | Array<any> | string, csvSettings?: anychart.enums.TextParsingMode | anychart.data.TextParsingSettings): anychart.core.SeriesBase;
         enabled(): boolean;
         enabled(value?: boolean): anychart.core.VisualBase;
-        error(): anychart.core.utils.Error;
-        error(value?: Object | boolean | string | number): anychart.core.cartesian.series.Base;
         excludePoint(indexes: number | Array<number>): boolean;
         fill(): anychart.graphics.vector.Fill;
         fill(value: anychart.graphics.vector.Fill): anychart.core.cartesian.series.RangeColumn;
@@ -7933,7 +8662,7 @@ declare namespace anychart.core.cartesian.series {
         hoverMarkers(value?: Object | boolean | string): anychart.core.cartesian.series.BaseWithMarkers;
         hoverStroke(): anychart.graphics.vector.Stroke;
         hoverStroke(strokeFunction?: (() => void)): anychart.core.cartesian.series.RangeColumn;
-        hoverStroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.cartesian.series.RangeColumn;
+        hoverStroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.cartesian.series.RangeColumn;
         id(): string | number;
         id(value?: string | number): anychart.core.SeriesBase;
         includeAllPoints(): boolean;
@@ -7968,6 +8697,8 @@ declare namespace anychart.core.cartesian.series {
         pointWidth(value?: number | string): anychart.core.cartesian.series.WidthBased;
         print(paperSizeOrOptions?: anychart.graphics.vector.PaperSize | Object, landscape?: boolean): void;
         removeAllListeners(type?: string): number;
+        rendering(): anychart.core.series.RenderingSettings;
+        rendering(value?: Object | (() => void)): anychart.core.cartesian.series.Base;
         right(): number | string;
         right(value?: number | string): anychart.core.VisualBaseWithBounds;
         select(index?: number): anychart.core.SeriesBase;
@@ -7987,14 +8718,14 @@ declare namespace anychart.core.cartesian.series {
         selectMarkers(value?: Object | boolean | string): anychart.core.cartesian.series.BaseWithMarkers;
         selectStroke(): anychart.graphics.vector.Stroke;
         selectStroke(strokeFunction?: (() => void)): anychart.core.cartesian.series.RangeColumn;
-        selectStroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.cartesian.series.RangeColumn;
+        selectStroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.cartesian.series.RangeColumn;
         selectionMode(): anychart.enums.SelectionMode;
         selectionMode(value?: anychart.enums.SelectionMode | string): anychart.core.SeriesBase;
         seriesType(): string;
         seriesType(value?: string): anychart.core.cartesian.series.Base;
         stroke(): anychart.graphics.vector.Stroke;
         stroke(strokeFunction?: (() => void)): anychart.core.cartesian.series.RangeColumn;
-        stroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.cartesian.series.RangeColumn;
+        stroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.cartesian.series.RangeColumn;
         tooltip(): anychart.core.ui.Tooltip;
         tooltip(value?: Object | boolean): anychart.core.SeriesBase;
         top(): number | string;
@@ -8026,19 +8757,14 @@ declare namespace anychart.core.cartesian.series {
         bounds(x?: number | string, y?: number | string, width?: number | string, height?: number | string): anychart.core.VisualBase;
         clip(): boolean | anychart.math.Rect;
         clip(value?: boolean | anychart.math.Rect): anychart.core.cartesian.series.Base;
-        color(): anychart.graphics.vector.Fill;
-        color(value: anychart.graphics.vector.Fill): anychart.core.SeriesBase;
-        color(color: string, opacity?: number): anychart.core.SeriesBase;
-        color(keys: Array<(anychart.graphics.vector.GradientKey|string)>, angle?: number, mode?: boolean | anychart.graphics.vector.Rect | Object, opacity?: number): anychart.core.SeriesBase;
-        color(keys: Array<(anychart.graphics.vector.GradientKey|string)>, cx: number, cy: number, mode?: anychart.graphics.math.Rect, opacity?: number, fx?: number, fy?: number): anychart.core.SeriesBase;
+        color(): string;
+        color(value: string): anychart.core.SeriesBase;
         connectMissingPoints(): boolean;
         connectMissingPoints(value?: boolean): anychart.core.cartesian.series.Base;
         data(): anychart.data.View;
-        data(value?: anychart.data.View | anychart.data.Set | Array<any> | string, csvSettings?: {[prop: string]: (string|boolean)}): anychart.core.SeriesBase;
+        data(value?: anychart.data.View | anychart.data.Set | Array<any> | string, csvSettings?: anychart.enums.TextParsingMode | anychart.data.TextParsingSettings): anychart.core.SeriesBase;
         enabled(): boolean;
         enabled(value?: boolean): anychart.core.VisualBase;
-        error(): anychart.core.utils.Error;
-        error(value?: Object | boolean | string | number): anychart.core.cartesian.series.Base;
         excludePoint(indexes: number | Array<number>): boolean;
         fill(): anychart.graphics.vector.Fill;
         fill(value: anychart.graphics.vector.Fill): anychart.core.cartesian.series.RangeSplineArea;
@@ -8056,8 +8782,8 @@ declare namespace anychart.core.cartesian.series {
         height(): number | string;
         height(value?: number | string): anychart.core.VisualBaseWithBounds;
         highStroke(): anychart.graphics.vector.Stroke | (() => void);
-        highStroke(fillFunction?: (() => void)): anychart.core.cartesian.series.RangeSplineArea;
-        highStroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.cartesian.series.RangeSplineArea;
+        highStroke(strokeFunction?: (() => void)): anychart.core.cartesian.series.RangeSplineArea;
+        highStroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string, thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.cartesian.series.RangeSplineArea;
         hover(): anychart.core.SeriesBase;
         hover(index?: number): anychart.core.SeriesBase;
         hover(indexes?: Array<number>): anychart.core.SeriesBase;
@@ -8072,12 +8798,12 @@ declare namespace anychart.core.cartesian.series {
         hoverHatchFill(patternFillOrType?: anychart.graphics.vector.PatternFill | anychart.graphics.vector.HatchFill | (() => void) | anychart.graphics.vector.HatchFill.HatchFillType | string, color?: string, thickness?: number, size?: number): anychart.core.cartesian.series.RangeSplineArea;
         hoverHighStroke(): anychart.graphics.vector.Stroke | (() => void);
         hoverHighStroke(strokeFunction?: (() => void)): anychart.core.cartesian.series.RangeSplineArea;
-        hoverHighStroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.cartesian.series.RangeSplineArea;
+        hoverHighStroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string, thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.cartesian.series.RangeSplineArea;
         hoverLabels(): anychart.core.ui.LabelsFactory;
         hoverLabels(value?: Object | boolean): anychart.core.SeriesBase;
         hoverLowStroke(): anychart.graphics.vector.Stroke | (() => void);
         hoverLowStroke(strokeFunction?: (() => void)): anychart.core.cartesian.series.RangeSplineArea;
-        hoverLowStroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.cartesian.series.RangeSplineArea;
+        hoverLowStroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string, thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.cartesian.series.RangeSplineArea;
         hoverMarkers(): anychart.core.ui.MarkersFactory;
         hoverMarkers(value?: Object | boolean | string): anychart.core.cartesian.series.BaseWithMarkers;
         id(): string | number;
@@ -8097,7 +8823,7 @@ declare namespace anychart.core.cartesian.series {
         listenOnce(type: string, listener: (() => void), useCapture?: boolean, listenerScope?: Object): Object;
         lowStroke(): anychart.graphics.vector.Stroke | (() => void);
         lowStroke(strokeFunction?: (() => void)): anychart.core.cartesian.series.RangeSplineArea;
-        lowStroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.cartesian.series.RangeSplineArea;
+        lowStroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string, thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.cartesian.series.RangeSplineArea;
         markers(): anychart.core.ui.MarkersFactory;
         markers(value?: Object | boolean | string): anychart.core.cartesian.series.BaseWithMarkers;
         maxHeight(): number | string;
@@ -8115,6 +8841,8 @@ declare namespace anychart.core.cartesian.series {
         name(value?: string): anychart.core.SeriesBase;
         print(paperSizeOrOptions?: anychart.graphics.vector.PaperSize | Object, landscape?: boolean): void;
         removeAllListeners(type?: string): number;
+        rendering(): anychart.core.series.RenderingSettings;
+        rendering(value?: Object | (() => void)): anychart.core.cartesian.series.Base;
         right(): number | string;
         right(value?: number | string): anychart.core.VisualBaseWithBounds;
         select(index?: number): anychart.core.SeriesBase;
@@ -8129,13 +8857,13 @@ declare namespace anychart.core.cartesian.series {
         selectHatchFill(): anychart.graphics.vector.PatternFill | anychart.graphics.vector.HatchFill | (() => void);
         selectHatchFill(patternFillOrType?: anychart.graphics.vector.PatternFill | anychart.graphics.vector.HatchFill | (() => void) | anychart.graphics.vector.HatchFill.HatchFillType | string, color?: string, thickness?: number, size?: number): anychart.core.cartesian.series.RangeSplineArea;
         selectHighStroke(): anychart.graphics.vector.Stroke | (() => void);
-        selectHighStroke(fillFunction?: (() => void)): anychart.core.cartesian.series.RangeSplineArea;
-        selectHighStroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.cartesian.series.RangeSplineArea;
+        selectHighStroke(strokeFunction?: (() => void)): anychart.core.cartesian.series.RangeSplineArea;
+        selectHighStroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string, thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.cartesian.series.RangeSplineArea;
         selectLabels(): anychart.core.ui.LabelsFactory;
         selectLabels(value?: Object | boolean): anychart.core.SeriesBase;
         selectLowStroke(): anychart.graphics.vector.Stroke | (() => void);
         selectLowStroke(strokeFunction?: (() => void)): anychart.core.cartesian.series.RangeSplineArea;
-        selectLowStroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.cartesian.series.RangeSplineArea;
+        selectLowStroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string, thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.cartesian.series.RangeSplineArea;
         selectMarkers(): anychart.core.ui.MarkersFactory;
         selectMarkers(value?: Object | boolean | string): anychart.core.cartesian.series.BaseWithMarkers;
         selectionMode(): anychart.enums.SelectionMode;
@@ -8173,13 +8901,10 @@ declare namespace anychart.core.cartesian.series {
         bounds(x?: number | string, y?: number | string, width?: number | string, height?: number | string): anychart.core.VisualBase;
         clip(): boolean | anychart.math.Rect;
         clip(value?: boolean | anychart.math.Rect): anychart.core.cartesian.series.Base;
-        color(): anychart.graphics.vector.Fill;
-        color(value: anychart.graphics.vector.Fill): anychart.core.SeriesBase;
-        color(color: string, opacity?: number): anychart.core.SeriesBase;
-        color(keys: Array<(anychart.graphics.vector.GradientKey|string)>, angle?: number, mode?: boolean | anychart.graphics.vector.Rect | Object, opacity?: number): anychart.core.SeriesBase;
-        color(keys: Array<(anychart.graphics.vector.GradientKey|string)>, cx: number, cy: number, mode?: anychart.graphics.math.Rect, opacity?: number, fx?: number, fy?: number): anychart.core.SeriesBase;
+        color(): string;
+        color(value: string): anychart.core.SeriesBase;
         data(): anychart.data.View;
-        data(value?: anychart.data.View | anychart.data.Set | Array<any> | string, csvSettings?: {[prop: string]: (string|boolean)}): anychart.core.SeriesBase;
+        data(value?: anychart.data.View | anychart.data.Set | Array<any> | string, csvSettings?: anychart.enums.TextParsingMode | anychart.data.TextParsingSettings): anychart.core.SeriesBase;
         enabled(): boolean;
         enabled(value?: boolean): anychart.core.VisualBase;
         error(): anychart.core.utils.Error;
@@ -8218,7 +8943,7 @@ declare namespace anychart.core.cartesian.series {
         hoverSize(value?: number): anychart.core.cartesian.series.Marker;
         hoverStroke(): anychart.graphics.vector.Stroke;
         hoverStroke(strokeFunction?: (() => void)): anychart.core.cartesian.series.Marker;
-        hoverStroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.cartesian.series.Marker;
+        hoverStroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.cartesian.series.Marker;
         hoverType(): string | anychart.enums.MarkerType | (() => void);
         hoverType(value?: string | anychart.enums.MarkerType | (() => void)): anychart.core.cartesian.series.Marker;
         id(): string | number;
@@ -8251,6 +8976,8 @@ declare namespace anychart.core.cartesian.series {
         name(value?: string): anychart.core.SeriesBase;
         print(paperSizeOrOptions?: anychart.graphics.vector.PaperSize | Object, landscape?: boolean): void;
         removeAllListeners(type?: string): number;
+        rendering(): anychart.core.series.RenderingSettings;
+        rendering(value?: Object | (() => void)): anychart.core.cartesian.series.Base;
         right(): number | string;
         right(value?: number | string): anychart.core.VisualBaseWithBounds;
         select(index?: number): anychart.core.SeriesBase;
@@ -8268,7 +8995,7 @@ declare namespace anychart.core.cartesian.series {
         selectLabels(value?: Object | boolean): anychart.core.SeriesBase;
         selectStroke(): anychart.graphics.vector.Stroke;
         selectStroke(strokeFunction?: (() => void)): anychart.core.cartesian.series.Marker;
-        selectStroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.cartesian.series.Marker;
+        selectStroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.cartesian.series.Marker;
         selectType(): string | anychart.enums.MarkerType | (() => void);
         selectType(value?: string | anychart.enums.MarkerType | (() => void)): anychart.core.cartesian.series.Marker;
         selectionMode(): anychart.enums.SelectionMode;
@@ -8279,7 +9006,7 @@ declare namespace anychart.core.cartesian.series {
         size(value?: number): anychart.core.cartesian.series.Marker;
         stroke(): anychart.graphics.vector.Stroke;
         stroke(strokeFunction?: (() => void)): anychart.core.cartesian.series.Marker;
-        stroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.cartesian.series.Marker;
+        stroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.cartesian.series.Marker;
         tooltip(): anychart.core.ui.Tooltip;
         tooltip(value?: Object | boolean): anychart.core.SeriesBase;
         top(): number | string;
@@ -8313,17 +9040,12 @@ declare namespace anychart.core.cartesian.series {
         bounds(x?: number | string, y?: number | string, width?: number | string, height?: number | string): anychart.core.VisualBase;
         clip(): boolean | anychart.math.Rect;
         clip(value?: boolean | anychart.math.Rect): anychart.core.cartesian.series.Base;
-        color(): anychart.graphics.vector.Fill;
-        color(value: anychart.graphics.vector.Fill): anychart.core.SeriesBase;
-        color(color: string, opacity?: number): anychart.core.SeriesBase;
-        color(keys: Array<(anychart.graphics.vector.GradientKey|string)>, angle?: number, mode?: boolean | anychart.graphics.vector.Rect | Object, opacity?: number): anychart.core.SeriesBase;
-        color(keys: Array<(anychart.graphics.vector.GradientKey|string)>, cx: number, cy: number, mode?: anychart.graphics.math.Rect, opacity?: number, fx?: number, fy?: number): anychart.core.SeriesBase;
+        color(): string;
+        color(value: string): anychart.core.SeriesBase;
         data(): anychart.data.View;
-        data(value?: anychart.data.View | anychart.data.Set | Array<any> | string, csvSettings?: {[prop: string]: (string|boolean)}): anychart.core.SeriesBase;
+        data(value?: anychart.data.View | anychart.data.Set | Array<any> | string, csvSettings?: anychart.enums.TextParsingMode | anychart.data.TextParsingSettings): anychart.core.SeriesBase;
         enabled(): boolean;
         enabled(value?: boolean): anychart.core.VisualBase;
-        error(): anychart.core.utils.Error;
-        error(value?: Object | boolean | string | number): anychart.core.cartesian.series.Base;
         excludePoint(indexes: number | Array<number>): boolean;
         getExcludedPoints(): Array<anychart.core.Point>;
         getPixelBounds(): anychart.math.Rect;
@@ -8372,6 +9094,8 @@ declare namespace anychart.core.cartesian.series {
         pointWidth(value?: number | string): anychart.core.cartesian.series.WidthBased;
         print(paperSizeOrOptions?: anychart.graphics.vector.PaperSize | Object, landscape?: boolean): void;
         removeAllListeners(type?: string): number;
+        rendering(): anychart.core.series.RenderingSettings;
+        rendering(value?: Object | (() => void)): anychart.core.cartesian.series.Base;
         right(): number | string;
         right(value?: number | string): anychart.core.VisualBaseWithBounds;
         select(index?: number): anychart.core.SeriesBase;
@@ -8495,7 +9219,7 @@ declare namespace anychart.core.gauge {
         radius(value?: number | string): anychart.core.gauge.Cap;
         removeAllListeners(type?: string): number;
         stroke(): anychart.graphics.vector.Stroke;
-        stroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string, thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.gauge.Cap;
+        stroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string, thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.gauge.Cap;
         unlisten(type: string, listener: (() => void), useCapture?: boolean, listenerScope?: Object): boolean;
         unlistenByKey(key: Object): boolean;
         zIndex(): number;
@@ -8537,7 +9261,7 @@ declare namespace anychart.core.gauge.pointers {
         startWidth(value?: number | string): anychart.core.gauge.pointers.Needle;
         stroke(): anychart.graphics.vector.Stroke | (() => void);
         stroke(strokeFunction?: (() => void)): anychart.core.gauge.pointers.Base;
-        stroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string, thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.gauge.pointers.Base;
+        stroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string, thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.gauge.pointers.Base;
         unlisten(type: string, listener: (() => void), useCapture?: boolean, listenerScope?: Object): boolean;
         unlistenByKey(key: Object): boolean;
         zIndex(): number;
@@ -8564,7 +9288,7 @@ declare namespace anychart.core.gauge.pointers {
         removeAllListeners(type?: string): number;
         stroke(): anychart.graphics.vector.Stroke | (() => void);
         stroke(strokeFunction?: (() => void)): anychart.core.gauge.pointers.Base;
-        stroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string, thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.gauge.pointers.Base;
+        stroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string, thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.gauge.pointers.Base;
         unlisten(type: string, listener: (() => void), useCapture?: boolean, listenerScope?: Object): boolean;
         unlistenByKey(key: Object): boolean;
         zIndex(): number;
@@ -8595,7 +9319,7 @@ declare namespace anychart.core.gauge.pointers {
         removeAllListeners(type?: string): number;
         stroke(): anychart.graphics.vector.Stroke | (() => void);
         stroke(strokeFunction?: (() => void)): anychart.core.gauge.pointers.Base;
-        stroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string, thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.gauge.pointers.Base;
+        stroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string, thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.gauge.pointers.Base;
         unlisten(type: string, listener: (() => void), useCapture?: boolean, listenerScope?: Object): boolean;
         unlistenByKey(key: Object): boolean;
         width(): string;
@@ -8628,7 +9352,7 @@ declare namespace anychart.core.gauge.pointers {
         removeAllListeners(type?: string): number;
         stroke(): anychart.graphics.vector.Stroke | (() => void);
         stroke(strokeFunction?: (() => void)): anychart.core.gauge.pointers.Base;
-        stroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string, thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.gauge.pointers.Base;
+        stroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string, thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.gauge.pointers.Base;
         topRadius(): string;
         topRadius(value?: number | string): anychart.core.gauge.pointers.Knob;
         topRatio(): number;
@@ -8669,7 +9393,7 @@ declare namespace anychart.core.gauge.pointers {
         size(value?: number | string): anychart.core.gauge.pointers.Marker;
         stroke(): anychart.graphics.vector.Stroke | (() => void);
         stroke(strokeFunction?: (() => void)): anychart.core.gauge.pointers.Base;
-        stroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string, thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.gauge.pointers.Base;
+        stroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string, thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.gauge.pointers.Base;
         type(): anychart.enums.MarkerType | (() => void);
         type(value?: anychart.enums.MarkerType | (() => void) | string): anychart.core.gauge.pointers.Marker;
         unlisten(type: string, listener: (() => void), useCapture?: boolean, listenerScope?: Object): boolean;
@@ -8696,7 +9420,7 @@ declare namespace anychart.core.grids {
         isMinor(): boolean;
         isMinor(value?: boolean): anychart.core.grids.Polar;
         isRadial(): boolean;
-        layout(): anychart.enums.RadialGridLayout;
+        layout(): anychart.enums.RadialGridLayout | string;
         layout(value?: anychart.enums.RadialGridLayout | string): anychart.core.grids.Polar;
         listen(type: string, listener: (() => void), useCapture?: boolean, listenerScope?: Object): Object;
         listenOnce(type: string, listener: (() => void), useCapture?: boolean, listenerScope?: Object): Object;
@@ -8735,7 +9459,7 @@ declare namespace anychart.core.grids {
         isHorizontal(): boolean;
         isMinor(): boolean;
         isMinor(value?: boolean): anychart.core.grids.Linear;
-        layout(): anychart.enums.Layout;
+        layout(): anychart.enums.Layout | string;
         layout(value?: anychart.enums.Layout | string): anychart.core.grids.Linear;
         listen(type: string, listener: (() => void), useCapture?: boolean, listenerScope?: Object): Object;
         listenOnce(type: string, listener: (() => void), useCapture?: boolean, listenerScope?: Object): Object;
@@ -8771,16 +9495,21 @@ declare namespace anychart.core.grids {
         evenFill(imageSettings: anychart.graphics.vector.Fill): anychart.core.grids.MapSettings;
         horizontal(): anychart.core.grids.Map;
         horizontal(value?: boolean | Object): anychart.core.grids.MapSettings;
+        listen(type: string, listener: (() => void), useCapture?: boolean, listenerScope?: Object): Object;
+        listenOnce(type: string, listener: (() => void), useCapture?: boolean, listenerScope?: Object): Object;
         minorStroke(): string | anychart.graphics.vector.Stroke;
-        minorStroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string, thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.grids.MapSettings;
+        minorStroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string, thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.grids.MapSettings;
         oddFill(): string | anychart.graphics.vector.Fill;
         oddFill(value?: anychart.graphics.vector.Fill): anychart.core.grids.MapSettings;
         oddFill(color: string, opacity?: number): anychart.core.grids.MapSettings;
         oddFill(keys: Array<(anychart.graphics.vector.GradientKey|string)>, angle?: number, mode?: boolean | anychart.graphics.vector.Rect | Object, opacity?: number): anychart.core.grids.MapSettings;
         oddFill(keys: Array<(anychart.graphics.vector.GradientKey|string)>, cx: number, cy: number, mode?: anychart.graphics.math.Rect, opacity?: number, fx?: number, fy?: number): anychart.core.grids.MapSettings;
         oddFill(imageSettings: anychart.graphics.vector.Fill): anychart.core.grids.MapSettings;
+        removeAllListeners(type?: string): number;
         stroke(): string | anychart.graphics.vector.Stroke;
-        stroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string, thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.grids.MapSettings;
+        stroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string, thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.grids.MapSettings;
+        unlisten(type: string, listener: (() => void), useCapture?: boolean, listenerScope?: Object): boolean;
+        unlistenByKey(key: Object): boolean;
         vertical(): anychart.core.grids.Map;
         vertical(value?: boolean | Object): anychart.core.grids.MapSettings;
         zIndex(): number | anychart.enums.MapGridZIndex;
@@ -8819,7 +9548,7 @@ declare namespace anychart.core.grids {
         scale(): anychart.scales.Base | anychart.scales.StockScatterDateTime;
         scale(value?: anychart.scales.Base | anychart.scales.StockScatterDateTime): anychart.core.grids.Stock;
         stroke(): anychart.graphics.vector.Stroke;
-        stroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string, thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.grids.Stock;
+        stroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string, thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.grids.Stock;
         unlisten(type: string, listener: (() => void), useCapture?: boolean, listenerScope?: Object): boolean;
         unlistenByKey(key: Object): boolean;
         zIndex(): number;
@@ -8841,7 +9570,7 @@ declare namespace anychart.core.grids {
         isMinor(): boolean;
         isMinor(value?: boolean): anychart.core.grids.Radar;
         isRadial(): boolean;
-        layout(): anychart.enums.RadialGridLayout;
+        layout(): anychart.enums.RadialGridLayout | string;
         layout(value?: anychart.enums.RadialGridLayout | string): anychart.core.grids.Radar;
         listen(type: string, listener: (() => void), useCapture?: boolean, listenerScope?: Object): Object;
         listenOnce(type: string, listener: (() => void), useCapture?: boolean, listenerScope?: Object): Object;
@@ -8854,11 +9583,9 @@ declare namespace anychart.core.grids {
         print(paperSizeOrOptions?: anychart.graphics.vector.PaperSize | Object, landscape?: boolean): void;
         removeAllListeners(type?: string): number;
         stroke(): string | anychart.graphics.vector.Stroke;
-        stroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string, thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.grids.Radar;
+        stroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string, thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.grids.Radar;
         unlisten(type: string, listener: (() => void), useCapture?: boolean, listenerScope?: Object): boolean;
         unlistenByKey(key: Object): boolean;
-        xScale(): anychart.scales.Ordinal;
-        yScale(): anychart.scales.Base;
         zIndex(): number;
         zIndex(value?: number): anychart.core.VisualBase;
     }
@@ -8878,7 +9605,7 @@ declare namespace anychart.core.grids {
         listen(type: string, listener: (() => void), useCapture?: boolean, listenerScope?: Object): Object;
         listenOnce(type: string, listener: (() => void), useCapture?: boolean, listenerScope?: Object): Object;
         minorStroke(): string | anychart.graphics.vector.Stroke;
-        minorStroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string, thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.grids.Map;
+        minorStroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string, thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.grids.Map;
         oddFill(): string | anychart.graphics.vector.Fill;
         oddFill(value?: anychart.graphics.vector.Fill): anychart.core.grids.Map;
         oddFill(color: string, opacity?: number): anychart.core.grids.Map;
@@ -8888,7 +9615,7 @@ declare namespace anychart.core.grids {
         print(paperSizeOrOptions?: anychart.graphics.vector.PaperSize | Object, landscape?: boolean): void;
         removeAllListeners(type?: string): number;
         stroke(): string | anychart.graphics.vector.Stroke;
-        stroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string, thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.grids.Map;
+        stroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string, thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.grids.Map;
         unlisten(type: string, listener: (() => void), useCapture?: boolean, listenerScope?: Object): boolean;
         unlistenByKey(key: Object): boolean;
         zIndex(): number | anychart.enums.MapGridZIndex;
@@ -8915,7 +9642,7 @@ declare namespace anychart.core.linearGauge {
         scale(): anychart.scales.Base;
         scale(value?: anychart.scales.Base): anychart.scales.Base;
         stroke(): anychart.graphics.vector.Stroke;
-        stroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.linearGauge.ScaleBar;
+        stroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.linearGauge.ScaleBar;
         to(): string | number;
         to(value?: string | number): anychart.core.linearGauge.ScaleBar;
         width(): string;
@@ -8932,11 +9659,8 @@ declare namespace anychart.core.linearGauge {
 
 declare namespace anychart.core.linearGauge.pointers {
     interface Tank extends anychart.core.linearGauge.pointers.Base {
-        color(): anychart.graphics.vector.Fill;
-        color(value: anychart.graphics.vector.Fill): anychart.core.linearGauge.pointers.Base;
-        color(color: string, opacity?: number): anychart.core.linearGauge.pointers.Base;
-        color(keys: Array<(anychart.graphics.vector.GradientKey|string)>, angle?: number, mode?: boolean | anychart.graphics.vector.Rect | Object, opacity?: number): anychart.core.linearGauge.pointers.Base;
-        color(keys: Array<(anychart.graphics.vector.GradientKey|string)>, cx: number, cy: number, mode?: anychart.graphics.math.Rect, opacity?: number, fx?: number, fy?: number): anychart.core.linearGauge.pointers.Base;
+        color(): string;
+        color(value: string): anychart.core.linearGauge.pointers.Base;
         dataIndex(): number;
         dataIndex(index?: number): anychart.core.linearGauge.pointers.Base;
         emptyFill(): anychart.graphics.vector.Fill | (() => void);
@@ -8975,7 +9699,7 @@ declare namespace anychart.core.linearGauge.pointers {
         hoverLabel(value?: anychart.core.ui.LabelsFactory | Object | boolean): anychart.core.linearGauge.pointers.Base;
         hoverStroke(): anychart.graphics.vector.Stroke | (() => void);
         hoverStroke(value?: anychart.graphics.vector.Stroke | (() => void)): anychart.core.linearGauge.pointers.Base;
-        hoverStroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.linearGauge.pointers.Base;
+        hoverStroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string, thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.linearGauge.pointers.Base;
         label(): anychart.core.ui.LabelsFactory;
         label(value?: anychart.core.ui.LabelsFactory | Object | boolean): anychart.core.linearGauge.pointers.Base;
         legendItem(): anychart.core.utils.LegendItemSettings;
@@ -9008,11 +9732,11 @@ declare namespace anychart.core.linearGauge.pointers {
         selectLabel(): anychart.core.ui.LabelsFactory;
         selectLabel(value?: anychart.core.ui.LabelsFactory | Object): anychart.core.linearGauge.pointers.Base;
         selectStroke(): anychart.graphics.vector.Stroke | (() => void);
-        selectStroke(value?: anychart.graphics.vector.Stroke | (() => void)): anychart.core.linearGauge.pointers.Base;
-        selectStroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.linearGauge.pointers.Base;
+        selectStroke(value?: (() => void)): anychart.core.linearGauge.pointers.Base;
+        selectStroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.linearGauge.pointers.Base;
         stroke(): anychart.graphics.vector.Stroke | (() => void);
         stroke(value?: anychart.graphics.vector.Stroke | (() => void)): anychart.core.linearGauge.pointers.Base;
-        stroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.linearGauge.pointers.Base;
+        stroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.linearGauge.pointers.Base;
         unhover(): anychart.core.linearGauge.pointers.Base;
         unlisten(type: string, listener: (() => void), useCapture?: boolean, listenerScope?: Object): boolean;
         unlistenByKey(key: Object): boolean;
@@ -9023,11 +9747,8 @@ declare namespace anychart.core.linearGauge.pointers {
         zIndex(value?: number): anychart.core.VisualBase;
     }
     interface Base extends anychart.core.VisualBase {
-        color(): anychart.graphics.vector.Fill;
-        color(value: anychart.graphics.vector.Fill): anychart.core.linearGauge.pointers.Base;
-        color(color: string, opacity?: number): anychart.core.linearGauge.pointers.Base;
-        color(keys: Array<(anychart.graphics.vector.GradientKey|string)>, angle?: number, mode?: boolean | anychart.graphics.vector.Rect | Object, opacity?: number): anychart.core.linearGauge.pointers.Base;
-        color(keys: Array<(anychart.graphics.vector.GradientKey|string)>, cx: number, cy: number, mode?: anychart.graphics.math.Rect, opacity?: number, fx?: number, fy?: number): anychart.core.linearGauge.pointers.Base;
+        color(): string;
+        color(value: string): anychart.core.linearGauge.pointers.Base;
         dataIndex(): number;
         dataIndex(index?: number): anychart.core.linearGauge.pointers.Base;
         fill(): anychart.graphics.vector.Fill | (() => void);
@@ -9052,7 +9773,7 @@ declare namespace anychart.core.linearGauge.pointers {
         hoverLabel(value?: anychart.core.ui.LabelsFactory | Object | boolean): anychart.core.linearGauge.pointers.Base;
         hoverStroke(): anychart.graphics.vector.Stroke | (() => void);
         hoverStroke(value?: anychart.graphics.vector.Stroke | (() => void)): anychart.core.linearGauge.pointers.Base;
-        hoverStroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.linearGauge.pointers.Base;
+        hoverStroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string, thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.linearGauge.pointers.Base;
         label(): anychart.core.ui.LabelsFactory;
         label(value?: anychart.core.ui.LabelsFactory | Object | boolean): anychart.core.linearGauge.pointers.Base;
         legendItem(): anychart.core.utils.LegendItemSettings;
@@ -9075,22 +9796,19 @@ declare namespace anychart.core.linearGauge.pointers {
         selectLabel(): anychart.core.ui.LabelsFactory;
         selectLabel(value?: anychart.core.ui.LabelsFactory | Object): anychart.core.linearGauge.pointers.Base;
         selectStroke(): anychart.graphics.vector.Stroke | (() => void);
-        selectStroke(value?: anychart.graphics.vector.Stroke | (() => void)): anychart.core.linearGauge.pointers.Base;
-        selectStroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.linearGauge.pointers.Base;
+        selectStroke(value?: (() => void)): anychart.core.linearGauge.pointers.Base;
+        selectStroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.linearGauge.pointers.Base;
         stroke(): anychart.graphics.vector.Stroke | (() => void);
         stroke(value?: anychart.graphics.vector.Stroke | (() => void)): anychart.core.linearGauge.pointers.Base;
-        stroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.linearGauge.pointers.Base;
+        stroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.linearGauge.pointers.Base;
         unhover(): anychart.core.linearGauge.pointers.Base;
         unselect(): anychart.core.linearGauge.pointers.Base;
         width(): string;
         width(value?: string): anychart.core.linearGauge.pointers.Base;
     }
     interface RangeBar extends anychart.core.linearGauge.pointers.Bar {
-        color(): anychart.graphics.vector.Fill;
-        color(value: anychart.graphics.vector.Fill): anychart.core.linearGauge.pointers.Base;
-        color(color: string, opacity?: number): anychart.core.linearGauge.pointers.Base;
-        color(keys: Array<(anychart.graphics.vector.GradientKey|string)>, angle?: number, mode?: boolean | anychart.graphics.vector.Rect | Object, opacity?: number): anychart.core.linearGauge.pointers.Base;
-        color(keys: Array<(anychart.graphics.vector.GradientKey|string)>, cx: number, cy: number, mode?: anychart.graphics.math.Rect, opacity?: number, fx?: number, fy?: number): anychart.core.linearGauge.pointers.Base;
+        color(): string;
+        color(value: string): anychart.core.linearGauge.pointers.Base;
         dataIndex(): number;
         dataIndex(index?: number): anychart.core.linearGauge.pointers.Base;
         enabled(): boolean;
@@ -9117,7 +9835,7 @@ declare namespace anychart.core.linearGauge.pointers {
         hoverLabel(value?: anychart.core.ui.LabelsFactory | Object | boolean): anychart.core.linearGauge.pointers.Base;
         hoverStroke(): anychart.graphics.vector.Stroke | (() => void);
         hoverStroke(value?: anychart.graphics.vector.Stroke | (() => void)): anychart.core.linearGauge.pointers.Base;
-        hoverStroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.linearGauge.pointers.Base;
+        hoverStroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string, thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.linearGauge.pointers.Base;
         label(): anychart.core.ui.LabelsFactory;
         label(value?: anychart.core.ui.LabelsFactory | Object | boolean): anychart.core.linearGauge.pointers.Base;
         legendItem(): anychart.core.utils.LegendItemSettings;
@@ -9144,11 +9862,11 @@ declare namespace anychart.core.linearGauge.pointers {
         selectLabel(): anychart.core.ui.LabelsFactory;
         selectLabel(value?: anychart.core.ui.LabelsFactory | Object): anychart.core.linearGauge.pointers.Base;
         selectStroke(): anychart.graphics.vector.Stroke | (() => void);
-        selectStroke(value?: anychart.graphics.vector.Stroke | (() => void)): anychart.core.linearGauge.pointers.Base;
-        selectStroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.linearGauge.pointers.Base;
+        selectStroke(value?: (() => void)): anychart.core.linearGauge.pointers.Base;
+        selectStroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.linearGauge.pointers.Base;
         stroke(): anychart.graphics.vector.Stroke | (() => void);
         stroke(value?: anychart.graphics.vector.Stroke | (() => void)): anychart.core.linearGauge.pointers.Base;
-        stroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.linearGauge.pointers.Base;
+        stroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.linearGauge.pointers.Base;
         unhover(): anychart.core.linearGauge.pointers.Base;
         unlisten(type: string, listener: (() => void), useCapture?: boolean, listenerScope?: Object): boolean;
         unlistenByKey(key: Object): boolean;
@@ -9159,11 +9877,8 @@ declare namespace anychart.core.linearGauge.pointers {
         zIndex(value?: number): anychart.core.VisualBase;
     }
     interface Bar extends anychart.core.linearGauge.pointers.Base {
-        color(): anychart.graphics.vector.Fill;
-        color(value: anychart.graphics.vector.Fill): anychart.core.linearGauge.pointers.Base;
-        color(color: string, opacity?: number): anychart.core.linearGauge.pointers.Base;
-        color(keys: Array<(anychart.graphics.vector.GradientKey|string)>, angle?: number, mode?: boolean | anychart.graphics.vector.Rect | Object, opacity?: number): anychart.core.linearGauge.pointers.Base;
-        color(keys: Array<(anychart.graphics.vector.GradientKey|string)>, cx: number, cy: number, mode?: anychart.graphics.math.Rect, opacity?: number, fx?: number, fy?: number): anychart.core.linearGauge.pointers.Base;
+        color(): string;
+        color(value: string): anychart.core.linearGauge.pointers.Base;
         dataIndex(): number;
         dataIndex(index?: number): anychart.core.linearGauge.pointers.Base;
         enabled(): boolean;
@@ -9190,7 +9905,7 @@ declare namespace anychart.core.linearGauge.pointers {
         hoverLabel(value?: anychart.core.ui.LabelsFactory | Object | boolean): anychart.core.linearGauge.pointers.Base;
         hoverStroke(): anychart.graphics.vector.Stroke | (() => void);
         hoverStroke(value?: anychart.graphics.vector.Stroke | (() => void)): anychart.core.linearGauge.pointers.Base;
-        hoverStroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.linearGauge.pointers.Base;
+        hoverStroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string, thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.linearGauge.pointers.Base;
         label(): anychart.core.ui.LabelsFactory;
         label(value?: anychart.core.ui.LabelsFactory | Object | boolean): anychart.core.linearGauge.pointers.Base;
         legendItem(): anychart.core.utils.LegendItemSettings;
@@ -9217,11 +9932,11 @@ declare namespace anychart.core.linearGauge.pointers {
         selectLabel(): anychart.core.ui.LabelsFactory;
         selectLabel(value?: anychart.core.ui.LabelsFactory | Object): anychart.core.linearGauge.pointers.Base;
         selectStroke(): anychart.graphics.vector.Stroke | (() => void);
-        selectStroke(value?: anychart.graphics.vector.Stroke | (() => void)): anychart.core.linearGauge.pointers.Base;
-        selectStroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.linearGauge.pointers.Base;
+        selectStroke(value?: (() => void)): anychart.core.linearGauge.pointers.Base;
+        selectStroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.linearGauge.pointers.Base;
         stroke(): anychart.graphics.vector.Stroke | (() => void);
         stroke(value?: anychart.graphics.vector.Stroke | (() => void)): anychart.core.linearGauge.pointers.Base;
-        stroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.linearGauge.pointers.Base;
+        stroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.linearGauge.pointers.Base;
         unhover(): anychart.core.linearGauge.pointers.Base;
         unlisten(type: string, listener: (() => void), useCapture?: boolean, listenerScope?: Object): boolean;
         unlistenByKey(key: Object): boolean;
@@ -9232,11 +9947,8 @@ declare namespace anychart.core.linearGauge.pointers {
         zIndex(value?: number): anychart.core.VisualBase;
     }
     interface Led extends anychart.core.linearGauge.pointers.Base {
-        color(): anychart.graphics.vector.Fill;
-        color(value: anychart.graphics.vector.Fill): anychart.core.linearGauge.pointers.Base;
-        color(color: string, opacity?: number): anychart.core.linearGauge.pointers.Base;
-        color(keys: Array<(anychart.graphics.vector.GradientKey|string)>, angle?: number, mode?: boolean | anychart.graphics.vector.Rect | Object, opacity?: number): anychart.core.linearGauge.pointers.Base;
-        color(keys: Array<(anychart.graphics.vector.GradientKey|string)>, cx: number, cy: number, mode?: anychart.graphics.math.Rect, opacity?: number, fx?: number, fy?: number): anychart.core.linearGauge.pointers.Base;
+        color(): string;
+        color(value: string): anychart.core.linearGauge.pointers.Base;
         colorScale(): anychart.core.linearGauge.pointers.Led;
         colorScale(value?: anychart.scales.LinearColor | anychart.scales.OrdinalColor): anychart.core.linearGauge.pointers.Led;
         count(): number;
@@ -9269,7 +9981,7 @@ declare namespace anychart.core.linearGauge.pointers {
         hoverLabel(value?: anychart.core.ui.LabelsFactory | Object | boolean): anychart.core.linearGauge.pointers.Base;
         hoverStroke(): anychart.graphics.vector.Stroke | (() => void);
         hoverStroke(value?: anychart.graphics.vector.Stroke | (() => void)): anychart.core.linearGauge.pointers.Base;
-        hoverStroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.linearGauge.pointers.Base;
+        hoverStroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string, thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.linearGauge.pointers.Base;
         label(): anychart.core.ui.LabelsFactory;
         label(value?: anychart.core.ui.LabelsFactory | Object | boolean): anychart.core.linearGauge.pointers.Base;
         legendItem(): anychart.core.utils.LegendItemSettings;
@@ -9292,24 +10004,21 @@ declare namespace anychart.core.linearGauge.pointers {
         selectLabel(): anychart.core.ui.LabelsFactory;
         selectLabel(value?: anychart.core.ui.LabelsFactory | Object): anychart.core.linearGauge.pointers.Base;
         selectStroke(): anychart.graphics.vector.Stroke | (() => void);
-        selectStroke(value?: anychart.graphics.vector.Stroke | (() => void)): anychart.core.linearGauge.pointers.Base;
-        selectStroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.linearGauge.pointers.Base;
+        selectStroke(value?: (() => void)): anychart.core.linearGauge.pointers.Base;
+        selectStroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.linearGauge.pointers.Base;
         size(): number | string;
         size(value?: number | string): anychart.core.linearGauge.pointers.Led;
         stroke(): anychart.graphics.vector.Stroke | (() => void);
         stroke(value?: anychart.graphics.vector.Stroke | (() => void)): anychart.core.linearGauge.pointers.Base;
-        stroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.linearGauge.pointers.Base;
+        stroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.linearGauge.pointers.Base;
         unhover(): anychart.core.linearGauge.pointers.Base;
         unselect(): anychart.core.linearGauge.pointers.Base;
         width(): string;
         width(value?: string): anychart.core.linearGauge.pointers.Base;
     }
     interface Marker extends anychart.core.linearGauge.pointers.Base {
-        color(): anychart.graphics.vector.Fill;
-        color(value: anychart.graphics.vector.Fill): anychart.core.linearGauge.pointers.Base;
-        color(color: string, opacity?: number): anychart.core.linearGauge.pointers.Base;
-        color(keys: Array<(anychart.graphics.vector.GradientKey|string)>, angle?: number, mode?: boolean | anychart.graphics.vector.Rect | Object, opacity?: number): anychart.core.linearGauge.pointers.Base;
-        color(keys: Array<(anychart.graphics.vector.GradientKey|string)>, cx: number, cy: number, mode?: anychart.graphics.math.Rect, opacity?: number, fx?: number, fy?: number): anychart.core.linearGauge.pointers.Base;
+        color(): string;
+        color(value: string): anychart.core.linearGauge.pointers.Base;
         dataIndex(): number;
         dataIndex(index?: number): anychart.core.linearGauge.pointers.Base;
         fill(): anychart.graphics.vector.Fill | (() => void);
@@ -9334,7 +10043,7 @@ declare namespace anychart.core.linearGauge.pointers {
         hoverLabel(value?: anychart.core.ui.LabelsFactory | Object | boolean): anychart.core.linearGauge.pointers.Base;
         hoverStroke(): anychart.graphics.vector.Stroke | (() => void);
         hoverStroke(value?: anychart.graphics.vector.Stroke | (() => void)): anychart.core.linearGauge.pointers.Base;
-        hoverStroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.linearGauge.pointers.Base;
+        hoverStroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string, thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.linearGauge.pointers.Base;
         label(): anychart.core.ui.LabelsFactory;
         label(value?: anychart.core.ui.LabelsFactory | Object | boolean): anychart.core.linearGauge.pointers.Base;
         legendItem(): anychart.core.utils.LegendItemSettings;
@@ -9357,11 +10066,11 @@ declare namespace anychart.core.linearGauge.pointers {
         selectLabel(): anychart.core.ui.LabelsFactory;
         selectLabel(value?: anychart.core.ui.LabelsFactory | Object): anychart.core.linearGauge.pointers.Base;
         selectStroke(): anychart.graphics.vector.Stroke | (() => void);
-        selectStroke(value?: anychart.graphics.vector.Stroke | (() => void)): anychart.core.linearGauge.pointers.Base;
-        selectStroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.linearGauge.pointers.Base;
+        selectStroke(value?: (() => void)): anychart.core.linearGauge.pointers.Base;
+        selectStroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.linearGauge.pointers.Base;
         stroke(): anychart.graphics.vector.Stroke | (() => void);
         stroke(value?: anychart.graphics.vector.Stroke | (() => void)): anychart.core.linearGauge.pointers.Base;
-        stroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.linearGauge.pointers.Base;
+        stroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.linearGauge.pointers.Base;
         type(): string;
         type(value?: string | anychart.enums.MarkerType): anychart.core.linearGauge.pointers.Marker;
         unhover(): anychart.core.linearGauge.pointers.Base;
@@ -9374,11 +10083,8 @@ declare namespace anychart.core.linearGauge.pointers {
         bulbPadding(value?: string | number): anychart.core.linearGauge.pointers.Thermometer;
         bulbRadius(): string;
         bulbRadius(value?: string): anychart.core.linearGauge.pointers.Thermometer;
-        color(): anychart.graphics.vector.Fill;
-        color(value: anychart.graphics.vector.Fill): anychart.core.linearGauge.pointers.Base;
-        color(color: string, opacity?: number): anychart.core.linearGauge.pointers.Base;
-        color(keys: Array<(anychart.graphics.vector.GradientKey|string)>, angle?: number, mode?: boolean | anychart.graphics.vector.Rect | Object, opacity?: number): anychart.core.linearGauge.pointers.Base;
-        color(keys: Array<(anychart.graphics.vector.GradientKey|string)>, cx: number, cy: number, mode?: anychart.graphics.math.Rect, opacity?: number, fx?: number, fy?: number): anychart.core.linearGauge.pointers.Base;
+        color(): string;
+        color(value: string): anychart.core.linearGauge.pointers.Base;
         dataIndex(): number;
         dataIndex(index?: number): anychart.core.linearGauge.pointers.Base;
         enabled(): boolean;
@@ -9405,7 +10111,7 @@ declare namespace anychart.core.linearGauge.pointers {
         hoverLabel(value?: anychart.core.ui.LabelsFactory | Object | boolean): anychart.core.linearGauge.pointers.Base;
         hoverStroke(): anychart.graphics.vector.Stroke | (() => void);
         hoverStroke(value?: anychart.graphics.vector.Stroke | (() => void)): anychart.core.linearGauge.pointers.Base;
-        hoverStroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.linearGauge.pointers.Base;
+        hoverStroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string, thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.linearGauge.pointers.Base;
         label(): anychart.core.ui.LabelsFactory;
         label(value?: anychart.core.ui.LabelsFactory | Object | boolean): anychart.core.linearGauge.pointers.Base;
         legendItem(): anychart.core.utils.LegendItemSettings;
@@ -9432,11 +10138,11 @@ declare namespace anychart.core.linearGauge.pointers {
         selectLabel(): anychart.core.ui.LabelsFactory;
         selectLabel(value?: anychart.core.ui.LabelsFactory | Object): anychart.core.linearGauge.pointers.Base;
         selectStroke(): anychart.graphics.vector.Stroke | (() => void);
-        selectStroke(value?: anychart.graphics.vector.Stroke | (() => void)): anychart.core.linearGauge.pointers.Base;
-        selectStroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.linearGauge.pointers.Base;
+        selectStroke(value?: (() => void)): anychart.core.linearGauge.pointers.Base;
+        selectStroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.linearGauge.pointers.Base;
         stroke(): anychart.graphics.vector.Stroke | (() => void);
         stroke(value?: anychart.graphics.vector.Stroke | (() => void)): anychart.core.linearGauge.pointers.Base;
-        stroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.linearGauge.pointers.Base;
+        stroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.linearGauge.pointers.Base;
         unhover(): anychart.core.linearGauge.pointers.Base;
         unlisten(type: string, listener: (() => void), useCapture?: boolean, listenerScope?: Object): boolean;
         unlistenByKey(key: Object): boolean;
@@ -9453,22 +10159,18 @@ declare namespace anychart.core.map {
 
 declare namespace anychart.core.map.series {
     interface Base extends anychart.core.SeriesBase {
-        allowPointsSelect(): boolean;
-        allowPointsSelect(value?: boolean): anychart.core.map.series.Base;
         bottom(): number | string;
         bottom(value?: number | string): anychart.core.VisualBaseWithBounds;
         bounds(): anychart.core.utils.Bounds;
         bounds(value?: anychart.utils.RectObj | anychart.math.Rect | anychart.core.utils.Bounds): anychart.core.VisualBase;
         bounds(x?: number | string, y?: number | string, width?: number | string, height?: number | string): anychart.core.VisualBase;
-        color(): anychart.graphics.vector.Fill;
-        color(value: anychart.graphics.vector.Fill): anychart.core.map.series.Base;
-        color(color: string, opacity?: number): anychart.core.map.series.Base;
-        color(keys: Array<(anychart.graphics.vector.GradientKey|string)>, angle?: number, mode?: boolean | anychart.graphics.vector.Rect | Object, opacity?: number): anychart.core.map.series.Base;
-        color(keys: Array<(anychart.graphics.vector.GradientKey|string)>, cx: number, cy: number, mode?: anychart.graphics.math.Rect, opacity?: number, fx?: number, fy?: number): anychart.core.map.series.Base;
+        color(): string;
+        color(value: string): anychart.core.map.series.Base;
         data(): anychart.data.View;
-        data(value?: anychart.data.View | anychart.data.Set | Array<any> | string, csvSettings?: {[prop: string]: (string|boolean)}): anychart.core.map.series.Base;
+        data(value?: anychart.data.View | anychart.data.Set | Array<any> | string, csvSettings?: anychart.enums.TextParsingMode | anychart.data.TextParsingSettings): anychart.core.map.series.Base;
         enabled(): boolean;
         enabled(value?: boolean): anychart.core.VisualBase;
+        excludePoint(indexes: number | Array<number>): boolean;
         fill(): anychart.graphics.vector.Fill;
         fill(value: anychart.graphics.vector.Fill): anychart.core.map.series.Base;
         fill(color: string, opacity?: number): anychart.core.map.series.Base;
@@ -9477,6 +10179,7 @@ declare namespace anychart.core.map.series {
         fill(imageSettings: anychart.graphics.vector.Fill): anychart.core.map.series.Base;
         geoIdField(): string;
         geoIdField(value?: string): anychart.core.map.series.Base;
+        getExcludedPoints(): Array<anychart.core.Point>;
         getPixelBounds(): anychart.math.Rect;
         getPoint(index: number): anychart.core.SeriesPoint;
         getStat(key: string | anychart.enums.Statistics): any;
@@ -9499,9 +10202,12 @@ declare namespace anychart.core.map.series {
         hoverLabels(value?: Object | boolean): anychart.core.map.series.Base;
         hoverStroke(): anychart.graphics.vector.Stroke;
         hoverStroke(strokeFunction?: (() => void)): anychart.core.map.series.Base;
-        hoverStroke(strokeOrFill?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.map.series.Base;
+        hoverStroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string, thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.map.series.Base;
         id(): string | number;
         id(value?: string | number): anychart.core.SeriesBase;
+        includeAllPoints(): boolean;
+        includePoint(indexes: number | Array<number>): boolean;
+        keepOnlyPoints(indexes: number | Array<number>): void;
         labels(): anychart.core.ui.LabelsFactory;
         labels(value?: Object | boolean): anychart.core.map.series.Base;
         left(): number | string;
@@ -9543,12 +10249,12 @@ declare namespace anychart.core.map.series {
         selectLabels(value?: Object | boolean): anychart.core.map.series.Base;
         selectStroke(): anychart.graphics.vector.Stroke;
         selectStroke(fillFunction?: (() => void)): anychart.core.map.series.Base;
-        selectStroke(strokeOrFill?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.map.series.Base;
+        selectStroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string, thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.map.series.Base;
         selectionMode(): anychart.enums.SelectionMode;
         selectionMode(value?: anychart.enums.SelectionMode | string): anychart.core.SeriesBase;
         stroke(): anychart.graphics.vector.Stroke;
         stroke(strokeFunction?: (() => void)): anychart.core.map.series.Base;
-        stroke(stroke?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.map.series.Base;
+        stroke(stroke?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string, thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.map.series.Base;
         tooltip(): anychart.core.ui.Tooltip;
         tooltip(value?: Object | boolean): anychart.core.map.series.Base;
         top(): number | string;
@@ -9566,24 +10272,20 @@ declare namespace anychart.core.map.series {
         zIndex(value?: number): anychart.core.VisualBase;
     }
     interface Choropleth extends anychart.core.map.series.BaseWithMarkers {
-        allowPointsSelect(): boolean;
-        allowPointsSelect(value?: boolean): anychart.core.map.series.Base;
         bottom(): number | string;
         bottom(value?: number | string): anychart.core.VisualBaseWithBounds;
         bounds(): anychart.core.utils.Bounds;
         bounds(value?: anychart.utils.RectObj | anychart.math.Rect | anychart.core.utils.Bounds): anychart.core.VisualBase;
         bounds(x?: number | string, y?: number | string, width?: number | string, height?: number | string): anychart.core.VisualBase;
-        color(): anychart.graphics.vector.Fill;
-        color(value: anychart.graphics.vector.Fill): anychart.core.map.series.Base;
-        color(color: string, opacity?: number): anychart.core.map.series.Base;
-        color(keys: Array<(anychart.graphics.vector.GradientKey|string)>, angle?: number, mode?: boolean | anychart.graphics.vector.Rect | Object, opacity?: number): anychart.core.map.series.Base;
-        color(keys: Array<(anychart.graphics.vector.GradientKey|string)>, cx: number, cy: number, mode?: anychart.graphics.math.Rect, opacity?: number, fx?: number, fy?: number): anychart.core.map.series.Base;
+        color(): string;
+        color(value: string): anychart.core.map.series.Base;
         colorScale(): anychart.scales.OrdinalColor | anychart.scales.LinearColor;
         colorScale(value?: anychart.scales.LinearColor | anychart.scales.OrdinalColor): anychart.core.map.series.Base;
         data(): anychart.data.View;
-        data(value?: anychart.data.View | anychart.data.Set | Array<any> | string, csvSettings?: {[prop: string]: (string|boolean)}): anychart.core.map.series.Base;
+        data(value?: anychart.data.View | anychart.data.Set | Array<any> | string, csvSettings?: anychart.enums.TextParsingMode | anychart.data.TextParsingSettings): anychart.core.map.series.Base;
         enabled(): boolean;
         enabled(value?: boolean): anychart.core.VisualBase;
+        excludePoint(indexes: number | Array<number>): boolean;
         fill(): anychart.graphics.vector.Fill;
         fill(value: anychart.graphics.vector.Fill): anychart.core.map.series.Base;
         fill(color: string, opacity?: number): anychart.core.map.series.Base;
@@ -9592,6 +10294,7 @@ declare namespace anychart.core.map.series {
         fill(imageSettings: anychart.graphics.vector.Fill): anychart.core.map.series.Base;
         geoIdField(): string;
         geoIdField(value?: string): anychart.core.map.series.Base;
+        getExcludedPoints(): Array<anychart.core.Point>;
         getPixelBounds(): anychart.math.Rect;
         getPoint(index: number): anychart.core.SeriesPoint;
         getStat(key: string | anychart.enums.Statistics): any;
@@ -9616,9 +10319,12 @@ declare namespace anychart.core.map.series {
         hoverMarkers(value?: Object | boolean | string): anychart.core.map.series.BaseWithMarkers;
         hoverStroke(): anychart.graphics.vector.Stroke;
         hoverStroke(strokeFunction?: (() => void)): anychart.core.map.series.Base;
-        hoverStroke(strokeOrFill?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.map.series.Base;
+        hoverStroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string, thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.map.series.Base;
         id(): string | number;
         id(value?: string | number): anychart.core.SeriesBase;
+        includeAllPoints(): boolean;
+        includePoint(indexes: number | Array<number>): boolean;
+        keepOnlyPoints(indexes: number | Array<number>): void;
         labels(): anychart.core.ui.LabelsFactory;
         labels(value?: Object | boolean): anychart.core.map.series.Base;
         left(): number | string;
@@ -9664,12 +10370,12 @@ declare namespace anychart.core.map.series {
         selectMarkers(value?: Object | boolean | string): anychart.core.map.series.BaseWithMarkers;
         selectStroke(): anychart.graphics.vector.Stroke;
         selectStroke(fillFunction?: (() => void)): anychart.core.map.series.Base;
-        selectStroke(strokeOrFill?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.map.series.Base;
+        selectStroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string, thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.map.series.Base;
         selectionMode(): anychart.enums.SelectionMode;
         selectionMode(value?: anychart.enums.SelectionMode | string): anychart.core.SeriesBase;
         stroke(): anychart.graphics.vector.Stroke;
         stroke(strokeFunction?: (() => void)): anychart.core.map.series.Base;
-        stroke(stroke?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.map.series.Base;
+        stroke(stroke?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string, thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.map.series.Base;
         tooltip(): anychart.core.ui.Tooltip;
         tooltip(value?: Object | boolean): anychart.core.map.series.Base;
         top(): number | string;
@@ -9687,24 +10393,20 @@ declare namespace anychart.core.map.series {
         zIndex(value?: number): anychart.core.VisualBase;
     }
     interface Bubble extends anychart.core.map.series.BaseWithMarkers {
-        allowPointsSelect(): boolean;
-        allowPointsSelect(value?: boolean): anychart.core.map.series.Base;
         bottom(): number | string;
         bottom(value?: number | string): anychart.core.VisualBaseWithBounds;
         bounds(): anychart.core.utils.Bounds;
         bounds(value?: anychart.utils.RectObj | anychart.math.Rect | anychart.core.utils.Bounds): anychart.core.VisualBase;
         bounds(x?: number | string, y?: number | string, width?: number | string, height?: number | string): anychart.core.VisualBase;
-        color(): anychart.graphics.vector.Fill;
-        color(value: anychart.graphics.vector.Fill): anychart.core.map.series.Base;
-        color(color: string, opacity?: number): anychart.core.map.series.Base;
-        color(keys: Array<(anychart.graphics.vector.GradientKey|string)>, angle?: number, mode?: boolean | anychart.graphics.vector.Rect | Object, opacity?: number): anychart.core.map.series.Base;
-        color(keys: Array<(anychart.graphics.vector.GradientKey|string)>, cx: number, cy: number, mode?: anychart.graphics.math.Rect, opacity?: number, fx?: number, fy?: number): anychart.core.map.series.Base;
+        color(): string;
+        color(value: string): anychart.core.map.series.Base;
         data(): anychart.data.View;
-        data(value?: anychart.data.View | anychart.data.Set | Array<any> | string, csvSettings?: {[prop: string]: (string|boolean)}): anychart.core.map.series.Base;
+        data(value?: anychart.data.View | anychart.data.Set | Array<any> | string, csvSettings?: anychart.enums.TextParsingMode | anychart.data.TextParsingSettings): anychart.core.map.series.Base;
         displayNegative(): boolean;
         displayNegative(value?: boolean): anychart.core.map.series.Bubble;
         enabled(): boolean;
         enabled(value?: boolean): anychart.core.VisualBase;
+        excludePoint(indexes: number | Array<number>): boolean;
         fill(): anychart.graphics.vector.Fill;
         fill(value: anychart.graphics.vector.Fill): anychart.core.map.series.Base;
         fill(color: string, opacity?: number): anychart.core.map.series.Base;
@@ -9713,6 +10415,7 @@ declare namespace anychart.core.map.series {
         fill(imageSettings: anychart.graphics.vector.Fill): anychart.core.map.series.Base;
         geoIdField(): string;
         geoIdField(value?: string): anychart.core.map.series.Base;
+        getExcludedPoints(): Array<anychart.core.Point>;
         getPixelBounds(): anychart.math.Rect;
         getPoint(index: number): anychart.core.SeriesPoint;
         getStat(key: string | anychart.enums.Statistics): any;
@@ -9745,12 +10448,15 @@ declare namespace anychart.core.map.series {
         hoverNegativeHatchFill(patternFillOrTypeOrState?: anychart.graphics.vector.PatternFill | anychart.graphics.vector.HatchFill | (() => void) | anychart.graphics.vector.HatchFill.HatchFillType | string | boolean, color?: string, thickness?: number, size?: number): anychart.core.map.series.Bubble;
         hoverNegativeStroke(): anychart.core.map.series.Bubble;
         hoverNegativeStroke(strokeFunction?: (() => void)): anychart.core.map.series.Bubble;
-        hoverNegativeStroke(stroke?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.map.series.Bubble;
+        hoverNegativeStroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.map.series.Bubble;
         hoverStroke(): anychart.graphics.vector.Stroke;
         hoverStroke(strokeFunction?: (() => void)): anychart.core.map.series.Base;
-        hoverStroke(stroke?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.map.series.Base;
+        hoverStroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string, thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.map.series.Base;
         id(): string | number;
         id(value?: string | number): anychart.core.SeriesBase;
+        includeAllPoints(): boolean;
+        includePoint(indexes: number | Array<number>): boolean;
+        keepOnlyPoints(indexes: number | Array<number>): void;
         labels(): anychart.core.ui.LabelsFactory;
         labels(value?: Object | boolean): anychart.core.map.series.Base;
         left(): number | string;
@@ -9784,7 +10490,7 @@ declare namespace anychart.core.map.series {
         negativeHatchFill(patternFillOrTypeOrState?: anychart.graphics.vector.PatternFill | anychart.graphics.vector.HatchFill | (() => void) | anychart.graphics.vector.HatchFill.HatchFillType | string | boolean, color?: string, thickness?: number, size?: number): anychart.core.map.series.Bubble;
         negativeStroke(): anychart.core.map.series.Bubble;
         negativeStroke(strokeFunction?: (() => void)): anychart.core.map.series.Bubble;
-        negativeStroke(stroke?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.map.series.Bubble;
+        negativeStroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string, thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.map.series.Bubble;
         overlapMode(): anychart.enums.LabelsOverlapMode | string;
         overlapMode(value?: anychart.enums.LabelsOverlapMode | string | boolean): anychart.core.map.series.Base;
         print(paperSizeOrOptions?: anychart.graphics.vector.PaperSize | Object, landscape?: boolean): void;
@@ -9815,15 +10521,15 @@ declare namespace anychart.core.map.series {
         selectNegativeHatchFill(patternFillOrTypeOrState?: anychart.graphics.vector.PatternFill | anychart.graphics.vector.HatchFill | (() => void) | anychart.graphics.vector.HatchFill.HatchFillType | string | boolean, color?: string, thickness?: number, size?: number): anychart.core.map.series.Bubble;
         selectNegativeStroke(): anychart.core.map.series.Bubble;
         selectNegativeStroke(strokeFunction?: (() => void)): anychart.core.map.series.Bubble;
-        selectNegativeStroke(stroke?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.map.series.Bubble;
+        selectNegativeStroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.map.series.Bubble;
         selectStroke(): anychart.graphics.vector.Stroke;
         selectStroke(strokeFunction?: (() => void)): anychart.core.map.series.Base;
-        selectStroke(stroke?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.map.series.Base;
+        selectStroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string, thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.map.series.Base;
         selectionMode(): anychart.enums.SelectionMode;
         selectionMode(value?: anychart.enums.SelectionMode | string): anychart.core.SeriesBase;
         stroke(): anychart.graphics.vector.Stroke;
         stroke(strokeFunction?: (() => void)): anychart.core.map.series.Base;
-        stroke(stroke?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.map.series.Base;
+        stroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string, thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.map.series.Base;
         tooltip(): anychart.core.ui.Tooltip;
         tooltip(value?: Object | boolean): anychart.core.map.series.Base;
         top(): number | string;
@@ -9841,20 +10547,15 @@ declare namespace anychart.core.map.series {
         zIndex(value?: number): anychart.core.VisualBase;
     }
     interface BaseWithMarkers extends anychart.core.map.series.Base {
-        allowPointsSelect(): boolean;
-        allowPointsSelect(value?: boolean): anychart.core.map.series.Base;
         bottom(): number | string;
         bottom(value?: number | string): anychart.core.VisualBaseWithBounds;
         bounds(): anychart.core.utils.Bounds;
         bounds(value?: anychart.utils.RectObj | anychart.math.Rect | anychart.core.utils.Bounds): anychart.core.VisualBase;
         bounds(x?: number | string, y?: number | string, width?: number | string, height?: number | string): anychart.core.VisualBase;
-        color(): anychart.graphics.vector.Fill;
-        color(value: anychart.graphics.vector.Fill): anychart.core.map.series.Base;
-        color(color: string, opacity?: number): anychart.core.map.series.Base;
-        color(keys: Array<(anychart.graphics.vector.GradientKey|string)>, angle?: number, mode?: boolean | anychart.graphics.vector.Rect | Object, opacity?: number): anychart.core.map.series.Base;
-        color(keys: Array<(anychart.graphics.vector.GradientKey|string)>, cx: number, cy: number, mode?: anychart.graphics.math.Rect, opacity?: number, fx?: number, fy?: number): anychart.core.map.series.Base;
+        color(): string;
+        color(value: string): anychart.core.map.series.Base;
         data(): anychart.data.View;
-        data(value?: anychart.data.View | anychart.data.Set | Array<any> | string, csvSettings?: {[prop: string]: (string|boolean)}): anychart.core.map.series.Base;
+        data(value?: anychart.data.View | anychart.data.Set | Array<any> | string, csvSettings?: anychart.enums.TextParsingMode | anychart.data.TextParsingSettings): anychart.core.map.series.Base;
         enabled(): boolean;
         enabled(value?: boolean): anychart.core.VisualBase;
         fill(): anychart.graphics.vector.Fill;
@@ -9889,7 +10590,7 @@ declare namespace anychart.core.map.series {
         hoverMarkers(value?: Object | boolean | string): anychart.core.map.series.BaseWithMarkers;
         hoverStroke(): anychart.graphics.vector.Stroke;
         hoverStroke(strokeFunction?: (() => void)): anychart.core.map.series.Base;
-        hoverStroke(strokeOrFill?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.map.series.Base;
+        hoverStroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string, thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.map.series.Base;
         id(): string | number;
         id(value?: string | number): anychart.core.SeriesBase;
         labels(): anychart.core.ui.LabelsFactory;
@@ -9935,12 +10636,12 @@ declare namespace anychart.core.map.series {
         selectMarkers(value?: Object | boolean | string): anychart.core.map.series.BaseWithMarkers;
         selectStroke(): anychart.graphics.vector.Stroke;
         selectStroke(fillFunction?: (() => void)): anychart.core.map.series.Base;
-        selectStroke(strokeOrFill?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.map.series.Base;
+        selectStroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string, thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.map.series.Base;
         selectionMode(): anychart.enums.SelectionMode;
         selectionMode(value?: anychart.enums.SelectionMode | string): anychart.core.SeriesBase;
         stroke(): anychart.graphics.vector.Stroke;
         stroke(strokeFunction?: (() => void)): anychart.core.map.series.Base;
-        stroke(stroke?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.map.series.Base;
+        stroke(stroke?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string, thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.map.series.Base;
         tooltip(): anychart.core.ui.Tooltip;
         tooltip(value?: Object | boolean): anychart.core.map.series.Base;
         top(): number | string;
@@ -9958,26 +10659,22 @@ declare namespace anychart.core.map.series {
         zIndex(value?: number): anychart.core.VisualBase;
     }
     interface Connector extends anychart.core.map.series.BaseWithMarkers {
-        allowPointsSelect(): boolean;
-        allowPointsSelect(value?: boolean): anychart.core.map.series.Base;
         bottom(): number | string;
         bottom(value?: number | string): anychart.core.VisualBaseWithBounds;
         bounds(): anychart.core.utils.Bounds;
         bounds(value?: anychart.utils.RectObj | anychart.math.Rect | anychart.core.utils.Bounds): anychart.core.VisualBase;
         bounds(x?: number | string, y?: number | string, width?: number | string, height?: number | string): anychart.core.VisualBase;
-        color(): anychart.graphics.vector.Fill;
-        color(value: anychart.graphics.vector.Fill): anychart.core.map.series.Base;
-        color(color: string, opacity?: number): anychart.core.map.series.Base;
-        color(keys: Array<(anychart.graphics.vector.GradientKey|string)>, angle?: number, mode?: boolean | anychart.graphics.vector.Rect | Object, opacity?: number): anychart.core.map.series.Base;
-        color(keys: Array<(anychart.graphics.vector.GradientKey|string)>, cx: number, cy: number, mode?: anychart.graphics.math.Rect, opacity?: number, fx?: number, fy?: number): anychart.core.map.series.Base;
+        color(): string;
+        color(value: string): anychart.core.map.series.Base;
         curvature(): string | number;
         curvature(value?: number | string): anychart.core.map.series.Connector;
         data(): anychart.data.View;
-        data(value?: anychart.data.View | anychart.data.Set | Array<any> | string, csvSettings?: {[prop: string]: (string|boolean)}): anychart.core.map.series.Base;
+        data(value?: anychart.data.View | anychart.data.Set | Array<any> | string, csvSettings?: anychart.enums.TextParsingMode | anychart.data.TextParsingSettings): anychart.core.map.series.Base;
         enabled(): boolean;
         enabled(value?: boolean): anychart.core.VisualBase;
         endSize(): string | number;
         endSize(value?: number | string): anychart.core.map.series.Connector;
+        excludePoint(indexes: number | Array<number>): boolean;
         fill(): anychart.graphics.vector.Fill;
         fill(value: anychart.graphics.vector.Fill): anychart.core.map.series.Base;
         fill(color: string, opacity?: number): anychart.core.map.series.Base;
@@ -9986,6 +10683,7 @@ declare namespace anychart.core.map.series {
         fill(imageSettings: anychart.graphics.vector.Fill): anychart.core.map.series.Base;
         geoIdField(): string;
         geoIdField(value?: string): anychart.core.map.series.Base;
+        getExcludedPoints(): Array<anychart.core.Point>;
         getPixelBounds(): anychart.math.Rect;
         getPoint(index: number): anychart.core.SeriesPoint;
         getStat(key: string | anychart.enums.Statistics): any;
@@ -10010,9 +10708,12 @@ declare namespace anychart.core.map.series {
         hoverMarkers(value?: Object | boolean | string): anychart.core.map.series.BaseWithMarkers;
         hoverStroke(): anychart.graphics.vector.Stroke;
         hoverStroke(strokeFunction?: (() => void)): anychart.core.map.series.Base;
-        hoverStroke(strokeOrFill?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.map.series.Base;
+        hoverStroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string, thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.map.series.Base;
         id(): string | number;
         id(value?: string | number): anychart.core.SeriesBase;
+        includeAllPoints(): boolean;
+        includePoint(indexes: number | Array<number>): boolean;
+        keepOnlyPoints(indexes: number | Array<number>): void;
         labels(): anychart.core.ui.LabelsFactory;
         labels(value?: Object | boolean): anychart.core.map.series.Base;
         left(): number | string;
@@ -10058,14 +10759,14 @@ declare namespace anychart.core.map.series {
         selectMarkers(value?: Object | boolean | string): anychart.core.map.series.BaseWithMarkers;
         selectStroke(): anychart.graphics.vector.Stroke;
         selectStroke(fillFunction?: (() => void)): anychart.core.map.series.Base;
-        selectStroke(strokeOrFill?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.map.series.Base;
+        selectStroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string, thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.map.series.Base;
         selectionMode(): anychart.enums.SelectionMode;
         selectionMode(value?: anychart.enums.SelectionMode | string): anychart.core.SeriesBase;
         startSize(): number | string;
         startSize(value?: number | string): anychart.core.map.series.Connector;
         stroke(): anychart.graphics.vector.Stroke;
         stroke(strokeFunction?: (() => void)): anychart.core.map.series.Base;
-        stroke(stroke?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.map.series.Base;
+        stroke(stroke?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string, thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.map.series.Base;
         tooltip(): anychart.core.ui.Tooltip;
         tooltip(value?: Object | boolean): anychart.core.map.series.Base;
         top(): number | string;
@@ -10083,22 +10784,18 @@ declare namespace anychart.core.map.series {
         zIndex(value?: number): anychart.core.VisualBase;
     }
     interface Marker extends anychart.core.map.series.Base {
-        allowPointsSelect(): boolean;
-        allowPointsSelect(value?: boolean): anychart.core.map.series.Base;
         bottom(): number | string;
         bottom(value?: number | string): anychart.core.VisualBaseWithBounds;
         bounds(): anychart.core.utils.Bounds;
         bounds(value?: anychart.utils.RectObj | anychart.math.Rect | anychart.core.utils.Bounds): anychart.core.VisualBase;
         bounds(x?: number | string, y?: number | string, width?: number | string, height?: number | string): anychart.core.VisualBase;
-        color(): anychart.graphics.vector.Fill;
-        color(value: anychart.graphics.vector.Fill): anychart.core.map.series.Base;
-        color(color: string, opacity?: number): anychart.core.map.series.Base;
-        color(keys: Array<(anychart.graphics.vector.GradientKey|string)>, angle?: number, mode?: boolean | anychart.graphics.vector.Rect | Object, opacity?: number): anychart.core.map.series.Base;
-        color(keys: Array<(anychart.graphics.vector.GradientKey|string)>, cx: number, cy: number, mode?: anychart.graphics.math.Rect, opacity?: number, fx?: number, fy?: number): anychart.core.map.series.Base;
+        color(): string;
+        color(value: string): anychart.core.map.series.Base;
         data(): anychart.data.View;
-        data(value?: anychart.data.View | anychart.data.Set | Array<any> | string, csvSettings?: {[prop: string]: (string|boolean)}): anychart.core.map.series.Base;
+        data(value?: anychart.data.View | anychart.data.Set | Array<any> | string, csvSettings?: anychart.enums.TextParsingMode | anychart.data.TextParsingSettings): anychart.core.map.series.Base;
         enabled(): boolean;
         enabled(value?: boolean): anychart.core.VisualBase;
+        excludePoint(indexes: number | Array<number>): boolean;
         fill(): anychart.graphics.vector.Fill;
         fill(value: anychart.graphics.vector.Fill): anychart.core.map.series.Base;
         fill(color: string, opacity?: number): anychart.core.map.series.Base;
@@ -10107,6 +10804,7 @@ declare namespace anychart.core.map.series {
         fill(imageSettings: anychart.graphics.vector.Fill): anychart.core.map.series.Base;
         geoIdField(): string;
         geoIdField(value?: string): anychart.core.map.series.Base;
+        getExcludedPoints(): Array<anychart.core.Point>;
         getPixelBounds(): anychart.math.Rect;
         getPoint(index: number): anychart.core.SeriesPoint;
         getStat(key: string | anychart.enums.Statistics): any;
@@ -10131,11 +10829,14 @@ declare namespace anychart.core.map.series {
         hoverSize(value?: number): anychart.core.map.series.Marker;
         hoverStroke(): anychart.graphics.vector.Stroke;
         hoverStroke(strokeFunction?: (() => void)): anychart.core.map.series.Base;
-        hoverStroke(strokeOrFill?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.map.series.Base;
+        hoverStroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string, thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.map.series.Base;
         hoverType(): anychart.enums.MarkerType | string | (() => void);
         hoverType(value?: string | anychart.enums.MarkerType | (() => void)): anychart.core.map.series.Marker;
         id(): string | number;
         id(value?: string | number): anychart.core.SeriesBase;
+        includeAllPoints(): boolean;
+        includePoint(indexes: number | Array<number>): boolean;
+        keepOnlyPoints(indexes: number | Array<number>): void;
         labels(): anychart.core.ui.LabelsFactory;
         labels(value?: Object | boolean): anychart.core.map.series.Base;
         left(): number | string;
@@ -10177,7 +10878,7 @@ declare namespace anychart.core.map.series {
         selectLabels(value?: Object | boolean): anychart.core.map.series.Base;
         selectStroke(): anychart.graphics.vector.Stroke;
         selectStroke(fillFunction?: (() => void)): anychart.core.map.series.Base;
-        selectStroke(strokeOrFill?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.map.series.Base;
+        selectStroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string, thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.map.series.Base;
         selectType(): anychart.enums.MarkerType | string | (() => void);
         selectType(value?: string | anychart.enums.MarkerType | (() => void)): anychart.core.map.series.Marker;
         selectionMode(): anychart.enums.SelectionMode;
@@ -10186,7 +10887,7 @@ declare namespace anychart.core.map.series {
         size(value?: number): anychart.core.map.series.Marker;
         stroke(): anychart.graphics.vector.Stroke;
         stroke(strokeFunction?: (() => void)): anychart.core.map.series.Base;
-        stroke(stroke?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.map.series.Base;
+        stroke(stroke?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string, thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.map.series.Base;
         tooltip(): anychart.core.ui.Tooltip;
         tooltip(value?: Object | boolean): anychart.core.map.series.Base;
         top(): number | string;
@@ -10207,16 +10908,155 @@ declare namespace anychart.core.map.series {
     }
 }
 
+declare namespace anychart.core.mekko {
+}
+
+declare namespace anychart.core.mekko.series {
+    interface Mekko extends anychart.core.cartesian.series.WidthBased {
+        bottom(): number | string;
+        bottom(value?: number | string): anychart.core.VisualBaseWithBounds;
+        bounds(): anychart.core.utils.Bounds;
+        bounds(value?: anychart.utils.RectObj | anychart.math.Rect | anychart.core.utils.Bounds): anychart.core.VisualBase;
+        bounds(x?: number | string, y?: number | string, width?: number | string, height?: number | string): anychart.core.VisualBase;
+        clip(): boolean | anychart.math.Rect;
+        clip(value?: boolean | anychart.math.Rect): anychart.core.cartesian.series.Base;
+        color(): string;
+        color(value: string): anychart.core.SeriesBase;
+        data(): anychart.data.View;
+        data(value?: anychart.data.View | anychart.data.Set | Array<any> | string, csvSettings?: anychart.enums.TextParsingMode | anychart.data.TextParsingSettings): anychart.core.SeriesBase;
+        enabled(): boolean;
+        enabled(value?: boolean): anychart.core.VisualBase;
+        excludePoint(indexes: number | Array<number>): boolean;
+        fill(): anychart.graphics.vector.Fill;
+        fill(value: anychart.graphics.vector.Fill): anychart.core.mekko.series.Mekko;
+        fill(fillFunction?: (() => void)): anychart.core.mekko.series.Mekko;
+        fill(color: string, opacity?: number): anychart.core.mekko.series.Mekko;
+        fill(keys: Array<(anychart.graphics.vector.GradientKey|string)>, angle?: number, mode?: boolean | anychart.graphics.vector.Rect | Object, opacity?: number): anychart.core.mekko.series.Mekko;
+        fill(keys: Array<(anychart.graphics.vector.GradientKey|string)>, cx: number, cy: number, mode?: anychart.graphics.math.Rect, opacity?: number, fx?: number, fy?: number): anychart.core.mekko.series.Mekko;
+        fill(imageSettings: anychart.graphics.vector.Fill): anychart.core.mekko.series.Mekko;
+        getExcludedPoints(): Array<anychart.core.Point>;
+        getPixelBounds(): anychart.math.Rect;
+        getPixelPointWidth(): number;
+        getPoint(index: number): anychart.core.SeriesPoint;
+        hatchFill(): anychart.graphics.vector.PatternFill | anychart.graphics.vector.HatchFill | (() => void);
+        hatchFill(patternFillOrType?: anychart.graphics.vector.PatternFill | anychart.graphics.vector.HatchFill | (() => void) | anychart.graphics.vector.HatchFill.HatchFillType | string, color?: string, thickness?: number, size?: number): anychart.core.mekko.series.Mekko;
+        height(): number | string;
+        height(value?: number | string): anychart.core.VisualBaseWithBounds;
+        hover(): anychart.core.SeriesBase;
+        hover(index?: number): anychart.core.SeriesBase;
+        hover(indexes?: Array<number>): anychart.core.SeriesBase;
+        hoverFill(): anychart.graphics.vector.Fill;
+        hoverFill(value: anychart.graphics.vector.Fill): anychart.core.mekko.series.Mekko;
+        hoverFill(fillFunction?: (() => void)): anychart.core.mekko.series.Mekko;
+        hoverFill(color: string, opacity?: number): anychart.core.mekko.series.Mekko;
+        hoverFill(keys: Array<(anychart.graphics.vector.GradientKey|string)>, angle?: number, mode?: boolean | anychart.graphics.vector.Rect | Object, opacity?: number): anychart.core.mekko.series.Mekko;
+        hoverFill(keys: Array<(anychart.graphics.vector.GradientKey|string)>, cx: number, cy: number, mode?: anychart.graphics.math.Rect, opacity?: number, fx?: number, fy?: number): anychart.core.mekko.series.Mekko;
+        hoverFill(imageSettings: anychart.graphics.vector.Fill): anychart.core.mekko.series.Mekko;
+        hoverHatchFill(): anychart.graphics.vector.PatternFill | anychart.graphics.vector.HatchFill | (() => void);
+        hoverHatchFill(patternFillOrType?: anychart.graphics.vector.PatternFill | anychart.graphics.vector.HatchFill | (() => void) | anychart.graphics.vector.HatchFill.HatchFillType | string, color?: string, thickness?: number, size?: number): anychart.core.mekko.series.Mekko;
+        hoverLabels(): anychart.core.ui.LabelsFactory;
+        hoverLabels(value?: Object | boolean): anychart.core.SeriesBase;
+        hoverMarkers(): anychart.core.ui.MarkersFactory;
+        hoverMarkers(value?: Object | boolean | string): anychart.core.cartesian.series.BaseWithMarkers;
+        hoverStroke(): anychart.graphics.vector.Stroke;
+        hoverStroke(strokeFunction?: (() => void)): anychart.core.mekko.series.Mekko;
+        hoverStroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.mekko.series.Mekko;
+        id(): string | number;
+        id(value?: string | number): anychart.core.SeriesBase;
+        includeAllPoints(): boolean;
+        includePoint(indexes: number | Array<number>): boolean;
+        isVertical(): boolean;
+        isVertical(value?: boolean): anychart.core.cartesian.series.Base;
+        keepOnlyPoints(indexes: number | Array<number>): void;
+        labels(): anychart.core.ui.LabelsFactory;
+        labels(value?: Object | boolean): anychart.core.SeriesBase;
+        left(): number | string;
+        left(value?: number | string): anychart.core.VisualBaseWithBounds;
+        legendItem(): anychart.core.utils.LegendItemSettings;
+        legendItem(value?: Object): anychart.core.SeriesBase;
+        listen(type: string, listener: (() => void), useCapture?: boolean, listenerScope?: Object): Object;
+        listenOnce(type: string, listener: (() => void), useCapture?: boolean, listenerScope?: Object): Object;
+        markers(): anychart.core.ui.MarkersFactory;
+        markers(value?: Object | boolean | string): anychart.core.cartesian.series.BaseWithMarkers;
+        maxHeight(): number | string;
+        maxHeight(value?: number | string): anychart.core.VisualBase;
+        maxWidth(): number | string;
+        maxWidth(value?: number | string): anychart.core.VisualBase;
+        meta(key?: any): any;
+        meta(object?: any, value?: any): anychart.core.SeriesBase;
+        meta(key?: any, value?: any): anychart.core.SeriesBase;
+        minHeight(): number | string;
+        minHeight(value?: number | string): anychart.core.VisualBase;
+        minWidth(): number | string;
+        minWidth(value?: number | string): anychart.core.VisualBase;
+        name(): string;
+        name(value?: string): anychart.core.SeriesBase;
+        pointWidth(): string | number;
+        pointWidth(value?: number | string): anychart.core.cartesian.series.WidthBased;
+        print(paperSizeOrOptions?: anychart.graphics.vector.PaperSize | Object, landscape?: boolean): void;
+        removeAllListeners(type?: string): number;
+        rendering(): anychart.core.series.RenderingSettings;
+        rendering(value?: Object | (() => void)): anychart.core.cartesian.series.Base;
+        right(): number | string;
+        right(value?: number | string): anychart.core.VisualBaseWithBounds;
+        select(index?: number): anychart.core.SeriesBase;
+        select(indexes?: number | Array<number>): anychart.core.SeriesBase;
+        selectFill(): anychart.graphics.vector.Fill;
+        selectFill(value: anychart.graphics.vector.Fill): anychart.core.mekko.series.Mekko;
+        selectFill(fillFunction?: (() => void)): anychart.core.mekko.series.Mekko;
+        selectFill(color: string, opacity?: number): anychart.core.mekko.series.Mekko;
+        selectFill(keys: Array<(anychart.graphics.vector.GradientKey|string)>, angle?: number, mode?: boolean | anychart.graphics.vector.Rect | Object, opacity?: number): anychart.core.mekko.series.Mekko;
+        selectFill(keys: Array<(anychart.graphics.vector.GradientKey|string)>, cx: number, cy: number, mode?: anychart.graphics.math.Rect, opacity?: number, fx?: number, fy?: number): anychart.core.mekko.series.Mekko;
+        selectFill(imageSettings: anychart.graphics.vector.Fill): anychart.core.mekko.series.Mekko;
+        selectHatchFill(): anychart.graphics.vector.PatternFill | anychart.graphics.vector.HatchFill | (() => void);
+        selectHatchFill(patternFillOrType?: anychart.graphics.vector.PatternFill | anychart.graphics.vector.HatchFill | (() => void) | anychart.graphics.vector.HatchFill.HatchFillType | string, color?: string, thickness?: number, size?: number): anychart.core.mekko.series.Mekko;
+        selectLabels(): anychart.core.ui.LabelsFactory;
+        selectLabels(value?: Object | boolean): anychart.core.SeriesBase;
+        selectMarkers(): anychart.core.ui.MarkersFactory;
+        selectMarkers(value?: Object | boolean | string): anychart.core.cartesian.series.BaseWithMarkers;
+        selectStroke(): anychart.graphics.vector.Stroke;
+        selectStroke(strokeFunction?: (() => void)): anychart.core.mekko.series.Mekko;
+        selectStroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.mekko.series.Mekko;
+        selectionMode(): anychart.enums.SelectionMode;
+        selectionMode(value?: anychart.enums.SelectionMode | string): anychart.core.SeriesBase;
+        seriesType(): string;
+        seriesType(value?: string): anychart.core.cartesian.series.Base;
+        stroke(): anychart.graphics.vector.Stroke;
+        stroke(strokeFunction?: (() => void)): anychart.core.mekko.series.Mekko;
+        stroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.mekko.series.Mekko;
+        tooltip(): anychart.core.ui.Tooltip;
+        tooltip(value?: Object | boolean): anychart.core.SeriesBase;
+        top(): number | string;
+        top(value?: number | string): anychart.core.VisualBaseWithBounds;
+        transformX(value: any, subRangeRatio?: number): number;
+        transformY(value: any, subRangeRatio?: number): number;
+        unhover(indexOrIndexes?: number | Array<number>): anychart.core.SeriesBase;
+        unlisten(type: string, listener: (() => void), useCapture?: boolean, listenerScope?: Object): boolean;
+        unlistenByKey(key: Object): boolean;
+        unselect(): anychart.core.SeriesBase;
+        unselect(index?: number): anychart.core.SeriesBase;
+        unselect(indexes?: Array<number>): anychart.core.SeriesBase;
+        width(): number | string;
+        width(value?: number | string): anychart.core.VisualBaseWithBounds;
+        xScale(): anychart.scales.Base;
+        xScale(value?: anychart.scales.Base): anychart.core.cartesian.series.Base;
+        yScale(): anychart.scales.Base;
+        yScale(value?: anychart.scales.Base): anychart.core.cartesian.series.Base;
+        zIndex(): number;
+        zIndex(value?: number): anychart.core.VisualBase;
+    }
+}
+
 declare namespace anychart.core.pert {
     interface Tasks {
-        color(): anychart.graphics.vector.Fill;
-        color(fillOrColorOrKeys?: anychart.graphics.vector.Fill | Array<(anychart.graphics.vector.GradientKey|string)> | (() => void), opacityOrAngleOrCx?: number, modeOrCy?: number | boolean | anychart.math.Rect | Object, opacityOrMode?: number | anychart.math.Rect | Object, opacity?: number, fx?: number, fy?: number): anychart.core.pert.Tasks;
+        color(): string;
+        color(value: string): anychart.core.pert.Tasks;
         dummyFill(): anychart.graphics.vector.Fill;
         dummyFill(fillFunction?: (() => void)): anychart.core.pert.Tasks;
         dummyFill(fillOrColorOrKeys?: anychart.graphics.vector.Fill | Array<(anychart.graphics.vector.GradientKey|string)>, opacityOrAngleOrCx?: number, modeOrCy?: number | boolean | anychart.math.Rect | Object, opacityOrMode?: number | anychart.math.Rect | Object, opacity?: number, fx?: number, fy?: number): anychart.core.pert.Tasks;
         dummyStroke(): anychart.graphics.vector.Stroke;
         dummyStroke(strokeFunction?: (() => void)): anychart.core.pert.Tasks;
-        dummyStroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string, thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.pert.Tasks;
+        dummyStroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string, thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.pert.Tasks;
         fill(): anychart.graphics.vector.Fill;
         fill(fillFunction?: (() => void)): anychart.core.pert.Tasks;
         fill(fillOrColorOrKeys?: anychart.graphics.vector.Fill | Array<(anychart.graphics.vector.GradientKey|string)>, opacityOrAngleOrCx?: number, modeOrCy?: number | boolean | anychart.math.Rect | Object, opacityOrMode?: number | anychart.math.Rect | Object, opacity?: number, fx?: number, fy?: number): anychart.core.pert.Tasks;
@@ -10227,7 +11067,7 @@ declare namespace anychart.core.pert {
         hoverLowerLabels(value?: Object | boolean): anychart.core.pert.Tasks;
         hoverStroke(): anychart.graphics.vector.Stroke;
         hoverStroke(strokeFunction?: (() => void)): anychart.core.pert.Tasks;
-        hoverStroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string, thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.pert.Tasks;
+        hoverStroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string, thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.pert.Tasks;
         hoverUpperLabels(): anychart.core.ui.LabelsFactory;
         hoverUpperLabels(value?: Object | boolean): anychart.core.pert.Tasks;
         lowerLabels(): anychart.core.ui.LabelsFactory;
@@ -10239,22 +11079,20 @@ declare namespace anychart.core.pert {
         selectLowerLabels(value?: Object | boolean): anychart.core.pert.Tasks;
         selectStroke(): anychart.graphics.vector.Stroke;
         selectStroke(strokeFunction?: (() => void)): anychart.core.pert.Tasks;
-        selectStroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.pert.Tasks;
+        selectStroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.pert.Tasks;
         selectUpperLabels(): anychart.core.ui.LabelsFactory;
         selectUpperLabels(value?: Object | boolean): anychart.core.pert.Tasks;
         stroke(): anychart.graphics.vector.Stroke;
         stroke(strokeFunction?: (() => void)): anychart.core.pert.Tasks;
-        stroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string, thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.pert.Tasks;
+        stroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string, thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.pert.Tasks;
         tooltip(): anychart.core.ui.Tooltip;
         tooltip(value?: Object | boolean): anychart.core.pert.Milestones;
         upperLabels(): anychart.core.ui.LabelsFactory;
         upperLabels(value?: Object | boolean): anychart.core.pert.Tasks;
     }
     interface Milestones {
-        color(): anychart.graphics.vector.Fill;
-        color(value: anychart.graphics.vector.Fill): anychart.core.pert.Milestones;
-        color(keys: Array<(anychart.graphics.vector.GradientKey|string)>, angle?: number, mode?: boolean | anychart.graphics.vector.Rect | Object, opacity?: number): anychart.core.pert.Milestones;
-        color(keys: Array<(anychart.graphics.vector.GradientKey|string)>, cx: number, cy: number, mode?: anychart.graphics.math.Rect, opacity?: number, fx?: number, fy?: number): anychart.core.pert.Milestones;
+        color(): string;
+        color(value: string): anychart.core.pert.Milestones;
         fill(): anychart.graphics.vector.Fill | (() => void);
         fill(value: anychart.graphics.vector.Fill): anychart.core.pert.Milestones;
         fill(fillFunction?: (() => void)): anychart.core.pert.Milestones;
@@ -10273,7 +11111,7 @@ declare namespace anychart.core.pert {
         hoverLabels(value?: Object | boolean): anychart.core.pert.Milestones;
         hoverStroke(): anychart.graphics.vector.Stroke;
         hoverStroke(strokeFunction?: (() => void)): anychart.core.pert.Milestones;
-        hoverStroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.pert.Milestones;
+        hoverStroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.pert.Milestones;
         labels(): anychart.core.ui.LabelsFactory;
         labels(value?: Object | boolean): anychart.core.pert.Milestones;
         selectFill(): anychart.graphics.vector.Fill;
@@ -10287,14 +11125,14 @@ declare namespace anychart.core.pert {
         selectLabels(value?: Object | boolean): anychart.core.pert.Milestones;
         selectStroke(): anychart.graphics.vector.Stroke;
         selectStroke(strokeFunction?: (() => void)): anychart.core.pert.Milestones;
-        selectStroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.pert.Milestones;
+        selectStroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.pert.Milestones;
         shape(): anychart.enums.MilestoneShape | string;
         shape(value?: anychart.enums.MilestoneShape | string): anychart.core.pert.Milestones;
         size(): number | string;
         size(value?: number | string): anychart.core.pert.Milestones;
         stroke(): anychart.graphics.vector.Stroke;
         stroke(strokeFunction?: (() => void)): anychart.core.pert.Milestones;
-        stroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string, thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.pert.Milestones;
+        stroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string, thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.pert.Milestones;
         tooltip(): anychart.core.ui.Tooltip;
         tooltip(value?: Object | boolean): anychart.core.pert.Milestones;
     }
@@ -10315,6 +11153,100 @@ declare namespace anychart.core.polar {
 }
 
 declare namespace anychart.core.polar.series {
+    interface Polyline extends anychart.core.polar.series.ContinuousBase {
+        bottom(): number | string;
+        bottom(value?: number | string): anychart.core.VisualBaseWithBounds;
+        bounds(): anychart.core.utils.Bounds;
+        bounds(value?: anychart.utils.RectObj | anychart.math.Rect | anychart.core.utils.Bounds): anychart.core.VisualBase;
+        bounds(x?: number | string, y?: number | string, width?: number | string, height?: number | string): anychart.core.VisualBase;
+        closed(): boolean;
+        closed(value?: boolean): anychart.core.polar.series.ContinuousBase;
+        color(): string;
+        color(value: string): anychart.core.SeriesBase;
+        connectMissingPoints(): boolean;
+        connectMissingPoints(value?: boolean): anychart.core.polar.series.ContinuousBase;
+        data(): anychart.data.View;
+        data(value?: anychart.data.View | anychart.data.Set | Array<any> | string, csvSettings?: anychart.enums.TextParsingMode | anychart.data.TextParsingSettings): anychart.core.SeriesBase;
+        enabled(): boolean;
+        enabled(value?: boolean): anychart.core.VisualBase;
+        getPixelBounds(): anychart.math.Rect;
+        getPoint(index: number): anychart.core.SeriesPoint;
+        getStat(key: string | anychart.enums.Statistics): any;
+        height(): number | string;
+        height(value?: number | string): anychart.core.VisualBaseWithBounds;
+        hover(): anychart.core.SeriesBase;
+        hover(index?: number): anychart.core.SeriesBase;
+        hover(indexes?: Array<number>): anychart.core.SeriesBase;
+        hoverLabels(): anychart.core.ui.LabelsFactory;
+        hoverLabels(value?: Object | boolean): anychart.core.SeriesBase;
+        hoverMarkers(): anychart.core.ui.MarkersFactory;
+        hoverMarkers(value?: Object | boolean | string): anychart.core.polar.series.ContinuousBase;
+        hoverStroke(): anychart.graphics.vector.Stroke;
+        hoverStroke(strokeFunction?: (() => void)): anychart.core.polar.series.Polyline;
+        hoverStroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.polar.series.Polyline;
+        id(): string | number;
+        id(value?: string | number): anychart.core.SeriesBase;
+        labels(): anychart.core.ui.LabelsFactory;
+        labels(value?: Object | boolean): anychart.core.SeriesBase;
+        left(): number | string;
+        left(value?: number | string): anychart.core.VisualBaseWithBounds;
+        legendItem(): anychart.core.utils.LegendItemSettings;
+        legendItem(value?: Object): anychart.core.SeriesBase;
+        listen(type: string, listener: (() => void), useCapture?: boolean, listenerScope?: Object): Object;
+        listenOnce(type: string, listener: (() => void), useCapture?: boolean, listenerScope?: Object): Object;
+        markers(): anychart.core.ui.MarkersFactory;
+        markers(value?: Object | boolean | string): anychart.core.polar.series.ContinuousBase;
+        maxHeight(): number | string;
+        maxHeight(value?: number | string): anychart.core.VisualBase;
+        maxWidth(): number | string;
+        maxWidth(value?: number | string): anychart.core.VisualBase;
+        meta(key?: any): any;
+        meta(object?: any, value?: any): anychart.core.SeriesBase;
+        meta(key?: any, value?: any): anychart.core.SeriesBase;
+        minHeight(): number | string;
+        minHeight(value?: number | string): anychart.core.VisualBase;
+        minWidth(): number | string;
+        minWidth(value?: number | string): anychart.core.VisualBase;
+        name(): string;
+        name(value?: string): anychart.core.SeriesBase;
+        print(paperSizeOrOptions?: anychart.graphics.vector.PaperSize | Object, landscape?: boolean): void;
+        removeAllListeners(type?: string): number;
+        right(): number | string;
+        right(value?: number | string): anychart.core.VisualBaseWithBounds;
+        select(index?: number): anychart.core.SeriesBase;
+        select(indexes?: number | Array<number>): anychart.core.SeriesBase;
+        selectLabels(): anychart.core.ui.LabelsFactory;
+        selectLabels(value?: Object | boolean): anychart.core.SeriesBase;
+        selectMarkers(): anychart.core.ui.MarkersFactory;
+        selectMarkers(value?: Object | boolean | string): anychart.core.polar.series.ContinuousBase;
+        selectStroke(): anychart.graphics.vector.Stroke;
+        selectStroke(strokeFunction?: (() => void)): anychart.core.polar.series.Polyline;
+        selectStroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.polar.series.Polyline;
+        selectionMode(): anychart.enums.SelectionMode;
+        selectionMode(value?: anychart.enums.SelectionMode | string): anychart.core.SeriesBase;
+        stroke(): anychart.graphics.vector.Stroke;
+        stroke(strokeFunction?: (() => void)): anychart.core.polar.series.Polyline;
+        stroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.polar.series.Polyline;
+        tooltip(): anychart.core.ui.Tooltip;
+        tooltip(value?: Object | boolean): anychart.core.SeriesBase;
+        top(): number | string;
+        top(value?: number | string): anychart.core.VisualBaseWithBounds;
+        transformXY(xValue: any, yValue: any): {[prop: string]: number};
+        unhover(): anychart.core.polar.series.ContinuousBase;
+        unlisten(type: string, listener: (() => void), useCapture?: boolean, listenerScope?: Object): boolean;
+        unlistenByKey(key: Object): boolean;
+        unselect(): anychart.core.SeriesBase;
+        unselect(index?: number): anychart.core.SeriesBase;
+        unselect(indexes?: Array<number>): anychart.core.SeriesBase;
+        width(): number | string;
+        width(value?: number | string): anychart.core.VisualBaseWithBounds;
+        xScale(): anychart.scales.Base;
+        xScale(value?: anychart.scales.Base): anychart.core.polar.series.Base;
+        yScale(): anychart.scales.Base;
+        yScale(value?: anychart.scales.Base): anychart.core.polar.series.Base;
+        zIndex(): number;
+        zIndex(value?: number): anychart.core.VisualBase;
+    }
     interface ContinuousBase extends anychart.core.polar.series.Base {
         bottom(): number | string;
         bottom(value?: number | string): anychart.core.VisualBaseWithBounds;
@@ -10323,15 +11255,12 @@ declare namespace anychart.core.polar.series {
         bounds(x?: number | string, y?: number | string, width?: number | string, height?: number | string): anychart.core.VisualBase;
         closed(): boolean;
         closed(value?: boolean): anychart.core.polar.series.ContinuousBase;
-        color(): anychart.graphics.vector.Fill;
-        color(value: anychart.graphics.vector.Fill): anychart.core.SeriesBase;
-        color(color: string, opacity?: number): anychart.core.SeriesBase;
-        color(keys: Array<(anychart.graphics.vector.GradientKey|string)>, angle?: number, mode?: boolean | anychart.graphics.vector.Rect | Object, opacity?: number): anychart.core.SeriesBase;
-        color(keys: Array<(anychart.graphics.vector.GradientKey|string)>, cx: number, cy: number, mode?: anychart.graphics.math.Rect, opacity?: number, fx?: number, fy?: number): anychart.core.SeriesBase;
+        color(): string;
+        color(value: string): anychart.core.SeriesBase;
         connectMissingPoints(): boolean;
         connectMissingPoints(value?: boolean): anychart.core.polar.series.ContinuousBase;
         data(): anychart.data.View;
-        data(value?: anychart.data.View | anychart.data.Set | Array<any> | string, csvSettings?: {[prop: string]: (string|boolean)}): anychart.core.SeriesBase;
+        data(value?: anychart.data.View | anychart.data.Set | Array<any> | string, csvSettings?: anychart.enums.TextParsingMode | anychart.data.TextParsingSettings): anychart.core.SeriesBase;
         enabled(): boolean;
         enabled(value?: boolean): anychart.core.VisualBase;
         getPixelBounds(): anychart.math.Rect;
@@ -10411,6 +11340,8 @@ declare namespace anychart.core.polar.series {
         bounds(x?: number | string, y?: number | string, width?: number | string, height?: number | string): anychart.core.VisualBase;
         enabled(): boolean;
         enabled(value?: boolean): anychart.core.VisualBase;
+        excludePoint(indexes: number | Array<number>): boolean;
+        getExcludedPoints(): Array<anychart.core.Point>;
         getPixelBounds(): anychart.math.Rect;
         getPoint(index: number): anychart.core.SeriesPoint;
         getStat(key: string | anychart.enums.Statistics): any;
@@ -10418,6 +11349,9 @@ declare namespace anychart.core.polar.series {
         height(value?: number | string): anychart.core.VisualBaseWithBounds;
         id(): string | number;
         id(value?: string | number): anychart.core.SeriesBase;
+        includeAllPoints(): boolean;
+        includePoint(indexes: number | Array<number>): boolean;
+        keepOnlyPoints(indexes: number | Array<number>): void;
         left(): number | string;
         left(value?: number | string): anychart.core.VisualBaseWithBounds;
         listen(type: string, listener: (() => void), useCapture?: boolean, listenerScope?: Object): Object;
@@ -10466,17 +11400,15 @@ declare namespace anychart.core.polar.series {
         bounds(x?: number | string, y?: number | string, width?: number | string, height?: number | string): anychart.core.VisualBase;
         closed(): boolean;
         closed(value?: boolean): anychart.core.polar.series.ContinuousBase;
-        color(): anychart.graphics.vector.Fill;
-        color(value: anychart.graphics.vector.Fill): anychart.core.SeriesBase;
-        color(color: string, opacity?: number): anychart.core.SeriesBase;
-        color(keys: Array<(anychart.graphics.vector.GradientKey|string)>, angle?: number, mode?: boolean | anychart.graphics.vector.Rect | Object, opacity?: number): anychart.core.SeriesBase;
-        color(keys: Array<(anychart.graphics.vector.GradientKey|string)>, cx: number, cy: number, mode?: anychart.graphics.math.Rect, opacity?: number, fx?: number, fy?: number): anychart.core.SeriesBase;
+        color(): string;
+        color(value: string): anychart.core.SeriesBase;
         connectMissingPoints(): boolean;
         connectMissingPoints(value?: boolean): anychart.core.polar.series.ContinuousBase;
         data(): anychart.data.View;
-        data(value?: anychart.data.View | anychart.data.Set | Array<any> | string, csvSettings?: {[prop: string]: (string|boolean)}): anychart.core.SeriesBase;
+        data(value?: anychart.data.View | anychart.data.Set | Array<any> | string, csvSettings?: anychart.enums.TextParsingMode | anychart.data.TextParsingSettings): anychart.core.SeriesBase;
         enabled(): boolean;
         enabled(value?: boolean): anychart.core.VisualBase;
+        excludePoint(indexes: number | Array<number>): boolean;
         fill(): anychart.graphics.vector.Fill;
         fill(value: anychart.graphics.vector.Fill): anychart.core.polar.series.Area;
         fill(fillFunction?: (() => void)): anychart.core.polar.series.Area;
@@ -10484,6 +11416,7 @@ declare namespace anychart.core.polar.series {
         fill(keys: Array<(anychart.graphics.vector.GradientKey|string)>, angle?: number, mode?: boolean | anychart.graphics.vector.Rect | Object, opacity?: number): anychart.core.polar.series.Area;
         fill(keys: Array<(anychart.graphics.vector.GradientKey|string)>, cx: number, cy: number, mode?: anychart.graphics.math.Rect, opacity?: number, fx?: number, fy?: number): anychart.core.polar.series.Area;
         fill(imageSettings: anychart.graphics.vector.Fill): anychart.core.polar.series.Area;
+        getExcludedPoints(): Array<anychart.core.Point>;
         getPixelBounds(): anychart.math.Rect;
         getPoint(index: number): anychart.core.SeriesPoint;
         getStat(key: string | anychart.enums.Statistics): any;
@@ -10509,9 +11442,12 @@ declare namespace anychart.core.polar.series {
         hoverMarkers(value?: Object | boolean | string): anychart.core.polar.series.ContinuousBase;
         hoverStroke(): anychart.graphics.vector.Stroke;
         hoverStroke(fillFunction?: (() => void)): anychart.core.polar.series.Area;
-        hoverStroke(strokeOrFill?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.polar.series.Area;
+        hoverStroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.polar.series.Area;
         id(): string | number;
         id(value?: string | number): anychart.core.SeriesBase;
+        includeAllPoints(): boolean;
+        includePoint(indexes: number | Array<number>): boolean;
+        keepOnlyPoints(indexes: number | Array<number>): void;
         labels(): anychart.core.ui.LabelsFactory;
         labels(value?: Object | boolean): anychart.core.SeriesBase;
         left(): number | string;
@@ -10556,18 +11492,131 @@ declare namespace anychart.core.polar.series {
         selectMarkers(value?: Object | boolean | string): anychart.core.polar.series.ContinuousBase;
         selectStroke(): anychart.graphics.vector.Stroke;
         selectStroke(strokeFunction?: (() => void)): anychart.core.polar.series.Area;
-        selectStroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.polar.series.Area;
+        selectStroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.polar.series.Area;
         selectionMode(): anychart.enums.SelectionMode;
         selectionMode(value?: anychart.enums.SelectionMode | string): anychart.core.SeriesBase;
         stroke(): anychart.graphics.vector.Stroke;
         stroke(fillFunction?: (() => void)): anychart.core.polar.series.Area;
-        stroke(strokeOrFill?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.polar.series.Area;
+        stroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.polar.series.Area;
         tooltip(): anychart.core.ui.Tooltip;
         tooltip(value?: Object | boolean): anychart.core.SeriesBase;
         top(): number | string;
         top(value?: number | string): anychart.core.VisualBaseWithBounds;
         transformXY(xValue: any, yValue: any): {[prop: string]: number};
         unhover(): anychart.core.polar.series.ContinuousBase;
+        unlisten(type: string, listener: (() => void), useCapture?: boolean, listenerScope?: Object): boolean;
+        unlistenByKey(key: Object): boolean;
+        unselect(): anychart.core.SeriesBase;
+        unselect(index?: number): anychart.core.SeriesBase;
+        unselect(indexes?: Array<number>): anychart.core.SeriesBase;
+        width(): number | string;
+        width(value?: number | string): anychart.core.VisualBaseWithBounds;
+        xScale(): anychart.scales.Base;
+        xScale(value?: anychart.scales.Base): anychart.core.polar.series.Base;
+        yScale(): anychart.scales.Base;
+        yScale(value?: anychart.scales.Base): anychart.core.polar.series.Base;
+        zIndex(): number;
+        zIndex(value?: number): anychart.core.VisualBase;
+    }
+    interface Column extends anychart.core.polar.series.Base {
+        bottom(): number | string;
+        bottom(value?: number | string): anychart.core.VisualBaseWithBounds;
+        bounds(): anychart.core.utils.Bounds;
+        bounds(value?: anychart.utils.RectObj | anychart.math.Rect | anychart.core.utils.Bounds): anychart.core.VisualBase;
+        bounds(x?: number | string, y?: number | string, width?: number | string, height?: number | string): anychart.core.VisualBase;
+        color(): string;
+        color(value: string): anychart.core.SeriesBase;
+        data(): anychart.data.View;
+        data(value?: anychart.data.View | anychart.data.Set | Array<any> | string, csvSettings?: anychart.enums.TextParsingMode | anychart.data.TextParsingSettings): anychart.core.SeriesBase;
+        enabled(): boolean;
+        enabled(value?: boolean): anychart.core.VisualBase;
+        fill(): anychart.graphics.vector.Fill;
+        fill(value: anychart.graphics.vector.Fill): anychart.core.polar.series.Column;
+        fill(fillFunction?: (() => void)): anychart.core.polar.series.Column;
+        fill(color: string, opacity?: number): anychart.core.polar.series.Column;
+        fill(keys: Array<(anychart.graphics.vector.GradientKey|string)>, angle?: number, mode?: boolean | anychart.graphics.vector.Rect | Object, opacity?: number): anychart.core.polar.series.Column;
+        fill(keys: Array<(anychart.graphics.vector.GradientKey|string)>, cx: number, cy: number, mode?: anychart.graphics.math.Rect, opacity?: number, fx?: number, fy?: number): anychart.core.polar.series.Column;
+        fill(imageSettings: anychart.graphics.vector.Fill): anychart.core.polar.series.Column;
+        getPixelBounds(): anychart.math.Rect;
+        getPoint(index: number): anychart.core.SeriesPoint;
+        getStat(key: string | anychart.enums.Statistics): any;
+        hatchFill(): anychart.graphics.vector.PatternFill | anychart.graphics.vector.HatchFill | (() => void);
+        hatchFill(patternFillOrType?: anychart.graphics.vector.PatternFill | anychart.graphics.vector.HatchFill | (() => void) | anychart.graphics.vector.HatchFill.HatchFillType | string, color?: string, thickness?: number, size?: number): anychart.core.polar.series.Column;
+        height(): number | string;
+        height(value?: number | string): anychart.core.VisualBaseWithBounds;
+        hover(): anychart.core.SeriesBase;
+        hover(index?: number): anychart.core.SeriesBase;
+        hover(indexes?: Array<number>): anychart.core.SeriesBase;
+        hoverFill(): anychart.graphics.vector.Fill;
+        hoverFill(value: anychart.graphics.vector.Fill): anychart.core.polar.series.Column;
+        hoverFill(fillFunction?: (() => void)): anychart.core.polar.series.Column;
+        hoverFill(color: string, opacity?: number): anychart.core.polar.series.Column;
+        hoverFill(keys: Array<(anychart.graphics.vector.GradientKey|string)>, angle?: number, mode?: boolean | anychart.graphics.vector.Rect | Object, opacity?: number): anychart.core.polar.series.Column;
+        hoverFill(keys: Array<(anychart.graphics.vector.GradientKey|string)>, cx: number, cy: number, mode?: anychart.graphics.math.Rect, opacity?: number, fx?: number, fy?: number): anychart.core.polar.series.Column;
+        hoverFill(imageSettings: anychart.graphics.vector.Fill): anychart.core.polar.series.Column;
+        hoverHatchFill(): anychart.graphics.vector.PatternFill | anychart.graphics.vector.HatchFill | (() => void);
+        hoverHatchFill(patternFillOrType?: anychart.graphics.vector.PatternFill | anychart.graphics.vector.HatchFill | (() => void) | anychart.graphics.vector.HatchFill.HatchFillType | string, color?: string, thickness?: number, size?: number): anychart.core.polar.series.Column;
+        hoverLabels(): anychart.core.ui.LabelsFactory;
+        hoverLabels(value?: Object | boolean): anychart.core.SeriesBase;
+        hoverStroke(): anychart.graphics.vector.Stroke;
+        hoverStroke(strokeFunction?: (() => void)): anychart.core.polar.series.Column;
+        hoverStroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.polar.series.Column;
+        id(): string | number;
+        id(value?: string | number): anychart.core.SeriesBase;
+        labels(): anychart.core.ui.LabelsFactory;
+        labels(value?: Object | boolean): anychart.core.SeriesBase;
+        left(): number | string;
+        left(value?: number | string): anychart.core.VisualBaseWithBounds;
+        legendItem(): anychart.core.utils.LegendItemSettings;
+        legendItem(value?: Object): anychart.core.SeriesBase;
+        listen(type: string, listener: (() => void), useCapture?: boolean, listenerScope?: Object): Object;
+        listenOnce(type: string, listener: (() => void), useCapture?: boolean, listenerScope?: Object): Object;
+        maxHeight(): number | string;
+        maxHeight(value?: number | string): anychart.core.VisualBase;
+        maxWidth(): number | string;
+        maxWidth(value?: number | string): anychart.core.VisualBase;
+        meta(key?: any): any;
+        meta(object?: any, value?: any): anychart.core.SeriesBase;
+        meta(key?: any, value?: any): anychart.core.SeriesBase;
+        minHeight(): number | string;
+        minHeight(value?: number | string): anychart.core.VisualBase;
+        minWidth(): number | string;
+        minWidth(value?: number | string): anychart.core.VisualBase;
+        name(): string;
+        name(value?: string): anychart.core.SeriesBase;
+        pointWidth(): string | number;
+        pointWidth(value?: number | string): anychart.core.polar.series.Column;
+        print(paperSizeOrOptions?: anychart.graphics.vector.PaperSize | Object, landscape?: boolean): void;
+        removeAllListeners(type?: string): number;
+        right(): number | string;
+        right(value?: number | string): anychart.core.VisualBaseWithBounds;
+        select(index?: number): anychart.core.SeriesBase;
+        select(indexes?: number | Array<number>): anychart.core.SeriesBase;
+        selectFill(): anychart.graphics.vector.Fill;
+        selectFill(value: anychart.graphics.vector.Fill): anychart.core.polar.series.Column;
+        selectFill(fillFunction?: (() => void)): anychart.core.polar.series.Column;
+        selectFill(color: string, opacity?: number): anychart.core.polar.series.Column;
+        selectFill(keys: Array<(anychart.graphics.vector.GradientKey|string)>, angle?: number, mode?: boolean | anychart.graphics.vector.Rect | Object, opacity?: number): anychart.core.polar.series.Column;
+        selectFill(keys: Array<(anychart.graphics.vector.GradientKey|string)>, cx: number, cy: number, mode?: anychart.graphics.math.Rect, opacity?: number, fx?: number, fy?: number): anychart.core.polar.series.Column;
+        selectFill(imageSettings: anychart.graphics.vector.Fill): anychart.core.polar.series.Column;
+        selectHatchFill(): anychart.graphics.vector.PatternFill | anychart.graphics.vector.HatchFill | (() => void) | boolean;
+        selectHatchFill(patternFillOrType?: anychart.graphics.vector.PatternFill | anychart.graphics.vector.HatchFill | (() => void) | anychart.graphics.vector.HatchFill.HatchFillType | string | boolean, color?: string, thickness?: number, size?: number): anychart.core.polar.series.Column;
+        selectLabels(): anychart.core.ui.LabelsFactory;
+        selectLabels(value?: Object | boolean): anychart.core.SeriesBase;
+        selectStroke(): anychart.graphics.vector.Stroke;
+        selectStroke(strokeFunction?: (() => void)): anychart.core.polar.series.Column;
+        selectStroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.polar.series.Column;
+        selectionMode(): anychart.enums.SelectionMode;
+        selectionMode(value?: anychart.enums.SelectionMode | string): anychart.core.SeriesBase;
+        stroke(): anychart.graphics.vector.Stroke;
+        stroke(strokeFunction?: (() => void)): anychart.core.polar.series.Column;
+        stroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.polar.series.Column;
+        tooltip(): anychart.core.ui.Tooltip;
+        tooltip(value?: Object | boolean): anychart.core.SeriesBase;
+        top(): number | string;
+        top(value?: number | string): anychart.core.VisualBaseWithBounds;
+        transformXY(xValue: any, yValue: any): {[prop: string]: number};
+        unhover(indexOrIndexes?: number | Array<number>): anychart.core.SeriesBase;
         unlisten(type: string, listener: (() => void), useCapture?: boolean, listenerScope?: Object): boolean;
         unlistenByKey(key: Object): boolean;
         unselect(): anychart.core.SeriesBase;
@@ -10590,17 +11639,16 @@ declare namespace anychart.core.polar.series {
         bounds(x?: number | string, y?: number | string, width?: number | string, height?: number | string): anychart.core.VisualBase;
         closed(): boolean;
         closed(value?: boolean): anychart.core.polar.series.ContinuousBase;
-        color(): anychart.graphics.vector.Fill;
-        color(value: anychart.graphics.vector.Fill): anychart.core.SeriesBase;
-        color(color: string, opacity?: number): anychart.core.SeriesBase;
-        color(keys: Array<(anychart.graphics.vector.GradientKey|string)>, angle?: number, mode?: boolean | anychart.graphics.vector.Rect | Object, opacity?: number): anychart.core.SeriesBase;
-        color(keys: Array<(anychart.graphics.vector.GradientKey|string)>, cx: number, cy: number, mode?: anychart.graphics.math.Rect, opacity?: number, fx?: number, fy?: number): anychart.core.SeriesBase;
+        color(): string;
+        color(value: string): anychart.core.SeriesBase;
         connectMissingPoints(): boolean;
         connectMissingPoints(value?: boolean): anychart.core.polar.series.ContinuousBase;
         data(): anychart.data.View;
-        data(value?: anychart.data.View | anychart.data.Set | Array<any> | string, csvSettings?: {[prop: string]: (string|boolean)}): anychart.core.SeriesBase;
+        data(value?: anychart.data.View | anychart.data.Set | Array<any> | string, csvSettings?: anychart.enums.TextParsingMode | anychart.data.TextParsingSettings): anychart.core.SeriesBase;
         enabled(): boolean;
         enabled(value?: boolean): anychart.core.VisualBase;
+        excludePoint(indexes: number | Array<number>): boolean;
+        getExcludedPoints(): Array<anychart.core.Point>;
         getPixelBounds(): anychart.math.Rect;
         getPoint(index: number): anychart.core.SeriesPoint;
         getStat(key: string | anychart.enums.Statistics): any;
@@ -10615,9 +11663,12 @@ declare namespace anychart.core.polar.series {
         hoverMarkers(value?: Object | boolean | string): anychart.core.polar.series.ContinuousBase;
         hoverStroke(): anychart.graphics.vector.Stroke;
         hoverStroke(strokeFunction?: (() => void)): anychart.core.polar.series.Line;
-        hoverStroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.polar.series.Line;
+        hoverStroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.polar.series.Line;
         id(): string | number;
         id(value?: string | number): anychart.core.SeriesBase;
+        includeAllPoints(): boolean;
+        includePoint(indexes: number | Array<number>): boolean;
+        keepOnlyPoints(indexes: number | Array<number>): void;
         labels(): anychart.core.ui.LabelsFactory;
         labels(value?: Object | boolean): anychart.core.SeriesBase;
         left(): number | string;
@@ -10653,12 +11704,12 @@ declare namespace anychart.core.polar.series {
         selectMarkers(value?: Object | boolean | string): anychart.core.polar.series.ContinuousBase;
         selectStroke(): anychart.graphics.vector.Stroke;
         selectStroke(strokeFunction?: (() => void)): anychart.core.polar.series.Line;
-        selectStroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.polar.series.Line;
+        selectStroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.polar.series.Line;
         selectionMode(): anychart.enums.SelectionMode;
         selectionMode(value?: anychart.enums.SelectionMode | string): anychart.core.SeriesBase;
         stroke(): anychart.graphics.vector.Stroke;
         stroke(strokeFunction?: (() => void)): anychart.core.polar.series.Line;
-        stroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.polar.series.Line;
+        stroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.polar.series.Line;
         tooltip(): anychart.core.ui.Tooltip;
         tooltip(value?: Object | boolean): anychart.core.SeriesBase;
         top(): number | string;
@@ -10679,21 +11730,132 @@ declare namespace anychart.core.polar.series {
         zIndex(): number;
         zIndex(value?: number): anychart.core.VisualBase;
     }
+    interface RangeColumn extends anychart.core.polar.series.Base {
+        bottom(): number | string;
+        bottom(value?: number | string): anychart.core.VisualBaseWithBounds;
+        bounds(): anychart.core.utils.Bounds;
+        bounds(value?: anychart.utils.RectObj | anychart.math.Rect | anychart.core.utils.Bounds): anychart.core.VisualBase;
+        bounds(x?: number | string, y?: number | string, width?: number | string, height?: number | string): anychart.core.VisualBase;
+        color(): string;
+        color(value: string): anychart.core.SeriesBase;
+        data(): anychart.data.View;
+        data(value?: anychart.data.View | anychart.data.Set | Array<any> | string, csvSettings?: anychart.enums.TextParsingMode | anychart.data.TextParsingSettings): anychart.core.SeriesBase;
+        enabled(): boolean;
+        enabled(value?: boolean): anychart.core.VisualBase;
+        fill(): anychart.graphics.vector.Fill;
+        fill(value: anychart.graphics.vector.Fill): anychart.core.polar.series.RangeColumn;
+        fill(fillFunction?: (() => void)): anychart.core.polar.series.RangeColumn;
+        fill(color: string, opacity?: number): anychart.core.polar.series.RangeColumn;
+        fill(keys: Array<(anychart.graphics.vector.GradientKey|string)>, angle?: number, mode?: boolean | anychart.graphics.vector.Rect | Object, opacity?: number): anychart.core.polar.series.RangeColumn;
+        fill(keys: Array<(anychart.graphics.vector.GradientKey|string)>, cx: number, cy: number, mode?: anychart.graphics.math.Rect, opacity?: number, fx?: number, fy?: number): anychart.core.polar.series.RangeColumn;
+        fill(imageSettings: anychart.graphics.vector.Fill): anychart.core.polar.series.RangeColumn;
+        getPixelBounds(): anychart.math.Rect;
+        getPoint(index: number): anychart.core.SeriesPoint;
+        getStat(key: string | anychart.enums.Statistics): any;
+        hatchFill(): anychart.graphics.vector.PatternFill | anychart.graphics.vector.HatchFill | (() => void);
+        hatchFill(patternFillOrType?: anychart.graphics.vector.PatternFill | anychart.graphics.vector.HatchFill | (() => void) | anychart.graphics.vector.HatchFill.HatchFillType | string, color?: string, thickness?: number, size?: number): anychart.core.polar.series.RangeColumn;
+        height(): number | string;
+        height(value?: number | string): anychart.core.VisualBaseWithBounds;
+        hover(): anychart.core.SeriesBase;
+        hover(index?: number): anychart.core.SeriesBase;
+        hover(indexes?: Array<number>): anychart.core.SeriesBase;
+        hoverFill(): anychart.graphics.vector.Fill;
+        hoverFill(value: anychart.graphics.vector.Fill): anychart.core.polar.series.RangeColumn;
+        hoverFill(fillFunction?: (() => void)): anychart.core.polar.series.RangeColumn;
+        hoverFill(color: string, opacity?: number): anychart.core.polar.series.RangeColumn;
+        hoverFill(keys: Array<(anychart.graphics.vector.GradientKey|string)>, angle?: number, mode?: boolean | anychart.graphics.vector.Rect | Object, opacity?: number): anychart.core.polar.series.RangeColumn;
+        hoverFill(keys: Array<(anychart.graphics.vector.GradientKey|string)>, cx: number, cy: number, mode?: anychart.graphics.math.Rect, opacity?: number, fx?: number, fy?: number): anychart.core.polar.series.RangeColumn;
+        hoverFill(imageSettings: anychart.graphics.vector.Fill): anychart.core.polar.series.RangeColumn;
+        hoverHatchFill(): anychart.graphics.vector.PatternFill | anychart.graphics.vector.HatchFill | (() => void);
+        hoverHatchFill(patternFillOrType?: anychart.graphics.vector.PatternFill | anychart.graphics.vector.HatchFill | (() => void) | anychart.graphics.vector.HatchFill.HatchFillType | string, color?: string, thickness?: number, size?: number): anychart.core.polar.series.RangeColumn;
+        hoverLabels(): anychart.core.ui.LabelsFactory;
+        hoverLabels(value?: Object | boolean): anychart.core.SeriesBase;
+        hoverStroke(): anychart.graphics.vector.Stroke;
+        hoverStroke(strokeFunction?: (() => void)): anychart.core.polar.series.RangeColumn;
+        hoverStroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.polar.series.RangeColumn;
+        id(): string | number;
+        id(value?: string | number): anychart.core.SeriesBase;
+        labels(): anychart.core.ui.LabelsFactory;
+        labels(value?: Object | boolean): anychart.core.SeriesBase;
+        left(): number | string;
+        left(value?: number | string): anychart.core.VisualBaseWithBounds;
+        legendItem(): anychart.core.utils.LegendItemSettings;
+        legendItem(value?: Object): anychart.core.SeriesBase;
+        listen(type: string, listener: (() => void), useCapture?: boolean, listenerScope?: Object): Object;
+        listenOnce(type: string, listener: (() => void), useCapture?: boolean, listenerScope?: Object): Object;
+        maxHeight(): number | string;
+        maxHeight(value?: number | string): anychart.core.VisualBase;
+        maxWidth(): number | string;
+        maxWidth(value?: number | string): anychart.core.VisualBase;
+        meta(key?: any): any;
+        meta(object?: any, value?: any): anychart.core.SeriesBase;
+        meta(key?: any, value?: any): anychart.core.SeriesBase;
+        minHeight(): number | string;
+        minHeight(value?: number | string): anychart.core.VisualBase;
+        minWidth(): number | string;
+        minWidth(value?: number | string): anychart.core.VisualBase;
+        name(): string;
+        name(value?: string): anychart.core.SeriesBase;
+        pointWidth(): string | number;
+        pointWidth(value?: number | string): anychart.core.polar.series.RangeColumn;
+        print(paperSizeOrOptions?: anychart.graphics.vector.PaperSize | Object, landscape?: boolean): void;
+        removeAllListeners(type?: string): number;
+        right(): number | string;
+        right(value?: number | string): anychart.core.VisualBaseWithBounds;
+        select(index?: number): anychart.core.SeriesBase;
+        select(indexes?: number | Array<number>): anychart.core.SeriesBase;
+        selectFill(): anychart.graphics.vector.Fill;
+        selectFill(value: anychart.graphics.vector.Fill): anychart.core.polar.series.RangeColumn;
+        selectFill(fillFunction?: (() => void)): anychart.core.polar.series.RangeColumn;
+        selectFill(color: string, opacity?: number): anychart.core.polar.series.RangeColumn;
+        selectFill(keys: Array<(anychart.graphics.vector.GradientKey|string)>, angle?: number, mode?: boolean | anychart.graphics.vector.Rect | Object, opacity?: number): anychart.core.polar.series.RangeColumn;
+        selectFill(keys: Array<(anychart.graphics.vector.GradientKey|string)>, cx: number, cy: number, mode?: anychart.graphics.math.Rect, opacity?: number, fx?: number, fy?: number): anychart.core.polar.series.RangeColumn;
+        selectFill(imageSettings: anychart.graphics.vector.Fill): anychart.core.polar.series.RangeColumn;
+        selectHatchFill(): anychart.graphics.vector.PatternFill | anychart.graphics.vector.HatchFill | (() => void) | boolean;
+        selectHatchFill(patternFillOrType?: anychart.graphics.vector.PatternFill | anychart.graphics.vector.HatchFill | (() => void) | anychart.graphics.vector.HatchFill.HatchFillType | string | boolean, color?: string, thickness?: number, size?: number): anychart.core.polar.series.RangeColumn;
+        selectLabels(): anychart.core.ui.LabelsFactory;
+        selectLabels(value?: Object | boolean): anychart.core.SeriesBase;
+        selectStroke(): anychart.graphics.vector.Stroke;
+        selectStroke(strokeFunction?: (() => void)): anychart.core.polar.series.RangeColumn;
+        selectStroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.polar.series.RangeColumn;
+        selectionMode(): anychart.enums.SelectionMode;
+        selectionMode(value?: anychart.enums.SelectionMode | string): anychart.core.SeriesBase;
+        stroke(): anychart.graphics.vector.Stroke;
+        stroke(strokeFunction?: (() => void)): anychart.core.polar.series.RangeColumn;
+        stroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.polar.series.RangeColumn;
+        tooltip(): anychart.core.ui.Tooltip;
+        tooltip(value?: Object | boolean): anychart.core.SeriesBase;
+        top(): number | string;
+        top(value?: number | string): anychart.core.VisualBaseWithBounds;
+        transformXY(xValue: any, yValue: any): {[prop: string]: number};
+        unhover(indexOrIndexes?: number | Array<number>): anychart.core.SeriesBase;
+        unlisten(type: string, listener: (() => void), useCapture?: boolean, listenerScope?: Object): boolean;
+        unlistenByKey(key: Object): boolean;
+        unselect(): anychart.core.SeriesBase;
+        unselect(index?: number): anychart.core.SeriesBase;
+        unselect(indexes?: Array<number>): anychart.core.SeriesBase;
+        width(): number | string;
+        width(value?: number | string): anychart.core.VisualBaseWithBounds;
+        xScale(): anychart.scales.Base;
+        xScale(value?: anychart.scales.Base): anychart.core.polar.series.Base;
+        yScale(): anychart.scales.Base;
+        yScale(value?: anychart.scales.Base): anychart.core.polar.series.Base;
+        zIndex(): number;
+        zIndex(value?: number): anychart.core.VisualBase;
+    }
     interface Marker extends anychart.core.polar.series.Base {
         bottom(): number | string;
         bottom(value?: number | string): anychart.core.VisualBaseWithBounds;
         bounds(): anychart.core.utils.Bounds;
         bounds(value?: anychart.utils.RectObj | anychart.math.Rect | anychart.core.utils.Bounds): anychart.core.VisualBase;
         bounds(x?: number | string, y?: number | string, width?: number | string, height?: number | string): anychart.core.VisualBase;
-        color(): anychart.graphics.vector.Fill;
-        color(value: anychart.graphics.vector.Fill): anychart.core.SeriesBase;
-        color(color: string, opacity?: number): anychart.core.SeriesBase;
-        color(keys: Array<(anychart.graphics.vector.GradientKey|string)>, angle?: number, mode?: boolean | anychart.graphics.vector.Rect | Object, opacity?: number): anychart.core.SeriesBase;
-        color(keys: Array<(anychart.graphics.vector.GradientKey|string)>, cx: number, cy: number, mode?: anychart.graphics.math.Rect, opacity?: number, fx?: number, fy?: number): anychart.core.SeriesBase;
+        color(): string;
+        color(value: string): anychart.core.SeriesBase;
         data(): anychart.data.View;
-        data(value?: anychart.data.View | anychart.data.Set | Array<any> | string, csvSettings?: {[prop: string]: (string|boolean)}): anychart.core.SeriesBase;
+        data(value?: anychart.data.View | anychart.data.Set | Array<any> | string, csvSettings?: anychart.enums.TextParsingMode | anychart.data.TextParsingSettings): anychart.core.SeriesBase;
         enabled(): boolean;
         enabled(value?: boolean): anychart.core.VisualBase;
+        excludePoint(indexes: number | Array<number>): boolean;
         fill(): anychart.graphics.vector.Fill;
         fill(value: anychart.graphics.vector.Fill): anychart.core.polar.series.Marker;
         fill(fillFunction?: (() => void)): anychart.core.polar.series.Marker;
@@ -10701,6 +11863,7 @@ declare namespace anychart.core.polar.series {
         fill(keys: Array<(anychart.graphics.vector.GradientKey|string)>, angle?: number, mode?: boolean | anychart.graphics.vector.Rect | Object, opacity?: number): anychart.core.polar.series.Marker;
         fill(keys: Array<(anychart.graphics.vector.GradientKey|string)>, cx: number, cy: number, mode?: anychart.graphics.math.Rect, opacity?: number, fx?: number, fy?: number): anychart.core.polar.series.Marker;
         fill(imageSettings: anychart.graphics.vector.Fill): anychart.core.polar.series.Marker;
+        getExcludedPoints(): Array<anychart.core.Point>;
         getPixelBounds(): anychart.math.Rect;
         getPoint(index: number): anychart.core.SeriesPoint;
         getStat(key: string | anychart.enums.Statistics): any;
@@ -10726,11 +11889,14 @@ declare namespace anychart.core.polar.series {
         hoverSize(value?: number): anychart.core.polar.series.Marker;
         hoverStroke(): anychart.graphics.vector.Stroke;
         hoverStroke(fillFunction?: (() => void)): anychart.core.polar.series.Marker;
-        hoverStroke(strokeOrFill?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.polar.series.Marker;
+        hoverStroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.polar.series.Marker;
         hoverType(): string | anychart.enums.MarkerType | (() => void);
         hoverType(value?: string | anychart.enums.MarkerType | (() => void)): anychart.core.polar.series.Marker;
         id(): string | number;
         id(value?: string | number): anychart.core.SeriesBase;
+        includeAllPoints(): boolean;
+        includePoint(indexes: number | Array<number>): boolean;
+        keepOnlyPoints(indexes: number | Array<number>): void;
         labels(): anychart.core.ui.LabelsFactory;
         labels(value?: Object | boolean): anychart.core.SeriesBase;
         left(): number | string;
@@ -10771,7 +11937,7 @@ declare namespace anychart.core.polar.series {
         selectLabels(value?: Object | boolean): anychart.core.SeriesBase;
         selectStroke(): anychart.graphics.vector.Stroke;
         selectStroke(fillFunction?: (() => void)): anychart.core.polar.series.Marker;
-        selectStroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.polar.series.Marker;
+        selectStroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.polar.series.Marker;
         selectType(): string | anychart.enums.MarkerType | (() => void);
         selectType(value?: string | anychart.enums.MarkerType | (() => void)): anychart.core.polar.series.Marker;
         selectionMode(): anychart.enums.SelectionMode;
@@ -10803,6 +11969,127 @@ declare namespace anychart.core.polar.series {
         zIndex(): number;
         zIndex(value?: number): anychart.core.VisualBase;
     }
+    interface Polygon extends anychart.core.polar.series.ContinuousBase {
+        bottom(): number | string;
+        bottom(value?: number | string): anychart.core.VisualBaseWithBounds;
+        bounds(): anychart.core.utils.Bounds;
+        bounds(value?: anychart.utils.RectObj | anychart.math.Rect | anychart.core.utils.Bounds): anychart.core.VisualBase;
+        bounds(x?: number | string, y?: number | string, width?: number | string, height?: number | string): anychart.core.VisualBase;
+        closed(): boolean;
+        closed(value?: boolean): anychart.core.polar.series.ContinuousBase;
+        color(): string;
+        color(value: string): anychart.core.SeriesBase;
+        connectMissingPoints(): boolean;
+        connectMissingPoints(value?: boolean): anychart.core.polar.series.ContinuousBase;
+        data(): anychart.data.View;
+        data(value?: anychart.data.View | anychart.data.Set | Array<any> | string, csvSettings?: anychart.enums.TextParsingMode | anychart.data.TextParsingSettings): anychart.core.SeriesBase;
+        enabled(): boolean;
+        enabled(value?: boolean): anychart.core.VisualBase;
+        fill(): anychart.graphics.vector.Fill;
+        fill(value: anychart.graphics.vector.Fill): anychart.core.polar.series.Polygon;
+        fill(fillFunction?: (() => void)): anychart.core.polar.series.Polygon;
+        fill(color: string, opacity?: number): anychart.core.polar.series.Polygon;
+        fill(keys: Array<(anychart.graphics.vector.GradientKey|string)>, angle?: number, mode?: boolean | anychart.graphics.vector.Rect | Object, opacity?: number): anychart.core.polar.series.Polygon;
+        fill(keys: Array<(anychart.graphics.vector.GradientKey|string)>, cx: number, cy: number, mode?: anychart.graphics.math.Rect, opacity?: number, fx?: number, fy?: number): anychart.core.polar.series.Polygon;
+        fill(imageSettings: anychart.graphics.vector.Fill): anychart.core.polar.series.Polygon;
+        getPixelBounds(): anychart.math.Rect;
+        getPoint(index: number): anychart.core.SeriesPoint;
+        getStat(key: string | anychart.enums.Statistics): any;
+        hatchFill(): anychart.graphics.vector.PatternFill | anychart.graphics.vector.HatchFill | (() => void);
+        hatchFill(patternFillOrType?: anychart.graphics.vector.PatternFill | anychart.graphics.vector.HatchFill | (() => void) | anychart.graphics.vector.HatchFill.HatchFillType | string, color?: string, thickness?: number, size?: number): anychart.core.polar.series.Polygon;
+        height(): number | string;
+        height(value?: number | string): anychart.core.VisualBaseWithBounds;
+        hover(): anychart.core.SeriesBase;
+        hover(index?: number): anychart.core.SeriesBase;
+        hover(indexes?: Array<number>): anychart.core.SeriesBase;
+        hoverFill(): anychart.graphics.vector.Fill;
+        hoverFill(value: anychart.graphics.vector.Fill): anychart.core.polar.series.Polygon;
+        hoverFill(fillFunction?: (() => void)): anychart.core.polar.series.Polygon;
+        hoverFill(color: string, opacity?: number): anychart.core.polar.series.Polygon;
+        hoverFill(keys: Array<(anychart.graphics.vector.GradientKey|string)>, angle?: number, mode?: boolean | anychart.graphics.vector.Rect | Object, opacity?: number): anychart.core.polar.series.Polygon;
+        hoverFill(keys: Array<(anychart.graphics.vector.GradientKey|string)>, cx: number, cy: number, mode?: anychart.graphics.math.Rect, opacity?: number, fx?: number, fy?: number): anychart.core.polar.series.Polygon;
+        hoverFill(imageSettings: anychart.graphics.vector.Fill): anychart.core.polar.series.Polygon;
+        hoverHatchFill(): anychart.graphics.vector.PatternFill | anychart.graphics.vector.HatchFill | (() => void);
+        hoverHatchFill(patternFillOrType?: anychart.graphics.vector.PatternFill | anychart.graphics.vector.HatchFill | (() => void) | anychart.graphics.vector.HatchFill.HatchFillType | string, color?: string, thickness?: number, size?: number): anychart.core.polar.series.Polygon;
+        hoverLabels(): anychart.core.ui.LabelsFactory;
+        hoverLabels(value?: Object | boolean): anychart.core.SeriesBase;
+        hoverMarkers(): anychart.core.ui.MarkersFactory;
+        hoverMarkers(value?: Object | boolean | string): anychart.core.polar.series.ContinuousBase;
+        hoverStroke(): anychart.graphics.vector.Stroke;
+        hoverStroke(strokeFunction?: (() => void)): anychart.core.polar.series.Polygon;
+        hoverStroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.polar.series.Polygon;
+        id(): string | number;
+        id(value?: string | number): anychart.core.SeriesBase;
+        labels(): anychart.core.ui.LabelsFactory;
+        labels(value?: Object | boolean): anychart.core.SeriesBase;
+        left(): number | string;
+        left(value?: number | string): anychart.core.VisualBaseWithBounds;
+        legendItem(): anychart.core.utils.LegendItemSettings;
+        legendItem(value?: Object): anychart.core.SeriesBase;
+        listen(type: string, listener: (() => void), useCapture?: boolean, listenerScope?: Object): Object;
+        listenOnce(type: string, listener: (() => void), useCapture?: boolean, listenerScope?: Object): Object;
+        markers(): anychart.core.ui.MarkersFactory;
+        markers(value?: Object | boolean | string): anychart.core.polar.series.ContinuousBase;
+        maxHeight(): number | string;
+        maxHeight(value?: number | string): anychart.core.VisualBase;
+        maxWidth(): number | string;
+        maxWidth(value?: number | string): anychart.core.VisualBase;
+        meta(key?: any): any;
+        meta(object?: any, value?: any): anychart.core.SeriesBase;
+        meta(key?: any, value?: any): anychart.core.SeriesBase;
+        minHeight(): number | string;
+        minHeight(value?: number | string): anychart.core.VisualBase;
+        minWidth(): number | string;
+        minWidth(value?: number | string): anychart.core.VisualBase;
+        name(): string;
+        name(value?: string): anychart.core.SeriesBase;
+        print(paperSizeOrOptions?: anychart.graphics.vector.PaperSize | Object, landscape?: boolean): void;
+        removeAllListeners(type?: string): number;
+        right(): number | string;
+        right(value?: number | string): anychart.core.VisualBaseWithBounds;
+        select(index?: number): anychart.core.SeriesBase;
+        select(indexes?: number | Array<number>): anychart.core.SeriesBase;
+        selectFill(): anychart.graphics.vector.Fill;
+        selectFill(value: anychart.graphics.vector.Fill): anychart.core.polar.series.Polygon;
+        selectFill(fillFunction?: (() => void)): anychart.core.polar.series.Polygon;
+        selectFill(color: string, opacity?: number): anychart.core.polar.series.Polygon;
+        selectFill(keys: Array<(anychart.graphics.vector.GradientKey|string)>, angle?: number, mode?: boolean | anychart.graphics.vector.Rect | Object, opacity?: number): anychart.core.polar.series.Polygon;
+        selectFill(keys: Array<(anychart.graphics.vector.GradientKey|string)>, cx: number, cy: number, mode?: anychart.graphics.math.Rect, opacity?: number, fx?: number, fy?: number): anychart.core.polar.series.Polygon;
+        selectFill(imageSettings: anychart.graphics.vector.Fill): anychart.core.polar.series.Polygon;
+        selectHatchFill(): anychart.graphics.vector.PatternFill | anychart.graphics.vector.HatchFill | (() => void) | boolean;
+        selectHatchFill(patternFillOrType?: anychart.graphics.vector.PatternFill | anychart.graphics.vector.HatchFill | (() => void) | anychart.graphics.vector.HatchFill.HatchFillType | string | boolean, color?: string, thickness?: number, size?: number): anychart.core.polar.series.Polygon;
+        selectLabels(): anychart.core.ui.LabelsFactory;
+        selectLabels(value?: Object | boolean): anychart.core.SeriesBase;
+        selectMarkers(): anychart.core.ui.MarkersFactory;
+        selectMarkers(value?: Object | boolean | string): anychart.core.polar.series.ContinuousBase;
+        selectStroke(): anychart.graphics.vector.Stroke;
+        selectStroke(strokeFunction?: (() => void)): anychart.core.polar.series.Polygon;
+        selectStroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.polar.series.Polygon;
+        selectionMode(): anychart.enums.SelectionMode;
+        selectionMode(value?: anychart.enums.SelectionMode | string): anychart.core.SeriesBase;
+        stroke(): anychart.graphics.vector.Stroke;
+        stroke(strokeFunction?: (() => void)): anychart.core.polar.series.Polygon;
+        stroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string, thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.polar.series.Polygon;
+        tooltip(): anychart.core.ui.Tooltip;
+        tooltip(value?: Object | boolean): anychart.core.SeriesBase;
+        top(): number | string;
+        top(value?: number | string): anychart.core.VisualBaseWithBounds;
+        transformXY(xValue: any, yValue: any): {[prop: string]: number};
+        unhover(): anychart.core.polar.series.ContinuousBase;
+        unlisten(type: string, listener: (() => void), useCapture?: boolean, listenerScope?: Object): boolean;
+        unlistenByKey(key: Object): boolean;
+        unselect(): anychart.core.SeriesBase;
+        unselect(index?: number): anychart.core.SeriesBase;
+        unselect(indexes?: Array<number>): anychart.core.SeriesBase;
+        width(): number | string;
+        width(value?: number | string): anychart.core.VisualBaseWithBounds;
+        xScale(): anychart.scales.Base;
+        xScale(value?: anychart.scales.Base): anychart.core.polar.series.Base;
+        yScale(): anychart.scales.Base;
+        yScale(value?: anychart.scales.Base): anychart.core.polar.series.Base;
+        zIndex(): number;
+        zIndex(value?: number): anychart.core.VisualBase;
+    }
 }
 
 declare namespace anychart.core.radar {
@@ -10815,15 +12102,12 @@ declare namespace anychart.core.radar.series {
         bounds(): anychart.core.utils.Bounds;
         bounds(value?: anychart.utils.RectObj | anychart.math.Rect | anychart.core.utils.Bounds): anychart.core.VisualBase;
         bounds(x?: number | string, y?: number | string, width?: number | string, height?: number | string): anychart.core.VisualBase;
-        color(): anychart.graphics.vector.Fill;
-        color(value: anychart.graphics.vector.Fill): anychart.core.radar.series.Base;
-        color(color: string, opacity?: number): anychart.core.radar.series.Base;
-        color(keys: Array<(anychart.graphics.vector.GradientKey|string)>, angle?: number, mode?: boolean | anychart.graphics.vector.Rect | Object, opacity?: number): anychart.core.radar.series.Base;
-        color(keys: Array<(anychart.graphics.vector.GradientKey|string)>, cx: number, cy: number, mode?: anychart.graphics.math.Rect, opacity?: number, fx?: number, fy?: number): anychart.core.radar.series.Base;
+        color(): string;
+        color(value: string): anychart.core.radar.series.Base;
         connectMissingPoints(): boolean;
         connectMissingPoints(value?: boolean): anychart.core.radar.series.ContinuousBase;
         data(): anychart.data.View;
-        data(value?: anychart.data.View | anychart.data.Set | Array<any> | string, csvSettings?: {[prop: string]: (string|boolean)}): anychart.core.radar.series.Base;
+        data(value?: anychart.data.View | anychart.data.Set | Array<any> | string, csvSettings?: anychart.enums.TextParsingMode | anychart.data.TextParsingSettings): anychart.core.radar.series.Base;
         enabled(): boolean;
         enabled(value?: boolean): anychart.core.VisualBase;
         getPixelBounds(): anychart.math.Rect;
@@ -10901,15 +12185,14 @@ declare namespace anychart.core.radar.series {
         bounds(): anychart.core.utils.Bounds;
         bounds(value?: anychart.utils.RectObj | anychart.math.Rect | anychart.core.utils.Bounds): anychart.core.VisualBase;
         bounds(x?: number | string, y?: number | string, width?: number | string, height?: number | string): anychart.core.VisualBase;
-        color(): anychart.graphics.vector.Fill;
-        color(value: anychart.graphics.vector.Fill): anychart.core.radar.series.Base;
-        color(color: string, opacity?: number): anychart.core.radar.series.Base;
-        color(keys: Array<(anychart.graphics.vector.GradientKey|string)>, angle?: number, mode?: boolean | anychart.graphics.vector.Rect | Object, opacity?: number): anychart.core.radar.series.Base;
-        color(keys: Array<(anychart.graphics.vector.GradientKey|string)>, cx: number, cy: number, mode?: anychart.graphics.math.Rect, opacity?: number, fx?: number, fy?: number): anychart.core.radar.series.Base;
+        color(): string;
+        color(value: string): anychart.core.radar.series.Base;
         data(): anychart.data.View;
-        data(value?: anychart.data.View | anychart.data.Set | Array<any> | string, csvSettings?: {[prop: string]: (string|boolean)}): anychart.core.radar.series.Base;
+        data(value?: anychart.data.View | anychart.data.Set | Array<any> | string, csvSettings?: anychart.enums.TextParsingMode | anychart.data.TextParsingSettings): anychart.core.radar.series.Base;
         enabled(): boolean;
         enabled(value?: boolean): anychart.core.VisualBase;
+        excludePoint(indexes: number | Array<number>): boolean;
+        getExcludedPoints(): Array<anychart.core.Point>;
         getPixelBounds(): anychart.math.Rect;
         getPoint(index: number): anychart.core.SeriesPoint;
         getStat(key: string | anychart.enums.Statistics): any;
@@ -10922,6 +12205,9 @@ declare namespace anychart.core.radar.series {
         hoverLabels(value?: Object | boolean): anychart.core.radar.series.Base;
         id(): string | number;
         id(value?: string | number): anychart.core.SeriesBase;
+        includeAllPoints(): boolean;
+        includePoint(indexes: number | Array<number>): boolean;
+        keepOnlyPoints(indexes: number | Array<number>): void;
         labels(): anychart.core.ui.LabelsFactory;
         labels(value?: Object | boolean): anychart.core.radar.series.Base;
         left(): number | string;
@@ -10981,17 +12267,15 @@ declare namespace anychart.core.radar.series {
         bounds(): anychart.core.utils.Bounds;
         bounds(value?: anychart.utils.RectObj | anychart.math.Rect | anychart.core.utils.Bounds): anychart.core.VisualBase;
         bounds(x?: number | string, y?: number | string, width?: number | string, height?: number | string): anychart.core.VisualBase;
-        color(): anychart.graphics.vector.Fill;
-        color(value: anychart.graphics.vector.Fill): anychart.core.radar.series.Base;
-        color(color: string, opacity?: number): anychart.core.radar.series.Base;
-        color(keys: Array<(anychart.graphics.vector.GradientKey|string)>, angle?: number, mode?: boolean | anychart.graphics.vector.Rect | Object, opacity?: number): anychart.core.radar.series.Base;
-        color(keys: Array<(anychart.graphics.vector.GradientKey|string)>, cx: number, cy: number, mode?: anychart.graphics.math.Rect, opacity?: number, fx?: number, fy?: number): anychart.core.radar.series.Base;
+        color(): string;
+        color(value: string): anychart.core.radar.series.Base;
         connectMissingPoints(): boolean;
         connectMissingPoints(value?: boolean): anychart.core.radar.series.ContinuousBase;
         data(): anychart.data.View;
-        data(value?: anychart.data.View | anychart.data.Set | Array<any> | string, csvSettings?: {[prop: string]: (string|boolean)}): anychart.core.radar.series.Base;
+        data(value?: anychart.data.View | anychart.data.Set | Array<any> | string, csvSettings?: anychart.enums.TextParsingMode | anychart.data.TextParsingSettings): anychart.core.radar.series.Base;
         enabled(): boolean;
         enabled(value?: boolean): anychart.core.VisualBase;
+        excludePoint(indexes: number | Array<number>): boolean;
         fill(): anychart.graphics.vector.Fill;
         fill(value: anychart.graphics.vector.Fill): anychart.core.radar.series.Area;
         fill(fillFunction?: (() => void)): anychart.core.radar.series.Area;
@@ -10999,6 +12283,7 @@ declare namespace anychart.core.radar.series {
         fill(keys: Array<(anychart.graphics.vector.GradientKey|string)>, angle?: number, mode?: boolean | anychart.graphics.vector.Rect | Object, opacity?: number): anychart.core.radar.series.Area;
         fill(keys: Array<(anychart.graphics.vector.GradientKey|string)>, cx: number, cy: number, mode?: anychart.graphics.math.Rect, opacity?: number, fx?: number, fy?: number): anychart.core.radar.series.Area;
         fill(imageSettings: anychart.graphics.vector.Fill): anychart.core.radar.series.Area;
+        getExcludedPoints(): Array<anychart.core.Point>;
         getPixelBounds(): anychart.math.Rect;
         getPoint(index: number): anychart.core.SeriesPoint;
         getStat(key: string | anychart.enums.Statistics): any;
@@ -11024,9 +12309,12 @@ declare namespace anychart.core.radar.series {
         hoverMarkers(value?: Object | boolean | string): anychart.core.radar.series.ContinuousBase;
         hoverStroke(): anychart.graphics.vector.Stroke;
         hoverStroke(strokeFunction?: (() => void)): anychart.core.radar.series.Area;
-        hoverStroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.radar.series.Area;
+        hoverStroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.radar.series.Area;
         id(): string | number;
         id(value?: string | number): anychart.core.SeriesBase;
+        includeAllPoints(): boolean;
+        includePoint(indexes: number | Array<number>): boolean;
+        keepOnlyPoints(indexes: number | Array<number>): void;
         labels(): anychart.core.ui.LabelsFactory;
         labels(value?: Object | boolean): anychart.core.radar.series.Base;
         left(): number | string;
@@ -11071,12 +12359,12 @@ declare namespace anychart.core.radar.series {
         selectMarkers(value?: Object | boolean | string): anychart.core.radar.series.ContinuousBase;
         selectStroke(): anychart.graphics.vector.Stroke;
         selectStroke(strokeFunction?: (() => void)): anychart.core.radar.series.Area;
-        selectStroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.radar.series.Area;
+        selectStroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.radar.series.Area;
         selectionMode(): anychart.enums.SelectionMode;
         selectionMode(value?: anychart.enums.SelectionMode | string): anychart.core.SeriesBase;
         stroke(): anychart.graphics.vector.Stroke;
         stroke(strokeFunction?: (() => void)): anychart.core.radar.series.Area;
-        stroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.radar.series.Area;
+        stroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.radar.series.Area;
         tooltip(): anychart.core.ui.Tooltip;
         tooltip(value?: Object | boolean): anychart.core.radar.series.Base;
         top(): number | string;
@@ -11103,17 +12391,16 @@ declare namespace anychart.core.radar.series {
         bounds(): anychart.core.utils.Bounds;
         bounds(value?: anychart.utils.RectObj | anychart.math.Rect | anychart.core.utils.Bounds): anychart.core.VisualBase;
         bounds(x?: number | string, y?: number | string, width?: number | string, height?: number | string): anychart.core.VisualBase;
-        color(): anychart.graphics.vector.Fill;
-        color(value: anychart.graphics.vector.Fill): anychart.core.radar.series.Base;
-        color(color: string, opacity?: number): anychart.core.radar.series.Base;
-        color(keys: Array<(anychart.graphics.vector.GradientKey|string)>, angle?: number, mode?: boolean | anychart.graphics.vector.Rect | Object, opacity?: number): anychart.core.radar.series.Base;
-        color(keys: Array<(anychart.graphics.vector.GradientKey|string)>, cx: number, cy: number, mode?: anychart.graphics.math.Rect, opacity?: number, fx?: number, fy?: number): anychart.core.radar.series.Base;
+        color(): string;
+        color(value: string): anychart.core.radar.series.Base;
         connectMissingPoints(): boolean;
         connectMissingPoints(value?: boolean): anychart.core.radar.series.ContinuousBase;
         data(): anychart.data.View;
-        data(value?: anychart.data.View | anychart.data.Set | Array<any> | string, csvSettings?: {[prop: string]: (string|boolean)}): anychart.core.radar.series.Base;
+        data(value?: anychart.data.View | anychart.data.Set | Array<any> | string, csvSettings?: anychart.enums.TextParsingMode | anychart.data.TextParsingSettings): anychart.core.radar.series.Base;
         enabled(): boolean;
         enabled(value?: boolean): anychart.core.VisualBase;
+        excludePoint(indexes: number | Array<number>): boolean;
+        getExcludedPoints(): Array<anychart.core.Point>;
         getPixelBounds(): anychart.math.Rect;
         getPoint(index: number): anychart.core.SeriesPoint;
         getStat(key: string | anychart.enums.Statistics): any;
@@ -11128,9 +12415,12 @@ declare namespace anychart.core.radar.series {
         hoverMarkers(value?: Object | boolean | string): anychart.core.radar.series.ContinuousBase;
         hoverStroke(): anychart.graphics.vector.Stroke;
         hoverStroke(strokeFunction?: (() => void)): anychart.core.radar.series.Line;
-        hoverStroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.radar.series.Line;
+        hoverStroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.radar.series.Line;
         id(): string | number;
         id(value?: string | number): anychart.core.SeriesBase;
+        includeAllPoints(): boolean;
+        includePoint(indexes: number | Array<number>): boolean;
+        keepOnlyPoints(indexes: number | Array<number>): void;
         labels(): anychart.core.ui.LabelsFactory;
         labels(value?: Object | boolean): anychart.core.radar.series.Base;
         left(): number | string;
@@ -11166,12 +12456,12 @@ declare namespace anychart.core.radar.series {
         selectMarkers(value?: Object | boolean | string): anychart.core.radar.series.ContinuousBase;
         selectStroke(): anychart.graphics.vector.Stroke;
         selectStroke(strokeFunction?: (() => void)): anychart.core.radar.series.Line;
-        selectStroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.radar.series.Line;
+        selectStroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.radar.series.Line;
         selectionMode(): anychart.enums.SelectionMode;
         selectionMode(value?: anychart.enums.SelectionMode | string): anychart.core.SeriesBase;
         stroke(): anychart.graphics.vector.Stroke;
         stroke(fillFunction?: (() => void)): anychart.core.radar.series.Line;
-        stroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.radar.series.Line;
+        stroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string, thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.radar.series.Line;
         tooltip(): anychart.core.ui.Tooltip;
         tooltip(value?: Object | boolean): anychart.core.radar.series.Base;
         top(): number | string;
@@ -11198,15 +12488,13 @@ declare namespace anychart.core.radar.series {
         bounds(): anychart.core.utils.Bounds;
         bounds(value?: anychart.utils.RectObj | anychart.math.Rect | anychart.core.utils.Bounds): anychart.core.VisualBase;
         bounds(x?: number | string, y?: number | string, width?: number | string, height?: number | string): anychart.core.VisualBase;
-        color(): anychart.graphics.vector.Fill;
-        color(value: anychart.graphics.vector.Fill): anychart.core.radar.series.Base;
-        color(color: string, opacity?: number): anychart.core.radar.series.Base;
-        color(keys: Array<(anychart.graphics.vector.GradientKey|string)>, angle?: number, mode?: boolean | anychart.graphics.vector.Rect | Object, opacity?: number): anychart.core.radar.series.Base;
-        color(keys: Array<(anychart.graphics.vector.GradientKey|string)>, cx: number, cy: number, mode?: anychart.graphics.math.Rect, opacity?: number, fx?: number, fy?: number): anychart.core.radar.series.Base;
+        color(): string;
+        color(value: string): anychart.core.radar.series.Base;
         data(): anychart.data.View;
-        data(value?: anychart.data.View | anychart.data.Set | Array<any> | string, csvSettings?: {[prop: string]: (string|boolean)}): anychart.core.radar.series.Base;
+        data(value?: anychart.data.View | anychart.data.Set | Array<any> | string, csvSettings?: anychart.enums.TextParsingMode | anychart.data.TextParsingSettings): anychart.core.radar.series.Base;
         enabled(): boolean;
         enabled(value?: boolean): anychart.core.VisualBase;
+        excludePoint(indexes: number | Array<number>): boolean;
         fill(): anychart.graphics.vector.Fill;
         fill(value: anychart.graphics.vector.Fill): anychart.core.radar.series.Marker;
         fill(fillFunction?: (() => void)): anychart.core.radar.series.Marker;
@@ -11214,6 +12502,7 @@ declare namespace anychart.core.radar.series {
         fill(keys: Array<(anychart.graphics.vector.GradientKey|string)>, angle?: number, mode?: boolean | anychart.graphics.vector.Rect | Object, opacity?: number): anychart.core.radar.series.Marker;
         fill(keys: Array<(anychart.graphics.vector.GradientKey|string)>, cx: number, cy: number, mode?: anychart.graphics.math.Rect, opacity?: number, fx?: number, fy?: number): anychart.core.radar.series.Marker;
         fill(imageSettings: anychart.graphics.vector.Fill): anychart.core.radar.series.Marker;
+        getExcludedPoints(): Array<anychart.core.Point>;
         getPixelBounds(): anychart.math.Rect;
         getPoint(index: number): anychart.core.SeriesPoint;
         getStat(key: string | anychart.enums.Statistics): any;
@@ -11239,11 +12528,14 @@ declare namespace anychart.core.radar.series {
         hoverSize(value?: number): anychart.core.radar.series.Marker;
         hoverStroke(): anychart.graphics.vector.Stroke;
         hoverStroke(strokeFunction?: (() => void)): anychart.core.radar.series.Marker;
-        hoverStroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.radar.series.Marker;
+        hoverStroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.radar.series.Marker;
         hoverType(): string | anychart.enums.MarkerType | (() => void);
         hoverType(value?: string | anychart.enums.MarkerType | (() => void)): anychart.core.radar.series.Marker;
         id(): string | number;
         id(value?: string | number): anychart.core.SeriesBase;
+        includeAllPoints(): boolean;
+        includePoint(indexes: number | Array<number>): boolean;
+        keepOnlyPoints(indexes: number | Array<number>): void;
         labels(): anychart.core.ui.LabelsFactory;
         labels(value?: Object | boolean): anychart.core.radar.series.Base;
         left(): number | string;
@@ -11284,7 +12576,7 @@ declare namespace anychart.core.radar.series {
         selectLabels(value?: Object | boolean): anychart.core.SeriesBase;
         selectStroke(): anychart.graphics.vector.Stroke;
         selectStroke(strokeFunction?: (() => void)): anychart.core.radar.series.Marker;
-        selectStroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.radar.series.Marker;
+        selectStroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.radar.series.Marker;
         selectType(): string | anychart.enums.MarkerType | (() => void);
         selectType(value?: string | anychart.enums.MarkerType | (() => void)): anychart.core.radar.series.Marker;
         selectionMode(): anychart.enums.SelectionMode;
@@ -11293,7 +12585,7 @@ declare namespace anychart.core.radar.series {
         size(value?: number): anychart.core.radar.series.Marker;
         stroke(): anychart.graphics.vector.Stroke;
         stroke(strokeFunction?: (() => void)): anychart.core.radar.series.Marker;
-        stroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.radar.series.Marker;
+        stroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.radar.series.Marker;
         tooltip(): anychart.core.ui.Tooltip;
         tooltip(value?: Object | boolean): anychart.core.radar.series.Base;
         top(): number | string;
@@ -11340,13 +12632,15 @@ declare namespace anychart.core.resource {
         removeAllListeners(type?: string): number;
         stroke(): anychart.graphics.vector.Stroke | (() => void);
         stroke(fillFunction?: (() => void)): anychart.core.resource.Conflicts;
-        stroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string, thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.resource.Conflicts;
+        stroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string, thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.resource.Conflicts;
         unlisten(type: string, listener: (() => void), useCapture?: boolean, listenerScope?: Object): boolean;
         unlistenByKey(key: Object): boolean;
         zIndex(): number;
         zIndex(value?: number): anychart.core.VisualBase;
     }
     interface TimeLine extends anychart.core.VisualBaseWithBounds {
+        adjustFontSize(): number;
+        adjustFontSize(adjustOrAdjustByWidth?: boolean | Array<boolean> | Object, adjustByHeight?: boolean): anychart.core.resource.TimeLine;
         background(): anychart.core.ui.Background;
         background(value?: string | Object | boolean): anychart.core.resource.TimeLine;
         bottom(): number | string;
@@ -11354,6 +12648,8 @@ declare namespace anychart.core.resource {
         bounds(): anychart.core.utils.Bounds;
         bounds(value?: anychart.utils.RectObj | anychart.math.Rect | anychart.core.utils.Bounds): anychart.core.VisualBase;
         bounds(x?: number | string, y?: number | string, width?: number | string, height?: number | string): anychart.core.VisualBase;
+        disablePointerEvents(): boolean;
+        disablePointerEvents(value?: boolean): anychart.core.resource.TimeLine;
         drawBottomLine(): boolean;
         drawBottomLine(value?: boolean): anychart.core.resource.Grid;
         drawLeftLine(): boolean;
@@ -11370,21 +12666,49 @@ declare namespace anychart.core.resource {
         fill(keys: Array<(anychart.graphics.vector.GradientKey|string)>, angle?: number, mode?: boolean | anychart.graphics.vector.Rect | Object, opacity?: number): anychart.core.resource.TimeLine;
         fill(keys: Array<(anychart.graphics.vector.GradientKey|string)>, cx: number, cy: number, mode?: anychart.graphics.math.Rect, opacity?: number, fx?: number, fy?: number): anychart.core.resource.TimeLine;
         fill(imageSettings: anychart.graphics.vector.Fill): anychart.core.resource.TimeLine;
+        fontColor(): string;
+        fontColor(value?: string): anychart.core.resource.TimeLine;
+        fontDecoration(): anychart.graphics.vector.Text.Decoration;
+        fontDecoration(value?: anychart.graphics.vector.Text.Decoration | string): anychart.core.resource.TimeLine;
+        fontFamily(): string;
+        fontFamily(value?: string): anychart.core.resource.TimeLine;
+        fontOpacity(): number;
+        fontOpacity(value?: number): anychart.core.resource.TimeLine;
+        fontSize(): number;
+        fontSize(value?: number | string): anychart.core.resource.TimeLine;
+        fontStyle(): anychart.graphics.vector.Text.FontStyle;
+        fontStyle(value?: string | anychart.graphics.vector.Text.FontStyle): anychart.core.resource.TimeLine;
+        fontVariant(): anychart.graphics.vector.Text.FontVariant;
+        fontVariant(value?: string | anychart.graphics.vector.Text.FontVariant): anychart.core.resource.TimeLine;
+        fontWeight(): string | number;
+        fontWeight(value?: string | number): anychart.core.resource.TimeLine;
+        format(): (() => void) | string;
+        format(value?: (() => void) | string): anychart.core.resource.TimeLineLevelHolidaysSettings;
         getPixelBounds(): anychart.math.Rect;
+        hAlign(): anychart.graphics.vector.Text.HAlign;
+        hAlign(value?: string | anychart.graphics.vector.Text.HAlign): anychart.core.resource.TimeLine;
         height(): number | string;
         height(value?: number | string): anychart.core.VisualBaseWithBounds;
         holidays(): anychart.core.resource.TimeLineLevelHolidaysSettings;
         holidays(value?: Object): anychart.core.resource.TimeLine;
         left(): number | string;
         left(value?: number | string): anychart.core.VisualBaseWithBounds;
+        letterSpacing(): number;
+        letterSpacing(value?: number | string): anychart.core.resource.TimeLine;
         levelHeight(): number;
         levelHeight(value: number): anychart.core.resource.TimeLine;
+        lineHeight(): number | string;
+        lineHeight(value?: number | string): anychart.core.resource.TimeLine;
         listen(type: string, listener: (() => void), useCapture?: boolean, listenerScope?: Object): Object;
         listenOnce(type: string, listener: (() => void), useCapture?: boolean, listenerScope?: Object): Object;
+        maxFontSize(): number;
+        maxFontSize(value?: number | string): anychart.core.resource.TimeLine;
         maxHeight(): number | string;
         maxHeight(value?: number | string): anychart.core.VisualBase;
         maxWidth(): number | string;
         maxWidth(value?: number | string): anychart.core.VisualBase;
+        minFontSize(): number;
+        minFontSize(value?: number | string): anychart.core.resource.TimeLine;
         minHeight(): number | string;
         minHeight(value?: number | string): anychart.core.VisualBase;
         minWidth(): number | string;
@@ -11398,12 +12722,26 @@ declare namespace anychart.core.resource {
         removeAllListeners(type?: string): number;
         right(): number | string;
         right(value?: number | string): anychart.core.VisualBaseWithBounds;
+        selectable(): boolean;
+        selectable(value?: boolean): anychart.core.resource.TimeLine;
         stroke(): anychart.graphics.vector.Stroke;
-        stroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string, thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.resource.TimeLine;
+        stroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string, thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.resource.TimeLine;
+        textDirection(): anychart.graphics.vector.Text.Direction;
+        textDirection(value?: string | anychart.graphics.vector.Text.Direction): anychart.core.resource.TimeLine;
+        textIndent(): number;
+        textIndent(value?: number): anychart.core.resource.TimeLine;
+        textOverflow(): anychart.graphics.vector.Text.TextOverflow;
+        textOverflow(value?: anychart.graphics.vector.Text.TextOverflow | string): anychart.core.resource.TimeLine;
+        textWrap(): anychart.graphics.vector.Text.TextWrap;
+        textWrap(value?: string | anychart.graphics.vector.Text.TextWrap): anychart.core.resource.TimeLine;
         top(): number | string;
         top(value?: number | string): anychart.core.VisualBaseWithBounds;
         unlisten(type: string, listener: (() => void), useCapture?: boolean, listenerScope?: Object): boolean;
         unlistenByKey(key: Object): boolean;
+        useHtml(): boolean;
+        useHtml(value?: boolean): anychart.core.resource.TimeLine;
+        vAlign(): anychart.graphics.vector.Text.VAlign;
+        vAlign(value?: string | anychart.graphics.vector.Text.VAlign): anychart.core.resource.TimeLine;
         width(): number | string;
         width(value?: number | string): anychart.core.VisualBaseWithBounds;
         zIndex(): number;
@@ -11423,10 +12761,11 @@ declare namespace anychart.core.resource {
         fontStyle: anychart.enums.FontStyle | string;
         fontVariant: anychart.enums.FontVariant | string;
         fontWeight: string | number;
+        format: (() => void);
         formats: string | Array<string>;
         hAlign: anychart.enums.HAlign | string;
         height: number | string;
-        holiday: {[prop: string]: {fill: (anychart.graphics.vector.Fill), padding: (Object|Array<number>|number|string), minFontSize: (number), maxFontSize: (number), adjustFontSize: (boolean|Array<boolean>|{width:boolean, height:boolean}), fontSize: (number), fontFamily: (string), fontColor: (string), fontOpacity: (number), fontDecoration: (string), fontStyle: (anychart.enums.FontStyle|string), fontVariant: (anychart.enums.FontVariant|string), fontWeight: (string|number), letterSpacing: (number|string), textDirection: (string), lineHeight: (number|string), textIndent: (number), vAlign: (anychart.enums.VAlign|string), hAlign: (anychart.enums.HAlign|string), textWrap: (anychart.enums.TextWrap|string), textOverflow: (anychart.graphics.vector.Text.TextOverflow|string), selectable: (boolean), disablePointerEvents: (boolean), useHtml: (boolean), textFormatter: (Function)}};
+        holiday: {[prop: string]: {fill: (anychart.graphics.vector.Fill), padding: (Object|Array<number>|number|string), minFontSize: (number), maxFontSize: (number), adjustFontSize: (boolean|Array<boolean>|{width:boolean, height:boolean}), fontSize: (number), fontFamily: (string), fontColor: (string), fontOpacity: (number), fontDecoration: (string), fontStyle: (anychart.enums.FontStyle|string), fontVariant: (anychart.enums.FontVariant|string), fontWeight: (string|number), letterSpacing: (number|string), textDirection: (string), lineHeight: (number|string), textIndent: (number), vAlign: (anychart.enums.VAlign|string), hAlign: (anychart.enums.HAlign|string), textWrap: (anychart.enums.TextWrap|string), textOverflow: (anychart.graphics.vector.Text.TextOverflow|string), selectable: (boolean), disablePointerEvents: (boolean), useHtml: (boolean), format: (Function)}};
         letterSpacing: number | string;
         lineHeight: number | string;
         maxFontSize: number;
@@ -11434,7 +12773,6 @@ declare namespace anychart.core.resource {
         padding: Object | Array<any> | number | string;
         selectable: boolean;
         textDirection: string;
-        textFormatter: (() => void);
         textIndent: number;
         textOverflow: anychart.graphics.vector.Text.TextOverflow | string;
         textWrap: anychart.enums.TextWrap | string;
@@ -11444,11 +12782,8 @@ declare namespace anychart.core.resource {
     }
     }
     interface Activities extends anychart.core.Base {
-        color(): anychart.graphics.vector.Fill;
-        color(value: anychart.graphics.vector.Fill): anychart.core.resource.Activities;
-        color(color: string, opacity?: number): anychart.core.resource.Activities;
-        color(keys: Array<(anychart.graphics.vector.GradientKey|string)>, angle?: number, mode?: boolean | anychart.graphics.vector.Rect | Object, opacity?: number): anychart.core.resource.Activities;
-        color(keys: Array<(anychart.graphics.vector.GradientKey|string)>, cx: number, cy: number, mode?: anychart.graphics.math.Rect, opacity?: number, fx?: number, fy?: number): anychart.core.resource.Activities;
+        color(): string;
+        color(value: string): anychart.core.resource.Activities;
         fill(): anychart.graphics.vector.Fill;
         fill(value: anychart.graphics.vector.Fill): anychart.core.resource.Activities;
         fill(fillFunction?: (() => void)): anychart.core.resource.Activities;
@@ -11458,14 +12793,42 @@ declare namespace anychart.core.resource {
         fill(imageSettings: anychart.graphics.vector.Fill): anychart.core.resource.Activities;
         hatchFill(): anychart.graphics.vector.PatternFill | anychart.graphics.vector.HatchFill | (() => void);
         hatchFill(patternFillOrType?: anychart.graphics.vector.PatternFill | anychart.graphics.vector.HatchFill | (() => void) | anychart.graphics.vector.HatchFill.HatchFillType | string, color?: string, thickness?: number, size?: number): anychart.core.resource.Activities;
+        hoverFill(): anychart.graphics.vector.Fill;
+        hoverFill(value: anychart.graphics.vector.Fill): anychart.core.resource.Activities;
+        hoverFill(fillFunction?: (() => void)): anychart.core.resource.Activities;
+        hoverFill(color: string, opacity?: number): anychart.core.resource.Activities;
+        hoverFill(keys: Array<(anychart.graphics.vector.GradientKey|string)>, angle?: number, mode?: boolean | anychart.graphics.vector.Rect | Object, opacity?: number): anychart.core.resource.Activities;
+        hoverFill(keys: Array<(anychart.graphics.vector.GradientKey|string)>, cx: number, cy: number, mode?: anychart.graphics.math.Rect, opacity?: number, fx?: number, fy?: number): anychart.core.resource.Activities;
+        hoverFill(imageSettings: anychart.graphics.vector.Fill): anychart.core.resource.Activities;
+        hoverHatchFill(): anychart.graphics.vector.PatternFill | anychart.graphics.vector.HatchFill | (() => void);
+        hoverHatchFill(patternFillOrType?: anychart.graphics.vector.PatternFill | anychart.graphics.vector.HatchFill | (() => void) | anychart.graphics.vector.HatchFill.HatchFillType | string, color?: string, thickness?: number, size?: number): anychart.core.resource.Activities;
+        hoverLabels(): anychart.core.ui.LabelsFactory;
+        hoverLabels(value?: Object | boolean): anychart.core.resource.Activities;
+        hoverStroke(): anychart.graphics.vector.Stroke | (() => void);
+        hoverStroke(strokeFunction?: (() => void)): anychart.core.resource.Activities;
+        hoverStroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string, thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.resource.Activities;
         labels(): anychart.core.ui.LabelsFactory;
         labels(value?: Object | boolean): anychart.core.resource.Activities;
         listen(type: string, listener: (() => void), useCapture?: boolean, listenerScope?: Object): Object;
         listenOnce(type: string, listener: (() => void), useCapture?: boolean, listenerScope?: Object): Object;
         removeAllListeners(type?: string): number;
+        selectFill(): anychart.graphics.vector.Fill;
+        selectFill(value: anychart.graphics.vector.Fill): anychart.core.resource.Activities;
+        selectFill(fillFunction?: (() => void)): anychart.core.resource.Activities;
+        selectFill(color: string, opacity?: number): anychart.core.resource.Activities;
+        selectFill(keys: Array<(anychart.graphics.vector.GradientKey|string)>, angle?: number, mode?: boolean | anychart.graphics.vector.Rect | Object, opacity?: number): anychart.core.resource.Activities;
+        selectFill(keys: Array<(anychart.graphics.vector.GradientKey|string)>, cx: number, cy: number, mode?: anychart.graphics.math.Rect, opacity?: number, fx?: number, fy?: number): anychart.core.resource.Activities;
+        selectFill(imageSettings: anychart.graphics.vector.Fill): anychart.core.resource.Activities;
+        selectHatchFill(): anychart.graphics.vector.PatternFill | anychart.graphics.vector.HatchFill | (() => void);
+        selectHatchFill(patternFillOrType?: anychart.graphics.vector.PatternFill | anychart.graphics.vector.HatchFill | (() => void) | anychart.graphics.vector.HatchFill.HatchFillType | string, color?: string, thickness?: number, size?: number): anychart.core.resource.Activities;
+        selectLabels(): anychart.core.ui.LabelsFactory;
+        selectLabels(value?: Object | boolean): anychart.core.resource.Activities;
+        selectStroke(): anychart.graphics.vector.Stroke | (() => void);
+        selectStroke(strokeFunction?: (() => void)): anychart.core.resource.Activities;
+        selectStroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string, thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.resource.Activities;
         stroke(): anychart.graphics.vector.Stroke | (() => void);
         stroke(strokeFunction?: (() => void)): anychart.core.resource.Activities;
-        stroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string, thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.resource.Activities;
+        stroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string, thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.resource.Activities;
         unlisten(type: string, listener: (() => void), useCapture?: boolean, listenerScope?: Object): boolean;
         unlistenByKey(key: Object): boolean;
     }
@@ -11482,8 +12845,6 @@ declare namespace anychart.core.resource {
         padding(value?: Array<(number|string)> | Object): anychart.core.resource.TimeLineLevelHolidaysSettings;
         padding(value1?: string | number, value2?: string | number, value3?: string | number, value4?: string | number): anychart.core.resource.TimeLineLevelHolidaysSettings;
         removeAllListeners(type?: string): number;
-        textFormatter(): (() => void);
-        textFormatter(value?: (() => void)): anychart.core.resource.TimeLineLevelHolidaysSettings;
         unlisten(type: string, listener: (() => void), useCapture?: boolean, listenerScope?: Object): boolean;
         unlistenByKey(key: Object): boolean;
     }
@@ -11525,7 +12886,7 @@ declare namespace anychart.core.resource {
         height(): number | string;
         height(value?: number | string): anychart.core.VisualBaseWithBounds;
         horizontalStroke(): anychart.graphics.vector.Stroke | (() => void);
-        horizontalStroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string, thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.resource.Grid;
+        horizontalStroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string, thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.resource.Grid;
         left(): number | string;
         left(value?: number | string): anychart.core.VisualBaseWithBounds;
         listen(type: string, listener: (() => void), useCapture?: boolean, listenerScope?: Object): Object;
@@ -11565,7 +12926,7 @@ declare namespace anychart.core.resource {
         unlisten(type: string, listener: (() => void), useCapture?: boolean, listenerScope?: Object): boolean;
         unlistenByKey(key: Object): boolean;
         verticalStroke(): anychart.graphics.vector.Stroke | (() => void);
-        verticalStroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string, thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.resource.Grid;
+        verticalStroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string, thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.resource.Grid;
         width(): number | string;
         width(value?: number | string): anychart.core.VisualBaseWithBounds;
         zIndex(): number;
@@ -11612,7 +12973,7 @@ declare namespace anychart.core.resource {
         right(value?: number | string): anychart.core.VisualBaseWithBounds;
         stroke(): anychart.graphics.vector.Stroke;
         stroke(value: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string): anychart.core.ui.Background;
-        stroke(value: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string, thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.ui.Background;
+        stroke(value: anychart.graphics.vector.Stroke | string, thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.ui.Background;
         top(): number | string;
         top(value?: number | string): anychart.core.VisualBaseWithBounds;
         unlisten(type: string, listener: (() => void), useCapture?: boolean, listenerScope?: Object): boolean;
@@ -11680,7 +13041,7 @@ declare namespace anychart.core.resource {
         right(): number | string;
         right(value?: number | string): anychart.core.VisualBaseWithBounds;
         stroke(): anychart.graphics.vector.Stroke;
-        stroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string, thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.resource.ResourceList;
+        stroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string, thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.resource.ResourceList;
         tags(): anychart.core.resource.resourceList.TagsSettings;
         tags(value?: Object): anychart.core.resource.ResourceList;
         top(): number | string;
@@ -11883,19 +13244,14 @@ declare namespace anychart.core.scatter.series {
         bounds(x?: number | string, y?: number | string, width?: number | string, height?: number | string): anychart.core.VisualBase;
         clip(): boolean | anychart.math.Rect;
         clip(value?: boolean | anychart.math.Rect): anychart.core.scatter.series.Base;
-        color(): anychart.graphics.vector.Fill;
-        color(value: anychart.graphics.vector.Fill): anychart.core.SeriesBase;
-        color(color: string, opacity?: number): anychart.core.SeriesBase;
-        color(keys: Array<(anychart.graphics.vector.GradientKey|string)>, angle?: number, mode?: boolean | anychart.graphics.vector.Rect | Object, opacity?: number): anychart.core.SeriesBase;
-        color(keys: Array<(anychart.graphics.vector.GradientKey|string)>, cx: number, cy: number, mode?: anychart.graphics.math.Rect, opacity?: number, fx?: number, fy?: number): anychart.core.SeriesBase;
+        color(): string;
+        color(value: string): anychart.core.SeriesBase;
         data(): anychart.data.View;
-        data(value?: anychart.data.View | anychart.data.Set | Array<any> | string, csvSettings?: {[prop: string]: (string|boolean)}): anychart.core.SeriesBase;
+        data(value?: anychart.data.View | anychart.data.Set | Array<any> | string, csvSettings?: anychart.enums.TextParsingMode | anychart.data.TextParsingSettings): anychart.core.SeriesBase;
         displayNegative(): boolean;
         displayNegative(value?: boolean): anychart.core.scatter.series.Bubble;
         enabled(): boolean;
         enabled(value?: boolean): anychart.core.VisualBase;
-        error(): anychart.core.utils.Error;
-        error(value?: Object | boolean | string | number): anychart.core.scatter.series.Base;
         excludePoint(indexes: number | Array<number>): boolean;
         fill(): anychart.graphics.vector.Fill;
         fill(value: anychart.graphics.vector.Fill): anychart.core.scatter.series.Bubble;
@@ -11936,10 +13292,10 @@ declare namespace anychart.core.scatter.series {
         hoverNegativeHatchFill(patternFillOrType?: anychart.graphics.vector.PatternFill | anychart.graphics.vector.HatchFill | (() => void) | anychart.graphics.vector.HatchFill.HatchFillType | string, color?: string, thickness?: number, size?: number): anychart.core.scatter.series.Bubble;
         hoverNegativeStroke(): anychart.graphics.vector.Stroke | (() => void);
         hoverNegativeStroke(strokeFunction?: (() => void)): anychart.core.scatter.series.Bubble;
-        hoverNegativeStroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.scatter.series.Bubble;
+        hoverNegativeStroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.scatter.series.Bubble;
         hoverStroke(): anychart.graphics.vector.Stroke | (() => void);
         hoverStroke(strokeFunction?: (() => void)): anychart.core.scatter.series.Bubble;
-        hoverStroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.scatter.series.Bubble;
+        hoverStroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.scatter.series.Bubble;
         id(): string | number;
         id(value?: string | number): anychart.core.SeriesBase;
         includeAllPoints(): boolean;
@@ -11978,7 +13334,7 @@ declare namespace anychart.core.scatter.series {
         negativeHatchFill(patternFillOrType?: anychart.graphics.vector.PatternFill | anychart.graphics.vector.HatchFill | (() => void) | anychart.graphics.vector.HatchFill.HatchFillType | string, color?: string, thickness?: number, size?: number): anychart.core.scatter.series.Bubble;
         negativeStroke(): anychart.graphics.vector.Stroke | (() => void);
         negativeStroke(strokeFunction?: (() => void)): anychart.core.scatter.series.Bubble;
-        negativeStroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.scatter.series.Bubble;
+        negativeStroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.scatter.series.Bubble;
         print(paperSizeOrOptions?: anychart.graphics.vector.PaperSize | Object, landscape?: boolean): void;
         removeAllListeners(type?: string): number;
         right(): number | string;
@@ -12007,15 +13363,15 @@ declare namespace anychart.core.scatter.series {
         selectNegativeHatchFill(patternFillOrType?: anychart.graphics.vector.PatternFill | anychart.graphics.vector.HatchFill | (() => void) | anychart.graphics.vector.HatchFill.HatchFillType | string, color?: string, thickness?: number, size?: number): anychart.core.scatter.series.Bubble;
         selectNegativeStroke(): anychart.graphics.vector.Stroke | (() => void);
         selectNegativeStroke(strokeFunction?: (() => void)): anychart.core.scatter.series.Bubble;
-        selectNegativeStroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.scatter.series.Bubble;
+        selectNegativeStroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.scatter.series.Bubble;
         selectStroke(): anychart.graphics.vector.Stroke | (() => void);
         selectStroke(strokeFunction?: (() => void)): anychart.core.scatter.series.Bubble;
-        selectStroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.scatter.series.Bubble;
+        selectStroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.scatter.series.Bubble;
         selectionMode(): anychart.enums.SelectionMode;
         selectionMode(value?: anychart.enums.SelectionMode | string): anychart.core.SeriesBase;
         stroke(): anychart.graphics.vector.Stroke | (() => void);
         stroke(strokeFunction?: (() => void)): anychart.core.scatter.series.Bubble;
-        stroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.scatter.series.Bubble;
+        stroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.scatter.series.Bubble;
         tooltip(): anychart.core.ui.Tooltip;
         tooltip(value?: Object | boolean): anychart.core.SeriesBase;
         top(): number | string;
@@ -12045,13 +13401,10 @@ declare namespace anychart.core.scatter.series {
         bounds(x?: number | string, y?: number | string, width?: number | string, height?: number | string): anychart.core.VisualBase;
         clip(): boolean | anychart.math.Rect;
         clip(value?: boolean | anychart.math.Rect): anychart.core.scatter.series.Base;
-        color(): anychart.graphics.vector.Fill;
-        color(value: anychart.graphics.vector.Fill): anychart.core.SeriesBase;
-        color(color: string, opacity?: number): anychart.core.SeriesBase;
-        color(keys: Array<(anychart.graphics.vector.GradientKey|string)>, angle?: number, mode?: boolean | anychart.graphics.vector.Rect | Object, opacity?: number): anychart.core.SeriesBase;
-        color(keys: Array<(anychart.graphics.vector.GradientKey|string)>, cx: number, cy: number, mode?: anychart.graphics.math.Rect, opacity?: number, fx?: number, fy?: number): anychart.core.SeriesBase;
+        color(): string;
+        color(value: string): anychart.core.SeriesBase;
         data(): anychart.data.View;
-        data(value?: anychart.data.View | anychart.data.Set | Array<any> | string, csvSettings?: {[prop: string]: (string|boolean)}): anychart.core.SeriesBase;
+        data(value?: anychart.data.View | anychart.data.Set | Array<any> | string, csvSettings?: anychart.enums.TextParsingMode | anychart.data.TextParsingSettings): anychart.core.SeriesBase;
         enabled(): boolean;
         enabled(value?: boolean): anychart.core.VisualBase;
         error(): anychart.core.utils.Error;
@@ -12134,15 +13487,12 @@ declare namespace anychart.core.scatter.series {
         bounds(x?: number | string, y?: number | string, width?: number | string, height?: number | string): anychart.core.VisualBase;
         clip(): boolean | anychart.math.Rect;
         clip(value?: boolean | anychart.math.Rect): anychart.core.scatter.series.Base;
-        color(): anychart.graphics.vector.Fill;
-        color(value: anychart.graphics.vector.Fill): anychart.core.SeriesBase;
-        color(color: string, opacity?: number): anychart.core.SeriesBase;
-        color(keys: Array<(anychart.graphics.vector.GradientKey|string)>, angle?: number, mode?: boolean | anychart.graphics.vector.Rect | Object, opacity?: number): anychart.core.SeriesBase;
-        color(keys: Array<(anychart.graphics.vector.GradientKey|string)>, cx: number, cy: number, mode?: anychart.graphics.math.Rect, opacity?: number, fx?: number, fy?: number): anychart.core.SeriesBase;
+        color(): string;
+        color(value: string): anychart.core.SeriesBase;
         connectMissingPoints(): boolean;
         connectMissingPoints(value?: boolean): anychart.core.scatter.series.Line;
         data(): anychart.data.View;
-        data(value?: anychart.data.View | anychart.data.Set | Array<any> | string, csvSettings?: {[prop: string]: (string|boolean)}): anychart.core.SeriesBase;
+        data(value?: anychart.data.View | anychart.data.Set | Array<any> | string, csvSettings?: anychart.enums.TextParsingMode | anychart.data.TextParsingSettings): anychart.core.SeriesBase;
         enabled(): boolean;
         enabled(value?: boolean): anychart.core.VisualBase;
         error(): anychart.core.utils.Error;
@@ -12163,7 +13513,7 @@ declare namespace anychart.core.scatter.series {
         hoverMarkers(value?: Object | boolean | string): anychart.core.scatter.series.BaseWithMarkers;
         hoverStroke(): anychart.graphics.vector.Stroke | (() => void);
         hoverStroke(StrokeFunction?: (() => void)): anychart.core.scatter.series.Line;
-        hoverStroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.scatter.series.Line;
+        hoverStroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.scatter.series.Line;
         id(): string | number;
         id(value?: string | number): anychart.core.SeriesBase;
         includeAllPoints(): boolean;
@@ -12204,12 +13554,12 @@ declare namespace anychart.core.scatter.series {
         selectMarkers(value?: Object | boolean | string): anychart.core.scatter.series.BaseWithMarkers;
         selectStroke(): anychart.graphics.vector.Stroke | (() => void);
         selectStroke(strokeFunction?: (() => void)): anychart.core.scatter.series.Line;
-        selectStroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.scatter.series.Line;
+        selectStroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.scatter.series.Line;
         selectionMode(): anychart.enums.SelectionMode;
         selectionMode(value?: anychart.enums.SelectionMode | string): anychart.core.SeriesBase;
         stroke(): anychart.graphics.vector.Stroke | (() => void);
         stroke(strokeFunction?: (() => void)): anychart.core.scatter.series.Line;
-        stroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.scatter.series.Line;
+        stroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.scatter.series.Line;
         tooltip(): anychart.core.ui.Tooltip;
         tooltip(value?: Object | boolean): anychart.core.SeriesBase;
         top(): number | string;
@@ -12239,13 +13589,10 @@ declare namespace anychart.core.scatter.series {
         bounds(x?: number | string, y?: number | string, width?: number | string, height?: number | string): anychart.core.VisualBase;
         clip(): boolean | anychart.math.Rect;
         clip(value?: boolean | anychart.math.Rect): anychart.core.scatter.series.Base;
-        color(): anychart.graphics.vector.Fill;
-        color(value: anychart.graphics.vector.Fill): anychart.core.SeriesBase;
-        color(color: string, opacity?: number): anychart.core.SeriesBase;
-        color(keys: Array<(anychart.graphics.vector.GradientKey|string)>, angle?: number, mode?: boolean | anychart.graphics.vector.Rect | Object, opacity?: number): anychart.core.SeriesBase;
-        color(keys: Array<(anychart.graphics.vector.GradientKey|string)>, cx: number, cy: number, mode?: anychart.graphics.math.Rect, opacity?: number, fx?: number, fy?: number): anychart.core.SeriesBase;
+        color(): string;
+        color(value: string): anychart.core.SeriesBase;
         data(): anychart.data.View;
-        data(value?: anychart.data.View | anychart.data.Set | Array<any> | string, csvSettings?: {[prop: string]: (string|boolean)}): anychart.core.SeriesBase;
+        data(value?: anychart.data.View | anychart.data.Set | Array<any> | string, csvSettings?: anychart.enums.TextParsingMode | anychart.data.TextParsingSettings): anychart.core.SeriesBase;
         enabled(): boolean;
         enabled(value?: boolean): anychart.core.VisualBase;
         error(): anychart.core.utils.Error;
@@ -12282,7 +13629,7 @@ declare namespace anychart.core.scatter.series {
         hoverSize(value?: number): anychart.core.scatter.series.Marker;
         hoverStroke(): anychart.graphics.vector.Stroke | (() => void);
         hoverStroke(strokeFunction?: (() => void)): anychart.core.scatter.series.Marker;
-        hoverStroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.scatter.series.Marker;
+        hoverStroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.scatter.series.Marker;
         hoverType(): string | anychart.enums.MarkerType | (() => void);
         hoverType(value?: string | anychart.enums.MarkerType | (() => void)): anychart.core.scatter.series.Marker;
         id(): string | number;
@@ -12329,7 +13676,7 @@ declare namespace anychart.core.scatter.series {
         selectLabels(value?: Object | boolean): anychart.core.SeriesBase;
         selectStroke(): anychart.graphics.vector.Stroke | (() => void);
         selectStroke(strokeFunction?: (() => void)): anychart.core.scatter.series.Marker;
-        selectStroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.scatter.series.Marker;
+        selectStroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.scatter.series.Marker;
         selectType(): string | anychart.enums.MarkerType | (() => void);
         selectType(value?: string | anychart.enums.MarkerType | (() => void)): anychart.core.scatter.series.Marker;
         selectionMode(): anychart.enums.SelectionMode;
@@ -12338,7 +13685,7 @@ declare namespace anychart.core.scatter.series {
         size(value?: number): anychart.core.scatter.series.Marker;
         stroke(): anychart.graphics.vector.Stroke | (() => void);
         stroke(strokeFunction?: (() => void)): anychart.core.scatter.series.Marker;
-        stroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.scatter.series.Marker;
+        stroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.scatter.series.Marker;
         tooltip(): anychart.core.ui.Tooltip;
         tooltip(value?: Object | boolean): anychart.core.SeriesBase;
         top(): number | string;
@@ -12364,23 +13711,80 @@ declare namespace anychart.core.scatter.series {
     }
 }
 
+declare namespace anychart.core.series {
+    interface RenderingSettings extends anychart.core.Base {
+        finish(): (() => void);
+        finish(finishFunction?: (() => void)): anychart.core.series.RenderingSettings;
+        listen(type: string, listener: (() => void), useCapture?: boolean, listenerScope?: Object): Object;
+        listenOnce(type: string, listener: (() => void), useCapture?: boolean, listenerScope?: Object): Object;
+        needsWidth(): boolean;
+        needsWidth(value?: boolean): anychart.core.series.RenderingSettings;
+        needsZero(): boolean;
+        needsZero(value?: boolean): anychart.core.series.RenderingSettings;
+        point(): (() => void);
+        point(pointFunction?: (() => void)): anychart.core.series.RenderingSettings;
+        removeAllListeners(type?: string): number;
+        shapes(): Array<anychart.core.series.RenderingSettings.ShapeConfig>;
+        shapes(value?: Array<anychart.core.series.RenderingSettings.ShapeConfig>): anychart.core.series.RenderingSettings;
+        start(): (() => void);
+        start(startFunction?: (() => void)): anychart.core.series.RenderingSettings;
+        unlisten(type: string, listener: (() => void), useCapture?: boolean, listenerScope?: Object): boolean;
+        unlistenByKey(key: Object): boolean;
+        updatePoint(): (() => void);
+        updatePoint(pointFunction?: (() => void)): anychart.core.series.RenderingSettings;
+        yValues(): Array<string>;
+        yValues(value?: Array<string>): anychart.core.series.RenderingSettings;
+    }
+    namespace RenderingSettings {
+    interface ShapeConfig {
+        fillNames: Array<string>;
+        isHatchFill: boolean;
+        name: string;
+        shapeType: anychart.enums.ShapeType;
+        strokeNames: Array<string>;
+        zIndex: number;
+    }
+    }
+    module RenderingSettings {
+    interface Context {
+        getShapesGroup(state?: anychart.enums.PointState, baseZIndex?: number, restrictShapes?: {[prop: string]: string}): {[prop: string]: anychart.graphics.vector.Shape};
+        getStat(key?: string): any;
+    }
+    }
+    module RenderingSettings {
+    interface PointContext extends anychart.core.series.RenderingSettings.Context {
+        getDataValue(name: string): any;
+        getShapesGroup(state?: anychart.enums.PointState, baseZIndex?: number, restrictShapes?: {[prop: string]: string}): {[prop: string]: anychart.graphics.vector.Shape};
+        getStackedValue(): any;
+        getStackedZero(): any;
+        getStat(key?: string): any;
+    }
+    }
+}
+
 declare namespace anychart.core.stock {
     interface Scroller extends anychart.core.ui.Scroller {
         addSeries(...var_args: (anychart.data.View | anychart.data.Set | Array<any>)[]): Array<anychart.core.stock.scrollerSeries.Base>;
+        adl(mapping: anychart.data.TableMapping, seriesType?: anychart.enums.StockSeriesType): anychart.core.stock.indicators.ADL;
         allowRangeChange(): boolean;
         allowRangeChange(value?: boolean): anychart.core.ui.Scroller;
         ama(mapping: anychart.data.TableMapping, period?: number, fastPeriod?: number, slowPeriod?: number, seriesType?: anychart.enums.StockSeriesType | string): anychart.core.stock.indicators.AMA;
         area(data?: anychart.data.TableMapping | anychart.data.Table | Array<Array<any>> | string, mappingSettings?: {[prop: string]: ({column: number, type: anychart.enums.AggregationType, weights: number}|number)}, csvSettings?: Object): anychart.core.stock.scrollerSeries.Area;
         aroon(mapping: anychart.data.TableMapping, period?: number, upSeriesType?: anychart.enums.StockSeriesType, downSeriesType?: anychart.enums.StockSeriesType): anychart.core.stock.indicators.Aroon;
+        atr(mapping: anychart.data.TableMapping, period?: number, seriesType?: anychart.enums.StockSeriesType): anychart.core.stock.indicators.ATR;
         autoHide(): boolean;
         autoHide(value?: boolean): anychart.core.ui.Scroller;
-        bbands(mapping: anychart.data.TableMapping, period?: number, deviation?: number, upSeriesType?: anychart.enums.StockSeriesType | string, downSeriesType?: anychart.enums.StockSeriesType | string): anychart.core.stock.indicators.BBands;
+        bbands(mapping: anychart.data.TableMapping, period?: number, deviation?: number, upperSeriesType?: anychart.enums.StockSeriesType | string, lowerSeriesType?: anychart.enums.StockSeriesType | string, middleSeriesType?: anychart.enums.StockSeriesType | string): anychart.core.stock.indicators.BBands;
         bbandsB(mapping: anychart.data.TableMapping, period?: number, deviation?: number, seriesType?: anychart.enums.StockSeriesType | string): anychart.core.stock.indicators.BBandsB;
         bbandsWidth(mapping: anychart.data.TableMapping, period?: number, deviation?: number, seriesType?: anychart.enums.StockSeriesType | string): anychart.core.stock.indicators.BBandsWidth;
         candlestick(data?: anychart.data.TableMapping | anychart.data.Table | Array<Array<any>> | string, mappingSettings?: {[prop: string]: ({column: number, type: anychart.enums.AggregationType, weights: number}|number)}, csvSettings?: Object): anychart.core.stock.scrollerSeries.Candlestick;
+        cci(mapping: anychart.data.TableMapping, period?: number, seriesType?: anychart.enums.StockSeriesType): anychart.core.stock.indicators.CCI;
+        cho(mapping: anychart.data.TableMapping, fastPeriod?: number, slowPeriod?: number, maType?: string, seriesType?: anychart.enums.StockSeriesType): anychart.core.stock.indicators.CHO;
+        cmf(mapping: anychart.data.TableMapping, period?: number, seriesType?: anychart.enums.StockSeriesType): anychart.core.stock.indicators.CMF;
         column(data?: anychart.data.TableMapping | anychart.data.Table | Array<Array<any>> | string, mappingSettings?: {[prop: string]: ({column: number, type: anychart.enums.AggregationType, weights: number}|number)}, csvSettings?: Object): anychart.core.stock.scrollerSeries.Column;
         defaultSeriesType(): string | anychart.enums.StockSeriesType;
         defaultSeriesType(value?: string | anychart.enums.StockSeriesType): anychart.core.stock.Scroller;
+        dmi(mapping: anychart.data.TableMapping, period?: number, adxPeriod?: number, useWildersSmoothing?: boolean, pdiSeriesType?: anychart.enums.StockSeriesType, ndiSeriesType?: anychart.enums.StockSeriesType, adxSeriesType?: anychart.enums.StockSeriesType): anychart.core.stock.indicators.DMI;
         ema(mapping: anychart.data.TableMapping, period?: number, seriesType?: string | anychart.enums.StockSeriesType): anychart.core.stock.indicators.EMA;
         enabled(): boolean;
         enabled(value?: boolean): anychart.core.VisualBase;
@@ -12393,9 +13797,12 @@ declare namespace anychart.core.stock {
         getSeries(id: number | string): anychart.core.stock.scrollerSeries.Base;
         getSeriesAt(index: number): anychart.core.stock.scrollerSeries.Base;
         getSeriesCount(): number;
+        hatchFillPalette(): anychart.palettes.HatchFills;
+        hatchFillPalette(value?: Array<anychart.graphics.vector.HatchFill.HatchFillType> | Object | anychart.palettes.HatchFills): anychart.core.stock.Scroller;
         height(): number | string;
         height(value?: number | string): anychart.core.ui.Scroller;
         jumpLine(data?: anychart.data.TableMapping | anychart.data.Table | Array<Array<any>> | string, mappingSettings?: {[prop: string]: ({column: number, type: anychart.enums.AggregationType, weights: number}|number)}, csvSettings?: Object): anychart.core.stock.scrollerSeries.JumpLine;
+        kdj(mapping: anychart.data.TableMapping, kPeriod?: number, kMAPeriod?: number, dPeriod?: number, kMAType?: anychart.enums.MovingAverageType, dMAType?: anychart.enums.MovingAverageType, kMultiplier?: number, dMultiplier?: number, kSeriesType?: anychart.enums.StockSeriesType, dSeriesType?: anychart.enums.StockSeriesType, jSeriesType?: anychart.enums.StockSeriesType): anychart.core.stock.indicators.KDJ;
         line(data?: anychart.data.TableMapping | anychart.data.Table | Array<Array<any>> | string, mappingSettings?: {[prop: string]: ({column: number, type: anychart.enums.AggregationType, weights: number}|number)}, csvSettings?: Object): anychart.core.stock.scrollerSeries.Line;
         listen(type: string, listener: (() => void), useCapture?: boolean, listenerScope?: Object): Object;
         listenOnce(type: string, listener: (() => void), useCapture?: boolean, listenerScope?: Object): Object;
@@ -12411,6 +13818,8 @@ declare namespace anychart.core.stock {
         orientation(value?: anychart.enums.Orientation | string): anychart.core.ui.Scroller;
         outlineStroke(): anychart.graphics.vector.Stroke;
         outlineStroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string, thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.ui.Scroller;
+        palette(): anychart.palettes.RangeColors | anychart.palettes.DistinctColors;
+        palette(value?: anychart.palettes.RangeColors | anychart.palettes.DistinctColors | Object | Array<string>): anychart.core.stock.Scroller;
         print(paperSizeOrOptions?: anychart.graphics.vector.PaperSize | Object, landscape?: boolean): void;
         rangeArea(data?: anychart.data.TableMapping | anychart.data.Table | Array<Array<any>> | string, mappingSettings?: {[prop: string]: ({column: number, type: anychart.enums.AggregationType, weights: number}|number)}, csvSettings?: Object): anychart.core.stock.scrollerSeries.RangeArea;
         rangeColumn(data?: anychart.data.TableMapping | anychart.data.Table | Array<Array<any>> | string, mappingSettings?: {[prop: string]: ({column: number, type: anychart.enums.AggregationType, weights: number}|number)}, csvSettings?: Object): anychart.core.stock.scrollerSeries.RangeColumn;
@@ -12434,6 +13843,7 @@ declare namespace anychart.core.stock {
         stepArea(data?: anychart.data.TableMapping | anychart.data.Table | Array<Array<any>> | string, mappingSettings?: {[prop: string]: ({column: number, type: anychart.enums.AggregationType, weights: number}|number)}, csvSettings?: Object): anychart.core.stock.scrollerSeries.StepArea;
         stepLine(data?: anychart.data.TableMapping | anychart.data.Table | Array<Array<any>> | string, mappingSettings?: {[prop: string]: ({column: number, type: anychart.enums.AggregationType, weights: number}|number)}, csvSettings?: Object): anychart.core.stock.scrollerSeries.StepLine;
         stick(data?: anychart.data.TableMapping | anychart.data.Table | Array<Array<any>> | string, mappingSettings?: {[prop: string]: ({column: number, type: anychart.enums.AggregationType, weights: number}|number)}, csvSettings?: Object): anychart.core.stock.scrollerSeries.Stick;
+        stochastic(mapping: anychart.data.TableMapping, kPeriod?: number, kMAPeriod?: number, dPeriod?: number, kMAType?: anychart.enums.MovingAverageType, dMAType?: anychart.enums.MovingAverageType, kSeriesType?: anychart.enums.StockSeriesType, dSeriesType?: anychart.enums.StockSeriesType): anychart.core.stock.indicators.Stochastic;
         thumbs(): anychart.core.ui.Scroller.Thumbs;
         thumbs(value?: boolean | Object): anychart.core.ui.Scroller;
         unlisten(type: string, listener: (() => void), useCapture?: boolean, listenerScope?: Object): boolean;
@@ -12447,14 +13857,16 @@ declare namespace anychart.core.stock {
     }
     interface Plot extends anychart.core.VisualBaseWithBounds {
         addSeries(...var_args: (anychart.data.TableMapping)[]): Array<anychart.core.stock.series.Base>;
+        adl(mapping: anychart.data.TableMapping, seriesType?: anychart.enums.StockSeriesType): anychart.core.stock.indicators.ADL;
         ama(mapping: anychart.data.TableMapping, period?: number, fastPeriod?: number, slowPeriod?: number, seriesType?: anychart.enums.StockSeriesType | string): anychart.core.stock.indicators.AMA;
         annotations(): anychart.core.annotations.PlotController;
         annotations(annotationsList?: Array<any>): anychart.core.stock.Plot;
         area(data?: anychart.data.TableMapping | anychart.data.Table | Array<Array<any>> | string, mappingSettings?: {[prop: string]: ({column: number, type: anychart.enums.AggregationType, weights: number}|number)}, csvSettings?: Object): anychart.core.stock.series.Area;
         aroon(mapping: anychart.data.TableMapping, period?: number, upSeriesType?: anychart.enums.StockSeriesType, downSeriesType?: anychart.enums.StockSeriesType): anychart.core.stock.indicators.Aroon;
+        atr(mapping: anychart.data.TableMapping, period?: number, seriesType?: anychart.enums.StockSeriesType): anychart.core.stock.indicators.ATR;
         background(): anychart.core.ui.Background;
         background(value?: string | Object | boolean): anychart.core.stock.Plot;
-        bbands(mapping: anychart.data.TableMapping, period?: number, deviation?: number, upSeriesType?: anychart.enums.StockSeriesType | string, downSeriesType?: anychart.enums.StockSeriesType | string): anychart.core.stock.indicators.BBands;
+        bbands(mapping: anychart.data.TableMapping, period?: number, deviation?: number, upperSeriesType?: anychart.enums.StockSeriesType | string, lowerSeriesType?: anychart.enums.StockSeriesType | string, middleSeriesType?: anychart.enums.StockSeriesType | string): anychart.core.stock.indicators.BBands;
         bbandsB(mapping: anychart.data.TableMapping, period?: number, deviation?: number, seriesType?: anychart.enums.StockSeriesType | string): anychart.core.stock.indicators.BBandsB;
         bbandsWidth(mapping: anychart.data.TableMapping, period?: number, deviation?: number, seriesType?: anychart.enums.StockSeriesType | string): anychart.core.stock.indicators.BBandsWidth;
         bottom(): number | string;
@@ -12463,11 +13875,15 @@ declare namespace anychart.core.stock {
         bounds(value?: anychart.utils.RectObj | anychart.math.Rect | anychart.core.utils.Bounds): anychart.core.VisualBase;
         bounds(x?: number | string, y?: number | string, width?: number | string, height?: number | string): anychart.core.VisualBase;
         candlestick(data?: anychart.data.TableMapping | anychart.data.Table | Array<Array<any>> | string, mappingSettings?: {[prop: string]: ({column: number, type: anychart.enums.AggregationType, weights: number}|number)}, csvSettings?: Object): anychart.core.stock.series.Candlestick;
+        cci(mapping: anychart.data.TableMapping, period?: number, seriesType?: anychart.enums.StockSeriesType): anychart.core.stock.indicators.CCI;
+        cho(mapping: anychart.data.TableMapping, fastPeriod?: number, slowPeriod?: number, maType?: string | anychart.enums.MovingAverageType, seriesType?: anychart.enums.StockSeriesType): anychart.core.stock.indicators.CHO;
+        cmf(mapping: anychart.data.TableMapping, period?: number, seriesType?: anychart.enums.StockSeriesType): anychart.core.stock.indicators.CMF;
         column(data?: anychart.data.TableMapping | anychart.data.Table | Array<Array<any>> | string, mappingSettings?: {[prop: string]: ({column: number, type: anychart.enums.AggregationType, weights: number}|number)}, csvSettings?: Object): anychart.core.stock.series.Column;
         dateTimeHighlighter(): anychart.graphics.vector.Stroke;
-        dateTimeHighlighter(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string, thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.stock.Plot;
+        dateTimeHighlighter(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string, thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.stock.Plot;
         defaultSeriesType(): string | anychart.enums.StockSeriesType;
         defaultSeriesType(value?: string | anychart.enums.StockSeriesType): anychart.core.stock.Plot;
+        dmi(mapping: anychart.data.TableMapping, period?: number, adxPeriod?: number, useWildersSmoothing?: boolean, pdiSeriesType?: anychart.enums.StockSeriesType, ndiSeriesType?: anychart.enums.StockSeriesType, adxSeriesType?: anychart.enums.StockSeriesType): anychart.core.stock.indicators.DMI;
         ema(mapping: anychart.data.TableMapping, period?: number, seriesType?: string | anychart.enums.StockSeriesType): anychart.core.stock.indicators.EMA;
         enabled(): boolean;
         enabled(value?: boolean): anychart.core.VisualBase;
@@ -12483,6 +13899,7 @@ declare namespace anychart.core.stock {
         height(): number | string;
         height(value?: number | string): anychart.core.VisualBaseWithBounds;
         jumpLine(data?: anychart.data.TableMapping | anychart.data.Table | Array<Array<any>> | string, mappingSettings?: {[prop: string]: ({column: number, type: anychart.enums.AggregationType, weights: number}|number)}, csvSettings?: Object): anychart.core.stock.series.JumpLine;
+        kdj(mapping: anychart.data.TableMapping, kPeriod?: number, kMAPeriod?: number, dPeriod?: number, kMAType?: anychart.enums.MovingAverageType, dMAType?: anychart.enums.MovingAverageType, kMultiplier?: number, dMultiplier?: number, kSeriesType?: anychart.enums.StockSeriesType, dSeriesType?: anychart.enums.StockSeriesType, jSeriesType?: anychart.enums.StockSeriesType): anychart.core.stock.indicators.KDJ;
         left(): number | string;
         left(value?: number | string): anychart.core.VisualBaseWithBounds;
         legend(): anychart.core.ui.Legend;
@@ -12492,6 +13909,8 @@ declare namespace anychart.core.stock {
         listenOnce(type: string, listener: (() => void), useCapture?: boolean, listenerScope?: Object): Object;
         macd(mapping: anychart.data.TableMapping, fastPeriod?: number, slowPeriod?: number, signalPeriod?: number, macdSeriesType?: string | anychart.enums.StockSeriesType, signalSeriesType?: string | anychart.enums.StockSeriesType, histogramSeriesType?: string | anychart.enums.StockSeriesType): anychart.core.stock.indicators.MACD;
         marker(data?: anychart.data.TableMapping | anychart.data.Table | Array<Array<any>> | string, mappingSettings?: {[prop: string]: ({column: number, type: anychart.enums.AggregationType, weights: number}|number)}, csvSettings?: Object): anychart.core.stock.series.Marker;
+        markerPalette(): anychart.palettes.Markers;
+        markerPalette(value?: anychart.palettes.Markers | Object | Array<anychart.enums.MarkerType>): anychart.core.stock.Plot;
         maxHeight(): number | string;
         maxHeight(value?: number | string): anychart.core.VisualBase;
         maxWidth(): number | string;
@@ -12526,6 +13945,7 @@ declare namespace anychart.core.stock {
         stepArea(data?: anychart.data.TableMapping | anychart.data.Table | Array<Array<any>> | string, mappingSettings?: {[prop: string]: ({column: number, type: anychart.enums.AggregationType, weights: number}|number)}, csvSettings?: Object): anychart.core.stock.series.StepArea;
         stepLine(data?: anychart.data.TableMapping | anychart.data.Table | Array<Array<any>> | string, mappingSettings?: {[prop: string]: ({column: number, type: anychart.enums.AggregationType, weights: number}|number)}, csvSettings?: Object): anychart.core.stock.series.StepLine;
         stick(data?: anychart.data.TableMapping | anychart.data.Table | Array<Array<any>> | string, mappingSettings?: {[prop: string]: ({column: number, type: anychart.enums.AggregationType, weights: number}|number)}, csvSettings?: Object): anychart.core.stock.series.Stick;
+        stochastic(mapping: anychart.data.TableMapping, kPeriod?: number, kMAPeriod?: number, dPeriod?: number, kMAType?: anychart.enums.MovingAverageType, dMAType?: anychart.enums.MovingAverageType, kSeriesType?: anychart.enums.StockSeriesType, dSeriesType?: anychart.enums.StockSeriesType): anychart.core.stock.indicators.Stochastic;
         top(): number | string;
         top(value?: number | string): anychart.core.VisualBaseWithBounds;
         unlisten(type: string, listener: (() => void), useCapture?: boolean, listenerScope?: Object): boolean;
@@ -12570,6 +13990,22 @@ declare namespace anychart.core.stock {
 }
 
 declare namespace anychart.core.stock.indicators {
+    interface Stochastic {
+        dMAType(): anychart.enums.MovingAverageType;
+        dMAType(value?: anychart.enums.MovingAverageType): anychart.core.stock.indicators.Stochastic;
+        dPeriod(): number;
+        dPeriod(value?: number): anychart.core.stock.indicators.Stochastic;
+        dSeries(): anychart.core.stock.series.Base | anychart.core.stock.scrollerSeries.Base;
+        dSeries(type?: anychart.enums.StockSeriesType): anychart.core.stock.indicators.Stochastic;
+        kMAPeriod(): number;
+        kMAPeriod(value?: number): anychart.core.stock.indicators.Stochastic;
+        kMAType(): anychart.enums.MovingAverageType;
+        kMAType(value?: anychart.enums.MovingAverageType): anychart.core.stock.indicators.Stochastic;
+        kPeriod(): number;
+        kPeriod(value?: number): anychart.core.stock.indicators.Stochastic;
+        kSeries(): anychart.core.stock.series.Base | anychart.core.stock.scrollerSeries.Base;
+        kSeries(type?: anychart.enums.StockSeriesType): anychart.core.stock.indicators.Stochastic;
+    }
     interface AMA {
         fastPeriod(): number;
         fastPeriod(value?: number): anychart.core.stock.indicators.AMA;
@@ -12608,19 +14044,57 @@ declare namespace anychart.core.stock.indicators {
         slowPeriod(): number;
         slowPeriod(value?: number): anychart.core.stock.indicators.MACD;
     }
+    interface KDJ {
+        dMAType(): anychart.enums.MovingAverageType;
+        dMAType(value?: anychart.enums.MovingAverageType): anychart.core.stock.indicators.KDJ;
+        dMultiplier(): number;
+        dMultiplier(value?: number): anychart.core.stock.indicators.KDJ;
+        dPeriod(): number;
+        dPeriod(value?: number): anychart.core.stock.indicators.KDJ;
+        dSeries(): anychart.core.stock.series.Base | anychart.core.stock.scrollerSeries.Base;
+        dSeries(type?: anychart.enums.StockSeriesType): anychart.core.stock.indicators.KDJ;
+        jSeries(): anychart.core.stock.series.Base | anychart.core.stock.scrollerSeries.Base;
+        jSeries(type?: anychart.enums.StockSeriesType): anychart.core.stock.indicators.KDJ;
+        kMAPeriod(): number;
+        kMAPeriod(value?: number): anychart.core.stock.indicators.KDJ;
+        kMAType(): anychart.enums.MovingAverageType;
+        kMAType(value?: anychart.enums.MovingAverageType): anychart.core.stock.indicators.KDJ;
+        kMultiplier(): number;
+        kMultiplier(value?: number): anychart.core.stock.indicators.KDJ;
+        kPeriod(): number;
+        kPeriod(value?: number): anychart.core.stock.indicators.KDJ;
+        kSeries(): anychart.core.stock.series.Base | anychart.core.stock.scrollerSeries.Base;
+        kSeries(type?: anychart.enums.StockSeriesType): anychart.core.stock.indicators.KDJ;
+    }
     interface BBandsB {
         deviation(): number;
         deviation(value?: number): number | anychart.core.stock.indicators.BBandsB;
         period(): number;
         period(value?: number): anychart.core.stock.indicators.BBandsB;
-        series(): anychart.core.stock.scrollerSeries.Base | anychart.core.stock.indicators.BBands;
+        series(): anychart.core.stock.series.Base | anychart.core.stock.scrollerSeries.Base;
         series(type?: anychart.enums.StockSeriesType | string): anychart.core.stock.indicators.BBandsB;
+    }
+    interface ATR {
+        period(): number;
+        period(value?: number): anychart.core.stock.indicators.ATR;
+        series(): anychart.core.stock.series.Base | anychart.core.stock.scrollerSeries.Base;
+        series(type?: anychart.enums.StockSeriesType): anychart.core.stock.indicators.ATR;
     }
     interface SMA {
         period(): number;
         period(value?: number): anychart.core.stock.indicators.SMA;
         series(): anychart.core.stock.series.Base | anychart.core.stock.scrollerSeries.Base;
         series(type?: string | anychart.enums.StockSeriesType): anychart.core.stock.indicators.SMA;
+    }
+    interface CHO {
+        fastPeriod(): number;
+        fastPeriod(value?: number): anychart.core.stock.indicators.CHO;
+        maType(): string | anychart.enums.MovingAverageType;
+        maType(value?: anychart.enums.MovingAverageType | string): anychart.core.stock.indicators.CHO;
+        series(): anychart.core.stock.series.Base | anychart.core.stock.scrollerSeries.Base;
+        series(type?: anychart.enums.StockSeriesType): anychart.core.stock.indicators.CHO;
+        slowPeriod(): number;
+        slowPeriod(value?: number): anychart.core.stock.indicators.CHO;
     }
     interface Aroon {
         downSeries(): anychart.core.stock.series.Base | anychart.core.stock.scrollerSeries.Base;
@@ -12636,6 +14110,12 @@ declare namespace anychart.core.stock.indicators {
         series(): anychart.core.stock.series.Base | anychart.core.stock.scrollerSeries.Base;
         series(type?: string | anychart.enums.StockSeriesType): anychart.core.stock.indicators.RSI;
     }
+    interface CCI {
+        period(): number;
+        period(value?: number): anychart.core.stock.indicators.CCI;
+        series(): anychart.core.stock.series.Base | anychart.core.stock.scrollerSeries.Base;
+        series(type?: anychart.enums.StockSeriesType): anychart.core.stock.indicators.CCI;
+    }
     interface MMA {
         period(): number;
         period(value?: number): anychart.core.stock.indicators.MMA;
@@ -12648,15 +14128,41 @@ declare namespace anychart.core.stock.indicators {
         series(): anychart.core.stock.series.Base | anychart.core.stock.scrollerSeries.Base;
         series(type?: string | anychart.enums.StockSeriesType): anychart.core.stock.indicators.EMA;
     }
+    interface ADL {
+        series(): anychart.core.stock.series.Base | anychart.core.stock.scrollerSeries.Base;
+        series(type?: anychart.enums.StockSeriesType): anychart.core.stock.indicators.ADL;
+    }
+    interface CMF {
+        period(): number;
+        period(value?: number): anychart.core.stock.indicators.CMF;
+        series(): anychart.core.stock.series.Base | anychart.core.stock.scrollerSeries.Base;
+        series(type?: anychart.enums.StockSeriesType): anychart.core.stock.indicators.CMF;
+    }
+    interface DMI {
+        adxPeriod(): number;
+        adxPeriod(value?: number): anychart.core.stock.indicators.DMI;
+        adxSeries(): anychart.core.stock.series.Base | anychart.core.stock.scrollerSeries.Base;
+        adxSeries(type?: anychart.enums.StockSeriesType | string): anychart.core.stock.indicators.DMI;
+        ndiSeries(): anychart.core.stock.series.Base | anychart.core.stock.scrollerSeries.Base;
+        ndiSeries(type?: anychart.enums.StockSeriesType | string): anychart.core.stock.indicators.DMI;
+        pdiSeries(): anychart.core.stock.series.Base | anychart.core.stock.scrollerSeries.Base;
+        pdiSeries(type?: anychart.enums.StockSeriesType | string): anychart.core.stock.indicators.DMI;
+        period(): number;
+        period(value?: number): anychart.core.stock.indicators.DMI;
+        useWildersSmoothing(): boolean;
+        useWildersSmoothing(value?: boolean): anychart.core.stock.indicators.DMI;
+    }
     interface BBands {
         deviation(): number;
         deviation(value?: number): anychart.core.stock.indicators.BBands;
-        downSeries(): anychart.core.stock.series.Base | anychart.core.stock.scrollerSeries.Base;
-        downSeries(type?: anychart.enums.StockSeriesType | string): anychart.core.stock.indicators.BBands;
+        lowerSeries(): anychart.core.stock.series.Base | anychart.core.stock.scrollerSeries.Base;
+        lowerSeries(type?: anychart.enums.StockSeriesType | string): anychart.core.stock.indicators.BBands;
+        middleSeries(): anychart.core.stock.series.Base | anychart.core.stock.scrollerSeries.Base;
+        middleSeries(type?: anychart.enums.StockSeriesType): anychart.core.stock.indicators.BBands;
         period(): number;
         period(value?: number): anychart.core.stock.indicators.BBands;
-        upSeries(): anychart.core.stock.series.Base | anychart.core.stock.scrollerSeries.Base;
-        upSeries(type?: anychart.enums.StockSeriesType | string): anychart.core.stock.indicators.BBands;
+        upperSeries(): anychart.core.stock.series.Base | anychart.core.stock.scrollerSeries.Base;
+        upperSeries(type?: anychart.enums.StockSeriesType | string): anychart.core.stock.indicators.BBands;
     }
 }
 
@@ -12697,6 +14203,8 @@ declare namespace anychart.core.stock.scrollerSeries {
         minWidth(value?: number | string): anychart.core.VisualBase;
         print(paperSizeOrOptions?: anychart.graphics.vector.PaperSize | Object, landscape?: boolean): void;
         removeAllListeners(type?: string): number;
+        rendering(): anychart.core.series.RenderingSettings;
+        rendering(value?: Object | (() => void)): anychart.core.stock.scrollerSeries.Base;
         right(): number | string;
         right(value?: number | string): anychart.core.VisualBaseWithBounds;
         selectFill(): anychart.graphics.vector.Fill;
@@ -12710,12 +14218,12 @@ declare namespace anychart.core.stock.scrollerSeries {
         selectHatchFill(patternFillOrType?: anychart.graphics.vector.PatternFill | anychart.graphics.vector.HatchFill | (() => void) | anychart.graphics.vector.HatchFill.HatchFillType | string, color?: string, thickness?: number, size?: number): anychart.core.stock.scrollerSeries.SplineArea;
         selectStroke(): anychart.graphics.vector.Stroke;
         selectStroke(strokeFunction?: (() => void)): anychart.core.stock.scrollerSeries.SplineArea;
-        selectStroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.stock.scrollerSeries.SplineArea;
+        selectStroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.stock.scrollerSeries.SplineArea;
         seriesType(): string;
         seriesType(value?: string): anychart.core.stock.scrollerSeries.Base;
         stroke(): anychart.graphics.vector.Stroke;
         stroke(strokeFunction?: (() => void)): anychart.core.stock.scrollerSeries.SplineArea;
-        stroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.stock.scrollerSeries.SplineArea;
+        stroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.stock.scrollerSeries.SplineArea;
         top(): number | string;
         top(value?: number | string): anychart.core.VisualBaseWithBounds;
         unlisten(type: string, listener: (() => void), useCapture?: boolean, listenerScope?: Object): boolean;
@@ -12754,16 +14262,18 @@ declare namespace anychart.core.stock.scrollerSeries {
         minWidth(value?: number | string): anychart.core.VisualBase;
         print(paperSizeOrOptions?: anychart.graphics.vector.PaperSize | Object, landscape?: boolean): void;
         removeAllListeners(type?: string): number;
+        rendering(): anychart.core.series.RenderingSettings;
+        rendering(value?: Object | (() => void)): anychart.core.stock.scrollerSeries.Base;
         right(): number | string;
         right(value?: number | string): anychart.core.VisualBaseWithBounds;
         selectStroke(): anychart.graphics.vector.Stroke;
         selectStroke(strokeFunction?: (() => void)): anychart.core.stock.scrollerSeries.Spline;
-        selectStroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.stock.scrollerSeries.Spline;
+        selectStroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.stock.scrollerSeries.Spline;
         seriesType(): string;
         seriesType(value?: string): anychart.core.stock.scrollerSeries.Base;
         stroke(): anychart.graphics.vector.Stroke;
         stroke(strokeFunction?: (() => void)): anychart.core.stock.scrollerSeries.Spline;
-        stroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.stock.scrollerSeries.Spline;
+        stroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.stock.scrollerSeries.Spline;
         top(): number | string;
         top(value?: number | string): anychart.core.VisualBaseWithBounds;
         unlisten(type: string, listener: (() => void), useCapture?: boolean, listenerScope?: Object): boolean;
@@ -12842,14 +14352,14 @@ declare namespace anychart.core.stock.scrollerSeries {
         height(value?: number | string): anychart.core.VisualBaseWithBounds;
         highStroke(): anychart.graphics.vector.Stroke | (() => void);
         highStroke(strokeFunction?: (() => void)): anychart.core.stock.scrollerSeries.RangeStepArea;
-        highStroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.stock.scrollerSeries.RangeStepArea;
+        highStroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.stock.scrollerSeries.RangeStepArea;
         left(): number | string;
         left(value?: number | string): anychart.core.VisualBaseWithBounds;
         listen(type: string, listener: (() => void), useCapture?: boolean, listenerScope?: Object): Object;
         listenOnce(type: string, listener: (() => void), useCapture?: boolean, listenerScope?: Object): Object;
         lowStroke(): anychart.graphics.vector.Stroke | (() => void);
         lowStroke(strokeFunction?: (() => void)): anychart.core.stock.scrollerSeries.RangeStepArea;
-        lowStroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.stock.scrollerSeries.RangeStepArea;
+        lowStroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.stock.scrollerSeries.RangeStepArea;
         maxHeight(): number | string;
         maxHeight(value?: number | string): anychart.core.VisualBase;
         maxWidth(): number | string;
@@ -12860,6 +14370,8 @@ declare namespace anychart.core.stock.scrollerSeries {
         minWidth(value?: number | string): anychart.core.VisualBase;
         print(paperSizeOrOptions?: anychart.graphics.vector.PaperSize | Object, landscape?: boolean): void;
         removeAllListeners(type?: string): number;
+        rendering(): anychart.core.series.RenderingSettings;
+        rendering(value?: Object | (() => void)): anychart.core.stock.scrollerSeries.Base;
         right(): number | string;
         right(value?: number | string): anychart.core.VisualBaseWithBounds;
         selectFill(): anychart.graphics.vector.Fill;
@@ -12873,10 +14385,10 @@ declare namespace anychart.core.stock.scrollerSeries {
         selectHatchFill(patternFillOrType?: anychart.graphics.vector.PatternFill | anychart.graphics.vector.HatchFill | (() => void) | anychart.graphics.vector.HatchFill.HatchFillType | string, color?: string, thickness?: number, size?: number): anychart.core.stock.scrollerSeries.RangeStepArea;
         selectHighStroke(): anychart.graphics.vector.Stroke | (() => void);
         selectHighStroke(strokeFunction?: (() => void)): anychart.core.stock.scrollerSeries.RangeStepArea;
-        selectHighStroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.stock.scrollerSeries.RangeStepArea;
+        selectHighStroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.stock.scrollerSeries.RangeStepArea;
         selectLowStroke(): anychart.graphics.vector.Stroke | (() => void);
         selectLowStroke(strokeFunction?: (() => void)): anychart.core.stock.scrollerSeries.RangeStepArea;
-        selectLowStroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.stock.scrollerSeries.RangeStepArea;
+        selectLowStroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.stock.scrollerSeries.RangeStepArea;
         seriesType(): string;
         seriesType(value?: string): anychart.core.stock.scrollerSeries.Base;
         stepDirection(): anychart.enums.StepDirection | string;
@@ -12928,6 +14440,8 @@ declare namespace anychart.core.stock.scrollerSeries {
         minWidth(value?: number | string): anychart.core.VisualBase;
         print(paperSizeOrOptions?: anychart.graphics.vector.PaperSize | Object, landscape?: boolean): void;
         removeAllListeners(type?: string): number;
+        rendering(): anychart.core.series.RenderingSettings;
+        rendering(value?: Object | (() => void)): anychart.core.stock.scrollerSeries.Base;
         right(): number | string;
         right(value?: number | string): anychart.core.VisualBaseWithBounds;
         selectFill(): anychart.graphics.vector.Fill;
@@ -12941,14 +14455,14 @@ declare namespace anychart.core.stock.scrollerSeries {
         selectHatchFill(patternFillOrType?: anychart.graphics.vector.PatternFill | anychart.graphics.vector.HatchFill | (() => void) | anychart.graphics.vector.HatchFill.HatchFillType | string, color?: string, thickness?: number, size?: number): anychart.core.stock.scrollerSeries.StepArea;
         selectStroke(): anychart.graphics.vector.Stroke;
         selectStroke(strokeFunction?: (() => void)): anychart.core.stock.scrollerSeries.StepArea;
-        selectStroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.stock.scrollerSeries.StepArea;
+        selectStroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.stock.scrollerSeries.StepArea;
         seriesType(): string;
         seriesType(value?: string): anychart.core.stock.scrollerSeries.Base;
         stepDirection(): anychart.enums.StepDirection | string;
         stepDirection(value?: anychart.enums.StepDirection | string): anychart.core.stock.scrollerSeries.StepArea;
         stroke(): anychart.graphics.vector.Stroke;
         stroke(strokeFunction?: (() => void)): anychart.core.stock.scrollerSeries.StepArea;
-        stroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.stock.scrollerSeries.StepArea;
+        stroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.stock.scrollerSeries.StepArea;
         top(): number | string;
         top(value?: number | string): anychart.core.VisualBaseWithBounds;
         unlisten(type: string, listener: (() => void), useCapture?: boolean, listenerScope?: Object): boolean;
@@ -12988,6 +14502,8 @@ declare namespace anychart.core.stock.scrollerSeries {
         minWidth(value?: number | string): anychart.core.VisualBase;
         print(paperSizeOrOptions?: anychart.graphics.vector.PaperSize | Object, landscape?: boolean): void;
         removeAllListeners(type?: string): number;
+        rendering(): anychart.core.series.RenderingSettings;
+        rendering(value?: Object | (() => void)): anychart.core.stock.scrollerSeries.Base;
         right(): number | string;
         right(value?: number | string): anychart.core.VisualBaseWithBounds;
         seriesType(): string;
@@ -13039,6 +14555,8 @@ declare namespace anychart.core.stock.scrollerSeries {
         minWidth(value?: number | string): anychart.core.VisualBase;
         print(paperSizeOrOptions?: anychart.graphics.vector.PaperSize | Object, landscape?: boolean): void;
         removeAllListeners(type?: string): number;
+        rendering(): anychart.core.series.RenderingSettings;
+        rendering(value?: Object | (() => void)): anychart.core.stock.scrollerSeries.Base;
         right(): number | string;
         right(value?: number | string): anychart.core.VisualBaseWithBounds;
         selectFill(): anychart.graphics.vector.Fill;
@@ -13052,12 +14570,12 @@ declare namespace anychart.core.stock.scrollerSeries {
         selectHatchFill(patternFillOrType?: anychart.graphics.vector.PatternFill | anychart.graphics.vector.HatchFill | (() => void) | anychart.graphics.vector.HatchFill.HatchFillType | string | boolean, color?: string, thickness?: number, size?: number): anychart.core.stock.scrollerSeries.Area;
         selectStroke(): anychart.graphics.vector.Stroke;
         selectStroke(strokeFunction?: (() => void)): anychart.core.stock.scrollerSeries.Area;
-        selectStroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.stock.scrollerSeries.Area;
+        selectStroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.stock.scrollerSeries.Area;
         seriesType(): string;
         seriesType(value?: string): anychart.core.stock.scrollerSeries.Base;
         stroke(): anychart.graphics.vector.Stroke;
         stroke(strokeFunction?: (() => void)): anychart.core.stock.scrollerSeries.Area;
-        stroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.stock.scrollerSeries.Area;
+        stroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.stock.scrollerSeries.Area;
         top(): number | string;
         top(value?: number | string): anychart.core.VisualBaseWithBounds;
         unlisten(type: string, listener: (() => void), useCapture?: boolean, listenerScope?: Object): boolean;
@@ -13099,14 +14617,16 @@ declare namespace anychart.core.stock.scrollerSeries {
         pointWidth(value?: number | string): anychart.core.stock.scrollerSeries.DiscreteBase;
         print(paperSizeOrOptions?: anychart.graphics.vector.PaperSize | Object, landscape?: boolean): void;
         removeAllListeners(type?: string): number;
+        rendering(): anychart.core.series.RenderingSettings;
+        rendering(value?: Object | (() => void)): anychart.core.stock.scrollerSeries.Base;
         right(): number | string;
         right(value?: number | string): anychart.core.VisualBaseWithBounds;
         selectStroke(): anychart.graphics.vector.Stroke;
-        selectStroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string, thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.stock.scrollerSeries.Stick;
+        selectStroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string, thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.stock.scrollerSeries.Stick;
         seriesType(): string;
         seriesType(value?: string): anychart.core.stock.scrollerSeries.Base;
         stroke(): anychart.graphics.vector.Stroke;
-        stroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string, thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.stock.scrollerSeries.Stick;
+        stroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string, thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.stock.scrollerSeries.Stick;
         top(): number | string;
         top(value?: number | string): anychart.core.VisualBaseWithBounds;
         unlisten(type: string, listener: (() => void), useCapture?: boolean, listenerScope?: Object): boolean;
@@ -13150,6 +14670,8 @@ declare namespace anychart.core.stock.scrollerSeries {
         pointWidth(value?: number | string): anychart.core.stock.scrollerSeries.DiscreteBase;
         print(paperSizeOrOptions?: anychart.graphics.vector.PaperSize | Object, landscape?: boolean): void;
         removeAllListeners(type?: string): number;
+        rendering(): anychart.core.series.RenderingSettings;
+        rendering(value?: Object | (() => void)): anychart.core.stock.scrollerSeries.Base;
         right(): number | string;
         right(value?: number | string): anychart.core.VisualBaseWithBounds;
         risingStroke(): anychart.graphics.vector.Stroke;
@@ -13211,6 +14733,8 @@ declare namespace anychart.core.stock.scrollerSeries {
         pointWidth(value?: number | string): anychart.core.stock.scrollerSeries.DiscreteBase;
         print(paperSizeOrOptions?: anychart.graphics.vector.PaperSize | Object, landscape?: boolean): void;
         removeAllListeners(type?: string): number;
+        rendering(): anychart.core.series.RenderingSettings;
+        rendering(value?: Object | (() => void)): anychart.core.stock.scrollerSeries.Base;
         right(): number | string;
         right(value?: number | string): anychart.core.VisualBaseWithBounds;
         risingFill(): anychart.graphics.vector.Fill;
@@ -13297,6 +14821,8 @@ declare namespace anychart.core.stock.scrollerSeries {
         pointWidth(value?: number | string): anychart.core.stock.scrollerSeries.DiscreteBase;
         print(paperSizeOrOptions?: anychart.graphics.vector.PaperSize | Object, landscape?: boolean): void;
         removeAllListeners(type?: string): number;
+        rendering(): anychart.core.series.RenderingSettings;
+        rendering(value?: Object | (() => void)): anychart.core.stock.scrollerSeries.Base;
         right(): number | string;
         right(value?: number | string): anychart.core.VisualBaseWithBounds;
         selectFill(): anychart.graphics.vector.Fill;
@@ -13348,14 +14874,14 @@ declare namespace anychart.core.stock.scrollerSeries {
         height(value?: number | string): anychart.core.VisualBaseWithBounds;
         highStroke(): anychart.graphics.vector.Stroke | (() => void);
         highStroke(strokeFunction?: (() => void)): anychart.core.stock.scrollerSeries.RangeArea;
-        highStroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.stock.scrollerSeries.RangeArea;
+        highStroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.stock.scrollerSeries.RangeArea;
         left(): number | string;
         left(value?: number | string): anychart.core.VisualBaseWithBounds;
         listen(type: string, listener: (() => void), useCapture?: boolean, listenerScope?: Object): Object;
         listenOnce(type: string, listener: (() => void), useCapture?: boolean, listenerScope?: Object): Object;
         lowStroke(): anychart.graphics.vector.Stroke | (() => void);
         lowStroke(strokeFunction?: (() => void)): anychart.core.stock.scrollerSeries.RangeArea;
-        lowStroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.stock.scrollerSeries.RangeArea;
+        lowStroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.stock.scrollerSeries.RangeArea;
         maxHeight(): number | string;
         maxHeight(value?: number | string): anychart.core.VisualBase;
         maxWidth(): number | string;
@@ -13366,6 +14892,8 @@ declare namespace anychart.core.stock.scrollerSeries {
         minWidth(value?: number | string): anychart.core.VisualBase;
         print(paperSizeOrOptions?: anychart.graphics.vector.PaperSize | Object, landscape?: boolean): void;
         removeAllListeners(type?: string): number;
+        rendering(): anychart.core.series.RenderingSettings;
+        rendering(value?: Object | (() => void)): anychart.core.stock.scrollerSeries.Base;
         right(): number | string;
         right(value?: number | string): anychart.core.VisualBaseWithBounds;
         selectFill(): anychart.graphics.vector.Fill;
@@ -13379,10 +14907,10 @@ declare namespace anychart.core.stock.scrollerSeries {
         selectHatchFill(patternFillOrType?: anychart.graphics.vector.PatternFill | anychart.graphics.vector.HatchFill | (() => void) | anychart.graphics.vector.HatchFill.HatchFillType | string, color?: string, thickness?: number, size?: number): anychart.core.stock.scrollerSeries.RangeArea;
         selectHighStroke(): anychart.graphics.vector.Stroke | (() => void);
         selectHighStroke(strokeFunction?: (() => void)): anychart.core.stock.scrollerSeries.RangeArea;
-        selectHighStroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.stock.scrollerSeries.RangeArea;
+        selectHighStroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.stock.scrollerSeries.RangeArea;
         selectLowStroke(): anychart.graphics.vector.Stroke | (() => void);
         selectLowStroke(strokeFunction?: (() => void)): anychart.core.stock.scrollerSeries.RangeArea;
-        selectLowStroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.stock.scrollerSeries.RangeArea;
+        selectLowStroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.stock.scrollerSeries.RangeArea;
         seriesType(): string;
         seriesType(value?: string): anychart.core.stock.scrollerSeries.Base;
         top(): number | string;
@@ -13424,14 +14952,16 @@ declare namespace anychart.core.stock.scrollerSeries {
         minWidth(value?: number | string): anychart.core.VisualBase;
         print(paperSizeOrOptions?: anychart.graphics.vector.PaperSize | Object, landscape?: boolean): void;
         removeAllListeners(type?: string): number;
+        rendering(): anychart.core.series.RenderingSettings;
+        rendering(value?: Object | (() => void)): anychart.core.stock.scrollerSeries.Base;
         right(): number | string;
         right(value?: number | string): anychart.core.VisualBaseWithBounds;
         selectStroke(): anychart.graphics.vector.Stroke;
-        selectStroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string, thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.stock.scrollerSeries.JumpLine;
+        selectStroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string, thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.stock.scrollerSeries.JumpLine;
         seriesType(): string;
         seriesType(value?: string): anychart.core.stock.scrollerSeries.Base;
         stroke(): anychart.graphics.vector.Stroke;
-        stroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string, thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.stock.scrollerSeries.JumpLine;
+        stroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string, thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.stock.scrollerSeries.JumpLine;
         top(): number | string;
         top(value?: number | string): anychart.core.VisualBaseWithBounds;
         unlisten(type: string, listener: (() => void), useCapture?: boolean, listenerScope?: Object): boolean;
@@ -13470,18 +15000,20 @@ declare namespace anychart.core.stock.scrollerSeries {
         minWidth(value?: number | string): anychart.core.VisualBase;
         print(paperSizeOrOptions?: anychart.graphics.vector.PaperSize | Object, landscape?: boolean): void;
         removeAllListeners(type?: string): number;
+        rendering(): anychart.core.series.RenderingSettings;
+        rendering(value?: Object | (() => void)): anychart.core.stock.scrollerSeries.Base;
         right(): number | string;
         right(value?: number | string): anychart.core.VisualBaseWithBounds;
         selectStroke(): anychart.graphics.vector.Stroke;
         selectStroke(strokeFunction?: (() => void)): anychart.core.stock.scrollerSeries.StepLine;
-        selectStroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.stock.scrollerSeries.StepLine;
+        selectStroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.stock.scrollerSeries.StepLine;
         seriesType(): string;
         seriesType(value?: string): anychart.core.stock.scrollerSeries.Base;
         stepDirection(): anychart.enums.StepDirection | string;
         stepDirection(value?: anychart.enums.StepDirection | string): anychart.core.stock.scrollerSeries.StepLine;
         stroke(): anychart.graphics.vector.Stroke;
         stroke(strokeFunction?: (() => void)): anychart.core.stock.scrollerSeries.StepLine;
-        stroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.stock.scrollerSeries.StepLine;
+        stroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.stock.scrollerSeries.StepLine;
         top(): number | string;
         top(value?: number | string): anychart.core.VisualBaseWithBounds;
         unlisten(type: string, listener: (() => void), useCapture?: boolean, listenerScope?: Object): boolean;
@@ -13521,6 +15053,8 @@ declare namespace anychart.core.stock.scrollerSeries {
         minWidth(value?: number | string): anychart.core.VisualBase;
         print(paperSizeOrOptions?: anychart.graphics.vector.PaperSize | Object, landscape?: boolean): void;
         removeAllListeners(type?: string): number;
+        rendering(): anychart.core.series.RenderingSettings;
+        rendering(value?: Object | (() => void)): anychart.core.stock.scrollerSeries.Base;
         right(): number | string;
         right(value?: number | string): anychart.core.VisualBaseWithBounds;
         selectStroke(): anychart.graphics.vector.Stroke;
@@ -13576,6 +15110,8 @@ declare namespace anychart.core.stock.scrollerSeries {
         minWidth(value?: number | string): anychart.core.VisualBase;
         print(paperSizeOrOptions?: anychart.graphics.vector.PaperSize | Object, landscape?: boolean): void;
         removeAllListeners(type?: string): number;
+        rendering(): anychart.core.series.RenderingSettings;
+        rendering(value?: Object | (() => void)): anychart.core.stock.scrollerSeries.Base;
         right(): number | string;
         right(value?: number | string): anychart.core.VisualBaseWithBounds;
         selectFill(): anychart.graphics.vector.Fill;
@@ -13589,12 +15125,12 @@ declare namespace anychart.core.stock.scrollerSeries {
         selectHatchFill(patternFillOrType?: anychart.graphics.vector.PatternFill | anychart.graphics.vector.HatchFill | (() => void) | anychart.graphics.vector.HatchFill.HatchFillType | string, color?: string, thickness?: number, size?: number): anychart.core.stock.scrollerSeries.RangeColumn;
         selectStroke(): anychart.graphics.vector.Stroke;
         selectStroke(strokeFunction?: (() => void)): anychart.core.stock.scrollerSeries.RangeColumn;
-        selectStroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.stock.scrollerSeries.RangeColumn;
+        selectStroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.stock.scrollerSeries.RangeColumn;
         seriesType(): string;
         seriesType(value?: string): anychart.core.stock.scrollerSeries.Base;
         stroke(): anychart.graphics.vector.Stroke;
         stroke(strokeFunction?: (() => void)): anychart.core.stock.scrollerSeries.RangeColumn;
-        stroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.stock.scrollerSeries.RangeColumn;
+        stroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.stock.scrollerSeries.RangeColumn;
         top(): number | string;
         top(value?: number | string): anychart.core.VisualBaseWithBounds;
         unlisten(type: string, listener: (() => void), useCapture?: boolean, listenerScope?: Object): boolean;
@@ -13630,14 +15166,14 @@ declare namespace anychart.core.stock.scrollerSeries {
         height(value?: number | string): anychart.core.VisualBaseWithBounds;
         highStroke(): anychart.graphics.vector.Stroke | (() => void);
         highStroke(fillFunction?: (() => void)): anychart.core.stock.scrollerSeries.RangeSplineArea;
-        highStroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.stock.scrollerSeries.RangeSplineArea;
+        highStroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.stock.scrollerSeries.RangeSplineArea;
         left(): number | string;
         left(value?: number | string): anychart.core.VisualBaseWithBounds;
         listen(type: string, listener: (() => void), useCapture?: boolean, listenerScope?: Object): Object;
         listenOnce(type: string, listener: (() => void), useCapture?: boolean, listenerScope?: Object): Object;
         lowStroke(): anychart.graphics.vector.Stroke | (() => void);
         lowStroke(strokeFunction?: (() => void)): anychart.core.stock.scrollerSeries.RangeSplineArea;
-        lowStroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.stock.scrollerSeries.RangeSplineArea;
+        lowStroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.stock.scrollerSeries.RangeSplineArea;
         maxHeight(): number | string;
         maxHeight(value?: number | string): anychart.core.VisualBase;
         maxWidth(): number | string;
@@ -13648,6 +15184,8 @@ declare namespace anychart.core.stock.scrollerSeries {
         minWidth(value?: number | string): anychart.core.VisualBase;
         print(paperSizeOrOptions?: anychart.graphics.vector.PaperSize | Object, landscape?: boolean): void;
         removeAllListeners(type?: string): number;
+        rendering(): anychart.core.series.RenderingSettings;
+        rendering(value?: Object | (() => void)): anychart.core.stock.scrollerSeries.Base;
         right(): number | string;
         right(value?: number | string): anychart.core.VisualBaseWithBounds;
         selectFill(): anychart.graphics.vector.Fill;
@@ -13661,10 +15199,10 @@ declare namespace anychart.core.stock.scrollerSeries {
         selectHatchFill(patternFillOrType?: anychart.graphics.vector.PatternFill | anychart.graphics.vector.HatchFill | (() => void) | anychart.graphics.vector.HatchFill.HatchFillType | string, color?: string, thickness?: number, size?: number): anychart.core.stock.scrollerSeries.RangeSplineArea;
         selectHighStroke(): anychart.graphics.vector.Stroke | (() => void);
         selectHighStroke(fillFunction?: (() => void)): anychart.core.stock.scrollerSeries.RangeSplineArea;
-        selectHighStroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.stock.scrollerSeries.RangeSplineArea;
+        selectHighStroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.stock.scrollerSeries.RangeSplineArea;
         selectLowStroke(): anychart.graphics.vector.Stroke | (() => void);
         selectLowStroke(strokeFunction?: (() => void)): anychart.core.stock.scrollerSeries.RangeSplineArea;
-        selectLowStroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.stock.scrollerSeries.RangeSplineArea;
+        selectLowStroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.stock.scrollerSeries.RangeSplineArea;
         seriesType(): string;
         seriesType(value?: string): anychart.core.stock.scrollerSeries.Base;
         top(): number | string;
@@ -13714,6 +15252,8 @@ declare namespace anychart.core.stock.scrollerSeries {
         minWidth(value?: number | string): anychart.core.VisualBase;
         print(paperSizeOrOptions?: anychart.graphics.vector.PaperSize | Object, landscape?: boolean): void;
         removeAllListeners(type?: string): number;
+        rendering(): anychart.core.series.RenderingSettings;
+        rendering(value?: Object | (() => void)): anychart.core.stock.scrollerSeries.Base;
         right(): number | string;
         right(value?: number | string): anychart.core.VisualBaseWithBounds;
         selectFill(): anychart.graphics.vector.Fill;
@@ -13727,7 +15267,7 @@ declare namespace anychart.core.stock.scrollerSeries {
         selectHatchFill(patternFillOrType?: anychart.graphics.vector.PatternFill | anychart.graphics.vector.HatchFill | (() => void) | anychart.graphics.vector.HatchFill.HatchFillType | string, color?: string, thickness?: number, size?: number): anychart.core.stock.scrollerSeries.Marker;
         selectStroke(): anychart.graphics.vector.Stroke;
         selectStroke(strokeFunction?: (() => void)): anychart.core.stock.scrollerSeries.Marker;
-        selectStroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.stock.scrollerSeries.Marker;
+        selectStroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.stock.scrollerSeries.Marker;
         selectType(): string | anychart.enums.MarkerType | (() => void);
         selectType(value?: string | anychart.enums.MarkerType | (() => void)): anychart.core.stock.scrollerSeries.Marker;
         seriesType(): string;
@@ -13736,7 +15276,7 @@ declare namespace anychart.core.stock.scrollerSeries {
         size(value?: number): anychart.core.stock.scrollerSeries.Marker;
         stroke(): anychart.graphics.vector.Stroke;
         stroke(strokeFunction?: (() => void)): anychart.core.stock.scrollerSeries.Marker;
-        stroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.stock.scrollerSeries.Marker;
+        stroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.stock.scrollerSeries.Marker;
         top(): number | string;
         top(value?: number | string): anychart.core.VisualBaseWithBounds;
         type(): string | anychart.enums.MarkerType | (() => void);
@@ -13786,7 +15326,7 @@ declare namespace anychart.core.stock.series {
         hoverHatchFill(patternFillOrType?: anychart.graphics.vector.PatternFill | anychart.graphics.vector.HatchFill | (() => void) | anychart.graphics.vector.HatchFill.HatchFillType | string, color?: string, thickness?: number, size?: number): anychart.core.stock.series.SplineArea;
         hoverStroke(): anychart.graphics.vector.Stroke;
         hoverStroke(strokeFunction?: (() => void)): anychart.core.stock.series.SplineArea;
-        hoverStroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.stock.series.Area;
+        hoverStroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.stock.series.Area;
         left(): number | string;
         left(value?: number | string): anychart.core.VisualBaseWithBounds;
         legendItem(): anychart.core.utils.LegendItemSettings;
@@ -13807,6 +15347,8 @@ declare namespace anychart.core.stock.series {
         name(value?: string): anychart.core.stock.series.Base;
         print(paperSizeOrOptions?: anychart.graphics.vector.PaperSize | Object, landscape?: boolean): void;
         removeAllListeners(type?: string): number;
+        rendering(): anychart.core.series.RenderingSettings;
+        rendering(value?: Object | (() => void)): anychart.core.stock.series.Base;
         right(): number | string;
         right(value?: number | string): anychart.core.VisualBaseWithBounds;
         selectFill(): anychart.graphics.vector.Fill;
@@ -13820,12 +15362,12 @@ declare namespace anychart.core.stock.series {
         selectHatchFill(patternFillOrType?: anychart.graphics.vector.PatternFill | anychart.graphics.vector.HatchFill | (() => void) | anychart.graphics.vector.HatchFill.HatchFillType | string, color?: string, thickness?: number, size?: number): anychart.core.stock.series.SplineArea;
         selectStroke(): anychart.graphics.vector.Stroke;
         selectStroke(strokeFunction?: (() => void)): anychart.core.stock.series.SplineArea;
-        selectStroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.stock.series.SplineArea;
+        selectStroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.stock.series.SplineArea;
         seriesType(): string;
         seriesType(value?: string): anychart.core.stock.series.Base;
         stroke(): anychart.graphics.vector.Stroke;
         stroke(strokeFunction?: (() => void)): anychart.core.stock.series.SplineArea;
-        stroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.stock.series.SplineArea;
+        stroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.stock.series.SplineArea;
         tooltip(): anychart.core.ui.Tooltip;
         tooltip(value?: Object | boolean): anychart.core.stock.series.Base;
         top(): number | string;
@@ -13854,7 +15396,7 @@ declare namespace anychart.core.stock.series {
         height(value?: number | string): anychart.core.VisualBaseWithBounds;
         hoverStroke(): anychart.graphics.vector.Stroke;
         hoverStroke(strokeFunction?: (() => void)): anychart.core.stock.series.Spline;
-        hoverStroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.stock.series.Spline;
+        hoverStroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.stock.series.Spline;
         left(): number | string;
         left(value?: number | string): anychart.core.VisualBaseWithBounds;
         legendItem(): anychart.core.utils.LegendItemSettings;
@@ -13875,16 +15417,18 @@ declare namespace anychart.core.stock.series {
         name(value?: string): anychart.core.stock.series.Base;
         print(paperSizeOrOptions?: anychart.graphics.vector.PaperSize | Object, landscape?: boolean): void;
         removeAllListeners(type?: string): number;
+        rendering(): anychart.core.series.RenderingSettings;
+        rendering(value?: Object | (() => void)): anychart.core.stock.series.Base;
         right(): number | string;
         right(value?: number | string): anychart.core.VisualBaseWithBounds;
         selectStroke(): anychart.graphics.vector.Stroke;
         selectStroke(strokeFunction?: (() => void)): anychart.core.stock.series.Spline;
-        selectStroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.stock.series.Spline;
+        selectStroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.stock.series.Spline;
         seriesType(): string;
         seriesType(value?: string): anychart.core.stock.series.Base;
         stroke(): anychart.graphics.vector.Stroke;
         stroke(strokeFunction?: (() => void)): anychart.core.stock.series.Spline;
-        stroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.stock.series.Spline;
+        stroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.stock.series.Spline;
         tooltip(): anychart.core.ui.Tooltip;
         tooltip(value?: Object | boolean): anychart.core.stock.series.Base;
         top(): number | string;
@@ -13968,7 +15512,7 @@ declare namespace anychart.core.stock.series {
         height(value?: number | string): anychart.core.VisualBaseWithBounds;
         highStroke(): anychart.graphics.vector.Stroke | (() => void);
         highStroke(strokeFunction?: (() => void)): anychart.core.stock.series.RangeStepArea;
-        highStroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.stock.series.RangeStepArea;
+        highStroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.stock.series.RangeStepArea;
         hoverFill(): anychart.graphics.vector.Fill;
         hoverFill(value: anychart.graphics.vector.Fill): anychart.core.stock.series.RangeStepArea;
         hoverFill(fillFunction?: (() => void)): anychart.core.stock.series.RangeStepArea;
@@ -13977,10 +15521,10 @@ declare namespace anychart.core.stock.series {
         hoverHatchFill(patternFillOrType?: anychart.graphics.vector.PatternFill | anychart.graphics.vector.HatchFill | (() => void) | anychart.graphics.vector.HatchFill.HatchFillType | string, color?: string, thickness?: number, size?: number): anychart.core.stock.series.RangeStepArea;
         hoverHighStroke(): anychart.graphics.vector.Stroke | (() => void);
         hoverHighStroke(strokeFunction?: (() => void)): anychart.core.stock.series.RangeStepArea;
-        hoverHighStroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.stock.series.RangeStepArea;
+        hoverHighStroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.stock.series.RangeStepArea;
         hoverLowStroke(): anychart.graphics.vector.Stroke | (() => void);
         hoverLowStroke(strokeFunction?: (() => void)): anychart.core.stock.series.RangeStepArea;
-        hoverLowStroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.stock.series.RangeStepArea;
+        hoverLowStroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.stock.series.RangeStepArea;
         left(): number | string;
         left(value?: number | string): anychart.core.VisualBaseWithBounds;
         legendItem(): anychart.core.utils.LegendItemSettings;
@@ -13989,7 +15533,7 @@ declare namespace anychart.core.stock.series {
         listenOnce(type: string, listener: (() => void), useCapture?: boolean, listenerScope?: Object): Object;
         lowStroke(): anychart.graphics.vector.Stroke | (() => void);
         lowStroke(strokeFunction?: (() => void)): anychart.core.stock.series.RangeStepArea;
-        lowStroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.stock.series.RangeStepArea;
+        lowStroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.stock.series.RangeStepArea;
         markers(): anychart.core.ui.MarkersFactory;
         markers(value?: Object | boolean | string): anychart.core.stock.series.Base;
         maxHeight(): number | string;
@@ -14004,6 +15548,8 @@ declare namespace anychart.core.stock.series {
         name(value?: string): anychart.core.stock.series.Base;
         print(paperSizeOrOptions?: anychart.graphics.vector.PaperSize | Object, landscape?: boolean): void;
         removeAllListeners(type?: string): number;
+        rendering(): anychart.core.series.RenderingSettings;
+        rendering(value?: Object | (() => void)): anychart.core.stock.series.Base;
         right(): number | string;
         right(value?: number | string): anychart.core.VisualBaseWithBounds;
         selectFill(): anychart.graphics.vector.Fill;
@@ -14014,10 +15560,10 @@ declare namespace anychart.core.stock.series {
         selectHatchFill(patternFillOrType?: anychart.graphics.vector.PatternFill | anychart.graphics.vector.HatchFill | (() => void) | anychart.graphics.vector.HatchFill.HatchFillType | string, color?: string, thickness?: number, size?: number): anychart.core.stock.series.RangeStepArea;
         selectHighStroke(): anychart.graphics.vector.Stroke | (() => void);
         selectHighStroke(strokeFunction?: (() => void)): anychart.core.stock.series.RangeStepArea;
-        selectHighStroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.stock.series.RangeStepArea;
+        selectHighStroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.stock.series.RangeStepArea;
         selectLowStroke(): anychart.graphics.vector.Stroke | (() => void);
         selectLowStroke(strokeFunction?: (() => void)): anychart.core.stock.series.RangeStepArea;
-        selectLowStroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.stock.series.RangeStepArea;
+        selectLowStroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.stock.series.RangeStepArea;
         seriesType(): string;
         seriesType(value?: string): anychart.core.stock.series.Base;
         stepDirection(): anychart.enums.StepDirection | string;
@@ -14068,7 +15614,7 @@ declare namespace anychart.core.stock.series {
         hoverHatchFill(patternFillOrType?: anychart.graphics.vector.PatternFill | anychart.graphics.vector.HatchFill | (() => void) | anychart.graphics.vector.HatchFill.HatchFillType | string, color?: string, thickness?: number, size?: number): anychart.core.stock.series.StepArea;
         hoverStroke(): anychart.graphics.vector.Stroke;
         hoverStroke(strokeFunction?: (() => void)): anychart.core.stock.series.StepArea;
-        hoverStroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.stock.series.StepArea;
+        hoverStroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.stock.series.StepArea;
         left(): number | string;
         left(value?: number | string): anychart.core.VisualBaseWithBounds;
         legendItem(): anychart.core.utils.LegendItemSettings;
@@ -14089,6 +15635,8 @@ declare namespace anychart.core.stock.series {
         name(value?: string): anychart.core.stock.series.Base;
         print(paperSizeOrOptions?: anychart.graphics.vector.PaperSize | Object, landscape?: boolean): void;
         removeAllListeners(type?: string): number;
+        rendering(): anychart.core.series.RenderingSettings;
+        rendering(value?: Object | (() => void)): anychart.core.stock.series.Base;
         right(): number | string;
         right(value?: number | string): anychart.core.VisualBaseWithBounds;
         selectFill(): anychart.graphics.vector.Fill;
@@ -14102,14 +15650,14 @@ declare namespace anychart.core.stock.series {
         selectHatchFill(patternFillOrType?: anychart.graphics.vector.PatternFill | anychart.graphics.vector.HatchFill | (() => void) | anychart.graphics.vector.HatchFill.HatchFillType | string, color?: string, thickness?: number, size?: number): anychart.core.stock.series.StepArea;
         selectStroke(): anychart.graphics.vector.Stroke;
         selectStroke(strokeFunction?: (() => void)): anychart.core.stock.series.StepArea;
-        selectStroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.stock.series.StepArea;
+        selectStroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.stock.series.StepArea;
         seriesType(): string;
         seriesType(value?: string): anychart.core.stock.series.Base;
         stepDirection(): anychart.enums.StepDirection | string;
         stepDirection(value?: anychart.enums.StepDirection | string): anychart.core.stock.series.StepArea;
         stroke(): anychart.graphics.vector.Stroke;
         stroke(strokeFunction?: (() => void)): anychart.core.stock.series.StepArea;
-        stroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.stock.series.StepArea;
+        stroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.stock.series.StepArea;
         tooltip(): anychart.core.ui.Tooltip;
         tooltip(value?: Object | boolean): anychart.core.stock.series.Base;
         top(): number | string;
@@ -14157,6 +15705,8 @@ declare namespace anychart.core.stock.series {
         name(value?: string): anychart.core.stock.series.Base;
         print(paperSizeOrOptions?: anychart.graphics.vector.PaperSize | Object, landscape?: boolean): void;
         removeAllListeners(type?: string): number;
+        rendering(): anychart.core.series.RenderingSettings;
+        rendering(value?: Object | (() => void)): anychart.core.stock.series.Base;
         right(): number | string;
         right(value?: number | string): anychart.core.VisualBaseWithBounds;
         seriesType(): string;
@@ -14207,7 +15757,7 @@ declare namespace anychart.core.stock.series {
         hoverHatchFill(patternFillOrType?: anychart.graphics.vector.PatternFill | anychart.graphics.vector.HatchFill | (() => void) | anychart.graphics.vector.HatchFill.HatchFillType | string, color?: string, thickness?: number, size?: number): anychart.core.stock.series.Area;
         hoverStroke(): anychart.graphics.vector.Stroke;
         hoverStroke(strokeFunction?: (() => void)): anychart.core.stock.series.Area;
-        hoverStroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.stock.series.Area;
+        hoverStroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.stock.series.Area;
         left(): number | string;
         left(value?: number | string): anychart.core.VisualBaseWithBounds;
         legendItem(): anychart.core.utils.LegendItemSettings;
@@ -14228,6 +15778,8 @@ declare namespace anychart.core.stock.series {
         name(value?: string): anychart.core.stock.series.Base;
         print(paperSizeOrOptions?: anychart.graphics.vector.PaperSize | Object, landscape?: boolean): void;
         removeAllListeners(type?: string): number;
+        rendering(): anychart.core.series.RenderingSettings;
+        rendering(value?: Object | (() => void)): anychart.core.stock.series.Base;
         right(): number | string;
         right(value?: number | string): anychart.core.VisualBaseWithBounds;
         selectFill(): anychart.graphics.vector.Fill;
@@ -14241,12 +15793,12 @@ declare namespace anychart.core.stock.series {
         selectHatchFill(patternFillOrType?: anychart.graphics.vector.PatternFill | anychart.graphics.vector.HatchFill | (() => void) | anychart.graphics.vector.HatchFill.HatchFillType | string | boolean, color?: string, thickness?: number, size?: number): anychart.core.stock.series.Area;
         selectStroke(): anychart.graphics.vector.Stroke;
         selectStroke(strokeFunction?: (() => void)): anychart.core.stock.series.Area;
-        selectStroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.stock.series.Area;
+        selectStroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.stock.series.Area;
         seriesType(): string;
         seriesType(value?: string): anychart.core.stock.series.Base;
         stroke(): anychart.graphics.vector.Stroke;
         stroke(strokeFunction?: (() => void)): anychart.core.stock.series.Area;
-        stroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.stock.series.Area;
+        stroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.stock.series.Area;
         tooltip(): anychart.core.ui.Tooltip;
         tooltip(value?: Object | boolean): anychart.core.stock.series.Base;
         top(): number | string;
@@ -14276,7 +15828,7 @@ declare namespace anychart.core.stock.series {
         height(value?: number | string): anychart.core.VisualBaseWithBounds;
         hoverStroke(): anychart.graphics.vector.Stroke;
         hoverStroke(strokeFunction?: (() => void)): anychart.core.stock.series.Stick;
-        hoverStroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.stock.series.Stick;
+        hoverStroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.stock.series.Stick;
         left(): number | string;
         left(value?: number | string): anychart.core.VisualBaseWithBounds;
         legendItem(): anychart.core.utils.LegendItemSettings;
@@ -14299,12 +15851,14 @@ declare namespace anychart.core.stock.series {
         pointWidth(value?: number | string): anychart.core.stock.series.DiscreteBase;
         print(paperSizeOrOptions?: anychart.graphics.vector.PaperSize | Object, landscape?: boolean): void;
         removeAllListeners(type?: string): number;
+        rendering(): anychart.core.series.RenderingSettings;
+        rendering(value?: Object | (() => void)): anychart.core.stock.series.Base;
         right(): number | string;
         right(value?: number | string): anychart.core.VisualBaseWithBounds;
         seriesType(): string;
         seriesType(value?: string): anychart.core.stock.series.Base;
         stroke(): anychart.graphics.vector.Stroke;
-        stroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string, thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.stock.series.Stick;
+        stroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string, thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.stock.series.Stick;
         tooltip(): anychart.core.ui.Tooltip;
         tooltip(value?: Object | boolean): anychart.core.stock.series.Base;
         top(): number | string;
@@ -14360,6 +15914,8 @@ declare namespace anychart.core.stock.series {
         pointWidth(value?: number | string): anychart.core.stock.series.DiscreteBase;
         print(paperSizeOrOptions?: anychart.graphics.vector.PaperSize | Object, landscape?: boolean): void;
         removeAllListeners(type?: string): number;
+        rendering(): anychart.core.series.RenderingSettings;
+        rendering(value?: Object | (() => void)): anychart.core.stock.series.Base;
         right(): number | string;
         right(value?: number | string): anychart.core.VisualBaseWithBounds;
         risingStroke(): anychart.graphics.vector.Stroke;
@@ -14430,6 +15986,8 @@ declare namespace anychart.core.stock.series {
         pointWidth(value?: number | string): anychart.core.stock.series.DiscreteBase;
         print(paperSizeOrOptions?: anychart.graphics.vector.PaperSize | Object, landscape?: boolean): void;
         removeAllListeners(type?: string): number;
+        rendering(): anychart.core.series.RenderingSettings;
+        rendering(value?: Object | (() => void)): anychart.core.stock.series.Base;
         right(): number | string;
         right(value?: number | string): anychart.core.VisualBaseWithBounds;
         risingFill(): anychart.graphics.vector.Fill;
@@ -14495,7 +16053,7 @@ declare namespace anychart.core.stock.series {
         hoverHatchFill(patternFillOrType?: anychart.graphics.vector.PatternFill | anychart.graphics.vector.HatchFill | (() => void) | anychart.graphics.vector.HatchFill.HatchFillType | string, color?: string, thickness?: number, size?: number): anychart.core.stock.series.Column;
         hoverStroke(): anychart.graphics.vector.Stroke;
         hoverStroke(strokeFunction?: (() => void)): anychart.core.stock.series.Column;
-        hoverStroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.stock.series.Column;
+        hoverStroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.stock.series.Column;
         left(): number | string;
         left(value?: number | string): anychart.core.VisualBaseWithBounds;
         legendItem(): anychart.core.utils.LegendItemSettings;
@@ -14518,6 +16076,8 @@ declare namespace anychart.core.stock.series {
         pointWidth(value?: number | string): anychart.core.stock.series.DiscreteBase;
         print(paperSizeOrOptions?: anychart.graphics.vector.PaperSize | Object, landscape?: boolean): void;
         removeAllListeners(type?: string): number;
+        rendering(): anychart.core.series.RenderingSettings;
+        rendering(value?: Object | (() => void)): anychart.core.stock.series.Base;
         right(): number | string;
         right(value?: number | string): anychart.core.VisualBaseWithBounds;
         seriesType(): string;
@@ -14558,7 +16118,7 @@ declare namespace anychart.core.stock.series {
         height(value?: number | string): anychart.core.VisualBaseWithBounds;
         highStroke(): anychart.graphics.vector.Stroke | (() => void);
         highStroke(strokeFunction?: (() => void)): anychart.core.stock.series.RangeArea;
-        highStroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.stock.series.RangeArea;
+        highStroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.stock.series.RangeArea;
         hoverFill(): anychart.graphics.vector.Fill;
         hoverFill(value: anychart.graphics.vector.Fill): anychart.core.stock.series.RangeArea;
         hoverFill(fillFunction?: (() => void)): anychart.core.stock.series.RangeArea;
@@ -14567,10 +16127,10 @@ declare namespace anychart.core.stock.series {
         hoverHatchFill(patternFillOrType?: anychart.graphics.vector.PatternFill | anychart.graphics.vector.HatchFill | (() => void) | anychart.graphics.vector.HatchFill.HatchFillType | string, color?: string, thickness?: number, size?: number): anychart.core.stock.series.RangeArea;
         hoverHighStroke(): anychart.graphics.vector.Stroke | (() => void);
         hoverHighStroke(strokeFunction?: (() => void)): anychart.core.stock.series.RangeArea;
-        hoverHighStroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.stock.series.RangeArea;
+        hoverHighStroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.stock.series.RangeArea;
         hoverLowStroke(): anychart.graphics.vector.Stroke | (() => void);
         hoverLowStroke(strokeFunction?: (() => void)): anychart.core.stock.series.RangeArea;
-        hoverLowStroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.stock.series.RangeArea;
+        hoverLowStroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.stock.series.RangeArea;
         left(): number | string;
         left(value?: number | string): anychart.core.VisualBaseWithBounds;
         legendItem(): anychart.core.utils.LegendItemSettings;
@@ -14579,7 +16139,7 @@ declare namespace anychart.core.stock.series {
         listenOnce(type: string, listener: (() => void), useCapture?: boolean, listenerScope?: Object): Object;
         lowStroke(): anychart.graphics.vector.Stroke | (() => void);
         lowStroke(strokeFunction?: (() => void)): anychart.core.stock.series.RangeArea;
-        lowStroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.stock.series.RangeArea;
+        lowStroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.stock.series.RangeArea;
         markers(): anychart.core.ui.MarkersFactory;
         markers(value?: Object | boolean | string): anychart.core.stock.series.Base;
         maxHeight(): number | string;
@@ -14594,6 +16154,8 @@ declare namespace anychart.core.stock.series {
         name(value?: string): anychart.core.stock.series.Base;
         print(paperSizeOrOptions?: anychart.graphics.vector.PaperSize | Object, landscape?: boolean): void;
         removeAllListeners(type?: string): number;
+        rendering(): anychart.core.series.RenderingSettings;
+        rendering(value?: Object | (() => void)): anychart.core.stock.series.Base;
         right(): number | string;
         right(value?: number | string): anychart.core.VisualBaseWithBounds;
         selectFill(): anychart.graphics.vector.Fill;
@@ -14607,10 +16169,10 @@ declare namespace anychart.core.stock.series {
         selectHatchFill(patternFillOrType?: anychart.graphics.vector.PatternFill | anychart.graphics.vector.HatchFill | (() => void) | anychart.graphics.vector.HatchFill.HatchFillType | string, color?: string, thickness?: number, size?: number): anychart.core.stock.series.RangeArea;
         selectHighStroke(): anychart.graphics.vector.Stroke | (() => void);
         selectHighStroke(strokeFunction?: (() => void)): anychart.core.stock.series.RangeArea;
-        selectHighStroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.stock.series.RangeArea;
+        selectHighStroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.stock.series.RangeArea;
         selectLowStroke(): anychart.graphics.vector.Stroke | (() => void);
         selectLowStroke(strokeFunction?: (() => void)): anychart.core.stock.series.RangeArea;
-        selectLowStroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.stock.series.RangeArea;
+        selectLowStroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.stock.series.RangeArea;
         seriesType(): string;
         seriesType(value?: string): anychart.core.stock.series.Base;
         tooltip(): anychart.core.ui.Tooltip;
@@ -14642,7 +16204,7 @@ declare namespace anychart.core.stock.series {
         height(value?: number | string): anychart.core.VisualBaseWithBounds;
         hoverStroke(): anychart.graphics.vector.Stroke;
         hoverStroke(strokeFunction?: (() => void)): anychart.core.stock.series.JumpLine;
-        hoverStroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.stock.series.JumpLine;
+        hoverStroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.stock.series.JumpLine;
         left(): number | string;
         left(value?: number | string): anychart.core.VisualBaseWithBounds;
         legendItem(): anychart.core.utils.LegendItemSettings;
@@ -14663,13 +16225,15 @@ declare namespace anychart.core.stock.series {
         name(value?: string): anychart.core.stock.series.Base;
         print(paperSizeOrOptions?: anychart.graphics.vector.PaperSize | Object, landscape?: boolean): void;
         removeAllListeners(type?: string): number;
+        rendering(): anychart.core.series.RenderingSettings;
+        rendering(value?: Object | (() => void)): anychart.core.stock.series.Base;
         right(): number | string;
         right(value?: number | string): anychart.core.VisualBaseWithBounds;
         seriesType(): string;
         seriesType(value?: string): anychart.core.stock.series.Base;
         stroke(): anychart.graphics.vector.Stroke;
         stroke(strokeFunction?: (() => void)): anychart.core.stock.series.JumpLine;
-        stroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string, thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.stock.series.JumpLine;
+        stroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string, thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.stock.series.JumpLine;
         tooltip(): anychart.core.ui.Tooltip;
         tooltip(value?: Object | boolean): anychart.core.stock.series.Base;
         top(): number | string;
@@ -14698,7 +16262,7 @@ declare namespace anychart.core.stock.series {
         height(value?: number | string): anychart.core.VisualBaseWithBounds;
         hoverStroke(): anychart.graphics.vector.Stroke;
         hoverStroke(strokeFunction?: (() => void)): anychart.core.stock.series.StepLine;
-        hoverStroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.stock.series.StepLine;
+        hoverStroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.stock.series.StepLine;
         left(): number | string;
         left(value?: number | string): anychart.core.VisualBaseWithBounds;
         legendItem(): anychart.core.utils.LegendItemSettings;
@@ -14719,18 +16283,20 @@ declare namespace anychart.core.stock.series {
         name(value?: string): anychart.core.stock.series.Base;
         print(paperSizeOrOptions?: anychart.graphics.vector.PaperSize | Object, landscape?: boolean): void;
         removeAllListeners(type?: string): number;
+        rendering(): anychart.core.series.RenderingSettings;
+        rendering(value?: Object | (() => void)): anychart.core.stock.series.Base;
         right(): number | string;
         right(value?: number | string): anychart.core.VisualBaseWithBounds;
         selectStroke(): anychart.graphics.vector.Stroke;
         selectStroke(strokeFunction?: (() => void)): anychart.core.stock.series.StepLine;
-        selectStroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.stock.series.StepLine;
+        selectStroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.stock.series.StepLine;
         seriesType(): string;
         seriesType(value?: string): anychart.core.stock.series.Base;
         stepDirection(): anychart.enums.StepDirection | string;
         stepDirection(value?: anychart.enums.StepDirection | string): anychart.core.stock.series.StepLine;
         stroke(): anychart.graphics.vector.Stroke;
         stroke(strokeFunction?: (() => void)): anychart.core.stock.series.StepLine;
-        stroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.stock.series.StepLine;
+        stroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.stock.series.StepLine;
         tooltip(): anychart.core.ui.Tooltip;
         tooltip(value?: Object | boolean): anychart.core.stock.series.Base;
         top(): number | string;
@@ -14761,7 +16327,7 @@ declare namespace anychart.core.stock.series {
         hoverStroke(strokeFunction?: (() => void)): anychart.core.stock.series.Line;
         hoverStroke(): anychart.graphics.vector.Stroke;
         hoverStroke(strokeFunction?: (() => void)): anychart.core.stock.series.Line;
-        hoverStroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.stock.series.Line;
+        hoverStroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.stock.series.Line;
         left(): number | string;
         left(value?: number | string): anychart.core.VisualBaseWithBounds;
         legendItem(): anychart.core.utils.LegendItemSettings;
@@ -14782,6 +16348,8 @@ declare namespace anychart.core.stock.series {
         name(value?: string): anychart.core.stock.series.Base;
         print(paperSizeOrOptions?: anychart.graphics.vector.PaperSize | Object, landscape?: boolean): void;
         removeAllListeners(type?: string): number;
+        rendering(): anychart.core.series.RenderingSettings;
+        rendering(value?: Object | (() => void)): anychart.core.stock.series.Base;
         right(): number | string;
         right(value?: number | string): anychart.core.VisualBaseWithBounds;
         seriesType(): string;
@@ -14828,7 +16396,7 @@ declare namespace anychart.core.stock.series {
         hoverHatchFill(patternFillOrType?: anychart.graphics.vector.PatternFill | anychart.graphics.vector.HatchFill | (() => void) | anychart.graphics.vector.HatchFill.HatchFillType | string, color?: string, thickness?: number, size?: number): anychart.core.stock.series.RangeColumn;
         hoverStroke(): anychart.graphics.vector.Stroke;
         hoverStroke(strokeFunction?: (() => void)): anychart.core.stock.series.RangeColumn;
-        hoverStroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.stock.series.RangeColumn;
+        hoverStroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.stock.series.RangeColumn;
         left(): number | string;
         left(value?: number | string): anychart.core.VisualBaseWithBounds;
         legendItem(): anychart.core.utils.LegendItemSettings;
@@ -14849,6 +16417,8 @@ declare namespace anychart.core.stock.series {
         name(value?: string): anychart.core.stock.series.Base;
         print(paperSizeOrOptions?: anychart.graphics.vector.PaperSize | Object, landscape?: boolean): void;
         removeAllListeners(type?: string): number;
+        rendering(): anychart.core.series.RenderingSettings;
+        rendering(value?: Object | (() => void)): anychart.core.stock.series.Base;
         right(): number | string;
         right(value?: number | string): anychart.core.VisualBaseWithBounds;
         selectFill(): anychart.graphics.vector.Fill;
@@ -14859,12 +16429,12 @@ declare namespace anychart.core.stock.series {
         selectHatchFill(patternFillOrType?: anychart.graphics.vector.PatternFill | anychart.graphics.vector.HatchFill | (() => void) | anychart.graphics.vector.HatchFill.HatchFillType | string, color?: string, thickness?: number, size?: number): anychart.core.stock.series.RangeColumn;
         selectStroke(): anychart.graphics.vector.Stroke;
         selectStroke(strokeFunction?: (() => void)): anychart.core.stock.series.RangeColumn;
-        selectStroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.stock.series.RangeColumn;
+        selectStroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.stock.series.RangeColumn;
         seriesType(): string;
         seriesType(value?: string): anychart.core.stock.series.Base;
         stroke(): anychart.graphics.vector.Stroke;
         stroke(strokeFunction?: (() => void)): anychart.core.stock.series.RangeColumn;
-        stroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.stock.series.RangeColumn;
+        stroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.stock.series.RangeColumn;
         tooltip(): anychart.core.ui.Tooltip;
         tooltip(value?: Object | boolean): anychart.core.stock.series.Base;
         top(): number | string;
@@ -14899,7 +16469,7 @@ declare namespace anychart.core.stock.series {
         height(value?: number | string): anychart.core.VisualBaseWithBounds;
         highStroke(): anychart.graphics.vector.Stroke | (() => void);
         highStroke(fillFunction?: (() => void)): anychart.core.stock.series.RangeSplineArea;
-        highStroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.stock.series.RangeSplineArea;
+        highStroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.stock.series.RangeSplineArea;
         hoverFill(): anychart.graphics.vector.Fill;
         hoverFill(value: anychart.graphics.vector.Fill): anychart.core.stock.series.RangeSplineArea;
         hoverFill(fillFunction?: (() => void)): anychart.core.stock.series.RangeSplineArea;
@@ -14908,10 +16478,10 @@ declare namespace anychart.core.stock.series {
         hoverHatchFill(patternFillOrType?: anychart.graphics.vector.PatternFill | anychart.graphics.vector.HatchFill | (() => void) | anychart.graphics.vector.HatchFill.HatchFillType | string, color?: string, thickness?: number, size?: number): anychart.core.stock.series.RangeSplineArea;
         hoverHighStroke(): anychart.graphics.vector.Stroke | (() => void);
         hoverHighStroke(strokeFunction?: (() => void)): anychart.core.stock.series.RangeSplineArea;
-        hoverHighStroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.stock.series.RangeSplineArea;
+        hoverHighStroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.stock.series.RangeSplineArea;
         hoverLowStroke(): anychart.graphics.vector.Stroke | (() => void);
         hoverLowStroke(strokeFunction?: (() => void)): anychart.core.stock.series.RangeSplineArea;
-        hoverLowStroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.stock.series.RangeSplineArea;
+        hoverLowStroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.stock.series.RangeSplineArea;
         left(): number | string;
         left(value?: number | string): anychart.core.VisualBaseWithBounds;
         legendItem(): anychart.core.utils.LegendItemSettings;
@@ -14920,7 +16490,7 @@ declare namespace anychart.core.stock.series {
         listenOnce(type: string, listener: (() => void), useCapture?: boolean, listenerScope?: Object): Object;
         lowStroke(): anychart.graphics.vector.Stroke | (() => void);
         lowStroke(strokeFunction?: (() => void)): anychart.core.stock.series.RangeSplineArea;
-        lowStroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.stock.series.RangeSplineArea;
+        lowStroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.stock.series.RangeSplineArea;
         markers(): anychart.core.ui.MarkersFactory;
         markers(value?: Object | boolean | string): anychart.core.stock.series.Base;
         maxHeight(): number | string;
@@ -14935,6 +16505,8 @@ declare namespace anychart.core.stock.series {
         name(value?: string): anychart.core.stock.series.Base;
         print(paperSizeOrOptions?: anychart.graphics.vector.PaperSize | Object, landscape?: boolean): void;
         removeAllListeners(type?: string): number;
+        rendering(): anychart.core.series.RenderingSettings;
+        rendering(value?: Object | (() => void)): anychart.core.stock.series.Base;
         right(): number | string;
         right(value?: number | string): anychart.core.VisualBaseWithBounds;
         selectFill(): anychart.graphics.vector.Fill;
@@ -14945,10 +16517,10 @@ declare namespace anychart.core.stock.series {
         selectHatchFill(patternFillOrType?: anychart.graphics.vector.PatternFill | anychart.graphics.vector.HatchFill | (() => void) | anychart.graphics.vector.HatchFill.HatchFillType | string, color?: string, thickness?: number, size?: number): anychart.core.stock.series.RangeSplineArea;
         selectHighStroke(): anychart.graphics.vector.Stroke | (() => void);
         selectHighStroke(fillFunction?: (() => void)): anychart.core.stock.series.RangeSplineArea;
-        selectHighStroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.stock.series.RangeSplineArea;
+        selectHighStroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.stock.series.RangeSplineArea;
         selectLowStroke(): anychart.graphics.vector.Stroke | (() => void);
         selectLowStroke(strokeFunction?: (() => void)): anychart.core.stock.series.RangeSplineArea;
-        selectLowStroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.stock.series.RangeSplineArea;
+        selectLowStroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.stock.series.RangeSplineArea;
         seriesType(): string;
         seriesType(value?: string): anychart.core.stock.series.Base;
         tooltip(): anychart.core.ui.Tooltip;
@@ -14989,7 +16561,7 @@ declare namespace anychart.core.stock.series {
         hoverSize(value?: number): anychart.core.stock.series.Marker;
         hoverStroke(): anychart.graphics.vector.Stroke;
         hoverStroke(strokeFunction?: (() => void)): anychart.core.stock.series.Marker;
-        hoverStroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.stock.series.Marker;
+        hoverStroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.stock.series.Marker;
         hoverType(): string | anychart.enums.MarkerType | (() => void);
         hoverType(value?: string | anychart.enums.MarkerType | (() => void)): anychart.core.stock.series.Marker;
         left(): number | string;
@@ -15010,6 +16582,8 @@ declare namespace anychart.core.stock.series {
         name(value?: string): anychart.core.stock.series.Base;
         print(paperSizeOrOptions?: anychart.graphics.vector.PaperSize | Object, landscape?: boolean): void;
         removeAllListeners(type?: string): number;
+        rendering(): anychart.core.series.RenderingSettings;
+        rendering(value?: Object | (() => void)): anychart.core.stock.series.Base;
         right(): number | string;
         right(value?: number | string): anychart.core.VisualBaseWithBounds;
         selectFill(): anychart.graphics.vector.Fill;
@@ -15023,7 +16597,7 @@ declare namespace anychart.core.stock.series {
         selectHatchFill(patternFillOrType?: anychart.graphics.vector.PatternFill | anychart.graphics.vector.HatchFill | (() => void) | anychart.graphics.vector.HatchFill.HatchFillType | string, color?: string, thickness?: number, size?: number): anychart.core.stock.series.Marker;
         selectStroke(): anychart.graphics.vector.Stroke;
         selectStroke(strokeFunction?: (() => void)): anychart.core.stock.series.Marker;
-        selectStroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.stock.series.Marker;
+        selectStroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.stock.series.Marker;
         selectType(): string | anychart.enums.MarkerType | (() => void);
         selectType(value?: string | anychart.enums.MarkerType | (() => void)): anychart.core.stock.series.Marker;
         seriesType(): string;
@@ -15032,7 +16606,7 @@ declare namespace anychart.core.stock.series {
         size(value?: number): anychart.core.stock.series.Marker;
         stroke(): anychart.graphics.vector.Stroke;
         stroke(strokeFunction?: (() => void)): anychart.core.stock.series.Marker;
-        stroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.stock.series.Marker;
+        stroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.stock.series.Marker;
         tooltip(): anychart.core.ui.Tooltip;
         tooltip(value?: Object | boolean): anychart.core.stock.series.Base;
         top(): number | string;
@@ -15092,6 +16666,14 @@ declare namespace anychart.core.ui {
         editConnectorThumbFill(imageSettings: anychart.graphics.vector.Fill): anychart.core.ui.Timeline;
         editConnectorThumbStroke(): anychart.graphics.vector.Stroke | string;
         editConnectorThumbStroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string, thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.ui.Timeline;
+        editFinishConnectorMarkerHorizontalOffset(): number;
+        editFinishConnectorMarkerHorizontalOffset(value?: number): anychart.core.ui.Timeline;
+        editFinishConnectorMarkerSize(): number;
+        editFinishConnectorMarkerSize(value?: number): anychart.core.ui.Timeline;
+        editFinishConnectorMarkerType(): anychart.enums.MarkerType | string;
+        editFinishConnectorMarkerType(value?: anychart.enums.MarkerType): anychart.enums.MarkerType;
+        editFinishConnectorMarkerVerticalOffset(): number;
+        editFinishConnectorMarkerVerticalOffset(value?: number): anychart.core.ui.Timeline;
         editIntervalThumbFill(): anychart.graphics.vector.Fill | string;
         editIntervalThumbFill(value: anychart.graphics.vector.Fill): anychart.core.ui.Timeline;
         editIntervalThumbFill(color: string, opacity?: number): anychart.core.ui.Timeline;
@@ -15100,6 +16682,8 @@ declare namespace anychart.core.ui {
         editIntervalThumbFill(imageSettings: anychart.graphics.vector.Fill): anychart.core.ui.Timeline;
         editIntervalThumbStroke(): anychart.graphics.vector.Stroke | string;
         editIntervalThumbStroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string, thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.ui.Timeline;
+        editIntervalWidth(): number;
+        editIntervalWidth(value?: number): anychart.core.ui.Timeline;
         editPreviewFill(): anychart.graphics.vector.Fill | string;
         editPreviewFill(value: anychart.graphics.vector.Fill): anychart.core.ui.Timeline;
         editPreviewFill(color: string, opacity?: number): anychart.core.ui.Timeline;
@@ -15116,6 +16700,14 @@ declare namespace anychart.core.ui {
         editProgressFill(imageSettings: anychart.graphics.vector.Fill): anychart.core.ui.Timeline;
         editProgressStroke(): anychart.graphics.vector.Stroke | string;
         editProgressStroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string, thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.ui.Timeline;
+        editStartConnectorMarkerHorizontalOffset(): number;
+        editStartConnectorMarkerHorizontalOffset(value?: number): anychart.core.ui.Timeline;
+        editStartConnectorMarkerSize(): number;
+        editStartConnectorMarkerSize(value?: number): anychart.core.ui.Timeline;
+        editStartConnectorMarkerType(): anychart.enums.MarkerType | string;
+        editStartConnectorMarkerType(value?: anychart.enums.MarkerType): anychart.enums.MarkerType;
+        editStartConnectorMarkerVerticalOffset(): number;
+        editStartConnectorMarkerVerticalOffset(value?: number): anychart.core.ui.Timeline;
         editStructurePreviewDashStroke(): anychart.graphics.vector.Stroke | string;
         editStructurePreviewDashStroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string, thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.ui.Timeline;
         editStructurePreviewFill(): anychart.graphics.vector.Fill | string;
@@ -15333,13 +16925,13 @@ declare namespace anychart.core.ui {
         depthPaddingMultiplier(value?: number): anychart.core.ui.DataGrid.Column;
         enabled(): boolean;
         enabled(value?: boolean): anychart.core.ui.DataGrid.Column;
+        format(func?: (() => void)): anychart.core.ui.DataGrid.Column;
         listen(type: string, listener: (() => void), useCapture?: boolean, listenerScope?: Object): Object;
         listenOnce(type: string, listener: (() => void), useCapture?: boolean, listenerScope?: Object): Object;
         print(paperSizeOrOptions?: anychart.graphics.vector.PaperSize | Object, landscape?: boolean): void;
         removeAllListeners(type?: string): number;
         setColumnFormat(fieldName: string, presetValue: anychart.enums.ColumnFormats): anychart.core.ui.DataGrid.Column;
         setColumnFormat(fieldName: string, settings: Object): anychart.core.ui.DataGrid.Column;
-        textFormatter(value?: (() => void)): anychart.core.ui.DataGrid.Column;
         title(): anychart.core.ui.Title;
         title(value?: boolean | Object | string): anychart.core.ui.DataGrid.Column;
         unlisten(type: string, listener: (() => void), useCapture?: boolean, listenerScope?: Object): boolean;
@@ -15379,7 +16971,7 @@ declare namespace anychart.core.ui {
         size(value?: number): anychart.core.ui.MarkersFactory;
         stroke(): anychart.graphics.vector.Stroke | string;
         stroke(value?: anychart.graphics.vector.Stroke | string): anychart.core.ui.MarkersFactory;
-        stroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string, thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.ui.MarkersFactory;
+        stroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string, thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.ui.MarkersFactory;
         type(): string | anychart.enums.MarkerType | (() => void);
         type(value?: string | anychart.enums.MarkerType | (() => void)): anychart.core.ui.MarkersFactory;
         unlisten(type: string, listener: (() => void), useCapture?: boolean, listenerScope?: Object): boolean;
@@ -15417,7 +17009,7 @@ declare namespace anychart.core.ui {
         size(value?: number): anychart.core.ui.MarkersFactory.Marker;
         stroke(): anychart.graphics.vector.Stroke | string;
         stroke(value?: anychart.graphics.vector.Stroke | string): anychart.core.ui.MarkersFactory.Marker;
-        stroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string, thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.ui.MarkersFactory.Marker;
+        stroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string, thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.ui.MarkersFactory.Marker;
         type(): anychart.enums.MarkerType | (() => void);
         type(value?: anychart.enums.MarkerType | (() => void)): anychart.core.ui.MarkersFactory.Marker;
         unlisten(type: string, listener: (() => void), useCapture?: boolean, listenerScope?: Object): boolean;
@@ -15630,6 +17222,8 @@ declare namespace anychart.core.ui {
         axisIndex(value?: number): anychart.core.ui.CrosshairLabel;
         background(): anychart.core.ui.Background;
         background(value?: string | Object | boolean): anychart.core.ui.CrosshairLabel;
+        format(): (() => void);
+        format(func?: (() => void)): anychart.core.ui.CrosshairLabel;
         height(): number | string;
         height(value?: number | string): anychart.core.ui.CrosshairLabel;
         maxFontSize(): number;
@@ -15643,8 +17237,6 @@ declare namespace anychart.core.ui {
         padding(): anychart.core.utils.Padding;
         padding(value?: Array<(number|string)> | Object): anychart.core.ui.CrosshairLabel;
         padding(value1?: string | number, value2?: string | number, value3?: string | number, value4?: string | number): anychart.core.ui.CrosshairLabel;
-        textFormatter(): (() => void);
-        textFormatter(value?: (() => void)): anychart.core.ui.CrosshairLabel;
         width(): number | string;
         width(value?: number | string): anychart.core.ui.CrosshairLabel;
     }
@@ -15665,6 +17257,8 @@ declare namespace anychart.core.ui {
     interface StageCredits {
         alt(): string;
         alt(value?: string): anychart.core.ui.StageCredits;
+        imgAlt(): string;
+        imgAlt(value?: string): anychart.core.ui.StageCredits;
         logoSrc(): string;
         logoSrc(value?: string): anychart.core.ui.StageCredits;
         text(): string;
@@ -15672,20 +17266,19 @@ declare namespace anychart.core.ui {
         url(): string;
         url(value?: string): anychart.core.ui.StageCredits;
     }
-    interface Tooltip extends anychart.core.VisualBaseWithBounds {
+    interface Tooltip extends anychart.core.VisualBase {
         adjustFontSize(): number;
         adjustFontSize(adjustOrAdjustByWidth?: boolean | Array<boolean> | Object, adjustByHeight?: boolean): anychart.core.ui.Tooltip;
         allowLeaveChart(): boolean;
         allowLeaveChart(value?: boolean): anychart.core.ui.Tooltip;
+        allowLeaveScreen(): boolean;
+        allowLeaveScreen(value?: boolean): anychart.core.ui.Tooltip;
+        allowLeaveStage(): boolean;
+        allowLeaveStage(value?: boolean): anychart.core.ui.Tooltip;
         anchor(): anychart.enums.Anchor | string;
         anchor(value?: anychart.enums.Anchor | string): anychart.core.ui.Tooltip;
         background(): anychart.core.ui.Background;
         background(value?: boolean | Object | string): anychart.core.ui.Tooltip;
-        bottom(): number | string;
-        bottom(value?: number | string): anychart.core.VisualBaseWithBounds;
-        bounds(): anychart.core.utils.Bounds;
-        bounds(value?: anychart.utils.RectObj | anychart.math.Rect | anychart.core.utils.Bounds): anychart.core.VisualBase;
-        bounds(x?: number | string, y?: number | string, width?: number | string, height?: number | string): anychart.core.VisualBase;
         disablePointerEvents(): boolean;
         disablePointerEvents(value?: boolean): anychart.core.ui.Tooltip;
         displayMode(): anychart.enums.TooltipDisplayMode;
@@ -15708,16 +17301,15 @@ declare namespace anychart.core.ui {
         fontVariant(value?: string | anychart.graphics.vector.Text.FontVariant): anychart.core.ui.Tooltip;
         fontWeight(): string | number;
         fontWeight(value?: string | number): anychart.core.ui.Tooltip;
-        getPixelBounds(): anychart.math.Rect;
+        format(): (() => void) | string;
+        format(value?: (() => void) | string): anychart.core.ui.Tooltip;
         hAlign(): anychart.graphics.vector.Text.HAlign;
         hAlign(value?: string | anychart.graphics.vector.Text.HAlign): anychart.core.ui.Tooltip;
-        height(): number | string;
-        height(value?: number | string): anychart.core.VisualBaseWithBounds;
+        height(): string | number;
+        height(value?: string | number): anychart.core.ui.Tooltip;
         hide(force?: boolean, event?: anychart.core.MouseEvent): boolean;
         hideDelay(): number;
         hideDelay(value?: number): anychart.core.ui.Tooltip;
-        left(): number | string;
-        left(value?: number | string): anychart.core.VisualBaseWithBounds;
         letterSpacing(): number;
         letterSpacing(value?: number): anychart.core.ui.Tooltip;
         lineHeight(): number | string;
@@ -15726,16 +17318,8 @@ declare namespace anychart.core.ui {
         listenOnce(type: string, listener: (() => void), useCapture?: boolean, listenerScope?: Object): Object;
         maxFontSize(): number;
         maxFontSize(value?: number | string): anychart.core.ui.Tooltip;
-        maxHeight(): number | string;
-        maxHeight(value?: number | string): anychart.core.VisualBase;
-        maxWidth(): number | string;
-        maxWidth(value?: number | string): anychart.core.VisualBase;
         minFontSize(): number;
         minFontSize(value?: number | string): anychart.core.ui.Tooltip;
-        minHeight(): number | string;
-        minHeight(value?: number | string): anychart.core.VisualBase;
-        minWidth(): number | string;
-        minWidth(value?: number | string): anychart.core.VisualBase;
         offsetX(): number;
         offsetX(value?: number): anychart.core.ui.Tooltip;
         offsetY(): number;
@@ -15749,16 +17333,12 @@ declare namespace anychart.core.ui {
         positionMode(value?: string | anychart.enums.TooltipPositionMode): anychart.core.ui.Tooltip;
         print(paperSizeOrOptions?: anychart.graphics.vector.PaperSize | Object, landscape?: boolean): void;
         removeAllListeners(type?: string): number;
-        right(): number | string;
-        right(value?: number | string): anychart.core.VisualBaseWithBounds;
         selectable(): boolean;
         selectable(value?: boolean): anychart.core.ui.Tooltip;
         separator(): anychart.core.ui.Separator;
         separator(value?: boolean | Object): anychart.core.ui.Tooltip;
         textDirection(): anychart.graphics.vector.Text.Direction;
         textDirection(value?: string | anychart.graphics.vector.Text.Direction): anychart.core.ui.Tooltip;
-        textFormatter(): (() => void);
-        textFormatter(value?: (() => void)): anychart.core.ui.Tooltip;
         textIndent(): number;
         textIndent(value?: number): anychart.core.ui.Tooltip;
         textOverflow(): anychart.graphics.vector.Text.TextOverflow;
@@ -15770,12 +17350,10 @@ declare namespace anychart.core.ui {
         textWrap(value?: string | anychart.graphics.vector.Text.TextWrap): anychart.core.ui.Tooltip;
         title(): anychart.core.ui.Title;
         title(value?: boolean | Object): anychart.core.ui.Tooltip;
-        titleFormatter(): (() => void);
-        titleFormatter(value?: (() => void)): anychart.core.ui.Tooltip;
-        top(): number | string;
-        top(value?: number | string): anychart.core.VisualBaseWithBounds;
-        unionTextFormatter(): (() => void);
-        unionTextFormatter(value?: (() => void)): anychart.core.ui.Tooltip;
+        titleFormat(): (() => void) | string;
+        titleFormat(value?: (() => void) | string): anychart.core.ui.Tooltip;
+        unionFormat(): (() => void) | string;
+        unionFormat(value?: (() => void) | string): anychart.core.ui.Tooltip;
         unlisten(type: string, listener: (() => void), useCapture?: boolean, listenerScope?: Object): boolean;
         unlistenByKey(key: Object): boolean;
         useHtml(): boolean;
@@ -15786,14 +17364,17 @@ declare namespace anychart.core.ui {
         valuePostfix(value?: string): anychart.core.ui.Tooltip;
         valuePrefix(): string;
         valuePrefix(value?: string): anychart.core.ui.Tooltip;
-        width(): number | string;
-        width(value?: number | string): anychart.core.VisualBaseWithBounds;
+        width(): string | number;
+        width(value?: string | number): anychart.core.ui.Tooltip;
         zIndex(): number;
         zIndex(value?: number): anychart.core.VisualBase;
     }
     interface Background extends anychart.core.VisualBaseWithBounds {
         bottom(): number | string;
         bottom(value?: number | string): anychart.core.VisualBaseWithBounds;
+        bottomStroke(): anychart.graphics.vector.Stroke;
+        bottomStroke(value: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string): anychart.core.ui.Background;
+        bottomStroke(value: anychart.graphics.vector.Stroke | string, thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.ui.Background;
         bounds(): anychart.core.utils.Bounds;
         bounds(value?: anychart.utils.RectObj | anychart.math.Rect | anychart.core.utils.Bounds): anychart.core.VisualBase;
         bounds(x?: number | string, y?: number | string, width?: number | string, height?: number | string): anychart.core.VisualBase;
@@ -15814,6 +17395,9 @@ declare namespace anychart.core.ui {
         height(value?: number | string): anychart.core.VisualBaseWithBounds;
         left(): number | string;
         left(value?: number | string): anychart.core.VisualBaseWithBounds;
+        leftStroke(): anychart.graphics.vector.Stroke;
+        leftStroke(value: anychart.graphics.vector.Stroke | string): anychart.core.ui.Background;
+        leftStroke(value: anychart.graphics.vector.Stroke | string, thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.ui.Background;
         listen(type: string, listener: (() => void), useCapture?: boolean, listenerScope?: Object): Object;
         listenOnce(type: string, listener: (() => void), useCapture?: boolean, listenerScope?: Object): Object;
         maxHeight(): number | string;
@@ -15828,11 +17412,17 @@ declare namespace anychart.core.ui {
         removeAllListeners(type?: string): number;
         right(): number | string;
         right(value?: number | string): anychart.core.VisualBaseWithBounds;
+        rightStroke(): anychart.graphics.vector.Stroke;
+        rightStroke(value: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string): anychart.core.ui.Background;
+        rightStroke(value: anychart.graphics.vector.Stroke | string, thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.ui.Background;
         stroke(): anychart.graphics.vector.Stroke;
         stroke(value: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string): anychart.core.ui.Background;
-        stroke(value: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string, thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.ui.Background;
+        stroke(value: anychart.graphics.vector.Stroke | string, thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.ui.Background;
         top(): number | string;
         top(value?: number | string): anychart.core.VisualBaseWithBounds;
+        topStroke(): anychart.graphics.vector.Stroke;
+        topStroke(value: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string): anychart.core.ui.Background;
+        topStroke(value: anychart.graphics.vector.Stroke | string, thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.ui.Background;
         unlisten(type: string, listener: (() => void), useCapture?: boolean, listenerScope?: Object): boolean;
         unlistenByKey(key: Object): boolean;
         width(): number | string;
@@ -15847,6 +17437,8 @@ declare namespace anychart.core.ui {
         background(value?: string | Object | boolean): anychart.core.ui.Legend;
         disablePointerEvents(): boolean;
         disablePointerEvents(value?: boolean): anychart.core.Text;
+        drag(): boolean;
+        drag(value?: boolean): anychart.core.ui.Legend;
         enabled(): boolean;
         enabled(value?: boolean): anychart.core.VisualBase;
         fontColor(): string;
@@ -15880,16 +17472,16 @@ declare namespace anychart.core.ui {
         inverted(value?: boolean): anychart.core.ui.Legend;
         items(): Array<anychart.core.ui.Legend.LegendItemProvider>;
         items(value?: Array<anychart.core.ui.Legend.LegendItemProvider>): anychart.core.ui.Legend;
+        itemsFormat(): (() => void);
+        itemsFormat(value?: (() => void)): anychart.core.ui.Legend;
         itemsFormatter(): (() => void);
         itemsFormatter(value?: (() => void)): anychart.core.ui.Legend;
-        itemsLayout(): anychart.enums.Layout | string;
-        itemsLayout(value?: string | anychart.enums.Layout): anychart.core.ui.Legend;
+        itemsLayout(): anychart.enums.LegendLayout | string;
+        itemsLayout(value?: string | anychart.enums.LegendLayout): anychart.core.ui.Legend;
         itemsSourceMode(): string | anychart.enums.LegendItemsSourceMode;
         itemsSourceMode(value?: string | anychart.enums.LegendItemsSourceMode): anychart.core.ui.Legend;
         itemsSpacing(): string | number;
         itemsSpacing(value?: string | number): anychart.core.ui.Legend;
-        itemsTextFormatter(): (() => void);
-        itemsTextFormatter(value?: (() => void)): anychart.core.ui.Legend;
         letterSpacing(): string | number;
         letterSpacing(value?: string | number): anychart.core.Text;
         lineHeight(): string | number;
@@ -15899,6 +17491,10 @@ declare namespace anychart.core.ui {
         margin(): anychart.core.utils.Margin;
         margin(value?: Array<(number|string)> | Object | number | string): anychart.core.ui.Legend;
         margin(value1?: string | number, value2?: string | number, value3?: string | number, value4?: string | number): anychart.core.ui.Legend;
+        maxHeight(): number | string;
+        maxHeight(value?: number | string): anychart.core.ui.Legend;
+        maxWidth(): number | string;
+        maxWidth(value?: number | string): anychart.core.ui.Legend;
         padding(): anychart.core.utils.Padding;
         padding(value?: Array<(number|string)> | Object | number | string): anychart.core.ui.Legend;
         padding(value1?: string | number, value2?: string | number, value3?: string | number, value4?: string | number): anychart.core.ui.Legend;
@@ -15906,6 +17502,8 @@ declare namespace anychart.core.ui {
         paginator(value?: Object | boolean): anychart.core.ui.Legend;
         position(): anychart.enums.Orientation | string;
         position(value?: anychart.enums.Orientation | string): anychart.core.ui.Legend;
+        positionMode(): anychart.enums.LegendPositionMode | string;
+        positionMode(value?: anychart.enums.LegendPositionMode | string): anychart.core.ui.Legend;
         print(paperSizeOrOptions?: anychart.graphics.vector.PaperSize | Object, landscape?: boolean): void;
         removeAllListeners(type?: string): number;
         selectable(): boolean;
@@ -15924,8 +17522,8 @@ declare namespace anychart.core.ui {
         textWrap(value?: anychart.graphics.vector.Text.TextWrap | string): anychart.core.Text;
         title(): anychart.core.ui.Title;
         title(value?: boolean | Object | string): anychart.core.ui.Legend;
-        titleFormatter(): (() => void);
-        titleFormatter(value?: (() => void)): anychart.core.ui.Legend;
+        titleFormat(): string | (() => void);
+        titleFormat(value?: string | (() => void)): anychart.core.ui.Legend;
         titleSeparator(): anychart.core.ui.Separator;
         titleSeparator(value?: Object | boolean): anychart.core.ui.Legend;
         tooltip(): anychart.core.ui.Tooltip;
@@ -15943,10 +17541,15 @@ declare namespace anychart.core.ui {
     }
     namespace Legend {
     interface LegendItemProvider {
+        disabled: boolean;
+        iconEnabled: boolean;
         iconFill: anychart.graphics.vector.Fill;
         iconHatchFill: anychart.graphics.vector.HatchFill.HatchFillType | anychart.graphics.vector.PatternFill | anychart.graphics.vector.HatchFill;
+        iconMarkerFill: anychart.graphics.vector.Fill;
+        iconMarkerStroke: anychart.graphics.vector.Stroke;
         iconMarkerType: string;
         iconStroke: anychart.graphics.vector.Stroke;
+        iconTextSpacing: number;
         iconType: string;
         index: number;
         meta: Object;
@@ -16271,9 +17874,6 @@ declare namespace anychart.core.ui {
         selectable(value?: boolean): anychart.core.Text;
         textDirection(): anychart.graphics.vector.Text.Direction | string;
         textDirection(value?: anychart.graphics.vector.Text.Direction | string): anychart.core.Text;
-        textFormatter(): (() => void) | string;
-        textFormatter(value?: string): anychart.core.ui.LabelsFactory;
-        textFormatter(value?: (() => void)): anychart.core.ui.LabelsFactory;
         textIndent(): number;
         textIndent(value?: number): anychart.core.Text;
         textOverflow(): anychart.graphics.vector.Text.TextOverflow | string;
@@ -16360,8 +17960,6 @@ declare namespace anychart.core.ui {
         selectable(value?: boolean): anychart.core.Text;
         textDirection(): anychart.graphics.vector.Text.Direction | string;
         textDirection(value?: anychart.graphics.vector.Text.Direction | string): anychart.core.Text;
-        textFormatter(): any;
-        textFormatter(value?: any): any;
         textIndent(): number;
         textIndent(value?: number): anychart.core.Text;
         textOverflow(): anychart.graphics.vector.Text.TextOverflow | string;
@@ -16408,7 +18006,7 @@ declare namespace anychart.core.ui {
     }
     interface Table extends anychart.core.VisualBaseWithBounds {
         border(): anychart.core.ui.table.Border;
-        border(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string, thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.ui.Table;
+        border(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string, thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.ui.Table;
         bottom(): number | string;
         bottom(value?: number | string): anychart.core.VisualBaseWithBounds;
         bounds(): anychart.core.utils.Bounds;
@@ -16651,7 +18249,7 @@ declare namespace anychart.core.ui {
         background(): anychart.core.ui.Background;
         background(value?: string | Object | boolean): anychart.core.ui.LabelsFactory;
         connectorStroke(): anychart.graphics.vector.Stroke;
-        connectorStroke(value?: anychart.graphics.vector.Stroke | string, thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.ui.LabelsFactory;
+        connectorStroke(color?: anychart.graphics.vector.Stroke | string, thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.ui.LabelsFactory;
         disablePointerEvents(): boolean;
         disablePointerEvents(value?: boolean): anychart.core.Text;
         enabled(): boolean;
@@ -16672,6 +18270,9 @@ declare namespace anychart.core.ui {
         fontVariant(value?: anychart.graphics.vector.Text.FontVariant | string): anychart.core.Text;
         fontWeight(): string | number;
         fontWeight(value?: string | number): anychart.core.Text;
+        format(): (() => void) | string;
+        format(token?: string): anychart.core.ui.LabelsFactory;
+        format(func?: (() => void)): anychart.core.ui.LabelsFactory;
         hAlign(): anychart.graphics.vector.Text.HAlign | string;
         hAlign(value?: anychart.graphics.vector.Text.HAlign | string): anychart.core.Text;
         height(): number | string;
@@ -16705,9 +18306,6 @@ declare namespace anychart.core.ui {
         selectable(value?: boolean): anychart.core.Text;
         textDirection(): anychart.graphics.vector.Text.Direction | string;
         textDirection(value?: anychart.graphics.vector.Text.Direction | string): anychart.core.Text;
-        textFormatter(): (() => void) | string;
-        textFormatter(value?: string): anychart.core.ui.LabelsFactory;
-        textFormatter(value?: (() => void)): anychart.core.ui.LabelsFactory;
         textIndent(): number;
         textIndent(value?: number): anychart.core.Text;
         textOverflow(): anychart.graphics.vector.Text.TextOverflow | string;
@@ -16792,8 +18390,6 @@ declare namespace anychart.core.ui {
         selectable(value?: boolean): anychart.core.Text;
         textDirection(): anychart.graphics.vector.Text.Direction | string;
         textDirection(value?: anychart.graphics.vector.Text.Direction | string): anychart.core.Text;
-        textFormatter(): any;
-        textFormatter(value?: any): any;
         textIndent(): number;
         textIndent(value?: number): anychart.core.Text;
         textOverflow(): anychart.graphics.vector.Text.TextOverflow | string;
@@ -16819,6 +18415,8 @@ declare namespace anychart.core.ui {
     interface ChartCredits extends anychart.core.Base {
         alt(): string;
         alt(value?: string): anychart.core.ui.ChartCredits;
+        imgAlt(): string;
+        imgAlt(value?: string): anychart.core.ui.ChartCredits;
         listen(type: string, listener: (() => void), useCapture?: boolean, listenerScope?: Object): Object;
         listenOnce(type: string, listener: (() => void), useCapture?: boolean, listenerScope?: Object): Object;
         logoSrc(): string;
@@ -16836,13 +18434,13 @@ declare namespace anychart.core.ui {
 declare namespace anychart.core.ui.table {
     interface Border {
         bottom(): anychart.graphics.vector.Stroke;
-        bottom(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string, thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.ui.table.Border;
+        bottom(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string, thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.ui.table.Border;
         left(): anychart.graphics.vector.Stroke;
-        left(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string, thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.ui.table.Border;
+        left(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string, thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.ui.table.Border;
         right(): anychart.graphics.vector.Stroke;
-        right(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string, thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.ui.table.Border;
+        right(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string, thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.ui.table.Border;
         top(): anychart.graphics.vector.Stroke;
-        top(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string, thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.ui.table.Border;
+        top(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string, thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.ui.table.Border;
     }
     interface Cell extends anychart.core.ui.table.Base {
         border(): anychart.core.ui.table.Border;
@@ -16908,7 +18506,7 @@ declare namespace anychart.core.ui.table {
     }
     interface Base {
         border(): anychart.core.ui.table.Border;
-        border(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.ui.table.Base;
+        border(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.ui.table.Base;
         disablePointerEvents(): boolean;
         disablePointerEvents(value?: boolean): anychart.core.ui.table.Base;
         fontColor(): string;
@@ -16950,9 +18548,9 @@ declare namespace anychart.core.ui.table {
     }
     interface Row extends anychart.core.ui.table.Base {
         border(): anychart.core.ui.table.Border;
-        border(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.ui.table.Base;
+        border(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.ui.table.Base;
         cellBorder(): anychart.core.ui.table.Border;
-        cellBorder(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.ui.table.Base;
+        cellBorder(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.ui.table.Base;
         cellFill(): anychart.graphics.vector.Fill;
         cellFill(value: anychart.graphics.vector.Fill): anychart.core.ui.table.Base;
         cellFill(color: string, opacity?: number): anychart.core.ui.table.Base;
@@ -17011,9 +18609,9 @@ declare namespace anychart.core.ui.table {
     }
     interface Column extends anychart.core.ui.table.Base {
         border(): anychart.core.ui.table.Border;
-        border(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.ui.table.Base;
+        border(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.ui.table.Base;
         cellBorder(): anychart.core.ui.table.Border;
-        cellBorder(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.ui.table.Base;
+        cellBorder(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.ui.table.Base;
         cellFill(): anychart.graphics.vector.Fill;
         cellFill(value: anychart.graphics.vector.Fill): anychart.core.ui.table.Base;
         cellFill(color: string, opacity?: number): anychart.core.ui.table.Base;
@@ -17106,6 +18704,8 @@ declare namespace anychart.core.utils {
         fontVariant(value?: anychart.graphics.vector.Text.FontVariant | string): anychart.core.Text;
         fontWeight(): string | number;
         fontWeight(value?: string | number): anychart.core.Text;
+        format(): string;
+        format(value: string | (() => void)): anychart.core.utils.LegendItemSettings;
         hAlign(): anychart.graphics.vector.Text.HAlign | string;
         hAlign(value?: anychart.graphics.vector.Text.HAlign | string): anychart.core.Text;
         iconEnabled(): boolean;
@@ -17120,7 +18720,7 @@ declare namespace anychart.core.utils {
         iconMarkerFill(): anychart.graphics.vector.Fill | string;
         iconMarkerFill(fillOrColorOrKeys?: anychart.graphics.vector.Fill | Array<(anychart.graphics.vector.GradientKey|string)>, opacityOrAngleOrCx?: number, modeOrCy?: number | boolean | anychart.graphics.math.Rect | Object, opacityOrMode?: number | anychart.graphics.math.Rect | Object, opacity?: number, fx?: number, fy?: number): anychart.core.utils.LegendItemSettings;
         iconMarkerStroke(): anychart.graphics.vector.Stroke | string;
-        iconMarkerStroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string, thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.utils.LegendItemSettings;
+        iconMarkerStroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string, thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.utils.LegendItemSettings;
         iconMarkerType(): anychart.enums.MarkerType | string | (() => void);
         iconMarkerType(value?: anychart.enums.MarkerType | string | (() => void)): anychart.core.utils.LegendItemSettings;
         iconSize(): number;
@@ -17145,8 +18745,6 @@ declare namespace anychart.core.utils {
         text(value?: string | (() => void)): anychart.core.utils.LegendItemSettings;
         textDirection(): anychart.graphics.vector.Text.Direction | string;
         textDirection(value?: anychart.graphics.vector.Text.Direction | string): anychart.core.Text;
-        textFormatter(): string;
-        textFormatter(value: string | (() => void)): anychart.core.utils.LegendItemSettings;
         textIndent(): number;
         textIndent(value?: number): anychart.core.Text;
         textOverflow(): anychart.graphics.vector.Text.TextOverflow | string;
@@ -17166,19 +18764,6 @@ declare namespace anychart.core.utils {
         zIndex(): number;
         zIndex(value?: number): anychart.core.VisualBase;
     }
-    interface SeriesPointContextProvider extends anychart.core.utils.BaseContextProvider {
-        getDataValue(key: string): any;
-        getSeriesMeta(key?: string): any;
-        getStat(key: string): any;
-        getTokenType(name: string): anychart.enums.TokenType | string;
-        getTokenValue(name: string): any;
-    }
-    interface LegendContextProvider {
-        getMeta(key?: string): any;
-        getStat(key?: string): any;
-        getTokenType(name: string): anychart.enums.TokenType;
-        getTokenValue(name: string): any;
-    }
     interface UnboundRegionsSettings {
         enabled(): boolean;
         enabled(value?: boolean): anychart.core.utils.UnboundRegionsSettings;
@@ -17191,15 +18776,11 @@ declare namespace anychart.core.utils {
         stroke(): anychart.graphics.vector.Stroke;
         stroke(stroke?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string, thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.utils.UnboundRegionsSettings;
     }
-    interface BaseContextProvider {
-        getTokenType(name: string): anychart.enums.TokenType | string;
-        getTokenValue(name: string): any;
-    }
-    interface PointContextProvider extends anychart.core.utils.BaseContextProvider {
-        getDataValue(key: string): any;
-        getStat(key?: string): any;
-        getTokenType(name: string): anychart.enums.TokenType | string;
-        getTokenValue(name: string): any;
+    interface StockInteractivity extends anychart.core.utils.Interactivity {
+        scrollOnMouseWheel(): boolean;
+        scrollOnMouseWheel(value?: boolean): anychart.core.utils.StockInteractivity;
+        zoomOnMouseWheel(): boolean;
+        zoomOnMouseWheel(value?: boolean): anychart.core.utils.StockInteractivity;
     }
     interface Margin extends anychart.core.Base {
         bottom(): number | string;
@@ -17218,8 +18799,8 @@ declare namespace anychart.core.utils {
         unlistenByKey(key: Object): boolean;
     }
     interface MapInteractivity extends anychart.core.utils.Interactivity {
-        copyFormatter(): (() => void);
-        copyFormatter(value?: (() => void)): anychart.core.utils.MapInteractivity;
+        copyFormat(): (() => void);
+        copyFormat(value?: (() => void)): anychart.core.utils.MapInteractivity;
         drag(): boolean;
         drag(value?: boolean): anychart.core.utils.MapInteractivity;
         hoverMode(): anychart.enums.HoverMode;
@@ -17239,17 +18820,6 @@ declare namespace anychart.core.utils {
         zoomOnDoubleClick(value?: boolean): anychart.core.utils.Interactivity;
         zoomOnMouseWheel(): boolean;
         zoomOnMouseWheel(value?: boolean): anychart.core.utils.Interactivity;
-    }
-    interface PertPointContextProvider extends anychart.core.utils.BaseContextProvider {
-        getDataValue(key: string): any;
-        getStat(key?: string): any;
-    }
-    interface StockHighlightContextProvider extends anychart.core.utils.SeriesPointContextProvider {
-        getDataValue(key: string): any;
-        getSeriesMeta(key?: string): any;
-        getStat(key: string): any;
-        getTokenType(name: string): anychart.enums.TokenType | string;
-        getTokenValue(name: string): any;
     }
     interface Error extends anychart.core.Base {
         listen(type: string, listener: (() => void), useCapture?: boolean, listenerScope?: Object): Object;
@@ -17282,13 +18852,15 @@ declare namespace anychart.core.utils {
         xUpperError(): string | number;
         xUpperError(value?: string | number): anychart.core.utils.Error;
     }
-    interface AxisLabelsContextProvider extends anychart.core.utils.BaseContextProvider {
-        getTokenType(name: string): anychart.enums.TokenType | string;
-        getTokenValue(name: string): any;
-    }
-    interface GanttContextProvider {
-        getDataValue(key: string): any;
-        getMetaValue(key: string): any;
+    interface QuarterSettings extends anychart.core.Base {
+        leftBottom(): anychart.core.utils.Quarter;
+        leftBottom(value?: Object): anychart.core.utils.QuarterSettings;
+        leftTop(): anychart.core.utils.Quarter;
+        leftTop(value?: Object): anychart.core.utils.QuarterSettings;
+        rightBottom(): anychart.core.utils.Quarter;
+        rightBottom(value?: Object): anychart.core.utils.QuarterSettings;
+        rightTop(): anychart.core.utils.Quarter;
+        rightTop(value?: Object): anychart.core.utils.QuarterSettings;
     }
     interface Interactivity extends anychart.core.Base {
         hoverMode(): anychart.enums.HoverMode;
@@ -17303,14 +18875,6 @@ declare namespace anychart.core.utils {
         unlisten(type: string, listener: (() => void), useCapture?: boolean, listenerScope?: Object): boolean;
         unlistenByKey(key: Object): boolean;
     }
-    interface MapAxisLabelsContextProvider extends anychart.core.utils.BaseContextProvider {
-        getTokenType(name: string): anychart.enums.TokenType | string;
-        getTokenValue(name: string): any;
-    }
-    interface LinearGaugePointerContextProvider extends anychart.core.utils.BaseContextProvider {
-        getDataValue(key: string): any;
-        getTokenValue(name: string): any;
-    }
     interface A11y extends anychart.core.Base {
 
     }
@@ -17319,14 +18883,56 @@ declare namespace anychart.core.utils {
         enabled(value?: boolean): anychart.core.utils.ChartA11y;
         mode(): anychart.enums.A11yMode;
         mode(value?: anychart.enums.A11yMode | string): anychart.core.utils.ChartA11y;
-        titleFormatter(): (() => void) | string;
-        titleFormatter(value?: (() => void) | string): anychart.core.utils.ChartA11y;
+        titleFormat(): (() => void) | string;
+        titleFormat(value?: (() => void) | string): anychart.core.utils.ChartA11y;
     }
     interface SeriesA11y extends anychart.core.utils.A11y {
         enabled(): boolean;
         enabled(value?: boolean): anychart.core.utils.SeriesA11y;
-        titleFormatter(): (() => void) | string;
-        titleFormatter(value?: (() => void) | string): anychart.core.utils.SeriesA11y;
+        titleFormat(): (() => void) | string;
+        titleFormat(value?: (() => void) | string): anychart.core.utils.SeriesA11y;
+    }
+    interface Quarter extends anychart.core.ui.Background {
+        bottomStroke(): anychart.graphics.vector.Stroke;
+        bottomStroke(value: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string): anychart.core.ui.Background;
+        bottomStroke(value: anychart.graphics.vector.Stroke | string, thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.ui.Background;
+        cornerType(): anychart.enums.BackgroundCornersType;
+        cornerType(value?: anychart.enums.BackgroundCornersType): anychart.core.ui.Background;
+        corners(): Array<number>;
+        corners(value?: number | string | Array<number>): anychart.core.ui.Background;
+        corners(topLeft?: number | string, topRight?: number | string, bottomRight?: number | string, bottomLeft?: number | string): anychart.core.ui.Background;
+        fill(): anychart.graphics.vector.Fill;
+        fill(value: anychart.graphics.vector.Fill): anychart.core.ui.Background;
+        fill(color: string, opacity?: number): anychart.core.ui.Background;
+        fill(keys: Array<(anychart.graphics.vector.GradientKey|string)>, angle?: number, mode?: boolean | anychart.graphics.vector.Rect | Object, opacity?: number): anychart.core.ui.Background;
+        fill(keys: Array<(anychart.graphics.vector.GradientKey|string)>, cx: number, cy: number, mode?: anychart.graphics.math.Rect, opacity?: number, fx?: number, fy?: number): anychart.core.ui.Background;
+        label(index?: string | number): anychart.core.ui.Label;
+        label(value?: boolean | Object | string): anychart.core.Chart;
+        label(index?: string | number, value?: boolean | Object | string): anychart.core.Chart;
+        leftStroke(): anychart.graphics.vector.Stroke;
+        leftStroke(value: anychart.graphics.vector.Stroke | string): anychart.core.ui.Background;
+        leftStroke(value: anychart.graphics.vector.Stroke | string, thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.ui.Background;
+        margin(): anychart.core.utils.Margin;
+        margin(value?: Array<(number|string)> | Object): anychart.core.utils.Quarter;
+        margin(value1?: string | number, value2?: string | number, value3?: string | number, value4?: string | number): anychart.core.utils.Quarter;
+        padding(): anychart.core.utils.Padding;
+        padding(value?: Array<(number|string)> | Object): anychart.core.Chart;
+        padding(value1?: string | number, value2?: string | number, value3?: string | number, value4?: string | number): anychart.core.Chart;
+        rightStroke(): anychart.graphics.vector.Stroke;
+        rightStroke(value: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string): anychart.core.ui.Background;
+        rightStroke(value: anychart.graphics.vector.Stroke | string, thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.ui.Background;
+        stroke(): anychart.graphics.vector.Stroke;
+        stroke(value: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string): anychart.core.ui.Background;
+        stroke(value: anychart.graphics.vector.Stroke | string, thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.ui.Background;
+        title(): anychart.core.ui.Title;
+        title(value?: boolean | Object | string): anychart.core.utils.Quarter;
+        topStroke(): anychart.graphics.vector.Stroke;
+        topStroke(value: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string): anychart.core.ui.Background;
+        topStroke(value: anychart.graphics.vector.Stroke | string, thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.ui.Background;
+    }
+    interface Crossing extends anychart.core.Base {
+        stroke(): anychart.graphics.vector.Stroke;
+        stroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string, thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.utils.Crossing;
     }
     interface OrdinalZoom {
         continuous(): boolean;
@@ -17347,15 +18953,6 @@ declare namespace anychart.core.utils {
         removeAllListeners(type?: string): number;
         unlisten(type: string, listener: (() => void), useCapture?: boolean, listenerScope?: Object): boolean;
         unlistenByKey(key: Object): boolean;
-    }
-    interface TreeMapPointContextProvider extends anychart.core.utils.BaseContextProvider {
-        getDataValue(key: string): any;
-        getStat(key: string): any;
-        getTokenType(name: string): anychart.enums.TokenType | string;
-        getTokenValue(name: string): any;
-    }
-    interface ChartContextProvider extends anychart.core.utils.BaseContextProvider {
-        getStat(key?: string): any;
     }
     interface Padding extends anychart.core.Base {
         bottom(): number | string;
@@ -17399,20 +18996,222 @@ declare namespace anychart.core.utils {
     }
 }
 
+declare namespace anychart.core.venn {
+    interface Intersections extends anychart.core.Base {
+        fill(): anychart.graphics.vector.Fill | (() => void);
+        fill(value: anychart.graphics.vector.Fill): anychart.core.venn.Intersections;
+        fill(fillFunction?: (() => void)): anychart.core.venn.Intersections;
+        fill(color: string, opacity?: number): anychart.core.venn.Intersections;
+        fill(keys: Array<(anychart.graphics.vector.GradientKey|string)>, angle?: number, mode?: boolean | anychart.graphics.vector.Rect | Object, opacity?: number): anychart.core.venn.Intersections;
+        fill(keys: Array<(anychart.graphics.vector.GradientKey|string)>, cx: number, cy: number, mode?: anychart.graphics.math.Rect, opacity?: number, fx?: number, fy?: number): anychart.core.venn.Intersections;
+        fill(imageSettings: anychart.graphics.vector.Fill): anychart.core.venn.Intersections;
+        hatchFill(): anychart.graphics.vector.PatternFill | anychart.graphics.vector.HatchFill | (() => void);
+        hatchFill(patternFillOrType?: anychart.graphics.vector.PatternFill | anychart.graphics.vector.HatchFill | (() => void) | anychart.graphics.vector.HatchFill.HatchFillType | string | boolean, color?: string, thickness?: number, size?: number): anychart.core.venn.Intersections;
+        hoverFill(): anychart.graphics.vector.Fill | (() => void);
+        hoverFill(value: anychart.graphics.vector.Fill): anychart.core.venn.Intersections;
+        hoverFill(fillFunction?: (() => void)): anychart.core.venn.Intersections;
+        hoverFill(color: string, opacity?: number): anychart.core.venn.Intersections;
+        hoverFill(keys: Array<(anychart.graphics.vector.GradientKey|string)>, angle?: number, mode?: boolean | anychart.graphics.vector.Rect | Object, opacity?: number): anychart.core.venn.Intersections;
+        hoverFill(keys: Array<(anychart.graphics.vector.GradientKey|string)>, cx: number, cy: number, mode?: anychart.graphics.math.Rect, opacity?: number, fx?: number, fy?: number): anychart.core.venn.Intersections;
+        hoverFill(imageSettings: anychart.graphics.vector.Fill): anychart.core.venn.Intersections;
+        hoverHatchFill(): anychart.graphics.vector.PatternFill | anychart.graphics.vector.HatchFill | (() => void);
+        hoverHatchFill(patternFillOrType?: anychart.graphics.vector.PatternFill | anychart.graphics.vector.HatchFill | (() => void) | anychart.graphics.vector.HatchFill.HatchFillType | string | boolean, color?: string, thickness?: number, size?: number): anychart.core.venn.Intersections;
+        hoverLabels(): anychart.core.ui.LabelsFactory;
+        hoverLabels(value?: Object | boolean): anychart.core.venn.Intersections;
+        hoverMarkers(): anychart.core.ui.MarkersFactory;
+        hoverMarkers(value?: Object | boolean | string): anychart.core.venn.Intersections;
+        hoverStroke(): anychart.graphics.vector.Stroke | (() => void);
+        hoverStroke(value?: anychart.graphics.vector.Stroke | (() => void)): anychart.core.venn.Intersections;
+        hoverStroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.venn.Intersections;
+        labels(): anychart.core.ui.LabelsFactory;
+        labels(value?: Object | boolean): anychart.core.venn.Intersections;
+        listen(type: string, listener: (() => void), useCapture?: boolean, listenerScope?: Object): Object;
+        listenOnce(type: string, listener: (() => void), useCapture?: boolean, listenerScope?: Object): Object;
+        markers(): anychart.core.ui.MarkersFactory;
+        markers(value?: Object | boolean | string): anychart.core.venn.Intersections;
+        removeAllListeners(type?: string): number;
+        selectFill(): anychart.graphics.vector.Fill | (() => void);
+        selectFill(value: anychart.graphics.vector.Fill): anychart.core.venn.Intersections;
+        selectFill(fillFunction?: (() => void)): anychart.core.venn.Intersections;
+        selectFill(color: string, opacity?: number): anychart.core.venn.Intersections;
+        selectFill(keys: Array<(anychart.graphics.vector.GradientKey|string)>, angle?: number, mode?: boolean | anychart.graphics.vector.Rect | Object, opacity?: number): anychart.core.venn.Intersections;
+        selectFill(keys: Array<(anychart.graphics.vector.GradientKey|string)>, cx: number, cy: number, mode?: anychart.graphics.math.Rect, opacity?: number, fx?: number, fy?: number): anychart.core.venn.Intersections;
+        selectFill(imageSettings: anychart.graphics.vector.Fill): anychart.core.venn.Intersections;
+        selectHatchFill(): anychart.graphics.vector.PatternFill | anychart.graphics.vector.HatchFill | (() => void) | boolean;
+        selectHatchFill(patternFillOrTypeOrState?: anychart.graphics.vector.PatternFill | anychart.graphics.vector.HatchFill | (() => void) | anychart.graphics.vector.HatchFill.HatchFillType | string | boolean, color?: string, thickness?: number, size?: number): anychart.core.venn.Intersections;
+        selectLabels(): anychart.core.ui.LabelsFactory;
+        selectLabels(value?: Object | boolean): anychart.core.venn.Intersections;
+        selectMarkers(): anychart.core.ui.MarkersFactory;
+        selectMarkers(value?: Object | boolean | string): anychart.core.venn.Intersections;
+        selectStroke(): anychart.graphics.vector.Stroke | (() => void);
+        selectStroke(strokeFunction?: (() => void)): anychart.core.venn.Intersections;
+        selectStroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string | (() => void), thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.venn.Intersections;
+        stroke(): anychart.graphics.vector.Stroke | (() => void);
+        stroke(fillFunction?: (() => void)): anychart.core.venn.Intersections;
+        stroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string, thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.venn.Intersections;
+        tooltip(): anychart.core.ui.Tooltip;
+        tooltip(value?: Object | boolean): anychart.core.venn.Intersections;
+        unlisten(type: string, listener: (() => void), useCapture?: boolean, listenerScope?: Object): boolean;
+        unlistenByKey(key: Object): boolean;
+    }
+}
+
+declare namespace anychart.core.waterfall {
+}
+
+declare namespace anychart.core.waterfall.series {
+    interface Waterfall extends anychart.core.cartesian.series.WidthBased {
+        bottom(): number | string;
+        bottom(value?: number | string): anychart.core.VisualBaseWithBounds;
+        bounds(): anychart.core.utils.Bounds;
+        bounds(value?: anychart.utils.RectObj | anychart.math.Rect | anychart.core.utils.Bounds): anychart.core.VisualBase;
+        bounds(x?: number | string, y?: number | string, width?: number | string, height?: number | string): anychart.core.VisualBase;
+        clip(): boolean | anychart.math.Rect;
+        clip(value?: boolean | anychart.math.Rect): anychart.core.cartesian.series.Base;
+        color(): string;
+        color(value: string): anychart.core.SeriesBase;
+        data(): anychart.data.View;
+        data(value?: anychart.data.View | anychart.data.Set | Array<any> | string, csvSettings?: anychart.enums.TextParsingMode | anychart.data.TextParsingSettings): anychart.core.SeriesBase;
+        enabled(): boolean;
+        enabled(value?: boolean): anychart.core.VisualBase;
+        excludePoint(indexes: number | Array<number>): boolean;
+        fallingFill(): anychart.graphics.vector.Fill;
+        fallingFill(value: anychart.graphics.vector.Fill): anychart.core.waterfall.series.Waterfall;
+        fallingFill(fillFunction?: (() => void)): anychart.core.waterfall.series.Waterfall;
+        fallingFill(color: string, opacity?: number): anychart.core.waterfall.series.Waterfall;
+        fallingFill(keys: Array<(anychart.graphics.vector.GradientKey|string)>, angle?: number, mode?: boolean | anychart.graphics.vector.Rect | Object, opacity?: number): anychart.core.waterfall.series.Waterfall;
+        fallingFill(keys: Array<(anychart.graphics.vector.GradientKey|string)>, cx: number, cy: number, mode?: anychart.graphics.math.Rect, opacity?: number, fx?: number, fy?: number): anychart.core.waterfall.series.Waterfall;
+        fallingFill(imageSettings: anychart.graphics.vector.Fill): anychart.core.waterfall.series.Waterfall;
+        fill(): anychart.graphics.vector.Fill;
+        fill(value: anychart.graphics.vector.Fill): anychart.core.waterfall.series.Waterfall;
+        fill(fillFunction?: (() => void)): anychart.core.waterfall.series.Waterfall;
+        fill(color: string, opacity?: number): anychart.core.waterfall.series.Waterfall;
+        fill(keys: Array<(anychart.graphics.vector.GradientKey|string)>, angle?: number, mode?: boolean | anychart.graphics.vector.Rect | Object, opacity?: number): anychart.core.waterfall.series.Waterfall;
+        fill(keys: Array<(anychart.graphics.vector.GradientKey|string)>, cx: number, cy: number, mode?: anychart.graphics.math.Rect, opacity?: number, fx?: number, fy?: number): anychart.core.waterfall.series.Waterfall;
+        fill(imageSettings: anychart.graphics.vector.Fill): anychart.core.waterfall.series.Waterfall;
+        getExcludedPoints(): Array<anychart.core.Point>;
+        getPixelBounds(): anychart.math.Rect;
+        getPixelPointWidth(): number;
+        getPoint(index: number): anychart.core.SeriesPoint;
+        height(): number | string;
+        height(value?: number | string): anychart.core.VisualBaseWithBounds;
+        hover(): anychart.core.SeriesBase;
+        hover(index?: number): anychart.core.SeriesBase;
+        hover(indexes?: Array<number>): anychart.core.SeriesBase;
+        hoverLabels(): anychart.core.ui.LabelsFactory;
+        hoverLabels(value?: Object | boolean): anychart.core.SeriesBase;
+        hoverMarkers(): anychart.core.ui.MarkersFactory;
+        hoverMarkers(value?: Object | boolean | string): anychart.core.cartesian.series.BaseWithMarkers;
+        id(): string | number;
+        id(value?: string | number): anychart.core.SeriesBase;
+        includeAllPoints(): boolean;
+        includePoint(indexes: number | Array<number>): boolean;
+        isVertical(): boolean;
+        isVertical(value?: boolean): anychart.core.cartesian.series.Base;
+        keepOnlyPoints(indexes: number | Array<number>): void;
+        labels(): anychart.core.ui.LabelsFactory;
+        labels(value?: Object | boolean): anychart.core.SeriesBase;
+        left(): number | string;
+        left(value?: number | string): anychart.core.VisualBaseWithBounds;
+        legendItem(): anychart.core.utils.LegendItemSettings;
+        legendItem(value?: Object): anychart.core.SeriesBase;
+        listen(type: string, listener: (() => void), useCapture?: boolean, listenerScope?: Object): Object;
+        listenOnce(type: string, listener: (() => void), useCapture?: boolean, listenerScope?: Object): Object;
+        markers(): anychart.core.ui.MarkersFactory;
+        markers(value?: Object | boolean | string): anychart.core.cartesian.series.BaseWithMarkers;
+        maxHeight(): number | string;
+        maxHeight(value?: number | string): anychart.core.VisualBase;
+        maxWidth(): number | string;
+        maxWidth(value?: number | string): anychart.core.VisualBase;
+        meta(key?: any): any;
+        meta(object?: any, value?: any): anychart.core.SeriesBase;
+        meta(key?: any, value?: any): anychart.core.SeriesBase;
+        minHeight(): number | string;
+        minHeight(value?: number | string): anychart.core.VisualBase;
+        minWidth(): number | string;
+        minWidth(value?: number | string): anychart.core.VisualBase;
+        name(): string;
+        name(value?: string): anychart.core.SeriesBase;
+        pointWidth(): string | number;
+        pointWidth(value?: number | string): anychart.core.cartesian.series.WidthBased;
+        print(paperSizeOrOptions?: anychart.graphics.vector.PaperSize | Object, landscape?: boolean): void;
+        removeAllListeners(type?: string): number;
+        rendering(): anychart.core.series.RenderingSettings;
+        rendering(value?: Object | (() => void)): anychart.core.cartesian.series.Base;
+        right(): number | string;
+        right(value?: number | string): anychart.core.VisualBaseWithBounds;
+        risingFill(): anychart.graphics.vector.Fill;
+        risingFill(value: anychart.graphics.vector.Fill): anychart.core.waterfall.series.Waterfall;
+        risingFill(fillFunction?: (() => void)): anychart.core.waterfall.series.Waterfall;
+        risingFill(color: string, opacity?: number): anychart.core.waterfall.series.Waterfall;
+        risingFill(keys: Array<(anychart.graphics.vector.GradientKey|string)>, angle?: number, mode?: boolean | anychart.graphics.vector.Rect | Object, opacity?: number): anychart.core.waterfall.series.Waterfall;
+        risingFill(keys: Array<(anychart.graphics.vector.GradientKey|string)>, cx: number, cy: number, mode?: anychart.graphics.math.Rect, opacity?: number, fx?: number, fy?: number): anychart.core.waterfall.series.Waterfall;
+        risingFill(imageSettings: anychart.graphics.vector.Fill): anychart.core.waterfall.series.Waterfall;
+        select(index?: number): anychart.core.SeriesBase;
+        select(indexes?: number | Array<number>): anychart.core.SeriesBase;
+        selectLabels(): anychart.core.ui.LabelsFactory;
+        selectLabels(value?: Object | boolean): anychart.core.SeriesBase;
+        selectMarkers(): anychart.core.ui.MarkersFactory;
+        selectMarkers(value?: Object | boolean | string): anychart.core.cartesian.series.BaseWithMarkers;
+        selectionMode(): anychart.enums.SelectionMode;
+        selectionMode(value?: anychart.enums.SelectionMode | string): anychart.core.SeriesBase;
+        seriesType(): string;
+        seriesType(value?: string): anychart.core.cartesian.series.Base;
+        tooltip(): anychart.core.ui.Tooltip;
+        tooltip(value?: Object | boolean): anychart.core.SeriesBase;
+        top(): number | string;
+        top(value?: number | string): anychart.core.VisualBaseWithBounds;
+        transformX(value: any, subRangeRatio?: number): number;
+        transformY(value: any, subRangeRatio?: number): number;
+        unhover(indexOrIndexes?: number | Array<number>): anychart.core.SeriesBase;
+        unlisten(type: string, listener: (() => void), useCapture?: boolean, listenerScope?: Object): boolean;
+        unlistenByKey(key: Object): boolean;
+        unselect(): anychart.core.SeriesBase;
+        unselect(index?: number): anychart.core.SeriesBase;
+        unselect(indexes?: Array<number>): anychart.core.SeriesBase;
+        width(): number | string;
+        width(value?: number | string): anychart.core.VisualBaseWithBounds;
+        xPointPosition(): number;
+        xPointPosition(position?: number): anychart.core.cartesian.series.Base;
+        xScale(): anychart.scales.Base;
+        xScale(value?: anychart.scales.Base): anychart.core.cartesian.series.Base;
+        yScale(): anychart.scales.Base;
+        yScale(value?: anychart.scales.Base): anychart.core.cartesian.series.Base;
+        zIndex(): number;
+        zIndex(value?: number): anychart.core.VisualBase;
+    }
+}
+
 declare namespace anychart.data {
     function buildMapping(dataSet: anychart.data.Set, fromIndex: number, toIndex: number, names: Array<string>, keys?: Array<string>): anychart.data.Mapping;
     function loadCsvFile(url: string, onSuccess: (() => void), onError?: (() => void), method?: string, content?: ArrayBuffer | ArrayBufferView | Blob | Document | FormData | string, headers?: Object, timeoutInterval?: number, withCredentials?: boolean, context?: any): void;
+    function loadGoogleSpreadsheet(key: string | Object, onSuccess: (() => void), onError?: (() => void), timeoutInterval?: number, context?: any): void;
     function loadJsonFile(url: string, onSuccess: (() => void), onError?: (() => void), method?: string, content?: ArrayBuffer | ArrayBufferView | Blob | Document | FormData | string, headers?: Object, timeoutInterval?: number, withCredentials?: boolean, context?: any): void;
     function loadXmlFile(url: string, onSuccess: (() => void), onError?: (() => void), method?: string, content?: ArrayBuffer | ArrayBufferView | Blob | Document | FormData | string, headers?: Object, timeoutInterval?: number, withCredentials?: boolean, context?: any): void;
     function mapAsTable(data: Array<Array<any>>, mode?: anychart.enums.MapAsTableMode | string, seriesCount?: number): Array<anychart.data.Mapping>;
-    function parseHtmlTable(tableSelector?: string, rowsSelector?: string, cellsSelector?: string, headersSelector?: string, captionSelector?: string, valueProcessor?: (() => void)): anychart.data.TableData;
-    function set(data?: Array<any> | string, csvSettings?: {[prop: string]: (string|boolean)}): anychart.data.Set;
+    function parseHtmlTable(tableSelector?: string, rowsSelector?: string, cellsSelector?: string, headersSelector?: string, captionSelector?: string, valueProcessor?: (() => void)): anychart.data.DataSettings;
+    function parseText(text: string, settings?: anychart.enums.TextParsingMode | anychart.data.TextParsingSettings): Array<Array<(string|number)>>;
+    function set(data?: Array<any> | string, csvSettings?: anychart.enums.TextParsingMode | anychart.data.TextParsingSettings): anychart.data.Set;
     function table(keyColumnIndex?: number, dateTimePattern?: string, timeOffset?: number, baseDate?: number | Date, locale?: string | anychart.format.Locale): anychart.data.Table;
     function tree(data?: Array<Object>, fillMethod?: anychart.enums.TreeFillingMethod): anychart.data.Tree;
-    interface TableData {
+    interface TextParsingSettings {
+        columnsSeparator: string;
+        cutLength: number;
+        ignoreFirstRow: boolean;
+        ignoreItems: Array<string>;
+        ignoreTrailingSpaces: boolean;
+        maxItems: number;
+        maxLength: number;
+        minLength: number;
+        mode: anychart.enums.TextParsingMode;
+        rowsSeparator: string;
+    }
+    interface DataSettings {
         caption: string;
         header: Array<string>;
         rows: Array<any>;
+        text: string;
+        textSettings: anychart.enums.TextParsingMode | anychart.data.TextParsingSettings;
     }
     interface Tree extends anychart.core.Base {
         addChild(child: Object): anychart.data.Tree.DataItem;
@@ -17572,7 +19371,7 @@ declare namespace anychart.data {
     interface Set extends anychart.core.Base {
         append(...var_args: (any)[]): anychart.data.Set;
         data(): Array<any>;
-        data(value?: Array<any> | string, csvSettings?: {[prop: string]: (string|boolean)}): anychart.data.Set;
+        data(value?: Array<any> | string, settings?: anychart.enums.TextParsingMode | anychart.data.TextParsingSettings): anychart.data.Set;
         getRowsCount(): number;
         insert(row: any, index?: number): anychart.data.Set;
         listen(type: string, listener: (() => void), useCapture?: boolean, listenerScope?: Object): Object;
@@ -17651,6 +19450,7 @@ declare namespace anychart.data {
 
 declare namespace anychart.enums {
     enum Anchor {
+        AUTO,
         CENTER,
         CENTER_BOTTOM,
         CENTER_TOP,
@@ -17662,6 +19462,7 @@ declare namespace anychart.enums {
         RIGHT_TOP
     }
     enum Position {
+        AUTO,
         CENTER,
         CENTER_BOTTOM,
         CENTER_TOP,
@@ -17783,6 +19584,17 @@ declare namespace anychart.enums {
         CHART_DRAW,
         CLOSE,
         COMPLETE,
+        CONNECTOR_CLICK,
+        CONNECTOR_DBL_CLICK,
+        CONNECTOR_MOUSE_DOWN,
+        CONNECTOR_MOUSE_MOVE,
+        CONNECTOR_MOUSE_OUT,
+        CONNECTOR_MOUSE_OVER,
+        CONNECTOR_MOUSE_UP,
+        CONNECTOR_SELECT,
+        DRAG,
+        DRAG_END,
+        DRAG_START,
         DRILL_CHANGE,
         LEGEND_ITEM_CLICK,
         LEGEND_ITEM_DBLCLICK,
@@ -17821,7 +19633,10 @@ declare namespace anychart.enums {
         TREE_ITEM_CREATE,
         TREE_ITEM_MOVE,
         TREE_ITEM_REMOVE,
-        TREE_ITEM_UPDATE
+        TREE_ITEM_UPDATE,
+        ZOOM,
+        ZOOM_END,
+        ZOOM_START
     }
     enum ScaleStackMode {
         NONE,
@@ -18022,19 +19837,13 @@ declare namespace anychart.enums {
         END,
         START
     }
-    enum TokenType {
-        DATE_TIME,
-        NUMBER,
-        PERCENT,
-        STRING,
-        UNKNOWN
-    }
     enum ChartDataExportMode {
         GROUPED,
         RAW,
         SPECIFIC
     }
     enum StringToken {
+        ACTIVITY_INDEX,
         AVERAGE,
         AXIS_NAME,
         AXIS_SCALE_MAX,
@@ -18057,6 +19866,7 @@ declare namespace anychart.enums {
         CATEGORY_Y_RANGE_SUM,
         CATEGORY_Y_SUM,
         CLOSE,
+        CUMULATIVE_FREQUENCY,
         DATA_PLOT_BUBBLE_MAX_SIZE,
         DATA_PLOT_BUBBLE_MIN_SIZE,
         DATA_PLOT_BUBBLE_SIZE_AVERAGE,
@@ -18080,9 +19890,11 @@ declare namespace anychart.enums {
         DATA_PLOT_Y_RANGE_MIN,
         DATA_PLOT_Y_RANGE_SUM,
         DATA_PLOT_Y_SUM,
+        END,
         HIGH,
         INDEX,
         LOW,
+        MINUTES_PER_DAY,
         NAME,
         OPEN,
         PERT_CHART_CRITICAL_PATH_STANDARD_DEVIATION,
@@ -18090,6 +19902,8 @@ declare namespace anychart.enums {
         RANGE,
         RANGE_END,
         RANGE_START,
+        RELATIVE_FREQUENCY,
+        RESOURCE_INDEX,
         SERIES_BUBBLE_MAX_SIZE,
         SERIES_BUBBLE_MIN_SIZE,
         SERIES_BUBBLE_SIZE_AVERAGE,
@@ -18119,6 +19933,7 @@ declare namespace anychart.enums {
         SERIES_Y_RANGE_MIN,
         SERIES_Y_RANGE_SUM,
         SERIES_Y_SUM,
+        START,
         VALUE,
         X_PERCENT_OF_SERIES,
         X_PERCENT_OF_TOTAL,
@@ -18228,10 +20043,14 @@ declare namespace anychart.enums {
         VALUE,
         X_PERCENT_OF_SERIES,
         X_PERCENT_OF_TOTAL,
+        X_SCALES_MAX,
+        X_SCALES_MIN,
         X_VALUE,
         Y_PERCENT_OF_CATEGORY,
         Y_PERCENT_OF_SERIES,
         Y_PERCENT_OF_TOTAL,
+        Y_SCALES_MAX,
+        Y_SCALES_MIN,
         Y_VALUE
     }
     enum MapProjections {
@@ -18321,6 +20140,7 @@ declare namespace anychart.enums {
         BUBBLE,
         CANDLESTICK,
         COLUMN,
+        JUMP_LINE,
         LINE,
         MARKER,
         OHLC,
@@ -18332,7 +20152,8 @@ declare namespace anychart.enums {
         SPLINE,
         SPLINE_AREA,
         STEP_AREA,
-        STEP_LINE
+        STEP_LINE,
+        STICK
     }
     enum Cartesian3dSeriesType {
         AREA,
@@ -18348,6 +20169,7 @@ declare namespace anychart.enums {
         AREA,
         CANDLESTICK,
         COLUMN,
+        JUMP_LINE,
         LINE,
         MARKER,
         OHLC,
@@ -18358,7 +20180,8 @@ declare namespace anychart.enums {
         SPLINE,
         SPLINE_AREA,
         STEP_AREA,
-        STEP_LINE
+        STEP_LINE,
+        STICK
     }
     enum RadarSeriesType {
         AREA,
@@ -18367,8 +20190,12 @@ declare namespace anychart.enums {
     }
     enum PolarSeriesType {
         AREA,
+        COLUMN,
         LINE,
-        MARKER
+        MARKER,
+        POLYGON,
+        POLYLINE,
+        RANGE_COLUMN
     }
     enum AvailabilityPeriod {
         DAY,
@@ -18473,6 +20300,12 @@ declare namespace anychart.enums {
         AVAILABILITY_PER_CHART,
         AVAILABILITY_PER_RESOURCE
     }
+    enum ShapeType {
+        CIRCLE,
+        ELLIPSE,
+        PATH,
+        RECT
+    }
     enum StepDirection {
         BACKWARD,
         CENTER,
@@ -18501,7 +20334,43 @@ declare namespace anychart.enums {
     }
     enum TextWrap {
         BY_LETTER,
+        BY_WORD,
         NO_WRAP
+    }
+    enum MovingAverageType {
+        EMA,
+        SMA
+    }
+    enum LegendLayout {
+        HORIZONTAL,
+        HORIZONTAL_EXPANDABLE,
+        VERTICAL,
+        VERTICAL_EXPANDABLE
+    }
+    enum LegendPositionMode {
+        INSIDE,
+        OUTSIDE
+    }
+    enum PointState {
+        HOVER = 1,
+        NORMAL = 0,
+        SELECT = 2
+    }
+    enum MekkoSeriesType {
+        MEKKO
+    }
+    enum TextParsingMode {
+        BY_CHAR,
+        BY_WORD,
+        CSV
+    }
+    enum TagCloudMode {
+        RECT,
+        SPIRAL
+    }
+    enum WaterfallDataMode {
+        ABSOLUTE,
+        DIFF
     }
 }
 
@@ -18533,8 +20402,8 @@ declare namespace anychart.format {
     function inputDateTimeFormat(value?: string): string;
     function inputLocale(): string | anychart.format.Locale;
     function inputLocale(value?: string | anychart.format.Locale): string | anychart.format.Locale;
-    function number(number: number, decimalsCountOrLocal?: number | anychart.format.NumberLocale | string, decimalPoint?: string, groupsSeparator?: string, scale?: Object | boolean, zeroFillDecimals?: boolean, scaleSuffixSeparator?: string): string;
-    function number(number: number, settings?: Object): string;
+    function number(number: number, decimalsCountOrLocal?: number | anychart.format.NumberLocale | string, decimalPoint?: string, groupsSeparator?: string, scale?: Object | boolean, zeroFillDecimals?: boolean, scaleSuffixSeparator?: string, useBracketsForNegative?: boolean): string;
+    function number(number: number, object?: anychart.format.NumberLocale): string;
     function outputDateFormat(): string;
     function outputDateFormat(value?: string): void;
     function outputDateTimeFormat(): string;
@@ -18593,14 +20462,20 @@ declare namespace anychart.format {
         messages: {[prop: string]: string};
         numberLocale: anychart.format.NumberLocale;
     }
+    interface Context {
+        getData(fieldPath: any): any;
+        getData(...var_args: (any)[]): any;
+        getMeta(name: string): any;
+        getStat(key: string): any;
+    }
 }
 
 declare namespace anychart.gauges {
-    function circular(data?: anychart.data.View | anychart.data.Set | Array<any> | string, csvSettings?: {[prop: string]: (string|boolean)}): anychart.charts.CircularGauge;
-    function led(data?: anychart.data.View | anychart.data.Set | Array<any> | string, csvSettings?: {[prop: string]: (string|boolean)}): anychart.charts.LinearGauge;
-    function linear(data?: anychart.data.View | anychart.data.Set | Array<any> | string, csvSettings?: {[prop: string]: (string|boolean)}): anychart.charts.LinearGauge;
-    function tank(data?: anychart.data.View | anychart.data.Set | Array<any> | string, csvSettings?: {[prop: string]: (string|boolean)}): anychart.charts.LinearGauge;
-    function thermometer(data?: anychart.data.View | anychart.data.Set | Array<any> | string, csvSettings?: {[prop: string]: (string|boolean)}): anychart.charts.LinearGauge;
+    function circular(data?: anychart.data.View | anychart.data.Set | Array<any> | string, csvSettings?: anychart.enums.TextParsingMode | anychart.data.TextParsingSettings): anychart.charts.CircularGauge;
+    function led(data?: anychart.data.View | anychart.data.Set | Array<any> | string, csvSettings?: anychart.enums.TextParsingMode | anychart.data.TextParsingSettings): anychart.charts.LinearGauge;
+    function linear(data?: anychart.data.View | anychart.data.Set | Array<any> | string, csvSettings?: anychart.enums.TextParsingMode | anychart.data.TextParsingSettings): anychart.charts.LinearGauge;
+    function tank(data?: anychart.data.View | anychart.data.Set | Array<any> | string, csvSettings?: anychart.enums.TextParsingMode | anychart.data.TextParsingSettings): anychart.charts.LinearGauge;
+    function thermometer(data?: anychart.data.View | anychart.data.Set | Array<any> | string, csvSettings?: anychart.enums.TextParsingMode | anychart.data.TextParsingSettings): anychart.charts.LinearGauge;
 }
 
 declare namespace anychart.graphics {
@@ -18769,6 +20644,7 @@ declare namespace anychart.graphics.vector {
         opacity: number;
     }
     enum Anchor {
+        AUTO,
         CENTER,
         CENTER_BOTTOM,
         CENTER_TOP,
@@ -18925,6 +20801,8 @@ declare namespace anychart.graphics.vector {
         forEachChild(callback: (() => void), obj?: Object): anychart.graphics.vector.Stage;
         getBounds(): anychart.graphics.math.Rect;
         getChildAt(index: number): anychart.graphics.vector.Element;
+        getContainerElement(): Element;
+        getDomWrapper(): Element;
         getJpgBase64String(onSuccess: (() => void), onError?: (() => void), width?: number, height?: number, quality?: number, forceTransparentWhite?: boolean): void;
         getPdfBase64String(onSuccess: (() => void), onError?: (() => void), paperSizeOrWidth?: number | string, landscapeOrWidth?: number | boolean, x?: number, y?: number): void;
         getPngBase64String(onSuccess: (() => void), onError?: (() => void), width?: number, height?: number, quality?: number): void;
@@ -18949,6 +20827,8 @@ declare namespace anychart.graphics.vector {
         layer(): anychart.graphics.vector.Layer;
         listen(type: string, listener: (() => void), useCapture?: boolean, listenerScope?: Object): Object;
         listenOnce(type: string, listener: (() => void), useCapture?: boolean, listenerScope?: Object): Object;
+        maxResizeDelay(): number;
+        maxResizeDelay(value?: number): anychart.graphics.vector.Stage;
         numChildren(): number;
         parent(): anychart.graphics.vector.Stage;
         path(): anychart.graphics.vector.Path;
@@ -19833,6 +21713,7 @@ declare namespace anychart.graphics.vector {
     namespace Text {
     enum TextWrap {
         BY_LETTER,
+        BY_WORD,
         NO_WRAP
     }
     enum TextOverflow {
@@ -20111,6 +21992,23 @@ declare namespace anychart.math {
     }
 }
 
+declare namespace anychart.math.adl {
+    function calculate(context: anychart.math.adl.Context, close: number, high: number, low: number, volume: number): number;
+    function calculationFunction(row: anychart.data.TableComputer.RowProxy, context: anychart.math.adl.Context): void;
+    function createComputer(mapping: anychart.data.TableMapping): anychart.data.TableComputer;
+    function initContext(): anychart.math.adl.Context;
+    function startFunction(context: anychart.math.adl.Context): void;
+    interface Context {
+        closeQueue: anychart.math.CycledQueue;
+        dispose: number;
+        highQueue: anychart.math.CycledQueue;
+        lowQueue: anychart.math.CycledQueue;
+        period: number;
+        prevResult: number;
+        volumeQueue: anychart.math.CycledQueue;
+    }
+}
+
 declare namespace anychart.math.ama {
     function calculationFunction(row: anychart.data.TableComputer.RowProxy, context: anychart.math.ama.Context): void;
     function createComputer(mapping: anychart.data.TableMapping, period?: number, fastPeriod?: number, slowPeriod?: number): anychart.data.TableComputer;
@@ -20140,12 +22038,30 @@ declare namespace anychart.math.aroon {
     }
 }
 
+declare namespace anychart.math.atr {
+    function calculate(context: anychart.math.atr.Context, close: number, high: number, low: number): number;
+    function calculationFunction(row: anychart.data.TableComputer.RowProxy, context: anychart.math.atr.Context): void;
+    function createComputer(mapping: anychart.data.TableMapping, period?: number): anychart.data.TableComputer;
+    function initContext(period?: number): anychart.math.atr.Context;
+    function startFunction(context: anychart.math.atr.Context): void;
+    interface Context {
+        dequeuedValue: number;
+        dispose: (() => void);
+        period: number;
+        prevClose: number;
+        prevResult: number;
+        queue: anychart.math.CycledQueue;
+    }
+}
+
 declare namespace anychart.math.bbands {
+    function calculate(context: anychart.math.bbands.Context, value: number): Array<number>;
     function calculationFunction(row: anychart.data.TableComputer.RowProxy, context: anychart.math.bbands.Context): void;
     function createComputer(mapping: anychart.data.TableMapping, period?: number, deviation?: number): anychart.data.TableComputer;
     function initContext(period?: number, deviation?: number): anychart.math.bbands.Context;
     function startFunction(context: anychart.math.bbands.Context): void;
     interface Context {
+        dequeuedValue: number;
         deviation: number;
         dispose: (() => void);
         highQueue: anychart.math.CycledQueue;
@@ -20171,11 +22087,13 @@ declare namespace anychart.math.bbandsB {
 }
 
 declare namespace anychart.math.bbandsWidth {
+    function calculate(context: anychart.math.bbandsWidth.Context, value: number): number;
     function calculationFunction(row: anychart.data.TableComputer.RowProxy, context: anychart.math.bbandsWidth.Context): void;
     function createComputer(mapping: anychart.data.TableMapping, period?: number, deviation?: number): anychart.data.TableComputer;
     function initContext(period?: number, deviation?: number): anychart.math.bbandsWidth.Context;
     function startFunction(context: anychart.math.bbandsWidth.Context): void;
     interface Context {
+        dequeuedValue: number;
         deviation: number;
         dispose: (() => void);
         highQueue: anychart.math.CycledQueue;
@@ -20185,7 +22103,89 @@ declare namespace anychart.math.bbandsWidth {
     }
 }
 
+declare namespace anychart.math.cci {
+    function calculate(context: anychart.math.cci.Context, close: number, high: number, low: number): number;
+    function calculationFunction(row: anychart.data.TableComputer.RowProxy, context: anychart.math.cci.Context): void;
+    function createComputer(mapping: anychart.data.TableMapping, period?: number): anychart.data.TableComputer;
+    function initContext(period?: number): anychart.math.cci.Context;
+    function startFunction(context: anychart.math.cci.Context): void;
+    interface Context {
+        dequeuedValue: number;
+        dispose: (() => void);
+        period: number;
+        prevResult: number;
+        queue: anychart.math.CycledQueue;
+    }
+}
+
+declare namespace anychart.math.cho {
+    function calculate(context: anychart.math.cho.Context, close: number, high: number, low: number, volume: number): number;
+    function calculationFunction(row: anychart.data.TableComputer.RowProxy, context: anychart.math.cho.Context): void;
+    function createComputer(mapping: anychart.data.TableMapping, fastPeriod?: number, slowPeriod?: number, maType?: string): anychart.data.TableComputer;
+    function initContext(fastPeriod?: number, slowPeriod?: number, maType?: string): anychart.math.cho.Context;
+    function startFunction(context: anychart.math.cho.Context): void;
+    interface Context {
+        dispose: (() => void);
+        mfvQueue: anychart.math.CycledQueue;
+        period: number;
+        prevMFVSum: number;
+        prevVolumeSum: number;
+        volumeQueue: anychart.math.CycledQueue;
+    }
+    interface Context {
+        adlContext: anychart.math.adl.Context;
+        dispose: (() => void);
+        fastMAContext: anychart.math.ema.Context | anychart.math.sma.Context;
+        maCalculate: (() => void);
+        maType: anychart.enums.MovingAverageType;
+        slowMAContext: anychart.math.ema.Context | anychart.math.sma.Context;
+    }
+}
+
+declare namespace anychart.math.cmf {
+    function calculate(context: anychart.math.cmf.Context, close: number, high: number, low: number, volume: number): number;
+    function calculationFunction(row: anychart.data.TableComputer.RowProxy, context: anychart.math.cmf.Context): void;
+    function createComputer(mapping: anychart.data.TableMapping, period?: number): anychart.data.TableComputer;
+    function initContext(period?: number): anychart.math.cmf.Context;
+    function startFunction(context: anychart.math.cmf.Context): void;
+    interface Context {
+        mfvQueue: anychart.math.CycledQueue;
+        volumeQueue: anychart.math.CycledQueue;
+        period: number;
+        prevMFVSum: number;
+        prevVolumeSum: number;
+        dispose: (() => void);
+    }
+}
+
+declare namespace anychart.math.dmi {
+    function calculate(context: anychart.math.dmi.Context, close: number, high: number, low: number): Array<number>;
+    function calculationFunction(row: anychart.data.TableComputer.RowProxy, context: anychart.math.dmi.Context): void;
+    function createComputer(mapping: anychart.data.TableMapping, period?: number, adxPeriod?: number, useWildersSmoothing?: boolean): anychart.data.TableComputer;
+    function initContext(period?: number, adxPeriod?: number, useWildersSmoothing?: boolean): anychart.math.dmi.Context;
+    function startFunction(context: anychart.math.dmi.Context): void;
+    interface Context {
+        adxAlpha: number;
+        adxPeriod: number;
+        adxQueue: anychart.math.CycledQueue;
+        adxValue: number;
+        alpha: number;
+        closeQueue: anychart.math.CycledQueue;
+        dispose: (() => void);
+        highQueue: anychart.math.CycledQueue;
+        lowQueue: anychart.math.CycledQueue;
+        ndiSumValue: number;
+        ndiValue: number;
+        pdiSumValue: number;
+        pdiValue: number;
+        period: number;
+        trSumValue: number;
+        useWildersSmoothing: boolean;
+    }
+}
+
 declare namespace anychart.math.ema {
+    function calculate(context: anychart.math.ema.Context, value: number): number;
     function calculationFunction(row: anychart.data.TableComputer.RowProxy, context: anychart.math.ema.Context): void;
     function createComputer(mapping: anychart.data.TableMapping, period?: number): anychart.data.TableComputer;
     function initContext(period?: number): anychart.math.ema.Context;
@@ -20198,7 +22198,30 @@ declare namespace anychart.math.ema {
     }
 }
 
+declare namespace anychart.math.kdj {
+    function calculate(context: anychart.math.kdj.Context, close: number, high: number, low: number): Array<number>;
+    function calculationFunction(row: anychart.data.TableComputer.RowProxy, context: anychart.math.kdj.Context): void;
+    function createComputer(mapping: anychart.data.TableMapping, kPeriod?: number, kMAPeriod?: number, dPeriod?: number, kMAType?: anychart.enums.MovingAverageType, dMAType?: anychart.enums.MovingAverageType, kMultiplier?: number, dMultiplier?: number): anychart.data.TableComputer;
+    function initContext(kPeriod?: number, kMAPeriod?: number, dPeriod?: number, kMAType?: anychart.enums.MovingAverageType, dMAType?: anychart.enums.MovingAverageType, kMultiplier?: number, dMultiplier?: number): anychart.math.kdj.Context;
+    function startFunction(context: anychart.math.kdj.Context): void;
+    interface Context {
+        dMACalculate: (() => void);
+        dMAContext: anychart.math.sma.Context | anychart.math.ema.Context | Object;
+        dMAType: anychart.enums.MovingAverageType;
+        dMultiplier: number;
+        dispose: (() => void);
+        highQueue: anychart.math.CycledQueue;
+        kMACalculate: (() => void);
+        kMAContext: anychart.math.sma.Context | anychart.math.ema.Context | Object;
+        kMAType: anychart.enums.MovingAverageType;
+        kMultiplier: number;
+        kPeriod: number;
+        lowQueue: anychart.math.CycledQueue;
+    }
+}
+
 declare namespace anychart.math.macd {
+    function calculate(context: anychart.math.macd.Context, value: number): Array<number>;
     function calculationFunction(row: anychart.data.TableComputer.RowProxy, context: anychart.math.macd.Context): void;
     function createComputer(mapping: anychart.data.TableMapping, fastPeriod?: number, slowPeriod?: number, signalPeriod?: number): anychart.data.TableComputer;
     function initContext(fastPeriod?: number, slowPeriod?: number, signalPeriod?: number): anychart.math.macd.Context;
@@ -20257,11 +22280,13 @@ declare namespace anychart.math.rsi {
 }
 
 declare namespace anychart.math.sma {
+    function calculate(context: anychart.math.sma.Context, value: number): number;
     function calculationFunction(row: anychart.data.TableComputer.RowProxy, context: anychart.math.sma.Context): void;
     function createComputer(mapping: anychart.data.TableMapping, period?: number): anychart.data.TableComputer;
     function initContext(period?: number): anychart.math.sma.Context;
     function startFunction(context: anychart.math.sma.Context): void;
     interface Context {
+        dequeuedValue: number;
         dispose: (() => void);
         period: number;
         prevResult: number;
@@ -20269,7 +22294,40 @@ declare namespace anychart.math.sma {
     }
 }
 
+declare namespace anychart.math.stochastic {
+    function calculate(context: Object, closeValue: number, highValue: number, lowValue: number): Array<number>;
+    function calculationFunction(row: anychart.data.TableComputer.RowProxy, context: anychart.math.stochastic.Context): void;
+    function createComputer(mapping: anychart.data.TableMapping, kPeriod?: number, kMAPeriod?: number, dPeriod?: number, kMAType?: anychart.enums.MovingAverageType, dMAType?: anychart.enums.MovingAverageType): anychart.data.TableComputer;
+    function initContext(kPeriod?: number, kMAPeriod?: number, dPeriod?: number, kMAType?: anychart.enums.MovingAverageType, dMAType?: anychart.enums.MovingAverageType): anychart.math.stochastic.Context;
+    function startFunction(context: anychart.math.stochastic.Context): void;
+    interface Context {
+        dMACalculate: (() => void);
+        dMAContext: anychart.math.sma.Context | anychart.math.ema.Context | Object;
+        dMAType: anychart.enums.MovingAverageType;
+        dispose: (() => void);
+        highQueue: anychart.math.CycledQueue;
+        kMACalculate: (() => void);
+        kMAContext: anychart.math.sma.Context | anychart.math.ema.Context | Object;
+        kMAType: anychart.enums.MovingAverageType;
+        kPeriod: number;
+        lowQueue: anychart.math.CycledQueue;
+    }
+}
+
 declare namespace anychart.palettes {
+    const blue: Array<string>;
+    const coffee: Array<string>;
+    const defaultPalette: Array<string>;
+    const earth: Array<string>;
+    const glamour: Array<string>;
+    const monochrome: Array<string>;
+    const morning: Array<string>;
+    const pastel: Array<string>;
+    const provence: Array<string>;
+    const sea: Array<string>;
+    const turquoise: Array<string>;
+    const v6: Array<string>;
+    const wines: Array<string>;
     function distinctColors(): anychart.palettes.DistinctColors;
     function hatchFills(): anychart.palettes.HatchFills;
     function markers(): anychart.palettes.Markers;
@@ -20422,6 +22480,8 @@ declare namespace anychart.scales {
         gap(value?: number): anychart.scales.Geo;
         listen(type: string, listener: (() => void), useCapture?: boolean, listenerScope?: Object): Object;
         listenOnce(type: string, listener: (() => void), useCapture?: boolean, listenerScope?: Object): Object;
+        maxTicksCount(): number;
+        maxTicksCount(value?: number): anychart.scales.Geo;
         maximumX(): number;
         maximumX(value?: number): anychart.scales.Geo;
         maximumY(): number;
@@ -20493,6 +22553,8 @@ declare namespace anychart.scales {
         unlistenByKey(key: Object): boolean;
         values(): Array<(number|string)>;
         values(values?: Array<any> | any, ...var_args: (any)[]): anychart.scales.Ordinal;
+        weights(): Array<number>;
+        weights(value?: Array<number>): anychart.scales.Ordinal;
     }
     interface OrdinalColor extends anychart.scales.Base {
         colorToValue(value: string): number;
@@ -20571,6 +22633,8 @@ declare namespace anychart.scales {
         inverted(value?: boolean): anychart.scales.Base;
         listen(type: string, listener: (() => void), useCapture?: boolean, listenerScope?: Object): Object;
         listenOnce(type: string, listener: (() => void), useCapture?: boolean, listenerScope?: Object): Object;
+        maxTicksCount(): number;
+        maxTicksCount(value?: number): anychart.scales.ScatterBase;
         maximum(): number;
         maximum(value?: number): anychart.scales.ScatterBase;
         minimum(): number;
@@ -21215,7 +23279,7 @@ declare namespace anychart.standalones {
         size(value?: number): anychart.core.ui.MarkersFactory;
         stroke(): anychart.graphics.vector.Stroke | string;
         stroke(value?: anychart.graphics.vector.Stroke | string): anychart.core.ui.MarkersFactory;
-        stroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string, thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.ui.MarkersFactory;
+        stroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string, thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.ui.MarkersFactory;
         type(): string | anychart.enums.MarkerType | (() => void);
         type(value?: string | anychart.enums.MarkerType | (() => void)): anychart.core.ui.MarkersFactory;
         unlisten(type: string, listener: (() => void), useCapture?: boolean, listenerScope?: Object): boolean;
@@ -21253,7 +23317,7 @@ declare namespace anychart.standalones {
         size(value?: number): anychart.core.ui.MarkersFactory.Marker;
         stroke(): anychart.graphics.vector.Stroke | string;
         stroke(value?: anychart.graphics.vector.Stroke | string): anychart.core.ui.MarkersFactory.Marker;
-        stroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string, thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.ui.MarkersFactory.Marker;
+        stroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string, thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.ui.MarkersFactory.Marker;
         type(): anychart.enums.MarkerType | (() => void);
         type(value?: anychart.enums.MarkerType | (() => void)): anychart.core.ui.MarkersFactory.Marker;
         unlisten(type: string, listener: (() => void), useCapture?: boolean, listenerScope?: Object): boolean;
@@ -21505,7 +23569,7 @@ declare namespace anychart.standalones {
         right(value?: number | string): anychart.core.VisualBaseWithBounds;
         stroke(): anychart.graphics.vector.Stroke;
         stroke(value: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string): anychart.core.ui.Background;
-        stroke(value: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string, thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.ui.Background;
+        stroke(value: anychart.graphics.vector.Stroke | string, thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.ui.Background;
         top(): number | string;
         top(value?: number | string): anychart.core.VisualBaseWithBounds;
         unlisten(type: string, listener: (() => void), useCapture?: boolean, listenerScope?: Object): boolean;
@@ -21560,16 +23624,14 @@ declare namespace anychart.standalones {
         items(value?: Array<anychart.core.ui.Legend.LegendItemProvider>): anychart.core.ui.Legend;
         itemsFormatter(): (() => void);
         itemsFormatter(value?: (() => void)): anychart.core.ui.Legend;
-        itemsLayout(): anychart.enums.Layout | string;
-        itemsLayout(value?: string | anychart.enums.Layout): anychart.core.ui.Legend;
+        itemsLayout(): anychart.enums.LegendLayout | string;
+        itemsLayout(value?: string | anychart.enums.LegendLayout): anychart.core.ui.Legend;
         itemsSource(): anychart.core.SeparateChart | Array<anychart.core.SeparateChart>;
         itemsSource(value?: anychart.core.SeparateChart | Array<anychart.core.SeparateChart>): anychart.standalones.Legend;
         itemsSourceMode(): string | anychart.enums.LegendItemsSourceMode;
         itemsSourceMode(value?: string | anychart.enums.LegendItemsSourceMode): anychart.core.ui.Legend;
         itemsSpacing(): string | number;
         itemsSpacing(value?: string | number): anychart.core.ui.Legend;
-        itemsTextFormatter(): (() => void);
-        itemsTextFormatter(value?: (() => void)): anychart.core.ui.Legend;
         letterSpacing(): string | number;
         letterSpacing(value?: string | number): anychart.core.Text;
         lineHeight(): string | number;
@@ -21607,8 +23669,8 @@ declare namespace anychart.standalones {
         textWrap(value?: anychart.graphics.vector.Text.TextWrap | string): anychart.core.Text;
         title(): anychart.core.ui.Title;
         title(value?: boolean | Object | string): anychart.core.ui.Legend;
-        titleFormatter(): (() => void);
-        titleFormatter(value?: (() => void)): anychart.core.ui.Legend;
+        titleFormat(): string | (() => void);
+        titleFormat(value?: string | (() => void)): anychart.core.ui.Legend;
         titleSeparator(): anychart.core.ui.Separator;
         titleSeparator(value?: Object | boolean): anychart.core.ui.Legend;
         tooltip(): anychart.core.ui.Tooltip;
@@ -21708,7 +23770,7 @@ declare namespace anychart.standalones {
     }
     interface Table extends anychart.core.ui.Table {
         border(): anychart.core.ui.table.Border;
-        border(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string, thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.ui.Table;
+        border(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string, thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.ui.Table;
         bottom(): number | string;
         bottom(value?: number | string): anychart.core.VisualBaseWithBounds;
         bounds(): anychart.core.utils.Bounds;
@@ -21895,9 +23957,6 @@ declare namespace anychart.standalones {
         selectable(value?: boolean): anychart.core.Text;
         textDirection(): anychart.graphics.vector.Text.Direction | string;
         textDirection(value?: anychart.graphics.vector.Text.Direction | string): anychart.core.Text;
-        textFormatter(): (() => void) | string;
-        textFormatter(value?: string): anychart.core.ui.LabelsFactory;
-        textFormatter(value?: (() => void)): anychart.core.ui.LabelsFactory;
         textIndent(): number;
         textIndent(value?: number): anychart.core.Text;
         textOverflow(): anychart.graphics.vector.Text.TextOverflow | string;
@@ -21983,7 +24042,7 @@ declare namespace anychart.standalones {
         right(): number | string;
         right(value?: number | string): anychart.core.VisualBaseWithBounds;
         stroke(): anychart.graphics.vector.Stroke;
-        stroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string, thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.resource.ResourceList;
+        stroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string, thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.resource.ResourceList;
         tags(): anychart.core.resource.resourceList.TagsSettings;
         tags(value?: Object): anychart.core.resource.ResourceList;
         top(): number | string;
@@ -22011,7 +24070,7 @@ declare namespace anychart.standalones.axes {
         enabled(): boolean;
         enabled(value?: boolean): anychart.core.VisualBase;
         getRemainingBounds(): anychart.math.Rect;
-        labels(): anychart.core.ui.LabelsFactory;
+        labels(): anychart.core.ui.CircularLabelsFactory;
         labels(value?: Object | boolean): anychart.core.axes.Polar;
         listen(type: string, listener: (() => void), useCapture?: boolean, listenerScope?: Object): Object;
         listenOnce(type: string, listener: (() => void), useCapture?: boolean, listenerScope?: Object): Object;
@@ -22102,6 +24161,8 @@ declare namespace anychart.standalones.axes {
         drawLastLabel(value?: boolean): anychart.core.axes.Radial;
         enabled(): boolean;
         enabled(value?: boolean): anychart.core.VisualBase;
+        innerRadius(): string | number;
+        innerRadius(value?: string | number): anychart.standalones.axes.Radial;
         labels(): anychart.core.ui.LabelsFactory;
         labels(value?: Object | boolean): anychart.core.axes.Radial;
         listen(type: string, listener: (() => void), useCapture?: boolean, listenerScope?: Object): Object;
@@ -22333,10 +24394,12 @@ declare namespace anychart.standalones.grids {
         evenFill(keys: Array<(anychart.graphics.vector.GradientKey|string)>, angle?: number, mode?: boolean | anychart.graphics.vector.Rect | Object, opacity?: number): anychart.core.grids.Polar;
         evenFill(keys: Array<(anychart.graphics.vector.GradientKey|string)>, cx: number, cy: number, mode?: anychart.graphics.math.Rect, opacity?: number, fx?: number, fy?: number): anychart.core.grids.Polar;
         evenFill(imageSettings: anychart.graphics.vector.Fill): anychart.core.grids.Polar;
+        innerRadius(): string | number;
+        innerRadius(value?: string | number): anychart.core.grids.Polar;
         isMinor(): boolean;
         isMinor(value?: boolean): anychart.core.grids.Polar;
         isRadial(): boolean;
-        layout(): anychart.enums.RadialGridLayout;
+        layout(): anychart.enums.RadialGridLayout | string;
         layout(value?: anychart.enums.RadialGridLayout | string): anychart.core.grids.Polar;
         listen(type: string, listener: (() => void), useCapture?: boolean, listenerScope?: Object): Object;
         listenOnce(type: string, listener: (() => void), useCapture?: boolean, listenerScope?: Object): Object;
@@ -22375,7 +24438,7 @@ declare namespace anychart.standalones.grids {
         isHorizontal(): boolean;
         isMinor(): boolean;
         isMinor(value?: boolean): anychart.core.grids.Linear;
-        layout(): anychart.enums.Layout;
+        layout(): anychart.enums.Layout | string;
         layout(value?: anychart.enums.Layout | string): anychart.core.grids.Linear;
         listen(type: string, listener: (() => void), useCapture?: boolean, listenerScope?: Object): Object;
         listenOnce(type: string, listener: (() => void), useCapture?: boolean, listenerScope?: Object): Object;
@@ -22409,10 +24472,12 @@ declare namespace anychart.standalones.grids {
         evenFill(keys: Array<(anychart.graphics.vector.GradientKey|string)>, angle?: number, mode?: boolean | anychart.graphics.vector.Rect | Object, opacity?: number): anychart.core.grids.Radar;
         evenFill(keys: Array<(anychart.graphics.vector.GradientKey|string)>, cx: number, cy: number, mode?: anychart.graphics.math.Rect, opacity?: number, fx?: number, fy?: number): anychart.core.grids.Radar;
         evenFill(imageSettings: anychart.graphics.vector.Fill): anychart.core.grids.Radar;
+        innerRadius(): string | number;
+        innerRadius(value?: string | number): anychart.core.grids.Radar;
         isMinor(): boolean;
         isMinor(value?: boolean): anychart.core.grids.Radar;
         isRadial(): boolean;
-        layout(): anychart.enums.RadialGridLayout;
+        layout(): anychart.enums.RadialGridLayout | string;
         layout(value?: anychart.enums.RadialGridLayout | string): anychart.core.grids.Radar;
         listen(type: string, listener: (() => void), useCapture?: boolean, listenerScope?: Object): Object;
         listenOnce(type: string, listener: (() => void), useCapture?: boolean, listenerScope?: Object): Object;
@@ -22425,34 +24490,12 @@ declare namespace anychart.standalones.grids {
         print(paperSizeOrOptions?: anychart.graphics.vector.PaperSize | Object, landscape?: boolean): void;
         removeAllListeners(type?: string): number;
         stroke(): string | anychart.graphics.vector.Stroke;
-        stroke(value?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string, thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.grids.Radar;
+        stroke(color?: anychart.graphics.vector.Stroke | anychart.graphics.vector.ColoredFill | string, thickness?: number, dashpattern?: string, lineJoin?: anychart.graphics.vector.StrokeLineJoin, lineCap?: anychart.graphics.vector.StrokeLineCap): anychart.core.grids.Radar;
         unlisten(type: string, listener: (() => void), useCapture?: boolean, listenerScope?: Object): boolean;
         unlistenByKey(key: Object): boolean;
-        xScale(): anychart.scales.Ordinal;
-        yScale(): anychart.scales.Base;
         zIndex(): number;
         zIndex(value?: number): anychart.core.VisualBase;
     }
-}
-
-declare namespace anychart.themes {
-    const coffee: Object;
-    const darkBlue: Object;
-    const darkEarth: Object;
-    const darkGlamour: Object;
-    const darkProvence: Object;
-    const darkTurquoise: Object;
-    const defaultTheme: Object;
-    const lightBlue: Object;
-    const lightEarth: Object;
-    const lightGlamour: Object;
-    const lightProvence: Object;
-    const lightTurquoise: Object;
-    const morning: Object;
-    const pastel: Object;
-    const sea: Object;
-    const v6: Object;
-    const wines: Object;
 }
 
 declare namespace anychart.ui {
@@ -22460,8 +24503,7 @@ declare namespace anychart.ui {
     function contextMenu(): anychart.ui.ContextMenu;
     function ganttToolbar(): anychart.ui.GanttToolbar;
     function preloader(): anychart.ui.Preloader;
-    function rangeSelector(): anychart.ui.RangeSelector;
-    function rangePicker(): anychart.ui.RangePicker;
+    function zoom(): anychart.ui.Zoom;
     interface RangePicker {
         decorate(value: Element): void;
         dispose(): void;
@@ -22474,6 +24516,12 @@ declare namespace anychart.ui {
         target(chart: anychart.charts.Stock): void;
         toLabelText(): string;
         toLabelText(value?: string): anychart.ui.RangePicker;
+    }
+    interface Zoom {
+        decorate(value: Element): void;
+        dispose(): void;
+        render(parentElement?: anychart.charts.Map | Element): void;
+        target(chart: anychart.charts.Map): void;
     }
     interface RangeSelector {
         decorate(value: Element): void;
@@ -22521,8 +24569,8 @@ declare namespace anychart.ui {
         hide(): void;
         items(): Array<anychart.ui.ContextMenu.Item>;
         items(value?: Array<anychart.ui.ContextMenu.Item>): anychart.ui.ContextMenu;
-        itemsFormatter(): (() => void);
-        itemsFormatter(value?: (() => void)): anychart.ui.ContextMenu;
+        itemsFormat(): (() => void);
+        itemsFormat(value?: (() => void)): anychart.ui.ContextMenu;
         itemsProvider(): (() => void);
         itemsProvider(value?: (() => void)): anychart.ui.ContextMenu;
         listen(type: string, listener: (() => void), useCapture?: boolean, listenerScope?: Object): Object;

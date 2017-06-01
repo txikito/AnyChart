@@ -540,7 +540,7 @@ anychart.charts.Map.prototype.interactivity_;
 //region --- Infrastructure
 /** @inheritDoc */
 anychart.charts.Map.prototype.getVersionHistoryLink = function() {
-  return 'http://anychart.com/products/anymap/history';
+  return 'https://anychart.com/products/anymap/history';
 };
 
 
@@ -5363,6 +5363,10 @@ anychart.charts.Map.prototype.disposeInternal = function() {
   proto['zoomTo'] = proto.zoomTo;
   proto['getZoomLevel'] = proto.getZoomLevel;
   proto['maxZoomLevel'] = proto.maxZoomLevel;
+  proto['getCurrentScene'] = proto.getCurrentScene;
+  proto['fitAll'] = proto.fitAll;
+  proto['zoomIn'] = proto.zoomIn;
+  proto['zoomOut'] = proto.zoomOut;
   // proto['minZoomLevel'] = proto.minZoomLevel;
   //drilling
   proto['drillTo'] = proto.drillTo;
