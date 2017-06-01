@@ -170,7 +170,8 @@ anychart.enums.HoverMode = {
  * @return {anychart.enums.HoverMode}
  */
 anychart.enums.normalizeHoverMode = function(value, opt_default) {
-  return /** @type {anychart.enums.HoverMode} */(anychart.enums.normalizeValues(anychart.enums.HoverMode, value, opt_default)) || anychart.enums.HoverMode.BY_X;
+  return /** @type {anychart.enums.HoverMode} */(anychart.enums.normalizeValues(anychart.enums.HoverMode, value, opt_default)) ||
+      anychart.enums.HoverMode.BY_X;
 };
 
 
@@ -2478,7 +2479,7 @@ anychart.enums.normalizeInterval = function(value, opt_default, opt_allowDateOnl
     case 'millisecond':
       return opt_allowDateOnly ? anychart.enums.Interval.DAY : anychart.enums.Interval.MILLISECOND;
   }
-  opt_default = anychart.enums.normalizeInterval(anychart.enums.Interval, opt_default);
+  opt_default = anychart.enums.normalizeInterval(opt_default, void 0, opt_allowDateOnly);
   return /** @type {anychart.enums.Interval} */(anychart.enums.normalizeValues(anychart.enums.Interval, value, opt_default)) ||
       anychart.enums.Interval.YEAR;
 };
@@ -4686,19 +4687,8 @@ anychart.enums.AvailabilityPeriod = {
  * @return {anychart.enums.AvailabilityPeriod}
  */
 anychart.enums.normalizeAvailabilityPeriod = function(value) {
-  value = String(value).toLowerCase();
-  switch (value) {
-    case 'y':
-    case 'year':
-      return anychart.enums.AvailabilityPeriod.YEAR;
-    case 'w':
-    case 'week':
-      return anychart.enums.AvailabilityPeriod.WEEK;
-    case 'd':
-    case 'day':
-      return anychart.enums.AvailabilityPeriod.DAY;
-  }
-  return anychart.enums.AvailabilityPeriod.NONE;
+  return /** @type {anychart.enums.AvailabilityPeriod} */(anychart.enums.normalizeValues(anychart.enums.AvailabilityPeriod, value)) ||
+      anychart.enums.AvailabilityPeriod.NONE;
 };
 
 
@@ -4727,17 +4717,7 @@ anychart.enums.TimeTrackingMode = {
  * @return {anychart.enums.TimeTrackingMode}
  */
 anychart.enums.normalizeTimeTrackingMode = function(value) {
-  value = String(value).toLowerCase();
-  switch (value) {
-    case 'availabilityperchart':
-      return anychart.enums.TimeTrackingMode.AVAILABILITY_PER_CHART;
-    case 'availabilityperresource':
-      return anychart.enums.TimeTrackingMode.AVAILABILITY_PER_RESOURCE;
-    case 'activityperchart':
-      return anychart.enums.TimeTrackingMode.ACTIVITY_PER_CHART;
-    //case 'activityperresource':
-    default:
-      return anychart.enums.TimeTrackingMode.ACTIVITY_PER_RESOURCE;
-  }
+  return /** @type {anychart.enums.TimeTrackingMode} */(anychart.enums.normalizeValues(anychart.enums.TimeTrackingMode, value)) ||
+      anychart.enums.TimeTrackingMode.ACTIVITY_PER_RESOURCE;
 };
 //endregion
