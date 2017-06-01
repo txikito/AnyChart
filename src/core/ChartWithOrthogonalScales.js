@@ -177,7 +177,10 @@ anychart.core.ChartWithOrthogonalScales.prototype.allowLegendCategoriesMode = fu
  * @return {boolean}
  */
 anychart.core.ChartWithOrthogonalScales.prototype.checkXScaleType = function(scale) {
-  return (scale instanceof anychart.scales.Base) && !scale.isColorScale();
+  var res = (scale instanceof anychart.scales.Base) && !scale.isColorScale();
+  if (!res)
+    anychart.core.reporting.error(anychart.enums.ErrorCode.INCORRECT_SCALE_TYPE, undefined, ['Chart scale', 'ordinal, linear, log, datetime']);
+  return res;
 };
 
 
