@@ -2479,7 +2479,8 @@ anychart.enums.normalizeInterval = function(value, opt_default, opt_allowDateOnl
     case 'millisecond':
       return opt_allowDateOnly ? anychart.enums.Interval.DAY : anychart.enums.Interval.MILLISECOND;
   }
-  opt_default = anychart.enums.normalizeInterval(opt_default, void 0, opt_allowDateOnly);
+  if (goog.isDefAndNotNull(opt_default))
+    opt_default = anychart.enums.normalizeInterval(opt_default, void 0, opt_allowDateOnly);
   return /** @type {anychart.enums.Interval} */(anychart.enums.normalizeValues(anychart.enums.Interval, value, opt_default)) ||
       anychart.enums.Interval.YEAR;
 };
