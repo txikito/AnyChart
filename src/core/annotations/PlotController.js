@@ -256,6 +256,7 @@ anychart.core.annotations.PlotController.prototype.draw = function() {
 anychart.core.annotations.PlotController.prototype.initDragger_ = function(e) {
   if (!this.dragger_) {
     this.dragger_ = new anychart.core.annotations.PlotController.AnchorDragger(this);
+    this.dragger_.setParentEventTarget(this);
     if (e.type == acgraph.events.EventType.TOUCHSTART)
       this.dragger_.startDrag(e.getOriginalEvent());
   }
