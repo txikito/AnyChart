@@ -256,7 +256,6 @@ anychart.core.annotations.PlotController.prototype.draw = function() {
 anychart.core.annotations.PlotController.prototype.initDragger_ = function(e) {
   if (!this.dragger_) {
     this.dragger_ = new anychart.core.annotations.PlotController.AnchorDragger(this);
-    this.dragger_.setParentEventTarget(this);
     if (e.type == acgraph.events.EventType.TOUCHSTART)
       this.dragger_.startDrag(e.getOriginalEvent());
   }
@@ -1146,7 +1145,11 @@ goog.inherits(anychart.core.annotations.PlotController.AnchorDragger, goog.fx.Dr
 /** @inheritDoc */
 anychart.core.annotations.PlotController.AnchorDragger.prototype.startDrag = function(e) {
   if (this.extractTarget(e)) {
-    if (this.annotation_.isFinished()) {
+    if (this.annotation_.isFinished() &&
+        this.controller_.getController().getChart().dispatchEvent({
+          'type': anychart.enums.EventType.ANNOTATION_CHANGE_START,
+          'annotation': this.annotation_
+        })) {
       anychart.core.annotations.PlotController.AnchorDragger.base(this, 'startDrag', e);
       if (this.isDragging())
         e.stopPropagation();
@@ -1198,7 +1201,11 @@ anychart.core.annotations.PlotController.AnchorDragger.prototype.computeInitialP
 
 /** @inheritDoc */
 anychart.core.annotations.PlotController.AnchorDragger.prototype.defaultAction = function(x, y) {
-  this.annotation_.moveAnchor(this.anchorId_, x, y);
+  if (this.controller_.getController().getChart().dispatchEvent({
+        'type': anychart.enums.EventType.ANNOTATION_CHANGE,
+        'annotation': this.annotation_
+      }))
+    this.annotation_.moveAnchor(this.anchorId_, x, y);
 };
 
 
@@ -1219,11 +1226,16 @@ anychart.core.annotations.PlotController.AnchorDragger.prototype.handleDragStart
  * @private
  */
 anychart.core.annotations.PlotController.AnchorDragger.prototype.handleDragEnd_ = function(e) {
+  var annotation = this.annotation_;
   this.annotation_.invalidate(anychart.ConsistencyState.ANNOTATIONS_ANCHORS);
   this.annotation_.draw();
   this.annotation_ = null;
   this.anchorId_ = NaN;
   this.controller_.preventHighlight(false);
+  this.controller_.getController().getChart().dispatchEvent({
+    'type': anychart.enums.EventType.ANNOTATION_CHANGE_FINISH,
+    'annotation': annotation
+  });
 };
 
 
