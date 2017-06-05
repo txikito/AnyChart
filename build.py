@@ -718,6 +718,7 @@ def __build_themes():
 
 def __exec_build_theme(theme, is_source):
     output_file_postfix = '.js' if is_source else '.min.js'
+    theme_out_path = os.path.join(OUT_PATH, 'themes')
     commands = ['java -Xmx%sM -jar' % JAVA_HEAP_SIZE,
                 COMPILER_PATH,
                 '--charset UTF-8',
@@ -729,7 +730,7 @@ def __exec_build_theme(theme, is_source):
                 '--extra_annotation_name "ignoreDoc"',
                 '--extra_annotation_name "propertyDoc"',
                 '--extra_annotation_name "shortDescription"',
-                "--js_output_file %s" % os.path.join(OUT_PATH, theme + output_file_postfix)]
+                "--js_output_file %s" % os.path.join(theme_out_path, theme + output_file_postfix)]
     commands += __get_optimized_compiler_args()
 
     commands += __get_roots()
@@ -737,7 +738,7 @@ def __exec_build_theme(theme, is_source):
     __call_console_commands(commands)
 
     if is_source:
-        __js_beautifier(os.path.join(OUT_PATH, theme + output_file_postfix))
+        __js_beautifier(os.path.join(theme_out_path, theme + output_file_postfix))
 
 
 # =======================================================================================================================
