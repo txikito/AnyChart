@@ -327,6 +327,7 @@ anychart.core.series.HeatMap.prototype.createPositionProviderByGeometry = functi
 
 /** @inheritDoc */
 anychart.core.series.HeatMap.prototype.drawLabel = function(point, pointState, pointStateChanged) {
+  if(point.currentIndex == 5) debugger;
   var displayMode = (/** @type {anychart.charts.HeatMap} */(this.chart)).labelsDisplayMode();
   var label = this.drawFactoryElement(
       [this.labels, this.hoverLabels, this.selectLabels],
@@ -373,12 +374,13 @@ anychart.core.series.HeatMap.prototype.drawLabel = function(point, pointState, p
       var clipBounds = displayMode == anychart.enums.LabelsDisplayMode.ALWAYS_SHOW ?
           this.pixelBoundsCache :
           goog.math.Rect.intersection(this.pixelBoundsCache, /** @type {goog.math.Rect} */ (cellBounds));
-      if (clipBounds)
+      if (clipBounds) {
         label['clip'](clipBounds);
-    }
 
-    if (pointStateChanged)
-      label.draw();
+        if (pointStateChanged)
+          label.draw();
+      }
+    }
   }
   point.meta('label', label);
 };
