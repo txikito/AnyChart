@@ -449,7 +449,7 @@ anychart.charts.Stock.prototype.createSeriesConfig = function(allowColoring) {
     anchoredPositionTop: 'value',
     anchoredPositionBottom: 'value'
   };
-  res[anychart.enums.CartesianSeriesType.HILO] = {
+  res[anychart.enums.StockSeriesType.HILO] = {
     drawerType: anychart.enums.SeriesDrawerTypes.RANGE_STICK,
     shapeManagerType: anychart.enums.ShapeManagerTypes.PER_POINT,
     shapesConfig: [
