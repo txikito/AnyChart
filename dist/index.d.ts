@@ -1,4 +1,4 @@
-// Type definitions for anychart vDVF-3046_csv
+// Type definitions for anychart
 // Project: http://anychart.com/
 // Definitions by: AnyChart <http://anychart.com>
 // Definitions: https://github.com/DefinitelyTyped/DefinitelyType
