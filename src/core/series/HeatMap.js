@@ -370,10 +370,11 @@ anychart.core.series.HeatMap.prototype.drawLabel = function(point, pointState, p
     }
 
     if (label) {
-      label['clip'](displayMode == anychart.enums.LabelsDisplayMode.ALWAYS_SHOW ?
-          this.pixelBoundsCache : goog.math.Rect.intersection(this.pixelBoundsCache, /** @type {goog.math.Rect} */ (cellBounds)));
-      // label['width'](cellBounds.width);
-      // label['height'](cellBounds.height);
+      var clipBounds = displayMode == anychart.enums.LabelsDisplayMode.ALWAYS_SHOW ?
+          this.pixelBoundsCache :
+          goog.math.Rect.intersection(this.pixelBoundsCache, /** @type {goog.math.Rect} */ (cellBounds));
+      if (clipBounds)
+        label['clip'](clipBounds);
     }
 
     if (pointStateChanged)
