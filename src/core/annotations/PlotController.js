@@ -1145,14 +1145,19 @@ goog.inherits(anychart.core.annotations.PlotController.AnchorDragger, goog.fx.Dr
 /** @inheritDoc */
 anychart.core.annotations.PlotController.AnchorDragger.prototype.startDrag = function(e) {
   if (this.extractTarget(e)) {
-    if (this.annotation_.isFinished() &&
-        this.controller_.getController().getChart().dispatchEvent({
-          'type': anychart.enums.EventType.ANNOTATION_CHANGE_START,
-          'annotation': this.annotation_
-        })) {
-      anychart.core.annotations.PlotController.AnchorDragger.base(this, 'startDrag', e);
-      if (this.isDragging())
+    if (this.annotation_.isFinished()) {
+      if (this.controller_.getController().getChart().dispatchEvent({
+            'type': anychart.enums.EventType.ANNOTATION_CHANGE_START,
+            'annotation': this.annotation_
+          })) {
+        anychart.core.annotations.PlotController.AnchorDragger.base(this, 'startDrag', e);
+        if (this.isDragging())
+          e.stopPropagation();
+      } else {
+        this.annotation_ = null;
+        this.anchorId_ = NaN;
         e.stopPropagation();
+      }
     } else { // we should just select the annotation and the ChartController will do the trick, no drag
       this.controller_.controller_.select(this.annotation_);
       this.annotation_ = null;
