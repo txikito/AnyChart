@@ -2542,7 +2542,8 @@ anychart.enums.StockSeriesType = {
   STEP_AREA: 'stepArea',
   STEP_LINE: 'stepLine',
   JUMP_LINE: 'jumpLine',
-  STICK: 'stick'
+  STICK: 'stick',
+  HILO: 'hilo'
 };
 
 
@@ -2595,6 +2596,8 @@ anychart.enums.normalizeStockSeriesType = function(value, opt_default) {
       return anychart.enums.StockSeriesType.STEP_AREA;
     case 'stepline':
       return anychart.enums.StockSeriesType.STEP_LINE;
+    case 'hilo':
+      return anychart.enums.StockSeriesType.HILO;
   }
   return opt_default || anychart.enums.StockSeriesType.LINE;
 };
