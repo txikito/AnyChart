@@ -378,6 +378,8 @@ anychart.core.series.HeatMap.prototype.drawLabel = function(point, pointState, p
 
         if (pointStateChanged)
           label.draw();
+      } else {
+        this.labels().clear(label.getIndex());
       }
     }
   }
