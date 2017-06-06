@@ -18,44 +18,44 @@ goog.provide('anychart.enums');
  */
 anychart.enums.ChartTypes = {
   AREA: 'area',
-  VERTICAL_AREA: 'verticalArea',
-  AREA_3D: 'area3d',
+  VERTICAL_AREA: 'vertical-area',
+  AREA_3D: 'area-3d',
   BAR: 'bar',
-  BAR_3D: 'bar3d',
+  BAR_3D: 'bar-3d',
   BOX: 'box',
   BUBBLE: 'bubble',
   BULLET: 'bullet',
   CARTESIAN: 'cartesian',
-  CARTESIAN_3D: 'cartesian3d',
+  CARTESIAN_3D: 'cartesian-3d',
   COLUMN: 'column',
-  COLUMN_3D: 'column3d',
+  COLUMN_3D: 'column-3d',
   FINANCIAL: 'financial',
   FUNNEL: 'funnel',
   LINE: 'line',
-  VERTICAL_LINE: 'verticalLine',
+  VERTICAL_LINE: 'vertical-line',
   MARKER: 'marker',
   PIE: 'pie',
-  PIE_3D: 'pie3d',
+  PIE_3D: 'pie-3d',
   POLAR: 'polar',
   PYRAMID: 'pyramid',
   RADAR: 'radar',
   SCATTER: 'scatter',
   SPARKLINE: 'sparkline',
-  HEAT_MAP: 'heatMap',
-  TREE_MAP: 'treeMap',
+  HEAT_MAP: 'heat-map',
+  TREE_MAP: 'tree-map',
   STOCK: 'stock',
   PERT: 'pert',
-  GANTT_RESOURCE: 'ganttResource',
-  GANTT_PROJECT: 'ganttProject',
+  GANTT_RESOURCE: 'gantt-resource',
+  GANTT_PROJECT: 'gantt-project',
   RESOURCE: 'resource',
-  JUMP_LINE: 'jumpLine',
+  JUMP_LINE: 'jump-line',
   STICK: 'stick',
   PARETO: 'pareto',
   QUADRANT: 'quadrant',
   MEKKO: 'mekko',
   MOSAIC: 'mosaic',
   BARMEKKO: 'barmekko',
-  TAG_CLOUD: 'tagCloud',
+  TAG_CLOUD: 'tag-cloud',
   VENN: 'venn',
   HILO: 'hilo',
   WATERFALL: 'waterfall'
@@ -73,11 +73,11 @@ anychart.enums.ChartTypes = {
  */
 anychart.enums.GaugeTypes = {
   CIRCULAR: 'circular',
-  LINEAR: 'linearGauge',
+  LINEAR: 'linear-gauge',
   BULLET: 'bullet',
-  THERMOMETER: 'thermometerGauge',
-  TANK: 'tankGauge',
-  LED: 'ledGauge'
+  THERMOMETER: 'thermometer-gauge',
+  TANK: 'tank-gauge',
+  LED: 'led-gauge'
 };
 
 
@@ -96,7 +96,7 @@ anychart.enums.MapTypes = {
   BUBBLE: 'bubble',
   MARKER: 'marker',
   CONNECTOR: 'connector',
-  SEAT_MAP: 'seatMap'
+  SEAT_MAP: 'seat-map'
 };
 
 
@@ -106,8 +106,8 @@ anychart.enums.MapTypes = {
  */
 anychart.enums.MapGeoDataTypes = {
   SVG: 'svg',
-  TOPO_JSON: 'topojson',
-  GEO_JSON: 'geojson'
+  TOPO_JSON: 'topo-json',
+  GEO_JSON: 'geo-json'
 };
 
 
@@ -116,7 +116,7 @@ anychart.enums.MapGeoDataTypes = {
  * @enum {string}
  */
 anychart.enums.MapUnboundRegionsMode = {
-  AS_IS: 'asis',
+  AS_IS: 'as-is',
   HIDE: 'hide'
 };
 
@@ -157,8 +157,8 @@ anychart.enums.normalizeMapUnboundRegionsMode = function(value, opt_default) {
  * @enum {string}
  */
 anychart.enums.HoverMode = {
-  BY_SPOT: 'bySpot',
-  BY_X: 'byX',
+  BY_SPOT: 'by-spot',
+  BY_X: 'by-x',
   SINGLE: 'single'
 };
 
@@ -181,9 +181,9 @@ anychart.enums.normalizeHoverMode = function(value, opt_default) {
  */
 anychart.enums.SelectionMode = {
   NONE: 'none',
-  SINGLE_SELECT: 'singleSelect',
-  MULTI_SELECT: 'multiSelect',
-  DRILL_DOWN: 'drillDown'
+  SINGLE_SELECT: 'single-select',
+  MULTI_SELECT: 'multi-select',
+  DRILL_DOWN: 'drill-down'
 };
 
 
@@ -319,31 +319,31 @@ anychart.enums.normalizeCursor = function(value, opt_default) {
  */
 anychart.enums.Anchor = {
   /** The left-top anchor of the element. */
-  LEFT_TOP: 'leftTop',
+  LEFT_TOP: 'left-top',
 
   /** The left-center anchor of the element. */
-  LEFT_CENTER: 'leftCenter',
+  LEFT_CENTER: 'left-center',
 
   /** The left-bottom anchor of the element. */
-  LEFT_BOTTOM: 'leftBottom',
+  LEFT_BOTTOM: 'left-bottom',
 
   /** The center-top anchor of the element. */
-  CENTER_TOP: 'centerTop',
+  CENTER_TOP: 'center-top',
 
   /** The center anchor of the element. */
   CENTER: 'center',
 
   /** The center-bottom anchor of the element. */
-  CENTER_BOTTOM: 'centerBottom',
+  CENTER_BOTTOM: 'center-bottom',
 
   /** The right-top anchor of the element. */
-  RIGHT_TOP: 'rightTop',
+  RIGHT_TOP: 'right-top',
 
   /** The right-center anchor of the element.*/
-  RIGHT_CENTER: 'rightCenter',
+  RIGHT_CENTER: 'right-center',
 
   /** The right-bottom anchor of the element. */
-  RIGHT_BOTTOM: 'rightBottom',
+  RIGHT_BOTTOM: 'right-bottom',
 
   /** Auto anchor of the element. Flips anchor depends on position. */
   AUTO: 'auto'
@@ -402,31 +402,31 @@ anychart.enums.normalizeAnchor = function(value, opt_default) {
  */
 anychart.enums.Position = {
   /** The left-top position of the element. */
-  LEFT_TOP: 'leftTop',
+  LEFT_TOP: 'left-top',
 
   /** The left-center position of the element. */
-  LEFT_CENTER: 'leftCenter',
+  LEFT_CENTER: 'left-center',
 
   /** The left-bottom position of the element. */
-  LEFT_BOTTOM: 'leftBottom',
+  LEFT_BOTTOM: 'left-bottom',
 
   /** The center-top position of the element. */
-  CENTER_TOP: 'centerTop',
+  CENTER_TOP: 'center-top',
 
   /** The center position of the element. */
   CENTER: 'center',
 
   /** The center-bottom position of the element. */
-  CENTER_BOTTOM: 'centerBottom',
+  CENTER_BOTTOM: 'center-bottom',
 
   /** The right-top position of the element. */
-  RIGHT_TOP: 'rightTop',
+  RIGHT_TOP: 'right-top',
 
   /** The right-center position of the element.*/
-  RIGHT_CENTER: 'rightCenter',
+  RIGHT_CENTER: 'right-center',
 
   /** The right-bottom position of the element. */
-  RIGHT_BOTTOM: 'rightBottom'
+  RIGHT_BOTTOM: 'right-bottom'
 };
 
 
@@ -448,8 +448,8 @@ anychart.enums.normalizePosition = function(value, opt_default) {
  * @enum {string}
  */
 anychart.enums.ChartScrollerPosition = {
-  BEFORE_AXES: 'beforeAxes',
-  AFTER_AXES: 'afterAxes'
+  BEFORE_AXES: 'before-axes',
+  AFTER_AXES: 'after-axes'
 };
 
 
@@ -562,11 +562,11 @@ anychart.enums.LegendLayout = {
   /**
    * Places legend items one by one in vertical columns.
    */
-  VERTICAL_EXPANDABLE: 'verticalexpandable',
+  VERTICAL_EXPANDABLE: 'vertical-expandable',
   /**
    * Places legend items one by one in horizontal rows.
    */
-  HORIZONTAL_EXPANDABLE: 'horizontalexpandable'
+  HORIZONTAL_EXPANDABLE: 'horizontal-expandable'
 };
 
 
@@ -762,7 +762,7 @@ anychart.enums.MarkerType = {
    *      .height(30)
    *      .triangleUp(stage.width()/2, stage.height()/2, stage.height()/2-5);
    */
-  TRIANGLE_UP: 'triangleUp',
+  TRIANGLE_UP: 'triangle-up',
   /**
    * @illustration
    * stage.width(200)
@@ -776,9 +776,9 @@ anychart.enums.MarkerType = {
    *      .height(30)
    *      .triangleDown(stage.width()/2, stage.height()/2, stage.height()/2-5);
    */
-  TRIANGLE_DOWN: 'triangleDown',
-  TRIANGLE_RIGHT: 'triangleRight',
-  TRIANGLE_LEFT: 'triangleLeft',
+  TRIANGLE_DOWN: 'triangle-down',
+  TRIANGLE_RIGHT: 'triangle-right',
+  TRIANGLE_LEFT: 'triangle-left',
   /**
    * @illustration
    * stage.width(200)
@@ -792,7 +792,7 @@ anychart.enums.MarkerType = {
    *      .height(30)
    *      .diagonalCross(stage.width()/2, stage.height()/2, stage.height()/2-5);
    */
-  DIAGONAL_CROSS: 'diagonalCross',
+  DIAGONAL_CROSS: 'diagonal-cross',
   /**
    * @illustration
    * stage.width(200)
@@ -831,12 +831,12 @@ anychart.enums.MarkerType = {
   PENTAGON: 'pentagon',
   TRAPEZIUM: 'trapezium',
   LINE: 'line',
-  V_LINE: 'vline',
+  V_LINE: 'v-line',
   ARROWHEAD: 'arrowhead',
-  ARROW_UP: 'arrowUp',
-  ARROW_RIGHT: 'arrowRight',
-  ARROW_DOWN: 'arrowDown',
-  ARROW_LEFT: 'arrowLeft'
+  ARROW_UP: 'arrow-up',
+  ARROW_RIGHT: 'arrow-right',
+  ARROW_DOWN: 'arrow-down',
+  ARROW_LEFT: 'arrow-left'
 };
 
 
@@ -927,7 +927,7 @@ anychart.enums.TreeFillingMethod = {
    *  ];
    * [/code]
    */
-  AS_TREE: 'asTree',
+  AS_TREE: 'as-tree',
 
   /**
    * Using this method means that the original data will be treated as a linear array of objects each of which
@@ -952,7 +952,7 @@ anychart.enums.TreeFillingMethod = {
    *  ];
    * [/code]
    */
-  AS_TABLE: 'asTable'
+  AS_TABLE: 'as-table'
 };
 
 
@@ -969,12 +969,12 @@ anychart.enums.LabelsOverlapMode = {
   /**
    * Forbids labels overlapping.
    */
-  NO_OVERLAP: 'noOverlap',
+  NO_OVERLAP: 'no-overlap',
   /**
    * Allows labels to overlap.
    */
-  ALLOW_OVERLAP: 'allowOverlap',
-  AUTO_WIDTH: 'autoWidth'
+  ALLOW_OVERLAP: 'allow-overlap',
+  AUTO_WIDTH: 'auto-width'
 };
 
 
@@ -1001,19 +1001,19 @@ anychart.enums.StockLabelsOverlapMode = {
   /**
    * Forbids labels overlapping.
    */
-  NO_OVERLAP: 'noOverlap',
+  NO_OVERLAP: 'no-overlap',
   /**
    * Minor labels can overlap other minor labels, but major labels cannot overlap.
    */
-  ALLOW_MINOR_OVERLAP: 'allowMinorOverlap',
+  ALLOW_MINOR_OVERLAP: 'allow-minor-overlap',
   /**
    * Minor labels cannot overlap other minor or major labels, but major labels can overlap major labels.
    */
-  ALLOW_MAJOR_OVERLAP: 'allowMajorOverlap',
+  ALLOW_MAJOR_OVERLAP: 'allow-major-overlap',
   /**
    * Allows labels to overlap.
    */
-  ALLOW_OVERLAP: 'allowOverlap'
+  ALLOW_OVERLAP: 'allow-overlap'
 };
 
 
@@ -1125,7 +1125,7 @@ anychart.enums.BackgroundCornersType = {
    *   .lineTo(25, 10)
    *   .stroke('3 #666')
    */
-  ROUND_INNER: 'roundInner'
+  ROUND_INNER: 'round-inner'
 };
 
 
@@ -1159,24 +1159,24 @@ anychart.enums.LegendItemIconType = {
   COLUMN: 'column',
   LINE: 'line',
   OHLC: 'ohlc',
-  RANGE_AREA: 'rangearea',
-  RANGE_BAR: 'rangebar',
-  RANGE_COLUMN: 'rangecolumn',
-  RANGE_SPLINE_AREA: 'rangesplinearea',
-  RANGE_STEP_AREA: 'rangesteparea',
+  RANGE_AREA: 'range-area',
+  RANGE_BAR: 'range-bar',
+  RANGE_COLUMN: 'range-column',
+  RANGE_SPLINE_AREA: 'range-spline-area',
+  RANGE_STEP_AREA: 'range-step-area',
   SPLINE: 'spline',
-  SPLINE_AREA: 'splinearea',
-  STEP_LINE: 'stepline',
-  STEP_AREA: 'steparea',
+  SPLINE_AREA: 'spline-area',
+  STEP_LINE: 'step-line',
+  STEP_AREA: 'step-area',
   CIRCLE: 'circle',
   SQUARE: 'square',
 
   // icons by marker type
-  TRIANGLE_UP: 'triangleup',
-  TRIANGLE_DOWN: 'triangledown',
+  TRIANGLE_UP: 'triangle-up',
+  TRIANGLE_DOWN: 'triangle-down',
   DIAMOND: 'diamond',
   CROSS: 'cross',
-  DIAGONAL_CROSS: 'diagonalcross',
+  DIAGONAL_CROSS: 'diagonal-cross',
   STAR4: 'star4',
   STAR5: 'star5',
   STAR6: 'star6',
@@ -1185,10 +1185,10 @@ anychart.enums.LegendItemIconType = {
   PENTAGON: 'pentagon',
   TRAPEZIUM: 'trapezium',
   ARROWHEAD: 'arrowhead',
-  V_LINE: 'vline',
+  V_LINE: 'v-line',
   // special icon types
   MARKER: 'marker',
-  RISING_FALLING: 'risingfalling'
+  RISING_FALLING: 'rising-falling'
 };
 
 
@@ -1346,19 +1346,19 @@ anychart.enums.PyramidLabelsPosition = {
   /**
    * Outside of a point to the left.
    */
-  OUTSIDE_LEFT: 'outsideLeft',
+  OUTSIDE_LEFT: 'outside-left',
   /**
    * Outside of a point to the left in column.
    */
-  OUTSIDE_LEFT_IN_COLUMN: 'outsideLeftInColumn',
+  OUTSIDE_LEFT_IN_COLUMN: 'outside-left-in-column',
   /**
    * Outside of a point to the right.
    */
-  OUTSIDE_RIGHT: 'outsideRight',
+  OUTSIDE_RIGHT: 'outside-right',
   /**
    * Outside of a point to the right in column.
    */
-  OUTSIDE_RIGHT_IN_COLUMN: 'outsideRightInColumn'
+  OUTSIDE_RIGHT_IN_COLUMN: 'outside-right-in-column'
 };
 
 
@@ -1384,50 +1384,50 @@ anychart.enums.normalizePyramidLabelsPosition = function(value, opt_default) {
  * @enum {string}
  */
 anychart.enums.EventType = {
-  POINT_MOUSE_OUT: 'pointmouseout',
-  POINT_MOUSE_OVER: 'pointmouseover',
-  POINT_MOUSE_MOVE: 'pointmousemove',
-  POINT_MOUSE_DOWN: 'pointmousedown',
-  POINT_MOUSE_UP: 'pointmouseup',
-  POINT_CLICK: 'pointclick',
-  POINT_DBLCLICK: 'pointdblclick',
+  POINT_MOUSE_OUT: 'point-mouse-out',
+  POINT_MOUSE_OVER: 'point-mouse-over',
+  POINT_MOUSE_MOVE: 'point-mouse-move',
+  POINT_MOUSE_DOWN: 'point-mouse-down',
+  POINT_MOUSE_UP: 'point-mouse-up',
+  POINT_CLICK: 'point-click',
+  POINT_DBLCLICK: 'point-dblclick',
   //deprecated
-  POINT_HOVER: 'pointhover',
-  POINTS_SELECT: 'pointsselect',
-  POINTS_HOVER: 'pointshover',
-  CHART_DRAW: 'chartdraw',
-  ANIMATION_START: 'animationstart',
-  ANIMATION_END: 'animationend',
-  DRILL_CHANGE: 'drillchange',
+  POINT_HOVER: 'point-hover',
+  POINTS_SELECT: 'points-select',
+  POINTS_HOVER: 'points-hover',
+  CHART_DRAW: 'chart-draw',
+  ANIMATION_START: 'animation-start',
+  ANIMATION_END: 'animation-end',
+  DRILL_CHANGE: 'drill-change',
 
-  ZOOM_START: 'zoomstart',
+  ZOOM_START: 'zoom-start',
   ZOOM: 'zoom',
-  ZOOM_END: 'zoomend',
+  ZOOM_END: 'zoom-end',
 
-  LEGEND_ITEM_MOUSE_OUT: 'legenditemmouseout',
-  LEGEND_ITEM_MOUSE_OVER: 'legenditemmouseover',
-  LEGEND_ITEM_MOUSE_MOVE: 'legenditemmousemove',
-  LEGEND_ITEM_MOUSE_DOWN: 'legenditemmousedown',
-  LEGEND_ITEM_MOUSE_UP: 'legenditemmouseup',
-  LEGEND_ITEM_CLICK: 'legenditemclick',
-  LEGEND_ITEM_DBLCLICK: 'legenditemdblclick',
+  LEGEND_ITEM_MOUSE_OUT: 'legend-item-mouse-out',
+  LEGEND_ITEM_MOUSE_OVER: 'legend-item-mouse-over',
+  LEGEND_ITEM_MOUSE_MOVE: 'legend-item-mouse-move',
+  LEGEND_ITEM_MOUSE_DOWN: 'legend-item-mouse-down',
+  LEGEND_ITEM_MOUSE_UP: 'legend-item-mouse-up',
+  LEGEND_ITEM_CLICK: 'legend-item-click',
+  LEGEND_ITEM_DBLCLICK: 'legend-item-dblclick',
 
   DRAG: 'drag',
-  DRAG_START: 'dragstart',
-  DRAG_END: 'dragend',
+  DRAG_START: 'drag-start',
+  DRAG_END: 'drag-end',
 
-  SCROLL_CHANGE: 'scrollchange',
+  SCROLL_CHANGE: 'scroll-change',
 
-  SPLITTER_CHANGE: 'splitterchange',
+  SPLITTER_CHANGE: 'splitter-change',
 
-  SCROLLER_CHANGE_START: 'scrollerchangestart',
-  SCROLLER_CHANGE: 'scrollerchange',
-  SCROLLER_CHANGE_FINISH: 'scrollerchangefinish',
+  SCROLLER_CHANGE_START: 'scroller-change-start',
+  SCROLLER_CHANGE: 'scroller-change',
+  SCROLLER_CHANGE_FINISH: 'scroller-change-finish',
 
-  SELECTED_RANGE_CHANGE_START: 'selectedrangechangestart',
-  SELECTED_RANGE_BEFORE_CHANGE: 'selectedrangebeforechange',
-  SELECTED_RANGE_CHANGE: 'selectedrangechange',
-  SELECTED_RANGE_CHANGE_FINISH: 'selectedrangechangefinish',
+  SELECTED_RANGE_CHANGE_START: 'selected-range-change-start',
+  SELECTED_RANGE_BEFORE_CHANGE: 'selected-range-before-change',
+  SELECTED_RANGE_CHANGE: 'selected-range-change',
+  SELECTED_RANGE_CHANGE_FINISH: 'selected-range-change-finish',
 
   //HIGHLIGHT: 'highlight',
   //UNHIGHLIGHT: 'unhighlight',
@@ -1435,48 +1435,48 @@ anychart.enums.EventType = {
   SIGNAL: 'signal',
 
   //Grid events.
-  ROW_SELECT: 'rowSelect',
-  ROW_CLICK: 'rowClick',
-  ROW_DBL_CLICK: 'rowDblClick',
-  ROW_MOUSE_OVER: 'rowMouseOver',
-  ROW_MOUSE_OUT: 'rowMouseOut',
-  ROW_MOUSE_MOVE: 'rowMouseMove',
-  ROW_MOUSE_DOWN: 'rowMouseDown',
-  ROW_MOUSE_UP: 'rowMouseUp',
-  BEFORE_CREATE_CONNECTOR: 'beforeCreateConnector',
-  ROW_COLLAPSE_EXPAND: 'rowcollapseexpand',
+  ROW_SELECT: 'row-select',
+  ROW_CLICK: 'row-click',
+  ROW_DBL_CLICK: 'row-dbl-click',
+  ROW_MOUSE_OVER: 'row-mouse-over',
+  ROW_MOUSE_OUT: 'row-mouse-out',
+  ROW_MOUSE_MOVE: 'row-mouse-move',
+  ROW_MOUSE_DOWN: 'row-mouse-down',
+  ROW_MOUSE_UP: 'row-mouse-up',
+  BEFORE_CREATE_CONNECTOR: 'before-create-connector',
+  ROW_COLLAPSE_EXPAND: 'row-collapse-expand',
 
   //Connectors events.
-  CONNECTOR_SELECT: 'connectorselect',
-  CONNECTOR_CLICK: 'connectorclick',
-  CONNECTOR_DBL_CLICK: 'connectordblclick',
-  CONNECTOR_MOUSE_OVER: 'connectormouseover',
-  CONNECTOR_MOUSE_OUT: 'connectormouseout',
-  CONNECTOR_MOUSE_MOVE: 'connectormousemove',
-  CONNECTOR_MOUSE_DOWN: 'connectormousedown',
-  CONNECTOR_MOUSE_UP: 'connectormouseup',
+  CONNECTOR_SELECT: 'connector-select',
+  CONNECTOR_CLICK: 'connector-click',
+  CONNECTOR_DBL_CLICK: 'connector-dbl-click',
+  CONNECTOR_MOUSE_OVER: 'connector-mouse-over',
+  CONNECTOR_MOUSE_OUT: 'connector-mouse-out',
+  CONNECTOR_MOUSE_MOVE: 'connector-mouse-move',
+  CONNECTOR_MOUSE_DOWN: 'connector-mouse-down',
+  CONNECTOR_MOUSE_UP: 'connector-mouse-up',
 
   //Data tree CRUD events.
-  TREE_ITEM_MOVE: 'treeItemMove',
-  TREE_ITEM_UPDATE: 'treeItemUpdate',
-  TREE_ITEM_CREATE: 'treeItemCreate',
-  TREE_ITEM_REMOVE: 'treeItemRemove',
+  TREE_ITEM_MOVE: 'tree-item-move',
+  TREE_ITEM_UPDATE: 'tree-item-update',
+  TREE_ITEM_CREATE: 'tree-item-create',
+  TREE_ITEM_REMOVE: 'tree-item-remove',
 
   // Annotation events
-  ANNOTATION_SELECT: 'annotationSelect',
-  ANNOTATION_UNSELECT: 'annotationUnselect',
-  ANNOTATION_DRAWING_FINISH: 'annotationDrawingFinish',
-  ANNOTATION_CHANGE_START: 'annotationChangeStart',
-  ANNOTATION_CHANGE: 'annotationChange',
-  ANNOTATION_CHANGE_FINISH: 'annotationChangeFinish',
+  ANNOTATION_SELECT: 'annotation-select',
+  ANNOTATION_UNSELECT: 'annotation-unselect',
+  ANNOTATION_DRAWING_FINISH: 'annotation-drawing-finish',
+  ANNOTATION_CHANGE_START: 'annotation-change-start',
+  ANNOTATION_CHANGE: 'annotation-change',
+  ANNOTATION_CHANGE_FINISH: 'annotation-change-finish',
 
   // UI events
   CLOSE: 'close',
   COMPLETE: 'complete',
 
-  SELECT_MARQUEE_START: 'selectmarqueestart',
-  SELECT_MARQUEE_CHANGE: 'selectmarqueechange',
-  SELECT_MARQUEE_FINISH: 'selectmarqueefinish'
+  SELECT_MARQUEE_START: 'select-marquee-start',
+  SELECT_MARQUEE_CHANGE: 'select-marquee-change',
+  SELECT_MARQUEE_FINISH: 'select-marquee-finish'
 };
 
 
@@ -1528,8 +1528,8 @@ anychart.enums.normalizeScaleComparisonMode = anychart.enums.normalizeScaleStack
  * @enum {string}
  */
 anychart.enums.ScaleCompareWithMode = {
-  SERIES_START: 'seriesStart',
-  FIRST_VISIBLE: 'firstVisible'
+  SERIES_START: 'series-start',
+  FIRST_VISIBLE: 'first-visible'
 };
 
 
@@ -1677,19 +1677,19 @@ anychart.enums.CartesianSeriesType = {
   BUBBLE: 'bubble',
   CANDLESTICK: 'candlestick',
   COLUMN: 'column',
-  JUMP_LINE: 'jumpLine',
+  JUMP_LINE: 'jump-line',
   LINE: 'line',
   MARKER: 'marker',
   OHLC: 'ohlc',
-  RANGE_AREA: 'rangeArea',
-  RANGE_BAR: 'rangeBar',
-  RANGE_COLUMN: 'rangeColumn',
-  RANGE_SPLINE_AREA: 'rangeSplineArea',
-  RANGE_STEP_AREA: 'rangeStepArea',
+  RANGE_AREA: 'range-area',
+  RANGE_BAR: 'range-bar',
+  RANGE_COLUMN: 'range-column',
+  RANGE_SPLINE_AREA: 'range-spline-area',
+  RANGE_STEP_AREA: 'range-step-area',
   SPLINE: 'spline',
-  SPLINE_AREA: 'splineArea',
-  STEP_AREA: 'stepArea',
-  STEP_LINE: 'stepLine',
+  SPLINE_AREA: 'spline-area',
+  STEP_AREA: 'step-area',
+  STEP_LINE: 'step-line',
   STICK: 'stick',
   HILO: 'hilo'
 };
@@ -1754,16 +1754,16 @@ anychart.enums.StockSeriesType = {
   LINE: 'line',
   MARKER: 'marker',
   OHLC: 'ohlc',
-  RANGE_AREA: 'rangeArea',
-  // RANGE_BAR: 'rangeBar',
-  RANGE_COLUMN: 'rangeColumn',
-  RANGE_SPLINE_AREA: 'rangeSplineArea',
-  RANGE_STEP_AREA: 'rangeStepArea',
+  RANGE_AREA: 'range-area',
+  // RANGE_BAR: 'range-bar',
+  RANGE_COLUMN: 'range-column',
+  RANGE_SPLINE_AREA: 'range-spline-area',
+  RANGE_STEP_AREA: 'range-step-area',
   SPLINE: 'spline',
-  SPLINE_AREA: 'splineArea',
-  STEP_AREA: 'stepArea',
-  STEP_LINE: 'stepLine',
-  JUMP_LINE: 'jumpLine',
+  SPLINE_AREA: 'spline-area',
+  STEP_AREA: 'step-area',
+  STEP_LINE: 'step-line',
+  JUMP_LINE: 'jump-line',
   STICK: 'stick',
   HILO: 'hilo'
 };
@@ -1821,7 +1821,7 @@ anychart.enums.SparklineSeriesType = {
   AREA: 'area',
   COLUMN: 'column',
   LINE: 'line',
-  WIN_LOSS: 'winLoss'
+  WIN_LOSS: 'win-loss'
 };
 
 
@@ -1848,7 +1848,7 @@ anychart.enums.normalizeSparklineSeriesType = function(value, opt_default) {
  */
 anychart.enums.LinearGaugePointerType = {
   BAR: 'bar',
-  RANGE_BAR: 'rangeBar',
+  RANGE_BAR: 'range-bar',
   MARKER: 'marker',
   THERMOMETER: 'thermometer',
   TANK: 'tank',
@@ -1881,30 +1881,30 @@ anychart.enums.GanttDataFields = {
   ID: 'id',
   CHILDREN: 'children',
   ACTUAL: 'actual',
-  ACTUAL_START: 'actualStart',
-  ACTUAL_END: 'actualEnd',
+  ACTUAL_START: 'actual-start',
+  ACTUAL_END: 'actual-end',
   BASELINE: 'baseline',
-  BASELINE_START: 'baselineStart',
-  BASELINE_END: 'baselineEnd',
+  BASELINE_START: 'baseline-start',
+  BASELINE_END: 'baseline-end',
   PROGRESS: 'progress',
-  PROGRESS_VALUE: 'progressValue',
+  PROGRESS_VALUE: 'progress-value',
   MILESTONE: 'milestone',
   NAME: 'name',
   COLLAPSED: 'collapsed',
-  ROW_HEIGHT: 'rowHeight',
+  ROW_HEIGHT: 'row-height',
   PERIODS: 'periods',
   PARENT: 'parent',
   START: 'start',
   END: 'end',
   FILL: 'fill',
   STROKE: 'stroke',
-  HOVER_FILL: 'hoverFill',
-  HOVER_STROKE: 'hoverStroke',
+  HOVER_FILL: 'hover-fill',
+  HOVER_STROKE: 'hover-stroke',
   CONNECTOR: 'connector',
-  CONNECT_TO: 'connectTo', // deprecated since 7.7.0
-  CONNECTOR_TYPE: 'connectorType',
-  START_MARKER: 'startMarker',
-  END_MARKER: 'endMarker',
+  CONNECT_TO: 'connect-to', // deprecated since 7.7.0
+  CONNECTOR_TYPE: 'connector-type',
+  START_MARKER: 'start-marker',
+  END_MARKER: 'end-marker',
   LABEL: 'label',
   MARKERS: 'markers'
 };
@@ -1916,10 +1916,10 @@ anychart.enums.GanttDataFields = {
  * TODO (A.Kudryavtsev): Actually is anychart.enums.StockRangeAnchor from DVF-2364-range-selection-ui.
  */
 anychart.enums.GanttRangeAnchor = {
-  FIRST_DATE: 'firstDate',
-  FIRST_VISIBLE_DATE: 'firstVisibleDate',
-  LAST_VISIBLE_DATE: 'lastVisibleDate',
-  LAST_DATE: 'lastDate'
+  FIRST_DATE: 'first-date',
+  FIRST_VISIBLE_DATE: 'first-visible-date',
+  LAST_VISIBLE_DATE: 'last-visible-date',
+  LAST_DATE: 'last-date'
 };
 
 
@@ -1962,10 +1962,10 @@ anychart.enums.TLElementTypes = {
  * @enum {string}
  */
 anychart.enums.ConnectorType = {
-  FINISH_START: 'finishstart',
-  FINISH_FINISH: 'finishfinish',
-  START_FINISH: 'startfinish',
-  START_START: 'startstart'
+  FINISH_START: 'finish-start',
+  FINISH_FINISH: 'finish-finish',
+  START_FINISH: 'start-finish',
+  START_START: 'start-start'
 };
 
 
@@ -1979,14 +1979,14 @@ anychart.enums.ConnectorType = {
  * @enum {string}
  */
 anychart.enums.ColumnFormats = {
-  DIRECT_NUMBERING: 'directNumbering',
+  DIRECT_NUMBERING: 'direct-numbering',
   TEXT: 'text',
-  SHORT_TEXT: 'shortText',
+  SHORT_TEXT: 'short-text',
   PERCENT: 'percent',
-  DATE_COMMON_LOG: 'dateCommonLog',
-  DATE_ISO_8601: 'dateIso8601',
-  DATE_US_SHORT: 'dateUsShort',
-  DATE_DMY_DOTS: 'dateDmyDots',
+  DATE_COMMON_LOG: 'date-common-log',
+  DATE_ISO_8601: 'date-iso-8601',
+  DATE_US_SHORT: 'date-us-short',
+  DATE_DMY_DOTS: 'date-dmy-dots',
   FINANCIAL: 'financial'
 };
 
@@ -2017,10 +2017,10 @@ anychart.enums.GanttDateTimeMarkers = {
  * @enum {string}
  */
 anychart.enums.DataField = {
-  DEPENDS_ON: 'dependsOn',
+  DEPENDS_ON: 'depends-on',
   OPTIMISTIC: 'optimistic',
   PESSIMISTIC: 'pessimistic',
-  MOST_LIKELY: 'mostLikely',
+  MOST_LIKELY: 'most-likely',
   EXPECTED: 'expected',
   DURATION: 'duration',
   FROM: 'from',
@@ -2074,7 +2074,7 @@ anychart.enums.PolarSeriesType = {
   POLYGON: 'polygon',
   POLYLINE: 'polyline',
   COLUMN: 'column',
-  RANGE_COLUMN: 'rangeColumn'
+  RANGE_COLUMN: 'range-column'
 };
 
 
@@ -2128,7 +2128,7 @@ anychart.enums.normalizeScatterSeriesType = function(value, opt_default) {
  * @enum {string}
  */
 anychart.enums.HeatMapSeriesType = {
-  HEAT_MAP: 'heatMap'
+  HEAT_MAP: 'heat-map'
 };
 
 
@@ -2206,11 +2206,11 @@ anychart.enums.normalizeWaterfallDataMode = function(value, opt_default) {
 anychart.enums.ScaleTypes = {
   LINEAR: 'linear',
   LOG: 'log',
-  DATE_TIME: 'dateTime',
-  DATE_TIME_WITH_CALENDAR: 'dateTimeWithCalendar',
+  DATE_TIME: 'date-time',
+  DATE_TIME_WITH_CALENDAR: 'date-time-with-calendar',
   ORDINAL: 'ordinal',
-  ORDINAL_COLOR: 'ordinalColor',
-  LINEAR_COLOR: 'linearColor'
+  ORDINAL_COLOR: 'ordinal-color',
+  LINEAR_COLOR: 'linear-color'
 };
 
 
@@ -2226,7 +2226,7 @@ anychart.enums.ScaleTypes = {
 anychart.enums.ScatterScaleTypes = {
   LINEAR: 'linear',
   LOG: 'log',
-  DATE_TIME: 'dateTime'
+  DATE_TIME: 'date-time'
 };
 
 
@@ -2429,7 +2429,7 @@ anychart.enums.WarningCode = {
 //     case anychart.enums.Interval.MONTH:
 //       return 'month';
 //     case anychart.enums.Interval.THIRD_OF_MONTH:
-//       return 'thirdOfMonth';
+//       return 'third-of-month';
 //     case anychart.enums.Interval.WEEK:
 //       return 'week';
 //     case anychart.enums.Interval.DAY:
@@ -2457,7 +2457,7 @@ anychart.enums.Interval = {
   SEMESTER: 'semester',
   QUARTER: 'quarter',
   MONTH: 'month',
-  THIRD_OF_MONTH: 'thirdofmonth',
+  THIRD_OF_MONTH: 'third-of-month',
   WEEK: 'week',
   DAY: 'day',
   HOUR: 'hour',
@@ -2526,8 +2526,8 @@ anychart.enums.normalizeErrorMode = function(value, opt_default) {
  */
 anychart.enums.TextParsingMode = {
   CSV: 'csv',
-  BY_WORD: 'byWord',
-  BY_CHAR: 'byChar'
+  BY_WORD: 'by-word',
+  BY_CHAR: 'by-char'
 };
 
 
@@ -2751,15 +2751,15 @@ anychart.enums.TextWrap = {
   /**
    No wrap.
    */
-  NO_WRAP: 'noWrap',
+  NO_WRAP: 'no-wrap',
   /**
    Wrap by symbol.
    */
-  BY_LETTER: 'byLetter',
+  BY_LETTER: 'by-letter',
   /**
    Wrap by word.
    */
-  BY_WORD: 'byWord'
+  BY_WORD: 'by-word'
 };
 
 
@@ -2812,17 +2812,17 @@ anychart.enums.AggregationType = {
   /**
    * Calculate average value in a group using other column values as weights and use it as a value of a point.
    */
-  WEIGHTED_AVERAGE: 'weightedAverage',
+  WEIGHTED_AVERAGE: 'weighted-average',
 
   /**
    * Choose the first non-undefined value as a value of a point.
    */
-  FIRST_VALUE: 'firstValue',
+  FIRST_VALUE: 'first-value',
 
   /**
    * Choose the last non-undefined value as a value of a point.
    */
-  LAST_VALUE: 'lastValue',
+  LAST_VALUE: 'last-value',
 
   /**
    * Calculate the sum of values in a group and use it as a value of a point.
@@ -2880,9 +2880,9 @@ anychart.enums.normalizeAggregationType = function(value) {
  * @enum {string}
  */
 anychart.enums.TableSearchMode = {
-  EXACT_OR_PREV: 'exactOrPrev',
+  EXACT_OR_PREV: 'exact-or-prev',
   EXACT: 'exact',
-  EXACT_OR_NEXT: 'exactOrNext',
+  EXACT_OR_NEXT: 'exact-or-next',
   NEAREST: 'nearest'
 };
 
@@ -2903,9 +2903,9 @@ anychart.enums.normalizeTableSearchMode = function(value) {
  * @enum {string}
  */
 anychart.enums.ScrollerRangeChangeSource = {
-  THUMB_DRAG: 'thumbDrag',
-  SELECTED_RANGE_DRAG: 'selectedRangeDrag',
-  BACKGROUND_CLICK: 'backgroundClick'
+  THUMB_DRAG: 'thumb-drag',
+  SELECTED_RANGE_DRAG: 'selected-range-drag',
+  BACKGROUND_CLICK: 'background-click'
 };
 
 
@@ -2914,14 +2914,14 @@ anychart.enums.ScrollerRangeChangeSource = {
  * @enum {string}
  */
 anychart.enums.StockRangeChangeSource = {
-  SCROLLER_THUMB_DRAG: 'scrollerThumbDrag',
-  SCROLLER_DRAG: 'scrollerDrag',
-  SCROLLER_CLICK: 'scrollerClick',
-  PLOT_DRAG: 'plotDrag',
-  DATA_CHANGE: 'dataUpdate',
-  SELECT_RANGE: 'selectRange',
+  SCROLLER_THUMB_DRAG: 'scroller-thumb-drag',
+  SCROLLER_DRAG: 'scroller-drag',
+  SCROLLER_CLICK: 'scroller-click',
+  PLOT_DRAG: 'plot-drag',
+  DATA_CHANGE: 'data-update',
+  SELECT_RANGE: 'select-range',
   MARQUEE: 'marquee',
-  MOUSE_WHEEL: 'mouseWheel'
+  MOUSE_WHEEL: 'mouse-wheel'
 };
 
 
@@ -2955,10 +2955,10 @@ anychart.enums.normalizeStockRangeType = function(value, opt_default) {
  * @enum {string}
  */
 anychart.enums.StockRangeAnchor = {
-  FIRST_DATE: 'firstDate',
-  FIRST_VISIBLE_DATE: 'firstVisibleDate',
-  LAST_VISIBLE_DATE: 'lastVisibleDate',
-  LAST_DATE: 'lastDate'
+  FIRST_DATE: 'first-date',
+  FIRST_VISIBLE_DATE: 'first-visible-date',
+  LAST_VISIBLE_DATE: 'last-visible-date',
+  LAST_DATE: 'last-date'
 };
 
 
@@ -3045,7 +3045,7 @@ anychart.enums.normalizeCrosshairDisplayMode = function(value) {
  * @enum {string}
  */
 anychart.enums.LabelsDisplayMode = {
-  ALWAYS_SHOW: 'alwaysShow',
+  ALWAYS_SHOW: 'always-show',
   CLIP: 'clip',
   DROP: 'drop'
 };
@@ -4339,7 +4339,7 @@ anychart.enums.StatisticsLowerCase = {};
 anychart.enums.SeriesFieldHandlerTypes = {
   FILL: 'fill',
   STROKE: 'stroke',
-  HATCH_FILL: 'hatchFill'
+  HATCH_FILL: 'hatch-fill'
 };
 
 
@@ -4436,8 +4436,8 @@ anychart.enums.PropertyHandlerType = {
  * @enum {string}
  */
 anychart.enums.A11yMode = {
-  CHART_ELEMENTS: 'chartElements',
-  DATA_TABLE: 'dataTable'
+  CHART_ELEMENTS: 'chart-elements',
+  DATA_TABLE: 'data-table'
 };
 
 
@@ -4465,18 +4465,18 @@ anychart.enums.normalizeA11yMode = function(value) {
 anychart.enums.AnnotationTypes = {
   RAY: 'ray',
   LINE: 'line',
-  INFINITE_LINE: 'infiniteLine',
-  VERTICAL_LINE: 'verticalLine',
-  HORIZONTAL_LINE: 'horizontalLine',
+  INFINITE_LINE: 'infinite-line',
+  VERTICAL_LINE: 'vertical-line',
+  HORIZONTAL_LINE: 'horizontal-line',
   RECTANGLE: 'rectangle',
   ELLIPSE: 'ellipse',
   TRIANGLE: 'triangle',
-  TREND_CHANNEL: 'trendChannel',
-  ANDREWS_PITCHFORK: 'andrewsPitchfork',
-  FIBONACCI_FAN: 'fibonacciFan',
-  FIBONACCI_ARC: 'fibonacciArc',
-  FIBONACCI_RETRACEMENT: 'fibonacciRetracement',
-  FIBONACCI_TIMEZONES: 'fibonacciTimezones',
+  TREND_CHANNEL: 'trend-channel',
+  ANDREWS_PITCHFORK: 'andrews-pitchfork',
+  FIBONACCI_FAN: 'fibonacci-fan',
+  FIBONACCI_ARC: 'fibonacci-arc',
+  FIBONACCI_RETRACEMENT: 'fibonacci-retracement',
+  FIBONACCI_TIMEZONES: 'fibonacci-timezones',
   MARKER: 'marker'
   // LABEL: 'label'
 };
@@ -4502,7 +4502,7 @@ anychart.enums.PaperSize = {
   /**
    * It measures 8.5 by 11 inches (215.9 mm x 279.4 mm). US Letter size is a recognized standard adopted by the American National Standards Institute (ANSI) whereas the A4 is the International Standard (ISO) used in most countries.
    */
-  US_LETTER: 'usletter',
+  US_LETTER: 'us-letter',
 
   /**
    * The base A0 size of paper is defined as having an area of 1 m2. Rounded to the nearest millimetre, the A0 paper size is 841 by 1,189 millimetres (33.1 in × 46.8 in). Successive paper sizes in the series A1, A2, A3, and so forth, are defined by halving the preceding paper size across the larger dimension.
@@ -4711,10 +4711,10 @@ anychart.enums.normalizeAvailabilityPeriod = function(value) {
  * @enum {string}
  */
 anychart.enums.TimeTrackingMode = {
-  AVAILABILITY_PER_CHART: 'availabilityPerChart',
-  AVAILABILITY_PER_RESOURCE: 'availabilityPerResource',
-  ACTIVITY_PER_CHART: 'activityPerChart',
-  ACTIVITY_PER_RESOURCE: 'activityPerResource'
+  AVAILABILITY_PER_CHART: 'availability-per-chart',
+  AVAILABILITY_PER_RESOURCE: 'availability-per-resource',
+  ACTIVITY_PER_CHART: 'activity-per-chart',
+  ACTIVITY_PER_RESOURCE: 'activity-per-resource'
 };
 
 
