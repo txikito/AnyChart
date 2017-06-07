@@ -126,21 +126,22 @@ anychart.enums.MapUnboundRegionsMode = {
  * @param {Object} enumeration
  * @param {*=} opt_value
  * @param {*=} opt_default
+ * @param {boolean=} opt_deepCompare
  * @return {*}
  */
-anychart.enums.normalizeValues = function(enumeration, opt_value, opt_default) {
+anychart.enums.normalizeValues = function(enumeration, opt_value, opt_default, opt_deepCompare) {
   if (goog.isDefAndNotNull(opt_value)) {
     opt_value = (String(opt_value)).toLowerCase();
-    if (enumeration == anychart.enums.EventType || enumeration == anychart.enums.StringToken || enumeration == anychart.enums.Statistics) {
+    if (opt_deepCompare) {
       for (var i in enumeration) {
         if (enumeration[i].toLowerCase() == opt_value)
-          return opt_value;
+          return enumeration[i];
       }
     } else if (goog.object.getValues(enumeration).indexOf(opt_value) > -1) {
       return opt_value;
     }
   }
-  return goog.isDefAndNotNull(opt_default) ? anychart.enums.normalizeValues(enumeration, opt_default) : null;
+  return goog.isDefAndNotNull(opt_default) ? anychart.enums.normalizeValues(enumeration, opt_default, void 0, opt_deepCompare) : null;
 };
 
 
@@ -1681,19 +1682,19 @@ anychart.enums.CartesianSeriesType = {
   BUBBLE: 'bubble',
   CANDLESTICK: 'candlestick',
   COLUMN: 'column',
-  JUMP_LINE: 'jump-line',
+  JUMP_LINE: 'jumpLine',
   LINE: 'line',
   MARKER: 'marker',
   OHLC: 'ohlc',
-  RANGE_AREA: 'range-area',
-  RANGE_BAR: 'range-bar',
-  RANGE_COLUMN: 'range-column',
-  RANGE_SPLINE_AREA: 'range-spline-area',
-  RANGE_STEP_AREA: 'range-step-area',
+  RANGE_AREA: 'rangeArea',
+  RANGE_BAR: 'rangeBar',
+  RANGE_COLUMN: 'rangeColumn',
+  RANGE_SPLINE_AREA: 'rangeSplineArea',
+  RANGE_STEP_AREA: 'rangeStepArea',
   SPLINE: 'spline',
-  SPLINE_AREA: 'spline-area',
-  STEP_AREA: 'step-area',
-  STEP_LINE: 'step-line',
+  SPLINE_AREA: 'splineArea',
+  STEP_AREA: 'stepArea',
+  STEP_LINE: 'stepLine',
   STICK: 'stick',
   HILO: 'hilo'
 };
@@ -1706,7 +1707,7 @@ anychart.enums.CartesianSeriesType = {
  * @return {anychart.enums.CartesianSeriesType}
  */
 anychart.enums.normalizeCartesianSeriesType = function(value, opt_default) {
-  return /** @type {anychart.enums.CartesianSeriesType} */(anychart.enums.normalizeValues(anychart.enums.CartesianSeriesType, value, opt_default)) ||
+  return /** @type {anychart.enums.CartesianSeriesType} */(anychart.enums.normalizeValues(anychart.enums.CartesianSeriesType, value, opt_default, true)) ||
       anychart.enums.CartesianSeriesType.LINE;
 };
 
@@ -1758,16 +1759,16 @@ anychart.enums.StockSeriesType = {
   LINE: 'line',
   MARKER: 'marker',
   OHLC: 'ohlc',
-  RANGE_AREA: 'range-area',
-  // RANGE_BAR: 'range-bar',
-  RANGE_COLUMN: 'range-column',
-  RANGE_SPLINE_AREA: 'range-spline-area',
-  RANGE_STEP_AREA: 'range-step-area',
+  RANGE_AREA: 'rangeArea',
+  // RANGE_BAR: 'rangeBar',
+  RANGE_COLUMN: 'rangeColumn',
+  RANGE_SPLINE_AREA: 'rangeSplineArea',
+  RANGE_STEP_AREA: 'rangeStepArea',
   SPLINE: 'spline',
-  SPLINE_AREA: 'spline-area',
-  STEP_AREA: 'step-area',
-  STEP_LINE: 'step-line',
-  JUMP_LINE: 'jump-line',
+  SPLINE_AREA: 'splineArea',
+  STEP_AREA: 'stepArea',
+  STEP_LINE: 'stepLine',
+  JUMP_LINE: 'jumpLine',
   STICK: 'stick',
   HILO: 'hilo'
 };
@@ -1780,7 +1781,7 @@ anychart.enums.StockSeriesType = {
  * @return {anychart.enums.StockSeriesType}
  */
 anychart.enums.normalizeStockSeriesType = function(value, opt_default) {
-  return /** @type {anychart.enums.StockSeriesType} */(anychart.enums.normalizeValues(anychart.enums.StockSeriesType, value, opt_default)) ||
+  return /** @type {anychart.enums.StockSeriesType} */(anychart.enums.normalizeValues(anychart.enums.StockSeriesType, value, opt_default, true)) ||
       anychart.enums.StockSeriesType.LINE;
 };
 
