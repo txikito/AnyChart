@@ -1826,7 +1826,7 @@ anychart.enums.SparklineSeriesType = {
   AREA: 'area',
   COLUMN: 'column',
   LINE: 'line',
-  WIN_LOSS: 'win-loss'
+  WIN_LOSS: 'winLoss'
 };
 
 
@@ -2079,7 +2079,7 @@ anychart.enums.PolarSeriesType = {
   POLYGON: 'polygon',
   POLYLINE: 'polyline',
   COLUMN: 'column',
-  RANGE_COLUMN: 'range-column'
+  RANGE_COLUMN: 'rangeColumn'
 };
 
 
@@ -2133,7 +2133,7 @@ anychart.enums.normalizeScatterSeriesType = function(value, opt_default) {
  * @enum {string}
  */
 anychart.enums.HeatMapSeriesType = {
-  HEAT_MAP: 'heat-map'
+  HEAT_MAP: 'heatMap'
 };
 
 
