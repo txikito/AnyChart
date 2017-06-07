@@ -131,9 +131,13 @@ anychart.enums.MapUnboundRegionsMode = {
 anychart.enums.normalizeValues = function(enumeration, opt_value, opt_default) {
   if (goog.isDefAndNotNull(opt_value)) {
     opt_value = (String(opt_value)).toLowerCase();
-    for (var i in enumeration) {
-      if (enumeration[i].toLowerCase() == opt_value)
-        return enumeration[i];
+    if (enumeration == anychart.enums.EventType || enumeration == anychart.enums.StringToken || enumeration == anychart.enums.Statistics) {
+      for (var i in enumeration) {
+        if (enumeration[i].toLowerCase() == opt_value)
+          return opt_value;
+      }
+    } else if (goog.object.getValues(enumeration).indexOf(opt_value) > -1) {
+      return opt_value;
     }
   }
   return goog.isDefAndNotNull(opt_default) ? anychart.enums.normalizeValues(enumeration, opt_default) : null;
@@ -1384,50 +1388,50 @@ anychart.enums.normalizePyramidLabelsPosition = function(value, opt_default) {
  * @enum {string}
  */
 anychart.enums.EventType = {
-  POINT_MOUSE_OUT: 'point-mouse-out',
-  POINT_MOUSE_OVER: 'point-mouse-over',
-  POINT_MOUSE_MOVE: 'point-mouse-move',
-  POINT_MOUSE_DOWN: 'point-mouse-down',
-  POINT_MOUSE_UP: 'point-mouse-up',
-  POINT_CLICK: 'point-click',
-  POINT_DBLCLICK: 'point-dblclick',
+  POINT_MOUSE_OUT: 'pointmouseout',
+  POINT_MOUSE_OVER: 'pointmouseover',
+  POINT_MOUSE_MOVE: 'pointmousemove',
+  POINT_MOUSE_DOWN: 'pointmousedown',
+  POINT_MOUSE_UP: 'pointmouseup',
+  POINT_CLICK: 'pointclick',
+  POINT_DBLCLICK: 'pointdblclick',
   //deprecated
-  POINT_HOVER: 'point-hover',
-  POINTS_SELECT: 'points-select',
-  POINTS_HOVER: 'points-hover',
-  CHART_DRAW: 'chart-draw',
-  ANIMATION_START: 'animation-start',
-  ANIMATION_END: 'animation-end',
-  DRILL_CHANGE: 'drill-change',
+  POINT_HOVER: 'pointhover',
+  POINTS_SELECT: 'pointsselect',
+  POINTS_HOVER: 'pointshover',
+  CHART_DRAW: 'chartdraw',
+  ANIMATION_START: 'animationstart',
+  ANIMATION_END: 'animationend',
+  DRILL_CHANGE: 'drillchange',
 
-  ZOOM_START: 'zoom-start',
+  ZOOM_START: 'zoomstart',
   ZOOM: 'zoom',
-  ZOOM_END: 'zoom-end',
+  ZOOM_END: 'zoomend',
 
-  LEGEND_ITEM_MOUSE_OUT: 'legend-item-mouse-out',
-  LEGEND_ITEM_MOUSE_OVER: 'legend-item-mouse-over',
-  LEGEND_ITEM_MOUSE_MOVE: 'legend-item-mouse-move',
-  LEGEND_ITEM_MOUSE_DOWN: 'legend-item-mouse-down',
-  LEGEND_ITEM_MOUSE_UP: 'legend-item-mouse-up',
-  LEGEND_ITEM_CLICK: 'legend-item-click',
-  LEGEND_ITEM_DBLCLICK: 'legend-item-dblclick',
+  LEGEND_ITEM_MOUSE_OUT: 'legenditemmouseout',
+  LEGEND_ITEM_MOUSE_OVER: 'legenditemmouseover',
+  LEGEND_ITEM_MOUSE_MOVE: 'legenditemmousemove',
+  LEGEND_ITEM_MOUSE_DOWN: 'legenditemmousedown',
+  LEGEND_ITEM_MOUSE_UP: 'legenditemmouseup',
+  LEGEND_ITEM_CLICK: 'legenditemclick',
+  LEGEND_ITEM_DBLCLICK: 'legenditemdblclick',
 
   DRAG: 'drag',
-  DRAG_START: 'drag-start',
-  DRAG_END: 'drag-end',
+  DRAG_START: 'dragstart',
+  DRAG_END: 'dragend',
 
-  SCROLL_CHANGE: 'scroll-change',
+  SCROLL_CHANGE: 'scrollchange',
 
-  SPLITTER_CHANGE: 'splitter-change',
+  SPLITTER_CHANGE: 'splitterchange',
 
-  SCROLLER_CHANGE_START: 'scroller-change-start',
-  SCROLLER_CHANGE: 'scroller-change',
-  SCROLLER_CHANGE_FINISH: 'scroller-change-finish',
+  SCROLLER_CHANGE_START: 'scrollerchangestart',
+  SCROLLER_CHANGE: 'scrollerchange',
+  SCROLLER_CHANGE_FINISH: 'scrollerchangefinish',
 
-  SELECTED_RANGE_CHANGE_START: 'selected-range-change-start',
-  SELECTED_RANGE_BEFORE_CHANGE: 'selected-range-before-change',
-  SELECTED_RANGE_CHANGE: 'selected-range-change',
-  SELECTED_RANGE_CHANGE_FINISH: 'selected-range-change-finish',
+  SELECTED_RANGE_CHANGE_START: 'selectedrangechangestart',
+  SELECTED_RANGE_BEFORE_CHANGE: 'selectedrangebeforechange',
+  SELECTED_RANGE_CHANGE: 'selectedrangechange',
+  SELECTED_RANGE_CHANGE_FINISH: 'selectedrangechangefinish',
 
   //HIGHLIGHT: 'highlight',
   //UNHIGHLIGHT: 'unhighlight',
@@ -1435,48 +1439,48 @@ anychart.enums.EventType = {
   SIGNAL: 'signal',
 
   //Grid events.
-  ROW_SELECT: 'row-select',
-  ROW_CLICK: 'row-click',
-  ROW_DBL_CLICK: 'row-dbl-click',
-  ROW_MOUSE_OVER: 'row-mouse-over',
-  ROW_MOUSE_OUT: 'row-mouse-out',
-  ROW_MOUSE_MOVE: 'row-mouse-move',
-  ROW_MOUSE_DOWN: 'row-mouse-down',
-  ROW_MOUSE_UP: 'row-mouse-up',
-  BEFORE_CREATE_CONNECTOR: 'before-create-connector',
-  ROW_COLLAPSE_EXPAND: 'row-collapse-expand',
+  ROW_SELECT: 'rowSelect',
+  ROW_CLICK: 'rowClick',
+  ROW_DBL_CLICK: 'rowDblClick',
+  ROW_MOUSE_OVER: 'rowMouseOver',
+  ROW_MOUSE_OUT: 'rowMouseOut',
+  ROW_MOUSE_MOVE: 'rowMouseMove',
+  ROW_MOUSE_DOWN: 'rowMouseDown',
+  ROW_MOUSE_UP: 'rowMouseUp',
+  BEFORE_CREATE_CONNECTOR: 'beforeCreateConnector',
+  ROW_COLLAPSE_EXPAND: 'rowcollapseexpand',
 
   //Connectors events.
-  CONNECTOR_SELECT: 'connector-select',
-  CONNECTOR_CLICK: 'connector-click',
-  CONNECTOR_DBL_CLICK: 'connector-dbl-click',
-  CONNECTOR_MOUSE_OVER: 'connector-mouse-over',
-  CONNECTOR_MOUSE_OUT: 'connector-mouse-out',
-  CONNECTOR_MOUSE_MOVE: 'connector-mouse-move',
-  CONNECTOR_MOUSE_DOWN: 'connector-mouse-down',
-  CONNECTOR_MOUSE_UP: 'connector-mouse-up',
+  CONNECTOR_SELECT: 'connectorselect',
+  CONNECTOR_CLICK: 'connectorclick',
+  CONNECTOR_DBL_CLICK: 'connectordblclick',
+  CONNECTOR_MOUSE_OVER: 'connectormouseover',
+  CONNECTOR_MOUSE_OUT: 'connectormouseout',
+  CONNECTOR_MOUSE_MOVE: 'connectormousemove',
+  CONNECTOR_MOUSE_DOWN: 'connectormousedown',
+  CONNECTOR_MOUSE_UP: 'connectormouseup',
 
   //Data tree CRUD events.
-  TREE_ITEM_MOVE: 'tree-item-move',
-  TREE_ITEM_UPDATE: 'tree-item-update',
-  TREE_ITEM_CREATE: 'tree-item-create',
-  TREE_ITEM_REMOVE: 'tree-item-remove',
+  TREE_ITEM_MOVE: 'treeItemMove',
+  TREE_ITEM_UPDATE: 'treeItemUpdate',
+  TREE_ITEM_CREATE: 'treeItemCreate',
+  TREE_ITEM_REMOVE: 'treeItemRemove',
 
   // Annotation events
-  ANNOTATION_SELECT: 'annotation-select',
-  ANNOTATION_UNSELECT: 'annotation-unselect',
-  ANNOTATION_DRAWING_FINISH: 'annotation-drawing-finish',
-  ANNOTATION_CHANGE_START: 'annotation-change-start',
-  ANNOTATION_CHANGE: 'annotation-change',
-  ANNOTATION_CHANGE_FINISH: 'annotation-change-finish',
+  ANNOTATION_SELECT: 'annotationSelect',
+  ANNOTATION_UNSELECT: 'annotationUnselect',
+  ANNOTATION_DRAWING_FINISH: 'annotationDrawingFinish',
+  ANNOTATION_CHANGE_START: 'annotationChangeStart',
+  ANNOTATION_CHANGE: 'annotationChange',
+  ANNOTATION_CHANGE_FINISH: 'annotationChangeFinish',
 
   // UI events
   CLOSE: 'close',
   COMPLETE: 'complete',
 
-  SELECT_MARQUEE_START: 'select-marquee-start',
-  SELECT_MARQUEE_CHANGE: 'select-marquee-change',
-  SELECT_MARQUEE_FINISH: 'select-marquee-finish'
+  SELECT_MARQUEE_START: 'selectmarqueestart',
+  SELECT_MARQUEE_CHANGE: 'selectmarqueechange',
+  SELECT_MARQUEE_FINISH: 'selectmarqueefinish'
 };
 
 
@@ -2930,11 +2934,11 @@ anychart.enums.StockRangeChangeSource = {
  * @enum {string}
  */
 anychart.enums.StockRangeType = {
-  UNIT: 'Unit',
-  YTD: 'YTD',
-  QTD: 'QTD',
-  MTD: 'MTD',
-  MAX: 'Max'
+  UNIT: 'unit',
+  YTD: 'ytd',
+  QTD: 'qtd',
+  MTD: 'mtd',
+  MAX: 'max'
 };
 
 
