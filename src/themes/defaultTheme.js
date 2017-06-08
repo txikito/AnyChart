@@ -5323,7 +5323,7 @@ goog.provide('anychart.themes.defaultTheme');
                 return this['value'].toUpperCase();
               },
               'hAlign': 'left',
-              'textWrap': 'allowWrap' // todo (chernetsky): allowWrap нет такого в енумах
+              'textWrap': 'allowWrap' // todo (chernetsky): нет такого значения в енумах
             }
           ],
           'unit': 'day',
