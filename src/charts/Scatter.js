@@ -40,7 +40,7 @@ anychart.charts.Scatter.prototype.seriesConfig = (function() {
       anychart.core.series.Capabilities.SUPPORTS_MARKERS |
       anychart.core.series.Capabilities.SUPPORTS_LABELS |
       0);
-  res[anychart.enums.CartesianSeriesType.BUBBLE] = {
+  res['bubble'] = {
     drawerType: anychart.enums.SeriesDrawerTypes.BUBBLE,
     shapeManagerType: anychart.enums.ShapeManagerTypes.PER_POINT,
     shapesConfig: [
@@ -55,7 +55,7 @@ anychart.charts.Scatter.prototype.seriesConfig = (function() {
     anchoredPositionTop: 'value',
     anchoredPositionBottom: 'value'
   };
-  res[anychart.enums.CartesianSeriesType.LINE] = {
+  res['line'] = {
     drawerType: anychart.enums.SeriesDrawerTypes.LINE,
     shapeManagerType: anychart.enums.ShapeManagerTypes.PER_SERIES,
     shapesConfig: [
@@ -67,7 +67,7 @@ anychart.charts.Scatter.prototype.seriesConfig = (function() {
     anchoredPositionTop: 'value',
     anchoredPositionBottom: 'value'
   };
-  res[anychart.enums.CartesianSeriesType.MARKER] = {
+  res['marker'] = {
     drawerType: anychart.enums.SeriesDrawerTypes.MARKER,
     shapeManagerType: anychart.enums.ShapeManagerTypes.PER_POINT,
     shapesConfig: [

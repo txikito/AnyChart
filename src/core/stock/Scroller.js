@@ -142,7 +142,7 @@ anychart.core.stock.Scroller.prototype.seriesConfig = (function() {
       // anychart.core.series.Capabilities.SUPPORTS_MARKERS |
       // anychart.core.series.Capabilities.SUPPORTS_LABELS |
       0);
-  res[anychart.enums.StockSeriesType.AREA] = {
+  res['line'] = {
     drawerType: anychart.enums.SeriesDrawerTypes.AREA,
     shapeManagerType: anychart.enums.ShapeManagerTypes.PER_SERIES,
     shapesConfig: [
@@ -160,7 +160,7 @@ anychart.core.stock.Scroller.prototype.seriesConfig = (function() {
     anchoredPositionTop: 'value',
     anchoredPositionBottom: 'zero'
   };
-  res[anychart.enums.StockSeriesType.CANDLESTICK] = {
+  res['candlestick'] = {
     drawerType: anychart.enums.SeriesDrawerTypes.CANDLESTICK,
     shapeManagerType: anychart.enums.ShapeManagerTypes.PER_SERIES,
     shapesConfig: [
@@ -180,7 +180,7 @@ anychart.core.stock.Scroller.prototype.seriesConfig = (function() {
     anchoredPositionTop: 'high',
     anchoredPositionBottom: 'low'
   };
-  res[anychart.enums.StockSeriesType.COLUMN] = {
+  res['column'] = {
     drawerType: anychart.enums.SeriesDrawerTypes.COLUMN,
     shapeManagerType: anychart.enums.ShapeManagerTypes.PER_SERIES,
     shapesConfig: [
@@ -196,7 +196,7 @@ anychart.core.stock.Scroller.prototype.seriesConfig = (function() {
     anchoredPositionTop: 'value',
     anchoredPositionBottom: 'zero'
   };
-  res[anychart.enums.CartesianSeriesType.JUMP_LINE] = {
+  res['jumpLine'] = {
     drawerType: anychart.enums.SeriesDrawerTypes.JUMP_LINE,
     shapeManagerType: anychart.enums.ShapeManagerTypes.PER_POINT,
     shapesConfig: [
@@ -210,7 +210,7 @@ anychart.core.stock.Scroller.prototype.seriesConfig = (function() {
     anchoredPositionTop: 'value',
     anchoredPositionBottom: 'value'
   };
-  res[anychart.enums.CartesianSeriesType.STICK] = {
+  res['stick'] = {
     drawerType: anychart.enums.SeriesDrawerTypes.STICK,
     shapeManagerType: anychart.enums.ShapeManagerTypes.PER_POINT,
     shapesConfig: [
@@ -224,7 +224,7 @@ anychart.core.stock.Scroller.prototype.seriesConfig = (function() {
     anchoredPositionTop: 'value',
     anchoredPositionBottom: 'zero'
   };
-  res[anychart.enums.StockSeriesType.LINE] = {
+  res['line'] = {
     drawerType: anychart.enums.SeriesDrawerTypes.LINE,
     shapeManagerType: anychart.enums.ShapeManagerTypes.PER_SERIES,
     shapesConfig: [
@@ -238,7 +238,7 @@ anychart.core.stock.Scroller.prototype.seriesConfig = (function() {
     anchoredPositionTop: 'value',
     anchoredPositionBottom: 'value'
   };
-  res[anychart.enums.StockSeriesType.MARKER] = {
+  res['marker'] = {
     drawerType: anychart.enums.SeriesDrawerTypes.MARKER,
     shapeManagerType: anychart.enums.ShapeManagerTypes.PER_SERIES,
     shapesConfig: [
@@ -254,7 +254,7 @@ anychart.core.stock.Scroller.prototype.seriesConfig = (function() {
     anchoredPositionTop: 'value',
     anchoredPositionBottom: 'value'
   };
-  res[anychart.enums.StockSeriesType.OHLC] = {
+  res['ohlc'] = {
     drawerType: anychart.enums.SeriesDrawerTypes.OHLC,
     shapeManagerType: anychart.enums.ShapeManagerTypes.PER_SERIES,
     shapesConfig: [
@@ -270,7 +270,7 @@ anychart.core.stock.Scroller.prototype.seriesConfig = (function() {
     anchoredPositionTop: 'high',
     anchoredPositionBottom: 'low'
   };
-  res[anychart.enums.StockSeriesType.RANGE_AREA] = {
+  res['rangeArea'] = {
     drawerType: anychart.enums.SeriesDrawerTypes.RANGE_AREA,
     shapeManagerType: anychart.enums.ShapeManagerTypes.PER_SERIES,
     shapesConfig: [
@@ -290,7 +290,7 @@ anychart.core.stock.Scroller.prototype.seriesConfig = (function() {
     anchoredPositionTop: 'high',
     anchoredPositionBottom: 'low'
   };
-  res[anychart.enums.StockSeriesType.RANGE_COLUMN] = {
+  res['rangeColumn'] = {
     drawerType: anychart.enums.SeriesDrawerTypes.RANGE_COLUMN,
     shapeManagerType: anychart.enums.ShapeManagerTypes.PER_SERIES,
     shapesConfig: [
@@ -306,7 +306,7 @@ anychart.core.stock.Scroller.prototype.seriesConfig = (function() {
     anchoredPositionTop: 'high',
     anchoredPositionBottom: 'low'
   };
-  res[anychart.enums.StockSeriesType.RANGE_SPLINE_AREA] = {
+  res['rangeSplineArea'] = {
     drawerType: anychart.enums.SeriesDrawerTypes.RANGE_SPLINE_AREA,
     shapeManagerType: anychart.enums.ShapeManagerTypes.PER_SERIES,
     shapesConfig: [
@@ -326,7 +326,7 @@ anychart.core.stock.Scroller.prototype.seriesConfig = (function() {
     anchoredPositionTop: 'high',
     anchoredPositionBottom: 'low'
   };
-  res[anychart.enums.StockSeriesType.RANGE_STEP_AREA] = {
+  res['rangeStepArea'] = {
     drawerType: anychart.enums.SeriesDrawerTypes.RANGE_STEP_AREA,
     shapeManagerType: anychart.enums.ShapeManagerTypes.PER_SERIES,
     shapesConfig: [
@@ -346,7 +346,7 @@ anychart.core.stock.Scroller.prototype.seriesConfig = (function() {
     anchoredPositionTop: 'high',
     anchoredPositionBottom: 'low'
   };
-  res[anychart.enums.StockSeriesType.SPLINE] = {
+  res['spline'] = {
     drawerType: anychart.enums.SeriesDrawerTypes.SPLINE,
     shapeManagerType: anychart.enums.ShapeManagerTypes.PER_SERIES,
     shapesConfig: [
@@ -360,7 +360,7 @@ anychart.core.stock.Scroller.prototype.seriesConfig = (function() {
     anchoredPositionTop: 'value',
     anchoredPositionBottom: 'value'
   };
-  res[anychart.enums.StockSeriesType.SPLINE_AREA] = {
+  res['splineArea'] = {
     drawerType: anychart.enums.SeriesDrawerTypes.SPLINE_AREA,
     shapeManagerType: anychart.enums.ShapeManagerTypes.PER_SERIES,
     shapesConfig: [
@@ -378,7 +378,7 @@ anychart.core.stock.Scroller.prototype.seriesConfig = (function() {
     anchoredPositionTop: 'value',
     anchoredPositionBottom: 'zero'
   };
-  res[anychart.enums.StockSeriesType.STEP_AREA] = {
+  res['stepArea'] = {
     drawerType: anychart.enums.SeriesDrawerTypes.STEP_AREA,
     shapeManagerType: anychart.enums.ShapeManagerTypes.PER_SERIES,
     shapesConfig: [
@@ -396,7 +396,7 @@ anychart.core.stock.Scroller.prototype.seriesConfig = (function() {
     anchoredPositionTop: 'value',
     anchoredPositionBottom: 'zero'
   };
-  res[anychart.enums.StockSeriesType.STEP_LINE] = {
+  res['stepLine'] = {
     drawerType: anychart.enums.SeriesDrawerTypes.STEP_LINE,
     shapeManagerType: anychart.enums.ShapeManagerTypes.PER_SERIES,
     shapesConfig: [

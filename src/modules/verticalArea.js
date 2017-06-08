@@ -30,7 +30,7 @@ anychart.verticalArea = function(var_args) {
   chart.setupInternal(true, anychart.getFullTheme('verticalArea'));
 
   for (var i = 0, count = arguments.length; i < count; i++) {
-    chart[anychart.enums.CartesianSeriesType.AREA](arguments[i]);
+    chart['area'](arguments[i]);
   }
 
   return chart;
