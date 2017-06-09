@@ -5133,10 +5133,10 @@ anychart.charts.Map.prototype.setupByJSON = function(config, opt_default) {
       var type = goog.isString(json) ? json : json['type'];
       type = (type + '').toLowerCase();
       switch (type) {
-        case 'ordinalcolor':
+        case anychart.enums.ScaleTypes.ORDINAL_COLOR:
           scale = anychart.scales.ordinalColor();
           break;
-        case 'linearcolor':
+        case anychart.enums.ScaleTypes.LINEAR_COLOR:
           scale = anychart.scales.linearColor();
           break;
         default:

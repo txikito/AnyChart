@@ -416,7 +416,7 @@ anychart.data.Tree.prototype.addData = function(data, opt_fillMethodOrCsvMapping
   this.suspendSignalsDispatching();
 
   switch (fillingMethod) {
-    case 'astable':
+    case 'as-table':
     case 'table':
     case 'parentid':
     case 'linear':
@@ -429,7 +429,7 @@ anychart.data.Tree.prototype.addData = function(data, opt_fillMethodOrCsvMapping
       this.fillAsParentPointer_(data);
       break;
 
-    case 'astree':
+    case 'as-tree':
     case 'tree':
     case 'structure':
     case 'structural':

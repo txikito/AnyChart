@@ -989,8 +989,8 @@ anychart.enums.LabelsOverlapMode = {
  * @return {anychart.enums.LabelsOverlapMode}
  */
 anychart.enums.normalizeLabelsOverlapMode = function(value, opt_default, opt_allowAutoWidth) {
-  opt_default = (String(value)).toLowerCase() == 'autowidth' && !opt_allowAutoWidth ? void 0 : opt_default;
-  value = (String(value)).toLowerCase() == 'autowidth' && !opt_allowAutoWidth ? opt_default : value;
+  opt_default = (String(value)).toLowerCase() == 'auto-width' && !opt_allowAutoWidth ? void 0 : opt_default;
+  value = (String(value)).toLowerCase() == 'auto-width' && !opt_allowAutoWidth ? opt_default : value;
   return /** @type {anychart.enums.LabelsOverlapMode} */(anychart.enums.normalize(anychart.enums.LabelsOverlapMode, value,
       opt_default || anychart.enums.LabelsOverlapMode.ALLOW_OVERLAP));
 };
@@ -2213,6 +2213,17 @@ anychart.enums.ScaleTypes = {
   ORDINAL: 'ordinal',
   ORDINAL_COLOR: 'ordinal-color',
   LINEAR_COLOR: 'linear-color'
+};
+
+
+/**
+ * Normalize scale type.
+ * @param {string} value .
+ * @return {anychart.enums.ScaleTypes|string} .
+ */
+anychart.enums.normalizeScaleTypes = function(value) {
+  return /** @type {anychart.enums.ScaleTypes} */(anychart.enums.normalize(anychart.enums.ScaleTypes, value,
+      anychart.enums.ScaleTypes.LINEAR));
 };
 
 

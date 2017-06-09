@@ -1850,17 +1850,17 @@ anychart.utils.getMarkerDrawer = function(type) {
       return acgraph.vector.primitives.star10;
     case 'diamond':
       return acgraph.vector.primitives.diamond;
-    case 'triangleup':
+    case 'triangle-up':
       return acgraph.vector.primitives.triangleUp;
-    case 'triangledown':
+    case 'triangle-down':
       return acgraph.vector.primitives.triangleDown;
-    case 'triangleright':
+    case 'triangle-right':
       return acgraph.vector.primitives.triangleRight;
-    case 'triangleleft':
+    case 'triangle-left':
       return acgraph.vector.primitives.triangleLeft;
     case 'cross':
       return acgraph.vector.primitives.cross;
-    case 'diagonalcross':
+    case 'diagonal-cross':
       return acgraph.vector.primitives.diagonalCross;
     case 'circle':
       return function(path, x, y, radius) {
@@ -1930,7 +1930,7 @@ anychart.utils.getMarkerDrawer = function(type) {
 
             return path;
           }));
-    case 'vline':
+    case 'v-line':
     case 'line':
       return (
           /**
@@ -1972,7 +1972,7 @@ anychart.utils.getMarkerDrawer = function(type) {
 
             return path;
           }));
-    case 'arrowup':
+    case 'arrow-up':
       return (
           /**
            * @param {!acgraph.vector.Path} path
@@ -2016,7 +2016,7 @@ anychart.utils.getMarkerDrawer = function(type) {
             path.close();
             return path;
           }));
-    case 'arrowdown':
+    case 'arrow-down':
       return (
           /**
            * @param {!acgraph.vector.Path} path
@@ -2060,7 +2060,7 @@ anychart.utils.getMarkerDrawer = function(type) {
             path.close();
             return path;
           }));
-    case 'arrowleft':
+    case 'arrow-left':
       return (
           /**
            * @param {!acgraph.vector.Path} path
@@ -2104,7 +2104,7 @@ anychart.utils.getMarkerDrawer = function(type) {
             path.close();
             return path;
           }));
-    case 'arrowright':
+    case 'arrow-right':
       return (
           /**
            * @param {!acgraph.vector.Path} path
