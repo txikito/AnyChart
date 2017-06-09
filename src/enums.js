@@ -1824,7 +1824,7 @@ anychart.enums.SparklineSeriesType = {
   AREA: 'area',
   COLUMN: 'column',
   LINE: 'line',
-  WIN_LOSS: 'winLoss'
+  WIN_LOSS: 'win-loss'
 };
 
 
