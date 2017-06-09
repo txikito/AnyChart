@@ -51,40 +51,40 @@ anychart.ui.RangeSelector = function() {
   this.ranges_ = [];
 
   this.ranges([{
-    'type': 'Unit',
+    'type': 'unit',
     'unit': 'Day',
     'count': 10,
     'text': '10D'
   },{
-    'type': 'Unit',
+    'type': 'unit',
     'unit': 'Month',
     'count': 1,
     'text': '1M'
   },{
-    'type': 'Unit',
+    'type': 'unit',
     'unit': 'Month',
     'count': 3,
     'text': '3M'
   },{
-    'type': 'YTD',
+    'type': 'ytd',
     'text': 'YTD'
   },{
-    'type': 'Unit',
+    'type': 'unit',
     'unit': 'Year',
     'count': 1,
     'text': '1Y'
   },{
-    'type': 'Unit',
+    'type': 'unit',
     'unit': 'Year',
     'count': 2,
     'text': '2Y'
   },{
-    'type': 'Unit',
+    'type': 'unit',
     'unit': 'Year',
     'count': 5,
     'text': '5Y'
   },{
-    'type': 'Max',
+    'type': 'max',
     'text': 'MAX'
   }]);
 

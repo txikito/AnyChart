@@ -1945,7 +1945,7 @@ goog.provide('anychart.themes.defaultTheme');
         'displayMode': 'union'
       },
       'interactivity': {
-        'hoverMode': 'byX'
+        'hoverMode': 'by-x'
       }
     },
     'bar': {
@@ -1991,7 +1991,7 @@ goog.provide('anychart.themes.defaultTheme');
         'displayMode': 'union'
       },
       'interactivity': {
-        'hoverMode': 'byX'
+        'hoverMode': 'by-x'
       }
     },
     'box': {
@@ -2058,7 +2058,7 @@ goog.provide('anychart.themes.defaultTheme');
         'displayMode': 'union'
       },
       'interactivity': {
-        'hoverMode': 'byX'
+        'hoverMode': 'by-x'
       },
       'xScroller': {
         'orientation': 'left'
@@ -2086,7 +2086,7 @@ goog.provide('anychart.themes.defaultTheme');
         'displayMode': 'union'
       },
       'interactivity': {
-        'hoverMode': 'byX'
+        'hoverMode': 'by-x'
       },
       'xScroller': {
         'orientation': 'left'
@@ -2098,7 +2098,7 @@ goog.provide('anychart.themes.defaultTheme');
         'displayMode': 'union'
       },
       'interactivity': {
-        'hoverMode': 'byX'
+        'hoverMode': 'by-x'
       },
       'yAxes': [
         {
@@ -3515,7 +3515,7 @@ goog.provide('anychart.themes.defaultTheme');
     'linearGauge': {
       'padding': 10,
       'markerPalette': {
-        'items': ['circle', 'diamond', 'square', 'triangle-down', 'triangle-up', 'triangleLeft', 'triangleRight', 'diagonalCross', 'pentagon', 'cross', 'vline', 'star5', 'star4', 'trapezium', 'star7', 'star6', 'star10']
+        'items': ['circle', 'diamond', 'square', 'triangle-down', 'triangle-up', 'triangle-left', 'triangle-right', 'diagonal-cross', 'pentagon', 'cross', 'v-line', 'star5', 'star4', 'trapezium', 'star7', 'star6', 'star10']
       },
       'globalOffset': '0%',
       'layout': 'vertical',
@@ -4920,7 +4920,7 @@ goog.provide('anychart.themes.defaultTheme');
         if (this['duration'] === void 0) {
           var pessimistic = this['pessimistic'];
           var optimistic = this['optimistic'];
-          var mostLikely = this['mostLikely'];
+          var mostLikely = this['most-likely'];
           return Math.round(((optimistic + 4 * mostLikely + pessimistic) / 6) * 100) / 100; //Round to 2 digits after floating point.
         } else {
           return Number(this['duration']);
