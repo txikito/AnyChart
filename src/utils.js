@@ -1504,13 +1504,13 @@ anychart.utils.isNullNodeAllowed = function(name) {
 
 /**
  * Converts a string from selector-case to camelCase (e.g. from
- * "multi-part-string" to "multiPartString"), useful for converting
+ * "multi-part-string" or "multi_part_string" to "multiPartString"), useful for converting
  * CSS selectors and HTML dataset keys to their equivalent JS properties.
  * @param {string} str The string in selector-case form.
  * @return {string} The string in camelCase form.
  */
 anychart.utils.toCamelCase = function(str) {
-  return String(str).replace(/_([a-z])/g, function(all, match) {
+  return String(str).replace(/[-_]([a-z])/g, function(all, match) {
     return match.toUpperCase();
   });
 };

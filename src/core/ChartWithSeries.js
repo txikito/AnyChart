@@ -214,6 +214,7 @@ anychart.core.ChartWithSeries.prototype.defaultSeriesType = function(opt_value) 
  */
 anychart.core.ChartWithSeries.prototype.getConfigByType = function(type) {
   type = this.normalizeSeriesType(type);
+  type = anychart.utils.toCamelCase(type);
   var config = this.seriesConfig[type];
   var res;
   if (config && (config.drawerType in anychart.core.drawers.AvailableDrawers)) {
