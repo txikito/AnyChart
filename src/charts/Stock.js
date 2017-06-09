@@ -491,6 +491,7 @@ anychart.charts.Stock.prototype.getAllSeries = function() {
  */
 anychart.charts.Stock.prototype.getConfigByType = function(type) {
   type = anychart.enums.normalizeStockSeriesType(type);
+  type = anychart.utils.toCamelCase(type);
   var config = this.seriesConfig[type];
   var res;
   if (config && (config.drawerType in anychart.core.drawers.AvailableDrawers)) {

@@ -1153,6 +1153,7 @@ anychart.core.stock.Scroller.prototype.defaultSeriesSettings = function(opt_valu
  */
 anychart.core.stock.Scroller.prototype.getConfigByType = function(type) {
   type = anychart.enums.normalizeStockSeriesType(type);
+  type = anychart.utils.toCamelCase(type);
   var config = this.seriesConfig[type];
   var res;
   if (config && (config.drawerType in anychart.core.drawers.AvailableDrawers)) {
