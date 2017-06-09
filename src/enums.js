@@ -123,30 +123,6 @@ anychart.enums.MapUnboundRegionsMode = {
 
 /**
  * Common normalization of value and default value.
- * @param {Object} enumeration
- * @param {*=} opt_value
- * @param {*=} opt_default
- * @param {boolean=} opt_deepCompare
- * @return {*}
- */
-anychart.enums.normalizeValues = function(enumeration, opt_value, opt_default, opt_deepCompare) {
-  if (goog.isDefAndNotNull(opt_value)) {
-    opt_value = (String(opt_value)).toLowerCase();
-    if (opt_deepCompare) {
-      for (var i in enumeration) {
-        if (enumeration[i].toLowerCase() == opt_value)
-          return enumeration[i];
-      }
-    } else if (goog.object.getValues(enumeration).indexOf(opt_value) > -1) {
-      return opt_value;
-    }
-  }
-  return goog.isDefAndNotNull(opt_default) ? anychart.enums.normalizeValues(enumeration, opt_default, void 0, opt_deepCompare) : null;
-};
-
-
-/**
- * Common normalization of value and default value.
  * @param {Object} enumObj
  * @param {*} value
  * @param {*} defValue
@@ -220,7 +196,8 @@ anychart.enums.SelectionMode = {
  * @return {anychart.enums.SelectionMode}
  */
 anychart.enums.normalizeSelectMode = function(value, opt_default) {
-  return /** @type {anychart.enums.SelectionMode} */(anychart.enums.normalize(anychart.enums.SelectionMode, value, opt_default || anychart.enums.SelectionMode.NONE));
+  return /** @type {anychart.enums.SelectionMode} */(anychart.enums.normalize(anychart.enums.SelectionMode, value,
+      opt_default || anychart.enums.SelectionMode.NONE));
 };
 
 
@@ -300,7 +277,8 @@ anychart.enums.Cursor = {
  * @return {anychart.enums.Cursor}
  */
 anychart.enums.normalizeCursor = function(value, opt_default) {
-  return /** @type {anychart.enums.Cursor} */(anychart.enums.normalize(anychart.enums.Cursor, value, opt_default || anychart.enums.Cursor.DEFAULT));
+  return /** @type {anychart.enums.Cursor} */(anychart.enums.normalize(anychart.enums.Cursor, value,
+      opt_default || anychart.enums.Cursor.DEFAULT));
 };
 
 
@@ -382,7 +360,8 @@ anychart.enums.Anchor = {
  * @template T
  */
 anychart.enums.normalizeAnchor = function(value, opt_default) {
-  return /** @type {anychart.enums.Anchor} */(anychart.enums.normalize(anychart.enums.Anchor, value, opt_default || anychart.enums.Anchor.LEFT_TOP));
+  return /** @type {anychart.enums.Anchor} */(anychart.enums.normalize(anychart.enums.Anchor, value,
+      opt_default || anychart.enums.Anchor.LEFT_TOP));
 };
 
 
@@ -483,8 +462,7 @@ anychart.enums.ChartScrollerPosition = {
  * @return {anychart.enums.ChartScrollerPosition}
  */
 anychart.enums.normalizeChartScrollerPosition = function(value, opt_default) {
-  return /** @type {anychart.enums.ChartScrollerPosition} */(anychart.enums.normalize(anychart.enums.ChartScrollerPosition,
-      value,
+  return /** @type {anychart.enums.ChartScrollerPosition} */(anychart.enums.normalize(anychart.enums.ChartScrollerPosition, value,
       opt_default || anychart.enums.ChartScrollerPosition.AFTER_AXES));
 };
 
@@ -531,7 +509,8 @@ anychart.enums.Align = {
  * @return {anychart.enums.Align} Normalized align.
  */
 anychart.enums.normalizeAlign = function(value, opt_default) {
-  return /** @type {anychart.enums.Align} */(anychart.enums.normalize(anychart.enums.Align, value, opt_default || anychart.enums.Align.CENTER));
+  return /** @type {anychart.enums.Align} */(anychart.enums.normalize(anychart.enums.Align, value,
+      opt_default || anychart.enums.Align.CENTER));
 };
 
 
@@ -881,7 +860,8 @@ anychart.enums.normalizeMarkerType = function(value, opt_default) {
  * @return {anychart.enums.MarkerType|anychart.enums.BulletMarkerType|null} Normalized marker type.
  */
 anychart.enums.normalizeAnyMarkerType = function(value) {
-  return /** @type {anychart.enums.MarkerType} */(anychart.enums.normalize(anychart.enums.MarkerType, value, anychart.enums.MarkerType.STAR5));
+  return /** @type {anychart.enums.MarkerType} */(anychart.enums.normalize(anychart.enums.MarkerType, value,
+      anychart.enums.MarkerType.STAR5));
 };
 
 
@@ -1278,7 +1258,8 @@ anychart.enums.BulletMarkerType = {
  * @return {anychart.enums.BulletMarkerType}
  */
 anychart.enums.normalizeBulletMarkerType = function(value, opt_default) {
-  return /** @type {anychart.enums.BulletMarkerType} */(anychart.enums.normalize(anychart.enums.BulletMarkerType, value, opt_default || anychart.enums.BulletMarkerType.BAR));
+  return /** @type {anychart.enums.BulletMarkerType} */(anychart.enums.normalize(anychart.enums.BulletMarkerType, value,
+      opt_default || anychart.enums.BulletMarkerType.BAR));
 };
 
 
@@ -1776,16 +1757,16 @@ anychart.enums.StockSeriesType = {
   LINE: 'line',
   MARKER: 'marker',
   OHLC: 'ohlc',
-  RANGE_AREA: 'rangeArea',
-  // RANGE_BAR: 'rangeBar',
-  RANGE_COLUMN: 'rangeColumn',
-  RANGE_SPLINE_AREA: 'rangeSplineArea',
-  RANGE_STEP_AREA: 'rangeStepArea',
+  RANGE_AREA: 'range-area',
+  // RANGE_BAR: 'range-bar',
+  RANGE_COLUMN: 'range-column',
+  RANGE_SPLINE_AREA: 'range-spline-area',
+  RANGE_STEP_AREA: 'range-step-area',
   SPLINE: 'spline',
-  SPLINE_AREA: 'splineArea',
-  STEP_AREA: 'stepArea',
-  STEP_LINE: 'stepLine',
-  JUMP_LINE: 'jumpLine',
+  SPLINE_AREA: 'spline-area',
+  STEP_AREA: 'step-area',
+  STEP_LINE: 'step-line',
+  JUMP_LINE: 'jump-line',
   STICK: 'stick',
   HILO: 'hilo'
 };
@@ -2150,7 +2131,7 @@ anychart.enums.normalizeScatterSeriesType = function(value, opt_default) {
  * @enum {string}
  */
 anychart.enums.HeatMapSeriesType = {
-  HEAT_MAP: 'heatMap'
+  HEAT_MAP: 'heat-map'
 };
 
 
@@ -2314,8 +2295,8 @@ anychart.enums.ChartDataExportMode = {
  * @return {anychart.enums.ChartDataExportMode} Normalized csv mode.
  */
 anychart.enums.normalizeChartDataExportMode = function(opt_value) {
-  return /** @type {anychart.enums.ChartDataExportMode} */(anychart.enums.normalize(anychart.enums.ChartDataExportMode,
-      opt_value || anychart.enums.ChartDataExportMode.SPECIFIC));
+  return /** @type {anychart.enums.ChartDataExportMode} */(anychart.enums.normalize(anychart.enums.ChartDataExportMode, opt_value,
+      anychart.enums.ChartDataExportMode.SPECIFIC));
 };
 
 
@@ -2673,7 +2654,8 @@ anychart.enums.TextDecoration = {
  * @return {anychart.enums.TextDecoration}
  */
 anychart.enums.normalizeFontDecoration = function(value) {
-  return /** @type {anychart.enums.TextDecoration} */(anychart.enums.normalize(anychart.enums.TextDecoration, value, anychart.enums.TextDecoration.NONE));
+  return /** @type {anychart.enums.TextDecoration} */(anychart.enums.normalize(anychart.enums.TextDecoration, value,
+      anychart.enums.TextDecoration.NONE));
 };
 
 
@@ -2703,7 +2685,8 @@ anychart.enums.FontStyle = {
  * @return {anychart.enums.FontStyle}
  */
 anychart.enums.normalizeFontStyle = function(value) {
-  return /** @type {anychart.enums.FontStyle} */(anychart.enums.normalize(anychart.enums.FontStyle, value, anychart.enums.FontStyle.NORMAL));
+  return /** @type {anychart.enums.FontStyle} */(anychart.enums.normalize(anychart.enums.FontStyle, value,
+      anychart.enums.FontStyle.NORMAL));
 };
 
 
@@ -2729,7 +2712,8 @@ anychart.enums.FontVariant = {
  * @return {anychart.enums.FontVariant}
  */
 anychart.enums.normalizeFontVariant = function(value) {
-  return /** @type {anychart.enums.FontVariant} */(anychart.enums.normalize(anychart.enums.FontVariant, value, anychart.enums.FontVariant.NORMAL));
+  return /** @type {anychart.enums.FontVariant} */(anychart.enums.normalize(anychart.enums.FontVariant, value,
+      anychart.enums.FontVariant.NORMAL));
 };
 
 
@@ -2755,7 +2739,8 @@ anychart.enums.TextDirection = {
  * @return {anychart.enums.TextDirection}
  */
 anychart.enums.normalizeTextDirection = function(value) {
-  return /** @type {anychart.enums.TextDirection} */(anychart.enums.normalize(anychart.enums.TextDirection, value, anychart.enums.TextDirection.LTR));
+  return /** @type {anychart.enums.TextDirection} */(anychart.enums.normalize(anychart.enums.TextDirection, value,
+      anychart.enums.TextDirection.LTR));
 };
 
 
@@ -2785,7 +2770,8 @@ anychart.enums.TextWrap = {
  * @return {anychart.enums.TextWrap}
  */
 anychart.enums.normalizeTextWrap = function(value) {
-  return /** @type {anychart.enums.TextWrap} */(anychart.enums.normalize(anychart.enums.TextWrap, value, anychart.enums.TextWrap.BY_LETTER));
+  return /** @type {anychart.enums.TextWrap} */(anychart.enums.normalize(anychart.enums.TextWrap, value,
+      anychart.enums.TextWrap.BY_LETTER));
 };
 
 
