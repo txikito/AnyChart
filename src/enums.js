@@ -3126,7 +3126,7 @@ anychart.enums.TokenType = {
   UNKNOWN: '',
   NUMBER: 'number',
   STRING: 'string',
-  DATE_TIME: 'datetime',
+  DATE_TIME: 'date-time',
   PERCENT: 'percent'
 };
 
