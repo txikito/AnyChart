@@ -618,6 +618,7 @@ anychart.appendTheme = function(value) {
  * @return {*}
  */
 anychart.getFullTheme = function(root) {
+  root = anychart.utils.toCamelCase(root);
   anychart.performance.start('Theme compilation');
   var i;
   if (!anychart.themeClones_.length) {
