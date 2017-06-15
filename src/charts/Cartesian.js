@@ -43,7 +43,7 @@ anychart.charts.Cartesian.prototype.seriesConfig = (function() {
       anychart.core.series.Capabilities.SUPPORTS_MARKERS |
       anychart.core.series.Capabilities.SUPPORTS_LABELS |
       0);
-  res['area'] = {
+  res[anychart.enums.CartesianSeriesType.AREA] = {
     drawerType: anychart.enums.SeriesDrawerTypes.AREA,
     shapeManagerType: anychart.enums.ShapeManagerTypes.PER_SERIES,
     shapesConfig: [
@@ -57,7 +57,7 @@ anychart.charts.Cartesian.prototype.seriesConfig = (function() {
     anchoredPositionTop: 'value',
     anchoredPositionBottom: 'zero'
   };
-  res['bar'] = {
+  res[anychart.enums.CartesianSeriesType.BAR] = {
     drawerType: anychart.enums.SeriesDrawerTypes.COLUMN,
     shapeManagerType: anychart.enums.ShapeManagerTypes.PER_POINT,
     shapesConfig: [
@@ -70,7 +70,7 @@ anychart.charts.Cartesian.prototype.seriesConfig = (function() {
     anchoredPositionTop: 'value',
     anchoredPositionBottom: 'zero'
   };
-  res['box'] = {
+  res[anychart.enums.CartesianSeriesType.BOX] = {
     drawerType: anychart.enums.SeriesDrawerTypes.BOX,
     shapeManagerType: anychart.enums.ShapeManagerTypes.PER_POINT,
     shapesConfig: [
@@ -86,7 +86,7 @@ anychart.charts.Cartesian.prototype.seriesConfig = (function() {
     anchoredPositionTop: 'highest',
     anchoredPositionBottom: 'lowest'
   };
-  res['bubble'] = {
+  res[anychart.enums.CartesianSeriesType.BUBBLE] = {
     drawerType: anychart.enums.SeriesDrawerTypes.BUBBLE,
     shapeManagerType: anychart.enums.ShapeManagerTypes.PER_POINT,
     shapesConfig: [
@@ -101,7 +101,7 @@ anychart.charts.Cartesian.prototype.seriesConfig = (function() {
     anchoredPositionTop: 'value',
     anchoredPositionBottom: 'value'
   };
-  res['candlestick'] = {
+  res[anychart.enums.CartesianSeriesType.CANDLESTICK] = {
     drawerType: anychart.enums.SeriesDrawerTypes.CANDLESTICK,
     shapeManagerType: anychart.enums.ShapeManagerTypes.PER_POINT,
     shapesConfig: [
@@ -116,7 +116,7 @@ anychart.charts.Cartesian.prototype.seriesConfig = (function() {
     anchoredPositionTop: 'high',
     anchoredPositionBottom: 'low'
   };
-  res['column'] = {
+  res[anychart.enums.CartesianSeriesType.COLUMN] = {
     drawerType: anychart.enums.SeriesDrawerTypes.COLUMN,
     shapeManagerType: anychart.enums.ShapeManagerTypes.PER_POINT,
     shapesConfig: [
@@ -129,7 +129,7 @@ anychart.charts.Cartesian.prototype.seriesConfig = (function() {
     anchoredPositionTop: 'value',
     anchoredPositionBottom: 'zero'
   };
-  res['jumpLine'] = {
+  res[anychart.enums.CartesianSeriesType.JUMP_LINE] = {
     drawerType: anychart.enums.SeriesDrawerTypes.JUMP_LINE,
     shapeManagerType: anychart.enums.ShapeManagerTypes.PER_POINT,
     shapesConfig: [
@@ -141,7 +141,7 @@ anychart.charts.Cartesian.prototype.seriesConfig = (function() {
     anchoredPositionTop: 'value',
     anchoredPositionBottom: 'value'
   };
-  res['line'] = {
+  res[anychart.enums.CartesianSeriesType.LINE] = {
     drawerType: anychart.enums.SeriesDrawerTypes.LINE,
     shapeManagerType: anychart.enums.ShapeManagerTypes.PER_SERIES,
     shapesConfig: [
@@ -153,7 +153,7 @@ anychart.charts.Cartesian.prototype.seriesConfig = (function() {
     anchoredPositionTop: 'value',
     anchoredPositionBottom: 'value'
   };
-  res['marker'] = {
+  res[anychart.enums.CartesianSeriesType.MARKER] = {
     drawerType: anychart.enums.SeriesDrawerTypes.MARKER,
     shapeManagerType: anychart.enums.ShapeManagerTypes.PER_POINT,
     shapesConfig: [
@@ -172,7 +172,7 @@ anychart.charts.Cartesian.prototype.seriesConfig = (function() {
     anchoredPositionTop: 'value',
     anchoredPositionBottom: 'value'
   };
-  res['ohlc'] = {
+  res[anychart.enums.CartesianSeriesType.OHLC] = {
     drawerType: anychart.enums.SeriesDrawerTypes.OHLC,
     shapeManagerType: anychart.enums.ShapeManagerTypes.PER_POINT,
     shapesConfig: [
@@ -185,7 +185,7 @@ anychart.charts.Cartesian.prototype.seriesConfig = (function() {
     anchoredPositionTop: 'high',
     anchoredPositionBottom: 'low'
   };
-  res['rangeArea'] = {
+  res[anychart.enums.CartesianSeriesType.RANGE_AREA] = {
     drawerType: anychart.enums.SeriesDrawerTypes.RANGE_AREA,
     shapeManagerType: anychart.enums.ShapeManagerTypes.PER_SERIES,
     shapesConfig: [
@@ -200,7 +200,7 @@ anychart.charts.Cartesian.prototype.seriesConfig = (function() {
     anchoredPositionTop: 'high',
     anchoredPositionBottom: 'low'
   };
-  res['rangeBar'] = {
+  res[anychart.enums.CartesianSeriesType.RANGE_BAR] = {
     drawerType: anychart.enums.SeriesDrawerTypes.RANGE_COLUMN,
     shapeManagerType: anychart.enums.ShapeManagerTypes.PER_POINT,
     shapesConfig: [
@@ -213,7 +213,7 @@ anychart.charts.Cartesian.prototype.seriesConfig = (function() {
     anchoredPositionTop: 'high',
     anchoredPositionBottom: 'low'
   };
-  res['rangeColumn'] = {
+  res[anychart.enums.CartesianSeriesType.RANGE_COLUMN] = {
     drawerType: anychart.enums.SeriesDrawerTypes.RANGE_COLUMN,
     shapeManagerType: anychart.enums.ShapeManagerTypes.PER_POINT,
     shapesConfig: [
@@ -226,7 +226,7 @@ anychart.charts.Cartesian.prototype.seriesConfig = (function() {
     anchoredPositionTop: 'high',
     anchoredPositionBottom: 'low'
   };
-  res['rangeSplineArea'] = {
+  res[anychart.enums.CartesianSeriesType.RANGE_SPLINE_AREA] = {
     drawerType: anychart.enums.SeriesDrawerTypes.RANGE_SPLINE_AREA,
     shapeManagerType: anychart.enums.ShapeManagerTypes.PER_SERIES,
     shapesConfig: [
@@ -241,7 +241,7 @@ anychart.charts.Cartesian.prototype.seriesConfig = (function() {
     anchoredPositionTop: 'high',
     anchoredPositionBottom: 'low'
   };
-  res['rangeStepArea'] = {
+  res[anychart.enums.CartesianSeriesType.RANGE_STEP_AREA] = {
     drawerType: anychart.enums.SeriesDrawerTypes.RANGE_STEP_AREA,
     shapeManagerType: anychart.enums.ShapeManagerTypes.PER_SERIES,
     shapesConfig: [
@@ -256,7 +256,7 @@ anychart.charts.Cartesian.prototype.seriesConfig = (function() {
     anchoredPositionTop: 'high',
     anchoredPositionBottom: 'low'
   };
-  res['spline'] = {
+  res[anychart.enums.CartesianSeriesType.SPLINE] = {
     drawerType: anychart.enums.SeriesDrawerTypes.SPLINE,
     shapeManagerType: anychart.enums.ShapeManagerTypes.PER_SERIES,
     shapesConfig: [
@@ -268,7 +268,7 @@ anychart.charts.Cartesian.prototype.seriesConfig = (function() {
     anchoredPositionTop: 'value',
     anchoredPositionBottom: 'value'
   };
-  res['splineArea'] = {
+  res[anychart.enums.CartesianSeriesType.SPLINE_AREA] = {
     drawerType: anychart.enums.SeriesDrawerTypes.SPLINE_AREA,
     shapeManagerType: anychart.enums.ShapeManagerTypes.PER_SERIES,
     shapesConfig: [
@@ -282,7 +282,7 @@ anychart.charts.Cartesian.prototype.seriesConfig = (function() {
     anchoredPositionTop: 'value',
     anchoredPositionBottom: 'zero'
   };
-  res['stepArea'] = {
+  res[anychart.enums.CartesianSeriesType.STEP_AREA] = {
     drawerType: anychart.enums.SeriesDrawerTypes.STEP_AREA,
     shapeManagerType: anychart.enums.ShapeManagerTypes.PER_SERIES,
     shapesConfig: [
@@ -296,7 +296,7 @@ anychart.charts.Cartesian.prototype.seriesConfig = (function() {
     anchoredPositionTop: 'value',
     anchoredPositionBottom: 'zero'
   };
-  res['stepLine'] = {
+  res[anychart.enums.CartesianSeriesType.STEP_LINE] = {
     drawerType: anychart.enums.SeriesDrawerTypes.STEP_LINE,
     shapeManagerType: anychart.enums.ShapeManagerTypes.PER_SERIES,
     shapesConfig: [
@@ -308,7 +308,7 @@ anychart.charts.Cartesian.prototype.seriesConfig = (function() {
     anchoredPositionTop: 'value',
     anchoredPositionBottom: 'value'
   };
-  res['stick'] = {
+  res[anychart.enums.CartesianSeriesType.STICK] = {
     drawerType: anychart.enums.SeriesDrawerTypes.STICK,
     shapeManagerType: anychart.enums.ShapeManagerTypes.PER_POINT,
     shapesConfig: [

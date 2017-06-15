@@ -103,6 +103,7 @@ anychart.core.ChartWithSeries.generateSeriesConstructors = function(chartConstru
     };
   };
   for (var i in configs) {
+    var methodName = anychart.utils.toCamelCase(i);
     /**
      * @param {!(anychart.data.View|anychart.data.Set|Array|string)} data Data for the series.
      * @param {(anychart.enums.TextParsingMode|anychart.data.TextParsingSettings)=} opt_csvSettings If CSV string is passed, you can pass CSV parser settings
@@ -110,7 +111,7 @@ anychart.core.ChartWithSeries.generateSeriesConstructors = function(chartConstru
      * @return {anychart.core.series.Cartesian}
      * @this {anychart.core.ChartWithSeries}
      */
-    proto[i] = methodsGenerator(i);
+    proto[methodName] = methodsGenerator(i);
   }
 };
 
@@ -214,7 +215,6 @@ anychart.core.ChartWithSeries.prototype.defaultSeriesType = function(opt_value) 
  */
 anychart.core.ChartWithSeries.prototype.getConfigByType = function(type) {
   type = this.normalizeSeriesType(type);
-  type = anychart.utils.toCamelCase(type);
   var config = this.seriesConfig[type];
   var res;
   if (config && (config.drawerType in anychart.core.drawers.AvailableDrawers)) {
