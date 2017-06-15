@@ -308,7 +308,7 @@ anychart.core.VisualBase.prototype.container = function(opt_value) {
             this.container_.container(value);
           } else {
             this.container_ = this.createStage();
-            if (acgraph.type() != acgraph.StageType.VML)
+            if (acgraph.type() != acgraph.enums.StageType.VML)
               this.container_.domElement().setAttribute('role', 'presentation');
             this.container_.container(/** @type {Element} */(value));
             this.stageOwn_ = true;

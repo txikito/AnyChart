@@ -1617,7 +1617,7 @@ anychart.core.ui.DataGrid.Column.prototype.draw = function() {
 
           var top = totalTop + ((height - anychart.core.ui.DataGrid.DEFAULT_EXPAND_COLLAPSE_BUTTON_SIDE) / 2);
 
-          var pixelShift = (acgraph.type() === acgraph.StageType.SVG) ? .5 : 0;
+          var pixelShift = (acgraph.type() === acgraph.enums.StageType.SVG) ? .5 : 0;
           button
               .enabled(true)
               .cursor(/** @type {anychart.enums.Cursor} */ (this.buttonCursor()))
