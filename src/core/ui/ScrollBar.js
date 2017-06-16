@@ -245,7 +245,7 @@ anychart.core.ui.ScrollBar.MIN_SLIDER_SIZE = 10;
  * @return {number} - Value for not blurred line.
  */
 anychart.core.ui.ScrollBar.prototype.halfPixel = function(actualPx) {
-  return (acgraph.type() === acgraph.enums.StageType.SVG) ? (Math.floor(actualPx) + .5) : Math.floor(actualPx);
+  return (acgraph.type() === acgraph.StageType.SVG) ? (Math.floor(actualPx) + .5) : Math.floor(actualPx);
 };
 
 

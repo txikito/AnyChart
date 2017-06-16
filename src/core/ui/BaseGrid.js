@@ -1646,7 +1646,7 @@ anychart.core.ui.BaseGrid.prototype.drawRowFills_ = function() {
   this.getSelectedPath().clear();
   this.getRowStrokePath().clear();
 
-  var pixelShift = (this.rowStrokeThickness % 2 && acgraph.type() === acgraph.enums.StageType.SVG) ? 0.5 : 0;
+  var pixelShift = (this.rowStrokeThickness % 2 && acgraph.type() === acgraph.StageType.SVG) ? 0.5 : 0;
 
   for (var i = startIndex; i <= endIndex; i++) {
     var item = visibleItems[i];

@@ -2399,7 +2399,7 @@ anychart.core.ui.Timeline.prototype.drawConnectorPreview_ = function(event, opt_
     var initItemsBounds = this.getItemBounds_(index, period, periodIndex);
 
     var previewThickness = anychart.utils.extractThickness(this.connectorPreviewStroke_);
-    var pixelShift = (previewThickness % 2 && acgraph.type() === acgraph.enums.StageType.SVG) ? 0.5 : 0;
+    var pixelShift = (previewThickness % 2 && acgraph.type() === acgraph.StageType.SVG) ? 0.5 : 0;
 
     var startLeft = this.currentConnectorDragger_.isStart ? initItemsBounds.left : initItemsBounds.left + initItemsBounds.width;
     var startTop = initItemsBounds.top + initItemsBounds.height / 2 + pixelShift;
@@ -3452,7 +3452,7 @@ anychart.core.ui.Timeline.prototype.drawBar_ = function(bounds, item, type, opt_
 
   var lineThickness = anychart.utils.extractThickness(/** @type {acgraph.vector.Stroke} */ (stroke));
 
-  var pixelShift = (lineThickness % 2 && acgraph.type() === acgraph.enums.StageType.SVG) ? 0.5 : 0;
+  var pixelShift = (lineThickness % 2 && acgraph.type() === acgraph.StageType.SVG) ? 0.5 : 0;
 
   var roundLeft = Math.round(bounds.left) + pixelShift;
   var roundTop = Math.round(bounds.top) + pixelShift;
@@ -3821,7 +3821,7 @@ anychart.core.ui.Timeline.prototype.drawAsMilestone_ = function(dataItem, totalT
         goog.isString(stroke) ? 1 :
             stroke['thickness'] ? stroke['thickness'] : 1;
 
-    var pixelShift = (lineThickness % 2 && acgraph.type() === acgraph.enums.StageType.SVG) ? 0.5 : 0;
+    var pixelShift = (lineThickness % 2 && acgraph.type() === acgraph.StageType.SVG) ? 0.5 : 0;
 
 
     var halfHeight = Math.round(itemHeight * anychart.core.ui.Timeline.DEFAULT_HEIGHT_REDUCTION / 2);
@@ -4029,7 +4029,7 @@ anychart.core.ui.Timeline.prototype.connectItems_ = function(from, to, opt_connT
 
     var lineThickness = anychart.utils.extractThickness(stroke);
 
-    var pixelShift = (lineThickness % 2 && acgraph.type() === acgraph.enums.StageType.SVG) ? 0.5 : 0;
+    var pixelShift = (lineThickness % 2 && acgraph.type() === acgraph.StageType.SVG) ? 0.5 : 0;
 
     switch ((opt_connType + '').toLowerCase()) {
       case anychart.enums.ConnectorType.FINISH_FINISH:
