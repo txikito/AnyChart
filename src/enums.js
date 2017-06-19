@@ -4345,17 +4345,6 @@ anychart.enums.StatisticsLowerCase = {};
 //
 //----------------------------------------------------------------------------------------------------------------------
 /**
- * A enum for the drawer settings normalizer type.
- * @enum {string}
- */
-anychart.enums.SeriesFieldHandlerTypes = {
-  FILL: 'fill',
-  STROKE: 'stroke',
-  HATCH_FILL: 'hatch-fill'
-};
-
-
-/**
  * Drawers type.
  * @enum {number}
  */
