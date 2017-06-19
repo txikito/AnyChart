@@ -591,10 +591,10 @@ goog.provide('anychart.themes.defaultTheme');
       'items': ['#64b5f6', '#1976d2', '#ef6c00', '#ffd54f', '#455a64', '#96a6a6', '#dd2c00', '#00838f', '#00bfa5', '#ffa000']
     },
     'hatchFillPalette': {
-      'items': ['backwardDiagonal', 'forwardDiagonal', 'horizontal', 'vertical', 'dashedBackwardDiagonal', 'grid', 'dashedForwardDiagonal', 'dashedHorizontal', 'dashedVertical', 'diagonalCross', 'diagonalBrick', 'divot', 'horizontalBrick', 'verticalBrick', 'checkerBoard', 'confetti', 'plaid', 'solidDiamond', 'zigZag', 'weave', 'percent05', 'percent10', 'percent20', 'percent25', 'percent30', 'percent40', 'percent50', 'percent60', 'percent70', 'percent75', 'percent80', 'percent90']
+      'items': ['backward-diagonal', 'forward-diagonal', 'horizontal', 'vertical', 'dashed-backward-diagonal', 'grid', 'dashed-forward-diagonal', 'dashed-horizontal', 'dashed-vertical', 'diagonal-cross', 'diagonal-brick', 'divot', 'horizontal-brick', 'vertical-brick', 'checker-board', 'confetti', 'plaid', 'solid-diamond', 'zig-zag', 'weave', 'percent-05', 'percent-10', 'percent-20', 'percent-25', 'percent-30', 'percent-40', 'percent-50', 'percent-60', 'percent-70', 'percent-75', 'percent-80', 'percent-90']
     },
     'hatchFillPaletteFor3D': {
-      'items': ['backwardDiagonal', 'forwardDiagonal', 'dashedBackwardDiagonal', 'grid', 'dashedForwardDiagonal', 'dashedHorizontal', 'dashedVertical', 'diagonalCross', 'diagonalBrick', 'divot', 'horizontalBrick', 'verticalBrick', 'checkerBoard', 'confetti', 'plaid', 'solidDiamond', 'zigZag', 'weave', 'percent05', 'percent10', 'percent20', 'percent25', 'percent30', 'percent40', 'percent50', 'percent60', 'percent70', 'percent75', 'percent80', 'percent90', 'horizontal', 'vertical']
+      'items': ['backward-diagonal', 'forward-diagonal', 'dashed-backward-diagonal', 'grid', 'dashed-forward-diagonal', 'dashed-horizontal', 'dashed-vertical', 'diagonal-cross', 'diagonal-brick', 'divot', 'horizontal-brick', 'vertical-brick', 'checker-board', 'confetti', 'plaid', 'solid-diamond', 'zig-zag', 'weave', 'percent-05', 'percent-10', 'percent-20', 'percent-25', 'percent-30', 'percent-40', 'percent-50', 'percent-60', 'percent-70', 'percent-75', 'percent-80', 'percent-90', 'horizontal', 'vertical']
     },
     'markerPalette': {
       'items': ['circle', 'diamond', 'square', 'triangle-down', 'triangle-up', 'diagonal-cross', 'pentagon', 'cross', 'v-line', 'star5', 'star4', 'trapezium', 'star7', 'star6', 'star10']
