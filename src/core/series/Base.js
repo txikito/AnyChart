@@ -505,7 +505,7 @@ anychart.core.series.Base.prototype.applyConfig = function(config, opt_reapplyCl
 
   this.recreateShapeManager();
 
-  this.defaultSettings = this.plot.defaultSeriesSettings()[this.type_] || {};
+  this.defaultSettings = this.plot.defaultSeriesSettings()[anychart.utils.toCamelCase(this.type_)] || {};
 
   if (this.supportsOutliers()) {
     this.indexToMarkerIndexes_ = {};
