@@ -320,7 +320,7 @@ anychart.charts.Cartesian.prototype.seriesConfig = (function() {
     anchoredPositionTop: 'value',
     anchoredPositionBottom: 'zero'
   };
-  res['hilo'] = {
+  res[anychart.enums.CartesianSeriesType.HILO] = {
     drawerType: anychart.enums.SeriesDrawerTypes.RANGE_STICK,
     shapeManagerType: anychart.enums.ShapeManagerTypes.PER_POINT,
     shapesConfig: [
