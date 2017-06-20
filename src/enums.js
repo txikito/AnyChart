@@ -440,8 +440,7 @@ anychart.enums.Position = {
  * @template T
  */
 anychart.enums.normalizePosition = function(value, opt_default) {
-  value = /** @type {anychart.enums.Position} */ (anychart.enums.normalizeAnchor(value, opt_default));
-  return (value == anychart.enums.Anchor.AUTO && goog.isDef(opt_default)) ? opt_default : value;
+  return /** @type {anychart.enums.Position} */(anychart.enums.normalize(anychart.enums.Position, value, opt_default));
 };
 
 
