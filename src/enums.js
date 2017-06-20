@@ -1315,6 +1315,7 @@ anychart.enums.LabelsPosition = {
 };
 
 
+/** @type {Object} */
 anychart.enums.LabelsPosition.__normalized = {
   'outside': anychart.enums.LabelsPosition.OUTSIDE,
   'out': anychart.enums.LabelsPosition.OUTSIDE,
