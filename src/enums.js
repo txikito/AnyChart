@@ -1315,6 +1315,14 @@ anychart.enums.LabelsPosition = {
 };
 
 
+anychart.enums.LabelsPosition.__normalized = {
+  'outside': anychart.enums.LabelsPosition.OUTSIDE,
+  'out': anychart.enums.LabelsPosition.OUTSIDE,
+  'inside': anychart.enums.LabelsPosition.INSIDE,
+  'in': anychart.enums.LabelsPosition.INSIDE
+};
+
+
 /**
  * Normalizes labels position
  * @param {*} value Labels position to normalize.
