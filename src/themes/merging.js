@@ -1003,7 +1003,14 @@ anychart.themes.merging.mergingMap_ = [
       'verticalLine',
       'jumpLine',
       'stick',
-      'pareto'
+      'pareto',
+      'waterfall'
+    ]
+  },
+  {
+    defaultObj: 'waterfall.defaultSeriesSettings.barLike',
+    targets: [
+      'waterfall.defaultSeriesSettings.waterfall'
     ]
   },
   {
@@ -1210,7 +1217,8 @@ anychart.themes.merging.mergingMap_ = [
       'stock.defaultPlotSettings.defaultSeriesSettings.rangeArea',
       'stock.defaultPlotSettings.defaultSeriesSettings.rangeColumn',
       'stock.defaultPlotSettings.defaultSeriesSettings.rangeSplineArea',
-      'stock.defaultPlotSettings.defaultSeriesSettings.rangeStepArea'
+      'stock.defaultPlotSettings.defaultSeriesSettings.rangeStepArea',
+      'stock.defaultPlotSettings.defaultSeriesSettings.hilo'
     ]
   },
   {
@@ -1254,7 +1262,8 @@ anychart.themes.merging.mergingMap_ = [
       'stock.defaultPlotSettings.defaultSeriesSettings.stepLine',
       'stock.defaultPlotSettings.defaultSeriesSettings.ohlc',
       'stock.defaultPlotSettings.defaultSeriesSettings.jumpLine',
-      'stock.defaultPlotSettings.defaultSeriesSettings.stick'
+      'stock.defaultPlotSettings.defaultSeriesSettings.stick',
+      'stock.defaultPlotSettings.defaultSeriesSettings.hilo'
     ]
   },
   {
@@ -1298,7 +1307,8 @@ anychart.themes.merging.mergingMap_ = [
       'stock.scroller.defaultSeriesSettings.stepLine',
       'stock.scroller.defaultSeriesSettings.ohlc',
       'stock.scroller.defaultSeriesSettings.jumpLine',
-      'stock.scroller.defaultSeriesSettings.stick'
+      'stock.scroller.defaultSeriesSettings.stick',
+      'stock.scroller.defaultSeriesSettings.hilo'
     ]
   },
   {
@@ -1307,7 +1317,8 @@ anychart.themes.merging.mergingMap_ = [
       'stock.scroller.defaultSeriesSettings.rangeArea',
       'stock.scroller.defaultSeriesSettings.rangeColumn',
       'stock.scroller.defaultSeriesSettings.rangeSplineArea',
-      'stock.scroller.defaultSeriesSettings.rangeStepArea'
+      'stock.scroller.defaultSeriesSettings.rangeStepArea',
+      'stock.scroller.defaultSeriesSettings.hilo'
     ]
   },
   {

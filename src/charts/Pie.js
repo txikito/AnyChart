@@ -1190,7 +1190,7 @@ anychart.charts.Pie.prototype.forceHoverLabels = function(opt_value) {
  *      pieCenter.x + pieInnerRadius,
  *      pieCenter.y + pieInnerRadius
  *  );
- *  anychart.ui.label()
+ *  anychart.standalones.label()
  *      .text('Pie\ninner\nlabel')
  *      .parentBounds(labelBounds)
  *      .container(stage)
@@ -4878,6 +4878,16 @@ anychart.charts.Pie.PieOutsideLabelsDomain.prototype.calculate = function() {
     }
   }
 };
+
+
+/**
+ * @inheritDoc
+ */
+anychart.charts.Pie.prototype.disposeInternal = function() {
+  goog.dispose(this.animationQueue_);
+  anychart.charts.Pie.base(this, 'disposeInternal');
+};
+
 
 
 //exports

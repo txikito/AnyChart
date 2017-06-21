@@ -65,6 +65,17 @@ anychart.core.settings.populate(anychart.core.series.HeatMap, anychart.core.seri
 anychart.core.series.HeatMap.prototype.LABELS_ZINDEX = anychart.core.shapeManagers.LABELS_OVER_MARKERS_ZINDEX;
 
 
+/**
+ * Token aliases list.
+ * @type {Object.<string, string>}
+ */
+anychart.core.series.HeatMap.prototype.TOKEN_ALIASES = (function() {
+  var tokenAliases = {};
+  tokenAliases[anychart.enums.StringToken.X_VALUE] = 'x';
+  return tokenAliases;
+})();
+
+
 /** @inheritDoc */
 anychart.core.series.HeatMap.prototype.labels = function(opt_value) {
   var res = (/** @type {anychart.charts.HeatMap} */(this.chart)).labels(opt_value);
@@ -336,6 +347,7 @@ anychart.core.series.HeatMap.prototype.drawLabel = function(point, pointState, p
     } else {
       prefix = 'select';
     }
+
     var x = /** @type {number} */(point.meta(prefix + 'X'));
     var y = /** @type {number} */(point.meta(prefix + 'Y'));
     var width = /** @type {number} */(point.meta(prefix + 'Width'));
@@ -356,12 +368,19 @@ anychart.core.series.HeatMap.prototype.drawLabel = function(point, pointState, p
         label = null;
       }
     }
+
     if (label) {
-      label['clip'](displayMode == anychart.enums.LabelsDisplayMode.ALWAYS_SHOW ? this.pixelBoundsCache : cellBounds);
-      // label['width'](cellBounds.width);
-      // label['height'](cellBounds.height);
-      if (pointStateChanged)
-        label.draw();
+      var clipBounds = displayMode == anychart.enums.LabelsDisplayMode.ALWAYS_SHOW ?
+          this.pixelBoundsCache :
+          goog.math.Rect.intersection(this.pixelBoundsCache, /** @type {goog.math.Rect} */ (cellBounds));
+      if (clipBounds) {
+        label['clip'](clipBounds);
+
+        if (pointStateChanged)
+          label.draw();
+      } else {
+        this.labels().clear(label.getIndex());
+      }
     }
   }
   point.meta('label', label);
@@ -413,9 +432,19 @@ anychart.core.series.HeatMap.prototype.applyAxesLinesSpace = function(value) {
 
 
 /** @inheritDoc */
-anychart.core.series.HeatMap.prototype.updateContext = function(provider, opt_rowInfo) {
-  var rowInfo = opt_rowInfo || this.getIterator();
+anychart.core.series.HeatMap.prototype.createStatisticsSource = function(rowInfo) {
+  return [this, this.getChart()];
+};
 
+
+/** @inheritDoc */
+anychart.core.series.HeatMap.prototype.getCustomTokenValues = function(rowInfo) {
+  return {};
+};
+
+
+/** @inheritDoc */
+anychart.core.series.HeatMap.prototype.getContextProviderValues = function(provider, rowInfo) {
   var values = {
     'chart': {value: this.getChart(), type: anychart.enums.TokenType.UNKNOWN},
     'series': {value: this, type: anychart.enums.TokenType.UNKNOWN},
@@ -447,15 +476,7 @@ anychart.core.series.HeatMap.prototype.updateContext = function(provider, opt_ro
     }
   }
 
-  var tokenAliases = {};
-  tokenAliases[anychart.enums.StringToken.X_VALUE] = 'x';
-
-  provider
-      .dataSource(rowInfo)
-      .statisticsSources([this, this.getChart()])
-      .tokenAliases(tokenAliases);
-
-  return /** @type {anychart.format.Context} */ (provider.propagate(values));
+  return values;
 };
 
 

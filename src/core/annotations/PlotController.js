@@ -998,32 +998,25 @@ anychart.core.annotations.PlotController.prototype.setupByJSON = function(config
 /**
  * Return plot annotations configuration as JSON object or string.
  * @param {boolean=} opt_stringify
- * @param {boolean=} opt_includeTheme
  * @return {Object|string}
  */
-anychart.core.annotations.PlotController.prototype.toJson = function(opt_stringify, opt_includeTheme) {
-  var data = this.isDisposed() ? {} : { 'annotationsList': this.annotationsJson_() };
-  if (!opt_includeTheme) {
-    var defaultTheme = {
-      'defaultAnnotationSettings': this.getController().getChart().defaultAnnotationSettings()
-    };
-    data = /** @type {!Object} */(anychart.themes.merging.demerge(
-        data, defaultTheme)) || {};
-  }
-  return opt_stringify ?
-      goog.json.hybrid.stringify(data) :
-      data;
+anychart.core.annotations.PlotController.prototype.toJson = function(opt_stringify) {
+  var data = this.isDisposed() ? {} : {'annotationsList': this.annotationsJson_()};
+  var defaultTheme = {
+    'defaultAnnotationSettings': this.getController().getChart().defaultAnnotationSettings()
+  };
+  data = /** @type {!Object} */(anychart.themes.merging.demerge(data, defaultTheme)) || {};
+  return opt_stringify ? goog.json.hybrid.stringify(data) : data;
 };
 
 
 /**
  * Return chart configuration as XML string or XMLNode.
  * @param {boolean=} opt_asXmlNode Return XML as XMLNode.
- * @param {boolean=} opt_includeTheme If the current theme properties should be included into the result.
  * @return {string|Node} Chart configuration.
  */
-anychart.core.annotations.PlotController.prototype.toXml = function(opt_asXmlNode, opt_includeTheme) {
-  var data = this.toJson(false, opt_includeTheme);
+anychart.core.annotations.PlotController.prototype.toXml = function(opt_asXmlNode) {
+  var data = this.toJson(false);
   return anychart.utils.json2xml(data, 'annotations', opt_asXmlNode);
 };
 
@@ -1146,9 +1139,18 @@ goog.inherits(anychart.core.annotations.PlotController.AnchorDragger, goog.fx.Dr
 anychart.core.annotations.PlotController.AnchorDragger.prototype.startDrag = function(e) {
   if (this.extractTarget(e)) {
     if (this.annotation_.isFinished()) {
-      anychart.core.annotations.PlotController.AnchorDragger.base(this, 'startDrag', e);
-      if (this.isDragging())
+      if (this.controller_.getController().getChart().dispatchEvent({
+        'type': anychart.enums.EventType.ANNOTATION_CHANGE_START,
+        'annotation': this.annotation_
+      })) {
+        anychart.core.annotations.PlotController.AnchorDragger.base(this, 'startDrag', e);
+        if (this.isDragging())
+          e.stopPropagation();
+      } else {
+        this.annotation_ = null;
+        this.anchorId_ = NaN;
         e.stopPropagation();
+      }
     } else { // we should just select the annotation and the ChartController will do the trick, no drag
       this.controller_.controller_.select(this.annotation_);
       this.annotation_ = null;
@@ -1197,7 +1199,11 @@ anychart.core.annotations.PlotController.AnchorDragger.prototype.computeInitialP
 
 /** @inheritDoc */
 anychart.core.annotations.PlotController.AnchorDragger.prototype.defaultAction = function(x, y) {
-  this.annotation_.moveAnchor(this.anchorId_, x, y);
+  if (this.controller_.getController().getChart().dispatchEvent({
+    'type': anychart.enums.EventType.ANNOTATION_CHANGE,
+    'annotation': this.annotation_
+  }))
+    this.annotation_.moveAnchor(this.anchorId_, x, y);
 };
 
 
@@ -1218,11 +1224,16 @@ anychart.core.annotations.PlotController.AnchorDragger.prototype.handleDragStart
  * @private
  */
 anychart.core.annotations.PlotController.AnchorDragger.prototype.handleDragEnd_ = function(e) {
+  var annotation = this.annotation_;
   this.annotation_.invalidate(anychart.ConsistencyState.ANNOTATIONS_ANCHORS);
   this.annotation_.draw();
   this.annotation_ = null;
   this.anchorId_ = NaN;
   this.controller_.preventHighlight(false);
+  this.controller_.getController().getChart().dispatchEvent({
+    'type': anychart.enums.EventType.ANNOTATION_CHANGE_FINISH,
+    'annotation': annotation
+  });
 };
 
 

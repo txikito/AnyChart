@@ -55,14 +55,6 @@ acgraph.vector.Stage.prototype.allowCreditsDisabling = false;
 
 
 /**
- * Tooltip container layer.
- * @type {acgraph.vector.Layer}
- * @private
- */
-acgraph.vector.Stage.prototype.tooltipLayer_ = null;
-
-
-/**
  * Stage credits.
  * @param {(Object|boolean|null)=} opt_value .
  * @return {!(acgraph.vector.Stage|anychart.core.ui.StageCredits)}
@@ -77,19 +69,6 @@ acgraph.vector.Stage.prototype.credits = function(opt_value) {
     return this;
   }
   return this.credits_;
-};
-
-
-/**
- * Getter for tooltip layer. Must be to highest layer to display the tooltip in top of all.
- * @return {!acgraph.vector.Layer}
- */
-acgraph.vector.Stage.prototype.getTooltipLayer = function() {
-  if (!this.tooltipLayer_) {
-    this.tooltipLayer_ = this.layer();
-    this.tooltipLayer_.zIndex(1e10);
-  }
-  return this.tooltipLayer_;
 };
 
 
@@ -108,23 +87,6 @@ acgraph.vector.Stage.prototype.getTooltipLayer = function() {
 //   this.originalRender_();
 //   this.credits().render();
 // };
-
-
-/**
- Sets and returns an address export server script, which is used to export to an image
- or PDF.
- @see acgraph.vector.Stage#saveAsPdf
- @see acgraph.vector.Stage#saveAsPng
- @see acgraph.vector.Stage#saveAsJpg
- @see acgraph.vector.Stage#saveAsSvg
- @param {string=} opt_address Export server script URL.
- @return {string} Export server script URL.
- @deprecated Since 7.10.1. Use anychart.exports.server() instead.
- */
-anychart.server = function(opt_address) {
-  anychart.core.reporting.warning(anychart.enums.WarningCode.DEPRECATED, null, ['anychart.server()', 'anychart.exports.server()', null, 'Function'], true);
-  return anychart.exports.server(opt_address);
-};
 
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -818,10 +780,6 @@ anychart.heatMap = anychart.getFeatureOrError('anychart.heatMap', 'HeatMap chart
 
 
 /** @ignoreDoc */
-anychart.circularGauge = anychart.getFeatureOrError('anychart.circularGauge', 'Circular gauge');
-
-
-/** @ignoreDoc */
 anychart.gauges.circular = anychart.getFeatureOrError('anychart.gauges.circular', 'Circular gauge');
 
 
@@ -878,14 +836,6 @@ anychart.stock = anychart.getFeatureOrError('anychart.stock', 'Stock chart');
 
 
 /** @ignoreDoc */
-anychart.toolbar = anychart.getFeatureOrError('anychart.toolbar', 'Toolbar');
-
-
-/** @ignoreDoc */
-anychart.ganttToolbar = anychart.getFeatureOrError('anychart.ganttToolbar', 'Gantt toolbar');
-
-
-/** @ignoreDoc */
 anychart.treeMap = anychart.getFeatureOrError('anychart.treeMap', 'TreeMap chart');
 
 
@@ -909,13 +859,25 @@ anychart.venn = anychart.getFeatureOrError('anychart.venn', 'Venn chart');
 anychart.tagCloud = anychart.tagCloud || anychart.createNFIMError('TagCloud chart');
 
 
+/** @ignoreDoc */
+anychart.mekko = anychart.mekko || anychart.createNFIMError('Mekko chart');
+
+
+/** @ignoreDoc */
+anychart.mosaic = anychart.mosaic || anychart.createNFIMError('Mosaic chart');
+
+
+/** @ignoreDoc */
+anychart.barmekko = anychart.barmekko || anychart.createNFIMError('Barmekko chart');
+
+
+/** @inheritDoc */
+anychart.waterfall = anychart.waterfall || anychart.createNFIMError('Waterfall chart');
+
+
 //region ------ Standalones
 /** @ignoreDoc */
 anychart.standalones.background = anychart.getFeatureOrError('anychart.standalones.background', 'anychart.standalones.Background');
-
-
-/** @ignoreDoc */
-anychart.ui.background = anychart.getFeatureOrError('anychart.ui.background', 'anychart.ui.Background');
 
 
 /** @ignoreDoc */
@@ -923,15 +885,7 @@ anychart.standalones.colorRange = anychart.getFeatureOrError('anychart.standalon
 
 
 /** @ignoreDoc */
-anychart.ui.colorRange = anychart.getFeatureOrError('anychart.ui.colorRange', 'anychart.ui.ColorRange');
-
-
-/** @ignoreDoc */
 anychart.standalones.dataGrid = anychart.getFeatureOrError('anychart.standalones.dataGrid', 'anychart.standalones.DataGrid');
-
-
-/** @ignoreDoc */
-anychart.ui.dataGrid = anychart.getFeatureOrError('anychart.ui.dataGrid', 'anychart.ui.DataGrid');
 
 
 /** @ignoreDoc */
@@ -939,15 +893,7 @@ anychart.standalones.label = anychart.getFeatureOrError('anychart.standalones.la
 
 
 /** @ignoreDoc */
-anychart.ui.label = anychart.getFeatureOrError('anychart.ui.label', 'anychart.ui.Label');
-
-
-/** @ignoreDoc */
 anychart.standalones.labelsFactory = anychart.getFeatureOrError('anychart.standalones.labelsFactory', 'anychart.standalones.LabelsFactory');
-
-
-/** @ignoreDoc */
-anychart.ui.labelsFactory = anychart.getFeatureOrError('anychart.ui.labelsFactory', 'anychart.ui.LabelsFactory');
 
 
 /** @ignoreDoc */
@@ -955,15 +901,7 @@ anychart.standalones.legend = anychart.getFeatureOrError('anychart.standalones.l
 
 
 /** @ignoreDoc */
-anychart.ui.legend = anychart.getFeatureOrError('anychart.ui.legend', 'anychart.ui.Legend');
-
-
-/** @ignoreDoc */
 anychart.standalones.markersFactory = anychart.getFeatureOrError('anychart.standalones.markersFactory', 'anychart.standalones.MarkersFactory');
-
-
-/** @ignoreDoc */
-anychart.ui.markersFactory = anychart.getFeatureOrError('anychart.ui.markersFactory', 'anychart.ui.MarkersFactory');
 
 
 /** @ignoreDoc */
@@ -971,15 +909,7 @@ anychart.standalones.projectTimeline = anychart.getFeatureOrError('anychart.stan
 
 
 /** @ignoreDoc */
-anychart.ui.projectTimeline = anychart.getFeatureOrError('anychart.ui.projectTimeline', 'anychart.ui.ProjectTimeline');
-
-
-/** @ignoreDoc */
 anychart.standalones.resourceTimeline = anychart.getFeatureOrError('anychart.standalones.resourceTimeline', 'anychart.standalones.ResourceTimeline');
-
-
-/** @ignoreDoc */
-anychart.ui.resourceTimeline = anychart.getFeatureOrError('anychart.ui.resourceTimeline', 'anychart.ui.ResourceTimeline');
 
 
 /** @ignoreDoc */
@@ -991,23 +921,11 @@ anychart.standalones.scroller = anychart.getFeatureOrError('anychart.standalones
 
 
 /** @ignoreDoc */
-anychart.ui.scroller = anychart.getFeatureOrError('anychart.ui.scroller', 'anychart.ui.Scroller');
-
-
-/** @ignoreDoc */
 anychart.standalones.table = anychart.getFeatureOrError('anychart.standalones.table', 'anychart.standalones.Table');
 
 
 /** @ignoreDoc */
-anychart.ui.table = anychart.getFeatureOrError('anychart.ui.table', 'anychart.ui.Table');
-
-
-/** @ignoreDoc */
 anychart.standalones.title = anychart.getFeatureOrError('anychart.standalones.title', 'anychart.standalones.Title');
-
-
-/** @ignoreDoc */
-anychart.ui.title = anychart.getFeatureOrError('anychart.ui.title', 'anychart.ui.Title');
 
 
 /** @ignoreDoc */
@@ -1027,34 +945,6 @@ anychart.standalones.axes.radial = anychart.getFeatureOrError('anychart.standalo
 
 
 /** @ignoreDoc */
-anychart.axes.linear = anychart.getFeatureOrError('anychart.axes.linear', 'anychart.axes.Linear');
-
-
-/** @ignoreDoc */
-anychart.axes.polar = anychart.getFeatureOrError('anychart.axes.polar', 'anychart.axes.Polar');
-
-
-/** @ignoreDoc */
-anychart.axes.radar = anychart.getFeatureOrError('anychart.axes.radar', 'anychart.axes.Radar');
-
-
-/** @ignoreDoc */
-anychart.axes.radial = anychart.getFeatureOrError('anychart.axes.radial', 'anychart.axes.Radial');
-
-
-/** @ignoreDoc */
-anychart.axisMarkers.line = anychart.getFeatureOrError('anychart.axisMarkers.line', 'anychart.axisMarkers.Line');
-
-
-/** @ignoreDoc */
-anychart.axisMarkers.range = anychart.getFeatureOrError('anychart.axisMarkers.range', 'anychart.axisMarkers.Range');
-
-
-/** @ignoreDoc */
-anychart.axisMarkers.text = anychart.getFeatureOrError('anychart.axisMarkers.text', 'anychart.axisMarkers.Text');
-
-
-/** @ignoreDoc */
 anychart.standalones.axisMarkers.line = anychart.getFeatureOrError('anychart.standalones.axisMarkers.line', 'anychart.standalones.axisMarkers.Line');
 
 
@@ -1064,22 +954,6 @@ anychart.standalones.axisMarkers.range = anychart.getFeatureOrError('anychart.st
 
 /** @ignoreDoc */
 anychart.standalones.axisMarkers.text = anychart.getFeatureOrError('anychart.standalones.axisMarkers.text', 'anychart.standalones.axisMarkers.Text');
-
-
-/** @ignoreDoc */
-anychart.grids.linear = anychart.getFeatureOrError('anychart.grids.linear', 'anychart.grids.Linear');
-
-
-/** @ignoreDoc */
-anychart.grids.linear3d = anychart.getFeatureOrError('anychart.grids.linear3d', 'anychart.grids.Linear3d');
-
-
-/** @ignoreDoc */
-anychart.grids.polar = anychart.getFeatureOrError('anychart.grids.polar', 'anychart.grids.Polar');
-
-
-/** @ignoreDoc */
-anychart.grids.radar = anychart.getFeatureOrError('anychart.grids.radar', 'anychart.grids.Radar');
 
 
 /** @ignoreDoc */
@@ -1096,18 +970,6 @@ anychart.standalones.grids.polar = anychart.getFeatureOrError('anychart.standalo
 
 /** @ignoreDoc */
 anychart.standalones.grids.radar = anychart.getFeatureOrError('anychart.standalones.grids.radar', 'anychart.standalones.grids.Radar');
-
-
-/** @ignoreDoc */
-anychart.mekko = anychart.mekko || anychart.createNFIMError('Mekko chart');
-
-
-/** @ignoreDoc */
-anychart.mosaic = anychart.mosaic || anychart.createNFIMError('Mosaic chart');
-
-
-/** @ignoreDoc */
-anychart.barmekko = anychart.barmekko || anychart.createNFIMError('Barmekko chart');
 
 
 //endregion
@@ -1211,7 +1073,6 @@ if (COMPILED) {
 
 //exports
 goog.exportSymbol('anychart.graphics', anychart.graphics);//import
-goog.exportSymbol('anychart.server', anychart.server);
 goog.exportSymbol('anychart.fromJson', anychart.fromJson);//doc|ex
 goog.exportSymbol('anychart.fromXml', anychart.fromXml);//doc|ex
 goog.exportSymbol('anychart.onDocumentLoad', anychart.onDocumentLoad);//doc|need-ex
@@ -1249,7 +1110,6 @@ goog.exportSymbol('anychart.bubbleMap', anychart.bubbleMap);
 goog.exportSymbol('anychart.markerMap', anychart.markerMap);
 goog.exportSymbol('anychart.seatMap', anychart.seatMap);
 goog.exportSymbol('anychart.connector', anychart.connector);
-goog.exportSymbol('anychart.circularGauge', anychart.circularGauge);
 goog.exportSymbol('anychart.gauges.circular', anychart.gauges.circular);
 goog.exportSymbol('anychart.gauges.linear', anychart.gauges.linear);
 goog.exportSymbol('anychart.gauges.thermometer', anychart.gauges.thermometer);
@@ -1262,8 +1122,6 @@ goog.exportSymbol('anychart.quadrant', anychart.quadrant);
 goog.exportSymbol('anychart.venn', anychart.venn);
 goog.exportSymbol('anychart.theme', anychart.theme);
 goog.exportSymbol('anychart.appendTheme', anychart.appendTheme);
-goog.exportSymbol('anychart.toolbar', anychart.toolbar);
-goog.exportSymbol('anychart.ganttToolbar', anychart.ganttToolbar);
 goog.exportSymbol('anychart.treeMap', anychart.treeMap);
 goog.exportSymbol('anychart.pareto', anychart.pareto);
 goog.exportSymbol('anychart.resource', anychart.resource);
@@ -1271,49 +1129,27 @@ goog.exportSymbol('anychart.mekko', anychart.mekko);
 goog.exportSymbol('anychart.mosaic', anychart.mosaic);
 goog.exportSymbol('anychart.barmekko', anychart.barmekko);
 goog.exportSymbol('anychart.tagCloud', anychart.tagCloud);
+goog.exportSymbol('anychart.waterfall', anychart.waterfall);
 goog.exportSymbol('anychart.standalones.background', anychart.standalones.background);
-goog.exportSymbol('anychart.ui.background', anychart.ui.background);
 goog.exportSymbol('anychart.standalones.colorRange', anychart.standalones.colorRange);
-goog.exportSymbol('anychart.ui.colorRange', anychart.ui.colorRange);
 goog.exportSymbol('anychart.standalones.dataGrid', anychart.standalones.dataGrid);
-goog.exportSymbol('anychart.ui.dataGrid', anychart.ui.dataGrid);
 goog.exportSymbol('anychart.standalones.label', anychart.standalones.label);
-goog.exportSymbol('anychart.ui.label', anychart.ui.label);
 goog.exportSymbol('anychart.standalones.labelsFactory', anychart.standalones.labelsFactory);
-goog.exportSymbol('anychart.ui.labelsFactory', anychart.ui.labelsFactory);
 goog.exportSymbol('anychart.standalones.legend', anychart.standalones.legend);
-goog.exportSymbol('anychart.ui.legend', anychart.ui.legend);
 goog.exportSymbol('anychart.standalones.markersFactory', anychart.standalones.markersFactory);
-goog.exportSymbol('anychart.ui.markersFactory', anychart.ui.markersFactory);
 goog.exportSymbol('anychart.standalones.projectTimeline', anychart.standalones.projectTimeline);
-goog.exportSymbol('anychart.ui.projectTimeline', anychart.ui.projectTimeline);
 goog.exportSymbol('anychart.standalones.resourceTimeline', anychart.standalones.resourceTimeline);
-goog.exportSymbol('anychart.ui.resourceTimeline', anychart.ui.resourceTimeline);
 goog.exportSymbol('anychart.standalones.resourceList', anychart.standalones.resourceList);
 goog.exportSymbol('anychart.standalones.scroller', anychart.standalones.scroller);
-goog.exportSymbol('anychart.ui.scroller', anychart.ui.scroller);
 goog.exportSymbol('anychart.standalones.table', anychart.standalones.table);
-goog.exportSymbol('anychart.ui.table', anychart.ui.table);
 goog.exportSymbol('anychart.standalones.title', anychart.standalones.title);
-goog.exportSymbol('anychart.ui.title', anychart.ui.title);
 goog.exportSymbol('anychart.standalones.axes.linear', anychart.standalones.axes.linear);
 goog.exportSymbol('anychart.standalones.axes.polar', anychart.standalones.axes.polar);
 goog.exportSymbol('anychart.standalones.axes.radar', anychart.standalones.axes.radar);
 goog.exportSymbol('anychart.standalones.axes.radial', anychart.standalones.axes.radial);
-goog.exportSymbol('anychart.axes.linear', anychart.axes.linear);
-goog.exportSymbol('anychart.axes.polar', anychart.axes.polar);
-goog.exportSymbol('anychart.axes.radar', anychart.axes.radar);
-goog.exportSymbol('anychart.axes.radial', anychart.axes.radial);
-goog.exportSymbol('anychart.axisMarkers.line', anychart.axisMarkers.line);
-goog.exportSymbol('anychart.axisMarkers.range', anychart.axisMarkers.range);
-goog.exportSymbol('anychart.axisMarkers.text', anychart.axisMarkers.text);
 goog.exportSymbol('anychart.standalones.axisMarkers.line', anychart.standalones.axisMarkers.line);
 goog.exportSymbol('anychart.standalones.axisMarkers.range', anychart.standalones.axisMarkers.range);
 goog.exportSymbol('anychart.standalones.axisMarkers.text', anychart.standalones.axisMarkers.text);
-goog.exportSymbol('anychart.grids.linear', anychart.grids.linear);
-goog.exportSymbol('anychart.grids.linear3d', anychart.grids.linear3d);
-goog.exportSymbol('anychart.grids.polar', anychart.grids.polar);
-goog.exportSymbol('anychart.grids.radar', anychart.grids.radar);
 goog.exportSymbol('anychart.standalones.grids.linear', anychart.standalones.grids.linear);
 goog.exportSymbol('anychart.standalones.grids.linear3d', anychart.standalones.grids.linear3d);
 goog.exportSymbol('anychart.standalones.grids.polar', anychart.standalones.grids.polar);

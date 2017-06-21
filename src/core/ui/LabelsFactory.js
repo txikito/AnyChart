@@ -209,6 +209,19 @@ anychart.core.ui.LabelsFactory.HANDLED_EVENT_TYPES_CAPTURE_SHIFT_ = 12;
 //endregion
 //region --- Settings
 /**
+ * Special anchor normalizer that doesn't accept 'auto' and returns undefined in that case.
+ * @param {*} value
+ * @return {anychart.enums.Anchor|undefined}
+ */
+anychart.core.ui.LabelsFactory.anchorNoAutoNormalizer = function(value) {
+  var res = anychart.enums.normalizeAnchor(value, anychart.enums.Anchor.AUTO);
+  if (res == anychart.enums.Anchor.AUTO)
+    res = undefined;
+  return res;
+};
+
+
+/**
  * Text descriptors.
  * @type {!Object.<string, anychart.core.settings.PropertyDescriptor>}
  */
@@ -237,17 +250,6 @@ anychart.core.ui.LabelsFactory.prototype.SIMPLE_PROPS_DESCRIPTORS = (function() 
       anychart.ConsistencyState.APPEARANCE | anychart.ConsistencyState.BOUNDS,
       anychart.Signal.NEEDS_REDRAW | anychart.Signal.BOUNDS_CHANGED);
 
-  //@deprecated Since 7.13.1. Use 'format' instead.
-  anychart.core.settings.createDescriptor(
-      map,
-      anychart.enums.PropertyHandlerType.SINGLE_ARG_DEPRECATED,
-      'format',
-      anychart.core.settings.stringOrFunctionNormalizer,
-      anychart.ConsistencyState.APPEARANCE | anychart.ConsistencyState.BOUNDS,
-      anychart.Signal.NEEDS_REDRAW | anychart.Signal.BOUNDS_CHANGED,
-      void 0,
-      'textFormatter');
-
   anychart.core.settings.createDescriptor(
       map,
       anychart.enums.PropertyHandlerType.SINGLE_ARG,
@@ -268,7 +270,7 @@ anychart.core.ui.LabelsFactory.prototype.SIMPLE_PROPS_DESCRIPTORS = (function() 
       map,
       anychart.enums.PropertyHandlerType.SINGLE_ARG,
       'anchor',
-      anychart.enums.normalizeAnchor,
+      anychart.core.ui.LabelsFactory.anchorNoAutoNormalizer,
       anychart.ConsistencyState.BOUNDS,
       anychart.Signal.NEEDS_REDRAW | anychart.Signal.BOUNDS_CHANGED);
 
@@ -1248,12 +1250,12 @@ anychart.core.ui.LabelsFactory.prototype.serialize = function() {
   if (goog.isNull(json['enabled']) || !goog.isDef(json['enabled'])) delete json['enabled'];
 
   var val;
-  if (goog.isDef(this.hasOwnOption('background'))) {
+  if (this.hasOwnOption('background')) {
     val = this.background().serialize();
     if (!goog.object.isEmpty(val))
       json['background'] = val;
   }
-  if (goog.isDef(this.hasOwnOption('padding'))) {
+  if (this.hasOwnOption('padding')) {
     val = this.padding().serialize();
     if (!goog.object.isEmpty(val))
       json['padding'] = val;
@@ -1622,17 +1624,6 @@ anychart.core.ui.LabelsFactory.Label.prototype.SIMPLE_PROPS_DESCRIPTORS = (funct
       anychart.ConsistencyState.APPEARANCE | anychart.ConsistencyState.BOUNDS | anychart.ConsistencyState.LABELS_FACTORY_CACHE,
       anychart.Signal.NEEDS_REDRAW | anychart.Signal.BOUNDS_CHANGED);
 
-  //@deprecated Since 7.13.1. Use 'format' instead.
-  anychart.core.settings.createDescriptor(
-      map,
-      anychart.enums.PropertyHandlerType.SINGLE_ARG_DEPRECATED,
-      'format',
-      anychart.core.settings.stringOrFunctionNormalizer,
-      anychart.ConsistencyState.APPEARANCE | anychart.ConsistencyState.BOUNDS | anychart.ConsistencyState.LABELS_FACTORY_CACHE,
-      anychart.Signal.NEEDS_REDRAW | anychart.Signal.BOUNDS_CHANGED,
-      void 0,
-      'textFormatter');
-
   anychart.core.settings.createDescriptor(
       map,
       anychart.enums.PropertyHandlerType.SINGLE_ARG,
@@ -1653,7 +1644,7 @@ anychart.core.ui.LabelsFactory.Label.prototype.SIMPLE_PROPS_DESCRIPTORS = (funct
       map,
       anychart.enums.PropertyHandlerType.SINGLE_ARG,
       'anchor',
-      anychart.enums.normalizeAnchor,
+      anychart.core.ui.LabelsFactory.anchorNoAutoNormalizer,
       anychart.ConsistencyState.BOUNDS,
       anychart.Signal.NEEDS_REDRAW | anychart.Signal.BOUNDS_CHANGED);
 
@@ -1867,7 +1858,7 @@ anychart.core.ui.LabelsFactory.Label.prototype.autoRotation = function(opt_value
  */
 anychart.core.ui.LabelsFactory.Label.prototype.autoAnchor = function(opt_value) {
   if (goog.isDef(opt_value)) {
-    var value = goog.isNull(opt_value) ? null : anychart.enums.normalizeAnchor(opt_value);
+    var value = anychart.core.ui.LabelsFactory.anchorNoAutoNormalizer(opt_value);
     if (this.autoSettings['anchor'] !== value) {
       this.autoSettings['anchor'] = value;
       if (!goog.isDef(this.ownSettings['anchor']))
@@ -2340,7 +2331,7 @@ anychart.core.ui.LabelsFactory.Label.prototype.clear = function() {
  */
 anychart.core.ui.LabelsFactory.Label.prototype.drawLabel = function(bounds, parentBounds) {
   var positionFormatter = this.mergedSettings['positionFormatter'];
-  var anchor = anychart.enums.normalizeAnchor(this.mergedSettings['anchor']);
+  var anchor = anychart.core.ui.LabelsFactory.anchorNoAutoNormalizer(this.mergedSettings['anchor']) || anychart.enums.Anchor.LEFT_TOP;
   var isVertical = this.autoVertical();
 
   var offsetX = this.mergedSettings['offsetX'];

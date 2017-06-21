@@ -63,7 +63,7 @@ anychart.core.reporting.getErrorDescription_ = function(code, opt_arguments) {
       return 'Empty config passed to anychart.fromJson() or anychart.fromXml() method.';
 
     case anychart.enums.ErrorCode.NO_LEGEND_IN_CHART:
-      return 'Bullet and Sparkline charts do not support Legend. Please use anychart.ui.Legend component for a group of charts instead.';
+      return 'Bullet and Sparkline charts do not support Legend. Please use anychart.standalones.Legend component for a group of charts instead.';
 
     case anychart.enums.ErrorCode.NO_LEGEND_IN_STOCK:
       return 'Stock chart itself doesn\'t support legend - stock plots do. So use stock.plot().legend() instead.';
@@ -272,6 +272,9 @@ anychart.core.reporting.getWarningDescription_ = function(code, opt_arguments) {
 
     case anychart.enums.WarningCode.OBJECT_KEY_COLLISION:
       return 'Data item with ID=\'' + opt_arguments[0] + '\' already exists. You should use another key.';
+
+    case anychart.enums.WarningCode.VENN_AREA_NOT_REPRESENTED_ON_SCREEN:
+      return 'Area ' + opt_arguments[0] + ' not represented on screen.';
 
     default:
       return 'Unknown error. Please, contact support team at http://support.anychart.com/.\n' +

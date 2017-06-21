@@ -515,14 +515,6 @@ anychart.charts.Map.prototype.mapTX = null;
 
 
 /**
- * Allow point selection if is true.
- * @type {boolean}
- * @private
- */
-anychart.charts.Map.prototype.allowPointsSelect_;
-
-
-/**
  * @type {boolean}
  * @private
  */
@@ -540,7 +532,7 @@ anychart.charts.Map.prototype.interactivity_;
 //region --- Infrastructure
 /** @inheritDoc */
 anychart.charts.Map.prototype.getVersionHistoryLink = function() {
-  return 'http://anychart.com/products/anymap/history';
+  return 'https://anychart.com/products/anymap/history';
 };
 
 
@@ -627,10 +619,13 @@ anychart.charts.Map.prototype.controlsInteractivity_ = function() {
       if (!this.interactivity_.keyboardZoomAndMove())
         return;
 
+      if (anychart.mapTextarea.chart && anychart.mapTextarea.chart != this)
+        return;
+
       var dx = 0, dy = 0;
       this.isDesktop = true;
       this.zoomDuration = 100;
-      var scene = this.getCurrentScene();
+      var scene = anychart.mapTextarea.chart.getCurrentScene();
 
       switch (e.identifier) {
         case 'zoom_in':
@@ -787,6 +782,7 @@ anychart.charts.Map.prototype.controlsInteractivity_ = function() {
         var scrollY = scrollEl.scrollTop;
 
         anychart.mapTextarea.focus();
+        anychart.mapTextarea.chart = this;
         if (goog.userAgent.GECKO) {
           var newScrollX = scrollEl.scrollLeft;
           var newScrollY = scrollEl.scrollTop;
@@ -1148,24 +1144,6 @@ anychart.charts.Map.prototype.handleMouseOut = function(event) {
       scene.prevHoverSeriesStatus = null;
     }
   }
-};
-
-
-/**
- * Allows to select points of the Map.
- * @param {boolean=} opt_value Allow or not.
- * @return {boolean|anychart.charts.Map} Returns allow points select state or current map instance for chaining.
- * @deprecated Since 7.8.0. Use chart.interactivity().selectionMode().
- */
-anychart.charts.Map.prototype.allowPointsSelect = function(opt_value) {
-  anychart.core.reporting.warning(anychart.enums.WarningCode.DEPRECATED, null, ['allowPointsSelect()', 'interactivity().selectionMode()'], true);
-  if (goog.isDef(opt_value)) {
-    this.interactivity().selectionMode(opt_value ?
-        anychart.enums.SelectionMode.MULTI_SELECT :
-        anychart.enums.SelectionMode.NONE);
-    return this;
-  }
-  return this.interactivity().selectionMode() != anychart.enums.SelectionMode.NONE;
 };
 
 
@@ -3472,9 +3450,9 @@ anychart.charts.Map.prototype.drawContent = function(bounds) {
 
   if (this.hasInvalidationState(anychart.ConsistencyState.MAP_MOVE)) {
     if (this.getZoomLevel() != minZoomLevel && mapLayer) {
-      viewSpacePath = this.scale().getViewSpace();
-      boundsWithoutTx = viewSpacePath.getBoundsWithoutTransform();
-      boundsWithTx = viewSpacePath.getBoundsWithTransform(mapLayer.getFullTransformation());
+      // viewSpacePath = this.scale().getViewSpace();
+      boundsWithoutTx = mapLayer.getBoundsWithoutTransform();
+      boundsWithTx = mapLayer.getBoundsWithTransform(mapLayer.getFullTransformation());
 
       if (this.lastZoomIsUnlimited) {
         if ((boundsWithTx.left + this.offsetX >= boundsWithoutTx.left) && this.offsetX > 0) {
@@ -3522,6 +3500,16 @@ anychart.charts.Map.prototype.drawContent = function(bounds) {
         this.scale().setOffsetFocusPoint(tx.getTranslateX(), tx.getTranslateY());
         this.updateSeriesOnZoomOrMove();
       }
+
+      //debug shapes
+      // var boundsWithoutTx = mapLayer.getBoundsWithoutTransform();
+      // var boundsWithTx = mapLayer.getBounds();
+      //
+      // if (!this.bwt) this.bwt = this.container().rect().zIndex(1000);
+      // this.bwt.setBounds(boundsWithoutTx);
+      //
+      // if (!this.bwit) this.bwit = this.container().rect().zIndex(1000);
+      // this.bwit.setBounds(boundsWithTx);
     }
 
     this.markConsistent(anychart.ConsistencyState.MAP_MOVE);
@@ -5064,10 +5052,7 @@ anychart.charts.Map.prototype.toGeoJSON = function() {
 };
 
 
-/**
- * @inheritDoc
- * @suppress {deprecated}
- */
+/** @inheritDoc */
 anychart.charts.Map.prototype.setupByJSON = function(config, opt_default) {
   anychart.charts.Map.base(this, 'setupByJSON', config, opt_default);
 
@@ -5087,9 +5072,6 @@ anychart.charts.Map.prototype.setupByJSON = function(config, opt_default) {
   var geoData = config['geoData'];
   if (geoData) {
     this.geoData(/** @type {string} */(goog.string.startsWith(geoData, '{') ? JSON.parse(geoData) : geoData));
-  }
-  if (goog.isDef(config['allowPointsSelect'])) {
-    this.allowPointsSelect(config['allowPointsSelect']);
   }
 
   this.crsAnimation(config['crsAnimation']);
@@ -5303,7 +5285,6 @@ anychart.charts.Map.prototype.disposeInternal = function() {
 //endregion
 //region --- Exports
 //exports
-/** @suppress {deprecated} */
 (function() {
   var proto = anychart.charts.Map.prototype;
   //
@@ -5345,7 +5326,6 @@ anychart.charts.Map.prototype.disposeInternal = function() {
   //bounds
   proto['getPlotBounds'] = proto.getPlotBounds;
   //interactivity
-  proto['allowPointsSelect'] = proto.allowPointsSelect;
   proto['crsAnimation'] = proto.crsAnimation;
   //feature manipulation
   proto['featureTranslation'] = proto.featureTranslation;
@@ -5363,6 +5343,10 @@ anychart.charts.Map.prototype.disposeInternal = function() {
   proto['zoomTo'] = proto.zoomTo;
   proto['getZoomLevel'] = proto.getZoomLevel;
   proto['maxZoomLevel'] = proto.maxZoomLevel;
+  proto['getCurrentScene'] = proto.getCurrentScene;
+  proto['fitAll'] = proto.fitAll;
+  proto['zoomIn'] = proto.zoomIn;
+  proto['zoomOut'] = proto.zoomOut;
   // proto['minZoomLevel'] = proto.minZoomLevel;
   //drilling
   proto['drillTo'] = proto.drillTo;

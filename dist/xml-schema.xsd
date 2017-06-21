@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <xsd:schema
         xmlns:xsd="http://www.w3.org/2001/XMLSchema"
-        targetNamespace="http://anychart.com/schemas/7.13.1/xml-schema.xsd"
-        xmlns="http://anychart.com/schemas/7.13.1/xml-schema.xsd"
+        targetNamespace="http://anychart.com/schemas/7.14.0/xml-schema.xsd"
+        xmlns="http://anychart.com/schemas/7.14.0/xml-schema.xsd"
         elementFormDefault="qualified">
 
     <xsd:element name="anychart" type="Anychart"/>
@@ -154,7 +154,6 @@
         <xsd:attribute name="scale" type="simple.ChartScaleRef" default="linear"/>
         <xsd:attribute name="axis" type="simple.BoolOrNull" default="true"/>
         <!-- charts.Cartesian attrs -->
-        <xsd:attribute name="bar_chart_mode" type="simple.Bool" default="false"/>
         <xsd:attribute name="is_vertical" type="simple.Bool" default="false"/>
         <xsd:attribute name="bar_groups_padding" type="xsd:double" default="0.5"/>
         <xsd:attribute name="bars_padding" type="xsd:double" default="0.1"/>
@@ -257,6 +256,8 @@
         <xsd:attribute name="horizontal_spacing" type="simple.NumberOrPercent"/>
         <!-- Venn attributes -->
         <xsd:attribute name="data_separator" type="xsd:string"/>
+        <!-- Waterfall attributes -->
+        <xsd:attribute name="data_mode" type="enums.WaterfallDataMode"/>
     </xsd:complexType>
 
     <xsd:complexType name="Gauge">
@@ -988,6 +989,9 @@
     </xsd:complexType>
 
     <xsd:complexType name="anychart.core.TagCloudStateSettings">
+        <xsd:all>
+            <xsd:element minOccurs="0" maxOccurs="1" name="fill" type="Fill"/>
+        </xsd:all>
         <xsd:attribute name="font_size" type="xsd:string"/>
         <xsd:attribute name="fill" type="xsd:string"/>
         <xsd:attribute name="font_family" type="xsd:string"/>
@@ -1659,6 +1663,13 @@
         <xsd:restriction base="xsd:string">
             <xsd:enumeration value="distinct"/>
             <xsd:enumeration value="range"/>
+        </xsd:restriction>
+    </xsd:simpleType>
+
+    <xsd:simpleType name="enums.WaterfallDataMode">
+        <xsd:restriction base="xsd:string">
+            <xsd:enumeration value="absolute"/>
+            <xsd:enumeration value="diff"/>
         </xsd:restriction>
     </xsd:simpleType>
 
@@ -3022,6 +3033,7 @@
             <xsd:enumeration value="barmekko"/>
             <xsd:enumeration value="venn"/>
             <xsd:enumeration value="hilo"/>
+            <xsd:enumeration value="waterfall"/>
         </xsd:restriction>
     </xsd:simpleType>
 
@@ -3289,6 +3301,7 @@
             <xsd:enumeration value="polyline"/>
             <xsd:enumeration value="mekko"/>
             <xsd:enumeration value="hilo"/>
+            <xsd:enumeration value="waterfall"/>
         </xsd:restriction>
     </xsd:simpleType>
 

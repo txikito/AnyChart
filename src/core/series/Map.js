@@ -64,6 +64,13 @@ anychart.core.series.Map.prototype.SUPPORTED_CONSISTENCY_STATES =
 anychart.core.series.Map.prototype.LABELS_ZINDEX = anychart.core.shapeManagers.LABELS_OVER_MARKERS_ZINDEX;
 
 
+/**
+ * Token aliases list.
+ * @type {Object.<string, string>}
+ */
+anychart.core.series.Map.prototype.TOKEN_ALIASES = ({});
+
+
 //endregion
 //region --- Infrastructure
 /** @inheritDoc */
@@ -634,7 +641,7 @@ anychart.core.series.Map.prototype.applyZoomMoveTransformToLabel = function(labe
 
   var connectorElement = label.getConnectorElement();
   if (connectorElement && iterator.meta('positionMode') != anychart.enums.MapPointOutsidePositionMode.OFFSET) {
-    prevTx = this.mapTx;
+    prevTx = label.mapTx || this.mapTx;
     tx = this.chart.getMapLayer().getFullTransformation().clone();
 
     if (prevTx) {
@@ -811,31 +818,6 @@ anychart.core.series.Map.prototype.applyZoomMoveTransform = function() {
   if (isDraw) {
     this.applyZoomMoveTransformToLabel(label, pointState);
   }
-};
-
-
-//----------------------------------------------------------------------------------------------------------------------
-//
-//  AllowPointsSelect. (Deprecated)
-//
-//----------------------------------------------------------------------------------------------------------------------
-/**
- * Allows to select points of the series.
- * @param {?boolean=} opt_value Allow or not.
- * @return {null|boolean|anychart.core.series.Map} Returns allow points select state or current series instance for chaining.
- * @deprecated Since 7.13.0 in Map series and was never introduced in public API of other series, but was exported. Use this.selectionMode() instead.
- */
-anychart.core.series.Map.prototype.allowPointsSelect = function(opt_value) {
-  anychart.core.reporting.warning(anychart.enums.WarningCode.DEPRECATED, null, ['allowPointsSelect()', 'selectionMode()'], true);
-  if (goog.isDef(opt_value)) {
-    this.selectionMode(goog.isBoolean(opt_value) ?
-        (opt_value ?
-            anychart.enums.SelectionMode.MULTI_SELECT :
-            anychart.enums.SelectionMode.NONE) :
-        opt_value);
-    return this;
-  }
-  return goog.isNull(this.selectionMode()) ? null : this.selectionMode() != anychart.enums.SelectionMode.NONE;
 };
 
 
@@ -1027,9 +1009,19 @@ anychart.core.series.Map.prototype.getLegendItemData = function(itemsFormat) {
 //endregion
 //region --- Position and Formating
 /** @inheritDoc */
-anychart.core.series.Map.prototype.updateContext = function(provider, opt_rowInfo) {
-  var rowInfo = opt_rowInfo || this.getIterator();
+anychart.core.series.Map.prototype.createStatisticsSource = function(rowInfo) {
+  return [this, this.getChart()];
+};
 
+
+/** @inheritDoc */
+anychart.core.series.Map.prototype.getCustomTokenValues = function(rowInfo) {
+  return {};
+};
+
+
+/** @inheritDoc */
+anychart.core.series.Map.prototype.getContextProviderValues = function(provider, rowInfo) {
   var scale = this.getXScale();
   var values = {
     'chart': {value: this.getChart(), type: anychart.enums.TokenType.UNKNOWN},
@@ -1085,11 +1077,7 @@ anychart.core.series.Map.prototype.updateContext = function(provider, opt_rowInf
     }
   }
 
-  provider
-      .dataSource(rowInfo)
-      .statisticsSources([this, this.getChart()]);
-
-  return /** @type {anychart.format.Context} */ (provider.propagate(values));
+  return values;
 };
 
 
@@ -1183,7 +1171,7 @@ anychart.core.series.Map.prototype.drawSingleFactoryElement = function(factory, 
 
   //Needs for correct drawing of label connectors in zoomed map state.
   if (this.drawer.type == anychart.enums.SeriesDrawerTypes.CHOROPLETH) {
-    this.mapTx = this.chart.getMapLayer().getFullTransformation().clone();
+    element.mapTx = this.chart.getMapLayer().getFullTransformation().clone();
   }
   return element;
 };
@@ -1722,10 +1710,7 @@ anychart.core.series.Map.prototype.serialize = function() {
 };
 
 
-/**
- * @inheritDoc
- * @suppress {deprecated}
- */
+/** @inheritDoc */
 anychart.core.series.Map.prototype.setupByJSON = function(config, opt_default) {
   anychart.core.series.Map.base(this, 'setupByJSON', config, opt_default);
 
@@ -1733,26 +1718,18 @@ anychart.core.series.Map.prototype.setupByJSON = function(config, opt_default) {
 
   this.overlapMode(config['overlapMode']);
   this.geoIdField(config['geoIdField']);
-  if (goog.isDef(config['allowPointsSelect'])) {
-    this.allowPointsSelect(config['allowPointsSelect']);
-  }
 };
 
 
 //endregion
 //region --- Exports
 //exports
-/** @suppress {deprecated} */
 (function() {
   var proto = anychart.core.series.Map.prototype;
   proto['overlapMode'] = proto.overlapMode;
-
   proto['geoIdField'] = proto.geoIdField;
   proto['transformXY'] = proto.transformXY;
-
   proto['colorScale'] = proto.colorScale;
   proto['getPoint'] = proto.getPoint;
-
-  proto['allowPointsSelect'] = proto.allowPointsSelect;
 })();
 //endregion

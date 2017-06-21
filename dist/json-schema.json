@@ -1,6 +1,6 @@
 {
   "$schema": "http://json-schema.org/draft-04/schema",
-  "description": "AnyChart 7 JSON schema, version 7.13.1",
+  "description": "AnyChart 7 JSON schema, version 7.14.0",
   "type": "object",
   "properties": {
     "chart": {
@@ -25,7 +25,8 @@
         {"$ref": "#/definitions/anychart.charts.Pert"},
         {"$ref": "#/definitions/anychart.charts.Mekko"},
         {"$ref": "#/definitions/anychart.charts.TagCloud"},
-        {"$ref": "#/definitions/anychart.charts.Venn"}
+        {"$ref": "#/definitions/anychart.charts.Venn"},
+        {"$ref": "#/definitions/anychart.charts.Waterfall"}
       ],
       "properties": {
         "container": {
@@ -216,13 +217,13 @@
       }
     },
 
-    "anychart.charts.Cartesian": {
+    "anychart.core.CartesianBase": {
       "type": "object",
       "allOf": [
         {"$ref": "#/definitions/anychart.core.SeparateChart"}
       ],
       "properties": {
-        "type": {"enum": ["cartesian", "cartesian3d", "area", "verticalArea", "area3d", "bar", "bar3d", "box", "bubble", "column", "column3d", "financial", "line", "verticalLine", "marker", "jumpLine", "stick", "pareto", "hilo"]},
+        "type": {"enum": ["cartesian", "cartesian3d", "area", "verticalArea", "area3d", "bar", "bar3d", "box", "bubble", "column", "column3d", "financial", "line", "verticalLine", "marker", "jumpLine", "stick", "pareto", "hilo", "waterfall"]},
         "grids": {
           "type": "array",
           "items": {
@@ -296,9 +297,6 @@
           }
         },
         "crosshair": {"$ref": "#/definitions/anychart.core.ui.Crosshair"},
-        "barChartMode": {
-          "type": "boolean"
-        },
         "isVertical": {
           "type": "boolean"
         },
@@ -441,12 +439,70 @@
           ]
         },
         "zAngle": {"type": ["number"]},
-        "zDepth": {"type": ["number", "null"]},
         "zAspect": {"type": ["number", "string"]},
         "zPadding": {"type": ["number"]},
         "zDistribution": {"type": ["boolean"]}
       },
       "required": ["type"]
+    },
+    "anychart.charts.Cartesian": {
+      "type": "object",
+      "allOf": [
+        {
+          "$ref": "#/definitions/anychart.core.CartesianBase"
+        }
+      ],
+      "properties": {
+        "type": {
+          "enum": [
+            "cartesian",
+            "cartesian3d",
+            "area",
+            "verticalArea",
+            "area3d",
+            "bar",
+            "bar3d",
+            "box",
+            "bubble",
+            "column",
+            "column3d",
+            "financial",
+            "line",
+            "verticalLine",
+            "marker",
+            "jumpLine",
+            "stick",
+            "pareto"
+          ]
+        }
+      },
+      "required": [
+        "type"
+      ]
+    },
+    "anychart.charts.Waterfall": {
+      "type": "object",
+      "allOf": [
+        {
+          "$ref": "#/definitions/anychart.core.CartesianBase"
+        }
+      ],
+      "properties": {
+        "type": {
+          "enum": [
+            "waterfall"
+          ]
+        },
+        "dataMode": {
+          "$ref": "#/definitions/anychart.enums.WaterfallDataMode"
+        },
+        "connectorStroke": {
+          "$ref": "#/definitions/stroke"
+        }
+      },
+      "required": [
+        "type"
+      ]
     },
     "anychart.charts.Funnel": {
       "type": "object",
@@ -2742,7 +2798,8 @@
             "choropleth",
             "connector",
             "mekko",
-            "hilo"
+            "hilo",
+            "waterfall"
           ]
         },
         "id": {
@@ -5090,8 +5147,6 @@
         "selectable": {"type": ["boolean", "null"]},
         "disablePointerEvents": {"type": ["boolean", "null"]},
         "useHtml": {"type": ["boolean", "null"]},
-        "textFormatter": {"type": "string"},
-
         "allowLeaveScreen": {"type": "boolean"}
       }
     },
@@ -5327,12 +5382,7 @@
             "number"
           ]
         },
-        "fill": {
-          "type": [
-            "string",
-            "null"
-          ]
-        },
+        "fill": {"$ref": "#/definitions/fill"},
         "fontFamily": {
           "type": [
             "string",
@@ -5809,6 +5859,12 @@
     },
     "anychart.enums.CrosshairDisplayMode": {
       "enum": ["float", "sticky"]
+    },
+    "anychart.enums.WaterfallDataMode": {
+      "enum": [
+        "diff",
+        "absolute"
+      ]
     },
 
     "acgraph.vector.HatchFill.HatchFillType": {

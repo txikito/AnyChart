@@ -910,7 +910,7 @@ anychart.core.Chart.prototype.contextMenu = function(opt_value) {
  * @protected
  */
 anychart.core.Chart.prototype.getVersionHistoryLink = function() {
-  return 'http://anychart.com/products/anychart/history';
+  return 'https://anychart.com/products/anychart/history';
 };
 
 
@@ -923,9 +923,9 @@ anychart.core.Chart.prototype.getVersionHistoryLink = function() {
  */
 anychart.core.Chart.prototype.contextMenuItemsProvider = function(context) {
   // For fired on MarkersFactory or LabelsFactory
-  var parentEventTarget = context['event']['target'].getParentEventTarget();
+  var parentEventTarget = context['event'] ? context['event']['target'].getParentEventTarget() : null;
   // For fired on series point (context['event']['target'] == chart)
-  var meta = anychart.utils.extractTag(context['event']['domTarget']);
+  var meta = context['event'] ? anychart.utils.extractTag(context['event']['domTarget']) : null;
   var isSeries = goog.isObject(meta) && goog.isDef(meta.series) &&
       meta.series['seriesType'] && goog.isDef(meta.index);
   var isPointContext = isSeries || (parentEventTarget && parentEventTarget['seriesType']);
@@ -958,7 +958,7 @@ anychart.core.Chart.prototype.contextMenuItemsProvider = function(context) {
  * @protected
  */
 anychart.core.Chart.prototype.specificContextMenuItems = function(items, context, isPointContext) {
-  return /** @type {Array.<anychart.ui.ContextMenu.Item>} */(goog.array.concat(anychart.utils.recursiveClone(anychart.core.Chart.contextMenuMap.selectMarquee), items));
+  return items;
 };
 
 
@@ -1131,14 +1131,14 @@ anychart.core.Chart.contextMenuItems = {
     'text': 'AnyChart ' + (anychart.VERSION ?
         goog.string.subs.apply(null, ['v%s.%s.%s'].concat(anychart.VERSION.split('.'))) :
         ' develop version'),
-    'href': 'http://anychart.com'
+    'href': 'https://anychart.com'
   },
 
   // Item 'Link to help'.
   linkToHelp: {
     'iconClass': 'ac ac-question',
     'text': 'Need help? Go to support center!',
-    'href': 'http://anychart.com/support'
+    'href': 'https://anychart.com/support'
   }
 };
 
@@ -1397,9 +1397,6 @@ anychart.core.Chart.prototype.drawInternal = function() {
 
   if (!this.checkDrawingNeeded())
     return;
-
-  if (anychart.compatibility.IS_PHANTOM_JS && this.container() && this.container().getStage())
-    this.container().getStage().getTooltipLayer();
 
   anychart.performance.start('Chart.draw()');
   var startTime;
@@ -1682,28 +1679,22 @@ anychart.core.Chart.prototype.invalidateHandler_ = function(event) {
  * For the moment we have no way around this "nice feature" of the compiler.
  * @param {boolean=} opt_stringify Return as JSON as string.
  *  Note: stringifying ignores this flag.
- * @param {boolean=} opt_includeTheme If the current theme properties should be included into the result.
  * @return {*} Chart JSON.
  */
-anychart.core.Chart.prototype.toJson = function(opt_stringify, opt_includeTheme) {
+anychart.core.Chart.prototype.toJson = function(opt_stringify) {
   var data = this.isDisposed() ? {} : this.serialize();
-  if (!opt_includeTheme) {
-    data = /** @type {!Object} */(anychart.themes.merging.demerge(data, this.getDefaultThemeObj())) || {};
-  }
-  return opt_stringify ?
-      goog.json.hybrid.stringify(data) :
-      data;
+  data = /** @type {!Object} */(anychart.themes.merging.demerge(data, this.getDefaultThemeObj())) || {};
+  return opt_stringify ? goog.json.hybrid.stringify(data) : data;
 };
 
 
 /**
  * Return chart configuration as XML string or XMLNode.
  * @param {boolean=} opt_asXmlNode Return XML as XMLNode.
- * @param {boolean=} opt_includeTheme If the current theme properties should be included into the result.
  * @return {string|Node} Chart configuration.
  */
-anychart.core.Chart.prototype.toXml = function(opt_asXmlNode, opt_includeTheme) {
-  return anychart.utils.json2xml(/** @type {Object} */(this.toJson(false, opt_includeTheme)), '', opt_asXmlNode);
+anychart.core.Chart.prototype.toXml = function(opt_asXmlNode) {
+  return anychart.utils.json2xml(/** @type {Object} */(this.toJson(false)), '', opt_asXmlNode);
 };
 
 
@@ -1831,13 +1822,12 @@ anychart.core.Chart.prototype.setupByJSON = function(config, opt_default) {
 
 /** @inheritDoc */
 anychart.core.Chart.prototype.disposeInternal = function() {
-  goog.disposeAll(this.animation_, this.a11y_);
-  anychart.core.Chart.base(this, 'disposeInternal');
-
   goog.disposeAll(this.animation_, this.a11y_, this.tooltip_);
   this.animation_ = null;
   this.a11y_ = null;
   this.tooltip_ = null;
+
+  anychart.core.Chart.base(this, 'disposeInternal');
 
   if (this.id_)
     anychart.untrackChart(this, /** @type {string} */(this.id_));
@@ -3126,19 +3116,6 @@ anychart.core.Chart.prototype.extractHeaders = function(dataSet, headers, header
 
 
 /**
- * Checks whether separator is valid.
- * Throws an error if invalid.
- * @param {string} separator
- */
-anychart.core.Chart.prototype.checkSeparator = function(separator) {
-  if (separator.indexOf('\"') != -1) {
-    anychart.core.reporting.error(anychart.enums.ErrorCode.CSV_DOUBLE_QUOTE_IN_SEPARATOR);
-    throw new Error('Double quotes in separator are not allowed');
-  }
-};
-
-
-/**
  * Escapes values.
  * @param {Array} row Array of values.
  * @param {string} colSep Columns separator.
@@ -3205,9 +3182,9 @@ anychart.core.Chart.prototype.makeObject_ = function(node, rawData, headers, hea
 anychart.core.Chart.prototype.toTreeDataCsv_ = function(opt_csvSettings) {
   var settings = goog.isObject(opt_csvSettings) ? opt_csvSettings : {};
   var rowsSeparator = settings['rowsSeparator'] || '\n';
-  this.checkSeparator(rowsSeparator);
+  anychart.utils.checkSeparator(rowsSeparator);
   var columnsSeparator = settings['columnsSeparator'] || ',';
-  this.checkSeparator(columnsSeparator);
+  anychart.utils.checkSeparator(columnsSeparator);
   var ignoreFirstRow = settings['ignoreFirstRow'] || false;
 
   var data = (/** @type {{data:Function}} */(this)).data();
@@ -3344,9 +3321,9 @@ anychart.core.Chart.prototype.toCsv = function(opt_chartDataExportMode, opt_csvS
       type == anychart.enums.ChartTypes.QUADRANT);
   var settings = goog.isObject(opt_csvSettings) ? opt_csvSettings : {};
   var rowsSeparator = settings['rowsSeparator'] || '\n';
-  this.checkSeparator(rowsSeparator);
+  anychart.utils.checkSeparator(rowsSeparator);
   var columnsSeparator = settings['columnsSeparator'] || ',';
-  this.checkSeparator(columnsSeparator);
+  anychart.utils.checkSeparator(columnsSeparator);
   var ignoreFirstRow = settings['ignoreFirstRow'] || false;
 
   var isGauge =
@@ -3368,7 +3345,10 @@ anychart.core.Chart.prototype.toCsv = function(opt_chartDataExportMode, opt_csvS
   var dataSetsCount = 0;
 
   for (i = 0; i < seriesListLength; i++) {
-    series = /** @type {anychart.core.series.Base|anychart.core.Chart} */ (seriesList[i]);
+    series = /** @type {anychart.core.series.Base|anychart.core.ChartWithSeries|anychart.charts.Resource|
+        anychart.core.PyramidFunnelBase|anychart.charts.Venn|anychart.charts.LinearGauge|anychart.charts.Bullet|
+        anychart.charts.TreeMap|anychart.charts.TagCloud|anychart.charts.Sparkline|anychart.charts.Gantt|
+        anychart.charts.Pert|anychart.charts.CircularGauge} */ (seriesList[i]);
     seriesData = /** @type {anychart.data.View} */ (series.data());
     seriesDataSets = seriesData.getDataSets();
     for (j = 0, len = seriesDataSets.length; j < len; j++) {
@@ -3566,11 +3546,10 @@ anychart.core.Chart.prototype.toA11yTable = function(opt_title, opt_asString) {
 
 /**
  * Saves chart config as XML document.
- * @param {boolean=} opt_includeTheme If the current theme properties should be included into the result.
  * @param {string=} opt_filename file name to save.
  */
-anychart.core.Chart.prototype.saveAsXml = function(opt_includeTheme, opt_filename) {
-  var xml = /** @type {string} */(this.toXml(false, opt_includeTheme));
+anychart.core.Chart.prototype.saveAsXml = function(opt_filename) {
+  var xml = /** @type {string} */(this.toXml(false));
   var options = {};
   options['file-name'] = opt_filename || anychart.exports.filename();
   options['data'] = xml;
@@ -3582,11 +3561,10 @@ anychart.core.Chart.prototype.saveAsXml = function(opt_includeTheme, opt_filenam
 
 /**
  * Saves chart config as XML document.
- * @param {boolean=} opt_includeTheme If the current theme properties should be included into the result.
  * @param {string=} opt_filename file name to save.
  */
-anychart.core.Chart.prototype.saveAsJson = function(opt_includeTheme, opt_filename) {
-  var json = /** @type {string} */(this.toJson(true, opt_includeTheme));
+anychart.core.Chart.prototype.saveAsJson = function(opt_filename) {
+  var json = /** @type {string} */(this.toJson(true));
   var options = {};
   options['file-name'] = opt_filename || anychart.exports.filename();
   options['data'] = json;
@@ -3807,7 +3785,7 @@ anychart.core.Chart.prototype.shareWithPinterest = function(opt_linkOrOptions, o
   var popup = window.open('', '_blank', 'scrollbars=yes, width=' + w + ', height=' + h + ', top=' + top + ', left=' + left);
 
   var onSuccess = function(imgUrl) {
-    var urlBase = 'http://pinterest.com/pin/create/link';
+    var urlBase = 'https://pinterest.com/pin/create/link';
     var urlOptions = {
       'media' : imgUrl
     };

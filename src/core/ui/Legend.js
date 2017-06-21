@@ -388,18 +388,6 @@ anychart.core.ui.Legend.prototype.itemsFormat = function(opt_value) {
 
 
 /**
- * Getter/setter for items text formatter.
- * @param {(string|Function)=} opt_value Items text formatter function.
- * @return {(Function|string|anychart.core.ui.Legend)} Items text formatter function or self for chaining.
- * @deprecated Since 7.13.1. Use 'itemsFormat' instead.
- */
-anychart.core.ui.Legend.prototype.itemsTextFormatter = function(opt_value) {
-  anychart.core.reporting.warning(anychart.enums.WarningCode.DEPRECATED, null, ['itemsTextFormatter()', 'itemsFormat()'], true);
-  return this.itemsFormat(opt_value);
-};
-
-
-/**
  * Getter/setter for itemsSpacing.
  * @param {(string|number)=} opt_value Value of spacing between legend items.
  * @return {(string|number|anychart.core.ui.Legend)} Items spacing setting or self for method chaining.
@@ -595,18 +583,6 @@ anychart.core.ui.Legend.prototype.titleInvalidated_ = function(event) {
   }
   // If there are no signals, the !state and nothing happens.
   this.invalidate(state, signal);
-};
-
-
-/**
- * If set, formats title. Currently supported in Stock only.
- * @param {?(Function|string)=} opt_value
- * @return {Function|string|anychart.core.ui.Legend}
- * @deprecated Since 7.13.1. Use 'titleFormat' instead.
- */
-anychart.core.ui.Legend.prototype.titleFormatter = function(opt_value) {
-  anychart.core.reporting.warning(anychart.enums.WarningCode.DEPRECATED, null, ['titleFormatter', 'titleFormat'], true);
-  return this.titleFormat(opt_value);
 };
 
 
@@ -1206,9 +1182,10 @@ anychart.core.ui.Legend.prototype.calculateBounds_ = function() {
   title.suspendSignalsDispatching();
 
   var calculatedBounds = null;
+  var lastCalculatedPaginatorBounds = null;
   do {
     if (calculatedBounds) {
-      paginatorBounds = calculatedBounds;
+      lastCalculatedPaginatorBounds = calculatedBounds;
       calculatedBounds = null;
     }
 
@@ -1289,7 +1266,7 @@ anychart.core.ui.Legend.prototype.calculateBounds_ = function() {
     }
 
     paginator.parentBounds(null);
-    paginatorBounds = paginator.getPixelBounds();
+    paginatorBounds = paginator.getPixelBoundsInternal(1);
 
     if (this.itemsLayout_ == anychart.enums.LegendLayout.HORIZONTAL) {
       if (contentWidth > itemsAreaWidth && this.items_ && this.items_.length > 1) {
@@ -1407,7 +1384,7 @@ anychart.core.ui.Legend.prototype.calculateBounds_ = function() {
     this.distributeItemsInBounds_(pageWidth, pageHeight);
     paginator.parentBounds(null);
     calculatedBounds = paginator.getPixelBounds();
-  } while (!anychart.math.Rect.equals(paginatorBounds, calculatedBounds));
+  } while (!anychart.math.Rect.equals(lastCalculatedPaginatorBounds, calculatedBounds));
 
   if (!fullWidth) {
     fullWidth = width;
@@ -2363,10 +2340,7 @@ anychart.core.ui.Legend.prototype.serialize = function() {
 };
 
 
-/**
- * @inheritDoc
- * @suppress {deprecated}
- */
+/** @inheritDoc */
 anychart.core.ui.Legend.prototype.setupByJSON = function(config, opt_default) {
   anychart.core.ui.Legend.base(this, 'setupByJSON', config, opt_default);
 
@@ -2383,8 +2357,6 @@ anychart.core.ui.Legend.prototype.setupByJSON = function(config, opt_default) {
     this.margin(config['margin']);
 
   this.titleFormat(config['titleFormat']);
-  if ('titleFormatter' in config)
-    this.titleFormatter(config['titleFormatter']);
   this.titleSeparator(config['titleSeparator']);
   this.paginator(config['paginator']);
 
@@ -2396,9 +2368,6 @@ anychart.core.ui.Legend.prototype.setupByJSON = function(config, opt_default) {
   this.itemsSourceMode(config['itemsSourceMode']);
   this.items(config['items']);
   this.itemsFormat(config['itemsFormat']);
-  if ('itemsTextFormatter' in config) {
-    this.itemsTextFormatter(config['itemsTextFormatter']);
-  }
   this.itemsFormatter(config['itemsFormatter']);
   this.iconTextSpacing(config['iconTextSpacing']);
   this.iconSize(config['iconSize']);
@@ -2431,7 +2400,6 @@ anychart.core.ui.Legend.prototype.disposeInternal = function() {
 //endregion
 //region --- Exports
 //exports
-/** @suppress {deprecated} */
 (function() {
   var proto = anychart.core.ui.Legend.prototype;
   proto['itemsLayout'] = proto.itemsLayout;
@@ -2439,7 +2407,6 @@ anychart.core.ui.Legend.prototype.disposeInternal = function() {
   proto['items'] = proto.items;
   proto['itemsFormatter'] = proto.itemsFormatter;
   proto['itemsFormat'] = proto.itemsFormat;
-  proto['itemsTextFormatter'] = proto.itemsTextFormatter;
   proto['itemsSourceMode'] = proto.itemsSourceMode;
   proto['inverted'] = proto.inverted;
   proto['hoverCursor'] = proto.hoverCursor;
@@ -2449,7 +2416,6 @@ anychart.core.ui.Legend.prototype.disposeInternal = function() {
   proto['padding'] = proto.padding;
   proto['background'] = proto.background;
   proto['title'] = proto.title;
-  proto['titleFormatter'] = proto.titleFormatter;
   proto['titleFormat'] = proto.titleFormat;
   proto['titleSeparator'] = proto.titleSeparator;
   proto['paginator'] = proto.paginator;
@@ -2461,7 +2427,8 @@ anychart.core.ui.Legend.prototype.disposeInternal = function() {
   proto['position'] = proto.position;
   proto['positionMode'] = proto.positionMode;
   proto['align'] = proto.align;
-  proto['getRemainingBounds'] = proto.getRemainingBounds;
   proto['drag'] = proto.drag;
+  proto['getRemainingBounds'] = proto.getRemainingBounds;
+  proto['getPixelBounds'] = proto.getPixelBounds;
 })();
 //endregion

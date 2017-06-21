@@ -1,5 +1,6 @@
 goog.provide('anychart.core.ChartWithSeries');
 
+goog.require('anychart.core.IChart');
 goog.require('anychart.core.SeparateChart');
 goog.require('anychart.core.annotations');
 goog.require('anychart.core.reporting');
@@ -16,6 +17,7 @@ goog.require('goog.array');
  * A base class for the chart with series.
  * @constructor
  * @extends {anychart.core.SeparateChart}
+ * @implements {anychart.core.IChart}
  */
 anychart.core.ChartWithSeries = function() {
   anychart.core.ChartWithSeries.base(this, 'constructor');
@@ -183,7 +185,8 @@ anychart.core.ChartWithSeries.prototype.normalizeSeriesType = function(type) {
  *    anychart.enums.RadarSeriesType |
  *    anychart.enums.PolarSeriesType |
  *    anychart.enums.MapSeriesType |
- *    anychart.enums.MekkoSeriesType
+ *    anychart.enums.MekkoSeriesType |
+ *    anychart.enums.WaterfallSeriesType
  * )=} opt_value Default series type.
  * @return {
  *    anychart.core.ChartWithSeries |
@@ -192,7 +195,8 @@ anychart.core.ChartWithSeries.prototype.normalizeSeriesType = function(type) {
  *    anychart.enums.RadarSeriesType |
  *    anychart.enums.PolarSeriesType |
  *    anychart.enums.MapSeriesType |
- *    anychart.enums.MekkoSeriesType
+ *    anychart.enums.MekkoSeriesType |
+ *    anychart.enums.WaterfallSeriesType
  * } Default series type or self for chaining.
  */
 anychart.core.ChartWithSeries.prototype.defaultSeriesType = function(opt_value) {
@@ -421,6 +425,12 @@ anychart.core.ChartWithSeries.prototype.removeAllSeries = function() {
         anychart.ConsistencyState.SCALE_CHART_SCALE_MAPS,
         anychart.Signal.NEEDS_REDRAW);
     this.resumeSignalsDispatching(true);
+    // When we deleting ALL series, we should clear this statuses, cause they are loss the actuality
+    // Also we should unlisten tooltip update, cause after removing series it can be fired on disposed series
+    // See DVF-3020
+    this.prevHoverSeriesStatus = null;
+    this.prevSelectSeriesStatus = null;
+    this.unlisten(goog.events.EventType.MOUSEMOVE, this.updateTooltip);
     anychart.globalLock.unlock();
   }
   return this;
@@ -494,11 +504,16 @@ anychart.core.ChartWithSeries.prototype.invalidateSizeBasedSeries = function() {
 
 /**
  * Returns if the chart is vertical.
- * @return {boolean}
+ * @param {boolean=} opt_value
+ * @return {!(boolean|anychart.core.ChartWithSeries)}
  */
-anychart.core.ChartWithSeries.prototype.isVertical = function() {
-  return false;
+anychart.core.ChartWithSeries.prototype.isVertical = function(opt_value) {
+  return goog.isDef(opt_value) ? this : false;
 };
+
+
+/** @inheritDoc */
+anychart.core.ChartWithSeries.prototype.xScale = function() {};
 
 
 /**
@@ -878,7 +893,8 @@ anychart.core.ChartWithSeries.seriesReferenceValues = {
   'choropleth': ['id', 'value'],
   'markerMap': ['id', 'long', 'lat'],
   'bubbleMap': ['id', 'long', 'lat', 'size'],
-  'hilo': ['high', 'low']
+  'hilo': ['high', 'low'],
+  'waterfall': ['value']
 };
 
 
@@ -1044,6 +1060,13 @@ anychart.core.ChartWithSeries.prototype.beforeSeriesDraw = function() {
 
 
 /**
+ * A hook right after series were drawn.
+ */
+anychart.core.ChartWithSeries.prototype.afterSeriesDraw = function() {
+};
+
+
+/**
  * Draws series.
  * @param {number=} opt_topAxisPadding
  * @param {number=} opt_rightAxisPadding
@@ -1066,6 +1089,7 @@ anychart.core.ChartWithSeries.prototype.drawSeries = function(opt_topAxisPadding
     for (i = 0; i < this.seriesList.length; i++) {
       this.seriesList[i].draw();
     }
+    this.afterSeriesDraw();
 
     this.markConsistent(anychart.ConsistencyState.SERIES_CHART_SERIES);
     anychart.core.Base.resumeSignalsDispatchingFalse(this.seriesList);
@@ -1215,6 +1239,7 @@ anychart.core.ChartWithSeries.prototype.disposeInternal = function() {
   proto['labels'] = proto.labels;
   proto['hoverLabels'] = proto.hoverLabels;
   proto['selectLabels'] = proto.selectLabels;
+  proto['isVertical'] = proto.isVertical;
 })();
 
 

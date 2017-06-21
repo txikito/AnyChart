@@ -277,6 +277,15 @@ anychart.core.VisualBase.prototype.getOwnerElement = function(target) {
 
 
 /**
+ * Whether stage for this element owned by element.
+ * @return {boolean} Whether stage is owned by element.
+ */
+anychart.core.VisualBase.prototype.isOwnStage = function() {
+  return this.stageOwn_;
+};
+
+
+/**
  * Getter/setter for container.
  * @param {(acgraph.vector.ILayer|string|Element)=} opt_value .
  * @return {(acgraph.vector.ILayer|!anychart.core.VisualBase)} .
@@ -1044,10 +1053,8 @@ anychart.core.VisualBase.prototype.disposeInternal = function() {
 
 
 //exports
-/** @suppress {deprecated} */
 (function() {
   var proto = anychart.core.VisualBase.prototype;
-
   proto['zIndex'] = proto.zIndex;//in docs/final
   proto['enabled'] = proto.enabled;//doc|ex
   proto['print'] = proto.print;

@@ -360,7 +360,7 @@ anychart.ui.chartEditor.Controller.prototype.getBuildCode = function() {
 
   // chart type
   fChart += subs('var chart = anychart.%s();', this.model_.chartConstructor);
-  
+
   if (this.model_.isSeriesBased) {
     // chart series
     for (var id in this.model_.seriesMappings) {

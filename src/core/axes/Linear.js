@@ -13,6 +13,9 @@ goog.require('anychart.enums');
 goog.require('anychart.format.Context');
 goog.require('anychart.math.Rect');
 goog.require('anychart.scales.Base');
+goog.require('anychart.scales.DateTime');
+goog.require('anychart.scales.Linear');
+goog.require('anychart.scales.Ordinal');
 goog.require('anychart.scales.ScatterBase');
 goog.require('anychart.utils');
 //endregion
@@ -22,9 +25,9 @@ goog.require('anychart.utils');
 /**
  * Axis Class.<br/>
  * Any axis must be bound to a scale.<br/>
- * To obtain a new instance of Axis use {@link anychart.axes.linear}.
+ * To obtain a new instance of Axis use {@link anychart.standalones.axes.linear}.
  * @example <t>simple-h100</t>
- * anychart.axes.linear()
+ * anychart.standalones.axes.linear()
  *    .scale(anychart.scales.linear())
  *    .container(stage).draw();
  * @constructor
@@ -775,7 +778,7 @@ anychart.core.axes.Linear.prototype.getOverlappedLabels_ = function(opt_bounds) 
     if (this.overlapMode_ == anychart.enums.LabelsOverlapMode.ALLOW_OVERLAP) {
       return false;
     } else {
-      var scale = /** @type {anychart.scales.Linear|anychart.scales.DateTime|anychart.scales.Ordinal} */(this.scale());
+      var scale = /** @type {anychart.scales.ScatterBase|anychart.scales.Ordinal} */(this.scale());
       var labels = [];
       var minorLabels = [];
 
@@ -1299,12 +1302,12 @@ anychart.core.axes.Linear.prototype.getLength = function(parentLength) {
 /**
  * Returns remaining parent bounds to use elsewhere.
  * @example <t>simple-h100</t>
- * var axis = anychart.axes.linear();
+ * var axis = anychart.standalones.axes.linear();
  * axis
  *     .orientation('left')
  *     .scale(anychart.scales.ordinal().values([1,2,3]))
  *     .container(stage).draw();
- * var label = anychart.ui.label();
+ * var label = anychart.standalones.label();
  * label
  *     .parentBounds(axis.getRemainingBounds())
  *     .width('100%')
@@ -2235,4 +2238,5 @@ anychart.core.axes.Linear.prototype.disposeInternal = function() {
   proto['overlapMode'] = proto.overlapMode;
   proto['isHorizontal'] = proto.isHorizontal;
   proto['padding'] = proto.padding;
+  proto['getPixelBounds'] = proto.getPixelBounds;
 })();

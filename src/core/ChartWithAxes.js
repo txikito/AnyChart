@@ -115,12 +115,12 @@ anychart.core.ChartWithAxes.MAX_ATTEMPTS_AXES_CALCULATION = 5;
 
 
 /**
- * Sets default scale for layout based element depending on barChartMode.
+ * Sets default scale for layout based element depending on isVertical.
  * @param {anychart.core.axisMarkers.Line|anychart.core.axisMarkers.Range|anychart.core.axisMarkers.Text|anychart.core.grids.Linear} item Item to set scale.
  * @protected
  */
 anychart.core.ChartWithAxes.prototype.setDefaultScaleForLayoutBasedElements = function(item) {
-  if (!!(item.isHorizontal() ^ this.barChartMode)) {
+  if (!!(item.isHorizontal() ^ this.isVerticalInternal)) {
     item.scale(/** @type {anychart.scales.Base} */(this.yScale()));
   } else {
     item.scale(/** @type {anychart.scales.Base} */(this.xScale()));
@@ -129,8 +129,56 @@ anychart.core.ChartWithAxes.prototype.setDefaultScaleForLayoutBasedElements = fu
 
 
 /** @inheritDoc */
-anychart.core.ChartWithAxes.prototype.isVertical = function() {
-  return this.barChartMode;
+anychart.core.ChartWithAxes.prototype.isVertical = function(opt_value) {
+  if (goog.isDef(opt_value)) {
+    opt_value = !!opt_value;
+    if (this.isVerticalInternal != opt_value) {
+      this.isVerticalInternal = opt_value;
+
+      for (var i = this.seriesList.length; i--;) {
+        this.seriesList[i]['isVertical'](this.isVerticalInternal);
+      }
+
+      var newValue;
+      var axes = goog.array.concat(this.xAxes_, this.yAxes_);
+      anychart.core.Base.suspendSignalsDispatching(axes);
+      for (i = axes.length; i--;) {
+        var axis = axes[i];
+        if (axis) {
+          switch (axis.orientation()) {
+            case anychart.enums.Orientation.BOTTOM:
+              newValue = anychart.enums.Orientation.LEFT;
+              break;
+            case anychart.enums.Orientation.TOP:
+              newValue = anychart.enums.Orientation.RIGHT;
+              break;
+            case anychart.enums.Orientation.LEFT:
+              newValue = anychart.enums.Orientation.BOTTOM;
+              break;
+            case anychart.enums.Orientation.RIGHT:
+              newValue = anychart.enums.Orientation.TOP;
+              break;
+          }
+          axis.orientation(newValue);
+        }
+      }
+
+      var items = goog.array.concat(this.grids_, this.minorGrids_, this.lineAxesMarkers_, this.rangeAxesMarkers_, this.textAxesMarkers_);
+      anychart.core.Base.suspendSignalsDispatching(items);
+      for (i = items.length; i--;) {
+        var item = items[i];
+        if (item) {
+          newValue = item.layout() == anychart.enums.Layout.HORIZONTAL ?
+              anychart.enums.Layout.VERTICAL : anychart.enums.Layout.HORIZONTAL;
+          item.layout(newValue);
+        }
+      }
+
+      anychart.core.Base.resumeSignalsDispatchingTrue(axes, items);
+    }
+    return this;
+  }
+  return this.isVerticalInternal;
 };
 
 
@@ -282,7 +330,7 @@ anychart.core.ChartWithAxes.prototype.grid = function(opt_indexOrValue, opt_valu
   if (!grid) {
     grid = this.createGridInstance();
     grid.setChart(this);
-    grid.setDefaultLayout(this.barChartMode ? anychart.enums.Layout.VERTICAL : anychart.enums.Layout.HORIZONTAL);
+    grid.setDefaultLayout(this.isVerticalInternal ? anychart.enums.Layout.VERTICAL : anychart.enums.Layout.HORIZONTAL);
     grid.setup(this.defaultGridSettings());
     this.grids_[index] = grid;
     this.registerDisposable(grid);
@@ -319,7 +367,7 @@ anychart.core.ChartWithAxes.prototype.minorGrid = function(opt_indexOrValue, opt
   if (!grid) {
     grid = this.createGridInstance();
     grid.setChart(this);
-    grid.setDefaultLayout(this.barChartMode ? anychart.enums.Layout.VERTICAL : anychart.enums.Layout.HORIZONTAL);
+    grid.setDefaultLayout(this.isVerticalInternal ? anychart.enums.Layout.VERTICAL : anychart.enums.Layout.HORIZONTAL);
     grid.setup(this.defaultMinorGridSettings());
     this.minorGrids_[index] = grid;
     this.registerDisposable(grid);
@@ -550,7 +598,7 @@ anychart.core.ChartWithAxes.prototype.lineMarker = function(opt_indexOrValue, op
     lineMarker = this.createLineMarkerInstance();
     lineMarker.setChart(this);
     lineMarker.setup(this.defaultLineMarkerSettings());
-    lineMarker.setDefaultLayout(this.barChartMode ? anychart.enums.Layout.VERTICAL : anychart.enums.Layout.HORIZONTAL);
+    lineMarker.setDefaultLayout(this.isVerticalInternal ? anychart.enums.Layout.VERTICAL : anychart.enums.Layout.HORIZONTAL);
     this.lineAxesMarkers_[index] = lineMarker;
     this.registerDisposable(lineMarker);
     lineMarker.listenSignals(this.onMarkersSignal, this);
@@ -597,7 +645,7 @@ anychart.core.ChartWithAxes.prototype.rangeMarker = function(opt_indexOrValue, o
     rangeMarker = this.createRangeMarkerInstance();
     rangeMarker.setChart(this);
     rangeMarker.setup(this.defaultRangeMarkerSettings());
-    rangeMarker.setDefaultLayout(this.barChartMode ? anychart.enums.Layout.VERTICAL : anychart.enums.Layout.HORIZONTAL);
+    rangeMarker.setDefaultLayout(this.isVerticalInternal ? anychart.enums.Layout.VERTICAL : anychart.enums.Layout.HORIZONTAL);
     this.rangeAxesMarkers_[index] = rangeMarker;
     this.registerDisposable(rangeMarker);
     rangeMarker.listenSignals(this.onMarkersSignal, this);
@@ -644,7 +692,7 @@ anychart.core.ChartWithAxes.prototype.textMarker = function(opt_indexOrValue, op
     textMarker = this.createTextMarkerInstance();
     textMarker.setChart(this);
     textMarker.setup(this.defaultTextMarkerSettings());
-    textMarker.setDefaultLayout(this.barChartMode ? anychart.enums.Layout.VERTICAL : anychart.enums.Layout.HORIZONTAL);
+    textMarker.setDefaultLayout(this.isVerticalInternal ? anychart.enums.Layout.VERTICAL : anychart.enums.Layout.HORIZONTAL);
     this.textAxesMarkers_[index] = textMarker;
     this.registerDisposable(textMarker);
     textMarker.listenSignals(this.onMarkersSignal, this);
@@ -688,23 +736,25 @@ anychart.core.ChartWithAxes.prototype.getAdditionalScales = function(scales, isX
   var scale, uid, i, isY;
   for (i = 0; i < elementsWithScale.length; i++) {
     var item = elementsWithScale[i];
-    isY = !!(item.isHorizontal() ^ this.barChartMode);
+    if (item) {
+      isY = !!(item.isHorizontal() ^ this.isVerticalInternal);
 
-    // isX - means we are collecting xScales
-    // isY - means that element's scale supposed to be yScale
-    // isX | isY | collect == !continue
-    //  0  |  0  |    0      collecting yScales and element scale is xScale => !collect = continue
-    //  0  |  1  |    1      collecting yScales and element scale is yScale => collect = !continue
-    //  1  |  0  |    1      collecting xScales and element scale is xScale => collect = !continue
-    //  1  |  1  |    0      collecting xScales and element scale is yScale => !collect = continue
-    if (!(isX ^ isY))
-      continue;
+      // isX - means we are collecting xScales
+      // isY - means that element's scale supposed to be yScale
+      // isX | isY | collect == !continue
+      //  0  |  0  |    0      collecting yScales and element scale is xScale => !collect = continue
+      //  0  |  1  |    1      collecting yScales and element scale is yScale => collect = !continue
+      //  1  |  0  |    1      collecting xScales and element scale is xScale => collect = !continue
+      //  1  |  1  |    0      collecting xScales and element scale is yScale => !collect = continue
+      if (!(isX ^ isY))
+        continue;
 
-    scale = item.scale();
-    if (scale) {
-      uid = String(goog.getUid(scale));
-      if (!(uid in scalesList))
-        scalesList[uid] = scale;
+      scale = item.scale();
+      if (scale) {
+        uid = String(goog.getUid(scale));
+        if (!(uid in scalesList))
+          scalesList[uid] = scale;
+      }
     }
   }
   var axes = isX ? this.xAxes_ : this.yAxes_;
@@ -1158,7 +1208,7 @@ anychart.core.ChartWithAxes.prototype.drawContent = function(bounds) {
     crosshair.suspendSignalsDispatching();
     crosshair.parentBounds(this.dataBounds);
     crosshair.container(this.rootElement);
-    crosshair.barChartMode(this.barChartMode);
+    crosshair.barChartMode(this.isVerticalInternal);
     crosshair.xAxis(this.xAxes_[/** @type {number} */(this.crosshair_.xLabel().axisIndex())]);
     crosshair.yAxis(this.yAxes_[/** @type {number} */(this.crosshair_.yLabel().axisIndex())]);
     crosshair.draw();
@@ -1344,13 +1394,8 @@ anychart.core.ChartWithAxes.prototype.setupByJSON = function(config, opt_default
 anychart.core.ChartWithAxes.prototype.setupByJSONWithScales = function(config, scalesInstances, opt_default) {
   anychart.core.ChartWithAxes.base(this, 'setupByJSONWithScales', config, scalesInstances, opt_default);
 
-  // barChartMode is @deprecated Since 7.13.0.
-  if ('barChartMode' in config) {
-    anychart.core.reporting.warning(anychart.enums.WarningCode.DEPRECATED, null, ['barChartMode', 'isVertical', null, 'JSON property'], true);
-    this.barChartMode = !!config['barChartMode'];
-  }
   if ('isVertical' in config)
-    this.barChartMode = !!config['isVertical'];
+    this.isVerticalInternal = !!config['isVertical'];
 
   this.defaultXAxisSettings(config['defaultXAxisSettings']);
   this.defaultYAxisSettings(config['defaultYAxisSettings']);
@@ -1386,7 +1431,7 @@ anychart.core.ChartWithAxes.prototype.serialize = function() {
 anychart.core.ChartWithAxes.prototype.serializeWithScales = function(json, scales, scaleIds) {
   anychart.core.ChartWithAxes.base(this, 'serializeWithScales', json, scales, scaleIds);
 
-  json['isVertical'] = this.barChartMode;
+  json['isVertical'] = this.isVerticalInternal;
 
   var axesIds = [];
   this.serializeElementsWithScales(json, 'xAxes', this.xAxes_, this.serializeAxis, scales, scaleIds, axesIds);

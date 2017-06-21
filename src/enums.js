@@ -57,7 +57,8 @@ anychart.enums.ChartTypes = {
   BARMEKKO: 'barmekko',
   TAG_CLOUD: 'tagCloud',
   VENN: 'venn',
-  HILO: 'hilo'
+  HILO: 'hilo',
+  WATERFALL: 'waterfall'
 };
 
 
@@ -2095,6 +2096,9 @@ anychart.enums.EventType = {
   ANNOTATION_SELECT: 'annotationSelect',
   ANNOTATION_UNSELECT: 'annotationUnselect',
   ANNOTATION_DRAWING_FINISH: 'annotationDrawingFinish',
+  ANNOTATION_CHANGE_START: 'annotationChangeStart',
+  ANNOTATION_CHANGE: 'annotationChange',
+  ANNOTATION_CHANGE_FINISH: 'annotationChangeFinish',
 
   // UI events
   CLOSE: 'close',
@@ -2538,7 +2542,8 @@ anychart.enums.StockSeriesType = {
   STEP_AREA: 'stepArea',
   STEP_LINE: 'stepLine',
   JUMP_LINE: 'jumpLine',
-  STICK: 'stick'
+  STICK: 'stick',
+  HILO: 'hilo'
 };
 
 
@@ -2591,6 +2596,8 @@ anychart.enums.normalizeStockSeriesType = function(value, opt_default) {
       return anychart.enums.StockSeriesType.STEP_AREA;
     case 'stepline':
       return anychart.enums.StockSeriesType.STEP_LINE;
+    case 'hilo':
+      return anychart.enums.StockSeriesType.HILO;
   }
   return opt_default || anychart.enums.StockSeriesType.LINE;
 };
@@ -3075,6 +3082,48 @@ anychart.enums.MekkoSeriesType = {
 
 //----------------------------------------------------------------------------------------------------------------------
 //
+//  WaterfallSeriesType
+//
+//----------------------------------------------------------------------------------------------------------------------
+/**
+ * List of all series types.
+ * @enum {string}
+ */
+anychart.enums.WaterfallSeriesType = {
+  WATERFALL: 'waterfall'
+};
+
+
+/**
+ * List of waterfall chart data modes.
+ * @enum {string}
+ */
+anychart.enums.WaterfallDataMode = {
+  ABSOLUTE: 'absolute',
+  DIFF: 'diff'
+};
+
+
+/**
+ * Normalizes waterfall datamode. Defaults to ABSOLUTE.
+ * @param {*} value Value to normalize.
+ * @param {anychart.enums.WaterfallDataMode=} opt_default Default value.
+ * @return {anychart.enums.WaterfallDataMode}
+ */
+anychart.enums.normalizeWaterfallDataMode = function(value, opt_default) {
+  value = (String(value)).toLowerCase();
+  switch (value) {
+    case 'diff':
+      return anychart.enums.WaterfallDataMode.DIFF;
+    case 'absolute':
+      return anychart.enums.WaterfallDataMode.ABSOLUTE;
+  }
+  return opt_default || anychart.enums.WaterfallDataMode.ABSOLUTE;
+};
+
+
+//----------------------------------------------------------------------------------------------------------------------
+//
 //  Scale types
 //
 //----------------------------------------------------------------------------------------------------------------------
@@ -3288,6 +3337,8 @@ anychart.enums.WarningCode = {
   TOO_MANY_TICKS: 20,
 
   OBJECT_KEY_COLLISION: 21,
+
+  VENN_AREA_NOT_REPRESENTED_ON_SCREEN: 22,
 
   TABLE_ALREADY_IN_TRANSACTION: 101,
 
@@ -4907,6 +4958,21 @@ anychart.enums.StringToken = {
   RELATIVE_FREQUENCY: '%RF',
 
   /**
+   * Point value relative to the previous point. Used in Waterfall series.
+   */
+  DIFF: '%Diff',
+
+  /**
+   * Absolute point value. Used in Waterfall series.
+   */
+  ABSOLUTE: '%Absolute',
+
+  /**
+   * If the point is a total point. Used in Waterfall series.
+   */
+  IS_TOTAL: '%IsTotal',
+
+  /**
    * Resource index that holds the activity. Used in Resource charts.
    */
   RESOURCE_INDEX: 'resourceIndex',
@@ -5616,7 +5682,8 @@ anychart.enums.SeriesDrawerTypes = {
   POLAR_RANGE_COLUMN: 28,
   MEKKO: 29,
   HEAT_MAP: 30,
-  RANGE_STICK: 31
+  RANGE_STICK: 31,
+  WATERFALL: 32
 };
 
 
@@ -6390,13 +6457,6 @@ goog.exportSymbol('anychart.enums.DataField.TO', anychart.enums.DataField.TO);
 goog.exportSymbol('anychart.enums.DataField.ID', anychart.enums.DataField.ID);
 goog.exportSymbol('anychart.enums.DataField.NAME', anychart.enums.DataField.NAME);
 
-goog.exportSymbol('anychart.enums.Interval.YEARS', anychart.enums.Interval.YEAR);//deprecated since 7.7.0
-goog.exportSymbol('anychart.enums.Interval.MONTHS', anychart.enums.Interval.MONTH);//deprecated since 7.7.0
-goog.exportSymbol('anychart.enums.Interval.DAYS', anychart.enums.Interval.DAY);//deprecated since 7.7.0
-goog.exportSymbol('anychart.enums.Interval.HOURS', anychart.enums.Interval.HOUR);//deprecated since 7.7.0
-goog.exportSymbol('anychart.enums.Interval.MINUTES', anychart.enums.Interval.MINUTE);//deprecated since 7.7.0
-goog.exportSymbol('anychart.enums.Interval.SECONDS', anychart.enums.Interval.SECOND);//deprecated since 7.7.0
-
 goog.exportSymbol('anychart.enums.Interval.YEAR', anychart.enums.Interval.YEAR);
 goog.exportSymbol('anychart.enums.Interval.SEMESTER', anychart.enums.Interval.SEMESTER);
 goog.exportSymbol('anychart.enums.Interval.QUARTER', anychart.enums.Interval.QUARTER);
@@ -6479,12 +6539,6 @@ goog.exportSymbol('anychart.enums.LabelsDisplayMode.CLIP', anychart.enums.Labels
 goog.exportSymbol('anychart.enums.StepDirection.CENTER', anychart.enums.StepDirection.CENTER);
 goog.exportSymbol('anychart.enums.StepDirection.FORWARD', anychart.enums.StepDirection.FORWARD);
 goog.exportSymbol('anychart.enums.StepDirection.BACKWARD', anychart.enums.StepDirection.BACKWARD);
-
-goog.exportSymbol('anychart.enums.TokenType.UNKNOWN', anychart.enums.TokenType.UNKNOWN); //@deprecated Since 7.13.1. Don't use it at all.
-goog.exportSymbol('anychart.enums.TokenType.NUMBER', anychart.enums.TokenType.NUMBER); //@deprecated Since 7.13.1. Don't use it at all.
-goog.exportSymbol('anychart.enums.TokenType.STRING', anychart.enums.TokenType.STRING); //@deprecated Since 7.13.1. Don't use it at all.
-goog.exportSymbol('anychart.enums.TokenType.DATE_TIME', anychart.enums.TokenType.DATE_TIME); //@deprecated Since 7.13.1. Don't use it at all.
-goog.exportSymbol('anychart.enums.TokenType.PERCENT', anychart.enums.TokenType.PERCENT); //@deprecated Since 7.13.1. Don't use it at all.
 
 //goog.exportSymbol('anychart.enums.StringToken.AXIS_AVERAGE', anychart.enums.StringToken.AXIS_AVERAGE);
 //goog.exportSymbol('anychart.enums.StringToken.AXIS_BUBBLE_SIZE_MAX', anychart.enums.StringToken.AXIS_BUBBLE_SIZE_MAX);
@@ -6979,7 +7033,5 @@ goog.exportSymbol('anychart.enums.TextWrap.BY_WORD', anychart.enums.TextWrap.BY_
 goog.exportSymbol('anychart.enums.TagCloudMode.SPIRAL', anychart.enums.TagCloudMode.SPIRAL);
 goog.exportSymbol('anychart.enums.TagCloudMode.RECT', anychart.enums.TagCloudMode.RECT);
 
-
-
-
-
+goog.exportSymbol('anychart.enums.WaterfallDataMode.ABSOLUTE', anychart.enums.WaterfallDataMode.ABSOLUTE);
+goog.exportSymbol('anychart.enums.WaterfallDataMode.DIFF', anychart.enums.WaterfallDataMode.DIFF);

@@ -37,6 +37,13 @@ goog.provide('anychart.themes.defaultTheme');
   var risingColor = '#64b5f6';
   var fallingColor = '#ef6c00';
 
+  var waterfallTotalFill = '#96a6a6';
+  var waterfallRisingFill = '#64b5f6';
+  var waterfallFallingFill = '#ef6c00';
+  var waterfallTotalStroke = '#697474';
+  var waterfallRisingStroke = '#467fac';
+  var waterfallFallingStroke = '#a74c00';
+
 
   /**
    * @const {string}
@@ -1179,7 +1186,7 @@ goog.provide('anychart.themes.defaultTheme');
 
     'stageCredits': {
       'text': 'AnyChart',
-      'url': 'http://www.anychart.com/?utm_source=registered',
+      'url': 'https://www.anychart.com/?utm_source=registered',
       'alt': 'AnyChart - JavaScript Charts designed to be embedded and integrated',
       'imgAlt': 'AnyChart - JavaScript Charts',
       'logoSrc': 'https://static.anychart.com/logo.png'
@@ -1956,7 +1963,8 @@ goog.provide('anychart.themes.defaultTheme');
           'inverted': true
         },
         {
-          'type': 'linear'
+          'type': 'linear',
+          'softMinimum': 0
         }
       ],
       'tooltip': {
@@ -1976,7 +1984,16 @@ goog.provide('anychart.themes.defaultTheme');
         'anchor': 'centerBottom',
         'offsetX': 0,
         'offsetY': 10
-      }
+      },
+      'scales': [
+        {
+          'type': 'ordinal'
+        },
+        {
+          'type': 'linear',
+          'softMinimum': 0
+        }
+      ]
     },
     'line': {
       'defaultSeriesType': 'line',
@@ -2102,6 +2119,70 @@ goog.provide('anychart.themes.defaultTheme');
           'labels': {
             'format': '{%Value}%'
           }
+        }
+      ]
+    },
+    'waterfall': {
+      'dataMode': 'diff',
+      'connectorStroke': waterfallTotalStroke,
+      'defaultSeriesType': 'waterfall',
+      'defaultSeriesSettings': {
+        'waterfall': {
+          'fill': waterfallTotalFill,
+          // 'hoverFill': returnSourceColor65,
+          // 'selectFill': defaultSelectColor,
+          'stroke': waterfallTotalStroke,
+          // 'hoverStroke': returnLightenStrokeSourceColor,
+          // 'selectStroke': defaultSelectColor,
+
+          'risingFill': waterfallRisingFill,
+          'fallingFill': waterfallFallingFill,
+          'hoverRisingFill': returnSourceColor65,
+          'hoverFallingFill': returnSourceColor65,
+          'risingStroke': waterfallRisingStroke,
+          'fallingStroke': waterfallFallingStroke,
+          'hoverRisingStroke': returnLightenStrokeSourceColor,
+          'hoverFallingStroke': returnLightenStrokeSourceColor,
+
+          'risingHatchFill': false,
+          'hoverRisingHatchFill': null,
+          'selectRisingHatchFill': null,
+          'fallingHatchFill': false,
+          'hoverFallingHatchFill': null,
+          'selectFallingHatchFill': null,
+          'selectFallingFill': defaultSelectColor,
+          'selectRisingFill': defaultSelectColor,
+          'selectRisingStroke': defaultSelectColor,
+          'selectFallingStroke': defaultSelectColor,
+
+          'labels': {
+            'enabled': true,
+            'format': function() {
+              return locNum(this['isTotal'] ? this['absolute'] : this['diff']);
+            }
+          },
+          'tooltip': {
+            'format': function() {
+              if (this['isTotal']) {
+                return 'Absolute: ' + locNum(this['absolute']);
+              } else {
+                return 'Absolute: ' + locNum(this['absolute']) + '\nDifference: ' + locNum(this['diff']);
+              }
+            }
+          }
+        }
+      },
+      'legend': {
+        'enabled': true,
+        'itemsSourceMode': 'categories'
+      },
+      'scales': [
+        {
+          'type': 'ordinal'
+        },
+        {
+          'type': 'linear',
+          'softMinimum': 0
         }
       ]
     },
@@ -2617,7 +2698,8 @@ goog.provide('anychart.themes.defaultTheme');
         },
         {
           'type': 'linear',
-          'stackMode': 'value'
+          'stackMode': 'value',
+          'softMinimum': 0
         },
         {
           'type': 'ordinal'
@@ -2633,7 +2715,7 @@ goog.provide('anychart.themes.defaultTheme');
            * @return {*}
            */
           'fill': function() {
-            var color = this['chart']['getSeriesCount']() > 1 ? this['sourceColor'] : this['chart'].palette().itemAt(this['iterator'].currentIndex);
+            var color = this['chart']['getSeriesCount']() > 1 ? this['sourceColor'] : this['chart']['palette']()['itemAt'](this['iterator']['currentIndex']);
             color = color ? color : this['sourceColor'];
             return global['anychart']['color']['setOpacity'](color, 0.85, true);
           },
@@ -2642,7 +2724,7 @@ goog.provide('anychart.themes.defaultTheme');
            * @return {*}
            */
           'hoverFill': function() {
-            var color = this['chart']['getSeriesCount']() > 1 ? this['sourceColor'] : this['chart'].palette().itemAt(this['iterator'].currentIndex);
+            var color = this['chart']['getSeriesCount']() > 1 ? this['sourceColor'] : this['chart']['palette']()['itemAt'](this['iterator']['currentIndex']);
             color = color ? color : this['sourceColor'];
             return global['anychart']['color']['setOpacity'](color, 0.65, true);
           },
@@ -2651,7 +2733,7 @@ goog.provide('anychart.themes.defaultTheme');
            * @return {*}
            */
           'stroke': function() {
-            var color = this['chart']['getSeriesCount']() > 1 ? this['sourceColor'] : this['chart'].palette().itemAt(this['iterator'].currentIndex);
+            var color = this['chart']['getSeriesCount']() > 1 ? this['sourceColor'] : this['chart']['palette']()['itemAt'](this['iterator']['currentIndex']);
             color = color ? color : this['sourceColor'];
             return global['anychart']['color']['setThickness'](color, 1);
           },
@@ -4839,7 +4921,7 @@ goog.provide('anychart.themes.defaultTheme');
       'zoomMarqueeFill': '#d3d3d3 0.4',
       'zoomMarqueeStroke': '#d3d3d3',
       'interactivity': {
-        'zoomOnMouseWheel': true,
+        'zoomOnMouseWheel': false,
         'scrollOnMouseWheel': true
       }
     },
