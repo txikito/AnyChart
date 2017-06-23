@@ -1660,7 +1660,26 @@ anychart.enums.MapProjections = {
  * @return {Object|Function|anychart.enums.MapProjections|string}
  */
 anychart.enums.normalizeMapProjections = function(value) {
-  return /** @type {Object|Function|anychart.enums.MapProjections|string} */(anychart.enums.normalize(anychart.enums.MapProjections, value, null));
+  switch (String(value).toLowerCase()) {
+    case 'hammeraitoff':
+    case 'hammer-aitoff':
+    case 'hammer':
+      return anychart.enums.MapProjections.HAMMER;
+      break;
+    case 'wagner':
+    case 'wagner6':
+      return anychart.enums.MapProjections.WAGNER6;
+      break;
+    case 'undefined':
+    case 'null':
+    case 'none':
+    case 'wsg84':
+    case 'base':
+    case '+proj=longlat +datum=WGS84 +no_defs':
+      return anychart.enums.MapProjections.WSG84;
+      break;
+  }
+  return /** @type {Object|Function|anychart.enums.MapProjections|string} */(value);
 };
 
 
