@@ -23,12 +23,6 @@ anychart.ui.chartEditor2.steps.Base = function(opt_domHelper) {
   anychart.ui.chartEditor2.steps.Base.base(this, 'constructor', opt_domHelper);
 
   /**
-   * @type {anychart.ui.Editor.Model}
-   * @private
-   */
-  this.sharedModel_ = null;
-
-  /**
    * @type {string}
    * @private
    */
@@ -40,11 +34,6 @@ anychart.ui.chartEditor2.steps.Base = function(opt_domHelper) {
    */
   this.title_ = 'Step';
 
-  /**
-   * @type {Element}
-   * @private
-   */
-  this.asideEl_ = null;
 
   /**
    * @type {Element}
@@ -80,24 +69,6 @@ anychart.ui.chartEditor2.steps.Base.CSS_CLASS = goog.getCssName('anychart-chart-
  * @private
  */
 anychart.ui.chartEditor2.steps.Base.STEP_DATA_ATTRIBUTE_ = 'data-index';
-
-
-/**
- *
- * @param {anychart.ui.Editor.Model} value
- */
-anychart.ui.chartEditor2.steps.Base.prototype.setSharedModel = function(value) {
-  this.sharedModel_ = value;
-};
-
-
-/**
- *
- * @return {anychart.ui.Editor.Model}
- */
-anychart.ui.chartEditor2.steps.Base.prototype.getSharedModel = function() {
-  return this.sharedModel_;
-};
 
 
 /**
@@ -147,130 +118,6 @@ anychart.ui.chartEditor2.steps.Base.prototype.enableNextStep = function(value) {
 
 
 /**
- * @protected
- */
-anychart.ui.chartEditor2.steps.Base.prototype.updateSharedDataMappings = function() {
-  var sharedModel = this.getSharedModel();
-  sharedModel.dataMappings.length = 0;
-
-  // build data mappings
-  var dataSet, i, count;
-  for (i = 0, count = sharedModel.dataSets.length; i < count; i++) {
-    dataSet = sharedModel.dataSets[i];
-    if (!dataSet.rawMappings.length) continue;
-
-    Array.prototype.push.apply(sharedModel.dataMappings, this.createDataMappings_(dataSet));
-  }
-};
-
-
-/**
- * Creates anychart.data.Mapping instances from data set.
- * @param {anychart.ui.Editor.DataSet} dataSet
- * @return {Array.<anychart.data.Mapping>}
- * @private
- */
-anychart.ui.chartEditor2.steps.Base.prototype.createDataMappings_ = function(dataSet) {
-  var dataMappings = [];
-
-  var rawMapping;
-  for (var i = 0; i < dataSet.rawMappings.length; i++) {
-    rawMapping = dataSet.rawMappings[i];
-
-    // Prepare raw mappings to anychart mapping format.
-    var rawMappingField;
-    var formattedMapping = {};
-    var isArrayMapping = true;
-    for (var j = 0; j < rawMapping.length; j++) {
-      rawMappingField = rawMapping[j];
-      if (!goog.isDef(rawMappingField.key) || !goog.isDef(rawMappingField.value)) continue;
-      if (goog.isString(rawMappingField.value)) isArrayMapping = false;
-
-      formattedMapping[rawMappingField.key] = formattedMapping[rawMappingField.key] || [];
-      goog.array.insert(formattedMapping[rawMappingField.key], rawMappingField.value);
-    }
-
-    if (!goog.object.isEmpty(formattedMapping)) {
-      var mappingInstance = dataSet.instance['mapAs'](isArrayMapping ? formattedMapping : undefined, !isArrayMapping ? formattedMapping : undefined);
-      var title = /** @type {Object} */(rawMapping)['title'];
-      mappingInstance['meta'](0, 'title', title);
-      dataMappings.push(mappingInstance);
-    }
-  }
-
-  return dataMappings;
-};
-
-
-/**
- * Checks current compatibility of mappings and current chart.
- * @param {boolean=} opt_getSuggestions 'true' if we need to get suggestion of category and chart type.
- * @return {{type: string, category: string, isValid: boolean}}
- */
-anychart.ui.chartEditor2.steps.Base.prototype.checkMappings = function(opt_getSuggestions) {
-  var result = {type: '', category: '', isValid: false};
-  for (var i in this.sharedModel_.presets) {
-    if (this.sharedModel_.presets.hasOwnProperty(i)) {
-      var preset = this.sharedModel_.presets[i];
-      var tmp = preset.category;
-      for (var j = 0; j < preset.list.length; j++) {
-        var chartDescriptor = preset.list[j];
-        if (opt_getSuggestions && this.isReferenceValuesPresent_(chartDescriptor.referenceNames)) {
-          result.category = tmp;
-          result.type = chartDescriptor.type;
-          break;
-        } else if (chartDescriptor.type == this.sharedModel_.presetType) {
-          result.category = tmp;
-          result.type = chartDescriptor.type;
-          result.isValid = this.isReferenceValuesPresent_(chartDescriptor.referenceNames);
-          break;
-        }
-      }
-    }
-    if (result.type) break;
-  }
-
-  return result;
-};
-
-
-/**
- * @param {Array<string>} values
- * @return {boolean}
- * @private
- */
-anychart.ui.chartEditor2.steps.Base.prototype.isReferenceValuesPresent_ = function(values) {
-  var model = this.getSharedModel();
-  if (!model.dataMappings.length) return false;
-  var result = true;
-
-  for (var i = 0, count = values.length; i < count; i++) {
-    var name = /** @type {number|string} */(values[i]);
-    for (var j = 0, m = model.dataMappings.length; j < m; j++) {
-      var mapping = model.dataMappings[j];
-      var presentInArrayMapping = mapping['getArrayMapping']() != window['anychart']['data']['Mapping']['DEFAULT_ARRAY_MAPPING'] &&
-          mapping['getArrayMapping']()[name];
-      var presentInObjectMapping = mapping['getObjectMapping']() != window['anychart']['data']['Mapping']['DEFAULT_OBJECT_MAPPING'] &&
-          mapping['getObjectMapping']()[name];
-
-      result = Boolean(result && (presentInArrayMapping || presentInObjectMapping));
-    }
-  }
-
-  return result;
-};
-
-
-/**
- * Returns the aside element.
- * @return {Element}
- */
-anychart.ui.chartEditor2.steps.Base.prototype.getAsideElement = function() {
-  return this.asideEl_;
-};
-
-
-/**
  * Returns the content element.
  * @return {Element}
  */
@@ -301,10 +148,6 @@ anychart.ui.chartEditor2.steps.Base.prototype.createDom = function() {
   var previousBtnClass = goog.getCssName(className, 'previous-button');
   var progressItemListClass = goog.getCssName(className, 'progress-item-list');
 
-  this.asideEl_ = dom.createDom(
-      goog.dom.TagName.DIV,
-      goog.getCssName(className, 'aside'));
-
   this.progressEl_ = dom.createDom(
       goog.dom.TagName.DIV,
       goog.getCssName(className, 'progress'),
@@ -315,19 +158,19 @@ anychart.ui.chartEditor2.steps.Base.prototype.createDom = function() {
 
   this.nextBtn_ = new anychart.ui.button.Primary();
   this.nextBtn_.addClassName(nextBtnClass);
-  if (this.sharedModel_.currentStep.isLastStep) {
-    this.nextBtn_.setCaption('Complete');
-  } else {
+  // if (this.sharedModel_.currentStep.isLastStep) {
+  //   this.nextBtn_.setCaption('Complete');
+  // } else {
     this.nextBtn_.setCaption('Next');
-  }
+  // }
   this.nextBtn_.render(this.progressEl_);
 
   this.prevBtn_ = new anychart.ui.button.Secondary();
   this.prevBtn_.addClassName(previousBtnClass);
   this.prevBtn_.setCaption('Previous');
-  if (!this.sharedModel_.currentStep.index) {
-    this.prevBtn_.setState(goog.ui.Component.State.DISABLED, true);
-  }
+  // if (!this.sharedModel_.currentStep.index) {
+  //   this.prevBtn_.setState(goog.ui.Component.State.DISABLED, true);
+  // }
   this.prevBtn_.render(this.progressEl_);
 
   this.contentWrapperEl_ = dom.createDom(
@@ -337,7 +180,6 @@ anychart.ui.chartEditor2.steps.Base.prototype.createDom = function() {
           goog.dom.TagName.DIV, goog.getCssName(className, 'content')),
       this.progressEl_);
 
-  element.appendChild(this.asideEl_);
   element.appendChild(this.contentWrapperEl_);
 };
 

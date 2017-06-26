@@ -4,10 +4,9 @@ goog.provide('anychart.ui.Editor2.Dialog');
 goog.require('anychart.ui.Component');
 goog.require('anychart.ui.Preloader');
 // goog.require('anychart.ui.chartEditor.Controller');
-goog.require('anychart.ui.chartEditor.events');
-// goog.require('anychart.ui.chartEditor.steps.Base');
-// goog.require('anychart.ui.chartEditor.steps.Data');
-// goog.require('anychart.ui.chartEditor.steps.Settings');
+goog.require('anychart.ui.chartEditor2.events');
+goog.require('anychart.ui.chartEditor2.steps.PrepareData');
+goog.require('anychart.ui.chartEditor2.steps.SetupChart');
 goog.require('goog.fx.AnimationSerialQueue');
 goog.require('goog.fx.Transition.EventType');
 goog.require('goog.fx.dom');
@@ -38,12 +37,12 @@ anychart.ui.Editor2 = function(opt_domHelper) {
    */
   this.currentStep_ = null;
 
-  this.editorModel_ = null;
+  //this.editorModel_ = null;
 
   //this.controller_ = new anychart.ui.chartEditor.Controller(this);
 
-  this.addChild(new anychart.ui.chartEditor.steps.Base());
-  this.addChild(new anychart.ui.chartEditor.steps.Base());
+  this.addChild(new anychart.ui.chartEditor2.steps.PrepareData());
+  this.addChild(new anychart.ui.chartEditor2.steps.SetupChart());
 
   //this.updateModelInSteps_();
   //this.updateStepsDescriptors_();
@@ -293,22 +292,20 @@ anychart.ui.Editor2 = function(opt_domHelper) {
   // };
   // this.sharedModel_.presetsList = goog.object.getValues(this.sharedModel_.presets);
 
-  this.imagesLoaded_ = false;
+  this.imagesLoaded_ = true;
   this.preloader_ = new anychart.ui.Preloader();
-  var imageLoader = new goog.net.ImageLoader();
-  this.registerDisposable(imageLoader);
-  goog.events.listen(imageLoader, goog.net.EventType.COMPLETE, function() {
-    this.imagesLoaded_ = true;
-    this.preloader_.visible(false);
-  }, false, this);
-
+  // var imageLoader = new goog.net.ImageLoader();
+  // this.registerDisposable(imageLoader);
+  // goog.events.listen(imageLoader, goog.net.EventType.COMPLETE, function() {
+  //   this.imagesLoaded_ = true;
+  //   this.preloader_.visible(false);
+  // }, false, this);
   // goog.array.forEach(this.sharedModel_.presetsList, function(category) {
   //   goog.array.forEach(category.list, function(chart) {
   //     imageLoader.addImage(chart.type, 'https://cdn.anychart.com/images/chartopedia/' + chart.image);
   //   });
   // });
-
-  imageLoader.start();
+  //imageLoader.start();
 
   goog.events.listen(this, anychart.enums.EventType.COMPLETE, this.onComplete_, false, this);
 };
@@ -388,13 +385,14 @@ anychart.ui.Editor2.prototype.onComplete_ = function() {
 
 /** @override */
 anychart.ui.Editor2.prototype.enterDocument = function() {
+  console.log("Editor2.enterDocument");
   anychart.ui.Editor2.base(this, 'enterDocument');
 
   var element = this.getElement();
   goog.dom.classlist.add(element, goog.getCssName('anychart-chart-editor'));
 
   this.setCurrentStepIndex_(0, false);
-  this.listen(anychart.ui.chartEditor.events.EventType.CHANGE_STEP, this.onChangeStep_);
+  this.listen(anychart.ui.chartEditor2.events.EventType.CHANGE_STEP, this.onChangeStep_);
 };
 
 
@@ -443,32 +441,32 @@ anychart.ui.Editor2.prototype.setCurrentStep_ = function(step, doAnimation) {
     return;
   }
 
-  // if (this.currentStep_) {
-  //   if (doAnimation) {
-  //     var currentAnimation = new goog.fx.AnimationSerialQueue();
-  //     currentAnimation.add(new goog.fx.dom.FadeOut(this.currentStep_.getElement(), 300));
-  //     currentAnimation.play();
-  //     goog.events.listenOnce(
-  //         currentAnimation, goog.fx.Transition.EventType.END, goog.bind(this.removeStep_, this, this.currentStep_));
-  //   } else {
-  //     this.removeStep_(this.currentStep_);
-  //   }
-  //   this.currentStep_ = null;
-  //   this.sharedModel_.currentStep = null;
-  //   this.sharedModel_.currentStepIndex = NaN;
-  // }
-  //
-  // if (step) {
-  //   this.currentStep_ = step;
-  //   this.sharedModel_.currentStep = this.getCurrentStepDescriptor_();
-  //   step.render(this.getContentElement());
-  //   step.setParentEventTarget(this);
-  //   this.sharedModel_.currentStep.isVisited = true;
-  //
-  //   var stepAnimation = new goog.fx.AnimationSerialQueue();
-  //   stepAnimation.add(new goog.fx.dom.FadeIn(step.getElement(), 300));
-  //   stepAnimation.play();
-  // }
+  if (this.currentStep_) {
+    if (doAnimation) {
+      var currentAnimation = new goog.fx.AnimationSerialQueue();
+      currentAnimation.add(new goog.fx.dom.FadeOut(this.currentStep_.getElement(), 300));
+      currentAnimation.play();
+      goog.events.listenOnce(
+          currentAnimation, goog.fx.Transition.EventType.END, goog.bind(this.removeStep_, this, this.currentStep_));
+    } else {
+      this.removeStep_(this.currentStep_);
+    }
+    this.currentStep_ = null;
+    this.sharedModel_.currentStep = null;
+    this.sharedModel_.currentStepIndex = NaN;
+  }
+
+  if (step) {
+    this.currentStep_ = step;
+    // this.sharedModel_.currentStep = this.getCurrentStepDescriptor_();
+    step.render(this.getContentElement());
+    step.setParentEventTarget(this);
+    // this.sharedModel_.currentStep.isVisited = true;
+
+    var stepAnimation = new goog.fx.AnimationSerialQueue();
+    stepAnimation.add(new goog.fx.dom.FadeIn(step.getElement(), 300));
+    stepAnimation.play();
+  }
 };
 
 
