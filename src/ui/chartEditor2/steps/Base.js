@@ -16,10 +16,11 @@ goog.forwardDeclare('anychart.data.Set');
 /**
  * Chart Editor Step Class.
  * @constructor
+ * @param {number} index Step index
  * @param {goog.dom.DomHelper=} opt_domHelper Optional DOM helper.
  * @extends {anychart.ui.Component}
  */
-anychart.ui.chartEditor2.steps.Base = function(opt_domHelper) {
+anychart.ui.chartEditor2.steps.Base = function(index, opt_domHelper) {
   anychart.ui.chartEditor2.steps.Base.base(this, 'constructor', opt_domHelper);
 
   /**
@@ -42,17 +43,17 @@ anychart.ui.chartEditor2.steps.Base = function(opt_domHelper) {
   this.contentEl_ = null;
 
   /**
-   * @type {Element}
-   * @private
-   */
-  this.progressEl_ = null;
-
-  /**
    * Enabled transition to next step.
    * @type {boolean}
    * @private
    */
   this.enableNextStep_ = true;
+
+  /**
+   * @type {number}
+   * @private
+   */
+  this.index_ = index;
 };
 goog.inherits(anychart.ui.chartEditor2.steps.Base, anychart.ui.Component);
 
@@ -96,6 +97,14 @@ anychart.ui.chartEditor2.steps.Base.prototype.getTitle = function() {
 
 
 /**
+ * @returns {number}
+ */
+anychart.ui.chartEditor2.steps.Base.prototype.getIndex = function() {
+  return this.index_;
+};
+
+
+/**
  * @param {string} value
  */
 anychart.ui.chartEditor2.steps.Base.prototype.setTitle = function(value) {
@@ -112,7 +121,6 @@ anychart.ui.chartEditor2.steps.Base.prototype.enableNextStep = function(value) {
 
   if (this.isInDocument()) {
     this.nextBtn_.setEnabled(this.enableNextStep_);
-    this.updateProgressList_();
   }
 };
 
@@ -148,94 +156,39 @@ anychart.ui.chartEditor2.steps.Base.prototype.createDom = function() {
   var previousBtnClass = goog.getCssName(className, 'previous-button');
   var progressItemListClass = goog.getCssName(className, 'progress-item-list');
 
-  this.progressEl_ = dom.createDom(
-      goog.dom.TagName.DIV,
-      goog.getCssName(className, 'progress'),
-      this.progressListEl_ = dom.createDom(
-          goog.dom.TagName.DIV,
-          progressItemListClass));
-  goog.a11y.aria.setRole(this.progressListEl_, goog.a11y.aria.Role.LIST);
+  // this.progressEl_ = dom.createDom(
+  //     goog.dom.TagName.DIV,
+  //     goog.getCssName(className, 'progress'),
+  //     this.progressListEl_ = dom.createDom(
+  //         goog.dom.TagName.DIV,
+  //         progressItemListClass));
+  // goog.a11y.aria.setRole(this.progressListEl_, goog.a11y.aria.Role.LIST);
 
-  this.nextBtn_ = new anychart.ui.button.Primary();
-  this.nextBtn_.addClassName(nextBtnClass);
-  // if (this.sharedModel_.currentStep.isLastStep) {
-  //   this.nextBtn_.setCaption('Complete');
-  // } else {
-    this.nextBtn_.setCaption('Next');
-  // }
-  this.nextBtn_.render(this.progressEl_);
-
-  this.prevBtn_ = new anychart.ui.button.Secondary();
-  this.prevBtn_.addClassName(previousBtnClass);
-  this.prevBtn_.setCaption('Previous');
-  // if (!this.sharedModel_.currentStep.index) {
-  //   this.prevBtn_.setState(goog.ui.Component.State.DISABLED, true);
-  // }
-  this.prevBtn_.render(this.progressEl_);
-
-  this.contentWrapperEl_ = dom.createDom(
-      goog.dom.TagName.DIV,
-      goog.getCssName(className, 'content-wrapper'),
-      this.contentEl_ = dom.createDom(
-          goog.dom.TagName.DIV, goog.getCssName(className, 'content')),
-      this.progressEl_);
-
-  element.appendChild(this.contentWrapperEl_);
-};
-
-
-/**
- * Render progress list.
- * @private
- */
-anychart.ui.chartEditor2.steps.Base.prototype.updateProgressList_ = function() {
-  var dom = this.getDomHelper();
-  var className = anychart.ui.chartEditor2.steps.Base.CSS_CLASS;
-
-  var arrowClass = goog.getCssName(className, 'progress-item-arrow');
-  var contentClass = goog.getCssName(className, 'progress-item-content');
-  var itemClass = goog.getCssName(className, 'progress-item');
-
-  dom.removeChildren(this.progressListEl_);
-
-  var step;
-  // for (var i = 0; i < this.sharedModel_.steps.length; i++) {
-  //   step = this.sharedModel_.steps[i];
+  // this.nextBtn_ = new anychart.ui.button.Primary();
+  // this.nextBtn_.addClassName(nextBtnClass);
+  // // if (this.sharedModel_.currentStep.isLastStep) {
+  // //   this.nextBtn_.setCaption('Complete');
+  // // } else {
+  //   this.nextBtn_.setCaption('Next');
+  // // }
+  // this.nextBtn_.render(this.progressEl_);
   //
-  //   var progressArrowEl = dom.createDom(
-  //       goog.dom.TagName.DIV, arrowClass);
-  //   progressArrowEl.innerHTML = '&rarr;';
+  // this.prevBtn_ = new anychart.ui.button.Secondary();
+  // this.prevBtn_.addClassName(previousBtnClass);
+  // this.prevBtn_.setCaption('Previous');
+  // // if (!this.sharedModel_.currentStep.index) {
+  // //   this.prevBtn_.setState(goog.ui.Component.State.DISABLED, true);
+  // // }
+  // this.prevBtn_.render(this.progressEl_);
   //
-  //   var progressContentEl = dom.createDom(
-  //       goog.dom.TagName.DIV, contentClass, step.name);
-  //   goog.dom.setFocusableTabIndex(progressContentEl, true);
-  //   goog.a11y.aria.setRole(progressContentEl, goog.a11y.aria.Role.LINK);
-  //   goog.a11y.aria.setLabel(progressContentEl, step.name);
-  //   progressContentEl.setAttribute(anychart.ui.chartEditor2.steps.Base.STEP_DATA_ATTRIBUTE_, String(step.index));
+  // this.contentWrapperEl_ = dom.createDom(
+  //     goog.dom.TagName.DIV,
+  //     goog.getCssName(className, 'content-wrapper'),
+  //     this.contentEl_ = dom.createDom(
+  //         goog.dom.TagName.DIV, goog.getCssName(className, 'content')),
+  //     this.progressEl_);
   //
-  //   var itemEl = dom.createDom(
-  //       goog.dom.TagName.DIV,
-  //       itemClass,
-  //       progressContentEl,
-  //       !step.isLastStep ? progressArrowEl : null);
-  //   goog.a11y.aria.setRole(itemEl, goog.a11y.aria.Role.LISTITEM);
-  //   // Set state class.
-  //   if (step.index == this.sharedModel_.currentStep.index) {
-  //     goog.dom.classlist.add(itemEl, goog.getCssName('anychart-active'));
-  //
-  //   } else if (step.index < this.sharedModel_.currentStep.index) {
-  //     goog.dom.classlist.add(itemEl, goog.getCssName(itemClass, 'passed'));
-  //
-  //   } else if (step.index > this.sharedModel_.currentStep.index + 1 && !step.isVisited) {
-  //     goog.dom.classlist.add(itemEl, goog.getCssName('anychart-disabled'));
-  //   }
-  //
-  //   if (!this.enableNextStep_ && step.index == this.sharedModel_.currentStep.index + 1) {
-  //     goog.dom.classlist.enable(itemEl, goog.getCssName('anychart-disabled'), !this.enableNextStep_);
-  //   }
-  //
-  //   this.progressListEl_.appendChild(itemEl);
-  // }
+  // element.appendChild(this.contentWrapperEl_);
 };
 
 
@@ -289,10 +242,9 @@ anychart.ui.chartEditor2.steps.Base.prototype.enterDocument = function() {
   var handler = this.getHandler();
   // handler.listen(this.asideEl_, goog.events.EventType.WHEEL, this.handleWheel);
 
-  this.nextBtn_.setEnabled(this.enableNextStep_);
-  this.updateProgressList_();
+  //this.nextBtn_.setEnabled(this.enableNextStep_);
 
-  handler.listen(this.progressListEl_, goog.events.EventType.CLICK, this.stepListClickHandler_);
+  //handler.listen(this.progressListEl_, goog.events.EventType.CLICK, this.stepListClickHandler_);
   // handler.listen(this.nextBtn_,
   //     goog.ui.Component.EventType.ACTION,
   //     function() {

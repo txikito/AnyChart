@@ -15,8 +15,8 @@ goog.forwardDeclare('anychart.data.Mapping');
  * @param {goog.dom.DomHelper=} opt_domHelper Optional DOM helper.
  * @extends {anychart.ui.chartEditor2.steps.Base}
  */
-anychart.ui.chartEditor2.steps.SetupChart = function(opt_domHelper) {
-  anychart.ui.chartEditor2.steps.SetupChart.base(this, 'constructor', opt_domHelper);
+anychart.ui.chartEditor2.steps.SetupChart = function(index, opt_domHelper) {
+  anychart.ui.chartEditor2.steps.SetupChart.base(this, 'constructor', index, opt_domHelper);
 
   this.setName('Setup Chart');
   this.setTitle('Setup Chart');

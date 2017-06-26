@@ -15,8 +15,8 @@ goog.forwardDeclare('anychart.data.Mapping');
  * @param {goog.dom.DomHelper=} opt_domHelper Optional DOM helper.
  * @extends {anychart.ui.chartEditor2.steps.Base}
  */
-anychart.ui.chartEditor2.steps.PrepareData = function(opt_domHelper) {
-  anychart.ui.chartEditor2.steps.PrepareData.base(this, 'constructor', opt_domHelper);
+anychart.ui.chartEditor2.steps.PrepareData = function(index, opt_domHelper) {
+  anychart.ui.chartEditor2.steps.PrepareData.base(this, 'constructor', index, opt_domHelper);
 
   this.setName('Prepare Data');
   this.setTitle('Prepare Data');
