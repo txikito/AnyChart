@@ -3728,27 +3728,27 @@ anychart.enums.StringToken = {
   /**
    * Resource index that holds the activity. Used in Resource charts.
    */
-  RESOURCE_INDEX: 'resourceIndex',
+  RESOURCE_INDEX: '%resourceIndex',
 
   /**
    * Activity index. Used in Resource charts.
    */
-  ACTIVITY_INDEX: 'activityIndex',
+  ACTIVITY_INDEX: '%activityIndex',
 
   /**
    * Activity start date. Used in Resource charts.
    */
-  START: 'start',
+  START: '%start',
 
   /**
    * Activity end date. Used in Resource charts.
    */
-  END: 'end',
+  END: '%end',
 
   /**
    * Activity minutes per day. Used in Resource charts.
    */
-  MINUTES_PER_DAY: 'minutesPerDay'
+  MINUTES_PER_DAY: '%minutesPerDay'
 };
 
 
