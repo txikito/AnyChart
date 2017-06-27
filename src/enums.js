@@ -2524,8 +2524,9 @@ anychart.enums.normalizeInterval = function(value, opt_default, opt_allowDateOnl
   }
   if (goog.isDefAndNotNull(opt_default))
     opt_default = anychart.enums.normalizeInterval(opt_default, void 0, opt_allowDateOnly);
+
   return /** @type {anychart.enums.Interval} */(anychart.enums.normalize(anychart.enums.Interval, value,
-      opt_default || anychart.enums.Interval.YEAR));
+      goog.isDef(opt_default) ? opt_default : anychart.enums.Interval.YEAR));
 };
 
 
@@ -2982,7 +2983,7 @@ anychart.enums.StockRangeType = {
  */
 anychart.enums.normalizeStockRangeType = function(value, opt_default) {
   return /** @type {anychart.enums.StockRangeType} */(anychart.enums.normalize(anychart.enums.StockRangeType, value,
-      opt_default || anychart.enums.StockRangeType.MAX));
+      goog.isDef(opt_default) ? opt_default : anychart.enums.StockRangeType.MAX));
 };
 
 
