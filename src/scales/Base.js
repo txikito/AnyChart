@@ -337,7 +337,6 @@ anychart.scales.Base.prototype.setupByJSON = function(config, opt_default) {
  * @return {anychart.scales.Base}
  */
 anychart.scales.Base.fromString = function(type, defaultIsOrdinal) {
-  type = anychart.enums.normalizeScaleTypes(type);
   switch (type) {
     case anychart.enums.ScaleTypes.LOG:
       return anychart.scales.log();

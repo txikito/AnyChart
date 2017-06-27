@@ -2271,17 +2271,6 @@ anychart.enums.ScaleTypes = {
 };
 
 
-/**
- * Normalize scale type.
- * @param {string} value .
- * @return {anychart.enums.ScaleTypes|string} .
- */
-anychart.enums.normalizeScaleTypes = function(value) {
-  return /** @type {anychart.enums.ScaleTypes} */(anychart.enums.normalize(anychart.enums.ScaleTypes, value,
-      anychart.enums.ScaleTypes.LINEAR));
-};
-
-
 //----------------------------------------------------------------------------------------------------------------------
 //
 //  Scatter scale types

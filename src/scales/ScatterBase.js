@@ -461,7 +461,6 @@ anychart.scales.ScatterBase.prototype.setupByJSON = function(config, opt_default
  * @return {anychart.scales.ScatterBase}
  */
 anychart.scales.ScatterBase.fromString = function(type, opt_canReturnNull) {
-  type = anychart.enums.normalizeScaleTypes(type);
   switch (type) {
     case anychart.enums.ScaleTypes.LOG:
       return anychart.scales.log();
