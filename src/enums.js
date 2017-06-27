@@ -1315,27 +1315,6 @@ anychart.enums.LabelsPosition = {
 };
 
 
-/** @type {Object} */
-anychart.enums.LabelsPosition.__normalized = {
-  'outside': anychart.enums.LabelsPosition.OUTSIDE,
-  'out': anychart.enums.LabelsPosition.OUTSIDE,
-  'inside': anychart.enums.LabelsPosition.INSIDE,
-  'in': anychart.enums.LabelsPosition.INSIDE
-};
-
-
-/**
- * Normalizes labels position
- * @param {*} value Labels position to normalize.
- * @param {anychart.enums.LabelsPosition=} opt_default Custom default value (defaults to OUTSIDE).
- * @return {anychart.enums.LabelsPosition}
- */
-anychart.enums.normalizeLabelsPosition = function(value, opt_default) {
-  return /** @type {anychart.enums.LabelsPosition} */(anychart.enums.normalize(anychart.enums.LabelsPosition, value,
-      opt_default || anychart.enums.LabelsPosition.INSIDE));
-};
-
-
 /**
  * Ticks position (inside ot outside).
  * @enum {string}

@@ -262,7 +262,7 @@ anychart.core.ui.LabelsFactory.prototype.SIMPLE_PROPS_DESCRIPTORS = (function() 
       map,
       anychart.enums.PropertyHandlerType.SINGLE_ARG,
       'position',
-      anychart.enums.normalizeLabelsPosition,
+      anychart.core.settings.asIsNormalizer,
       anychart.ConsistencyState.BOUNDS,
       anychart.Signal.NEEDS_REDRAW | anychart.Signal.BOUNDS_CHANGED);
 
@@ -1636,7 +1636,7 @@ anychart.core.ui.LabelsFactory.Label.prototype.SIMPLE_PROPS_DESCRIPTORS = (funct
       map,
       anychart.enums.PropertyHandlerType.SINGLE_ARG,
       'position',
-      anychart.enums.normalizeLabelsPosition,
+      anychart.core.settings.asIsNormalizer,
       anychart.ConsistencyState.BOUNDS,
       anychart.Signal.NEEDS_REDRAW | anychart.Signal.BOUNDS_CHANGED);
 
