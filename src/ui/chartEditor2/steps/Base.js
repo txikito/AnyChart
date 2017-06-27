@@ -66,13 +66,6 @@ anychart.ui.chartEditor2.steps.Base.CSS_CLASS = goog.getCssName('anychart-chart-
 
 
 /**
- * Step index attribute.
- * @private
- */
-anychart.ui.chartEditor2.steps.Base.STEP_DATA_ATTRIBUTE_ = 'data-index';
-
-
-/**
  * Getter/setter for step name.
  * @param {string=} opt_value
  * @return {string|anychart.ui.chartEditor2.steps.Base}
