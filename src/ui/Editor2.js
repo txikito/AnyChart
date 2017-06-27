@@ -197,7 +197,7 @@ anychart.ui.Editor2.prototype.enterDocument = function() {
   var handler = this.getHandler();
   // handler.listen(this.asideEl_, goog.events.EventType.WHEEL, this.handleWheel);
 
-  handler.listen(this.breadcrumbsEl_, goog.events.EventType.CLICK, this.breadcrumbsListClickHandler_);
+  handler.listen(this.breadcrumbsEl_, goog.events.EventType.CLICK, this.breadcrumbsClickHandler_);
 
   //this.nextBtn_.setEnabled(this.enableNextStep_);
   handler.listen(this.nextBtn_, goog.ui.Component.EventType.ACTION, this.nextBtnClickHandler_);
@@ -402,7 +402,7 @@ anychart.ui.Editor2.prototype.enableNextStep = function(value) {
  * @param {!goog.events.Event} e
  * @private
  */
-anychart.ui.Editor2.prototype.breadcrumbsListClickHandler_ = function(e) {
+anychart.ui.Editor2.prototype.breadcrumbsClickHandler_ = function(e) {
   var element = /** @type {Element} */(e.target);
 
   if (goog.dom.classlist.contains(element, 'item-content')) {
@@ -416,7 +416,6 @@ anychart.ui.Editor2.prototype.breadcrumbsListClickHandler_ = function(e) {
 
 
 anychart.ui.Editor2.prototype.prevBtnClickHandler_ = function() {
-  console.log("prev pressed");
   this.changeStep_(this.currentStep_.getIndex() - 1);
 };
 
