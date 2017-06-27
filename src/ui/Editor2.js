@@ -144,7 +144,8 @@ anychart.ui.Editor2.prototype.onComplete_ = function() {
 
 /** @override */
 anychart.ui.Editor2.prototype.createDom = function() {
-  console.log("createDom");
+  console.log("Editor2 -> createDom");
+
   anychart.ui.Editor2.base(this, 'createDom');
 
   var element = this.getElement();
@@ -200,13 +201,43 @@ anychart.ui.Editor2.prototype.createDom = function() {
 
 /** @override */
 anychart.ui.Editor2.prototype.enterDocument = function() {
-  console.log("enterDocument");
+  console.log("Editor2 -> enterDocument");
+
   anychart.ui.Editor2.base(this, 'enterDocument');
 
   this.setCurrentStepIndex_(0, false);
   this.updateProgressList_();
 
   this.listen(anychart.ui.chartEditor2.events.EventType.CHANGE_STEP, this.onChangeStep_);
+
+  var handler = this.getHandler();
+  // handler.listen(this.asideEl_, goog.events.EventType.WHEEL, this.handleWheel);
+
+  //this.nextBtn_.setEnabled(this.enableNextStep_);
+
+  //handler.listen(this.progressListEl_, goog.events.EventType.CLICK, this.stepListClickHandler_);
+  // handler.listen(this.nextBtn_,
+  //     goog.ui.Component.EventType.ACTION,
+  //     function() {
+  //       if (this.sharedModel_.currentStep.isLastStep) {
+  //         this.dispatchEvent(anychart.enums.EventType.COMPLETE);
+  //       } else {
+  //         this.dispatchEvent({
+  //           type: anychart.ui.chartEditor2.events.EventType.CHANGE_STEP,
+  //           stepIndex: this.sharedModel_.currentStep.index + 1
+  //         });
+  //       }
+  //     });
+  // handler.listen(this.prevBtn_,
+  //     goog.ui.Component.EventType.ACTION,
+  //     function() {
+  //       if (this.sharedModel_.currentStep.index > 0) {
+  //         this.dispatchEvent({
+  //           type: anychart.ui.chartEditor2.events.EventType.CHANGE_STEP,
+  //           stepIndex: this.sharedModel_.currentStep.index - 1
+  //         });
+  //       }
+  //     });
 };
 
 
@@ -233,7 +264,7 @@ anychart.ui.Editor2.prototype.updateProgressList_ = function() {
     var progressArrowEl = dom.createDom(goog.dom.TagName.DIV, arrowClass);
     progressArrowEl.innerHTML = '&rarr;';
 
-    var progressContentEl = dom.createDom(goog.dom.TagName.DIV, contentClass, step.getName());
+    var progressContentEl = dom.createDom(goog.dom.TagName.DIV, contentClass, step.name());
     goog.dom.setFocusableTabIndex(progressContentEl, true);
     goog.a11y.aria.setRole(progressContentEl, goog.a11y.aria.Role.LINK);
     goog.a11y.aria.setLabel(progressContentEl, step.name);
@@ -377,6 +408,64 @@ anychart.ui.Editor2.prototype.isLastStep_ = function(step) {
 anychart.ui.Editor2.prototype.getCurrentStepDescriptor_ = function() {
   return this.sharedModel_.steps[this.indexOfChild(this.currentStep_)];
 };
+
+
+/**
+ * Enable transition to next step.
+ * @param {boolean} value
+ */
+anychart.ui.Editor2.prototype.enableNextStep = function(value) {
+  this.enableNextStep_ = value;
+
+  if (this.isInDocument()) {
+    this.nextBtn_.setEnabled(this.enableNextStep_);
+  }
+};
+
+
+/**
+ * Returns the progress element.
+ * @return {Element}
+ */
+anychart.ui.Editor2.prototype.getProgressElement = function() {
+  return this.progressEl_;
+};
+
+/**
+ * Change step.
+ * @param {!goog.events.Event} e
+ * @private
+ */
+// anychart.ui.Editor2.prototype.stepListClickHandler_ = function(e) {
+//   var className = anychart.ui.chartEditor2.steps.Base.CSS_CLASS;
+//   var contentClass = goog.getCssName(className, 'progress-item-content');
+//   var element = /** @type {Element} */(e.target);
+//   var parentElement = goog.dom.getParentElement(element);
+//
+//   if (goog.dom.classlist.contains(element, contentClass)) {
+//     if (goog.dom.classlist.contains(parentElement, goog.getCssName('anychart-disabled'))) return;
+//
+//     var newStepIndex = Number(element.getAttribute(anychart.ui.chartEditor2.steps.Base.STEP_DATA_ATTRIBUTE_));
+//     var newStepDescriptor = this.sharedModel_.steps[newStepIndex];
+//     var currentStepIndex = this.sharedModel_.currentStep.index;
+//
+//     if (newStepIndex < currentStepIndex ||
+//         newStepIndex == currentStepIndex + 1 ||
+//         newStepDescriptor.isVisited) {
+//
+//       // If we transition from first step to third step (through one).
+//       if (newStepDescriptor.isVisited && newStepIndex == currentStepIndex + 2) {
+//         this.updateSharedDataMappings();
+//         if (!this.sharedModel_.dataMappings.length) return;
+//       }
+//
+//       this.dispatchEvent({
+//         type: anychart.ui.chartEditor2.events.EventType.CHANGE_STEP,
+//         stepIndex: newStepIndex
+//       });
+//     }
+//   }
+// };
 
 
 /**

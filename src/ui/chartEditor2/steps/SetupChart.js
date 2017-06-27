@@ -18,8 +18,8 @@ goog.forwardDeclare('anychart.data.Mapping');
 anychart.ui.chartEditor2.steps.SetupChart = function(index, opt_domHelper) {
   anychart.ui.chartEditor2.steps.SetupChart.base(this, 'constructor', index, opt_domHelper);
 
-  this.setName('Setup Chart');
-  this.setTitle('Setup Chart');
+  this.name('Setup Chart');
+  this.title('Setup Chart');
 };
 goog.inherits(anychart.ui.chartEditor2.steps.SetupChart, anychart.ui.chartEditor2.steps.Base);
 

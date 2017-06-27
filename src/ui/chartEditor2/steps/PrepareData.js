@@ -18,8 +18,8 @@ goog.forwardDeclare('anychart.data.Mapping');
 anychart.ui.chartEditor2.steps.PrepareData = function(index, opt_domHelper) {
   anychart.ui.chartEditor2.steps.PrepareData.base(this, 'constructor', index, opt_domHelper);
 
-  this.setName('Prepare Data');
-  this.setTitle('Prepare Data');
+  this.name('Prepare Data');
+  this.title('Prepare Data');
 };
 goog.inherits(anychart.ui.chartEditor2.steps.PrepareData, anychart.ui.chartEditor2.steps.Base);
 
