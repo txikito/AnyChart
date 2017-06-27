@@ -1387,6 +1387,7 @@ anychart.enums.PyramidLabelsPosition = {
  * @return {anychart.enums.PyramidLabelsPosition}
  */
 anychart.enums.normalizePyramidLabelsPosition = function(value, opt_default) {
+  value = value == 'outside' ? anychart.enums.PyramidLabelsPosition.OUTSIDE_LEFT : value;
   return /** @type {anychart.enums.PyramidLabelsPosition} */(anychart.enums.normalize(anychart.enums.PyramidLabelsPosition, value,
       opt_default || anychart.enums.PyramidLabelsPosition.OUTSIDE_LEFT_IN_COLUMN));
 };
