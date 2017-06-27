@@ -6,6 +6,63 @@
   font-size: 13px;
   width: 100%;
   height: 100%;
+
+  a,
+  a:link,
+  a:visited {
+    color: #06c;
+    cursor: pointer;
+  }
+
+  /* ------- PROGRESS BAR ------- */
+  .progress {
+    position: absolute;
+    padding: 0;
+    margin: 0 14px;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    border-top: 1px solid #e5e5e5;
+    height: 36px;
+    z-index: 1000;
+
+    .breadcrumbs {
+      margin-top: 6px;
+      line-height: 24px;
+      white-space: nowrap;
+      display: inline-block;
+
+      .item {
+        display: inline-block;
+
+        &.disabled .item-content {
+          cursor: default;
+        }
+
+        &.active .item-content {
+          cursor: default;
+          color: black;
+        }
+      }
+
+      .item-arrow {
+        display: inline-block;
+        margin: 0 7px;
+      }
+
+      .item-content {
+        display: inline-block;
+        cursor: pointer;
+        color: grey;
+      }
+    }
+
+    .next-button,
+    .previous-button {
+      float: right;
+      margin-top: 5px;
+    }
+  }
 }
 
 .anychart-chart-editor-dialog {
@@ -20,13 +77,6 @@
   color: #000;
   font-family: Arial, sans-serif;
   font-size: 13px;
-}
-
-.anychart-chart-editor a,
-.anychart-chart-editor a:link,
-.anychart-chart-editor a:visited {
-  color: #06c;
-  cursor: pointer;
 }
 
 .anychart-chart-editor-icon {
@@ -116,8 +166,6 @@
     margin-top: -4px; // grid 32
   }
 }
-
-
 
 .anychart-chart-editor-dialog-bg {
   background: #666;
@@ -222,63 +270,6 @@
   top: 0;
   bottom: 36px;
   overflow: hidden;
-}
-
-/* ------- PROGRESS ------- */
-.anychart-chart-editor-progress,
-.anychart-chart-editor-step-progress {
-  position: absolute;
-  padding: 0;
-  margin: 0 14px;
-  left: 0;
-  bottom: 0;
-  right: 0;
-  border-top: 1px solid #e5e5e5;
-  height: 36px;
-}
-
-.anychart-chart-editor-progress-item-list,
-.anychart-chart-editor-step-progress-item-list {
-  margin-top: 6px;
-  line-height: 24px;
-  white-space: nowrap;
-  display: inline-block;
-}
-
-.anychart-chart-editor-progress-item,
-.anychart-chart-editor-step-progress-item {
-  display: inline-block;
-
-  &.anychart-disabled .anychart-chart-editor-step-progress-item-content {
-    cursor: default;
-  }
-
-  &.anychart-active .anychart-chart-editor-step-progress-item-content {
-    cursor: default;
-    color: black;
-  }
-}
-
-.anychart-chart-editor-progress-item-arrow,
-.anychart-chart-editor-step-progress-item-arrow {
-  display: inline-block;
-  margin: 0 7px;
-}
-
-.anychart-chart-editor-step-progress-item-content {
-  display: inline-block;
-  cursor: pointer;
-  color: grey;
-}
-
-.anychart-chart-editor-step-progress-item-passed .anychart-chart-editor-step-progress-item-content {
-
-}
-
-.anychart-chart-editor-step-next-button,
-.anychart-chart-editor-step-previous-button {
-  float: right;
-  margin-top: 5px;
 }
 
 /* ------- DATA SETS ------- */

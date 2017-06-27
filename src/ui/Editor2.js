@@ -32,7 +32,7 @@ anychart.ui.Editor2 = function(opt_domHelper) {
 
   /**
    * Current step.
-   * @type {anychart.ui.chartEditor.steps.Base}
+   * @type {anychart.ui.chartEditor2.steps.Base}
    * @private
    */
   this.currentStep_ = null;
@@ -69,6 +69,13 @@ anychart.ui.Editor2 = function(opt_domHelper) {
   goog.events.listen(this, anychart.enums.EventType.COMPLETE, this.onComplete_, false, this);
 };
 goog.inherits(anychart.ui.Editor2, anychart.ui.Component);
+
+
+/**
+ * CSS class name.
+ * @type {string}
+ */
+anychart.ui.Editor2.CSS_CLASS = goog.getCssName('anychart-chart-editor');
 
 
 /** @inheritDoc */
@@ -150,50 +157,27 @@ anychart.ui.Editor2.prototype.createDom = function() {
 
   var element = this.getElement();
   var dom = this.getDomHelper();
-  goog.dom.classlist.add(element, goog.getCssName('anychart-chart-editor'));
+  goog.dom.classlist.add(element, anychart.ui.Editor2.CSS_CLASS);
 
+  // Adding steps
   this.steps_.push(new anychart.ui.chartEditor2.steps.PrepareData(0));
   this.steps_.push(new anychart.ui.chartEditor2.steps.SetupChart(0));
   for (var i = 0; i < this.steps_.length; i++) {
     this.addChild(this.steps_[i]);
   }
 
-  var className = "anychart-chart-editor-step";
-  var nextBtnClass = goog.getCssName(className, 'next-button');
-  var previousBtnClass = goog.getCssName(className, 'previous-button');
-  var progressItemListClass = goog.getCssName(className, 'progress-item-list');
-
-  this.progressEl_ = dom.createDom(
-      goog.dom.TagName.DIV,
-      goog.getCssName(className, 'progress'),
-      this.progressListEl_ = dom.createDom(
-          goog.dom.TagName.DIV,
-          progressItemListClass));
-  goog.a11y.aria.setRole(this.progressListEl_, goog.a11y.aria.Role.LIST);
+  this.breadcrumbsEl_ = dom.createDom(goog.dom.TagName.DIV, 'breadcrumbs');
+  this.progressEl_ = dom.createDom(goog.dom.TagName.DIV, 'progress', this.breadcrumbsEl_);
+  goog.a11y.aria.setRole(this.breadcrumbsEl_, goog.a11y.aria.Role.LIST);
 
   this.nextBtn_ = new anychart.ui.button.Primary();
-  this.nextBtn_.addClassName(nextBtnClass);
-  // if (this.sharedModel_.currentStep.isLastStep) {
-  //   this.nextBtn_.setCaption('Complete');
-  // } else {
-  this.nextBtn_.setCaption('Next');
-  // }
+  this.nextBtn_.addClassName('next-button');
   this.nextBtn_.render(this.progressEl_);
 
   this.prevBtn_ = new anychart.ui.button.Secondary();
-  this.prevBtn_.addClassName(previousBtnClass);
+  this.prevBtn_.addClassName('previous-button');
   this.prevBtn_.setCaption('Previous');
-  // if (!this.sharedModel_.currentStep.index) {
-  //   this.prevBtn_.setState(goog.ui.Component.State.DISABLED, true);
-  // }
   this.prevBtn_.render(this.progressEl_);
-
-  // this.contentWrapperEl_ = dom.createDom(
-  //     goog.dom.TagName.DIV,
-  //     goog.getCssName(className, 'content-wrapper'),
-  //     this.contentEl_ = dom.createDom(
-  //         goog.dom.TagName.DIV, goog.getCssName(className, 'content')),
-  //     this.progressEl_);
 
   element.appendChild(this.progressEl_);
 };
@@ -206,7 +190,7 @@ anychart.ui.Editor2.prototype.enterDocument = function() {
   anychart.ui.Editor2.base(this, 'enterDocument');
 
   this.setCurrentStepIndex_(0, false);
-  this.updateProgressList_();
+  this.updateProgress_();
 
   this.listen(anychart.ui.chartEditor2.events.EventType.CHANGE_STEP, this.onChangeStep_);
 
@@ -215,7 +199,7 @@ anychart.ui.Editor2.prototype.enterDocument = function() {
 
   //this.nextBtn_.setEnabled(this.enableNextStep_);
 
-  //handler.listen(this.progressListEl_, goog.events.EventType.CLICK, this.stepListClickHandler_);
+  //handler.listen(this.breadcrumbsEl_, goog.events.EventType.CLICK, this.stepListClickHandler_);
   // handler.listen(this.nextBtn_,
   //     goog.ui.Component.EventType.ACTION,
   //     function() {
@@ -246,42 +230,35 @@ anychart.ui.Editor2.prototype.enterDocument = function() {
  * Render progress list.
  * @private
  */
-anychart.ui.Editor2.prototype.updateProgressList_ = function() {
+anychart.ui.Editor2.prototype.updateProgress_ = function() {
   var dom = this.getDomHelper();
 
-  var className = "anychart-chart-editor-step";
-  var arrowClass = goog.getCssName(className, 'progress-item-arrow');
-  var contentClass = goog.getCssName(className, 'progress-item-content');
-  var itemClass = goog.getCssName(className, 'progress-item');
-
-  if(this.progressListEl_)
-    dom.removeChildren(this.progressListEl_);
+  if(this.breadcrumbsEl_)
+    dom.removeChildren(this.breadcrumbsEl_);
 
   var step;
   for (var i = 0; i < this.steps_.length; i++) {
     step = this.steps_[i];
 
-    var progressArrowEl = dom.createDom(goog.dom.TagName.DIV, arrowClass);
+    var progressArrowEl = dom.createDom(goog.dom.TagName.DIV, 'item-arrow');
     progressArrowEl.innerHTML = '&rarr;';
 
-    var progressContentEl = dom.createDom(goog.dom.TagName.DIV, contentClass, step.name());
+    var progressContentEl = dom.createDom(goog.dom.TagName.DIV, 'item-content', step.name());
     goog.dom.setFocusableTabIndex(progressContentEl, true);
     goog.a11y.aria.setRole(progressContentEl, goog.a11y.aria.Role.LINK);
-    goog.a11y.aria.setLabel(progressContentEl, step.name);
+    goog.a11y.aria.setLabel(progressContentEl, step.name());
     //progressContentEl.setAttribute(anychart.ui.chartEditor2.steps.Base.STEP_DATA_ATTRIBUTE_, String(step.index));
 
-    var itemEl = dom.createDom(
-        goog.dom.TagName.DIV,
-        itemClass,
-        progressContentEl,
-        !step.isLastStep ? progressArrowEl : null);
+    var itemEl = dom.createDom(goog.dom.TagName.DIV, 'item', progressContentEl, i < this.steps_.length - 1 ? progressArrowEl : null);
+
     goog.a11y.aria.setRole(itemEl, goog.a11y.aria.Role.LISTITEM);
+
     // Set state class.
     if (step == this.currentStep_) {
-      goog.dom.classlist.add(itemEl, goog.getCssName('anychart-active'));
+      goog.dom.classlist.add(itemEl, goog.getCssName('active'));
 
     } else if (step.getIndex() < this.currentStep_.getIndex()) {
-      goog.dom.classlist.add(itemEl, goog.getCssName(itemClass, 'passed'));
+      goog.dom.classlist.add(itemEl, goog.getCssName('item', 'passed'));
 
     }/* else if (step.getIndex() > this.sharedModel_.currentStep.index + 1 && !step.isVisited) {
       goog.dom.classlist.add(itemEl, goog.getCssName('anychart-disabled'));
@@ -291,7 +268,14 @@ anychart.ui.Editor2.prototype.updateProgressList_ = function() {
     //   goog.dom.classlist.enable(itemEl, goog.getCssName('anychart-disabled'), !this.enableNextStep_);
     // }
 
-    this.progressListEl_.appendChild(itemEl);
+    this.breadcrumbsEl_.appendChild(itemEl);
+  }
+
+  var nextCaption = this.currentStep_.getIndex() < this.steps_.length - 1 ? 'Next' : 'Complete';
+  this.nextBtn_.setCaption(nextCaption);
+
+  if (this.currentStep_.getIndex() == 0) {
+    this.prevBtn_.setState(goog.ui.Component.State.DISABLED, true);
   }
 };
 
@@ -302,6 +286,7 @@ anychart.ui.Editor2.prototype.updateProgressList_ = function() {
  * @private
  */
 anychart.ui.Editor2.prototype.onChangeStep_ = function(e) {
+  console.log("onChangeStep_() called!");
   this.setCurrentStepIndex_(e.stepIndex, true);
   this.currentStep_.update();
 };
@@ -331,7 +316,7 @@ anychart.ui.Editor2.prototype.getCurrentStep_ = function() {
 
 /**
  * Render the given step.
- * @param {anychart.ui.chartEditor.steps.Base} step
+ * @param {anychart.ui.chartEditor2.steps.Base} step
  * @param {boolean} doAnimation
  * @private
  */
@@ -422,14 +407,6 @@ anychart.ui.Editor2.prototype.enableNextStep = function(value) {
   }
 };
 
-
-/**
- * Returns the progress element.
- * @return {Element}
- */
-anychart.ui.Editor2.prototype.getProgressElement = function() {
-  return this.progressEl_;
-};
 
 /**
  * Change step.
