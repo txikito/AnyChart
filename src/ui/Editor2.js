@@ -31,6 +31,12 @@ anychart.ui.Editor2 = function(opt_domHelper) {
   this.dialog_ = null;
 
   /**
+   * @type {Element}
+   * @private
+   */
+  this.progressEl_ = null;
+
+  /**
    * Current step.
    * @type {anychart.ui.chartEditor2.steps.Base}
    * @private
@@ -38,18 +44,14 @@ anychart.ui.Editor2 = function(opt_domHelper) {
   this.currentStep_ = null;
 
   /**
-   * @type {Element}
+   * @type {Array<anychart.ui.chartEditor2.steps.Base>}
    * @private
    */
-  this.progressEl_ = null;
-
-
   this.steps_ = [];
+  
   //this.editorModel_ = null;
 
   //this.controller_ = new anychart.ui.chartEditor.Controller(this);
-
-  //this.updateModelInSteps_();
 
   this.imagesLoaded_ = true;
   this.preloader_ = new anychart.ui.Preloader();
@@ -151,8 +153,6 @@ anychart.ui.Editor2.prototype.onComplete_ = function() {
 
 /** @override */
 anychart.ui.Editor2.prototype.createDom = function() {
-  console.log("Editor2 -> createDom");
-
   anychart.ui.Editor2.base(this, 'createDom');
 
   var element = this.getElement();
@@ -185,24 +185,14 @@ anychart.ui.Editor2.prototype.createDom = function() {
 
 /** @override */
 anychart.ui.Editor2.prototype.enterDocument = function() {
-  console.log("Editor2 -> enterDocument");
-
   anychart.ui.Editor2.base(this, 'enterDocument');
 
-  this.setCurrentStepIndex_(0, false);
-  this.updateProgress_();
-
-  //this.listen(anychart.ui.chartEditor2.events.EventType.CHANGE_STEP, this.onChangeStep_);
-
   var handler = this.getHandler();
-  // handler.listen(this.asideEl_, goog.events.EventType.WHEEL, this.handleWheel);
-
   handler.listen(this.breadcrumbsEl_, goog.events.EventType.CLICK, this.breadcrumbsClickHandler_);
-
-  //this.nextBtn_.setEnabled(this.enableNextStep_);
   handler.listen(this.nextBtn_, goog.ui.Component.EventType.ACTION, this.nextBtnClickHandler_);
-
   handler.listen(this.prevBtn_, goog.ui.Component.EventType.ACTION, this.prevBtnClickHandler_);
+
+  this.setCurrentStepByIndex_(0, false);
 };
 
 
@@ -276,10 +266,11 @@ anychart.ui.Editor2.prototype.isLastStep_ = function() {
 anychart.ui.Editor2.prototype.changeStep_ = function(stepIndex) {
   if (stepIndex != this.currentStep_.getIndex()) {
     console.log("change for step", stepIndex);
-    // this.setCurrentStepIndex_(e.stepIndex, true);
-    // this.currentStep_.update();
+    this.setCurrentStepByIndex_(stepIndex, true);
+    this.currentStep_.update();
   }
 };
+
 
 /**
  * Remove step from DOM.
@@ -291,15 +282,6 @@ anychart.ui.Editor2.prototype.removeStep_ = function(step) {
   // exitDocument first (see documentation).
   step.exitDocument();
   goog.dom.removeNode(step.getElement());
-};
-
-
-/**
- * @return {?anychart.ui.chartEditor.steps.Base} The currently step (null if none).
- * @private
- */
-anychart.ui.Editor2.prototype.getCurrentStep_ = function() {
-  return this.currentStep_;
 };
 
 
@@ -326,8 +308,6 @@ anychart.ui.Editor2.prototype.setCurrentStep_ = function(step, doAnimation) {
       this.removeStep_(this.currentStep_);
     }
     this.currentStep_ = null;
-    this.sharedModel_.currentStep = null;
-    this.sharedModel_.currentStepIndex = NaN;
   }
 
   if (step) {
@@ -341,15 +321,8 @@ anychart.ui.Editor2.prototype.setCurrentStep_ = function(step, doAnimation) {
     stepAnimation.add(new goog.fx.dom.FadeIn(step.getElement(), 300));
     stepAnimation.play();
   }
-};
 
-
-/**
- * @return {number} Index of the currently step (-1 if none).
- * @private
- */
-anychart.ui.Editor2.prototype.getCurrentStepIndex_ = function() {
-  return this.indexOfChild(this.getCurrentStep_());
+  this.updateProgress_();
 };
 
 
@@ -359,8 +332,8 @@ anychart.ui.Editor2.prototype.getCurrentStepIndex_ = function() {
  * @param {boolean} doAnimation
  * @private
  */
-anychart.ui.Editor2.prototype.setCurrentStepIndex_ = function(index, doAnimation) {
-  this.setCurrentStep_(/** @type {anychart.ui.chartEditor.steps.Base} */ (this.getChildAt(index)), doAnimation);
+anychart.ui.Editor2.prototype.setCurrentStepByIndex_ = function(index, doAnimation) {
+  this.setCurrentStep_(this.steps_[index], doAnimation);
 };
 
 
@@ -453,7 +426,7 @@ anychart.ui.Editor2.prototype.data = function(var_args) {
     }
   }
 
-  this.setCurrentStepIndex_(0, goog.isObject(this.currentStep_));
+  this.setCurrentStepByIndex_(0, goog.isObject(this.currentStep_));
   this.update();
 };
 
