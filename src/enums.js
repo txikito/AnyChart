@@ -361,7 +361,7 @@ anychart.enums.Anchor = {
  */
 anychart.enums.normalizeAnchor = function(value, opt_default) {
   return /** @type {anychart.enums.Anchor} */(anychart.enums.normalize(anychart.enums.Anchor, value,
-      opt_default || anychart.enums.Anchor.LEFT_TOP));
+      goog.isDef(opt_default) ? opt_default : anychart.enums.Anchor.LEFT_TOP));
 };
 
 
@@ -859,8 +859,7 @@ anychart.enums.normalizeMarkerType = function(value, opt_default) {
  * @return {anychart.enums.MarkerType|anychart.enums.BulletMarkerType|null} Normalized marker type.
  */
 anychart.enums.normalizeAnyMarkerType = function(value) {
-  return /** @type {anychart.enums.MarkerType} */(anychart.enums.normalize(anychart.enums.MarkerType, value,
-      anychart.enums.MarkerType.STAR5));
+  return /** @type {anychart.enums.MarkerType} */(anychart.enums.normalize(anychart.enums.MarkerType, value, null));
 };
 
 
@@ -1970,7 +1969,7 @@ anychart.enums.GanttRangeAnchor = {
  */
 anychart.enums.normalizeGanttRangeAnchor = function(value, opt_default) {
   return /** @type {anychart.enums.GanttRangeAnchor} */(anychart.enums.normalize(anychart.enums.GanttRangeAnchor, value,
-      opt_default || anychart.enums.GanttRangeAnchor.FIRST_VISIBLE_DATE));
+      goog.isDef(opt_default) ? opt_default : anychart.enums.GanttRangeAnchor.FIRST_VISIBLE_DATE));
 };
 
 
@@ -3007,7 +3006,7 @@ anychart.enums.StockRangeAnchor = {
  */
 anychart.enums.normalizeStockRangeAnchor = function(value, opt_default) {
   return /** @type {anychart.enums.StockRangeAnchor} */(anychart.enums.normalize(anychart.enums.StockRangeAnchor, value,
-      opt_default || anychart.enums.StockRangeAnchor.LAST_DATE));
+      goog.isDef(opt_default) ? opt_default : anychart.enums.StockRangeAnchor.LAST_DATE));
 };
 
 
