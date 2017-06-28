@@ -3,10 +3,9 @@ goog.provide('anychart.ui.chartEditor2.steps.PrepareData');
 goog.require('anychart.ui.chartEditor2.events');
 goog.require('anychart.ui.chartEditor2.steps.Base');
 goog.require('goog.dom.classlist');
-goog.require('goog.format.JsonPrettyPrinter');
+goog.require('goog.net.XhrIo');
 
 goog.forwardDeclare('anychart.data.Mapping');
-
 
 
 /**
@@ -20,6 +19,14 @@ anychart.ui.chartEditor2.steps.PrepareData = function(index, opt_domHelper) {
 
   this.name('Prepare Data');
   this.title('Prepare Data');
+
+  /**
+   * @type {?Object}
+   * @private
+   */
+  this.dataSetsIndexJson_ = null;
+
+  this.loadDataSetsIndexJson_();
 };
 goog.inherits(anychart.ui.chartEditor2.steps.PrepareData, anychart.ui.chartEditor2.steps.Base);
 
@@ -28,7 +35,7 @@ goog.inherits(anychart.ui.chartEditor2.steps.PrepareData, anychart.ui.chartEdito
  * CSS class name.
  * @type {string}
  */
-anychart.ui.chartEditor2.steps.PrepareData.CSS_CLASS = goog.getCssName('anychart-chart-editor-prepare-data-step');
+anychart.ui.chartEditor2.steps.PrepareData.CSS_CLASS = goog.getCssName('step-prepare-data');
 
 
 /**
@@ -47,6 +54,11 @@ anychart.ui.chartEditor2.steps.PrepareData.prototype.createDom = function() {
 
   var className = anychart.ui.chartEditor2.steps.PrepareData.CSS_CLASS;
   goog.dom.classlist.add(element, className);
+
+  this.dataSetsEl_ = dom.createDom(goog.dom.TagName.DIV, 'data-sets',
+      dom.createDom(goog.dom.TagName.H2, null, 'Use one of our data sets'));
+
+  this.contentEl_.appendChild(this.dataSetsEl_);
 };
 
 
@@ -57,38 +69,8 @@ anychart.ui.chartEditor2.steps.PrepareData.prototype.enterDocument = function() 
   // this.getHandler().listen(this.dataPreviewContentEl_, goog.events.EventType.WHEEL, this.handleWheel);
   //
   // this.getHandler().listen(this.dataSetsEl_, goog.events.EventType.CLICK, this.dataSetsClickHandler_);
-  this.listen(anychart.ui.chartEditor2.events.EventType.CHANGE_STEP, this.onChangeStep_);
-};
 
-
-/**
- *
- * @param {Object} e
- * @private
- */
-anychart.ui.chartEditor2.steps.PrepareData.prototype.onChangeStep_ = function(e) {
-  // var sharedModel = this.getSharedModel();
-  // this.updateSharedDataMappings();
-  //
-  // this.dispatchEvent({
-  //   type: anychart.ui.chartEditor.events.EventType.REMOVE_ALL_SERIES
-  // });
-  //
-  // // build series
-  // for (var i = 0, count = sharedModel.dataMappings.length; i < count; i++) {
-  //   this.dispatchEvent({
-  //     type: anychart.ui.chartEditor.events.EventType.ADD_SERIES,
-  //     seriesType: null,
-  //     mapping: i,
-  //     rebuild: false
-  //   });
-  // }
-  //
-  // this.dispatchEvent({
-  //   type: anychart.ui.chartEditor.events.EventType.SET_CHART_DATA,
-  //   value: 0,
-  //   rebuild: false
-  // });
+  //console.log(this.dataSetsIndexJson_)
 };
 
 
@@ -97,14 +79,38 @@ anychart.ui.chartEditor2.steps.PrepareData.prototype.update = function() {
   //this.updateDataSets_();
 };
 
-
-/** @inheritDoc */
-anychart.ui.chartEditor2.steps.PrepareData.prototype.exitDocument = function() {
-  anychart.ui.chartEditor2.steps.PrepareData.base(this, 'exitDocument');
+anychart.ui.chartEditor2.steps.PrepareData.prototype.loadDataSetsIndexJson_ = function() {
+  if (!this.dataSetsIndexJson_) {
+    var self = this;
+    var indexUrl = 'https://cdn.anychart.com/anydata/common/index.json';
+    goog.net.XhrIo.send(indexUrl,
+        function(e) {
+          var xhr = e.target;
+          self.dataSetsIndexJson_ = xhr.getResponseJson();
+          self.showDataSets_();
+        });
+  }
 };
 
+anychart.ui.chartEditor2.steps.PrepareData.prototype.showDataSets_ = function() {
+  console.log(this.dataSetsIndexJson_);
 
-/** @inheritDoc */
-anychart.ui.chartEditor2.steps.PrepareData.prototype.disposeInternal = function() {
-  anychart.ui.chartEditor2.steps.PrepareData.base(this, 'disposeInternal');
+  for (var i = 0; i < this.dataSetsIndexJson_['sets'].length; i++) {
+    var dataSetJson = this.dataSetsIndexJson_['sets'][i];
+    var imgUrl = dataSetJson['logo'].replace('./', 'https://cdn.anychart.com/anydata/common/');
+    // console.log(dataSet);
+    // logo, name, sample, description
+
+    var dom = this.getDomHelper();
+    var item = dom.createDom(
+        goog.dom.TagName.DIV, 'data-set',
+        dom.createDom(goog.dom.TagName.DIV, 'content',
+          dom.createDom(goog.dom.TagName.IMG, {'src': imgUrl}),
+          dom.createDom(goog.dom.TagName.DIV, 'title', dataSetJson['name']),
+          dom.createTextNode(dataSetJson['description'])),
+          dom.createDom(goog.dom.TagName.A, {'href':  dataSetJson['sample'], 'class': 'anychart-button anychart-button-primary sample', 'target': 'blank_'}, 'Usage sample'));
+
+    this.dataSetsEl_.appendChild(item);
+    // item.render(this.dataSetsEl_);
+  }
 };

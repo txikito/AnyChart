@@ -207,12 +207,10 @@ anychart.ui.Editor2.prototype.updateProgress_ = function() {
   if(this.breadcrumbsEl_)
     dom.removeChildren(this.breadcrumbsEl_);
 
+  // Building breadcrumbs elements
   var step;
   for (var i = 0; i < this.steps_.length; i++) {
     step = this.steps_[i];
-
-    var progressArrowEl = dom.createDom(goog.dom.TagName.DIV, 'item-arrow');
-    progressArrowEl.innerHTML = '&rarr;';
 
     var progressContentEl = dom.createDom(goog.dom.TagName.DIV, 'item-content', step.name());
     goog.dom.setFocusableTabIndex(progressContentEl, true);
@@ -220,7 +218,13 @@ anychart.ui.Editor2.prototype.updateProgress_ = function() {
     goog.a11y.aria.setLabel(progressContentEl, step.name());
     progressContentEl.setAttribute('data-step-index', String(step.getIndex()));
 
-    var itemEl = dom.createDom(goog.dom.TagName.DIV, 'item', progressContentEl, i < this.steps_.length - 1 ? progressArrowEl : null);
+    var progressArrowEl = null;
+    if(i < this.steps_.length - 1) {
+      progressArrowEl = dom.createDom(goog.dom.TagName.DIV, 'item-arrow');
+      progressArrowEl.innerHTML = '&rarr;';
+    }
+
+    var itemEl = dom.createDom(goog.dom.TagName.DIV, 'item', progressContentEl, progressArrowEl);
 
     goog.a11y.aria.setRole(itemEl, goog.a11y.aria.Role.LISTITEM);
 
@@ -246,6 +250,8 @@ anychart.ui.Editor2.prototype.updateProgress_ = function() {
 
   if (this.currentStep_.getIndex() == 0) {
     this.prevBtn_.setState(goog.ui.Component.State.DISABLED, true);
+  } else {
+    this.prevBtn_.setState(goog.ui.Component.State.DISABLED, false);
   }
 };
 
@@ -265,9 +271,8 @@ anychart.ui.Editor2.prototype.isLastStep_ = function() {
  */
 anychart.ui.Editor2.prototype.changeStep_ = function(stepIndex) {
   if (stepIndex != this.currentStep_.getIndex()) {
-    console.log("change for step", stepIndex);
     this.setCurrentStepByIndex_(stepIndex, true);
-    this.currentStep_.update();
+    // this.currentStep_.update();
   }
 };
 
@@ -300,27 +305,25 @@ anychart.ui.Editor2.prototype.setCurrentStep_ = function(step, doAnimation) {
   if (this.currentStep_) {
     if (doAnimation) {
       var currentAnimation = new goog.fx.AnimationSerialQueue();
-      currentAnimation.add(new goog.fx.dom.FadeOut(this.currentStep_.getElement(), 300));
+      currentAnimation.add(new goog.fx.dom.FadeOut(this.currentStep_.getElement(), 150));
       currentAnimation.play();
       goog.events.listenOnce(
-          currentAnimation, goog.fx.Transition.EventType.END, goog.bind(this.removeStep_, this, this.currentStep_));
+          currentAnimation,
+          goog.fx.Transition.EventType.END,
+          goog.bind(this.removeStep_, this, this.currentStep_));
     } else {
       this.removeStep_(this.currentStep_);
     }
-    this.currentStep_ = null;
   }
 
-  if (step) {
-    this.currentStep_ = step;
-    // this.sharedModel_.currentStep = this.getCurrentStepDescriptor_();
-    step.render(this.getContentElement());
-    step.setParentEventTarget(this);
-    // this.sharedModel_.currentStep.isVisited = true;
+  step.render(this.getContentElement());
+  step.setParentEventTarget(this);
 
-    var stepAnimation = new goog.fx.AnimationSerialQueue();
-    stepAnimation.add(new goog.fx.dom.FadeIn(step.getElement(), 300));
-    stepAnimation.play();
-  }
+  var stepAnimation = new goog.fx.AnimationSerialQueue();
+  stepAnimation.add(new goog.fx.dom.FadeIn(step.getElement(), 150));
+  stepAnimation.play();
+
+  this.currentStep_ = step;
 
   this.updateProgress_();
 };
@@ -334,26 +337,6 @@ anychart.ui.Editor2.prototype.setCurrentStep_ = function(step, doAnimation) {
  */
 anychart.ui.Editor2.prototype.setCurrentStepByIndex_ = function(index, doAnimation) {
   this.setCurrentStep_(this.steps_[index], doAnimation);
-};
-
-
-/**
- * Check passed step is last step.
- * @param {anychart.ui.chartEditor.steps.Base} step
- * @return {boolean}
- * @private
- */
-anychart.ui.Editor2.prototype.isLastStep_ = function(step) {
-  return Boolean(step && step == this.getChildAt(this.getChildCount() - 1));
-};
-
-
-/**
- * @return {anychart.ui.chartEditor.steps.Base.Descriptor}
- * @private
- */
-anychart.ui.Editor2.prototype.getCurrentStepDescriptor_ = function() {
-  return this.sharedModel_.steps[this.indexOfChild(this.currentStep_)];
 };
 
 
