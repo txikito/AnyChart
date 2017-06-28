@@ -2878,8 +2878,77 @@ anychart.enums.AggregationType = {
  * @return {anychart.enums.AggregationType}
  */
 anychart.enums.normalizeAggregationType = function(value) {
-  return /** @type {anychart.enums.AggregationType} */(anychart.enums.normalize(anychart.enums.AggregationType, value,
-      anychart.enums.AggregationType.LAST));
+  value = String(value).toLowerCase();
+  switch (value) {
+    case 'first':
+    case 'open':
+      return anychart.enums.AggregationType.FIRST;
+    case 'last':
+    case 'close':
+      return anychart.enums.AggregationType.LAST;
+    case 'max':
+    case 'high':
+    case 'maximum':
+    case 'highest':
+      return anychart.enums.AggregationType.MAX;
+    case 'min':
+    case 'low':
+    case 'minimum':
+    case 'lowest':
+      return anychart.enums.AggregationType.MIN;
+    case 'average':
+    case 'avg':
+      return anychart.enums.AggregationType.AVERAGE;
+    case 'weightedaverage':
+    case 'weightedavg':
+    case 'wavg':
+    case 'weights':
+    case 'weighted':
+      return anychart.enums.AggregationType.WEIGHTED_AVERAGE;
+    case 'firstvalue':
+    case 'firstval':
+    case 'openvalue':
+    case 'openval':
+      return anychart.enums.AggregationType.FIRST_VALUE;
+    case 'lastvalue':
+    case 'lastval':
+    case 'closevalue':
+    case 'closeval':
+    case 'fill':
+    case 'hoverfill':
+    case 'risingfill':
+    case 'hoverrisingfill':
+    case 'fallingfill':
+    case 'hoverfallingfill':
+    case 'stroke':
+    case 'hoverstroke':
+    case 'lowstroke':
+    case 'hoverlowstroke':
+    case 'highstroke':
+    case 'hoverhighstroke':
+    case 'risingstroke':
+    case 'hoverrisingstroke':
+    case 'fallingstroke':
+    case 'hoverfallingstroke':
+    case 'hatchfill':
+    case 'hoverhatchfill':
+    case 'risinghatchfill':
+    case 'hoverrisinghatchfill':
+    case 'fallinghatchfill':
+    case 'hoverfallinghatchfill':
+    case 'marker':
+    case 'hovermarker':
+      return anychart.enums.AggregationType.LAST_VALUE;
+    case 'sum':
+    case 'add':
+      return anychart.enums.AggregationType.SUM;
+    case 'list':
+    case 'group':
+    case 'array':
+      return anychart.enums.AggregationType.LIST;
+    default:
+      return anychart.enums.AggregationType.LAST;
+  }
 };
 
 
