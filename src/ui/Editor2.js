@@ -225,7 +225,6 @@ anychart.ui.Editor2.prototype.updateProgress_ = function() {
     }
 
     var itemEl = dom.createDom(goog.dom.TagName.DIV, 'item', progressContentEl, progressArrowEl);
-
     goog.a11y.aria.setRole(itemEl, goog.a11y.aria.Role.LISTITEM);
 
     // Set state class.

@@ -93,14 +93,9 @@ anychart.ui.chartEditor2.steps.PrepareData.prototype.loadDataSetsIndexJson_ = fu
 };
 
 anychart.ui.chartEditor2.steps.PrepareData.prototype.showDataSets_ = function() {
-  console.log(this.dataSetsIndexJson_);
-
   for (var i = 0; i < this.dataSetsIndexJson_['sets'].length; i++) {
     var dataSetJson = this.dataSetsIndexJson_['sets'][i];
     var imgUrl = dataSetJson['logo'].replace('./', 'https://cdn.anychart.com/anydata/common/');
-    // console.log(dataSet);
-    // logo, name, sample, description
-
     var dom = this.getDomHelper();
     var item = dom.createDom(
         goog.dom.TagName.DIV, 'data-set',
@@ -110,7 +105,7 @@ anychart.ui.chartEditor2.steps.PrepareData.prototype.showDataSets_ = function() 
           dom.createTextNode(dataSetJson['description'])),
           dom.createDom(goog.dom.TagName.A, {'href':  dataSetJson['sample'], 'class': 'anychart-button anychart-button-primary sample', 'target': 'blank_'}, 'Usage sample'));
 
+    item.setAttribute('data-set-id', dataSetJson['id']);
     this.dataSetsEl_.appendChild(item);
-    // item.render(this.dataSetsEl_);
   }
 };
