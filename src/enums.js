@@ -2826,33 +2826,38 @@ anychart.enums.normalizeTextDirection = function(value) {
 
 
 /**
- * Text wrap settings enumeration.
+ * Text WordBreak mode.
  * @enum {string}
  */
-anychart.enums.TextWrap = {
+anychart.enums.WordBreak = {
   /**
-   No wrap.
+   Break words according to their usual rules.
    */
-  NO_WRAP: 'no-wrap',
+  NORMAL: 'normal',
   /**
-   Wrap by symbol.
+   Don't allow word breaks for CJK text.  Non-CJK text behavior is the same as for normal.
    */
-  BY_LETTER: 'by-letter',
+  KEEP_ALL: 'keep-all',
   /**
-   Wrap by word.
+   Word breaks may be inserted between any character.
    */
-  BY_WORD: 'by-word'
+  BREAK_ALL: 'break-all'
 };
 
 
 /**
- * Normalizes font style.
- * @param {*} value
- * @return {anychart.enums.TextWrap}
+ * Text WordWrap mode.
+ * @enum {string}
  */
-anychart.enums.normalizeTextWrap = function(value) {
-  return /** @type {anychart.enums.TextWrap} */(anychart.enums.normalize(anychart.enums.TextWrap, value,
-      anychart.enums.TextWrap.BY_LETTER));
+anychart.enums.WordWrap = {
+  /**
+   Indicates that lines may only break at normal word break points.
+   */
+  NORMAL: 'normal',
+  /**
+   Indicates that normally unbreakable words may be broken at arbitrary points if there are no otherwise acceptable break points in the line.
+   */
+  BREAK_WORD: 'break-word'
 };
 
 

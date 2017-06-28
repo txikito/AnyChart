@@ -705,7 +705,8 @@ goog.provide('anychart.themes.defaultTheme');
       'textIndent': 0,
       'vAlign': 'top',
       'hAlign': 'start',
-      'textWrap': 'by-letter',
+      'wordWrap': 'normal',
+      'wordBreak': 'normal',
       'textOverflow': '',
       'selectable': false,
       'disablePointerEvents': false,
@@ -3768,7 +3769,6 @@ goog.provide('anychart.themes.defaultTheme');
         'maxFontSize': 13,
         'hAlign': 'center',
         'vAlign': 'center',
-        'textWrap': 'no-wrap',
         'fontWeight': 'normal',
         'fontColor': '#212121',
         'selectable': false,
@@ -4012,6 +4012,7 @@ goog.provide('anychart.themes.defaultTheme');
         'buttonCursor': 'pointer',
         'cellTextSettings': {
           'enabled': true,
+          'wordBreak': 'break-all',
           'anchor': 'left-top',
           'vAlign': 'middle',
           'padding': {
@@ -4020,7 +4021,6 @@ goog.provide('anychart.themes.defaultTheme');
             'bottom': 0,
             'left': 5
           },
-          'textWrap': 'no-wrap',
           'background': null,
           'fontSize': 11,
           'disablePointerEvents': true
@@ -4030,7 +4030,6 @@ goog.provide('anychart.themes.defaultTheme');
         'title': {
           'enabled': true,
           'margin': 0,
-          'textWrap': 'no-wrap',
           'vAlign': 'middle',
           'background': {
             'enabled': false
@@ -4186,7 +4185,6 @@ goog.provide('anychart.themes.defaultTheme');
           'left': 5
         },
         'vAlign': 'middle',
-        'textWrap': 'no-wrap',
         'background': null,
         'fontSize': 11,
         'zIndex': 40,
@@ -4209,8 +4207,7 @@ goog.provide('anychart.themes.defaultTheme');
       },
       'defaultTextMarkerSettings': {
         'layout': 'vertical',
-        'zIndex': 2,
-        'textWrap': 'by-letter'
+        'zIndex': 2
       },
       'header': {
         'backgroundFill': '#cecece',
@@ -4647,7 +4644,8 @@ goog.provide('anychart.themes.defaultTheme');
             'orientation': 'left',
             'align': 'left',
             'hAlign': 'left',
-            'rotation': 0
+            'rotation': 0,
+            'wordBreak': 'break-all'
           },
           'titleSeparator': {
             'enabled': false,
@@ -4925,7 +4923,6 @@ goog.provide('anychart.themes.defaultTheme');
             'bottom': 1,
             'left': 10
           },
-          'textWrap': 'no-wrap',
           /**
            * @this {*}
            * @return {*}
@@ -4945,7 +4942,6 @@ goog.provide('anychart.themes.defaultTheme');
           'fontSize': 9,
           'fontOpacity': 0.5,
           'contColor': '#333',
-          'textWrap': 'no-wrap',
           'padding': {
             'top': 1,
             'right': 5,
@@ -4990,10 +4986,8 @@ goog.provide('anychart.themes.defaultTheme');
         'tasks': {
           'color': '#e06666',
           'lowerLabels': {
-            'textWrap': 'no-wrap'
           },
           'upperLabels': {
-            'textWrap': 'no-wrap'
           }
         }
       }
@@ -5074,7 +5068,6 @@ goog.provide('anychart.themes.defaultTheme');
             'left': 5
           },
           'fontSize': 15,
-          'textWrap': 'no-wrap',
           'textOverflow': '...',
           'fontFamily': '"Helvetica Neue","Helvetica",sans-serif'
         },
@@ -5143,7 +5136,6 @@ goog.provide('anychart.themes.defaultTheme');
         'zIndex': 2,
         'vAlign': 'center',
         'hAlign': 'center',
-        'textWrap': 'no-wrap',
         'textOverflow': '',
         'fill': 'none',
         'stroke': '#ccc',
@@ -5215,8 +5207,7 @@ goog.provide('anychart.themes.defaultTheme');
               'format': function() {
                 return this['value'].toUpperCase();
               },
-              'hAlign': 'left',
-              'textWrap': 'allow-wrap'
+              'hAlign': 'left'
             }
           ],
           'unit': 'day',
@@ -5625,7 +5616,6 @@ goog.provide('anychart.themes.defaultTheme');
             'left': 5
           },
           'fontSize': 15,
-          'textWrap': 'no-wrap',
           'textOverflow': '...'
         },
         'names': {
