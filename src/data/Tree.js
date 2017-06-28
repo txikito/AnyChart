@@ -393,6 +393,7 @@ anychart.data.Tree.prototype.fillAsParentPointer_ = function(data) {
  * @return {anychart.data.Tree} - Itself for method chaining.
  */
 anychart.data.Tree.prototype.addData = function(data, opt_fillMethodOrCsvMapping, opt_csvSettingsOrDeps) {
+  debugger;
   var fillingMethod = anychart.enums.TreeFillingMethod.AS_TREE;
 
   if (goog.isString(data)) {
@@ -416,6 +417,7 @@ anychart.data.Tree.prototype.addData = function(data, opt_fillMethodOrCsvMapping
   this.suspendSignalsDispatching();
 
   switch (fillingMethod) {
+    case anychart.enums.TreeFillingMethod.AS_TABLE:
     case 'as-table':
     case 'table':
     case 'parentid':
@@ -428,7 +430,7 @@ anychart.data.Tree.prototype.addData = function(data, opt_fillMethodOrCsvMapping
     case 'pointer':
       this.fillAsParentPointer_(data);
       break;
-
+    case anychart.enums.TreeFillingMethod.AS_TREE:
     case 'as-tree':
     case 'tree':
     case 'structure':
