@@ -2511,21 +2511,67 @@ anychart.enums.Interval = {
  * @return {?anychart.enums.Interval}
  */
 anychart.enums.normalizeInterval = function(value, opt_default, opt_allowDateOnly) {
-  switch ((String(value)).toLowerCase()) {
+  value = (String(value)).toLowerCase();
+  switch (value) {
+    case 'years':
+    case 'year':
+    case 'yyyy':
+    case 'yy':
+    case 'y':
+      return anychart.enums.Interval.YEAR;
+    case 'semesters':
+    case 'semester':
+    case 'sem':
+      return anychart.enums.Interval.SEMESTER;
+    case 'quarters':
+    case 'quarter':
+    case 'q':
+      return anychart.enums.Interval.QUARTER;
+    case 'months':
+    case 'month':
+    case 'mm':
+    case 'm':
+      return anychart.enums.Interval.MONTH;
+    case 'thirdofmonths':
+    case 'thirdofmonth':
+    case 'decades':
+    case 'decade':
+    case 'tom':
+    case 'dec':
+      return anychart.enums.Interval.THIRD_OF_MONTH;
+    case 'weeks':
+    case 'week':
+    case 'w':
+      return anychart.enums.Interval.WEEK;
+    case 'days':
+    case 'day':
+    case 'dd':
+    case 'd':
+      return anychart.enums.Interval.DAY;
+    case 'hours':
     case 'hour':
+    case 'hh':
+    case 'h':
       return opt_allowDateOnly ? anychart.enums.Interval.DAY : anychart.enums.Interval.HOUR;
+    case 'minutes':
     case 'minute':
+    case 'min':
+    case 'n':
       return opt_allowDateOnly ? anychart.enums.Interval.DAY : anychart.enums.Interval.MINUTE;
+    case 'seconds':
     case 'second':
+    case 'secs':
+    case 'sec':
+    case 's':
       return opt_allowDateOnly ? anychart.enums.Interval.DAY : anychart.enums.Interval.SECOND;
+    case 'milliseconds':
     case 'millisecond':
+    case 'millis':
+    case 'milli':
+    case 'ms':
       return opt_allowDateOnly ? anychart.enums.Interval.DAY : anychart.enums.Interval.MILLISECOND;
   }
-  if (goog.isDefAndNotNull(opt_default))
-    opt_default = anychart.enums.normalizeInterval(opt_default, void 0, opt_allowDateOnly);
-
-  return /** @type {anychart.enums.Interval} */(anychart.enums.normalize(anychart.enums.Interval, value,
-      goog.isDef(opt_default) ? opt_default : anychart.enums.Interval.YEAR));
+  return goog.isDef(opt_default) ? opt_default : anychart.enums.Interval.YEAR;
 };
 
 
