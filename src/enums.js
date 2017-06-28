@@ -2054,10 +2054,10 @@ anychart.enums.GanttDateTimeMarkers = {
  * @enum {string}
  */
 anychart.enums.DataField = {
-  DEPENDS_ON: 'depends-on',
+  DEPENDS_ON: 'dependsOn',
   OPTIMISTIC: 'optimistic',
   PESSIMISTIC: 'pessimistic',
-  MOST_LIKELY: 'most-likely',
+  MOST_LIKELY: 'mostLikely',
   EXPECTED: 'expected',
   DURATION: 'duration',
   FROM: 'from',

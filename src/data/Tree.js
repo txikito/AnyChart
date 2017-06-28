@@ -393,7 +393,6 @@ anychart.data.Tree.prototype.fillAsParentPointer_ = function(data) {
  * @return {anychart.data.Tree} - Itself for method chaining.
  */
 anychart.data.Tree.prototype.addData = function(data, opt_fillMethodOrCsvMapping, opt_csvSettingsOrDeps) {
-  debugger;
   var fillingMethod = anychart.enums.TreeFillingMethod.AS_TREE;
 
   if (goog.isString(data)) {
