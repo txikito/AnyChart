@@ -56,10 +56,25 @@ anychart.ui.chartEditor2.steps.PrepareData.prototype.createDom = function() {
   var className = anychart.ui.chartEditor2.steps.PrepareData.CSS_CLASS;
   goog.dom.classlist.add(element, className);
 
+  var uploadButtonsFormats = ['csv', 'xls', 'mysql', 'csv', 'xls', 'mysql'];
+  var buttonsBar = dom.createDom(goog.dom.TagName.DIV, 'buttons');
+  for(var i = 0; i < 6; i++) {
+    var format = uploadButtonsFormats[i];
+    var button = new anychart.ui.button.Base(format);
+    button.setIcon(format);
+    button.setValue(format);
+    button.render(buttonsBar);
+  }
+
+  this.connectDataEl_ = dom.createDom(goog.dom.TagName.DIV, 'connect-data',
+      dom.createDom(goog.dom.TagName.H2, null, 'Connect your data'),
+      buttonsBar,
+      dom.createDom(goog.dom.TagName.DIV, 'uploaded', 'Uploaded data'));
+
   this.dataSetsEl_ = dom.createDom(goog.dom.TagName.DIV, 'data-sets',
       dom.createDom(goog.dom.TagName.H2, null, 'Use one of our data sets'));
 
-  this.contentEl_.appendChild(this.dataSetsEl_);
+  this.contentEl_.append(this.connectDataEl_, this.dataSetsEl_);
 };
 
 
