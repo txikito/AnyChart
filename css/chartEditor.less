@@ -80,6 +80,25 @@
 }
 
 /** STEPS **/
+.anychart-chart-editor-step {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  //overflow: hidden;
+}
+
+.anychart-chart-editor-step-content {
+  padding: 35px 20px 60px 20px;
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 36px;
+  overflow: hidden;
+}
+
 .step-prepare-data {
   .data-sets {
     .data-set {
@@ -99,11 +118,15 @@
       img {
         height: 80px;
       }
-      .sample {
-        display: block;
-        margin: 10px 10% 0;
-        color: #fff;
+      .buttons {
+        padding-top: 1em;
+        .anychart-button {
+          display: inline-block;
+          color: #fff;
+          margin-right: 10px;
+        }
       }
+
     }
   }
 }
@@ -261,14 +284,6 @@
   bottom: 12px;
 }
 
-.anychart-chart-editor-step {
-  width: 100%;
-  height: 100%;
-  position: absolute;
-  top: 0;
-  left: 0;
-}
-
 .anychart-chart-editor-step-aside {
   -webkit-box-sizing: content-box;
   -moz-box-sizing: content-box;
@@ -291,15 +306,6 @@
   bottom: 0;
   right: 0;
   border: 1px solid #cccccc;
-}
-
-.anychart-chart-editor-step-content {
-  position: absolute;
-  left: 0;
-  right: 0;
-  top: 0;
-  bottom: 36px;
-  overflow: hidden;
 }
 
 /* ------- DATA SETS ------- */

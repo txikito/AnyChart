@@ -159,13 +159,7 @@ anychart.ui.Editor2.prototype.createDom = function() {
   var dom = this.getDomHelper();
   goog.dom.classlist.add(element, anychart.ui.Editor2.CSS_CLASS);
 
-  // Adding steps
-  this.steps_.push(new anychart.ui.chartEditor2.steps.PrepareData(0));
-  this.steps_.push(new anychart.ui.chartEditor2.steps.SetupChart(1));
-  for (var i = 0; i < this.steps_.length; i++) {
-    this.addChild(this.steps_[i]);
-  }
-
+  // Create progress element
   this.breadcrumbsEl_ = dom.createDom(goog.dom.TagName.DIV, 'breadcrumbs');
   this.progressEl_ = dom.createDom(goog.dom.TagName.DIV, 'progress', this.breadcrumbsEl_);
   goog.a11y.aria.setRole(this.breadcrumbsEl_, goog.a11y.aria.Role.LIST);
@@ -180,6 +174,13 @@ anychart.ui.Editor2.prototype.createDom = function() {
   this.prevBtn_.render(this.progressEl_);
 
   element.appendChild(this.progressEl_);
+
+  // Add steps
+  this.steps_.push(new anychart.ui.chartEditor2.steps.PrepareData(0));
+  this.steps_.push(new anychart.ui.chartEditor2.steps.SetupChart(1));
+  for (var i = 0; i < this.steps_.length; i++) {
+    this.addChildAt(this.steps_[i], i);
+  }
 };
 
 
@@ -296,10 +297,7 @@ anychart.ui.Editor2.prototype.removeStep_ = function(step) {
  * @private
  */
 anychart.ui.Editor2.prototype.setCurrentStep_ = function(step, doAnimation) {
-  if (!this.isInDocument()) return;
-  if (!step || step.isInDocument()) {
-    return;
-  }
+  if (!this.isInDocument() || !step || step.isInDocument()) return;
 
   if (this.currentStep_) {
     if (doAnimation) {

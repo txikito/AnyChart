@@ -11,6 +11,7 @@ goog.forwardDeclare('anychart.data.Mapping');
 /**
  * Chart Editor Step Class.
  * @constructor
+ * @param {number} index Step index
  * @param {goog.dom.DomHelper=} opt_domHelper Optional DOM helper.
  * @extends {anychart.ui.chartEditor2.steps.Base}
  */
@@ -100,10 +101,23 @@ anychart.ui.chartEditor2.steps.PrepareData.prototype.showDataSets_ = function() 
     var item = dom.createDom(
         goog.dom.TagName.DIV, 'data-set',
         dom.createDom(goog.dom.TagName.DIV, 'content',
-          dom.createDom(goog.dom.TagName.IMG, {'src': imgUrl}),
-          dom.createDom(goog.dom.TagName.DIV, 'title', dataSetJson['name']),
-          dom.createTextNode(dataSetJson['description'])),
-          dom.createDom(goog.dom.TagName.A, {'href':  dataSetJson['sample'], 'class': 'anychart-button anychart-button-primary sample', 'target': 'blank_'}, 'Usage sample'));
+            dom.createDom(goog.dom.TagName.IMG, {'src': imgUrl}),
+            dom.createDom(goog.dom.TagName.DIV, 'title', dataSetJson['name']),
+            dom.createTextNode(dataSetJson['description']),
+            dom.createDom(goog.dom.TagName.DIV, 'buttons',
+                dom.createDom(goog.dom.TagName.A,
+                    {
+                      // 'href': dataSetJson['download'],
+                      'class': 'anychart-button anychart-button-success download'
+                    },
+                    'Download'),
+                dom.createDom(goog.dom.TagName.A,
+                    {
+                      'href': dataSetJson['sample'],
+                      'class': 'anychart-button anychart-button-primary sample',
+                      'target': 'blank_'
+                    },
+                    'View sample'))));
 
     item.setAttribute('data-set-id', dataSetJson['id']);
     this.dataSetsEl_.appendChild(item);
