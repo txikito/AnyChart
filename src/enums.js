@@ -737,97 +737,19 @@ anychart.enums.normalizeSort = function(value, opt_default) {
  * @enum {string}
  */
 anychart.enums.MarkerType = {
-  /**
-   * @illustration
-   * stage.width(200)
-   *      .height(30)
-   *      .circle(stage.width()/2, stage.height()/2, stage.height()/2-5);
-   */
   CIRCLE: 'circle',
-  /**
-   * @illustration
-   * stage.width(200)
-   *      .height(30);
-   * var side = stage.height()/2-5;
-   * stage.path()
-   *        .moveTo(stage.width()/2 - side, stage.height()/2 - side)
-   *        .lineTo(stage.width()/2 + side, stage.height()/2 - side)
-   *        .lineTo(stage.width()/2 + side, stage.height()/2 + side)
-   *        .lineTo(stage.width()/2 - side, stage.height()/2 + side)
-   *        .close()
-   */
   SQUARE: 'square',
-  /**
-   * @illustration
-   * stage.width(200)
-   *      .height(30)
-   *      .triangleUp(stage.width()/2, stage.height()/2, stage.height()/2-5);
-   */
-  TRIANGLE_UP: 'triangle-up',
-  /**
-   * @illustration
-   * stage.width(200)
-   *      .height(30)
-   *      .diamond(stage.width()/2, stage.height()/2, stage.height()/2-5);
-   */
   DIAMOND: 'diamond',
-  /**
-   * @illustration
-   * stage.width(200)
-   *      .height(30)
-   *      .triangleDown(stage.width()/2, stage.height()/2, stage.height()/2-5);
-   */
+  TRIANGLE_UP: 'triangle-up',
   TRIANGLE_DOWN: 'triangle-down',
   TRIANGLE_RIGHT: 'triangle-right',
   TRIANGLE_LEFT: 'triangle-left',
-  /**
-   * @illustration
-   * stage.width(200)
-   *      .height(30)
-   *      .cross(stage.width()/2, stage.height()/2, stage.height()/2-5);
-   */
   CROSS: 'cross',
-  /**
-   * @illustration
-   * stage.width(200)
-   *      .height(30)
-   *      .diagonalCross(stage.width()/2, stage.height()/2, stage.height()/2-5);
-   */
   DIAGONAL_CROSS: 'diagonal-cross',
-  /**
-   * @illustration
-   * stage.width(200)
-   *      .height(30)
-   *      .star4(stage.width()/2, stage.height()/2, stage.height()/2-5);
-   */
   STAR4: 'star4',
-  /**
-   * @illustration
-   * stage.width(200)
-   *      .height(30)
-   *      .star5(stage.width()/2, stage.height()/2, stage.height()/2-5);
-   */
   STAR5: 'star5',
-  /**
-   * @illustration
-   * stage.width(200)
-   *      .height(30)
-   *      .star6(stage.width()/2, stage.height()/2, stage.height()/2-5);
-   */
   STAR6: 'star6',
-  /**
-   * @illustration
-   * stage.width(200)
-   *      .height(30)
-   *      .star7(stage.width()/2, stage.height()/2, stage.height()/2-5);
-   */
   STAR7: 'star7',
-  /**
-   * @illustration
-   * stage.width(200)
-   *      .height(30)
-   *      .star10(stage.width()/2, stage.height()/2, stage.height()/2-5);
-   */
   STAR10: 'star10',
   PENTAGON: 'pentagon',
   TRAPEZIUM: 'trapezium',
