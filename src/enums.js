@@ -781,7 +781,8 @@ anychart.enums.normalizeMarkerType = function(value, opt_default) {
  * @return {anychart.enums.MarkerType|anychart.enums.BulletMarkerType|null} Normalized marker type.
  */
 anychart.enums.normalizeAnyMarkerType = function(value) {
-  return /** @type {anychart.enums.MarkerType} */(anychart.enums.normalize(anychart.enums.MarkerType, value, null));
+  return /** @type {anychart.enums.MarkerType} */(anychart.enums.normalize(anychart.enums.MarkerType, value, null)) ||
+      /** @type {anychart.enums.MarkerType} */(anychart.enums.normalize(anychart.enums.BulletMarkerType, value, null));
 };
 
 
