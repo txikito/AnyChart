@@ -216,7 +216,6 @@
         }
       }
     },
-
     "anychart.core.CartesianBase": {
       "type": "object",
       "allOf": [
@@ -2090,7 +2089,6 @@
       },
       "required": ["type"]
     },
-
     "anychart.charts.Pert": {
       "type": "object",
       "allOf": [
@@ -2119,7 +2117,6 @@
       },
       "required": ["type"]
     },
-
     "anychart.charts.Venn": {
       "type": "object",
       "allOf": [
@@ -2132,7 +2129,6 @@
       },
       "required": ["type"]
     },
-
     "anychart.gantt.Resource": {
       "type": "object",
       "allOf": [{"$ref": "#/definitions/anychart.core.SeparateChart"}],
@@ -2157,7 +2153,6 @@
       },
       "required": ["type"]
     },
-
     "anychart.gantt.Project": {
       "type": "object",
       "allOf": [{"$ref": "#/definitions/anychart.core.SeparateChart"}],
@@ -2182,7 +2177,6 @@
       },
       "required": ["type"]
     },
-
     "anychart.charts.CircularGauge": {
       "type": "object",
       "allOf": [
@@ -2392,7 +2386,6 @@
       },
       "required": ["type"]
     },
-
     "anychart.charts.Map": {
       "type": "object",
       "allOf": [
@@ -2533,7 +2526,6 @@
       },
       "required": ["type"]
     },
-
     "anychart.charts.Mekko": {
       "type": "object",
       "allOf": [
@@ -2707,7 +2699,7 @@
       },
       "required": ["type"]
     },
-
+    
     "anychart.core.SeriesBase": {
       "type": "object",
       "allOf": [
@@ -2762,7 +2754,6 @@
         "selectHatchFill": {"$ref": "#/definitions/hatchFillSet"}
       }
     },
-
     "anychart.core.series.Base": {
       "type": "object",
       "allOf": [

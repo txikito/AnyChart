@@ -196,7 +196,7 @@
         <xsd:attribute name="explode" type="simple.NumberOrPercent" default="15"/>
         <xsd:attribute name="outside_labels_space" type="simple.NumberOrPercent" default="30%"/>
         <xsd:attribute name="inside_labels_offset" type="simple.NumberOrPercent" default="50%"/>
-        <xsd:attribute name="overlap_mode" type="enums.LabelsOverlapMode" default="noOverlap"/>
+        <xsd:attribute name="overlap_mode" type="enums.LabelsOverlapMode" default="no-overlap"/>
         <xsd:attribute name="labels_display_mode" type="enums.LabelsDisplayMode" default="clip"/>
         <xsd:attribute name="connector_length" type="simple.NumberOrPercent" default="20%"/>
         <xsd:attribute name="outside_labels_critical_angle" type="xsd:double" default="60"/>
@@ -742,7 +742,7 @@
         <xsd:attribute name="sweep_angle" type="simple.DoubleOrNull"/>
         <xsd:attribute name="radius" type="simple.NumberOrPercentOrNull"/>
         <xsd:attribute name="corners_rounding" type="simple.NumberOrPercent"/>
-        <xsd:attribute name="overlap_mode" type="enums.LabelsOverlapMode" default="noOverlap"/>
+        <xsd:attribute name="overlap_mode" type="enums.LabelsOverlapMode" default="no-overlap"/>
         <xsd:attribute name="labels" type="simple.BoolOrNull" default="true"/>
         <xsd:attribute name="minor_labels" type="simple.BoolOrNull"/>
         <xsd:attribute name="ticks" type="simple.BoolOrNull" default="true"/>
@@ -790,7 +790,7 @@
         <xsd:attribute name="orientation" type="enums.Orientation"/>
         <xsd:attribute name="draw_first_label" type="simple.Bool" default="true"/>
         <xsd:attribute name="draw_last_label" type="simple.Bool" default="true"/>
-        <xsd:attribute name="overlap_mode" type="enums.LabelsOverlapMode" default="noOverlap"/>
+        <xsd:attribute name="overlap_mode" type="enums.LabelsOverlapMode" default="no-overlap"/>
         <xsd:attribute name="scale" type="simple.ScaleRef"/>
         <xsd:attributeGroup ref="attrs.VisualBase"/>
     </xsd:complexType>
@@ -841,7 +841,7 @@
         <xsd:attribute name="minor_ticks" type="simple.BoolOrNull" default="true"/>
         <xsd:attribute name="stroke" type="xsd:string"/>
         <xsd:attribute name="fill" type="xsd:string"/>
-        <xsd:attribute name="overlap_mode" type="enums.LabelsOverlapMode" default="noOverlap"/>
+        <xsd:attribute name="overlap_mode" type="enums.LabelsOverlapMode" default="no-overlap"/>
         <xsd:attribute name="scale" type="simple.ScaleRef"/>
         <xsd:attributeGroup ref="attrs.VisualBase"/>
     </xsd:complexType>
@@ -861,7 +861,7 @@
         <xsd:attribute name="stroke" type="xsd:string"/>
         <xsd:attribute name="draw_first_label" type="simple.Bool" default="true"/>
         <xsd:attribute name="draw_last_label" type="simple.Bool" default="true"/>
-        <xsd:attribute name="overlap_mode" type="enums.LabelsOverlapMode" default="noOverlap"/>
+        <xsd:attribute name="overlap_mode" type="enums.LabelsOverlapMode" default="no-overlap"/>
         <xsd:attribute name="scale" type="simple.ScaleRef"/>
         <xsd:attributeGroup ref="attrs.VisualBase"/>
     </xsd:complexType>
@@ -892,7 +892,7 @@
         <xsd:attribute name="stroke" type="xsd:string"/>
         <xsd:attribute name="draw_first_label" type="simple.Bool" default="true"/>
         <xsd:attribute name="draw_last_label" type="simple.Bool" default="true"/>
-        <xsd:attribute name="overlap_mode" type="enums.LabelsOverlapMode" default="noOverlap"/>
+        <xsd:attribute name="overlap_mode" type="enums.LabelsOverlapMode" default="no-overlap"/>
         <xsd:attributeGroup ref="attrs.VisualBase"/>
     </xsd:complexType>
 
@@ -921,7 +921,7 @@
         <xsd:attribute name="stroke" type="xsd:string"/>
         <xsd:attribute name="draw_first_label" type="simple.Bool" default="true"/>
         <xsd:attribute name="draw_last_label" type="simple.Bool" default="true"/>
-        <xsd:attribute name="overlap_mode" type="enums.LabelsOverlapMode" default="noOverlap"/>
+        <xsd:attribute name="overlap_mode" type="enums.LabelsOverlapMode" default="no-overlap"/>
         <xsd:attributeGroup ref="attrs.VisualBase"/>
     </xsd:complexType>
 
@@ -1377,8 +1377,8 @@
             <xsd:element minOccurs="0" maxOccurs="1" name="title_format" type="simple.Text"/>
         </xsd:all>
         <xsd:attribute name="display_mode" type="enums.TooltipDisplayMode" default="single"/>
-        <xsd:attribute name="position" type="enums.AnchorAndPosition" default="leftTop"/>
-        <xsd:attribute name="anchor" type="enums.AnchorAndPosition" default="leftTop"/>
+        <xsd:attribute name="position" type="enums.AnchorAndPosition" default="left-top"/>
+        <xsd:attribute name="anchor" type="enums.AnchorAndPosition" default="left-top"/>
         <xsd:attribute name="offset_x" type="xsd:double" default="0"/>
         <xsd:attribute name="offset_y" type="xsd:double" default="0"/>
         <xsd:attribute name="position_mode" type="enums.TooltipPositionMode" default="float"/>
@@ -1610,7 +1610,7 @@
         <xsd:attribute name="orientation" type="enums.Orientation"/>
         <xsd:attribute name="draw_first_label" type="simple.Bool" default="true"/>
         <xsd:attribute name="draw_last_label" type="simple.Bool" default="true"/>
-        <xsd:attribute name="overlap_mode" type="enums.LabelsOverlapMode" default="noOverlap"/>
+        <xsd:attribute name="overlap_mode" type="enums.LabelsOverlapMode" default="no-overlap"/>
         <xsd:attribute name="scale" type="simple.ScaleRef"/>
         <xsd:attributeGroup ref="attrs.VisualBase"/>
         <!-- Color range-->
@@ -1993,7 +1993,7 @@
             <xsd:element minOccurs="0" maxOccurs="1" name="ranges" type="OrdinalColorScaleRanges"/>
             <xsd:element minOccurs="0" maxOccurs="1" name="names" type="OrdinalScaleNames"/>
         </xsd:all>
-        <xsd:attribute name="type" type="enums.ScaleTypes" default="ordinalColor"/>
+        <xsd:attribute name="type" type="enums.ScaleTypes" default="ordinal-color"/>
         <xsd:attribute name="max_ticks_count" type="xsd:integer" default="1000"/>
         <xsd:attribute name="inverted" type="simple.Bool" default="false"/>
         <xsd:attribute name="names" type="xsd:string" default="name"/>
@@ -2015,7 +2015,7 @@
             <xsd:element minOccurs="0" maxOccurs="1" name="ranges" type="OrdinalColorScaleRanges"/>
             <xsd:element minOccurs="0" maxOccurs="1" name="names" type="OrdinalScaleNames"/>
         </xsd:all>
-        <xsd:attribute name="type" type="enums.ScaleTypes" default="ordinalColor"/>
+        <xsd:attribute name="type" type="enums.ScaleTypes" default="ordinal-color"/>
         <xsd:attribute name="inverted" type="simple.Bool" default="false"/>
         <xsd:attribute name="names" type="xsd:string" default="name"/>
     </xsd:complexType>
@@ -2082,7 +2082,7 @@
         <xsd:attribute name="soft_maximum" type="simple.DoubleOrNull" default="null"/>
         <xsd:attribute name="minimum_gap" type="xsd:double" default="0.1"/>
         <xsd:attribute name="maximum_gap" type="xsd:double" default="0.1"/>
-        <xsd:attribute name="type" type="enums.ScaleTypes" default="linearColor"/>
+        <xsd:attribute name="type" type="enums.ScaleTypes" default="linear-color"/>
         <xsd:attribute name="names" type="xsd:string" default="name"/>
     </xsd:complexType>
 
@@ -2491,7 +2491,7 @@
         <xsd:attribute name="min_height" type="simple.NumberOrPercentOrNull"/>
         <xsd:attribute name="max_height" type="simple.NumberOrPercentOrNull"/>
         <xsd:attribute name="thumbs" type="simple.BoolOrNull"/>
-        <xsd:attribute name="position" type="enums.ChartScrollerPosition" default="afterAxes"/>
+        <xsd:attribute name="position" type="enums.ChartScrollerPosition" default="after-axes"/>
     </xsd:complexType>
 
     <xsd:simpleType name="enums.ChartScrollerPosition">
