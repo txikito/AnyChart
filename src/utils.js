@@ -1493,7 +1493,7 @@ anychart.utils.isNullNodeAllowed = function(name) {
  * @return {string} The string in camelCase form.
  */
 anychart.utils.toCamelCase = function(str) {
-  return String(str).replace(/[-_]([a-z])/g, function(all, match) {
+  return String(str).replace(/[-_]([a-z|\d])/g, function(all, match) {
     return match.toUpperCase();
   });
 };
