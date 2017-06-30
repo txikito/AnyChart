@@ -1804,8 +1804,8 @@ anychart.core.Chart.prototype.getNormalizedType_ = function() {
     case 'gantt-resource':
     case 'gantt-project':
       return 'gantt';
-    case 'circular':
-    case 'linear':
+    case 'circular-gauge':
+    case 'linear-gauge':
     case 'thermometer':
     case 'tank':
     case 'led':

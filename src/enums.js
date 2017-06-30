@@ -72,8 +72,8 @@ anychart.enums.ChartTypes = {
  * @enum {string}
  */
 anychart.enums.GaugeTypes = {
-  CIRCULAR: 'circular',
-  LINEAR: 'linear',
+  CIRCULAR: 'circular-gauge',
+  LINEAR: 'linear-gauge',
   BULLET: 'bullet',
   THERMOMETER: 'thermometer',
   TANK: 'tank',
