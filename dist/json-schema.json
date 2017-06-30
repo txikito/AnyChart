@@ -2268,7 +2268,7 @@
         {"$ref": "#/definitions/anychart.core.Chart"}
       ],
       "properties": {
-        "type": {"enum": ["circular", "linear", "bullet", "thermometer", "tank", "led"]},
+        "type": {"enum": ["circular-gauge", "linear-gauge", "bullet", "thermometer", "tank", "led"]},
         "data": {"$ref": "#/definitions/data"},
         "defaultPointerType": {
           "type": "string"

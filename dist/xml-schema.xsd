@@ -3045,8 +3045,8 @@
 
     <xsd:simpleType name="enums.GaugeTypes">
         <xsd:restriction base="xsd:string">
-            <xsd:enumeration value="circular"/>
-            <xsd:enumeration value="linear"/>
+            <xsd:enumeration value="circular-gauge"/>
+            <xsd:enumeration value="linear-gauge"/>
             <xsd:enumeration value="bullet"/>
             <xsd:enumeration value="thermometer"/>
             <xsd:enumeration value="tank"/>
