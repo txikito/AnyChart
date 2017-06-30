@@ -1095,7 +1095,7 @@ anychart.utils.xml2json = function(xml) {
         } else if ((!goog.isNull(subnode) || anychart.utils.isNullNodeAllowed(subNodeName)) && !resultIsArray) {
           onlyText = false;
           var names;
-          name = anychart.utils.toCamelCase(subNodeName);
+          name = anychart.utils.toCamelCase(subNodeName, true);
           if (names = anychart.utils.getArrayPropName_(name)) {
             var element = subnode[names[1]];
             if (!goog.isArray(element)) {
@@ -1133,7 +1133,7 @@ anychart.utils.xml2json = function(xml) {
          */
         if (name == 'xmlns' || name == anychart.utils.ARRAY_IDENTIFIER_ATTR_NAME_) continue;
 
-        name = anychart.utils.toCamelCase(attr.nodeName);
+        name = anychart.utils.toCamelCase(attr.nodeName, true);
 
         if (!(name in result)) {
           val = attr.value;
@@ -1490,10 +1490,12 @@ anychart.utils.isNullNodeAllowed = function(name) {
  * "multi-part-string" or "multi_part_string" to "multiPartString"), useful for converting
  * CSS selectors and HTML dataset keys to their equivalent JS properties.
  * @param {string} str The string in selector-case form.
+ * @param {boolean=} opt_onlyUnderscores Remove only underscores. For xml attributes.
  * @return {string} The string in camelCase form.
  */
-anychart.utils.toCamelCase = function(str) {
-  return String(str).replace(/[-_]([a-z|\d])/g, function(all, match) {
+anychart.utils.toCamelCase = function(str, opt_onlyUnderscores) {
+  var pattern = opt_onlyUnderscores ? /[_]([a-z])/g : /[-_]([a-z|\d])/g;
+  return String(str).replace(pattern, function(all, match) {
     return match.toUpperCase();
   });
 };
