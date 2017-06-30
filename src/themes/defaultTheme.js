@@ -3649,10 +3649,9 @@ goog.provide('anychart.themes.defaultTheme');
         }
       }
     },
-    'thermometerGauge': {},
-    'tankGauge': {},
-    'ledGauge': {},
-    'bulletGauge': {},
+    'thermometer': {},
+    'tank': {},
+    'led': {},
 
     // merge with chart
     'heatMap': {

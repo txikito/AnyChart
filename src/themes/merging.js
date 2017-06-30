@@ -1377,10 +1377,9 @@ anychart.themes.merging.mergingMap_ = [
   {
     defaultObj: 'linearGauge',
     targets: [
-      'bulletGauge',
-      'thermometerGauge',
-      'tankGauge',
-      'ledGauge'
+      'thermometer',
+      'tank',
+      'led'
     ]
   },
   {
