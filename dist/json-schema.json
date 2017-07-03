@@ -2183,7 +2183,7 @@
         {"$ref": "#/definitions/anychart.core.Chart"}
       ],
       "properties": {
-        "type": {"enum": ["circular"]},
+        "type": {"enum": ["circular-gauge"]},
         "data": {"$ref": "#/definitions/data"},
         "stroke": {"$ref": "#/definitions/stroke"},
         "fill": {"$ref": "#/definitions/fill"},
@@ -2268,7 +2268,7 @@
         {"$ref": "#/definitions/anychart.core.Chart"}
       ],
       "properties": {
-        "type": {"enum": ["circular-gauge", "linear-gauge", "bullet", "thermometer", "tank", "led"]},
+        "type": {"enum": ["linear-gauge", "bullet", "thermometer", "tank", "led"]},
         "data": {"$ref": "#/definitions/data"},
         "defaultPointerType": {
           "type": "string"
