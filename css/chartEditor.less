@@ -101,31 +101,32 @@
 
 .step-prepare-data {
   .connect-data {
-    border-bottom: 1px solid silver;
     padding-bottom: 22px;
     margin-bottom: 10px;
 
     .buttons {
       width: 50%;
-      display: block;
       float: left;
 
       button {
         width: 50px;
         height: 60px;
+        margin-bottom: 1em;
       }
     }
     .uploaded {
       width: 50%;
       height: 60px;
-      display: inline-block;
-      //float: left;
+      float: left;
       background-color: #d3d3d3;
     }
   }
   .data-sets {
+    clear: both;
+    border-top: 1px solid silver;
     .data-set {
-      width: 300px;
+      max-width: 20%;
+      min-width: 200px;
       height: 250px;
       float: left;
       cursor: pointer;
