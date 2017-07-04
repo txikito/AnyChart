@@ -63,16 +63,18 @@ anychart.ui.chartEditor2.steps.PrepareData.prototype.createDom = function() {
       dom.createDom(goog.dom.TagName.H2, null, 'Connect your data'),
       buttonsBar,
       dom.createDom(goog.dom.TagName.DIV, 'uploaded', 'Uploaded data'));
-
-  this.contentEl_.append(this.connectDataEl_);
+  goog.dom.classlist.add(this.connectDataEl_, 'section');
+  element.append(this.connectDataEl_);
 
   var predefinedDataSelector = new anychart.ui.chartEditor2.PredefinedDataSelector();
   //predefinedDataSelector.setParentEventTarget(this);
-  predefinedDataSelector.render(this.contentEl_);
+  predefinedDataSelector.render(element);
+  goog.dom.classlist.add(predefinedDataSelector.getElement(), 'section');
 
   var geoDataSelector = new anychart.ui.chartEditor2.GeoDataSelector();
   //predefinedDataSelector.setParentEventTarget(this);
-  geoDataSelector.render(this.contentEl_);
+  geoDataSelector.render(element);
+  goog.dom.classlist.add(geoDataSelector.getElement(), 'section');
 };
 
 

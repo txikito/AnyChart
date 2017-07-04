@@ -119,15 +119,12 @@ anychart.ui.chartEditor2.steps.Base.prototype.createDom = function() {
   var className = anychart.ui.chartEditor2.steps.Base.CSS_CLASS;
   goog.dom.classlist.add(element, className);
 
-  this.contentEl_ = dom.createDom(goog.dom.TagName.DIV, goog.getCssName(className, 'content'));
-  element.appendChild(this.contentEl_);
+  var stepTitle = dom.createDom(goog.dom.TagName.H1, goog.getCssName('step-title'), this.name_);
+  this.element_.appendChild(stepTitle);
 
-  this.titleEl_ = dom.createDom(
-      goog.dom.TagName.H1,
-      goog.getCssName('step-title'),
-      this.name_);
+  // this.contentEl_ = dom.createDom(goog.dom.TagName.DIV, goog.getCssName(className, 'content'));
+  // element.appendChild(this.contentEl_);
 
-  this.contentEl_.appendChild(this.titleEl_);
 };
 
 
