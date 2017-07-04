@@ -1,9 +1,10 @@
 goog.provide('anychart.ui.chartEditor2.steps.PrepareData');
 
 goog.require('anychart.ui.chartEditor2.events');
+goog.require('anychart.ui.chartEditor2.PredefinedDataSelector');
+goog.require('anychart.ui.chartEditor2.GeoDataSelector');
 goog.require('anychart.ui.chartEditor2.steps.Base');
 goog.require('goog.dom.classlist');
-goog.require('goog.net.XhrIo');
 
 goog.forwardDeclare('anychart.data.Mapping');
 
@@ -20,14 +21,6 @@ anychart.ui.chartEditor2.steps.PrepareData = function(index, opt_domHelper) {
 
   this.name('Prepare Data');
   this.title('Prepare Data');
-
-  /**
-   * @type {?Object}
-   * @private
-   */
-  this.dataSetsIndexJson_ = null;
-
-  this.loadDataSetsIndexJson_();
 };
 goog.inherits(anychart.ui.chartEditor2.steps.PrepareData, anychart.ui.chartEditor2.steps.Base);
 
@@ -71,10 +64,15 @@ anychart.ui.chartEditor2.steps.PrepareData.prototype.createDom = function() {
       buttonsBar,
       dom.createDom(goog.dom.TagName.DIV, 'uploaded', 'Uploaded data'));
 
-  this.dataSetsEl_ = dom.createDom(goog.dom.TagName.DIV, 'data-sets',
-      dom.createDom(goog.dom.TagName.H2, null, 'Use one of our data sets'));
+  this.contentEl_.append(this.connectDataEl_);
 
-  this.contentEl_.append(this.connectDataEl_, this.dataSetsEl_);
+  var predefinedDataSelector = new anychart.ui.chartEditor2.PredefinedDataSelector();
+  //predefinedDataSelector.setParentEventTarget(this);
+  predefinedDataSelector.render(this.contentEl_);
+
+  var geoDataSelector = new anychart.ui.chartEditor2.GeoDataSelector();
+  //predefinedDataSelector.setParentEventTarget(this);
+  geoDataSelector.render(this.contentEl_);
 };
 
 
@@ -92,21 +90,9 @@ anychart.ui.chartEditor2.steps.PrepareData.prototype.enterDocument = function() 
 
 /** @inheritDoc */
 anychart.ui.chartEditor2.steps.PrepareData.prototype.update = function() {
-  //this.updateDataSets_();
+
 };
 
-anychart.ui.chartEditor2.steps.PrepareData.prototype.loadDataSetsIndexJson_ = function() {
-  if (!this.dataSetsIndexJson_) {
-    var self = this;
-    var indexUrl = 'https://cdn.anychart.com/anydata/common/index.json';
-    goog.net.XhrIo.send(indexUrl,
-        function(e) {
-          var xhr = e.target;
-          self.dataSetsIndexJson_ = xhr.getResponseJson();
-          self.showDataSets_();
-        });
-  }
-};
 
 anychart.ui.chartEditor2.steps.PrepareData.prototype.showDataSets_ = function() {
   for (var i = 0; i < this.dataSetsIndexJson_['sets'].length; i++) {
