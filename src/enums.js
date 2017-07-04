@@ -135,7 +135,7 @@ anychart.enums.normalize = function(enumObj, value, defValue) {
       var name = enumObj[i];
       var key = name.toLowerCase();
       n[key] = name;
-      n[key.replace('-', '')] = name;
+      n[key.replace(/-/g, '')] = name;
     }
     enumObj.__normalized = n;
   }
