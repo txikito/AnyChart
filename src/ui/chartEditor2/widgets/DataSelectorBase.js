@@ -49,20 +49,23 @@ anychart.ui.chartEditor2.DataSelectorBase.prototype.loadIndexJson_ = function() 
 anychart.ui.chartEditor2.DataSelectorBase.prototype.createDom = function() {
   anychart.ui.chartEditor2.DataSelectorBase.base(this, 'createDom');
 
-  var dom = this.getDomHelper();
-  this.element_.appendChild(dom.createDom(goog.dom.TagName.H2, null, this.title));
-
   goog.dom.classlist.add(this.element_, anychart.ui.chartEditor2.DataSelectorBase.CSS_CLASS);
   goog.dom.classlist.add(this.element_, this.className);
+
+  var dom = this.getDomHelper();
+  this.contentEl_ = dom.createDom(goog.dom.TagName.DIV, 'section-content');
+  this.contentEl_.appendChild(dom.createDom(goog.dom.TagName.H2, null, this.title));
+  this.element_.appendChild(this.contentEl_);
 
   this.loadIndexJson_();
 };
 
 
 anychart.ui.chartEditor2.DataSelectorBase.prototype.showDataSets = function() {
+  console.log();
   for (var i = 0; i < this.indexJson_['sets'].length; i++) {
     var dataSetJson = this.indexJson_['sets'][i];
-    this.element_.appendChild(this.createItem(dataSetJson));
+    this.contentEl_.appendChild(this.createItem(dataSetJson));
   }
 };
 
