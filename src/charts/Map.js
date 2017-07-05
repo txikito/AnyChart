@@ -240,7 +240,7 @@ anychart.charts.Map = function() {
    */
   this.callouts_ = [];
 
-  this.unboundRegions(true);
+  this.unboundRegions(anychart.enums.MapUnboundRegionsMode.AS_IS);
   this.setOption('defaultSeriesType', anychart.enums.MapSeriesType.CHOROPLETH);
 
   this.eventsHandler.listen(this, [goog.events.EventType.POINTERDOWN, acgraph.events.EventType.TOUCHSTART], this.tapHandler);
@@ -2037,7 +2037,7 @@ anychart.charts.Map.prototype.yScale = function() {return null};
 
 /**
  * Sets/gets settings for regions doesn't linked to anything regions.
- * @param {(Object|boolean)=} opt_value Settings object or boolean value like enabled state.
+ * @param {(Object|string)=} opt_value Settings object or boolean value like enabled state.
  * @return {anychart.core.utils.UnboundRegionsSettings|anychart.charts.Map}
  */
 anychart.charts.Map.prototype.unboundRegions = function(opt_value) {

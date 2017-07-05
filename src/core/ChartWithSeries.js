@@ -99,7 +99,7 @@ anychart.core.ChartWithSeries.prototype.SUPPORTED_CONSISTENCY_STATES =
  * @param {!Object} configs
  */
 anychart.core.ChartWithSeries.generateSeriesConstructors = function(chartConstructor, configs) {
-  var proto = chartConstructor.prototype;
+  var prototype = chartConstructor.prototype;
   var methodsGenerator = function(name) {
     return function(data, opt_csvSettings) {
       return this.createSeriesByType(
@@ -117,7 +117,7 @@ anychart.core.ChartWithSeries.generateSeriesConstructors = function(chartConstru
      * @return {anychart.core.series.Cartesian}
      * @this {anychart.core.ChartWithSeries}
      */
-    proto[methodName] = methodsGenerator(i);
+    prototype[methodName] = methodsGenerator(i);
   }
 };
 
