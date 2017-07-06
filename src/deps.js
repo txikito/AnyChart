@@ -43,7 +43,7 @@ goog.addDependency('../../../../src/charts/Venn.js', ['anychart.charts.Venn'], [
 goog.addDependency('../../../../src/charts/Waterfall.js', ['anychart.charts.Waterfall'], ['anychart.core.CartesianBase', 'anychart.core.series.Waterfall', 'anychart.core.settings', 'anychart.core.shapeManagers', 'anychart.enums'], false);
 goog.addDependency('../../../../src/color.js', ['anychart.color'], ['acgraph', 'goog.color', 'goog.math'], false);
 goog.addDependency('../../../../src/compatibility.js', ['anychart.compatibility'], ['goog.userAgent'], false);
-goog.addDependency('../../../../src/core/Base.js', ['anychart.SignalEvent', 'anychart.core.Base'], ['anychart', 'anychart.enums', 'goog.events.Event', 'goog.events.EventTarget'], false);
+goog.addDependency('../../../../src/core/Base.js', ['anychart.SignalEvent', 'anychart.core.Base'], ['anychart', 'anychart.core.settings.IObjectWithSettings', 'anychart.enums', 'goog.events.Event', 'goog.events.EventTarget'], false);
 goog.addDependency('../../../../src/core/BaseContext.js', ['anychart.core.BaseContext'], ['anychart.data.IRowInfo', 'anychart.data.ITreeDataInfo', 'anychart.enums'], false);
 goog.addDependency('../../../../src/core/BubblePoint.js', ['anychart.core.BubblePoint'], ['anychart.core.SeriesPoint'], false);
 goog.addDependency('../../../../src/core/CartesianBase.js', ['anychart.core.CartesianBase'], ['anychart', 'anychart.core.ChartWithAxes', 'anychart.core.series.Cartesian', 'anychart.core.settings', 'anychart.core.ui.ChartScroller', 'anychart.core.utils.IZoomableChart', 'anychart.core.utils.OrdinalZoom', 'anychart.enums'], false);
@@ -60,6 +60,7 @@ goog.addDependency('../../../../src/core/Point.js', ['anychart.core.Point'], [],
 goog.addDependency('../../../../src/core/RadarPolarChart.js', ['anychart.core.RadarPolarChart'], ['anychart.core.ChartWithOrthogonalScales', 'anychart.core.axes.Radial', 'anychart.core.reporting', 'anychart.core.settings', 'anychart.enums', 'anychart.palettes', 'anychart.scales'], false);
 goog.addDependency('../../../../src/core/SeparateChart.js', ['anychart.core.SeparateChart'], ['anychart.core.Chart', 'anychart.core.ui.Legend', 'anychart.enums'], false);
 goog.addDependency('../../../../src/core/SeriesPoint.js', ['anychart.core.SeriesPoint'], ['anychart.core.Point'], false);
+goog.addDependency('../../../../src/core/StateSettings.js', ['anychart.core.StateSettings'], ['anychart.core.Base', 'anychart.core.settings', 'anychart.core.settings.IObjectWithSettings'], false);
 goog.addDependency('../../../../src/core/TagCloudStateSettings.js', ['anychart.core.TagCloudStateSettings'], ['anychart.core.Base', 'anychart.core.settings'], false);
 goog.addDependency('../../../../src/core/Text.js', ['anychart.core.Text'], ['acgraph', 'anychart.core.VisualBase'], false);
 goog.addDependency('../../../../src/core/TreeMapPoint.js', ['anychart.core.TreeMapPoint'], ['anychart.core.Point'], false);
@@ -616,7 +617,7 @@ goog.addDependency('../../../graphicsjs/src/utils/exporting.js', ['acgraph.utils
 goog.addDependency('../../../graphicsjs/src/utils/utils.js', ['acgraph.utils'], ['goog.userAgent'], false);
 goog.addDependency('../../../graphicsjs/src/vector/Circle.js', ['acgraph.vector.Circle'], ['acgraph.utils.IdGenerator', 'acgraph.vector.Ellipse'], false);
 goog.addDependency('../../../graphicsjs/src/vector/Clip.js', ['acgraph.vector.Clip'], ['acgraph.vector.ILayer', 'goog.Disposable', 'goog.array', 'goog.math.Rect'], false);
-goog.addDependency('../../../graphicsjs/src/vector/Defs.js', ['acgraph.vector.Defs'], ['acgraph.vector.HatchFill', 'acgraph.vector.ILayer', 'acgraph.vector.LinearGradient', 'acgraph.vector.PatternFill', 'acgraph.vector.RadialGradient', 'goog.Disposable', 'goog.math.Rect'], false);
+goog.addDependency('../../../graphicsjs/src/vector/Defs.js', ['acgraph.vector.Defs'], ['acgraph.vector.HatchFill', 'acgraph.vector.LinearGradient', 'acgraph.vector.PatternFill', 'acgraph.vector.RadialGradient', 'goog.Disposable', 'goog.math.Rect'], false);
 goog.addDependency('../../../graphicsjs/src/vector/Element.js', ['acgraph.vector.Element', 'acgraph.vector.Element.DirtyState'], ['acgraph.error', 'acgraph.events', 'acgraph.events.Dragger', 'acgraph.utils.IdGenerator', 'acgraph.vector', 'goog.events.EventTarget', 'goog.events.Listenable', 'goog.math.AffineTransform', 'goog.math.Rect'], false);
 goog.addDependency('../../../graphicsjs/src/vector/Ellipse.js', ['acgraph.vector.Ellipse'], ['acgraph.utils.IdGenerator', 'acgraph.vector.Shape', 'goog.math.Coordinate', 'goog.math.Rect'], false);
 goog.addDependency('../../../graphicsjs/src/vector/HatchFill.js', ['acgraph.vector.HatchFill'], ['acgraph.utils.IdGenerator', 'acgraph.vector.Path', 'acgraph.vector.PatternFill', 'goog.math.Rect'], false);
