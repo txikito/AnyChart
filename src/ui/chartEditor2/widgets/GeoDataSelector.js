@@ -29,7 +29,14 @@ anychart.ui.chartEditor2.GeoDataSelector.prototype.createItem = function(itemJso
       goog.dom.TagName.DIV, 'data-set',
       dom.createDom(goog.dom.TagName.DIV, 'content',
           dom.createDom(goog.dom.TagName.IMG, {'src': imgUrl}),
-          dom.createDom(goog.dom.TagName.DIV, 'title', itemJson['name'])));
+          dom.createDom(goog.dom.TagName.DIV, 'title', itemJson['name']),
+          dom.createDom(goog.dom.TagName.DIV, 'buttons',
+              dom.createDom(goog.dom.TagName.A,
+                  {
+                    // 'href': itemJson['download'],
+                    'class': 'anychart-button anychart-button-success download'
+                  },
+                  'Download'))));
 
   item.setAttribute('data-set-id', itemJson['id']);
   
