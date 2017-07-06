@@ -29,7 +29,7 @@ anychart.ui.chartEditor2.PredefinedDataSelector.prototype.createItem = function(
       dom.createDom(goog.dom.TagName.DIV, 'content',
           dom.createDom(goog.dom.TagName.IMG, {'src': imgUrl}),
           dom.createDom(goog.dom.TagName.DIV, 'title', itemJson['name']),
-          dom.createTextNode(itemJson['description']),
+          // dom.createTextNode(itemJson['description']),
           dom.createDom(goog.dom.TagName.DIV, 'buttons',
               dom.createDom(goog.dom.TagName.A,
                   {

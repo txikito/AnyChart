@@ -153,11 +153,10 @@ anychart.ui.Editor2.prototype.onComplete_ = function() {
 
 /** @override */
 anychart.ui.Editor2.prototype.createDom = function() {
-  anychart.ui.Editor2.base(this, 'createDom');
+  if(!this.element_) anychart.ui.Editor2.base(this, 'createDom');
 
-  var element = this.getElement();
   var dom = this.getDomHelper();
-  goog.dom.classlist.add(element, anychart.ui.Editor2.CSS_CLASS);
+  goog.dom.classlist.add(this.element_, anychart.ui.Editor2.CSS_CLASS);
 
   // Create progress element
   this.breadcrumbsEl_ = dom.createDom(goog.dom.TagName.DIV, 'breadcrumbs');
@@ -173,7 +172,7 @@ anychart.ui.Editor2.prototype.createDom = function() {
   this.prevBtn_.setCaption('Previous');
   this.prevBtn_.render(this.progressEl_);
 
-  element.appendChild(this.progressEl_);
+  this.element_.appendChild(this.progressEl_);
 
   // Add steps
   this.steps_.push(new anychart.ui.chartEditor2.steps.PrepareData(0));
@@ -186,8 +185,9 @@ anychart.ui.Editor2.prototype.createDom = function() {
 
 /** @override */
 anychart.ui.Editor2.prototype.enterDocument = function() {
-  anychart.ui.Editor2.base(this, 'enterDocument');
+  if(!this.breadcrumbsEl_) this.createDom();
 
+  anychart.ui.Editor2.base(this, 'enterDocument');
   var handler = this.getHandler();
   handler.listen(this.breadcrumbsEl_, goog.events.EventType.CLICK, this.breadcrumbsClickHandler_);
   handler.listen(this.nextBtn_, goog.ui.Component.EventType.ACTION, this.nextBtnClickHandler_);

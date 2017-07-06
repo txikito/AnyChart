@@ -54,7 +54,9 @@ anychart.ui.chartEditor2.DataSelectorBase.prototype.createDom = function() {
 
   var dom = this.getDomHelper();
   this.contentEl_ = dom.createDom(goog.dom.TagName.DIV, 'inner',
-      dom.createDom(goog.dom.TagName.H2, null, this.title));
+      dom.createDom(goog.dom.TagName.DIV, 'top',
+          dom.createDom(goog.dom.TagName.H2, null, this.title),
+          dom.createDom(goog.dom.TagName.INPUT, {'class': 'filter', 'placeholder': 'Filter..'})));
   this.element_.appendChild(dom.createDom(goog.dom.TagName.DIV, 'section-content', this.contentEl_));
 
   this.loadIndexJson_();
