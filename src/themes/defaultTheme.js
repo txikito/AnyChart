@@ -2802,6 +2802,9 @@ goog.provide('anychart.themes.defaultTheme');
         'zIndex': 25,
         'fill': 'none',
         'labels': {
+          'position': 'byPath',
+          'vAlign': 'middle',
+          'hAlign': 'middle',
           'anchor': 'auto',
           'zIndex': 25
         },
@@ -4796,7 +4799,7 @@ goog.provide('anychart.themes.defaultTheme');
       'zoomMarqueeStroke': '#d3d3d3',
       'interactivity': {
         'zoomOnMouseWheel': false,
-        'scrollOnMouseWheel': true
+        'scrollOnMouseWheel': false
       }
     },
 
