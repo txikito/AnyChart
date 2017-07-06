@@ -1103,7 +1103,7 @@ goog.provide('anychart.themes.defaultTheme');
       'align': 'center',
       'labels': {
         'enabled': true,
-        'vAlign': 'center',
+        'vAlign': 'middle',
         'hAlign': 'center',
         'positionFormatter': returnValue,
         'adjustFontSize': false,
@@ -3770,7 +3770,7 @@ goog.provide('anychart.themes.defaultTheme');
         'minFontSize': 7,
         'maxFontSize': 13,
         'hAlign': 'center',
-        'vAlign': 'center',
+        'vAlign': 'middle',
         'fontWeight': 'normal',
         'fontColor': '#212121',
         'selectable': false,
@@ -3873,7 +3873,7 @@ goog.provide('anychart.themes.defaultTheme');
       'headers': {
         'enabled': true,
         'hAlign': 'center',
-        'vAlign': 'center',
+        'vAlign': 'middle',
         'position': 'left-top',
         'anchor': 'left-top',
         'background': {
@@ -3894,7 +3894,7 @@ goog.provide('anychart.themes.defaultTheme');
       'labels': {
         'enabled': true,
         'hAlign': 'center',
-        'vAlign': 'center',
+        'vAlign': 'middle',
         'position': 'left-top',
         'anchor': 'left-top',
         'fontColor': fontColorDark,
@@ -5136,7 +5136,7 @@ goog.provide('anychart.themes.defaultTheme');
           'enabled': false
         },
         'zIndex': 2,
-        'vAlign': 'center',
+        'vAlign': 'middle',
         'hAlign': 'center',
         'textOverflow': '',
         'fill': 'none',
