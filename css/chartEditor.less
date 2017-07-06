@@ -125,6 +125,29 @@
     .inner {
       padding: 60px 25px 15px;
     }
+    .top {
+      position: absolute;
+      z-index: 1;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 44px;
+      border-top: 1px solid @color-dark-gray;
+      border-bottom: 1px solid @color-gray;
+      background-color: @color-gray;
+      box-shadow: @shadow1;
+
+      * {
+        display: inline-block;
+      }
+      h2 {
+        margin-left: 25px;
+      }
+      input {
+        margin-left: 15px;
+        padding: 5px 10px;
+      }
+    }
   }
   .section-content {
     width: 100%;
@@ -136,42 +159,21 @@
 .data-selector {
   clear: both;
   height: 40% !important;
-  .top {
-    position: absolute;
-    z-index: 1;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 45px;
-    border-top: 1px solid @color-dark-gray;
-    border-bottom: 1px solid @color-gray;
-    padding-top: 5px;
-    background-color: @color-gray;
-    box-shadow: @shadow2;
 
-    * {
-      display: inline-block;
-    }
-    h2 {
-      margin-left: 25px;
-    }
-    input {
-      margin-left: 15px;
-      padding: 5px 10px;
-    }
-  }
   .data-set {
     width: 240px;
     height: 230px;
-    margin-bottom: 5px;
+    margin: 0 10px 15px 0;
     cursor: pointer;
     font-size: 12px;
     float: left;
     position: relative;
     z-index: 0;
+    border: 1px solid @color-gray;
 
     &:hover {
-      background-color: @color-white;
+      background-color: @color-gray;
+      border-color: @color-dark-gray;
     }
     .content {
       padding: 10px;
@@ -201,7 +203,7 @@
   .connect-data {
     height: 20%;
     .inner {
-      padding-top: 0;
+      padding-top: 64px;
     }
     .buttons {
       width: 50%;
@@ -227,10 +229,7 @@
     }
   }
   .predefined-data-selector {
-    //background-color: @color-gray;
-    //.top {
-    //  background-color: @color-gray;
-    //}
+
   }
   .geo-data-selector {
     .data-set {
@@ -238,9 +237,6 @@
       img {
         width: 170px;
         height: auto;
-      }
-      &:hover {
-        background-color: @color-gray;
       }
     }
   }
