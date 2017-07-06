@@ -53,20 +53,20 @@ anychart.ui.chartEditor2.DataSelectorBase.prototype.createDom = function() {
   goog.dom.classlist.add(this.element_, this.className);
 
   var dom = this.getDomHelper();
-  this.contentEl_ = dom.createDom(goog.dom.TagName.DIV, 'section-content');
-  this.contentEl_.appendChild(dom.createDom(goog.dom.TagName.H2, null, this.title));
-  this.element_.appendChild(this.contentEl_);
+  this.contentEl_ = dom.createDom(goog.dom.TagName.DIV, 'inner',
+      dom.createDom(goog.dom.TagName.H2, null, this.title));
+  this.element_.appendChild(dom.createDom(goog.dom.TagName.DIV, 'section-content', this.contentEl_));
 
   this.loadIndexJson_();
 };
 
 
 anychart.ui.chartEditor2.DataSelectorBase.prototype.showDataSets = function() {
-  console.log();
   for (var i = 0; i < this.indexJson_['sets'].length; i++) {
     var dataSetJson = this.indexJson_['sets'][i];
     this.contentEl_.appendChild(this.createItem(dataSetJson));
   }
+  this.contentEl_.appendChild(this.dom_.createDom(goog.dom.TagName.DIV, 'cb'));
 };
 
 

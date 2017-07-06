@@ -60,9 +60,13 @@ anychart.ui.chartEditor2.steps.PrepareData.prototype.createDom = function() {
   }
 
   this.connectDataEl_ = dom.createDom(goog.dom.TagName.DIV, 'connect-data',
-      dom.createDom(goog.dom.TagName.H2, null, 'Connect your data'),
-      buttonsBar,
-      dom.createDom(goog.dom.TagName.DIV, 'uploaded', 'Uploaded data'));
+      dom.createDom(goog.dom.TagName.DIV, 'section-content',
+          dom.createDom(goog.dom.TagName.DIV, 'inner',
+              dom.createDom(goog.dom.TagName.H2, null, 'Connect your data'),
+              buttonsBar,
+              dom.createDom(goog.dom.TagName.DIV, 'uploaded',
+                  dom.createDom(goog.dom.TagName.DIV, 'inner', 'Nothing uploaded yet...')),
+              dom.createDom(goog.dom.TagName.DIV, 'cb'))));
   goog.dom.classlist.add(this.connectDataEl_, 'section');
   element.append(this.connectDataEl_);
 
@@ -93,36 +97,4 @@ anychart.ui.chartEditor2.steps.PrepareData.prototype.enterDocument = function() 
 /** @inheritDoc */
 anychart.ui.chartEditor2.steps.PrepareData.prototype.update = function() {
 
-};
-
-
-anychart.ui.chartEditor2.steps.PrepareData.prototype.showDataSets_ = function() {
-  for (var i = 0; i < this.dataSetsIndexJson_['sets'].length; i++) {
-    var dataSetJson = this.dataSetsIndexJson_['sets'][i];
-    var imgUrl = dataSetJson['logo'].replace('./', 'https://cdn.anychart.com/anydata/common/');
-    var dom = this.getDomHelper();
-    var item = dom.createDom(
-        goog.dom.TagName.DIV, 'data-set',
-        dom.createDom(goog.dom.TagName.DIV, 'content',
-            dom.createDom(goog.dom.TagName.IMG, {'src': imgUrl}),
-            dom.createDom(goog.dom.TagName.DIV, 'title', dataSetJson['name']),
-            dom.createTextNode(dataSetJson['description']),
-            dom.createDom(goog.dom.TagName.DIV, 'buttons',
-                dom.createDom(goog.dom.TagName.A,
-                    {
-                      // 'href': dataSetJson['download'],
-                      'class': 'anychart-button anychart-button-success download'
-                    },
-                    'Download'),
-                dom.createDom(goog.dom.TagName.A,
-                    {
-                      'href': dataSetJson['sample'],
-                      'class': 'anychart-button anychart-button-primary sample',
-                      'target': 'blank_'
-                    },
-                    'View sample'))));
-
-    item.setAttribute('data-set-id', dataSetJson['id']);
-    this.dataSetsEl_.appendChild(item);
-  }
 };

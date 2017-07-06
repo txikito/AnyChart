@@ -16,7 +16,7 @@ anychart.ui.chartEditor2.GeoDataSelector = function() {
 
   this.title = 'Choose geo data';
 
-  this.className = 'predefined-data-selector';
+  this.className = 'geo-data-selector';
 };
 goog.inherits(anychart.ui.chartEditor2.GeoDataSelector, anychart.ui.chartEditor2.DataSelectorBase);
 
@@ -24,7 +24,6 @@ goog.inherits(anychart.ui.chartEditor2.GeoDataSelector, anychart.ui.chartEditor2
 anychart.ui.chartEditor2.GeoDataSelector.prototype.createItem = function(itemJson) {
   var basePath = 'https://cdn.anychart.com/geodata/1.2.0';
   var imgUrl = basePath + itemJson['logo'];
-  console.log(imgUrl);
   var dom = this.getDomHelper();
   var item = dom.createDom(
       goog.dom.TagName.DIV, 'data-set',
