@@ -3029,7 +3029,7 @@ goog.provide('anychart.themes.defaultTheme');
           },
           'maxLabels': {
             'position': 'center-top',
-            'anchor': 'top-center'
+            'anchor': 'center-top'
           },
           'color': '#64b5f6'
         },
