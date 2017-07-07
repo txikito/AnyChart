@@ -18,10 +18,10 @@ anychart.ui.chartEditor2.DataSelectorBase = function() {
   this.indexJsonUrl = '';
 
   /**
-   * @type {?Object}
+   * @type {Array}
    * @private
    */
-  this.indexJson_ = null;
+  this.dataIndex = [];
 
   this.searchFields = ['name', 'tags'];
 };
@@ -32,15 +32,29 @@ goog.inherits(anychart.ui.chartEditor2.DataSelectorBase, anychart.ui.Component);
 anychart.ui.chartEditor2.DataSelectorBase.CSS_CLASS = 'data-selector';
 
 /**
+ * @enum {string}
+ */
+anychart.ui.chartEditor2.DataSelectorBase.DatasetState = {
+  NOT_LOADED: 0,
+  PROCESSING: 1,
+  LOADED: 2
+};
+
+/**
  * @private
  */
-anychart.ui.chartEditor2.DataSelectorBase.prototype.loadIndexJson_ = function() {
-  if (!this.indexJson_) {
+anychart.ui.chartEditor2.DataSelectorBase.prototype.loadDataIndex_ = function() {
+  if (!this.dataIndex.length) {
     var self = this;
     goog.net.XhrIo.send(this.indexJsonUrl,
         function(e) {
           var xhr = e.target;
-          self.indexJson_ = xhr.getResponseJson();
+          var indexJson = xhr.getResponseJson();
+          if (indexJson['sets']) {
+            for (var i in indexJson['sets']) {
+              self.dataIndex[indexJson['sets'][i]['id']] = indexJson['sets'][i];
+            }
+          }
           self.showDataSets_();
         });
   }
@@ -61,7 +75,7 @@ anychart.ui.chartEditor2.DataSelectorBase.prototype.createDom = function() {
       dom.createDom(goog.dom.TagName.DIV, 'top', dom.createDom(goog.dom.TagName.H2, null, this.title), this.inputFilter_),
       this.contentEl_));
 
-  this.loadIndexJson_();
+  this.loadDataIndex_();
 };
 
 
@@ -75,8 +89,11 @@ anychart.ui.chartEditor2.DataSelectorBase.prototype.enterDocument = function() {
 anychart.ui.chartEditor2.DataSelectorBase.prototype.showDataSets_ = function(opt_ids) {
   goog.dom.removeChildren(this.contentEl_);
 
-  for (var i = 0; i < this.indexJson_['sets'].length; i++) {
-    var dataSetJson = this.indexJson_['sets'][i];
+  for (var i = 0; i < this.dataIndex.length; i++) {
+    var dataSetJson = this.dataIndex[i];
+    if (!goog.isDef(dataSetJson['state']))
+      dataSetJson['state'] = anychart.ui.chartEditor2.DataSelectorBase.DatasetState.NOT_LOADED;
+
     if (!goog.isArray(opt_ids) || opt_ids.indexOf(dataSetJson['id']) != -1)
       this.contentEl_.appendChild(this.createItem(dataSetJson));
   }
@@ -92,9 +109,9 @@ anychart.ui.chartEditor2.DataSelectorBase.prototype.createItem = function(itemJs
 anychart.ui.chartEditor2.DataSelectorBase.prototype.onFilterChange_ = function(evt) {
   var searchValue = String(evt.currentTarget.value).toLowerCase();
   var ids = [];
-  if (searchValue && this.indexJson_ && goog.isArray(this.indexJson_['sets'])) {
-    for (var i = 0; i < this.indexJson_['sets'].length; i++) {
-      var set = this.indexJson_['sets'][i];
+  if (searchValue && this.dataIndex.length) {
+    for (var i = 0; i < this.dataIndex.length; i++) {
+      var set = this.dataIndex[i];
       for (var j = 0; j < this.searchFields.length; j++) {
         var field = this.searchFields[j];
         if (set[field]) {
