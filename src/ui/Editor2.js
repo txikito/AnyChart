@@ -3,7 +3,6 @@ goog.provide('anychart.ui.Editor2.Dialog');
 
 goog.require('anychart.ui.Component');
 goog.require('anychart.ui.Preloader');
-// goog.require('anychart.ui.chartEditor.Controller');
 goog.require('anychart.ui.chartEditor2.events');
 goog.require('anychart.ui.chartEditor2.steps.PrepareData');
 goog.require('anychart.ui.chartEditor2.steps.SetupChart');

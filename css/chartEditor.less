@@ -200,45 +200,50 @@
     }
   }
 }
-.step-prepare-data {
-  .connect-data {
-    height: 20%;
-    .inner {
-      padding-top: 64px;
-    }
-    .buttons {
-      width: 50%;
-      float: left;
 
-      button {
-        width: 50px;
-        height: 60px;
-        margin-bottom: 1em;
-      }
-    }
-    .uploaded {
-      width: 49%;
+//.step-prepare-data {}
+
+.connect-data {
+  height: 20%;
+  .inner {
+    padding-top: 64px;
+  }
+  .buttons {
+    width: 50%;
+    float: left;
+
+    button {
+      width: 50px;
       height: 60px;
-      float: left;
-      background-color: @color-gray;
-      border: 1px dotted @color-dark-gray;
-      .b-radius-5;
-
-      .inner {
-        padding: 10px 15px;
-      }
+      margin-bottom: 1em;
+      background: #00ff00 url("https://cdn.anychart.com/anydata/editor/csv_s.png") no-repeat fixed center;
+    }
+    .upload-csv {
+      background-image: url('https://cdn.anychart.com/anydata/editor/csv_s.png');
     }
   }
-  .predefined-data-selector {
+  .uploaded {
+    width: 49%;
+    height: 60px;
+    float: left;
+    background-color: @color-gray;
+    border: 1px dotted @color-dark-gray;
+    .b-radius-5;
 
+    .inner {
+      padding: 10px 15px;
+    }
   }
-  .geo-data-selector {
-    .data-set {
-      height: 260px;
-      img {
-        width: 170px;
-        height: auto;
-      }
+}
+
+//.predefined-data-selector {}
+
+.geo-data-selector {
+  .data-set {
+    height: 260px;
+    img {
+      width: 170px;
+      height: auto;
     }
   }
 }

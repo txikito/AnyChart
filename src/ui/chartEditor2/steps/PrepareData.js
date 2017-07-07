@@ -57,6 +57,7 @@ anychart.ui.chartEditor2.steps.PrepareData.prototype.createDom = function() {
     button.setIcon(format);
     button.setValue(format);
     button.render(buttonsBar);
+    goog.dom.classlist.add(button.getElement(), 'upload-' + format);
   }
 
   this.connectDataEl_ = dom.createDom(goog.dom.TagName.DIV, 'connect-data',
