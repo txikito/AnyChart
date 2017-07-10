@@ -136,3 +136,51 @@ anychart.ui.chartEditor2.DataSelectorBase.prototype.onFilterChange_ = function(e
     this.showDataSets_();
   }
 };
+
+
+anychart.ui.chartEditor2.DataSelectorBase.prototype.onDownloadClick = function(evt) {
+  var setId = evt.currentTarget.getAttribute('data-set-id');
+  if (setId && this.dataIndex[setId]['state'] != anychart.ui.chartEditor2.DataSelectorBase.DatasetState.PROCESSING) {
+    console.log("process " + setId);
+    this.dataIndex[setId]['state'] = anychart.ui.chartEditor2.DataSelectorBase.DatasetState.PROCESSING;
+    var setEl = goog.dom.getAncestorByClass(evt.currentTarget, 'data-set');
+    //goog.dom.classlist.add(setEl, 'processing');
+
+    var preloader = this.preloaders[setId];
+    if (!preloader) {
+      preloader = this.preloaders[setId] = new anychart.ui.Preloader();
+      preloader.render(setEl);
+    }
+    preloader.visible(true);
+
+    var setUrl = this.getDataSetUrl(this.dataIndex[setId]['data']);
+    console.log(setUrl);
+    var self = this;
+    goog.net.XhrIo.send(setUrl,
+        function(e) {
+          var json = e.target.getResponseJson();
+          self.onLoadDataSetJson(json);
+
+          self.dataIndex[setId]['state'] = anychart.ui.chartEditor2.DataSelectorBase.DatasetState.LOADED;
+          preloader.visible(false);
+        });
+
+    /**
+     * todo:
+     * 5. Обработка ошибки
+     * 4. Хранение данных
+     * 4. выделять загруженный датасет
+     */
+
+  }
+};
+
+
+anychart.ui.chartEditor2.DataSelectorBase.prototype.getDataSetUrl = function(fileName) {
+  return fileName.replace('./', this.jsonUrl);
+};
+
+
+anychart.ui.chartEditor2.DataSelectorBase.prototype.onLoadDataSetJson = function(json) {
+  console.log(json);
+};
