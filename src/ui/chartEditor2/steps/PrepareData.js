@@ -81,6 +81,9 @@ anychart.ui.chartEditor2.steps.PrepareData.prototype.createDom = function() {
   //predefinedDataSelector.setParentEventTarget(this);
   geoDataSelector.render(element);
   goog.dom.classlist.add(geoDataSelector.getElement(), 'section');
+
+  predefinedDataSelector.setParentEventTarget(this);
+  geoDataSelector.setParentEventTarget(this);
 };
 
 

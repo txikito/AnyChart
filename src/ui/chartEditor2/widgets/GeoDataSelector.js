@@ -48,5 +48,8 @@ anychart.ui.chartEditor2.GeoDataSelector.prototype.getDataSetUrl = function(file
 
 
 anychart.ui.chartEditor2.GeoDataSelector.prototype.onLoadDataSetJson = function(json) {
-  console.log(json);
+  this.dispatchEvent({
+    type: anychart.ui.chartEditor2.events.EventType.ADD_GEO_DATA,
+    json: json
+  });
 };

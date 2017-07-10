@@ -3,6 +3,7 @@ goog.provide('anychart.ui.Editor2.Dialog');
 
 goog.require('anychart.ui.Component');
 goog.require('anychart.ui.Preloader');
+goog.require('anychart.ui.chartEditor2.DataModel');
 goog.require('anychart.ui.chartEditor2.events');
 goog.require('anychart.ui.chartEditor2.steps.PrepareData');
 goog.require('anychart.ui.chartEditor2.steps.SetupChart');
@@ -48,6 +49,8 @@ anychart.ui.Editor2 = function(opt_domHelper) {
    */
   this.steps_ = [];
   
+  this.dataModel_ = new anychart.ui.chartEditor2.DataModel();
+
   //this.editorModel_ = null;
 
   //this.controller_ = new anychart.ui.chartEditor.Controller(this);
@@ -68,6 +71,8 @@ anychart.ui.Editor2 = function(opt_domHelper) {
   //imageLoader.start();
 
   goog.events.listen(this, anychart.enums.EventType.COMPLETE, this.onComplete_, false, this);
+  this.listen(anychart.ui.chartEditor2.events.EventType.ADD_DATA_SET, this.onAddDataSet_);
+  this.listen(anychart.ui.chartEditor2.events.EventType.ADD_GEO_DATA, this.onAddGeoData_);
 };
 goog.inherits(anychart.ui.Editor2, anychart.ui.Component);
 
@@ -313,7 +318,7 @@ anychart.ui.Editor2.prototype.setCurrentStep_ = function(step, doAnimation) {
   }
 
   step.render(this.getContentElement());
-  step.setParentEventTarget(this);
+  //step.setParentEventTarget(this);
 
   var stepAnimation = new goog.fx.AnimationSerialQueue();
   stepAnimation.add(new goog.fx.dom.FadeIn(step.getElement(), 150));
@@ -417,6 +422,16 @@ anychart.ui.Editor2.prototype.update = function() {
   if (this.currentStep_) {
     this.currentStep_.update();
   }
+};
+
+
+anychart.ui.Editor2.prototype.onAddDataSet_ = function(evt) {
+  console.log("Add dataSet", evt['json']);
+};
+
+
+anychart.ui.Editor2.prototype.onAddGeoData_ = function(evt) {
+  console.log("Add geoData", evt['json']);
 };
 
 

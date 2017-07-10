@@ -51,6 +51,9 @@ anychart.ui.chartEditor2.PredefinedDataSelector.prototype.createItem = function(
 
 anychart.ui.chartEditor2.PredefinedDataSelector.prototype.onLoadDataSetJson = function(json) {
   if (json['data']) {
-    console.log(json['data']);
+    this.dispatchEvent({
+      type: anychart.ui.chartEditor2.events.EventType.ADD_DATA_SET,
+      json: json
+    });
   }
 };

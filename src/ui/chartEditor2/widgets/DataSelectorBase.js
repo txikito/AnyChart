@@ -152,27 +152,26 @@ anychart.ui.chartEditor2.DataSelectorBase.prototype.onDownloadClick = function(e
     }
     preloader.visible(true);
 
-    var setUrl = this.getDataSetUrl(this.dataIndex[setId]['data']) ;
+    var setUrl = this.getDataSetUrl(this.dataIndex[setId]['data']);
     var self = this;
     goog.net.XhrIo.send(setUrl,
         function(e) {
-          if(e.target.getStatus() == 200)
-          var json = e.target.getResponseJson();
-          console.log(json);
-          // self.onLoadDataSetJson(json);
-          //
-          // self.dataIndex[setId]['state'] = anychart.ui.chartEditor2.DataSelectorBase.DatasetState.LOADED;
-          // preloader.visible(false);
-        });
+          if(e.target.getStatus() == 200) {
+            var json = e.target.getResponseJson();
+            self.onLoadDataSetJson(json);
+            self.dataIndex[setId]['state'] = anychart.ui.chartEditor2.DataSelectorBase.DatasetState.LOADED;
+          } else {
+            self.dataIndex[setId]['state'] = anychart.ui.chartEditor2.DataSelectorBase.DatasetState.NOT_LOADED;
+          }
 
+          preloader.visible(false);
+        });
 
     /**
      * todo:
-     * 5. Обработка ошибки
      * 4. Хранение данных
      * 4. выделять загруженный датасет
      */
-
   }
 };
 
@@ -182,6 +181,4 @@ anychart.ui.chartEditor2.DataSelectorBase.prototype.getDataSetUrl = function(fil
 };
 
 
-anychart.ui.chartEditor2.DataSelectorBase.prototype.onLoadDataSetJson = function(json) {
-  console.log(json);
-};
+anychart.ui.chartEditor2.DataSelectorBase.prototype.onLoadDataSetJson = function(json) {};
