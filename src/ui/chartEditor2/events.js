@@ -4,8 +4,8 @@ goog.require('goog.events');
 
 /** @enum {string} */
 anychart.ui.chartEditor2.events.EventType = {
-  ADD_DATA_SET: goog.events.getUniqueId('add-data-set'),
-  ADD_GEO_DATA: goog.events.getUniqueId('add-geo-data')
+  ADD_DATA: goog.events.getUniqueId('add-data'),
+  REMOVE_DATA: goog.events.getUniqueId('remove-data'),
 
   // CHANGE_STEP: goog.events.getUniqueId('change-step'),
   // CLOSE: goog.events.getUniqueId('close'),

@@ -140,10 +140,9 @@ anychart.ui.chartEditor2.DataSelectorBase.prototype.onFilterChange_ = function(e
 
 anychart.ui.chartEditor2.DataSelectorBase.prototype.onDownloadClick = function(evt) {
   var setId = evt.currentTarget.getAttribute('data-set-id');
-  if (setId && this.dataIndex[setId]['state'] != anychart.ui.chartEditor2.DataSelectorBase.DatasetState.PROCESSING) {
+  if (setId && this.dataIndex[setId]['state'] != anychart.ui.chartEditor2.DataSelectorBase.DatasetState.LOADED) {
     this.dataIndex[setId]['state'] = anychart.ui.chartEditor2.DataSelectorBase.DatasetState.PROCESSING;
     var setEl = goog.dom.getAncestorByClass(evt.currentTarget, 'data-set');
-    //goog.dom.classlist.add(setEl, 'processing');
 
     var preloader = this.preloaders[setId];
     if (!preloader) {
@@ -158,7 +157,9 @@ anychart.ui.chartEditor2.DataSelectorBase.prototype.onDownloadClick = function(e
         function(e) {
           if(e.target.getStatus() == 200) {
             var json = e.target.getResponseJson();
-            self.onLoadDataSetJson(json);
+            self.onLoadData(json, setId);
+
+            goog.dom.classlist.add(setEl, 'loaded');
             self.dataIndex[setId]['state'] = anychart.ui.chartEditor2.DataSelectorBase.DatasetState.LOADED;
           } else {
             self.dataIndex[setId]['state'] = anychart.ui.chartEditor2.DataSelectorBase.DatasetState.NOT_LOADED;
@@ -169,9 +170,22 @@ anychart.ui.chartEditor2.DataSelectorBase.prototype.onDownloadClick = function(e
 
     /**
      * todo:
-     * 4. Хранение данных
-     * 4. выделять загруженный датасет
+     * Карточка загруженного датасета
+     * Удаление датасета из загрузки
      */
+  }
+};
+
+
+anychart.ui.chartEditor2.DataSelectorBase.prototype.onRemoveClick = function(evt) {
+  var setId = evt.currentTarget.getAttribute('data-set-id');
+  if (setId && this.dataIndex[setId]['state'] == anychart.ui.chartEditor2.DataSelectorBase.DatasetState.LOADED) {
+    // this.dataIndex[setId]['state'] = anychart.ui.chartEditor2.DataSelectorBase.DatasetState.PROCESSING;
+    var setEl = goog.dom.getAncestorByClass(evt.currentTarget, 'data-set');
+
+    goog.dom.classlist.remove(setEl, 'loaded');
+    this.dataIndex[setId]['state'] = anychart.ui.chartEditor2.DataSelectorBase.DatasetState.NOT_LOADED;
+    this.onRemoveData(setId);
   }
 };
 
@@ -181,4 +195,6 @@ anychart.ui.chartEditor2.DataSelectorBase.prototype.getDataSetUrl = function(fil
 };
 
 
-anychart.ui.chartEditor2.DataSelectorBase.prototype.onLoadDataSetJson = function(json) {};
+anychart.ui.chartEditor2.DataSelectorBase.prototype.onLoadData = function(json, setId) {};
+
+anychart.ui.chartEditor2.DataSelectorBase.prototype.onRemoveData = function(setId) {};

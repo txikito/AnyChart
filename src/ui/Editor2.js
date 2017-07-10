@@ -71,8 +71,8 @@ anychart.ui.Editor2 = function(opt_domHelper) {
   //imageLoader.start();
 
   goog.events.listen(this, anychart.enums.EventType.COMPLETE, this.onComplete_, false, this);
-  this.listen(anychart.ui.chartEditor2.events.EventType.ADD_DATA_SET, this.onAddDataSet_);
-  this.listen(anychart.ui.chartEditor2.events.EventType.ADD_GEO_DATA, this.onAddGeoData_);
+  this.listen(anychart.ui.chartEditor2.events.EventType.ADD_DATA, this.onAddData_);
+  this.listen(anychart.ui.chartEditor2.events.EventType.REMOVE_DATA, this.onRemoveData_);
 };
 goog.inherits(anychart.ui.Editor2, anychart.ui.Component);
 
@@ -425,13 +425,12 @@ anychart.ui.Editor2.prototype.update = function() {
 };
 
 
-anychart.ui.Editor2.prototype.onAddDataSet_ = function(evt) {
-  console.log("Add dataSet", evt['json']);
+anychart.ui.Editor2.prototype.onAddData_ = function(evt) {
+  this.dataModel_.addData(evt['setId'], evt['data'], evt['isGeo']);
 };
 
-
-anychart.ui.Editor2.prototype.onAddGeoData_ = function(evt) {
-  console.log("Add geoData", evt['json']);
+anychart.ui.Editor2.prototype.onRemoveData_ = function(evt) {
+  this.dataModel_.removeData(evt['setId'], evt['isGeo']);
 };
 
 

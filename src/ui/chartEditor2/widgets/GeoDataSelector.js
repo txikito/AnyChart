@@ -31,12 +31,16 @@ anychart.ui.chartEditor2.GeoDataSelector.prototype.createItem = function(itemJso
   downloadButton.setAttribute('data-set-id', itemJson['id']);
   this.getHandler().listen(downloadButton, goog.events.EventType.CLICK, this.onDownloadClick);
 
+  var removeButton = dom.createDom(goog.dom.TagName.A, {'class': 'anychart-button anychart-button-danger remove'}, 'Remove');
+  removeButton.setAttribute('data-set-id', itemJson['id']);
+  this.getHandler().listen(removeButton, goog.events.EventType.CLICK, this.onRemoveClick);
+
   var item = dom.createDom(
       goog.dom.TagName.DIV, 'data-set',
       dom.createDom(goog.dom.TagName.DIV, 'content',
           dom.createDom(goog.dom.TagName.IMG, {'src': imgUrl}),
           dom.createDom(goog.dom.TagName.DIV, 'title', itemJson['name']),
-          dom.createDom(goog.dom.TagName.DIV, 'buttons', downloadButton)));
+          dom.createDom(goog.dom.TagName.DIV, 'buttons', downloadButton, removeButton)));
   
   return item;
 };
@@ -47,9 +51,22 @@ anychart.ui.chartEditor2.GeoDataSelector.prototype.getDataSetUrl = function(file
 };
 
 
-anychart.ui.chartEditor2.GeoDataSelector.prototype.onLoadDataSetJson = function(json) {
+anychart.ui.chartEditor2.GeoDataSelector.prototype.onLoadData = function(json, setId) {
+  // anychart.ui.chartEditor2.GeoDataSelector.base(this, 'onLoadData', json, setId);
   this.dispatchEvent({
-    type: anychart.ui.chartEditor2.events.EventType.ADD_GEO_DATA,
-    json: json
+    type: anychart.ui.chartEditor2.events.EventType.ADD_DATA,
+    data: json,
+    setId: setId,
+    isGeo: true
+  });
+};
+
+
+anychart.ui.chartEditor2.GeoDataSelector.prototype.onRemoveData = function(setId) {
+  //anychart.ui.chartEditor2.PredefinedDataSelector.base(this, 'onRemoveData');
+  this.dispatchEvent({
+    type: anychart.ui.chartEditor2.events.EventType.REMOVE_DATA,
+    setId: setId,
+    isGeo: true
   });
 };

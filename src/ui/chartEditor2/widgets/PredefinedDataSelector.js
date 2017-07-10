@@ -29,6 +29,10 @@ anychart.ui.chartEditor2.PredefinedDataSelector.prototype.createItem = function(
   downloadButton.setAttribute('data-set-id', itemJson['id']);
   this.getHandler().listen(downloadButton, goog.events.EventType.CLICK, this.onDownloadClick);
 
+  var removeButton = dom.createDom(goog.dom.TagName.A, {'class': 'anychart-button anychart-button-danger remove'}, 'Remove');
+  removeButton.setAttribute('data-set-id', itemJson['id']);
+  this.getHandler().listen(removeButton, goog.events.EventType.CLICK, this.onRemoveClick);
+
   var item = dom.createDom(
       goog.dom.TagName.DIV, 'data-set',
       dom.createDom(goog.dom.TagName.DIV, 'content',
@@ -37,6 +41,7 @@ anychart.ui.chartEditor2.PredefinedDataSelector.prototype.createItem = function(
           // dom.createTextNode(itemJson['description']),
           dom.createDom(goog.dom.TagName.DIV, 'buttons',
               downloadButton,
+              removeButton,
               dom.createDom(goog.dom.TagName.A,
                   {
                     'href': itemJson['sample'],
@@ -49,11 +54,25 @@ anychart.ui.chartEditor2.PredefinedDataSelector.prototype.createItem = function(
 };
 
 
-anychart.ui.chartEditor2.PredefinedDataSelector.prototype.onLoadDataSetJson = function(json) {
+anychart.ui.chartEditor2.PredefinedDataSelector.prototype.onLoadData = function(json, setId) {
+  //anychart.ui.chartEditor2.PredefinedDataSelector.base(this, 'onLoadData', json, setId);
+
   if (json['data']) {
     this.dispatchEvent({
-      type: anychart.ui.chartEditor2.events.EventType.ADD_DATA_SET,
-      json: json
+      type: anychart.ui.chartEditor2.events.EventType.ADD_DATA,
+      data: json['data'],
+      setId: setId,
+      isGeo: false
     });
   }
+};
+
+
+anychart.ui.chartEditor2.PredefinedDataSelector.prototype.onRemoveData = function(setId) {
+  //anychart.ui.chartEditor2.PredefinedDataSelector.base(this, 'onRemoveData');
+  this.dispatchEvent({
+    type: anychart.ui.chartEditor2.events.EventType.REMOVE_DATA,
+    setId: setId,
+    isGeo: false
+  });
 };
