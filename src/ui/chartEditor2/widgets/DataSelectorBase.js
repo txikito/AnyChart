@@ -15,15 +15,17 @@ anychart.ui.chartEditor2.DataSelectorBase = function() {
 
   this.className = '';
 
-  this.indexJsonUrl = '';
+  this.jsonUrl = '';
 
   /**
    * @type {Array}
-   * @private
+   * @protected
    */
   this.dataIndex = [];
 
   this.searchFields = ['name', 'tags'];
+
+  this.preloaders = {};
 };
 goog.inherits(anychart.ui.chartEditor2.DataSelectorBase, anychart.ui.Component);
 
@@ -46,7 +48,7 @@ anychart.ui.chartEditor2.DataSelectorBase.DatasetState = {
 anychart.ui.chartEditor2.DataSelectorBase.prototype.loadDataIndex_ = function() {
   if (!this.dataIndex.length) {
     var self = this;
-    goog.net.XhrIo.send(this.indexJsonUrl,
+    goog.net.XhrIo.send(this.jsonUrl + 'index.json',
         function(e) {
           var xhr = e.target;
           var indexJson = xhr.getResponseJson();

@@ -12,7 +12,7 @@ goog.require('anychart.ui.Component');
 anychart.ui.chartEditor2.GeoDataSelector = function() {
   anychart.ui.chartEditor2.GeoDataSelector.base(this, 'constructor');
 
-  this.indexJsonUrl = 'https://cdn.anychart.com/anydata/geo/index.json';
+  this.jsonUrl = 'https://cdn.anychart.com/anydata/geo/';
 
   this.title = 'Choose geo data';
 

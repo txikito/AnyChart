@@ -329,7 +329,7 @@ anychart.ui.Editor = function(opt_domHelper) {
   this.registerDisposable(imageLoader);
   goog.events.listen(imageLoader, goog.net.EventType.COMPLETE, function() {
     this.imagesLoaded_ = true;
-    this.preloader_.visible(false);
+    //this.preloader_.visible(false);
   }, false, this);
 
   goog.array.forEach(this.sharedModel_.presetsList, function(category) {
