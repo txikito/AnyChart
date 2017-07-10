@@ -141,7 +141,6 @@ anychart.ui.chartEditor2.DataSelectorBase.prototype.onFilterChange_ = function(e
 anychart.ui.chartEditor2.DataSelectorBase.prototype.onDownloadClick = function(evt) {
   var setId = evt.currentTarget.getAttribute('data-set-id');
   if (setId && this.dataIndex[setId]['state'] != anychart.ui.chartEditor2.DataSelectorBase.DatasetState.PROCESSING) {
-    console.log("process " + setId);
     this.dataIndex[setId]['state'] = anychart.ui.chartEditor2.DataSelectorBase.DatasetState.PROCESSING;
     var setEl = goog.dom.getAncestorByClass(evt.currentTarget, 'data-set');
     //goog.dom.classlist.add(setEl, 'processing');
@@ -153,17 +152,19 @@ anychart.ui.chartEditor2.DataSelectorBase.prototype.onDownloadClick = function(e
     }
     preloader.visible(true);
 
-    var setUrl = this.getDataSetUrl(this.dataIndex[setId]['data']);
-    console.log(setUrl);
+    var setUrl = this.getDataSetUrl(this.dataIndex[setId]['data']) ;
     var self = this;
     goog.net.XhrIo.send(setUrl,
         function(e) {
+          if(e.target.getStatus() == 200)
           var json = e.target.getResponseJson();
-          self.onLoadDataSetJson(json);
-
-          self.dataIndex[setId]['state'] = anychart.ui.chartEditor2.DataSelectorBase.DatasetState.LOADED;
-          preloader.visible(false);
+          console.log(json);
+          // self.onLoadDataSetJson(json);
+          //
+          // self.dataIndex[setId]['state'] = anychart.ui.chartEditor2.DataSelectorBase.DatasetState.LOADED;
+          // preloader.visible(false);
         });
+
 
     /**
      * todo:
