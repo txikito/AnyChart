@@ -25,19 +25,6 @@ anychart.ui.chartEditor2.steps.PrepareData = function(index, opt_domHelper) {
 goog.inherits(anychart.ui.chartEditor2.steps.PrepareData, anychart.ui.chartEditor2.steps.Base);
 
 
-/**
- * CSS class name.
- * @type {string}
- */
-anychart.ui.chartEditor2.steps.PrepareData.CSS_CLASS = goog.getCssName('step-prepare-data');
-
-
-/**
- * DataSet index attribute.
- * @private
- */
-anychart.ui.chartEditor2.steps.PrepareData.DATA_SET_DATA_ATTRIBUTE_ = 'data-index';
-
 
 /** @override */
 anychart.ui.chartEditor2.steps.PrepareData.prototype.createDom = function() {
@@ -46,8 +33,7 @@ anychart.ui.chartEditor2.steps.PrepareData.prototype.createDom = function() {
   var element = /** @type {Element} */(this.getElement());
   var dom = this.getDomHelper();
 
-  var className = anychart.ui.chartEditor2.steps.PrepareData.CSS_CLASS;
-  goog.dom.classlist.add(element, className);
+  goog.dom.classlist.add(element, 'step-prepare-data');
 
   var uploadButtonsFormats = ['csv', 'xls', 'mysql', 'csv', 'xls', 'mysql'];
   var buttonsBar = dom.createDom(goog.dom.TagName.DIV, 'buttons');
@@ -88,18 +74,6 @@ anychart.ui.chartEditor2.steps.PrepareData.prototype.createDom = function() {
 
 
 /** @inheritDoc */
-anychart.ui.chartEditor2.steps.PrepareData.prototype.enterDocument = function() {
-  anychart.ui.chartEditor2.steps.PrepareData.base(this, 'enterDocument');
-
-  // this.getHandler().listen(this.dataPreviewContentEl_, goog.events.EventType.WHEEL, this.handleWheel);
-  //
-  // this.getHandler().listen(this.dataSetsEl_, goog.events.EventType.CLICK, this.dataSetsClickHandler_);
-
-  //console.log(this.dataSetsIndexJson_)
-};
-
-
-/** @inheritDoc */
-anychart.ui.chartEditor2.steps.PrepareData.prototype.update = function() {
-
-};
+// anychart.ui.chartEditor2.steps.PrepareData.prototype.enterDocument = function() {
+//   anychart.ui.chartEditor2.steps.PrepareData.base(this, 'enterDocument');
+// };

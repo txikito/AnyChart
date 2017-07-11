@@ -58,6 +58,11 @@ anychart.ui.chartEditor2.PredefinedDataSelector.prototype.createItem = function(
 };
 
 
+anychart.ui.chartEditor2.PredefinedDataSelector.prototype.getDataSetUrl = function(fileName) {
+  return fileName.replace('./', this.jsonUrl);
+};
+
+
 anychart.ui.chartEditor2.PredefinedDataSelector.prototype.onLoadData = function(json, setId) {
   //anychart.ui.chartEditor2.PredefinedDataSelector.base(this, 'onLoadData', json, setId);
 

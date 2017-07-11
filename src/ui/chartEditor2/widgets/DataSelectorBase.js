@@ -198,7 +198,7 @@ anychart.ui.chartEditor2.DataSelectorBase.prototype.onRemoveClick = function(evt
 
 
 anychart.ui.chartEditor2.DataSelectorBase.prototype.getDataSetUrl = function(fileName) {
-  return fileName.replace('./', this.jsonUrl);
+  return '';
 };
 
 

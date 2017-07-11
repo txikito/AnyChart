@@ -124,7 +124,6 @@ anychart.ui.chartEditor2.steps.Base.prototype.createDom = function() {
 
   // this.contentEl_ = dom.createDom(goog.dom.TagName.DIV, goog.getCssName(className, 'content'));
   // element.appendChild(this.contentEl_);
-
 };
 
 
