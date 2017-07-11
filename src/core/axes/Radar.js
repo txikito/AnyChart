@@ -27,7 +27,6 @@ anychart.core.axes.Radar = function() {
   this.labelsBounds_ = [];
   this.line_ = acgraph.path();
   this.bindHandlersToGraphics(this.line_);
-  this.registerDisposable(this.line_);
 
   /**
    * Constant to save space.
@@ -171,7 +170,6 @@ anychart.core.axes.Radar.prototype.labels = function(opt_value) {
     this.labels_ = new anychart.core.ui.LabelsFactory();
     this.labels_.setParentEventTarget(this);
     this.labels_.listenSignals(this.labelsInvalidated_, this);
-    this.registerDisposable(this.labels_);
   }
 
   if (goog.isDef(opt_value)) {
@@ -214,7 +212,6 @@ anychart.core.axes.Radar.prototype.ticks = function(opt_value) {
     this.ticks_ = new anychart.core.axes.RadialTicks();
     this.ticks_.setParentEventTarget(this);
     this.ticks_.listenSignals(this.ticksInvalidated_, this);
-    this.registerDisposable(this.ticks_);
   }
 
   if (goog.isDef(opt_value)) {
@@ -892,14 +889,10 @@ anychart.core.axes.Radar.prototype.disposeInternal = function() {
 
   this.title_ = null;
 
-  goog.dispose(this.line_);
-  this.line_ = null;
-
-  this.ticks_ = null;
+  goog.disposeAll(this.line_, this.ticks_, this.labels_);
+  this.line_ = this.ticks_ = this.labels_ = null;
 
   this.pixelBounds_ = null;
-
-  this.labels_ = null;
 };
 
 

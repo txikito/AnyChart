@@ -35,7 +35,6 @@ anychart.core.axes.RadialTicks = function() {
    */
   this.path_ = acgraph.path();
   this.bindHandlersToGraphics(this.path_);
-  this.registerDisposable(this.path_);
 };
 goog.inherits(anychart.core.axes.RadialTicks, anychart.core.VisualBase);
 
@@ -159,6 +158,14 @@ anychart.core.axes.RadialTicks.prototype.setupByJSON = function(config, opt_defa
   anychart.core.axes.RadialTicks.base(this, 'setupByJSON', config, opt_default);
   this.length(config['length']);
   this.stroke(config['stroke']);
+};
+
+
+/** @inheritDoc */
+anychart.core.axes.RadialTicks.prototype.disposeInternal = function() {
+  goog.dispose(this.path_);
+  delete this.path_;
+  anychart.core.axes.RadialTicks.base(this, 'disposeInternal');
 };
 
 

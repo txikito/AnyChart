@@ -301,7 +301,6 @@ anychart.charts.CircularGauge.prototype.data = function(opt_value, opt_csvSettin
       else
         this.parentView_ = (this.parentViewToDispose_ = new anychart.data.Set(
             (goog.isArray(opt_value) || goog.isString(opt_value)) ? opt_value : null, opt_csvSettings)).mapAs();
-      this.registerDisposable(this.parentViewToDispose_);
       this.data_ = this.parentView_;
       this.data_.listenSignals(this.dataInvalidated_, this);
 
@@ -378,7 +377,6 @@ anychart.charts.CircularGauge.prototype.cap = function(opt_value) {
   if (!this.cap_) {
     this.cap_ = new anychart.core.gauge.Cap();
     this.cap_.gauge(this);
-    this.registerDisposable(this.cap_);
     this.cap_.listenSignals(this.onCapSignal_, this);
     this.invalidate(anychart.ConsistencyState.GAUGE_CAP, anychart.Signal.NEEDS_REDRAW);
   }
@@ -437,7 +435,6 @@ anychart.charts.CircularGauge.prototype.range = function(opt_indexOrValue, opt_v
     circularRange.gauge(this);
     circularRange.axisIndex(0);
     circularRange.setup(this.defaultRangeSettings());
-    this.registerDisposable(circularRange);
     circularRange.listenSignals(this.onCircularRangeSignal_, this);
     this.invalidate(anychart.ConsistencyState.GAUGE_POINTERS |
         anychart.ConsistencyState.GAUGE_SCALE,
@@ -489,7 +486,6 @@ anychart.charts.CircularGauge.prototype.bar = function(opt_indexOrValue, opt_val
     bar.gauge(this);
     //TODO(AntonKagakin): may be we should create gauge pointers (not only bar, but knob, markers too) and colorize them with default palette?
     bar.setup(this.defaultPointerSettings()['bar']);
-    this.registerDisposable(bar);
     bar.listenSignals(this.onPointersSignal_, this);
     this.invalidate(anychart.ConsistencyState.GAUGE_POINTERS |
         anychart.ConsistencyState.GAUGE_SCALE,
@@ -530,7 +526,6 @@ anychart.charts.CircularGauge.prototype.marker = function(opt_indexOrValue, opt_
     marker.axisIndex(0);
     marker.gauge(this);
     marker.setup(this.defaultPointerSettings()['marker']);
-    this.registerDisposable(marker);
     marker.listenSignals(this.onPointersSignal_, this);
     this.invalidate(anychart.ConsistencyState.GAUGE_POINTERS |
         anychart.ConsistencyState.GAUGE_SCALE,
@@ -571,7 +566,6 @@ anychart.charts.CircularGauge.prototype.needle = function(opt_indexOrValue, opt_
     needle.axisIndex(0);
     needle.gauge(this);
     needle.setup(this.defaultPointerSettings()['needle']);
-    this.registerDisposable(needle);
     needle.listenSignals(this.onPointersSignal_, this);
     this.invalidate(anychart.ConsistencyState.GAUGE_POINTERS |
         anychart.ConsistencyState.GAUGE_SCALE,
@@ -612,7 +606,6 @@ anychart.charts.CircularGauge.prototype.knob = function(opt_indexOrValue, opt_va
     knob.axisIndex(0);
     knob.gauge(this);
     knob.setup(this.defaultPointerSettings()['knob']);
-    this.registerDisposable(knob);
     knob.listenSignals(this.onPointersSignal_, this);
     this.invalidate(anychart.ConsistencyState.GAUGE_POINTERS |
         anychart.ConsistencyState.GAUGE_SCALE,
@@ -685,7 +678,6 @@ anychart.charts.CircularGauge.prototype.axis = function(opt_indexOrValue, opt_va
     axis.setup(this.defaultAxisSettings());
     axis.gauge(this);
     this.axes_[index] = axis;
-    this.registerDisposable(axis);
     axis.listenSignals(this.onAxisSignal_, this);
     this.invalidate(anychart.ConsistencyState.GAUGE_AXES, anychart.Signal.NEEDS_REDRAW);
   }
@@ -1330,6 +1322,14 @@ anychart.charts.CircularGauge.prototype.serialize = function() {
 
 
   return {'gauge': json};
+};
+
+
+/** @inheritDoc */
+anychart.charts.CircularGauge.prototype.disposeInternal = function() {
+  goog.disposeAll(this.parentViewToDispose_, this.cap_, this.ranges_, this.bars_, this.markers_, this.needles_, this.knobs_, this.axes_);
+  this.ranges_.length = this.bars_.length = this.markers_.length = this.needles_.length = this.knobs_.length = this.axes_.length = 0;
+  anychart.charts.CircularGauge.base(this, 'disposeInternal');
 };
 
 

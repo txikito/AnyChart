@@ -237,7 +237,6 @@ anychart.charts.Bullet.prototype.axis = function(opt_value) {
   if (!this.axis_) {
     this.axis_ = new anychart.core.axes.Linear();
     this.axis_.setParentEventTarget(this);
-    this.registerDisposable(this.axis_);
     this.axis_.listenSignals(this.onAxisSignal_, this);
     this.invalidate(
         anychart.ConsistencyState.BULLET_AXES |
@@ -299,7 +298,6 @@ anychart.charts.Bullet.prototype.range = function(opt_indexOrValue, opt_value) {
     range = new anychart.core.axisMarkers.Range();
     range.setup(this.defaultRangeSettings());
     this.ranges_[index] = range;
-    this.registerDisposable(range);
     range.listenSignals(this.onRangeSignal_, this);
     this.invalidate(anychart.ConsistencyState.BULLET_AXES_MARKERS, anychart.Signal.NEEDS_REDRAW);
   }
@@ -333,7 +331,6 @@ anychart.charts.Bullet.prototype.rangePalette = function(opt_value) {
     this.rangePalette_ = new anychart.palettes.DistinctColors();
     this.rangePalette_.items(['#828282', '#a8a8a8', '#c2c2c2', '#d4d4d4', '#e1e1e1']);
     this.rangePalette_.listenSignals(this.onRangePaletteSignal_, this);
-    this.registerDisposable(this.rangePalette_);
   }
 
   if (goog.isDef(opt_value)) {
@@ -367,7 +364,6 @@ anychart.charts.Bullet.prototype.markerPalette = function(opt_value) {
     this.markerPalette_ = new anychart.palettes.Markers();
     this.markerPalette_.items(['bar', 'line', 'x', 'ellipse']);
     this.markerPalette_.listenSignals(this.onPaletteSignal_, this);
-    this.registerDisposable(this.markerPalette_);
   }
 
   if (goog.isDef(opt_value)) {
@@ -531,9 +527,7 @@ anychart.charts.Bullet.prototype.drawContent = function(bounds) {
  * @private
  */
 anychart.charts.Bullet.prototype.createMarkers_ = function() {
-  goog.array.forEach(this.markers_, function(marker) {
-    goog.dispose(marker);
-  });
+  goog.disposeAll(this.markers_);
   this.markers_.length = 0;
 
   var iterator = this.data_.getIterator().reset();
@@ -559,7 +553,6 @@ anychart.charts.Bullet.prototype.createMarker_ = function(iterator) {
   var marker = new anychart.core.bullet.Marker();
   marker.suspendSignalsDispatching();
   this.markers_[index] = marker;
-  this.registerDisposable(marker);
 
   //common
   marker.scale(/** @type {anychart.scales.Base} */(this.scale()));
@@ -756,6 +749,14 @@ anychart.charts.Bullet.prototype.setupByJSON = function(config, opt_default) {
   if (goog.isArray(ranges))
     for (var i = 0; i < ranges.length; i++)
       this.range(i, ranges[i]);
+};
+
+
+/** @inheritDoc */
+anychart.charts.Bullet.prototype.disposeInternal = function() {
+  goog.disposeAll(this.axis_, this.rangePalette_, this.markerPalette_, this.markers_, this.ranges_);
+  this.markers_.length = this.ranges_.length = 0;
+  anychart.charts.Bullet.base(this, 'disposeInternal');
 };
 
 

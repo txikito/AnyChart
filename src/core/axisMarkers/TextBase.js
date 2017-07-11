@@ -249,7 +249,6 @@ anychart.core.axisMarkers.TextBase.prototype.axis = function(opt_value) {
 anychart.core.axisMarkers.TextBase.prototype.axesLinesSpace = function(opt_spaceOrTopOrTopAndBottom, opt_rightOrRightAndLeft, opt_bottom, opt_left) {
   if (!this.axesLinesSpace_) {
     this.axesLinesSpace_ = new anychart.core.utils.Padding();
-    this.registerDisposable(this.axesLinesSpace_);
   }
 
   if (goog.isDef(opt_spaceOrTopOrTopAndBottom)) {
@@ -662,7 +661,6 @@ anychart.core.axisMarkers.TextBase.prototype.markerElement = function() {
   if (!this.markerElement_) {
     this.markerElement_ = acgraph.text();
     this.markerElement_.attr('aria-hidden', 'true');
-    this.registerDisposable(this.markerElement_);
   }
   return this.markerElement_;
 };
@@ -673,8 +671,8 @@ anychart.core.axisMarkers.TextBase.prototype.markerElement = function() {
 //----------------------------------------------------------------------------------------------------------------------
 /** @inheritDoc */
 anychart.core.axisMarkers.TextBase.prototype.disposeInternal = function() {
-  goog.dispose(this.markerElement_);
-  this.markerElement_ = null;
+  goog.disposeAll(this.axesLinesSpace_, this.markerElement_);
+  this.axesLinesSpace_ = this.markerElement_ = null;
   this.chart_ = null;
   this.axis_ = null;
   anychart.core.axisMarkers.TextBase.base(this, 'disposeInternal');

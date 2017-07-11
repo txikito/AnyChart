@@ -333,7 +333,6 @@ anychart.core.ChartWithAxes.prototype.grid = function(opt_indexOrValue, opt_valu
     grid.setDefaultLayout(this.isVerticalInternal ? anychart.enums.Layout.VERTICAL : anychart.enums.Layout.HORIZONTAL);
     grid.setup(this.defaultGridSettings());
     this.grids_[index] = grid;
-    this.registerDisposable(grid);
     grid.listenSignals(this.onGridSignal, this);
     this.invalidate(anychart.ConsistencyState.AXES_CHART_GRIDS | anychart.ConsistencyState.SCALE_CHART_SCALES_STATISTICS, anychart.Signal.NEEDS_REDRAW);
   }
@@ -370,7 +369,6 @@ anychart.core.ChartWithAxes.prototype.minorGrid = function(opt_indexOrValue, opt
     grid.setDefaultLayout(this.isVerticalInternal ? anychart.enums.Layout.VERTICAL : anychart.enums.Layout.HORIZONTAL);
     grid.setup(this.defaultMinorGridSettings());
     this.minorGrids_[index] = grid;
-    this.registerDisposable(grid);
     grid.listenSignals(this.onGridSignal, this);
     this.invalidate(anychart.ConsistencyState.AXES_CHART_GRIDS | anychart.ConsistencyState.SCALE_CHART_SCALES_STATISTICS, anychart.Signal.NEEDS_REDRAW);
   }
@@ -454,7 +452,6 @@ anychart.core.ChartWithAxes.prototype.xAxis = function(opt_indexOrValue, opt_val
     axis.setParentEventTarget(this);
     axis.setupInternal(true, this.defaultXAxisSettings());
     this.xAxes_[index] = axis;
-    this.registerDisposable(axis);
     axis.listenSignals(this.onAxisSignal_, this);
     this.invalidate(anychart.ConsistencyState.AXES_CHART_AXES | anychart.ConsistencyState.SCALE_CHART_SCALES_STATISTICS | anychart.ConsistencyState.BOUNDS, anychart.Signal.NEEDS_REDRAW);
   }
@@ -490,7 +487,6 @@ anychart.core.ChartWithAxes.prototype.yAxis = function(opt_indexOrValue, opt_val
     axis.setParentEventTarget(this);
     axis.setupInternal(true, this.defaultYAxisSettings());
     this.yAxes_[index] = axis;
-    this.registerDisposable(axis);
     axis.listenSignals(this.onAxisSignal_, this);
     this.invalidate(anychart.ConsistencyState.AXES_CHART_AXES | anychart.ConsistencyState.SCALE_CHART_SCALES_STATISTICS | anychart.ConsistencyState.BOUNDS, anychart.Signal.NEEDS_REDRAW);
   }
@@ -600,7 +596,6 @@ anychart.core.ChartWithAxes.prototype.lineMarker = function(opt_indexOrValue, op
     lineMarker.setup(this.defaultLineMarkerSettings());
     lineMarker.setDefaultLayout(this.isVerticalInternal ? anychart.enums.Layout.VERTICAL : anychart.enums.Layout.HORIZONTAL);
     this.lineAxesMarkers_[index] = lineMarker;
-    this.registerDisposable(lineMarker);
     lineMarker.listenSignals(this.onMarkersSignal, this);
     this.invalidate(anychart.ConsistencyState.AXES_CHART_AXES_MARKERS | anychart.ConsistencyState.SCALE_CHART_SCALES_STATISTICS, anychart.Signal.NEEDS_REDRAW);
   }
@@ -647,7 +642,6 @@ anychart.core.ChartWithAxes.prototype.rangeMarker = function(opt_indexOrValue, o
     rangeMarker.setup(this.defaultRangeMarkerSettings());
     rangeMarker.setDefaultLayout(this.isVerticalInternal ? anychart.enums.Layout.VERTICAL : anychart.enums.Layout.HORIZONTAL);
     this.rangeAxesMarkers_[index] = rangeMarker;
-    this.registerDisposable(rangeMarker);
     rangeMarker.listenSignals(this.onMarkersSignal, this);
     this.invalidate(anychart.ConsistencyState.AXES_CHART_AXES_MARKERS | anychart.ConsistencyState.SCALE_CHART_SCALES_STATISTICS, anychart.Signal.NEEDS_REDRAW);
   }
@@ -694,7 +688,6 @@ anychart.core.ChartWithAxes.prototype.textMarker = function(opt_indexOrValue, op
     textMarker.setup(this.defaultTextMarkerSettings());
     textMarker.setDefaultLayout(this.isVerticalInternal ? anychart.enums.Layout.VERTICAL : anychart.enums.Layout.HORIZONTAL);
     this.textAxesMarkers_[index] = textMarker;
-    this.registerDisposable(textMarker);
     textMarker.listenSignals(this.onMarkersSignal, this);
     this.invalidate(anychart.ConsistencyState.AXES_CHART_AXES_MARKERS | anychart.ConsistencyState.SCALE_CHART_SCALES_STATISTICS, anychart.Signal.NEEDS_REDRAW);
   }
@@ -803,7 +796,6 @@ anychart.core.ChartWithAxes.prototype.crosshair = function(opt_value) {
     this.crosshair_ = new anychart.core.ui.Crosshair();
     this.crosshair_.enabled(false);
     this.crosshair_.bindHandlers(this);
-    this.registerDisposable(this.crosshair_);
     this.crosshair_.listenSignals(this.onCrosshairSignal_, this);
     this.invalidate(anychart.ConsistencyState.AXES_CHART_CROSSHAIR, anychart.Signal.NEEDS_REDRAW);
   }
@@ -848,7 +840,6 @@ anychart.core.ChartWithAxes.prototype.annotations = function(opt_annotationsList
      */
     this.annotationsPlotController_ = new anychart.core.annotations.PlotController(this.annotationsChartController_, this);
     this.annotationsPlotController_.listenSignals(this.annotationsInvalidated_, this);
-    this.registerDisposable(this.annotationsPlotController_);
   }
   if (goog.isDef(opt_annotationsList)) {
     this.annotationsPlotController_.setup(opt_annotationsList);
@@ -1553,7 +1544,9 @@ anychart.core.ChartWithAxes.prototype.disposeInternal = function() {
       this.grids_,
       this.minorGrids_,
       this.quarterSettings_,
-      this.crossing_);
+      this.crossing_,
+      this.crosshair_,
+      this.annotationsPlotController_);
 
   delete this.xAxes_;
   delete this.yAxes_;
@@ -1564,6 +1557,8 @@ anychart.core.ChartWithAxes.prototype.disposeInternal = function() {
   this.minorGrids_ = null;
   this.quarterSettings_ = null;
   this.crossing_ = null;
+  this.crosshair_ = null;
+  this.annotationsPlotController_ = null;
 
   anychart.core.ChartWithAxes.base(this, 'disposeInternal');
 };

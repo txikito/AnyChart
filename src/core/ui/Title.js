@@ -430,7 +430,6 @@ anychart.core.ui.Title.prototype.parentInvalidated_ = function(e) {
 anychart.core.ui.Title.prototype.background = function(opt_value) {
   if (!this.background_) {
     this.background_ = new anychart.core.ui.Background();
-    this.registerDisposable(this.background_);
     this.background_.listenSignals(this.backgroundInvalidated_, this);
   }
 
@@ -479,7 +478,6 @@ anychart.core.ui.Title.prototype.setAutoHeight = function(height) {
 anychart.core.ui.Title.prototype.margin = function(opt_spaceOrTopOrTopAndBottom, opt_rightOrRightAndLeft, opt_bottom, opt_left) {
   if (!this.margin_) {
     this.margin_ = new anychart.core.utils.Margin();
-    this.registerDisposable(this.margin_);
     this.margin_.listenSignals(this.boundsInvalidated_, this);
   }
   if (goog.isDef(opt_spaceOrTopOrTopAndBottom)) {
@@ -501,7 +499,6 @@ anychart.core.ui.Title.prototype.margin = function(opt_spaceOrTopOrTopAndBottom,
 anychart.core.ui.Title.prototype.padding = function(opt_spaceOrTopOrTopAndBottom, opt_rightOrRightAndLeft, opt_bottom, opt_left) {
   if (!this.padding_) {
     this.padding_ = new anychart.core.utils.Padding();
-    this.registerDisposable(this.padding_);
     this.padding_.listenSignals(this.boundsInvalidated_, this);
   }
   if (goog.isDef(opt_spaceOrTopOrTopAndBottom)) {
@@ -630,7 +627,6 @@ anychart.core.ui.Title.prototype.initDom_ = function() {
     this.text_ = this.layer_.text();
     this.text_.zIndex(.1);
     this.text_.attr('aria-hidden', 'true');
-    this.registerDisposable(this.layer_);
     this.bindHandlersToGraphics(this.layer_);
   }
   return isInitial;
@@ -1187,6 +1183,14 @@ anychart.core.ui.Title.prototype.setupByJSON = function(config, opt_default) {
 
   if ('margin' in config)
     this.margin(config['margin']);
+};
+
+
+/** @inheritDoc */
+anychart.core.ui.Title.prototype.disposeInternal = function() {
+  goog.disposeAll(this.background_, this.margin_, this.padding_, this.layer_);
+  this.background_ = this.margin_ = this.padding_ = this.layer_ = null;
+  anychart.core.ui.Title.base(this, 'disposeInternal');
 };
 //endregion
 

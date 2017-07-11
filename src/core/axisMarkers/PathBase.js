@@ -240,7 +240,6 @@ anychart.core.axisMarkers.PathBase.prototype.axis = function(opt_value) {
 anychart.core.axisMarkers.PathBase.prototype.axesLinesSpace = function(opt_spaceOrTopOrTopAndBottom, opt_rightOrRightAndLeft, opt_bottom, opt_left) {
   if (!this.axesLinesSpace_) {
     this.axesLinesSpace_ = new anychart.core.utils.Padding();
-    this.registerDisposable(this.axesLinesSpace_);
   }
 
   if (goog.isDef(opt_spaceOrTopOrTopAndBottom)) {
@@ -451,7 +450,6 @@ anychart.core.axisMarkers.PathBase.prototype.remove = function() {
 anychart.core.axisMarkers.PathBase.prototype.markerElement = function() {
   if (!this.markerElement_) {
     this.markerElement_ = /** @type {!acgraph.vector.Path} */(acgraph.path());
-    this.registerDisposable(this.markerElement_);
   }
   return this.markerElement_;
 };
@@ -476,6 +474,8 @@ anychart.core.axisMarkers.PathBase.prototype.setupByJSON = function(config, opt_
 
 /** @inheritDoc */
 anychart.core.axisMarkers.PathBase.prototype.disposeInternal = function() {
+  goog.disposeAll(this.axesLinesSpace_, this.markerElement_);
+  this.axesLinesSpace_ = this.markerElement_ = null;
   this.axis_ = null;
   this.chart_ = null;
   anychart.core.axisMarkers.PathBase.base(this, 'disposeInternal');

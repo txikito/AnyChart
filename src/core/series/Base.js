@@ -1171,7 +1171,6 @@ anychart.core.series.Base.prototype.axesLinesSpace = function(opt_spaceOrTopOrTo
   if (!this.axesLinesSpace_) {
     this.axesLinesSpace_ = new anychart.core.utils.Padding();
     this.axesLinesSpace_.set(0);
-    this.registerDisposable(this.axesLinesSpace_);
   }
 
   if (goog.isDef(opt_spaceOrTopOrTopAndBottom)) {
@@ -2798,7 +2797,6 @@ anychart.core.series.Base.prototype.remove = function() {
 anychart.core.series.Base.prototype.a11y = function(opt_enabledOrJson) {
   if (!this.a11y_) {
     this.a11y_ = new anychart.core.utils.SeriesA11y(this);
-    this.registerDisposable(this.a11y_);
     this.a11y_.listenSignals(this.onA11ySignal_, this);
     if (this.chart instanceof anychart.core.Chart) {
       this.a11y_.parentA11y(/** @type {anychart.core.utils.A11y} */ (/** @type {anychart.core.Chart} */ (this.chart).a11y()));
@@ -4448,11 +4446,14 @@ anychart.core.series.Base.prototype.disposeInternal = function() {
       this.selectOutlierMarkers_,
       this.tooltipInternal,
       this.legendItem_,
-      this.error_
+      this.error_,
+      this.axesLinesSpace_,
+      this.a11y_
   );
   this.rootLayer = null;
   this.errorPaths_ = null;
   this.yScale_ = null;
+  this.axesLinesSpace_ = this.a11y_ = null;
   delete this.chart;
   delete this.plot;
   delete this.iterator;

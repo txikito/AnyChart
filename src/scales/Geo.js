@@ -534,7 +534,6 @@ anychart.scales.Geo.prototype.ticksInvalidated_ = function(event) {
  */
 anychart.scales.Geo.prototype.createTicks = function() {
   var ticks = new anychart.scales.GeoTicks(this);
-  this.registerDisposable(ticks);
   ticks.listenSignals(this.ticksInvalidated_, this);
   return ticks;
 };
@@ -1631,6 +1630,14 @@ anychart.scales.Geo.prototype.setupByJSON = function(config, opt_default) {
   this.yTicks(config['yTicks']);
   this.yMinorTicks(config['yMinorTicks']);
   this.maxTicksCount(config['maxTicksCount']);
+};
+
+
+/** @inheritDoc */
+anychart.scales.Geo.prototype.disposeInternal = function() {
+  goog.disposeAll(this.xTicks_, this.xMinorTicks_, this.yTicks_, this.yMinorTicks_);
+  this.xTicks_ = this.xMinorTicks_ = this.yTicks_ = this.yMinorTicks_ = null;
+  anychart.scales.Geo.base(this, 'disposeInternal');
 };
 
 

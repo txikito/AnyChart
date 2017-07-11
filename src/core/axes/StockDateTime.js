@@ -194,7 +194,6 @@ anychart.core.axes.StockDateTime.prototype.ticks = function(opt_value) {
     this.ticks_.enabled(false);
     this.ticks_.setParentEventTarget(this);
     this.ticks_.listenSignals(this.ticksInvalidated, this);
-    this.registerDisposable(this.ticks_);
   }
 
   if (goog.isDef(opt_value)) {
@@ -216,7 +215,6 @@ anychart.core.axes.StockDateTime.prototype.minorTicks = function(opt_value) {
     this.minorTicks_.enabled(false);
     this.minorTicks_.setParentEventTarget(this);
     this.minorTicks_.listenSignals(this.ticksInvalidated, this);
-    this.registerDisposable(this.minorTicks_);
   }
 
   if (goog.isDef(opt_value)) {
@@ -731,6 +729,9 @@ anychart.core.axes.StockDateTime.prototype.getLabelsFormatProvider_ = function(v
 
 /** @inheritDoc */
 anychart.core.axes.StockDateTime.prototype.disposeInternal = function() {
+  goog.disposeAll(this.ticks_, this.minorTicks_);
+  this.ticks_ = this.minorTicks_ = null;
+
   goog.dispose(this.labels_);
   this.labels_ = null;
 

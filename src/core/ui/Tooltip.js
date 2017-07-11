@@ -482,7 +482,6 @@ anychart.core.ui.Tooltip.prototype.padding = function(opt_spaceOrTopOrTopAndBott
   if (!this.padding_) {
     this.padding_ = new anychart.core.utils.Padding();
     this.padding_.listenSignals(this.onPaddingSignal_, this);
-    this.registerDisposable(this.padding_);
   }
 
   if (goog.isDef(opt_spaceOrTopOrTopAndBottom)) {
@@ -515,7 +514,6 @@ anychart.core.ui.Tooltip.prototype.background = function(opt_value) {
   if (!this.background_) {
     this.background_ = new anychart.core.ui.Background();
     this.background_.listenSignals(this.backgroundInvalidated_, this);
-    this.registerDisposable(this.background_);
   }
 
   if (goog.isDef(opt_value)) {
@@ -549,7 +547,6 @@ anychart.core.ui.Tooltip.prototype.title = function(opt_value) {
     this.title_ = new anychart.core.ui.Title();
     this.title_.listenSignals(this.onTitleSignal_, this);
     this.title_.setParentEventTarget(this);
-    this.registerDisposable(this.title_);
   }
 
   if (goog.isDef(opt_value)) {
@@ -585,7 +582,6 @@ anychart.core.ui.Tooltip.prototype.separator = function(opt_value) {
   if (!this.separator_) {
     this.separator_ = new anychart.core.ui.Separator();
     this.separator_.listenSignals(this.onSeparatorSignal_, this);
-    this.registerDisposable(this.separator_);
   }
 
   if (goog.isDef(opt_value)) {
@@ -1235,7 +1231,6 @@ anychart.core.ui.Tooltip.prototype.contentInternal = function(opt_value) {
     //TODO (A.Kudryavtsev): Dirty hack.
     //TODO (A.Kudryavtsev): Can't avoid it because width_ and height_ values are hardcoded in LabelsBase.
     this.content_.width('100%').height('100%');
-    this.registerDisposable(this.content_);
   }
 
   if (goog.isDef(opt_value)) {
@@ -1412,7 +1407,6 @@ anychart.core.ui.Tooltip.prototype.invalidate = function(state, opt_signal) {
 anychart.core.ui.Tooltip.prototype.getRootLayer_ = function() {
   if (!this.rootLayer_) {
     this.rootLayer_ = acgraph.layer();
-    this.registerDisposable(this.rootLayer_);
     this.bindHandlersToGraphics(this.rootLayer_);
 
     var background = /** @type {anychart.core.ui.Background} */(this.background());

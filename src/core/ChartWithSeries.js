@@ -650,7 +650,6 @@ anychart.core.ChartWithSeries.prototype.markerPalette = function(opt_value) {
   if (!this.markerPalette_) {
     this.markerPalette_ = new anychart.palettes.Markers();
     this.markerPalette_.listenSignals(this.markerPaletteInvalidated_, this);
-    this.registerDisposable(this.markerPalette_);
   }
 
   if (goog.isDef(opt_value)) {
@@ -673,7 +672,6 @@ anychart.core.ChartWithSeries.prototype.hatchFillPalette = function(opt_value) {
   if (!this.hatchFillPalette_) {
     this.hatchFillPalette_ = new anychart.palettes.HatchFills();
     this.hatchFillPalette_.listenSignals(this.hatchFillPaletteInvalidated_, this);
-    this.registerDisposable(this.hatchFillPalette_);
   }
 
   if (goog.isDef(opt_value)) {
@@ -702,7 +700,6 @@ anychart.core.ChartWithSeries.prototype.setupPalette_ = function(cls, opt_cloneF
     if (opt_cloneFrom)
       this.palette_.setup(opt_cloneFrom);
     this.palette_.listenSignals(this.paletteInvalidated_, this);
-    this.registerDisposable(this.palette_);
     if (doDispatch)
       this.invalidate(anychart.ConsistencyState.SERIES_CHART_PALETTE | anychart.ConsistencyState.CHART_LEGEND, anychart.Signal.NEEDS_REDRAW);
   }
@@ -1222,6 +1219,7 @@ anychart.core.ChartWithSeries.prototype.disposeInternal = function() {
   this.palette_ = this.markerPalette_ = this.hatchFillPalette_ = null;
 
   goog.disposeAll(this.labels_, this.hoverLabels_, this.selectLabels_);
+  this.labels_ = this.hoverLabels_ = this.selectLabels_ = null;
 
   anychart.core.ChartWithSeries.base(this, 'disposeInternal');
 };

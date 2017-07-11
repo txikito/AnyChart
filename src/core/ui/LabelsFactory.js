@@ -1188,16 +1188,18 @@ anychart.core.ui.LabelsFactory.prototype.disposeInternal = function() {
       this.labels_,
       this.freeToUseLabelsPool_,
       this.measureCustomLabel_,
+      this.measureTextElement_,
       this.layer_,
-      this.background_,
-      this.padding_);
+      this.ownSettings['background'],
+      this.ownSettings['padding']);
 
   this.labels_ = null;
   this.freeToUseLabelsPool_ = null;
   this.measureCustomLabel_ = null;
+  this.measureTextElement_ = null;
   this.layer_ = null;
-  this.background_ = null;
-  this.padding_ = null;
+  delete this.ownSettings['background'];
+  delete this.ownSettings['padding'];
 
   anychart.core.ui.LabelsFactory.base(this, 'disposeInternal');
 };
@@ -2741,10 +2743,15 @@ anychart.core.ui.LabelsFactory.Label.prototype.disposeInternal = function() {
       this.ownSettings['padding'],
       this.backgroundElement_,
       this.textElement,
+      this.fontSizeMeasureElement_,
+      this.connector,
       this.layer_);
 
   this.backgroundElement_ = null;
   this.textElement = null;
+  this.fontSizeMeasureElement_ = null;
+  this.connector = null;
+  this.layer_ = null;
   this.ownSettings['background'] = null;
   this.ownSettings['padding'] = null;
 

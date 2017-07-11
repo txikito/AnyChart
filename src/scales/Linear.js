@@ -175,7 +175,6 @@ anychart.scales.Linear.prototype.ticksInvalidated_ = function(event) {
  */
 anychart.scales.Linear.prototype.createTicks = function() {
   var ticks = new anychart.scales.ScatterTicks(this);
-  this.registerDisposable(ticks);
   ticks.listenSignals(this.ticksInvalidated_, this);
   return ticks;
 };
@@ -291,6 +290,13 @@ anychart.scales.Linear.prototype.setupByJSON = function(config, opt_default) {
   this.minorTicks(config['minorTicks']);
   this.stackMode(config['stackMode']);
   this.stickToZero(config['stickToZero']);
+};
+
+
+/** @inheritDoc */
+anychart.scales.Linear.prototype.disposeInternal = function() {
+  goog.disposeAll(this.ticksObj, this.minorTicksObj);
+  anychart.scales.Linear.base(this, 'disposeInternal');
 };
 
 

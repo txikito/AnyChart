@@ -51,7 +51,6 @@ anychart.core.axes.Ticks = function() {
    */
   this.path = acgraph.path();
   this.bindHandlersToGraphics(this.path);
-  this.registerDisposable(this.path);
 };
 goog.inherits(anychart.core.axes.Ticks, anychart.core.VisualBase);
 
@@ -369,6 +368,14 @@ anychart.core.axes.Ticks.prototype.setupByJSON = function(config, opt_default) {
   this.length(config['length']);
   this.stroke(config['stroke']);
   this.position(config['position']);
+};
+
+
+/** @inheritDoc */
+anychart.core.axes.Ticks.prototype.disposeInternal = function() {
+  goog.dispose(this.path);
+  delete this.path;
+  anychart.core.axes.Ticks.base(this, 'disposeInternal');
 };
 
 

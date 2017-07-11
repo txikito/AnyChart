@@ -138,7 +138,6 @@ anychart.core.RadarPolarChart.prototype.grid = function(opt_indexOrValue, opt_va
     grid.setDefaultLayout(anychart.enums.RadialGridLayout.RADIAL);
     grid.setup(this.defaultGridSettings());
     this.grids_[index] = grid;
-    this.registerDisposable(grid);
     grid.listenSignals(this.onGridSignal, this);
     this.invalidate(anychart.ConsistencyState.AXES_CHART_GRIDS, anychart.Signal.NEEDS_REDRAW);
   }
@@ -175,7 +174,6 @@ anychart.core.RadarPolarChart.prototype.minorGrid = function(opt_indexOrValue, o
     grid.setDefaultLayout(anychart.enums.RadialGridLayout.CIRCUIT);
     grid.setup(this.defaultMinorGridSettings());
     this.minorGrids_[index] = grid;
-    this.registerDisposable(grid);
     grid.listenSignals(this.onGridSignal, this);
     this.invalidate(anychart.ConsistencyState.AXES_CHART_GRIDS, anychart.Signal.NEEDS_REDRAW);
   }
@@ -250,7 +248,6 @@ anychart.core.RadarPolarChart.prototype.xAxis = function(opt_value) {
   if (!this.xAxis_) {
     this.xAxis_ = this.createXAxisInstance();
     this.xAxis_.setParentEventTarget(this);
-    this.registerDisposable(this.xAxis_);
     this.xAxis_.listenSignals(this.onAxisSignal_, this);
     this.invalidate(anychart.ConsistencyState.AXES_CHART_AXES | anychart.ConsistencyState.BOUNDS);
   }
@@ -273,7 +270,6 @@ anychart.core.RadarPolarChart.prototype.yAxis = function(opt_value) {
   if (!this.yAxis_) {
     this.yAxis_ = new anychart.core.axes.Radial();
     this.yAxis_.setParentEventTarget(this);
-    this.registerDisposable(this.yAxis_);
     this.yAxis_.listenSignals(this.onAxisSignal_, this);
     this.invalidate(anychart.ConsistencyState.AXES_CHART_AXES | anychart.ConsistencyState.BOUNDS);
   }
@@ -662,6 +658,16 @@ anychart.core.RadarPolarChart.prototype.serializeGrid_ = function(item, scales, 
     }
   }
   return config;
+};
+
+
+/** @inheritDoc */
+anychart.core.RadarPolarChart.prototype.disposeInternal = function() {
+  goog.disposeAll(this.grids_, this.minorGrids_, this.xAxis_, this.yAxis_);
+  this.grids_.length = 0;
+  this.minorGrids_.length = 0;
+  this.xAxis_ = this.yAxis_ = null;
+  anychart.core.RadarPolarChart.base(this, 'disposeInternal');
 };
 
 

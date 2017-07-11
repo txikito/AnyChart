@@ -261,7 +261,6 @@ anychart.core.sparkline.series.Base.prototype.startDrawing = function() {
 
   if (!this.rootLayer) {
     this.rootLayer = acgraph.layer();
-    this.registerDisposable(this.rootLayer);
   }
 
   this.checkDrawingNeeded();
@@ -499,3 +498,9 @@ anychart.core.sparkline.series.Base.prototype.getDefaults = function() {
   };
 };
 
+
+/** @inheritDoc */
+anychart.core.sparkline.series.Base.prototype.disposeInternal = function() {
+  goog.dispose(this.rootLayer);
+  this.rootLayer = null;
+};

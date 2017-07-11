@@ -201,7 +201,6 @@ anychart.core.axes.MapSettings.prototype.top = function(opt_value) {
     var zIndex = anychart.charts.Map.ZINDEX_AXIS + index * anychart.charts.Map.ZINDEX_INCREMENT_MULTIPLIER;
     this.topAxis_.setAutoZIndex(/** @type {number} */(zIndex));
     this.axes_[index] = this.topAxis_;
-    this.registerDisposable(this.topAxis_);
   }
 
   if (goog.isDef(opt_value)) {
@@ -227,7 +226,6 @@ anychart.core.axes.MapSettings.prototype.right = function(opt_value) {
     var zIndex = anychart.charts.Map.ZINDEX_AXIS + index * anychart.charts.Map.ZINDEX_INCREMENT_MULTIPLIER;
     this.rightAxis_.setAutoZIndex(/** @type {number} */(zIndex));
     this.axes_[index] = this.rightAxis_;
-    this.registerDisposable(this.rightAxis_);
   }
 
   if (goog.isDef(opt_value)) {
@@ -253,7 +251,6 @@ anychart.core.axes.MapSettings.prototype.bottom = function(opt_value) {
     var zIndex = anychart.charts.Map.ZINDEX_AXIS + index * anychart.charts.Map.ZINDEX_INCREMENT_MULTIPLIER;
     this.bottomAxis_.setAutoZIndex(/** @type {number} */(zIndex));
     this.axes_[index] = this.bottomAxis_;
-    this.registerDisposable(this.bottomAxis_);
   }
 
   if (goog.isDef(opt_value)) {
@@ -279,7 +276,6 @@ anychart.core.axes.MapSettings.prototype.left = function(opt_value) {
     var zIndex = anychart.charts.Map.ZINDEX_AXIS + index * anychart.charts.Map.ZINDEX_INCREMENT_MULTIPLIER;
     this.leftAxis_.setAutoZIndex(/** @type {number} */(zIndex));
     this.axes_[index] = this.leftAxis_;
-    this.registerDisposable(this.leftAxis_);
   }
 
   if (goog.isDef(opt_value)) {
@@ -302,7 +298,6 @@ anychart.core.axes.MapSettings.prototype.title = function(opt_value) {
     this.title_ = new anychart.core.ui.Title();
     this.title_.listenSignals(this.titleInvalidated_, this);
     this.title_.markConsistent(anychart.ConsistencyState.ALL);
-    this.registerDisposable(this.title_);
   }
 
   if (goog.isDef(opt_value)) {
@@ -334,7 +329,6 @@ anychart.core.axes.MapSettings.prototype.labels = function(opt_value) {
     this.labels_ = new anychart.core.ui.LabelsFactory();
     this.labels_.listenSignals(this.labelsInvalidated_, this);
     this.labels_.markConsistent(anychart.ConsistencyState.ALL);
-    this.registerDisposable(this.labels_);
   }
 
   if (goog.isDef(opt_value)) {
@@ -376,7 +370,6 @@ anychart.core.axes.MapSettings.prototype.minorLabels = function(opt_value) {
     this.minorLabels_ = new anychart.core.ui.LabelsFactory();
     this.minorLabels_.listenSignals(this.minorLabelsInvalidated_, this);
     this.minorLabels_.markConsistent(anychart.ConsistencyState.ALL);
-    this.registerDisposable(this.minorLabels_);
   }
 
   if (goog.isDef(opt_value)) {
@@ -416,7 +409,6 @@ anychart.core.axes.MapSettings.prototype.ticks = function(opt_value) {
   if (!this.ticks_) {
     this.ticks_ = new anychart.core.axes.MapTicks();
     this.ticks_.listenSignals(this.ticksInvalidated_, this);
-    this.registerDisposable(this.ticks_);
   }
 
   if (goog.isDef(opt_value)) {
@@ -436,7 +428,6 @@ anychart.core.axes.MapSettings.prototype.minorTicks = function(opt_value) {
   if (!this.minorTicks_) {
     this.minorTicks_ = new anychart.core.axes.MapTicks();
     this.minorTicks_.listenSignals(this.ticksInvalidated_, this);
-    this.registerDisposable(this.minorTicks_);
   }
 
   if (goog.isDef(opt_value)) {
@@ -550,6 +541,17 @@ anychart.core.axes.MapSettings.prototype.serialize = function() {
 
 /** @inheritDoc */
 anychart.core.axes.MapSettings.prototype.disposeInternal = function() {
+  goog.disposeAll(
+      this.axes_,
+      this.title_,
+      this.labels_,
+      this.minorLabels_,
+      this.ticks_,
+      this.minorTicks_);
+  this.axes_ = this.topAxis_ = this.rightAxis_ =
+      this.bottomAxis_ = this.leftAxis_ = this.title_ =
+      this.labels_ = this.minorLabels_ =
+      this.ticks_ = this.minorTicks_ = null;
   anychart.core.axes.MapSettings.base(this, 'disposeInternal');
 };
 

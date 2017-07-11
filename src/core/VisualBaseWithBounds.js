@@ -64,7 +64,6 @@ anychart.core.VisualBaseWithBounds.prototype.dependsOnContainerSize = function()
 anychart.core.VisualBaseWithBounds.prototype.bounds = function(opt_boundsOrX, opt_y, opt_width, opt_height) {
   if (!this.bounds_) {
     this.bounds_ = new anychart.core.utils.Bounds();
-    this.registerDisposable(this.bounds_);
     this.bounds_.listenSignals(this.boundsInvalidated_, this);
   }
   if (goog.isDef(opt_boundsOrX)) {

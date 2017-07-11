@@ -47,7 +47,6 @@ anychart.core.axes.MapTicks = function() {
   this.path = acgraph.path();
   this.path.disableStrokeScaling(true);
   this.bindHandlersToGraphics(this.path);
-  this.registerDisposable(this.path);
 
   anychart.core.settings.createDescriptorsMeta(this.descriptorsMeta, [
     ['stroke', anychart.ConsistencyState.ONLY_DISPATCHING, anychart.Signal.NEEDS_REDRAW],
@@ -503,6 +502,8 @@ anychart.core.axes.MapTicks.prototype.serialize = function() {
 
 /** @inheritDoc */
 anychart.core.axes.MapTicks.prototype.disposeInternal = function() {
+  goog.dispose(this.path);
+  delete this.path;
   anychart.core.axes.MapTicks.base(this, 'disposeInternal');
 };
 

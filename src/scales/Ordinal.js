@@ -104,7 +104,6 @@ anychart.scales.Ordinal.prototype.isMissing = function(value) {
 anychart.scales.Ordinal.prototype.ticks = function(opt_value) {
   if (!this.ticks_) {
     this.ticks_ = new anychart.scales.OrdinalTicks(this);
-    this.registerDisposable(this.ticks_);
     this.ticks_.listenSignals(this.ticksInvalidated_, this);
   }
   if (goog.isDef(opt_value)) {
@@ -536,6 +535,13 @@ anychart.scales.Ordinal.prototype.setupByJSON = function(config, opt_default) {
   this.ticks(config['ticks']);
   this.names(config['names']);
   this.weights(config['weights']);
+};
+
+
+/** @inheritDoc */
+anychart.scales.Ordinal.prototype.disposeInternal = function() {
+  goog.dispose(this.ticks_);
+  anychart.scales.Ordinal.base(this, 'disposeInternal');
 };
 
 

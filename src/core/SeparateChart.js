@@ -78,7 +78,6 @@ anychart.core.SeparateChart.prototype.getType = function() {
 anychart.core.SeparateChart.prototype.legend = function(opt_value) {
   if (!this.legend_) {
     this.legend_ = new anychart.core.ui.Legend();
-    this.registerDisposable(this.legend_);
     this.legend_.listenSignals(this.onLegendSignal_, this);
     this.legend_.setParentEventTarget(this);
   }
@@ -274,6 +273,14 @@ anychart.core.SeparateChart.prototype.setupByJSON = function(config, opt_default
   anychart.core.SeparateChart.base(this, 'setupByJSON', config, opt_default);
   this.legend(config['legend']);
   this.interactivity(config['interactivity']);
+};
+
+
+/** @inheritDoc */
+anychart.core.SeparateChart.prototype.disposeInternal = function() {
+  goog.dispose(this.legend_);
+  this.legend_ = null;
+  anychart.core.SeparateChart.base(this, 'disposeInternal');
 };
 
 

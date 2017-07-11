@@ -730,7 +730,6 @@ anychart.core.ui.MarkersFactory.prototype.draw = function() {
     this.layer_ = acgraph.layer();
     if (this.isInteractive)
       this.bindHandlersToGraphics(this.layer_);
-    this.registerDisposable(this.layer_);
   }
   this.layer_.disablePointerEvents(/** @type {boolean} */(this.disablePointerEvents()));
 
@@ -838,7 +837,7 @@ anychart.core.ui.MarkersFactory.prototype.disposeInternal = function() {
   this.markers_ = null;
   this.freeToUseMarkersPool_ = null;
 
-  goog.base(this, 'disposeInternal');
+  anychart.core.ui.MarkersFactory.base(this, 'disposeInternal');
 };
 
 

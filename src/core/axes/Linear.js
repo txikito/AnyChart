@@ -268,7 +268,6 @@ anychart.core.axes.Linear.prototype.title = function(opt_value) {
     this.title_ = new anychart.core.ui.Title();
     this.title_.setParentEventTarget(this);
     this.title_.listenSignals(this.titleInvalidated_, this);
-    this.registerDisposable(this.title_);
   }
 
   if (goog.isDef(opt_value)) {
@@ -308,7 +307,6 @@ anychart.core.axes.Linear.prototype.labels = function(opt_value) {
     this.labels_ = new anychart.core.ui.LabelsFactory();
     this.labels_.setParentEventTarget(this);
     this.labels_.listenSignals(this.labelsInvalidated_, this);
-    this.registerDisposable(this.labels_);
   }
 
   if (goog.isDef(opt_value)) {
@@ -355,7 +353,6 @@ anychart.core.axes.Linear.prototype.minorLabels = function(opt_value) {
     this.minorLabels_.setParentEventTarget(this);
     this.isHorizontal() ? this.minorLabels_['rotation'](0) : this.minorLabels_['rotation'](-90);
     this.minorLabels_.listenSignals(this.minorLabelsInvalidated_, this);
-    this.registerDisposable(this.minorLabels_);
   }
 
   if (goog.isDef(opt_value)) {
@@ -420,7 +417,6 @@ anychart.core.axes.Linear.prototype.ticks = function(opt_value) {
     this.ticks_ = this.createTicks();
     this.ticks_.setParentEventTarget(this);
     this.ticks_.listenSignals(this.ticksInvalidated, this);
-    this.registerDisposable(this.ticks_);
   }
 
   if (goog.isDef(opt_value)) {
@@ -441,7 +437,6 @@ anychart.core.axes.Linear.prototype.minorTicks = function(opt_value) {
     this.minorTicks_ = this.createTicks();
     this.minorTicks_.setParentEventTarget(this);
     this.minorTicks_.listenSignals(this.ticksInvalidated, this);
-    this.registerDisposable(this.minorTicks_);
   }
 
   if (goog.isDef(opt_value)) {
@@ -602,7 +597,6 @@ anychart.core.axes.Linear.prototype.width = function(opt_value) {
 anychart.core.axes.Linear.prototype.padding = function(opt_spaceOrTopOrTopAndBottom, opt_rightOrRightAndLeft, opt_bottom, opt_left) {
   if (!this.padding_) {
     this.padding_ = new anychart.core.utils.Padding();
-    this.registerDisposable(this.padding_);
     this.padding_.listenSignals(this.paddingInvalidated_, this);
   }
   if (goog.isDef(opt_spaceOrTopOrTopAndBottom)) {
@@ -2195,18 +2189,15 @@ anychart.core.axes.Linear.prototype.setupByJSON = function(config, opt_default) 
 
 /** @inheritDoc */
 anychart.core.axes.Linear.prototype.disposeInternal = function() {
-  anychart.core.axes.Linear.base(this, 'disposeInternal');
-
   if (this.internalScale)
     this.internalScale.unlistenSignals(this.scaleInvalidated_, this);
   delete this.internalScale;
   this.labelsBounds_ = null;
   this.minorLabelsBounds_ = null;
 
+  goog.disposeAll(this.padding_, this.line, this.labels_, this.minorLabels_, this.ticks_, this.minorTicks_, this.title_);
+
   this.title_ = null;
-
-  goog.disposeAll(this.padding_, this.line, this.labels_, this.minorLabels_);
-
   this.padding_ = null;
   this.line = null;
   this.ticks_ = null;
@@ -2214,6 +2205,8 @@ anychart.core.axes.Linear.prototype.disposeInternal = function() {
   this.pixelBounds = null;
   this.labels_ = null;
   this.minorLabels_ = null;
+
+  anychart.core.axes.Linear.base(this, 'disposeInternal');
 };
 
 

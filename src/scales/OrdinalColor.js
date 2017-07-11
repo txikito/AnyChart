@@ -385,7 +385,6 @@ anychart.scales.OrdinalColor.prototype.ticksInvalidated_ = function(event) {
  */
 anychart.scales.OrdinalColor.prototype.createTicks = function() {
   var ticks = new anychart.scales.OrdinalColorTicks(this);
-  this.registerDisposable(ticks);
   ticks.listenSignals(this.ticksInvalidated_, this);
   return ticks;
 };
@@ -661,6 +660,14 @@ anychart.scales.OrdinalColor.prototype.setupByJSON = function(config, opt_defaul
   this.colors(config['colors']);
   this.ranges(config['ranges']);
   this.names(config['names']);
+};
+
+
+/** @inheritDoc */
+anychart.scales.OrdinalColor.prototype.disposeInternal = function() {
+  goog.dispose(this.ticksObj);
+  this.ticksObj = null;
+  anychart.scales.OrdinalColor.base(this, 'disposeInternal');
 };
 
 

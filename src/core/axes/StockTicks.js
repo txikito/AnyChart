@@ -44,7 +44,6 @@ anychart.core.axes.StockTicks = function() {
    */
   this.path = acgraph.path();
   this.bindHandlersToGraphics(this.path);
-  this.registerDisposable(this.path);
 };
 goog.inherits(anychart.core.axes.StockTicks, anychart.core.VisualBase);
 
@@ -311,6 +310,14 @@ anychart.core.axes.StockTicks.prototype.serialize = function() {
 anychart.core.axes.StockTicks.prototype.setupByJSON = function(config, opt_default) {
   anychart.core.axes.StockTicks.base(this, 'setupByJSON', config, opt_default);
   this.stroke(config['stroke']);
+};
+
+
+/** @inheritDoc */
+anychart.core.axes.StockTicks.prototype.disposeInternal = function() {
+  goog.dispose(this.path);
+  delete this.path;
+  anychart.core.axes.StockTicks.base(this, 'disposeInternal');
 };
 
 
