@@ -4,6 +4,7 @@ goog.require('anychart.ui.Component');
 goog.require('goog.net.XhrIo');
 
 
+
 /**
  * @constructor
  * @extends {anychart.ui.Component}
@@ -30,9 +31,6 @@ anychart.ui.chartEditor2.DataSelectorBase = function() {
 goog.inherits(anychart.ui.chartEditor2.DataSelectorBase, anychart.ui.Component);
 
 
-/** @type {string} */
-anychart.ui.chartEditor2.DataSelectorBase.CSS_CLASS = 'data-selector';
-
 /**
  * @enum {string}
  */
@@ -41,6 +39,7 @@ anychart.ui.chartEditor2.DataSelectorBase.DatasetState = {
   PROCESSING: 1,
   LOADED: 2
 };
+
 
 /**
  * @private
@@ -67,7 +66,7 @@ anychart.ui.chartEditor2.DataSelectorBase.prototype.loadDataIndex_ = function() 
 anychart.ui.chartEditor2.DataSelectorBase.prototype.createDom = function() {
   anychart.ui.chartEditor2.DataSelectorBase.base(this, 'createDom');
 
-  goog.dom.classlist.add(this.element_, anychart.ui.chartEditor2.DataSelectorBase.CSS_CLASS);
+  goog.dom.classlist.add(this.element_, 'data-selector');
   goog.dom.classlist.add(this.element_, this.className);
 
   var dom = this.getDomHelper();
@@ -170,12 +169,6 @@ anychart.ui.chartEditor2.DataSelectorBase.prototype.onDownloadClick = function(e
 
           preloader.visible(false);
         });
-
-    /**
-     * todo:
-     * Карточка загруженного датасета
-     * Удаление датасета из загрузки
-     */
   }
 };
 
