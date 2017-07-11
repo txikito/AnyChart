@@ -71,10 +71,10 @@ anychart.ui.chartEditor2.DataSelectorBase.prototype.createDom = function() {
   goog.dom.classlist.add(this.element_, this.className);
 
   var dom = this.getDomHelper();
-  this.inputFilter_ = dom.createDom(goog.dom.TagName.INPUT, {'class': 'filter', 'placeholder': 'Filter..'});
+  this.filterInput_ = dom.createDom(goog.dom.TagName.INPUT, {'class': 'filter', 'placeholder': 'Filter..'});
   this.contentEl_ = dom.createDom(goog.dom.TagName.DIV, 'inner');
   this.element_.appendChild(dom.createDom(goog.dom.TagName.DIV, 'section-content',
-      dom.createDom(goog.dom.TagName.DIV, 'top', dom.createDom(goog.dom.TagName.H2, null, this.title), this.inputFilter_),
+      dom.createDom(goog.dom.TagName.DIV, 'top', dom.createDom(goog.dom.TagName.H2, null, this.title), this.filterInput_),
       this.contentEl_));
 
   this.loadDataIndex_();
@@ -84,7 +84,8 @@ anychart.ui.chartEditor2.DataSelectorBase.prototype.createDom = function() {
 anychart.ui.chartEditor2.DataSelectorBase.prototype.enterDocument = function() {
   anychart.ui.chartEditor2.DataSelectorBase.base(this, 'enterDocument');
 
-  this.getHandler().listen(this.inputFilter_, goog.events.EventType.INPUT, this.onFilterChange_);
+  this.getHandler().listen(this.filterInput_, goog.events.EventType.INPUT, this.onFilterChange_);
+  this.listen(anychart.ui.chartEditor2.events.EventType.UPDATE_FILTER, this.onFilterChange_, false, this);
 };
 
 
@@ -97,19 +98,20 @@ anychart.ui.chartEditor2.DataSelectorBase.prototype.showDataSets_ = function(opt
       dataSetJson['state'] = anychart.ui.chartEditor2.DataSelectorBase.DatasetState.NOT_LOADED;
 
     if (!goog.isArray(opt_ids) || opt_ids.indexOf(dataSetJson['id']) != -1)
-      this.contentEl_.appendChild(this.createItem(dataSetJson));
+      this.contentEl_.appendChild(this.createItem(dataSetJson, dataSetJson['state']));
   }
   this.contentEl_.appendChild(this.dom_.createDom(goog.dom.TagName.DIV, 'cb'));
 };
 
 
-anychart.ui.chartEditor2.DataSelectorBase.prototype.createItem = function(itemJson) {
+anychart.ui.chartEditor2.DataSelectorBase.prototype.createItem = function(itemJson, state) {
   return null;
 };
 
 
 anychart.ui.chartEditor2.DataSelectorBase.prototype.onFilterChange_ = function(evt) {
-  var searchValue = String(evt.currentTarget.value).toLowerCase();
+  var searchValue = goog.isDef(evt.currentTarget.value) ? evt.currentTarget.value : this.filterInput_.value;
+  searchValue = searchValue.toLowerCase();
   var ids = [];
   if (searchValue && this.dataIndex.length) {
     for (var i = 0; i < this.dataIndex.length; i++) {
@@ -118,7 +120,8 @@ anychart.ui.chartEditor2.DataSelectorBase.prototype.onFilterChange_ = function(e
         var field = this.searchFields[j];
         if (set[field]) {
           var fieldValue = set[field];
-          if (goog.isString(fieldValue) && fieldValue.toLowerCase().indexOf(searchValue) != -1) {
+          if (set['state'] == anychart.ui.chartEditor2.DataSelectorBase.DatasetState.LOADED ||
+              (goog.isString(fieldValue) && fieldValue.toLowerCase().indexOf(searchValue) != -1)) {
               ids.push(set['id']);
           } else if (goog.isArray(fieldValue)) {
             var result = fieldValue.filter(function(item) {
@@ -186,6 +189,10 @@ anychart.ui.chartEditor2.DataSelectorBase.prototype.onRemoveClick = function(evt
     goog.dom.classlist.remove(setEl, 'loaded');
     this.dataIndex[setId]['state'] = anychart.ui.chartEditor2.DataSelectorBase.DatasetState.NOT_LOADED;
     this.onRemoveData(setId);
+
+    this.dispatchEvent({
+      type: anychart.ui.chartEditor2.events.EventType.UPDATE_FILTER
+    });
   }
 };
 

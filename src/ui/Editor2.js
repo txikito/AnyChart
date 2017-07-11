@@ -386,36 +386,6 @@ anychart.ui.Editor2.prototype.nextBtnClickHandler_ = function() {
 
 
 /**
- * Set data.
- * @param {...Array} var_args Raw data set.
- */
-anychart.ui.Editor2.prototype.data = function(var_args) {
-  if (!goog.isDef(window['anychart']['data'])) return;
-  if (!arguments.length) return;
-  this.resetSharedModel_();
-
-  for (var i = 0; i < arguments.length; i++) {
-    var dataSet = arguments[i];
-    if (goog.isArrayLike(dataSet))
-      dataSet = window['anychart']['data']['set'](dataSet);
-
-    if (dataSet['mapAs']) {
-      this.sharedModel_.dataSets.push({
-        index: i,
-        name: 'Data Set ' + (i + 1),
-        instance: dataSet,
-        rawMappings: [],
-        mappings: []
-      });
-    }
-  }
-
-  this.setCurrentStepByIndex_(0, goog.isObject(this.currentStep_));
-  this.update();
-};
-
-
-/**
  * Update current step.
  */
 anychart.ui.Editor2.prototype.update = function() {
@@ -428,6 +398,7 @@ anychart.ui.Editor2.prototype.update = function() {
 anychart.ui.Editor2.prototype.onAddData_ = function(evt) {
   this.dataModel_.addData(evt['setId'], evt['data'], evt['isGeo']);
 };
+
 
 anychart.ui.Editor2.prototype.onRemoveData_ = function(evt) {
   this.dataModel_.removeData(evt['setId'], evt['isGeo']);

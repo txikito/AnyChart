@@ -23,7 +23,7 @@ anychart.ui.chartEditor2.GeoDataSelector = function() {
 goog.inherits(anychart.ui.chartEditor2.GeoDataSelector, anychart.ui.chartEditor2.DataSelectorBase);
 
 
-anychart.ui.chartEditor2.GeoDataSelector.prototype.createItem = function(itemJson) {
+anychart.ui.chartEditor2.GeoDataSelector.prototype.createItem = function(itemJson, state) {
   var imgUrl = this.baseUrl + itemJson['logo'];
   var dom = this.getDomHelper();
 
@@ -41,7 +41,11 @@ anychart.ui.chartEditor2.GeoDataSelector.prototype.createItem = function(itemJso
           dom.createDom(goog.dom.TagName.IMG, {'src': imgUrl}),
           dom.createDom(goog.dom.TagName.DIV, 'title', itemJson['name']),
           dom.createDom(goog.dom.TagName.DIV, 'buttons', downloadButton, removeButton)));
-  
+
+  if (state == anychart.ui.chartEditor2.DataSelectorBase.DatasetState.LOADED) {
+    goog.dom.classlist.add(item, 'loaded');
+  }
+
   return item;
 };
 

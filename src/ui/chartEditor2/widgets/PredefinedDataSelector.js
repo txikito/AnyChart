@@ -21,7 +21,7 @@ anychart.ui.chartEditor2.PredefinedDataSelector = function() {
 goog.inherits(anychart.ui.chartEditor2.PredefinedDataSelector, anychart.ui.chartEditor2.DataSelectorBase);
 
 
-anychart.ui.chartEditor2.PredefinedDataSelector.prototype.createItem = function(itemJson) {
+anychart.ui.chartEditor2.PredefinedDataSelector.prototype.createItem = function(itemJson, state) {
   var imgUrl = itemJson['logo'].replace('./', 'https://cdn.anychart.com/anydata/common/');
   var dom = this.getDomHelper();
 
@@ -49,7 +49,11 @@ anychart.ui.chartEditor2.PredefinedDataSelector.prototype.createItem = function(
                     'target': 'blank_'
                   },
                   'View sample'))));
-  
+
+  if (state == anychart.ui.chartEditor2.DataSelectorBase.DatasetState.LOADED) {
+    goog.dom.classlist.add(item, 'loaded');
+  }
+
   return item;
 };
 
