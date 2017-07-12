@@ -121,28 +121,19 @@ anychart.ui.chartEditor2.steps.Base.prototype.createDom = function() {
 
   var stepTitle = dom.createDom(goog.dom.TagName.H1, goog.getCssName('step-title'), this.name_);
   this.element_.appendChild(stepTitle);
-
-  // this.contentEl_ = dom.createDom(goog.dom.TagName.DIV, goog.getCssName(className, 'content'));
-  // element.appendChild(this.contentEl_);
 };
 
 
 /** @override */
 anychart.ui.chartEditor2.steps.Base.prototype.enterDocument = function() {
   anychart.ui.chartEditor2.steps.Base.base(this, 'enterDocument');
+
+  this.getHandler().listen(this.getParent(), anychart.ui.chartEditor2.events.EventType.CHANGE_STEP, this.onChangeStep);
+  // this.listen(anychart.ui.chartEditor2.events.EventType.CHANGE_STEP, this.onChangeStep, false, this);
 };
 
 
-/** @override */
-anychart.ui.chartEditor2.steps.Base.prototype.exitDocument = function() {
-  anychart.ui.chartEditor2.steps.Base.base(this, 'exitDocument');
-};
-
-
-/** @override */
-anychart.ui.chartEditor2.steps.Base.prototype.disposeInternal = function() {
-  anychart.ui.chartEditor2.steps.Base.base(this, 'disposeInternal');
-};
+anychart.ui.chartEditor2.steps.Base.prototype.onChangeStep = function(evt) {};
 
 
 /**
@@ -163,8 +154,3 @@ anychart.ui.chartEditor2.steps.Base.prototype.disposeInternal = function() {
     e.preventDefault();
   }
 };*/
-
-/**
- * Update step view.
- */
-anychart.ui.chartEditor2.steps.Base.prototype.update = function() {};

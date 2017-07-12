@@ -30,3 +30,8 @@ anychart.ui.chartEditor2.DataSetPanelList.prototype.enterDocument = function() {
   // this.getHandler().listen(this.filterInput_, goog.events.EventType.INPUT, this.onFilterChange_);
   // this.listen(anychart.ui.chartEditor2.events.EventType.UPDATE_FILTER, this.onFilterChange_, false, this);
 };
+
+
+anychart.ui.chartEditor2.DataSetPanelList.prototype.update = function(data) {
+  console.log(data);
+};

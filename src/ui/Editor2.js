@@ -303,15 +303,17 @@ anychart.ui.Editor2.prototype.removeStep_ = function(step) {
 anychart.ui.Editor2.prototype.setCurrentStep_ = function(step, doAnimation) {
   if (!this.isInDocument() || !step || step.isInDocument()) return;
 
+  var editor = this;
+  var animationSpeed = 150;
   if (this.currentStep_) {
     if (doAnimation) {
-      var currentAnimation = new goog.fx.AnimationSerialQueue();
-      currentAnimation.add(new goog.fx.dom.FadeOut(this.currentStep_.getElement(), 150));
-      currentAnimation.play();
+      var removeAnimation = new goog.fx.AnimationSerialQueue();
+      removeAnimation.add(new goog.fx.dom.FadeOut(this.currentStep_.getElement(), animationSpeed));
       goog.events.listenOnce(
-          currentAnimation,
+          removeAnimation,
           goog.fx.Transition.EventType.END,
           goog.bind(this.removeStep_, this, this.currentStep_));
+      removeAnimation.play();
     } else {
       this.removeStep_(this.currentStep_);
     }
@@ -320,9 +322,17 @@ anychart.ui.Editor2.prototype.setCurrentStep_ = function(step, doAnimation) {
   step.render(this.getContentElement());
   //step.setParentEventTarget(this);
 
-  var stepAnimation = new goog.fx.AnimationSerialQueue();
-  stepAnimation.add(new goog.fx.dom.FadeIn(step.getElement(), 150));
-  stepAnimation.play();
+  var appearAnimation = new goog.fx.AnimationSerialQueue();
+  appearAnimation.add(new goog.fx.dom.FadeIn(step.getElement(), animationSpeed));
+  goog.events.listenOnce(
+      appearAnimation,
+      goog.fx.Transition.EventType.END,
+      function() {
+        editor.dispatchEvent({
+          type: anychart.ui.chartEditor2.events.EventType.CHANGE_STEP
+        });
+      });
+  appearAnimation.play();
 
   this.currentStep_ = step;
 
@@ -385,13 +395,8 @@ anychart.ui.Editor2.prototype.nextBtnClickHandler_ = function() {
 };
 
 
-/**
- * Update current step.
- */
-anychart.ui.Editor2.prototype.update = function() {
-  if (this.currentStep_) {
-    this.currentStep_.update();
-  }
+anychart.ui.Editor2.prototype.getDataModel = function() {
+  return this.dataModel_;
 };
 
 
