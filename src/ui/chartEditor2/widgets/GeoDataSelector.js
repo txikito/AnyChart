@@ -61,7 +61,7 @@ anychart.ui.chartEditor2.GeoDataSelector.prototype.onLoadData = function(json, s
     type: anychart.ui.chartEditor2.events.EventType.ADD_DATA,
     data: json,
     setId: setId,
-    isGeo: true
+    dataType: anychart.ui.chartEditor2.DataModel.dataType.GEO
   });
 };
 
@@ -71,6 +71,6 @@ anychart.ui.chartEditor2.GeoDataSelector.prototype.onRemoveData = function(setId
   this.dispatchEvent({
     type: anychart.ui.chartEditor2.events.EventType.REMOVE_DATA,
     setId: setId,
-    isGeo: true
+    dataType: anychart.ui.chartEditor2.DataModel.dataType.GEO
   });
 };

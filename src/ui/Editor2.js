@@ -401,12 +401,12 @@ anychart.ui.Editor2.prototype.getDataModel = function() {
 
 
 anychart.ui.Editor2.prototype.onAddData_ = function(evt) {
-  this.dataModel_.addData(evt['setId'], evt['data'], evt['isGeo']);
+  this.dataModel_.addData(evt['setId'], evt['data'], evt['dataType']);
 };
 
 
 anychart.ui.Editor2.prototype.onRemoveData_ = function(evt) {
-  this.dataModel_.removeData(evt['setId'], evt['isGeo']);
+  this.dataModel_.removeData(evt['setId'], evt['dataType']);
 };
 
 
