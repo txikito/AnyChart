@@ -30,14 +30,14 @@ anychart.ui.chartEditor2.DataModel.prototype.addData = function(setId, data, dat
   if (!this.data_[id]) {
     this.data_[id] = {setId: setId, type: dataType, data: data};
   }
-  console.log(this.data_);
+  // console.log(this.data_);
 };
 
 
 anychart.ui.chartEditor2.DataModel.prototype.removeData = function(setId, dataType) {
   var id = this.dataId_(setId, dataType);
   delete this.data_[id];
-  console.log(this.data_);
+  // console.log(this.data_);
 };
 
 
@@ -54,6 +54,7 @@ anychart.ui.chartEditor2.DataModel.prototype.prepareData_ = function() {
   var geoSets = [];
 
   var dataSet;
+
   for (var i in this.data_) {
     if(this.data_.hasOwnProperty(i)) {
       dataSet = this.prepareDataSet_(this.data_[i]);
@@ -67,10 +68,13 @@ anychart.ui.chartEditor2.DataModel.prototype.prepareData_ = function() {
       }
 
       if (joined) {
+        dataSet['name'] = 'Joined set ' + (joinedSets.length + 1);
         joinedSets.push(dataSet);
       } else if (dataSet.type == anychart.ui.chartEditor2.DataModel.dataType.GEO) {
+        dataSet['name'] = 'Geo data ' + (geoSets.length + 1);
         geoSets.push(dataSet);
       } else {
+        dataSet['name'] = 'Data set ' + (singleSets.length + 1);
         singleSets.push(dataSet);
       }
     }
@@ -107,7 +111,7 @@ anychart.ui.chartEditor2.DataModel.prototype.prepareDataSet_ = function(dataSet)
   for (i in row) {
     field = {};
 
-    field['name'] = goog.isNumber(i) ? 'Field ' + i : i;
+    field['name'] = goog.isArray(row) ? 'Field ' + i : i;
     field['type'] = typeof(row[i]);
     fields.push(field);
   }

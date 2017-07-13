@@ -283,7 +283,7 @@ anychart.ui.Editor2.prototype.changeStep_ = function(stepIndex) {
 
 /**
  * Remove step from DOM.
- * @param {anychart.ui.chartEditor.steps.Base} step
+ * @param {anychart.ui.chartEditor2.steps.Base} step
  * @private
  */
 anychart.ui.Editor2.prototype.removeStep_ = function(step) {
@@ -306,7 +306,7 @@ anychart.ui.Editor2.prototype.setCurrentStep_ = function(step, doAnimation) {
   var editor = this;
   var animationSpeed = 150;
   if (this.currentStep_) {
-    if (doAnimation) {
+    if (false && doAnimation) {
       var removeAnimation = new goog.fx.AnimationSerialQueue();
       removeAnimation.add(new goog.fx.dom.FadeOut(this.currentStep_.getElement(), animationSpeed));
       goog.events.listenOnce(

@@ -32,12 +32,12 @@ anychart.ui.chartEditor2.steps.SetupChart.prototype.createDom = function() {
   anychart.ui.chartEditor2.steps.SetupChart.base(this, 'createDom');
 
   var element = /** @type {Element} */(this.getElement());
-  var dom = this.getDomHelper();
+//  var dom = this.getDomHelper();
 
   goog.dom.classlist.add(element, 'step-setup-chart');
 
   this.panelsList_ = new anychart.ui.chartEditor2.DataSetPanelList();
-  //predefinedDataSelector.setParentEventTarget(this);
+  this.addChild(this.panelsList_);
   this.panelsList_.render(element);
 };
 
@@ -48,5 +48,5 @@ anychart.ui.chartEditor2.steps.SetupChart.prototype.onChangeStep = function(evt)
   var dataModel = /** @type {anychart.ui.Editor2} */(this.getParent()).getDataModel();
   var data = dataModel.getPreparedData();
 
-  this.panelsList_.update(data);
+  this.panelsList_.updatePanels(data);
 };
