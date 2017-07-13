@@ -87,7 +87,7 @@ anychart.ui.chartEditor2.DataModel.prototype.prepareData_ = function() {
 
 
 anychart.ui.chartEditor2.DataModel.prototype.prepareDataSet_ = function(dataSet) {
-  var result = {type: dataSet['type']/*, data: dataSet['data']*/};
+  var result = {type: dataSet['type'], setId: dataSet['setId']/*, data: dataSet['data']*/};
 
   var row = dataSet['type'] == anychart.ui.chartEditor2.DataModel.dataType.GEO ?
       dataSet['data']['features'][0]['properties'] :
