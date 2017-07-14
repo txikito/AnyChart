@@ -1,8 +1,9 @@
 goog.provide('anychart.ui.chartEditor2.steps.PrepareData');
 
-goog.require('anychart.ui.chartEditor2.events');
-goog.require('anychart.ui.chartEditor2.PredefinedDataSelector');
+goog.require('anychart.ui.button.Base');
 goog.require('anychart.ui.chartEditor2.GeoDataSelector');
+goog.require('anychart.ui.chartEditor2.PredefinedDataSelector');
+goog.require('anychart.ui.chartEditor2.events');
 goog.require('anychart.ui.chartEditor2.steps.Base');
 goog.require('goog.dom.classlist');
 
@@ -56,7 +57,7 @@ anychart.ui.chartEditor2.steps.PrepareData.prototype.createDom = function() {
                   dom.createDom(goog.dom.TagName.DIV, 'inner', 'Nothing uploaded yet...')),
               dom.createDom(goog.dom.TagName.DIV, 'cb'))));
   goog.dom.classlist.add(this.connectDataEl_, 'section');
-  element.append(this.connectDataEl_);
+  element.appendChild(this.connectDataEl_);
 
   var predefinedDataSelector = new anychart.ui.chartEditor2.PredefinedDataSelector(this.getParent().getDataModel());
   this.addChild(predefinedDataSelector, true);

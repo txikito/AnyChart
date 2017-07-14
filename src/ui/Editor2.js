@@ -3,12 +3,12 @@ goog.provide('anychart.ui.Editor2.Dialog');
 
 goog.require('anychart.ui.Component');
 goog.require('anychart.ui.Preloader');
+goog.require('anychart.ui.button.Primary');
+goog.require('anychart.ui.button.Secondary');
 goog.require('anychart.ui.chartEditor2.DataModel');
 goog.require('anychart.ui.chartEditor2.events');
 goog.require('anychart.ui.chartEditor2.steps.PrepareData');
 goog.require('anychart.ui.chartEditor2.steps.SetupChart');
-goog.require('anychart.ui.button.Primary');
-goog.require('anychart.ui.button.Secondary');
 goog.require('goog.fx.AnimationSerialQueue');
 goog.require('goog.fx.Transition.EventType');
 goog.require('goog.fx.dom');
@@ -178,7 +178,7 @@ anychart.ui.Editor2.prototype.createDom = function() {
   this.prevBtn_.setCaption('Previous');
   this.prevBtn_.render(this.progressEl_);
 
-  this.element_.appendChild(this.progressEl_);
+  this.getElement().appendChild(this.progressEl_);
 
   // Add steps
   this.steps_.push(new anychart.ui.chartEditor2.steps.PrepareData(0));
@@ -222,7 +222,7 @@ anychart.ui.Editor2.prototype.updateProgress_ = function() {
     var progressContentEl = dom.createDom(goog.dom.TagName.DIV, 'item-content', step.name());
     goog.dom.setFocusableTabIndex(progressContentEl, true);
     goog.a11y.aria.setRole(progressContentEl, goog.a11y.aria.Role.LINK);
-    goog.a11y.aria.setLabel(progressContentEl, step.name());
+    goog.a11y.aria.setLabel(progressContentEl, /** @type {string} */(step.name()));
     progressContentEl.setAttribute('data-step-index', String(step.getIndex()));
 
     var progressArrowEl = null;
@@ -239,7 +239,7 @@ anychart.ui.Editor2.prototype.updateProgress_ = function() {
       goog.dom.classlist.add(itemEl, goog.getCssName('active'));
 
     } else if (step.getIndex() < this.currentStep_.getIndex()) {
-      goog.dom.classlist.add(itemEl, goog.getCssName('item', 'passed'));
+      goog.dom.classlist.add(itemEl, 'item-passed');
 
     }/* else if (step.getIndex() > this.sharedModel_.currentStep.index + 1 && !step.isVisited) {
       goog.dom.classlist.add(itemEl, goog.getCssName('disabled'));
@@ -305,10 +305,9 @@ anychart.ui.Editor2.prototype.removeStep_ = function(step) {
 anychart.ui.Editor2.prototype.setCurrentStep_ = function(step, doAnimation) {
   if (!this.isInDocument() || !step || step.isInDocument()) return;
 
-  var editor = this;
   var animationSpeed = 150;
   if (this.currentStep_) {
-    if (false && doAnimation) {
+    if (doAnimation) {
       var removeAnimation = new goog.fx.AnimationSerialQueue();
       removeAnimation.add(new goog.fx.dom.FadeOut(this.currentStep_.getElement(), animationSpeed));
       goog.events.listenOnce(
@@ -321,8 +320,7 @@ anychart.ui.Editor2.prototype.setCurrentStep_ = function(step, doAnimation) {
     }
   }
 
-  step.render(this.getContentElement());
-  //step.setParentEventTarget(this);
+  step.render(this.getElement());
 
   var appearAnimation = new goog.fx.AnimationSerialQueue();
   appearAnimation.add(new goog.fx.dom.FadeIn(step.getElement(), animationSpeed));

@@ -1,8 +1,9 @@
 goog.provide('anychart.ui.chartEditor2.DataSelectorBase');
 
 goog.require('anychart.ui.Component');
-goog.require('goog.net.XhrIo');
+goog.require('anychart.ui.Preloader');
 goog.require('goog.dom.forms');
+goog.require('goog.net.XhrIo');
 
 
 
@@ -37,7 +38,7 @@ goog.inherits(anychart.ui.chartEditor2.DataSelectorBase, anychart.ui.Component);
 
 
 /**
- * @enum {string}
+ * @enum {number}
  */
 anychart.ui.chartEditor2.DataSelectorBase.DatasetState = {
   NOT_LOADED: 0,
@@ -50,8 +51,8 @@ anychart.ui.chartEditor2.DataSelectorBase.DatasetState = {
 anychart.ui.chartEditor2.DataSelectorBase.prototype.createDom = function() {
   anychart.ui.chartEditor2.DataSelectorBase.base(this, 'createDom');
 
-  goog.dom.classlist.add(this.element_, 'data-selector');
-  goog.dom.classlist.add(this.element_, this.className);
+  goog.dom.classlist.add(this.getElement(), 'data-selector');
+  goog.dom.classlist.add(this.getElement(), this.className);
 
   var dom = this.getDomHelper();
   this.filterInput_ = dom.createDom(goog.dom.TagName.INPUT, {'class': 'filter', 'placeholder': 'Filter..'});
@@ -129,6 +130,10 @@ anychart.ui.chartEditor2.DataSelectorBase.prototype.updateDataIndex_ = function(
 };
 
 
+/**
+ * @param {Array=} opt_ids
+ * @private
+ */
 anychart.ui.chartEditor2.DataSelectorBase.prototype.showDataSets_ = function(opt_ids) {
   var createItems = !this.setsContainer_.hasChildNodes() && this.dataIndex.length;
   for (var i = 0; i < this.dataIndex.length; i++) {
@@ -145,7 +150,7 @@ anychart.ui.chartEditor2.DataSelectorBase.prototype.showDataSets_ = function(opt
       });
 
       if (dataSetJson['state'] != anychart.ui.chartEditor2.DataSelectorBase.DatasetState.LOADED)
-        goog.dom.classlist.remove(item, 'loaded');
+        goog.dom.classlist.remove(/** @type {Element} */(item), 'loaded');
     }
 
     if (!goog.isArray(opt_ids) || opt_ids.indexOf(dataSetJson['id']) != -1)
@@ -255,7 +260,6 @@ anychart.ui.chartEditor2.DataSelectorBase.prototype.onClickRemove_ = function(ev
 
 
 anychart.ui.chartEditor2.DataSelectorBase.prototype.onRemoveData_ = function(evt) {
-  console.log("on remove data");
   var setId = evt.setId;
   if (setId && this.dataIndex[setId]['state'] == anychart.ui.chartEditor2.DataSelectorBase.DatasetState.LOADED) {
     this.dataIndex[setId]['state'] = anychart.ui.chartEditor2.DataSelectorBase.DatasetState.NOT_LOADED;

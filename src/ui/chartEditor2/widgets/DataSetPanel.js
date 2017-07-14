@@ -4,6 +4,7 @@ goog.require('anychart.ui.Component');
 goog.require('goog.ui.Menu');
 goog.require('goog.ui.MenuButton');
 goog.require('goog.ui.MenuItem');
+goog.require('goog.ui.MenuSeparator');
 
 
 /**
@@ -63,11 +64,11 @@ anychart.ui.chartEditor2.DataSetPanel.prototype.createDom = function() {
   if (goog.isArray(this.data_['fields'])) {
     for (var i = 0; i < this.data_['fields'].length; i++) {
       fields.push(dom.createDom(goog.dom.TagName.DIV,
-          {class: 'field', draggable: 'true'}, this.data_['fields'][i]['name']))
+          {'class': 'field', 'draggable': 'true'}, this.data_['fields'][i]['name']))
     }
   }
 
-  element.append(dom.createDom(goog.dom.TagName.DIV, 'inner',
+  element.appendChild(dom.createDom(goog.dom.TagName.DIV, 'inner',
       dom.createDom(goog.dom.TagName.H4, null, this.data_['name']),
       fields));
 };

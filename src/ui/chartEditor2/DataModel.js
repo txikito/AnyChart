@@ -1,7 +1,8 @@
 goog.provide('anychart.ui.chartEditor2.DataModel');
 
-goog.require('goog.format.JsonPrettyPrinter');
 goog.require('goog.events.EventTarget');
+goog.require('goog.format.JsonPrettyPrinter');
+
 
 
 /**

@@ -1,9 +1,8 @@
 goog.provide('anychart.ui.chartEditor2.steps.SetupChart');
 
+goog.require('anychart.ui.chartEditor2.DataSetPanelList');
 goog.require('anychart.ui.chartEditor2.events');
 goog.require('anychart.ui.chartEditor2.steps.Base');
-goog.require('anychart.ui.chartEditor2.DataSetPanelList');
-
 goog.require('goog.dom.classlist');
 goog.require('goog.format.JsonPrettyPrinter');
 

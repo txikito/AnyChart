@@ -1,7 +1,7 @@
 goog.provide('anychart.ui.chartEditor2.PredefinedDataSelector');
 
-goog.require('anychart.ui.chartEditor2.DataSelectorBase');
 goog.require('anychart.ui.Component');
+goog.require('anychart.ui.chartEditor2.DataSelectorBase');
 
 
 
