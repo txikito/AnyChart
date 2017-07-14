@@ -48,7 +48,7 @@ anychart.ui.Editor2 = function(opt_domHelper) {
    * @private
    */
   this.steps_ = [];
-  
+
   this.dataModel_ = new anychart.ui.chartEditor2.DataModel();
 
   //this.editorModel_ = null;
@@ -182,7 +182,7 @@ anychart.ui.Editor2.prototype.createDom = function() {
   this.steps_.push(new anychart.ui.chartEditor2.steps.PrepareData(0));
   this.steps_.push(new anychart.ui.chartEditor2.steps.SetupChart(1));
   for (var i = 0; i < this.steps_.length; i++) {
-    this.addChildAt(this.steps_[i], i);
+    this.addChildAt(this.steps_[i], i); // not render until this.setCurrentStepByIndex_() call
   }
 };
 
@@ -209,7 +209,7 @@ anychart.ui.Editor2.prototype.enterDocument = function() {
 anychart.ui.Editor2.prototype.updateProgress_ = function() {
   var dom = this.getDomHelper();
 
-  if(this.breadcrumbsEl_)
+  if (this.breadcrumbsEl_)
     dom.removeChildren(this.breadcrumbsEl_);
 
   // Building breadcrumbs elements
@@ -324,14 +324,6 @@ anychart.ui.Editor2.prototype.setCurrentStep_ = function(step, doAnimation) {
 
   var appearAnimation = new goog.fx.AnimationSerialQueue();
   appearAnimation.add(new goog.fx.dom.FadeIn(step.getElement(), animationSpeed));
-  goog.events.listenOnce(
-      appearAnimation,
-      goog.fx.Transition.EventType.END,
-      function() {
-        editor.dispatchEvent({
-          type: anychart.ui.chartEditor2.events.EventType.CHANGE_STEP
-        });
-      });
   appearAnimation.play();
 
   this.currentStep_ = step;
@@ -407,16 +399,6 @@ anychart.ui.Editor2.prototype.onAddData_ = function(evt) {
 
 anychart.ui.Editor2.prototype.onRemoveData_ = function(evt) {
   this.dataModel_.removeData(evt['setId'], evt['dataType']);
-};
-
-
-/** @override */
-anychart.ui.Editor2.prototype.disposeInternal = function() {
-  this.currentStep_ = null;
-  //this.controller_ = null;
-  //this.sharedModel_.dataSets.length = 0;
-  //this.sharedModel_ = null;
-  anychart.ui.Editor2.base(this, 'disposeInternal');
 };
 
 

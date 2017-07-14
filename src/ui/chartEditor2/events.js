@@ -7,9 +7,8 @@ anychart.ui.chartEditor2.events.EventType = {
   ADD_DATA: goog.events.getUniqueId('add-data'),
   REMOVE_DATA: goog.events.getUniqueId('remove-data'),
   UPDATE_FILTER: goog.events.getUniqueId('update-filter'),
-  CHANGE_STEP: goog.events.getUniqueId('change-step'),
+  DATA_MODEL_CHANGED: goog.events.getUniqueId('data-model-changed'),
 
-  // CHANGE_STEP: goog.events.getUniqueId('change-step'),
   // CLOSE: goog.events.getUniqueId('close'),
   // ADD_SERIES: goog.events.getUniqueId('add-series'),
   // REMOVE_SERIES: goog.events.getUniqueId('remove-series'),

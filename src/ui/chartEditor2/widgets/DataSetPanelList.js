@@ -28,27 +28,26 @@ anychart.ui.chartEditor2.DataSetPanelList.prototype.createDom = function() {
 };
 
 
-anychart.ui.chartEditor2.DataSetPanelList.prototype.exitDocument = function() {
-  anychart.ui.chartEditor2.DataSetPanelList.base(this, 'exitDocument');
+anychart.ui.chartEditor2.DataSetPanelList.prototype.onRemoveData_ = function(evt) {
+  var panel = evt.target;
+  this.panels_ = goog.array.filter(this.panels_, function(item){
+    return panel != item;
+  });
 
-  for(var i = 0; i < this.panels_.length; i++) {
-    this.panels_[i].exitDocument();
-    if (this.panels_[i].element_) {
-      goog.dom.removeNode(this.panels_[i].element_);
-    }
-  }
+  this.removeChild(panel, true);
+  panel.dispose();
 };
 
 
 anychart.ui.chartEditor2.DataSetPanelList.prototype.updatePanels = function(data) {
-  console.log(data);
-
   this.removeChildren(true);
+  goog.disposeAll(this.panels_);
   this.panels_.length = 0;
 
   for(var i = 0; i < data.length; i++) {
     this.panels_.push(new anychart.ui.chartEditor2.DataSetPanel(data[i]));
     this.addChild(this.panels_[i], true);
+    this.getHandler().listen(this.panels_[i], anychart.ui.chartEditor2.events.EventType.REMOVE_DATA, this.onRemoveData_);
   }
 };
 

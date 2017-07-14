@@ -28,25 +28,25 @@ goog.inherits(anychart.ui.chartEditor2.steps.SetupChart, anychart.ui.chartEditor
 
 
 /** @override */
+anychart.ui.chartEditor2.steps.SetupChart.prototype.enterDocument = function() {
+  anychart.ui.chartEditor2.steps.SetupChart.base(this, 'enterDocument');
+
+  var dataModel = /** @type {anychart.ui.Editor2} */(this.getParent()).getDataModel();
+  if (dataModel.isDirty()) {
+    this.panelsList_.updatePanels(dataModel.getPreparedData());
+  }
+};
+
+
 anychart.ui.chartEditor2.steps.SetupChart.prototype.createDom = function() {
   anychart.ui.chartEditor2.steps.SetupChart.base(this, 'createDom');
 
   var element = /** @type {Element} */(this.getElement());
-//  var dom = this.getDomHelper();
+  // var dom = this.getDomHelper();
 
   goog.dom.classlist.add(element, 'step-setup-chart');
 
   this.panelsList_ = new anychart.ui.chartEditor2.DataSetPanelList();
-  this.addChild(this.panelsList_);
-  this.panelsList_.render(element);
-};
-
-
-anychart.ui.chartEditor2.steps.SetupChart.prototype.onChangeStep = function(evt) {
-  anychart.ui.chartEditor2.steps.SetupChart.base(this, 'onChangeStep');
-
-  var dataModel = /** @type {anychart.ui.Editor2} */(this.getParent()).getDataModel();
-  var data = dataModel.getPreparedData();
-
-  this.panelsList_.updatePanels(data);
+  this.addChild(this.panelsList_, true);
+  //this.panelsList_.render(element);
 };

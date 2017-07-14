@@ -35,13 +35,6 @@ anychart.ui.chartEditor2.steps.Base = function(index, opt_domHelper) {
    */
   this.title_ = 'Step';
 
-
-  /**
-   * @type {Element}
-   * @private
-   */
-  this.contentEl_ = null;
-
   /**
    * Enabled transition to next step.
    * @type {boolean}
@@ -101,15 +94,6 @@ anychart.ui.chartEditor2.steps.Base.prototype.getIndex = function() {
 };
 
 
-/**
- * Returns the content element.
- * @return {Element}
- */
-anychart.ui.chartEditor2.steps.Base.prototype.getContentElement = function() {
-  return this.contentEl_;
-};
-
-
 /** @override */
 anychart.ui.chartEditor2.steps.Base.prototype.createDom = function() {
   anychart.ui.chartEditor2.steps.Base.base(this, 'createDom');
@@ -119,38 +103,6 @@ anychart.ui.chartEditor2.steps.Base.prototype.createDom = function() {
   var className = anychart.ui.chartEditor2.steps.Base.CSS_CLASS;
   goog.dom.classlist.add(element, className);
 
-  var stepTitle = dom.createDom(goog.dom.TagName.H1, goog.getCssName('step-title'), this.name_);
-  this.element_.appendChild(stepTitle);
+  // var stepTitle = dom.createDom(goog.dom.TagName.H1, goog.getCssName('step-title'), this.name_);
+  // this.element_.appendChild(stepTitle);
 };
-
-
-/** @override */
-anychart.ui.chartEditor2.steps.Base.prototype.enterDocument = function() {
-  anychart.ui.chartEditor2.steps.Base.base(this, 'enterDocument');
-
-  this.getHandler().listen(this.getParent(), anychart.ui.chartEditor2.events.EventType.CHANGE_STEP, this.onChangeStep);
-  // this.listen(anychart.ui.chartEditor2.events.EventType.CHANGE_STEP, this.onChangeStep, false, this);
-};
-
-
-anychart.ui.chartEditor2.steps.Base.prototype.onChangeStep = function(evt) {};
-
-
-/**
- * Wheel event, which is stopped.
- * @param {goog.events.BrowserEvent} e
- * @protected
- */
-/*anychart.ui.chartEditor2.steps.Base.prototype.handleWheel = function(e) {
-  var element = e.currentTarget;
-  var originalEvent = e.getBrowserEvent();
-  var delta = originalEvent.deltaY || originalEvent.detail || originalEvent.wheelDelta;
-
-  if (delta < 0 && !element.scrollTop) {
-    e.preventDefault();
-  }
-
-  if (delta > 0 && element.scrollHeight - element.clientHeight - element.scrollTop <= 1) {
-    e.preventDefault();
-  }
-};*/

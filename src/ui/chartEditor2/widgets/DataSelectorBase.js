@@ -2,6 +2,7 @@ goog.provide('anychart.ui.chartEditor2.DataSelectorBase');
 
 goog.require('anychart.ui.Component');
 goog.require('goog.net.XhrIo');
+goog.require('goog.dom.forms');
 
 
 
@@ -9,7 +10,7 @@ goog.require('goog.net.XhrIo');
  * @constructor
  * @extends {anychart.ui.Component}
  */
-anychart.ui.chartEditor2.DataSelectorBase = function() {
+anychart.ui.chartEditor2.DataSelectorBase = function(dataModel) {
   anychart.ui.chartEditor2.DataSelectorBase.base(this, 'constructor');
 
   this.title = '';
@@ -27,6 +28,10 @@ anychart.ui.chartEditor2.DataSelectorBase = function() {
   this.searchFields = ['name', 'tags'];
 
   this.preloaders = {};
+
+  this.dataModel_ = dataModel;
+
+  this.dataType = '';
 };
 goog.inherits(anychart.ui.chartEditor2.DataSelectorBase, anychart.ui.Component);
 
@@ -38,6 +43,56 @@ anychart.ui.chartEditor2.DataSelectorBase.DatasetState = {
   NOT_LOADED: 0,
   PROCESSING: 1,
   LOADED: 2
+};
+
+
+/** @inheritDoc */
+anychart.ui.chartEditor2.DataSelectorBase.prototype.createDom = function() {
+  anychart.ui.chartEditor2.DataSelectorBase.base(this, 'createDom');
+
+  goog.dom.classlist.add(this.element_, 'data-selector');
+  goog.dom.classlist.add(this.element_, this.className);
+
+  var dom = this.getDomHelper();
+  this.filterInput_ = dom.createDom(goog.dom.TagName.INPUT, {'class': 'filter', 'placeholder': 'Filter..'});
+
+  this.setsContainer_ = dom.createDom(goog.dom.TagName.DIV, 'inner');
+  this.getElement().appendChild(
+      dom.createDom(goog.dom.TagName.DIV, 'section-content',
+          dom.createDom(goog.dom.TagName.DIV, 'top',
+              dom.createDom(goog.dom.TagName.H2, null, this.title),
+              this.filterInput_),
+          this.setsContainer_));
+
+  this.loadDataIndex_();
+};
+
+
+anychart.ui.chartEditor2.DataSelectorBase.prototype.enterDocument = function() {
+  anychart.ui.chartEditor2.DataSelectorBase.base(this, 'enterDocument');
+
+  this.getHandler().listen(this.filterInput_, goog.events.EventType.INPUT, this.onFilterChange_);
+  this.listen(anychart.ui.chartEditor2.events.EventType.UPDATE_FILTER, this.onFilterChange_);
+  this.listen(anychart.ui.chartEditor2.events.EventType.REMOVE_DATA, this.onRemoveData_);
+  this.setButtonsListeners_();
+
+  this.updateDataIndex_();
+
+  // to redraw data sets
+  this.dispatchEvent({
+    type: anychart.ui.chartEditor2.events.EventType.UPDATE_FILTER
+  });
+};
+
+
+anychart.ui.chartEditor2.DataSelectorBase.prototype.setButtonsListeners_ = function() {
+  var buttons = goog.dom.findNodes(this.setsContainer_, function(el) {
+    return goog.dom.classlist.contains(/** @type {Element} */(el), 'anychart-button');
+  });
+
+  for (var i = 0; i < buttons.length; i++) {
+    this.getHandler().listen(buttons[i], goog.events.EventType.CLICK, this.onClickButton_);
+  }
 };
 
 
@@ -62,44 +117,47 @@ anychart.ui.chartEditor2.DataSelectorBase.prototype.loadDataIndex_ = function() 
 };
 
 
-/** @inheritDoc */
-anychart.ui.chartEditor2.DataSelectorBase.prototype.createDom = function() {
-  anychart.ui.chartEditor2.DataSelectorBase.base(this, 'createDom');
-
-  goog.dom.classlist.add(this.element_, 'data-selector');
-  goog.dom.classlist.add(this.element_, this.className);
-
-  var dom = this.getDomHelper();
-  this.filterInput_ = dom.createDom(goog.dom.TagName.INPUT, {'class': 'filter', 'placeholder': 'Filter..'});
-  this.contentEl_ = dom.createDom(goog.dom.TagName.DIV, 'inner');
-  this.element_.appendChild(dom.createDom(goog.dom.TagName.DIV, 'section-content',
-      dom.createDom(goog.dom.TagName.DIV, 'top', dom.createDom(goog.dom.TagName.H2, null, this.title), this.filterInput_),
-      this.contentEl_));
-
-  this.loadDataIndex_();
-};
-
-
-anychart.ui.chartEditor2.DataSelectorBase.prototype.enterDocument = function() {
-  anychart.ui.chartEditor2.DataSelectorBase.base(this, 'enterDocument');
-
-  this.getHandler().listen(this.filterInput_, goog.events.EventType.INPUT, this.onFilterChange_);
-  this.listen(anychart.ui.chartEditor2.events.EventType.UPDATE_FILTER, this.onFilterChange_, false, this);
+anychart.ui.chartEditor2.DataSelectorBase.prototype.updateDataIndex_ = function() {
+  var keys = this.dataModel_.getDataKeys();
+  for (var i = 0; i < this.dataIndex.length; i++) {
+    if (goog.array.contains(keys, this.dataType + i)) {
+      this.dataIndex[i]['state'] = anychart.ui.chartEditor2.DataSelectorBase.DatasetState.LOADED;
+    } else {
+      this.dataIndex[i]['state'] = anychart.ui.chartEditor2.DataSelectorBase.DatasetState.NOT_LOADED;
+    }
+  }
 };
 
 
 anychart.ui.chartEditor2.DataSelectorBase.prototype.showDataSets_ = function(opt_ids) {
-  goog.dom.removeChildren(this.contentEl_);
-
+  var createItems = !this.setsContainer_.hasChildNodes() && this.dataIndex.length;
   for (var i = 0; i < this.dataIndex.length; i++) {
     var dataSetJson = this.dataIndex[i];
-    if (!goog.isDef(dataSetJson['state']))
+    var item;
+    if (createItems) {
       dataSetJson['state'] = anychart.ui.chartEditor2.DataSelectorBase.DatasetState.NOT_LOADED;
+      item = this.createItem(dataSetJson, dataSetJson['state']);
+      this.setsContainer_.appendChild(this.createItem(dataSetJson, dataSetJson['state']));
+    } else {
+      var className = 'data-set-' + dataSetJson['id'];
+      item = goog.dom.findNode(this.setsContainer_, function(el) {
+        return goog.dom.classlist.contains(/** @type {Element} */(el), className);
+      });
+
+      if (dataSetJson['state'] != anychart.ui.chartEditor2.DataSelectorBase.DatasetState.LOADED)
+        goog.dom.classlist.remove(item, 'loaded');
+    }
 
     if (!goog.isArray(opt_ids) || opt_ids.indexOf(dataSetJson['id']) != -1)
-      this.contentEl_.appendChild(this.createItem(dataSetJson, dataSetJson['state']));
+      goog.dom.classlist.remove(item, 'hidden');
+    else
+      goog.dom.classlist.add(item, 'hidden');
   }
-  this.contentEl_.appendChild(this.dom_.createDom(goog.dom.TagName.DIV, 'cb'));
+
+  if (createItems) {
+    this.setsContainer_.appendChild(this.dom_.createDom(goog.dom.TagName.DIV, 'cb'));
+    this.setButtonsListeners_();
+  }
 };
 
 
@@ -140,7 +198,25 @@ anychart.ui.chartEditor2.DataSelectorBase.prototype.onFilterChange_ = function(e
 };
 
 
-anychart.ui.chartEditor2.DataSelectorBase.prototype.onDownloadClick = function(evt) {
+anychart.ui.chartEditor2.DataSelectorBase.prototype.resetFilter_ = function() {
+  goog.dom.forms.setValue(this.filterInput_, '');
+  this.dispatchEvent({
+    type: anychart.ui.chartEditor2.events.EventType.UPDATE_FILTER
+  });
+};
+
+
+anychart.ui.chartEditor2.DataSelectorBase.prototype.onClickButton_ = function(evt) {
+  var classes = goog.dom.classlist.get(evt.currentTarget);
+  if (goog.array.contains(classes, 'download')) {
+    this.onClickDownload_(evt);
+  } else if (goog.array.contains(classes, 'remove')) {
+    this.onClickRemove_(evt);
+  }
+};
+
+
+anychart.ui.chartEditor2.DataSelectorBase.prototype.onClickDownload_ = function(evt) {
   var setId = evt.currentTarget.getAttribute('data-set-id');
   if (setId && this.dataIndex[setId]['state'] != anychart.ui.chartEditor2.DataSelectorBase.DatasetState.LOADED) {
     this.dataIndex[setId]['state'] = anychart.ui.chartEditor2.DataSelectorBase.DatasetState.PROCESSING;
@@ -166,23 +242,23 @@ anychart.ui.chartEditor2.DataSelectorBase.prototype.onDownloadClick = function(e
           } else {
             self.dataIndex[setId]['state'] = anychart.ui.chartEditor2.DataSelectorBase.DatasetState.NOT_LOADED;
           }
-
           preloader.visible(false);
         });
   }
 };
 
 
-anychart.ui.chartEditor2.DataSelectorBase.prototype.onRemoveClick = function(evt) {
+anychart.ui.chartEditor2.DataSelectorBase.prototype.onClickRemove_ = function(evt) {
   var setId = evt.currentTarget.getAttribute('data-set-id');
+  this.dispatchRemoveData(setId);
+};
+
+
+anychart.ui.chartEditor2.DataSelectorBase.prototype.onRemoveData_ = function(evt) {
+  console.log("on remove data");
+  var setId = evt.setId;
   if (setId && this.dataIndex[setId]['state'] == anychart.ui.chartEditor2.DataSelectorBase.DatasetState.LOADED) {
-    // this.dataIndex[setId]['state'] = anychart.ui.chartEditor2.DataSelectorBase.DatasetState.PROCESSING;
-    var setEl = goog.dom.getAncestorByClass(evt.currentTarget, 'data-set');
-
-    goog.dom.classlist.remove(setEl, 'loaded');
     this.dataIndex[setId]['state'] = anychart.ui.chartEditor2.DataSelectorBase.DatasetState.NOT_LOADED;
-    this.onRemoveData(setId);
-
     this.dispatchEvent({
       type: anychart.ui.chartEditor2.events.EventType.UPDATE_FILTER
     });
@@ -190,11 +266,14 @@ anychart.ui.chartEditor2.DataSelectorBase.prototype.onRemoveClick = function(evt
 };
 
 
-anychart.ui.chartEditor2.DataSelectorBase.prototype.getDataSetUrl = function(fileName) {
-  return '';
-};
-
+anychart.ui.chartEditor2.DataSelectorBase.prototype.getDataSetUrl = function(fileName) {return fileName;};
 
 anychart.ui.chartEditor2.DataSelectorBase.prototype.onLoadData = function(json, setId) {};
 
-anychart.ui.chartEditor2.DataSelectorBase.prototype.onRemoveData = function(setId) {};
+anychart.ui.chartEditor2.DataSelectorBase.prototype.dispatchRemoveData = function(setId) {
+  this.dispatchEvent({
+    type: anychart.ui.chartEditor2.events.EventType.REMOVE_DATA,
+    setId: setId,
+    dataType: this.dataType
+  });
+};

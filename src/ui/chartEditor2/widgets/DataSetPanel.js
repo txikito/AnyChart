@@ -29,12 +29,6 @@ anychart.ui.chartEditor2.DataSetPanel.prototype.createDom = function() {
   goog.dom.classlist.add(element, 'panel');
 
   var menu = new goog.ui.Menu();
-  // var m1, m2;
-  // menu.addChild(m1 = new goog.ui.MenuItem('Join/Unjoin'), true);
-  // menu.addChild(m2 = new goog.ui.MenuItem('Remove'), true);
-  // m1.setDispatchTransitionEvents(goog.ui.Component.State.ALL, true);
-  // m2.setDispatchTransitionEvents(goog.ui.Component.State.ALL, true);
-  // m1.setEnabled(false);
 
   goog.array.forEach(['Join/Unjoin', 'Remove'],
       function(label) {
@@ -80,13 +74,9 @@ anychart.ui.chartEditor2.DataSetPanel.prototype.createDom = function() {
 
 
 anychart.ui.chartEditor2.DataSetPanel.prototype.removeDataSet = function() {
-  console.log("remove me", this.data_);
-};
-
-
-anychart.ui.chartEditor2.DataSetPanel.prototype.enterDocument = function() {
-  anychart.ui.chartEditor2.DataSetPanel.base(this, 'enterDocument');
-
-  // this.getHandler().listen(this.filterInput_, goog.events.EventType.INPUT, this.onFilterChange_);
-  // this.listen(anychart.ui.chartEditor2.events.EventType.UPDATE_FILTER, this.onFilterChange_, false, this);
+  this.dispatchEvent({
+    type: anychart.ui.chartEditor2.events.EventType.REMOVE_DATA,
+    setId: this.data_['setId'],
+    dataType: this.data_['type']
+  });
 };

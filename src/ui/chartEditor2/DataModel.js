@@ -1,14 +1,20 @@
 goog.provide('anychart.ui.chartEditor2.DataModel');
 
 goog.require('goog.format.JsonPrettyPrinter');
+goog.require('goog.events.EventTarget');
 
+
+/**
+ * @constructor
+ * @extends {goog.events.EventTarget}
+ */
 anychart.ui.chartEditor2.DataModel = function() {
-
+  anychart.ui.chartEditor2.DataModel.base(this, 'constructor');
   this.data_ = {};
 
   this.preparedData_ = [];
 };
-
+goog.inherits(anychart.ui.chartEditor2.DataModel, goog.events.EventTarget);
 
 /**
  * @enum {string}
@@ -30,29 +36,42 @@ anychart.ui.chartEditor2.DataModel.prototype.addData = function(setId, data, dat
   if (!this.data_[id]) {
     this.data_[id] = {setId: setId, type: dataType, data: data};
   }
-  // console.log(this.data_);
+  this.preparedData_.length = 0;
+  this.dispatchEvent({
+    type: anychart.ui.chartEditor2.events.EventType.DATA_MODEL_CHANGED
+  });
 };
 
 
 anychart.ui.chartEditor2.DataModel.prototype.removeData = function(setId, dataType) {
   var id = this.dataId_(setId, dataType);
   delete this.data_[id];
-  // console.log(this.data_);
+  this.preparedData_.length = 0;
+  this.dispatchEvent({
+    type: anychart.ui.chartEditor2.events.EventType.DATA_MODEL_CHANGED
+  });
+};
+
+
+anychart.ui.chartEditor2.DataModel.prototype.getDataKeys = function() {
+  return goog.object.getKeys(this.data_);
 };
 
 
 anychart.ui.chartEditor2.DataModel.prototype.getPreparedData = function() {
-  return this.prepareData_();
+  return this.isDirty() ? this.prepareData_() : this.preparedData_;
+};
+
+
+anychart.ui.chartEditor2.DataModel.prototype.isDirty = function() {
+  return !this.preparedData_.length;
 };
 
 
 anychart.ui.chartEditor2.DataModel.prototype.prepareData_ = function() {
-  this.preparedData_.length = 0;
-
   var joinedSets = [];
   var singleSets = [];
   var geoSets = [];
-
   var dataSet;
 
   for (var i in this.data_) {
@@ -109,10 +128,10 @@ anychart.ui.chartEditor2.DataModel.prototype.prepareDataSet_ = function(dataSet)
   var field;
 
   for (i in row) {
-    field = {};
-
-    field['name'] = goog.isArray(row) ? 'Field ' + i : i;
-    field['type'] = typeof(row[i]);
+    field = {
+      'name': goog.isArray(row) ? 'Field ' + i : i,
+      'type': typeof(row[i])
+    };
     fields.push(field);
   }
   result['fields'] = fields;
