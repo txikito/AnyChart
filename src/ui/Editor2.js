@@ -7,6 +7,8 @@ goog.require('anychart.ui.chartEditor2.DataModel');
 goog.require('anychart.ui.chartEditor2.events');
 goog.require('anychart.ui.chartEditor2.steps.PrepareData');
 goog.require('anychart.ui.chartEditor2.steps.SetupChart');
+goog.require('anychart.ui.button.Primary');
+goog.require('anychart.ui.button.Secondary');
 goog.require('goog.fx.AnimationSerialQueue');
 goog.require('goog.fx.Transition.EventType');
 goog.require('goog.fx.dom');
@@ -157,10 +159,10 @@ anychart.ui.Editor2.prototype.onComplete_ = function() {
 
 /** @override */
 anychart.ui.Editor2.prototype.createDom = function() {
-  if(!this.element_) anychart.ui.Editor2.base(this, 'createDom');
+  if(!this.getElement()) anychart.ui.Editor2.base(this, 'createDom');
 
   var dom = this.getDomHelper();
-  goog.dom.classlist.add(this.element_, anychart.ui.Editor2.CSS_CLASS);
+  goog.dom.classlist.add(this.getElement(), anychart.ui.Editor2.CSS_CLASS);
 
   // Create progress element
   this.breadcrumbsEl_ = dom.createDom(goog.dom.TagName.DIV, 'breadcrumbs');
