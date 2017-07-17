@@ -18,7 +18,7 @@ goog.require('goog.ui.Dialog');
 
 
 /**
- * Chart Editor Component Class.
+ * Chart Editor application Component Class.
  * @constructor
  * @param {goog.dom.DomHelper=} opt_domHelper Optional DOM helper; see {@link goog.ui.Component} for semantics.
  * @extends {anychart.ui.Component}

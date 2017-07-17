@@ -1,5 +1,6 @@
 goog.provide('anychart.ui.chartEditor2.steps.SetupChart');
 
+goog.require('anychart.ui.chartEditor2.ChartTypeSelector');
 goog.require('anychart.ui.chartEditor2.DataSetPanelList');
 goog.require('anychart.ui.chartEditor2.events');
 goog.require('anychart.ui.chartEditor2.steps.Base');
@@ -47,5 +48,7 @@ anychart.ui.chartEditor2.steps.SetupChart.prototype.createDom = function() {
 
   this.panelsList_ = new anychart.ui.chartEditor2.DataSetPanelList();
   this.addChild(this.panelsList_, true);
-  //this.panelsList_.render(element);
+
+  this.chartTypeSelector_ = new anychart.ui.chartEditor2.ChartTypeSelector();
+  this.addChild(this.chartTypeSelector_, true);
 };
