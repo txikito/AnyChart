@@ -589,7 +589,7 @@ goog.addDependency('../../../../src/ui/chartEditor2/EditorModel.js', ['anychart.
 goog.addDependency('../../../../src/ui/chartEditor2/events.js', ['anychart.ui.chartEditor2.events'], ['goog.events'], false);
 goog.addDependency('../../../../src/ui/chartEditor2/select/Align.js', ['anychart.ui.chartEditor2.select.Align'], ['anychart.ui.chartEditor2.select.Base'], false);
 goog.addDependency('../../../../src/ui/chartEditor2/select/Base.js', ['anychart.ui.chartEditor2.select.Base'], ['anychart.ui.chartEditor2.events', 'anychart.ui.chartEditor2.select.Renderer', 'goog.ui.Option', 'goog.ui.Select'], false);
-goog.addDependency('../../../../src/ui/chartEditor2/select/ChartType.js', ['anychart.ui.chartEditor2.select.ChartType'], ['anychart.ui.chartEditor2.select.Base'], false);
+goog.addDependency('../../../../src/ui/chartEditor2/select/ChartType.js', ['anychart.ui.chartEditor2.select.ChartType'], ['goog.ui.Select'], false);
 goog.addDependency('../../../../src/ui/chartEditor2/select/FontFamily.js', ['anychart.ui.chartEditor2.select.FontFamily'], ['anychart.ui.chartEditor2.select.Base'], false);
 goog.addDependency('../../../../src/ui/chartEditor2/select/Renderer.js', ['anychart.ui.chartEditor2.select.Renderer'], ['goog.ui.FlatMenuButtonRenderer', 'goog.ui.INLINE_BLOCK_CLASSNAME'], false);
 goog.addDependency('../../../../src/ui/chartEditor2/steps/Base.js', ['anychart.ui.chartEditor2.steps.Base'], ['anychart.ui.Component', 'anychart.ui.button.Primary', 'anychart.ui.button.Secondary', 'goog.a11y.aria', 'goog.a11y.aria.Role', 'goog.dom', 'goog.dom.classlist'], false);

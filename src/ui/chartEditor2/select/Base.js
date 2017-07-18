@@ -83,32 +83,9 @@ anychart.ui.chartEditor2.select.Base.prototype.setIcons = function(value) {
 };
 
 
-/**
- * @type {string|Array.<string>}
- * @private
- */
-anychart.ui.chartEditor2.select.Base.prototype.key_ = '';
-
-
-/** @param {string|Array.<string>} value */
-anychart.ui.chartEditor2.select.Base.prototype.setKey = function(value) {
-  this.key_ = value;
-};
-
-
-/**
- * Gets key.
- * @return {string|Array.<string>}
- */
-anychart.ui.chartEditor2.select.Base.prototype.getKey = function() {
-  return this.key_;
-};
-
-
 /** @override */
 anychart.ui.chartEditor2.select.Base.prototype.createDom = function() {
   anychart.ui.chartEditor2.select.Base.base(this, 'createDom');
-debugger;
   this.updateOptions();
 };
 
@@ -160,17 +137,6 @@ anychart.ui.chartEditor2.select.Base.prototype.createContentElements = function(
 };
 
 
-/** @param {anychart.ui.Editor.Model} model */
-// anychart.ui.chartEditor2.select.Base.prototype.update = function(model) {
-//   //todo: rework, need silently update selects
-//   goog.events.unlisten(this, goog.ui.Component.EventType.CHANGE, this.onChange, false, this);
-//   var value = anychart.ui.chartEditor2.Controller.getset(model, goog.isArray(this.key_) ? this.key_[0] : this.key_);
-//   var index = this.options_.indexOf(value);
-//   this.setSelectedIndex(index);
-//   goog.events.listen(this, goog.ui.Component.EventType.CHANGE, this.onChange, false, this);
-// };
-
-
 /** @override */
 anychart.ui.chartEditor2.select.Base.prototype.enterDocument = function() {
   anychart.ui.chartEditor2.select.Base.base(this, 'enterDocument');
@@ -198,16 +164,16 @@ anychart.ui.chartEditor2.select.Base.prototype.onChange = function(evt) {
   var selectedItem = this.getSelectedItem();
   if (!selectedItem) return;
 
-  var keys = goog.isArray(this.key_) ? this.key_ : [this.key_];
-
-  for (var i = 0, count = keys.length; i < count; i++) {
-    this.dispatchEvent({
-      type: anychart.ui.chartEditor2.events.EventType.CHANGE_MODEL,
-      key: keys[i],
-      value: selectedItem.getModel()
-    });
-  }
-  this.dispatchEvent(anychart.ui.chartEditor2.events.EventType.UPDATE_EDITOR);
+  // var keys = goog.isArray(this.key_) ? this.key_ : [this.key_];
+  //
+  // for (var i = 0, count = keys.length; i < count; i++) {
+  //   this.dispatchEvent({
+  //     type: anychart.ui.chartEditor2.events.EventType.CHANGE_MODEL,
+  //     key: keys[i],
+  //     value: selectedItem.getModel()
+  //   });
+  // }
+  // this.dispatchEvent(anychart.ui.chartEditor2.events.EventType.UPDATE_EDITOR);
 };
 
 

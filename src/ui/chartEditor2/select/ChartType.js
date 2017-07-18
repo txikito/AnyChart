@@ -1,52 +1,39 @@
 goog.provide('anychart.ui.chartEditor2.select.ChartType');
 
-goog.require('anychart.ui.chartEditor2.select.Base');
+goog.require('goog.ui.Select');
 
 
 
 /**
  * @constructor
- * @extends {anychart.ui.chartEditor2.select.Base}
+ * @extends {goog.ui.Select}
  */
-anychart.ui.chartEditor2.select.ChartType = function() {
-  anychart.ui.chartEditor2.select.ChartType.base(this, 'constructor');
-  this.setCaptions([null, null, null]);
-  this.setOptions(['left', 'center', 'right']);
+anychart.ui.chartEditor2.select.ChartType = function(opt_caption, opt_menu, opt_renderer, opt_domHelper, opt_menuRenderer) {
+  anychart.ui.chartEditor2.select.ChartType.base(this, 'constructor', opt_caption, opt_menu, opt_renderer, opt_domHelper, opt_menuRenderer);
+  this.options_ = [];
 };
-goog.inherits(anychart.ui.chartEditor2.select.ChartType, anychart.ui.chartEditor2.select.Base);
+goog.inherits(anychart.ui.chartEditor2.select.ChartType, goog.ui.Select);
 
 
-/**
- * @type {string}
- * @private
- */
-anychart.ui.chartEditor2.select.ChartType.prototype.orientation_ = '';
+anychart.ui.chartEditor2.select.ChartType.prototype.createDom = function() {
+  for(var i = 0; i < this.options_.length; i++) {
+    var item = new goog.ui.MenuItem(this.options_[i]['name']);
+    item.setModel(this.options_[i]['value']);
+    this.addItem(item);
+  }
+  this.setSelectedIndex(0);
+
+  anychart.ui.chartEditor2.select.ChartType.base(this, 'createDom');
+
+};
 
 
-/**
- * @type {string}
- * @private
- */
-anychart.ui.chartEditor2.select.ChartType.prototype.orientationKey_ = 'orientation';
+anychart.ui.chartEditor2.select.ChartType.prototype.setOptions = function(options) {
+  this.options_ = options;
+};
 
 
-/** @inheritDoc */
-// anychart.ui.chartEditor2.select.ChartType.prototype.update = function(model) {
-//   //todo: rework, need silently update selects
-//   goog.events.unlisten(this, goog.ui.Component.EventType.CHANGE, this.onChange, false, this);
-//   var orientation = anychart.ui.chartEditor2.Controller.getset(model, this.orientationKey_);
-//   if (this.orientation_ != orientation) {
-//     this.orientation_ = orientation;
-//     if (orientation == 'top' || orientation == 'bottom') {
-//       this.setIcons(['ac ac-position-left', 'ac ac-position-center', 'ac ac-position-right']);
-//     } else if (orientation == 'left') {
-//       this.setIcons(['ac ac-position-bottom', 'ac ac-position-center2', 'ac ac-position-top']);
-//     } else {
-//       this.setIcons(['ac ac-position-top', 'ac ac-position-center2', 'ac ac-position-bottom']);
-//     }
-//     this.updateOptions();
-//   }
-//   goog.events.listen(this, goog.ui.Component.EventType.CHANGE, this.onChange, false, this);
-//
-//   anychart.ui.chartEditor2.select.ChartType.base(this, 'update', model);
-// };
+anychart.ui.chartEditor2.select.ChartType.prototype.getIcon = function() {
+  var i = this.getSelectedIndex() >= 0 ? this.getSelectedIndex() : 0;
+  return 'http://www.anychart.com/_design/img/upload/charts/types/' + this.options_[i]['icon'];
+};
