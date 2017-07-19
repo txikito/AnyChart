@@ -1,5 +1,6 @@
 goog.provide('anychart.ui.chartEditor2.DataModel');
 
+goog.require('goog.events.EventTarget');
 goog.require('goog.format.JsonPrettyPrinter');
 
 
@@ -8,10 +9,14 @@ goog.require('goog.format.JsonPrettyPrinter');
  * @constructor
  */
 anychart.ui.chartEditor2.DataModel = function() {
+  goog.base(this);
+
   this.data_ = {};
 
   this.preparedData_ = [];
 };
+goog.inherits(anychart.ui.chartEditor2.DataModel, goog.events.EventTarget);
+
 
 /**
  * @enum {string}
@@ -34,6 +39,10 @@ anychart.ui.chartEditor2.DataModel.prototype.addData = function(setId, data, dat
     this.data_[id] = {setId: setId, type: dataType, data: data};
   }
   this.preparedData_.length = 0;
+
+  this.dispatchEvent({
+    type: anychart.ui.chartEditor2.events.EventType.UPDATE_DATA_MODEL
+  });
 };
 
 
@@ -41,6 +50,10 @@ anychart.ui.chartEditor2.DataModel.prototype.removeData = function(setId, dataTy
   var id = this.dataId_(setId, dataType);
   delete this.data_[id];
   this.preparedData_.length = 0;
+
+  this.dispatchEvent({
+    type: anychart.ui.chartEditor2.events.EventType.UPDATE_DATA_MODEL
+  });
 };
 
 
@@ -121,7 +134,8 @@ anychart.ui.chartEditor2.DataModel.prototype.prepareDataSet_ = function(dataSet)
   for (i in row) {
     field = {
       'name': goog.isArray(row) ? 'Field ' + i : i,
-      'type': typeof(row[i])
+      'type': typeof(row[i]),
+      'key': i
     };
     fields.push(field);
   }

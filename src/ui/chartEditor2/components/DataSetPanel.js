@@ -13,7 +13,7 @@ goog.require('goog.ui.MenuSeparator');
  * @extends {anychart.ui.Component}
  */
 anychart.ui.chartEditor2.DataSetPanel = function(data) {
-  anychart.ui.chartEditor2.DataSetPanel.base(this, 'constructor');
+  goog.base(this);
 
   this.data_ = data;
 };
@@ -22,16 +22,13 @@ goog.inherits(anychart.ui.chartEditor2.DataSetPanel, anychart.ui.Component);
 
 /** @inheritDoc */
 anychart.ui.chartEditor2.DataSetPanel.prototype.createDom = function() {
-  anychart.ui.chartEditor2.DataSetPanel.base(this, 'createDom');
+  goog.base(this, 'createDom');
 
   var self = this;
   var element = /** @type {Element} */(this.getElement());
-  var dom = this.getDomHelper();
-
   goog.dom.classlist.add(element, 'panel');
 
   var menu = new goog.ui.Menu();
-
   goog.array.forEach(['Join/Unjoin', 'Remove'],
       function(label) {
         var item;
@@ -61,6 +58,7 @@ anychart.ui.chartEditor2.DataSetPanel.prototype.createDom = function() {
 
   this.addChild(gearButton, true);
 
+  var dom = this.getDomHelper();
   var fields = [];
   if (goog.isArray(this.data_['fields'])) {
     for (var i = 0; i < this.data_['fields'].length; i++) {

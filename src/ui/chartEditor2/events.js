@@ -4,6 +4,8 @@ goog.require('goog.events');
 
 /** @enum {string} */
 anychart.ui.chartEditor2.events.EventType = {
+  UPDATE_DATA_MODEL: goog.events.getUniqueId('update-data-model'),
+
   ADD_DATA: goog.events.getUniqueId('add-data'),
   REMOVE_DATA: goog.events.getUniqueId('remove-data'),
   UPDATE_FILTER: goog.events.getUniqueId('update-filter'),

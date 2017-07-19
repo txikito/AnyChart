@@ -18,7 +18,7 @@ goog.forwardDeclare('anychart.data.Mapping');
  * @extends {anychart.ui.chartEditor2.steps.Base}
  */
 anychart.ui.chartEditor2.steps.PrepareData = function(index, opt_domHelper) {
-  anychart.ui.chartEditor2.steps.PrepareData.base(this, 'constructor', index, opt_domHelper);
+  goog.base(this, index, opt_domHelper);
 
   this.name('Prepare Data');
   this.title('Prepare Data');
@@ -29,16 +29,15 @@ goog.inherits(anychart.ui.chartEditor2.steps.PrepareData, anychart.ui.chartEdito
 
 /** @override */
 anychart.ui.chartEditor2.steps.PrepareData.prototype.createDom = function() {
-  anychart.ui.chartEditor2.steps.PrepareData.base(this, 'createDom');
+  goog.base(this, 'createDom');
 
   var element = /** @type {Element} */(this.getElement());
-  var dom = this.getDomHelper();
-
   goog.dom.classlist.add(element, 'step-prepare-data');
 
+  var dom = this.getDomHelper();
   var uploadButtonsFormats = ['csv', 'xls', 'mysql', 'csv', 'xls', 'mysql'];
   var buttonsBar = dom.createDom(goog.dom.TagName.DIV, 'buttons');
-  for(var i = 0; i < 6; i++) {
+  for (var i = 0; i < 6; i++) {
     var format = uploadButtonsFormats[i];
     var button = new anychart.ui.button.Base(format);
     button.setIcon(format);

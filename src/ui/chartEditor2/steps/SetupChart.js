@@ -19,7 +19,7 @@ goog.forwardDeclare('anychart.data.Mapping');
  * @extends {anychart.ui.chartEditor2.steps.Base}
  */
 anychart.ui.chartEditor2.steps.SetupChart = function(index, opt_domHelper) {
-  anychart.ui.chartEditor2.steps.SetupChart.base(this, 'constructor', index, opt_domHelper);
+  goog.base(this, index, opt_domHelper);
 
   this.name('Setup Chart');
   this.title('Setup Chart');
@@ -27,28 +27,17 @@ anychart.ui.chartEditor2.steps.SetupChart = function(index, opt_domHelper) {
 goog.inherits(anychart.ui.chartEditor2.steps.SetupChart, anychart.ui.chartEditor2.steps.Base);
 
 
-/** @override */
-anychart.ui.chartEditor2.steps.SetupChart.prototype.enterDocument = function() {
-  anychart.ui.chartEditor2.steps.SetupChart.base(this, 'enterDocument');
-
-  var dataModel = /** @type {anychart.ui.Editor2} */(this.getParent()).getDataModel();
-  if (dataModel.isDirty()) {
-    this.panelsList_.updatePanels(dataModel.getPreparedData());
-  }
-};
-
-
 anychart.ui.chartEditor2.steps.SetupChart.prototype.createDom = function() {
-  anychart.ui.chartEditor2.steps.SetupChart.base(this, 'createDom');
+  goog.base(this, 'createDom');
 
   var element = /** @type {Element} */(this.getElement());
-  // var dom = this.getDomHelper();
-
   goog.dom.classlist.add(element, 'step-setup-chart');
 
-  this.panelsList_ = new anychart.ui.chartEditor2.DataSetPanelList();
+  var dataModel = /** @type {anychart.ui.Editor2} */(this.getParent()).getDataModel();
+
+  this.panelsList_ = new anychart.ui.chartEditor2.DataSetPanelList(dataModel);
   this.addChild(this.panelsList_, true);
 
-  this.chartTypeSelector_ = new anychart.ui.chartEditor2.ChartTypeSelector();
+  this.chartTypeSelector_ = new anychart.ui.chartEditor2.ChartTypeSelector(dataModel);
   this.addChild(this.chartTypeSelector_, true);
 };

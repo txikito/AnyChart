@@ -21,7 +21,7 @@ goog.forwardDeclare('anychart.data.Set');
  * @extends {anychart.ui.Component}
  */
 anychart.ui.chartEditor2.steps.Base = function(index, opt_domHelper) {
-  anychart.ui.chartEditor2.steps.Base.base(this, 'constructor', opt_domHelper);
+  goog.base(this, opt_domHelper);
 
   /**
    * @type {string}
@@ -96,13 +96,8 @@ anychart.ui.chartEditor2.steps.Base.prototype.getIndex = function() {
 
 /** @override */
 anychart.ui.chartEditor2.steps.Base.prototype.createDom = function() {
-  anychart.ui.chartEditor2.steps.Base.base(this, 'createDom');
+  goog.base(this, 'createDom');
+
   var element = /** @type {Element} */(this.getElement());
-  var dom = this.getDomHelper();
-
-  var className = anychart.ui.chartEditor2.steps.Base.CSS_CLASS;
-  goog.dom.classlist.add(element, className);
-
-  // var stepTitle = dom.createDom(goog.dom.TagName.H1, goog.getCssName('step-title'), this.name_);
-  // this.element_.appendChild(stepTitle);
+  goog.dom.classlist.add(element, anychart.ui.chartEditor2.steps.Base.CSS_CLASS);
 };

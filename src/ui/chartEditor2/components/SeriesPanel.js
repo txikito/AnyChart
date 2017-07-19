@@ -9,7 +9,7 @@ goog.require('goog.ui.Container');
  * @extends {goog.ui.Container}
  */
 anychart.ui.chartEditor2.SeriesPanel = function(type, index) {
-  goog.base(this, 'constructor');
+  goog.base(this);
 
   this.index_ = index;
 

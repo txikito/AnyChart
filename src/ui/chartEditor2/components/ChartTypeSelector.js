@@ -5,15 +5,20 @@ goog.require('anychart.ui.chartEditor2.PlotPanel');
 goog.require('anychart.ui.chartEditor2.select.ChartType');
 
 
-
 /**
  * Chart type selection widget.
  * Allows to choose chart type and contains PlotPanel widget(s).
  * @constructor
  * @extends {anychart.ui.Container}
  */
-anychart.ui.chartEditor2.ChartTypeSelector = function() {
+anychart.ui.chartEditor2.ChartTypeSelector = function(dataModel) {
   anychart.ui.chartEditor2.ChartTypeSelector.base(this, 'constructor');
+
+  /**
+   * @type {anychart.ui.chartEditor2.DataModel}
+   * @private
+   */
+  this.dataModel_ = dataModel;
 
   /**
    * @type {Array.<anychart.ui.chartEditor2.PlotPanel>}
@@ -76,7 +81,6 @@ anychart.ui.chartEditor2.ChartTypeSelector.series = {
 };
 
 
-
 /** @inheritDoc */
 anychart.ui.chartEditor2.ChartTypeSelector.prototype.createDom = function() {
   anychart.ui.chartEditor2.ChartTypeSelector.base(this, 'createDom');
@@ -95,7 +99,7 @@ anychart.ui.chartEditor2.ChartTypeSelector.prototype.createDom = function() {
   this.addChild(this.chartTypeSelect_, true);
 
   this.chartType_ = 'line';
-  this.updateChartType();
+  this.setChartType();
 };
 
 
@@ -103,20 +107,23 @@ anychart.ui.chartEditor2.ChartTypeSelector.prototype.enterDocument = function() 
   anychart.ui.chartEditor2.ChartTypeSelector.base(this, 'enterDocument');
   this.listen(anychart.ui.chartEditor2.events.EventType.CLOSE_PANEL, this.onClosePlot_);
   this.getHandler().listen(this.chartTypeSelect_, goog.events.EventType.CHANGE, this.onChangeChartType_);
+  this.getHandler().listen(this.dataModel_, anychart.ui.chartEditor2.events.EventType.UPDATE_DATA_MODEL, this.update);
+
+  this.update(null);
 };
 
 
 anychart.ui.chartEditor2.ChartTypeSelector.prototype.onChangeChartType_ = function(evt) {
   this.typeIcon_.setAttribute('src', this.chartTypeSelect_.getIcon());
   this.chartType_ = this.chartTypeSelect_.getSelectedItem().getModel();
-  this.updateChartType();
+  this.setChartType();
 };
 
 
 anychart.ui.chartEditor2.ChartTypeSelector.prototype.onAddPlot_ = function() {
   var i = this.getChildCount();
   if (i > 0) i--;
-  var plot = new anychart.ui.chartEditor2.PlotPanel(this.chartType_, this.plots_.length);
+  var plot = new anychart.ui.chartEditor2.PlotPanel(this.dataModel_, this.chartType_, this.plots_.length);
   this.plots_.push(plot);
   this.addChildAt(plot, i, true);
 };
@@ -136,14 +143,14 @@ anychart.ui.chartEditor2.ChartTypeSelector.prototype.onClosePlot_ = function(evt
 };
 
 
-anychart.ui.chartEditor2.ChartTypeSelector.prototype.updateChartType = function() {
+anychart.ui.chartEditor2.ChartTypeSelector.prototype.setChartType = function() {
   for (var i = 0; i < this.plots_.length; i++) {
     this.removeChild(this.plots_[i], true);
     this.plots_[i].dispose();
   }
 
   this.plots_.length = 0;
-  var plot = new anychart.ui.chartEditor2.PlotPanel(this.chartType_, 0);
+  var plot = new anychart.ui.chartEditor2.PlotPanel(this.dataModel_, this.chartType_, 0);
   this.plots_.push(plot);
   this.addChild(plot, true);
 
@@ -157,6 +164,11 @@ anychart.ui.chartEditor2.ChartTypeSelector.prototype.updateChartType = function(
     this.addPlotBtn_.dispose();
     this.addPlotBtn_ = null;
   }
+};
+
+
+anychart.ui.chartEditor2.ChartTypeSelector.prototype.update = function(evt) {
+  // TODO: надо ли что-то делать?
 };
 
 

@@ -1,5 +1,6 @@
 goog.provide('anychart.ui.chartEditor2.PlotPanel');
 
+goog.require('anychart.ui.chartEditor2.MenuItemWithTwoValues');
 goog.require('anychart.ui.chartEditor2.SeriesPanel');
 goog.require('goog.ui.Component');
 
@@ -9,8 +10,14 @@ goog.require('goog.ui.Component');
  * @constructor
  * @extends {goog.ui.Component}
  */
-anychart.ui.chartEditor2.PlotPanel = function(chartType, index) {
+anychart.ui.chartEditor2.PlotPanel = function(dataModel, chartType, index) {
   anychart.ui.chartEditor2.PlotPanel.base(this, 'constructor');
+
+  /**
+   * @type {anychart.ui.chartEditor2.DataModel}
+   * @private
+   */
+  this.dataModel_ = dataModel;
 
   this.type_ = chartType;
 
@@ -35,20 +42,11 @@ anychart.ui.chartEditor2.PlotPanel.prototype.createDom = function() {
     this.getElement().appendChild(this.close_);
   }
 
-  this.title_ = dom.createDom(goog.dom.TagName.H2, 'title', this.type_ + ' plot ' + (this.index_ + 1));
+  this.title_ = dom.createDom(goog.dom.TagName.H2, 'title', 'Plot ' + (this.index_ + 1));
   this.getElement().appendChild(this.title_);
 
   // X Values Input
   this.xInput_ = new goog.ui.Select();
-
-  // todo: передать доступные поля
-  var dummyFields = ['field1', 'field2', 'field3'];
-
-  for(var i = 0; i < dummyFields.length; i++) {
-    var item = new goog.ui.MenuItem(dummyFields[i]);
-    this.xInput_.addItem(item);
-  }
-  this.xInput_.setSelectedIndex(0);
   this.addChild(this.xInput_, true);
 
   this.addSeriesBtn_ = new goog.ui.Button('Add series');
@@ -63,9 +61,32 @@ anychart.ui.chartEditor2.PlotPanel.prototype.enterDocument = function() {
 
   this.getHandler().listen(this.addSeriesBtn_, goog.ui.Component.EventType.ACTION, this.onAddSeries_);
   this.listen(anychart.ui.chartEditor2.events.EventType.CLOSE_PANEL, this.onCloseSeries_);
-
   if (this.close_)
     this.getHandler().listen(this.close_, goog.events.EventType.CLICK, this.onClose_);
+  this.getHandler().listen(this.dataModel_, anychart.ui.chartEditor2.events.EventType.UPDATE_DATA_MODEL, this.update);
+
+  this.update(null);
+};
+
+
+anychart.ui.chartEditor2.PlotPanel.prototype.update = function(evt) {
+  var data = this.dataModel_.getPreparedData();
+
+  for (var a = this.xInput_.getItemCount(); a--;) {
+    this.xInput_.removeItemAt(a);
+  }
+
+  for(var i = 0; i < data.length; i++) {
+    var fields = data[i]['fields'];
+    for(var j = 0; j < fields.length; j++) {
+      var caption = data.length == 1 ? fields[j]['name'] : data[i]['name'] + ' - ' + fields[j]['name'];
+      var item = new anychart.ui.chartEditor2.MenuItemWithTwoValues(caption, fields[j]['key'], data[i]['setId']);
+      this.xInput_.addItem(item);
+    }
+  }
+
+  // todo: Do more deliberate choice
+  this.xInput_.setSelectedIndex(0);
 };
 
 

@@ -2,6 +2,7 @@ goog.provide('anychart.ui.chartEditor2.DataSetPanelList');
 
 goog.require('anychart.ui.Component');
 goog.require('anychart.ui.chartEditor2.DataSetPanel');
+goog.require('anychart.ui.chartEditor2.DataModel');
 
 
 
@@ -9,8 +10,14 @@ goog.require('anychart.ui.chartEditor2.DataSetPanel');
  * @constructor
  * @extends {anychart.ui.Component}
  */
-anychart.ui.chartEditor2.DataSetPanelList = function() {
-  anychart.ui.chartEditor2.DataSetPanelList.base(this, 'constructor');
+anychart.ui.chartEditor2.DataSetPanelList = function(dataModel) {
+  goog.base(this);
+
+  /**
+   * @type {anychart.ui.chartEditor2.DataModel}
+   * @private
+   */
+  this.dataModel_ = dataModel;
 
   this.panels_ = [];
 };
@@ -22,9 +29,16 @@ anychart.ui.chartEditor2.DataSetPanelList.prototype.createDom = function() {
   anychart.ui.chartEditor2.DataSetPanelList.base(this, 'createDom');
 
   var element = /** @type {Element} */(this.getElement());
-  //  var dom = this.getDomHelper();
-
   goog.dom.classlist.add(element, 'data-set-panel-list');
+};
+
+
+/** @inheritDoc */
+anychart.ui.chartEditor2.DataSetPanelList.prototype.enterDocument = function() {
+  goog.base(this, 'enterDocument');
+  this.getHandler().listen(this.dataModel_, anychart.ui.chartEditor2.events.EventType.UPDATE_DATA_MODEL, this.update);
+
+  this.update(null);
 };
 
 
@@ -39,7 +53,8 @@ anychart.ui.chartEditor2.DataSetPanelList.prototype.onRemoveData_ = function(evt
 };
 
 
-anychart.ui.chartEditor2.DataSetPanelList.prototype.updatePanels = function(data) {
+anychart.ui.chartEditor2.DataSetPanelList.prototype.update = function(evt) {
+  var data = this.dataModel_.getPreparedData();
   this.removeChildren(true);
   goog.disposeAll(this.panels_);
   this.panels_.length = 0;
