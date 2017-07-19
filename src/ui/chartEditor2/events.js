@@ -6,7 +6,9 @@ goog.require('goog.events');
 anychart.ui.chartEditor2.events.EventType = {
   ADD_DATA: goog.events.getUniqueId('add-data'),
   REMOVE_DATA: goog.events.getUniqueId('remove-data'),
-  UPDATE_FILTER: goog.events.getUniqueId('update-filter')
+  UPDATE_FILTER: goog.events.getUniqueId('update-filter'),
+
+  CLOSE_PANEL: goog.events.getUniqueId('close-panel')
 
   // CLOSE: goog.events.getUniqueId('close'),
   // ADD_SERIES: goog.events.getUniqueId('add-series'),
