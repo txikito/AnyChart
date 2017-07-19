@@ -26,8 +26,8 @@ anychart.ui.chartEditor2.PlotPanel.prototype.createDom = function() {
   anychart.ui.chartEditor2.PlotPanel.base(this, 'createDom');
 
   goog.dom.classlist.add(this.getElement(), 'plot-panel');
+  goog.dom.classlist.add(this.getElement(), 'plot-panel-' + this.type_);
   goog.dom.classlist.add(this.getElement(), 'closable');
-  // goog.dom.classlist.add(this.getElement(), this.className);
 
   var dom = this.getDomHelper();
   if (this.type_ == 'stock' && this.index_ > 0) {
@@ -40,8 +40,10 @@ anychart.ui.chartEditor2.PlotPanel.prototype.createDom = function() {
 
   // X Values Input
   this.xInput_ = new goog.ui.Select();
+
   // todo: передать доступные поля
   var dummyFields = ['field1', 'field2', 'field3'];
+
   for(var i = 0; i < dummyFields.length; i++) {
     var item = new goog.ui.MenuItem(dummyFields[i]);
     this.xInput_.addItem(item);
