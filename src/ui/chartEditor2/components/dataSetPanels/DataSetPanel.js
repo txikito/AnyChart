@@ -75,7 +75,7 @@ anychart.ui.chartEditor2.DataSetPanel.prototype.createDom = function() {
 
 anychart.ui.chartEditor2.DataSetPanel.prototype.removeDataSet = function() {
   this.dispatchEvent({
-    type: anychart.ui.chartEditor2.events.EventType.REMOVE_DATA,
+    type: anychart.ui.chartEditor2.events.EventType.DATA_REMOVE,
     setId: this.data_['setId'],
     dataType: this.data_['type']
   });

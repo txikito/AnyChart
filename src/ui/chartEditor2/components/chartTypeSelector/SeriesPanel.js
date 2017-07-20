@@ -71,7 +71,7 @@ anychart.ui.chartEditor2.SeriesPanel.prototype.enterDocument = function() {
 
   if (this.close_)
     this.getHandler().listen(this.close_, goog.events.EventType.CLICK, this.onClose_);
-  this.getHandler().listen(this.dataModel_, anychart.ui.chartEditor2.events.EventType.UPDATE_DATA_MODEL, this.update);
+  this.getHandler().listen(this.dataModel_, anychart.ui.chartEditor2.events.EventType.DATA_UPDATE_MODEL, this.update);
   this.getHandler().listen(this.typeSelect_, goog.ui.Component.EventType.ACTION, this.onChangeType_);
 
   this.createFields();
@@ -133,7 +133,7 @@ anychart.ui.chartEditor2.SeriesPanel.prototype.index = function(opt_value) {
 
 anychart.ui.chartEditor2.SeriesPanel.prototype.onClose_ = function(evt) {
   this.dispatchEvent({
-    type: anychart.ui.chartEditor2.events.EventType.CLOSE_PANEL,
+    type: anychart.ui.chartEditor2.events.EventType.PANEL_CLOSE,
     panelType: 'series',
     index: this.index_
   });

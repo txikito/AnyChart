@@ -57,7 +57,7 @@ anychart.ui.chartEditor2.GeoDataSelector.prototype.getDataSetUrl = function(file
 
 anychart.ui.chartEditor2.GeoDataSelector.prototype.onLoadData = function(json, setId) {
   this.dispatchEvent({
-    type: anychart.ui.chartEditor2.events.EventType.ADD_DATA,
+    type: anychart.ui.chartEditor2.events.EventType.DATA_ADD,
     data: json,
     setId: setId,
     dataType: this.dataType

@@ -36,12 +36,12 @@ anychart.ui.chartEditor2.DataModel.prototype.dataId_ = function(setId, dataType)
 anychart.ui.chartEditor2.DataModel.prototype.addData = function(setId, data, dataType) {
   var id = this.dataId_(setId, dataType);
   if (!this.data_[id]) {
-    this.data_[id] = {setId: setId, type: dataType, data: data};
+    this.data_[id] = {setId: setId, type: dataType, data: data, usingState: false};
   }
   this.preparedData_.length = 0;
 
   this.dispatchEvent({
-    type: anychart.ui.chartEditor2.events.EventType.UPDATE_DATA_MODEL
+    type: anychart.ui.chartEditor2.events.EventType.DATA_UPDATE_MODEL
   });
 };
 
@@ -52,7 +52,26 @@ anychart.ui.chartEditor2.DataModel.prototype.removeData = function(setId, dataTy
   this.preparedData_.length = 0;
 
   this.dispatchEvent({
-    type: anychart.ui.chartEditor2.events.EventType.UPDATE_DATA_MODEL
+    type: anychart.ui.chartEditor2.events.EventType.DATA_UPDATE_MODEL
+  });
+};
+
+
+/**
+ *
+ * @param usingState {boolean}
+ * @param setId {String}
+ * @param dataType {String}
+ */
+anychart.ui.chartEditor2.DataModel.prototype.useData = function(usingState, setId, dataType) {
+  var id = this.dataId_(setId, dataType);
+  this.data_[id]['usingState'] = usingState;
+
+  this.dispatchEvent({
+    type: anychart.ui.chartEditor2.events.EventType.UPDATE_DATA_USING_STATE,
+    state: usingState,
+    setId: setId,
+    dataType: dataType
   });
 };
 

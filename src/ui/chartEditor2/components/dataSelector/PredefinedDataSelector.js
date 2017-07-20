@@ -60,7 +60,7 @@ anychart.ui.chartEditor2.PredefinedDataSelector.prototype.getDataSetUrl = functi
 anychart.ui.chartEditor2.PredefinedDataSelector.prototype.onLoadData = function(json, setId) {
   if (json['data']) {
     this.dispatchEvent({
-      type: anychart.ui.chartEditor2.events.EventType.ADD_DATA,
+      type: anychart.ui.chartEditor2.events.EventType.DATA_ADD,
       data: json['data'],
       setId: setId,
       dataType: this.dataType

@@ -36,7 +36,7 @@ anychart.ui.chartEditor2.DataSetPanelList.prototype.createDom = function() {
 /** @inheritDoc */
 anychart.ui.chartEditor2.DataSetPanelList.prototype.enterDocument = function() {
   goog.base(this, 'enterDocument');
-  this.getHandler().listen(this.dataModel_, anychart.ui.chartEditor2.events.EventType.UPDATE_DATA_MODEL, this.update);
+  this.getHandler().listen(this.dataModel_, anychart.ui.chartEditor2.events.EventType.DATA_UPDATE_MODEL, this.update);
 
   this.update(null);
 };
@@ -62,7 +62,7 @@ anychart.ui.chartEditor2.DataSetPanelList.prototype.update = function(evt) {
   for(var i = 0; i < data.length; i++) {
     this.panels_.push(new anychart.ui.chartEditor2.DataSetPanel(data[i]));
     this.addChild(this.panels_[i], true);
-    this.getHandler().listen(this.panels_[i], anychart.ui.chartEditor2.events.EventType.REMOVE_DATA, this.onRemoveData_);
+    this.getHandler().listen(this.panels_[i], anychart.ui.chartEditor2.events.EventType.DATA_REMOVE, this.onRemoveData_);
   }
 };
 

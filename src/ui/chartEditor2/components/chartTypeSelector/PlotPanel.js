@@ -61,10 +61,10 @@ anychart.ui.chartEditor2.PlotPanel.prototype.enterDocument = function() {
   goog.base(this, 'enterDocument');
 
   this.getHandler().listen(this.addSeriesBtn_, goog.ui.Component.EventType.ACTION, this.onAddSeries_);
-  this.listen(anychart.ui.chartEditor2.events.EventType.CLOSE_PANEL, this.onCloseSeries_);
+  this.listen(anychart.ui.chartEditor2.events.EventType.PANEL_CLOSE, this.onCloseSeries_);
   if (this.close_)
     this.getHandler().listen(this.close_, goog.events.EventType.CLICK, this.onClose_);
-  this.getHandler().listen(this.dataModel_, anychart.ui.chartEditor2.events.EventType.UPDATE_DATA_MODEL, this.update);
+  this.getHandler().listen(this.dataModel_, anychart.ui.chartEditor2.events.EventType.DATA_UPDATE_MODEL, this.update);
 
   this.update(null);
 };
@@ -139,7 +139,7 @@ anychart.ui.chartEditor2.PlotPanel.prototype.onCloseSeries_ = function(evt) {
 
 anychart.ui.chartEditor2.PlotPanel.prototype.onClose_ = function(evt) {
   this.dispatchEvent({
-    type: anychart.ui.chartEditor2.events.EventType.CLOSE_PANEL,
+    type: anychart.ui.chartEditor2.events.EventType.PANEL_CLOSE,
     panelType: 'plot',
     index: this.index_
   })

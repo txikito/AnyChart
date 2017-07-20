@@ -102,10 +102,10 @@ anychart.ui.chartEditor2.ChartTypeSelector.prototype.createDom = function() {
 
 anychart.ui.chartEditor2.ChartTypeSelector.prototype.enterDocument = function() {
   anychart.ui.chartEditor2.ChartTypeSelector.base(this, 'enterDocument');
-  this.listen(anychart.ui.chartEditor2.events.EventType.CLOSE_PANEL, this.onClosePlot_);
+  this.listen(anychart.ui.chartEditor2.events.EventType.PANEL_CLOSE, this.onClosePlot_);
   this.getHandler().listen(this.chartTypeSelect_, goog.events.EventType.CHANGE, this.onChangeChartType_);
 
-  // this.getHandler().listen(this.dataModel_, anychart.ui.chartEditor2.events.EventType.UPDATE_DATA_MODEL, this.update);\
+  // this.getHandler().listen(this.dataModel_, anychart.ui.chartEditor2.events.EventType.DATA_UPDATE_MODEL, this.update);\
   // this.update(null);
 
   if (!this.chartType_)

@@ -73,15 +73,15 @@ anychart.ui.chartEditor2.DataSelectorBase.prototype.enterDocument = function() {
   anychart.ui.chartEditor2.DataSelectorBase.base(this, 'enterDocument');
 
   this.getHandler().listen(this.filterInput_, goog.events.EventType.INPUT, this.onFilterChange_);
-  this.listen(anychart.ui.chartEditor2.events.EventType.UPDATE_FILTER, this.onFilterChange_);
-  this.listen(anychart.ui.chartEditor2.events.EventType.REMOVE_DATA, this.onRemoveData_);
+  this.listen(anychart.ui.chartEditor2.events.EventType.FILTER_UPDATE, this.onFilterChange_);
+  this.listen(anychart.ui.chartEditor2.events.EventType.DATA_REMOVE, this.onRemoveData_);
   this.setButtonsListeners_();
 
   this.updateDataIndex_();
 
   // to redraw data sets
   this.dispatchEvent({
-    type: anychart.ui.chartEditor2.events.EventType.UPDATE_FILTER
+    type: anychart.ui.chartEditor2.events.EventType.FILTER_UPDATE
   });
 };
 
@@ -206,7 +206,7 @@ anychart.ui.chartEditor2.DataSelectorBase.prototype.onFilterChange_ = function(e
 anychart.ui.chartEditor2.DataSelectorBase.prototype.resetFilter_ = function() {
   goog.dom.forms.setValue(this.filterInput_, '');
   this.dispatchEvent({
-    type: anychart.ui.chartEditor2.events.EventType.UPDATE_FILTER
+    type: anychart.ui.chartEditor2.events.EventType.FILTER_UPDATE
   });
 };
 
@@ -264,7 +264,7 @@ anychart.ui.chartEditor2.DataSelectorBase.prototype.onRemoveData_ = function(evt
   if (setId && this.dataIndex[setId]['state'] == anychart.ui.chartEditor2.DataSelectorBase.DatasetState.LOADED) {
     this.dataIndex[setId]['state'] = anychart.ui.chartEditor2.DataSelectorBase.DatasetState.NOT_LOADED;
     this.dispatchEvent({
-      type: anychart.ui.chartEditor2.events.EventType.UPDATE_FILTER
+      type: anychart.ui.chartEditor2.events.EventType.FILTER_UPDATE
     });
   }
 };
@@ -276,7 +276,7 @@ anychart.ui.chartEditor2.DataSelectorBase.prototype.onLoadData = function(json, 
 
 anychart.ui.chartEditor2.DataSelectorBase.prototype.dispatchRemoveData = function(setId) {
   this.dispatchEvent({
-    type: anychart.ui.chartEditor2.events.EventType.REMOVE_DATA,
+    type: anychart.ui.chartEditor2.events.EventType.DATA_REMOVE,
     setId: setId,
     dataType: this.dataType
   });

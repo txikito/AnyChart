@@ -53,10 +53,6 @@ anychart.ui.Editor2 = function(opt_domHelper) {
 
   this.dataModel_ = new anychart.ui.chartEditor2.DataModel();
 
-  //this.editorModel_ = null;
-
-  //this.controller_ = new anychart.ui.chartEditor.Controller(this);
-
   this.imagesLoaded_ = true;
   this.preloader_ = new anychart.ui.Preloader();
   // var imageLoader = new goog.net.ImageLoader();
@@ -73,8 +69,9 @@ anychart.ui.Editor2 = function(opt_domHelper) {
   //imageLoader.start();
 
   goog.events.listen(this, anychart.enums.EventType.COMPLETE, this.onComplete_, false, this);
-  this.listen(anychart.ui.chartEditor2.events.EventType.ADD_DATA, this.onAddData_);
-  this.listen(anychart.ui.chartEditor2.events.EventType.REMOVE_DATA, this.onRemoveData_);
+
+  this.listen(anychart.ui.chartEditor2.events.EventType.DATA_ADD, this.onAddData_);
+  this.listen(anychart.ui.chartEditor2.events.EventType.DATA_REMOVE, this.onRemoveData_);
 };
 goog.inherits(anychart.ui.Editor2, anychart.ui.Component);
 
