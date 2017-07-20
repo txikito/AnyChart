@@ -61,8 +61,6 @@ anychart.ui.chartEditor2.SeriesPanel.prototype.createDom = function() {
     var item = new goog.ui.MenuItem(seriesTypes[i], seriesTypes[i]);
     this.typeSelect_.addItem(item);
   }
-  // todo: Do more deliberate choice
-  this.typeSelect_.setSelectedIndex(0);
 };
 
 
@@ -72,7 +70,10 @@ anychart.ui.chartEditor2.SeriesPanel.prototype.enterDocument = function() {
   if (this.close_)
     this.getHandler().listen(this.close_, goog.events.EventType.CLICK, this.onClose_);
   this.getHandler().listen(this.dataModel_, anychart.ui.chartEditor2.events.EventType.DATA_UPDATE_MODEL, this.update);
-  this.getHandler().listen(this.typeSelect_, goog.ui.Component.EventType.ACTION, this.onChangeType_);
+  this.getHandler().listen(this.typeSelect_, goog.ui.Component.EventType.CHANGE, this.onChangeType_);
+
+  // todo: Do more deliberate choice
+  this.typeSelect_.setSelectedIndex(0);
 
   this.createFields();
   this.update(null);
@@ -97,11 +98,13 @@ anychart.ui.chartEditor2.SeriesPanel.prototype.createFields = function() {
         self.addChild(fieldSelect, true);
 
         for(var i = 0; i < data.length; i++) {
+          if (self.dataModel_.currentId() != data[i]['type'] + data[i]['setId']) continue;
+
           var fields = data[i]['fields'];
           for(var j = 0; j < fields.length; j++) {
             var caption = data.length == 1 ? fields[j]['name'] : data[i]['name'] + ' - ' + fields[j]['name'];
-            var option = new anychart.ui.chartEditor2.MenuItemWithTwoValues(caption, fields[j]['key'], data[i]['setId']);
-            // todo: what is this?  item.setDispatchTransitionEvents(goog.ui.Component.State.ALL, true);
+            var setFullId = data[i]['type'] + data[i]['setId'];
+            var option = new anychart.ui.chartEditor2.MenuItemWithTwoValues(caption, fields[j]['key'], setFullId);
             fieldSelect.addItem(option);
           }
         }
@@ -115,7 +118,7 @@ anychart.ui.chartEditor2.SeriesPanel.prototype.createFields = function() {
 anychart.ui.chartEditor2.SeriesPanel.prototype.update = function(evt) {
   var data = this.dataModel_.getPreparedData();
 
-  console.log(data);
+  //console.log(data);
 };
 
 

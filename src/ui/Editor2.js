@@ -70,8 +70,10 @@ anychart.ui.Editor2 = function(opt_domHelper) {
 
   goog.events.listen(this, anychart.enums.EventType.COMPLETE, this.onComplete_, false, this);
 
-  this.listen(anychart.ui.chartEditor2.events.EventType.DATA_ADD, this.onAddData_);
-  this.listen(anychart.ui.chartEditor2.events.EventType.DATA_REMOVE, this.onRemoveData_);
+  this.listen(anychart.ui.chartEditor2.events.EventType.DATA_ADD, this.onDataAdd_);
+  this.listen(anychart.ui.chartEditor2.events.EventType.DATA_REMOVE, this.onDataRemove_);
+  this.listen(anychart.ui.chartEditor2.events.EventType.DATA_USE, this.onUpdateUsingState_);
+  this.listen(anychart.ui.chartEditor2.events.EventType.DATA_RELEASE, this.onUpdateUsingState_);
 };
 goog.inherits(anychart.ui.Editor2, anychart.ui.Component);
 
@@ -389,13 +391,18 @@ anychart.ui.Editor2.prototype.getDataModel = function() {
 };
 
 
-anychart.ui.Editor2.prototype.onAddData_ = function(evt) {
+anychart.ui.Editor2.prototype.onDataAdd_ = function(evt) {
   this.dataModel_.addData(evt['setId'], evt['data'], evt['dataType']);
 };
 
 
-anychart.ui.Editor2.prototype.onRemoveData_ = function(evt) {
+anychart.ui.Editor2.prototype.onDataRemove_ = function(evt) {
   this.dataModel_.removeData(evt['setId'], evt['dataType']);
+};
+
+
+anychart.ui.Editor2.prototype.onUpdateUsingState_ = function(evt) {
+  this.dataModel_.currentId(evt.setFullId);
 };
 
 

@@ -14,6 +14,12 @@ anychart.ui.chartEditor2.DataModel = function() {
   this.data_ = {};
 
   this.preparedData_ = [];
+
+  /**
+   * @type {?String}
+   * @private
+   */
+  this.currentId_ = null;
 };
 goog.inherits(anychart.ui.chartEditor2.DataModel, goog.events.EventTarget);
 
@@ -28,15 +34,15 @@ anychart.ui.chartEditor2.DataModel.dataType = {
 };
 
 
-anychart.ui.chartEditor2.DataModel.prototype.dataId_ = function(setId, dataType) {
+anychart.ui.chartEditor2.DataModel.prototype.getFullId = function(setId, dataType) {
   return dataType + setId;
 };
 
 
 anychart.ui.chartEditor2.DataModel.prototype.addData = function(setId, data, dataType) {
-  var id = this.dataId_(setId, dataType);
+  var id = this.getFullId(setId, dataType);
   if (!this.data_[id]) {
-    this.data_[id] = {setId: setId, type: dataType, data: data, usingState: false};
+    this.data_[id] = {'setId': setId, 'type': dataType, 'data': data};
   }
   this.preparedData_.length = 0;
 
@@ -47,7 +53,7 @@ anychart.ui.chartEditor2.DataModel.prototype.addData = function(setId, data, dat
 
 
 anychart.ui.chartEditor2.DataModel.prototype.removeData = function(setId, dataType) {
-  var id = this.dataId_(setId, dataType);
+  var id = this.getFullId(setId, dataType);
   delete this.data_[id];
   this.preparedData_.length = 0;
 
@@ -58,21 +64,19 @@ anychart.ui.chartEditor2.DataModel.prototype.removeData = function(setId, dataTy
 
 
 /**
- *
- * @param usingState {boolean}
- * @param setId {String}
- * @param dataType {String}
+ * @param opt_setFullId {String=}
  */
-anychart.ui.chartEditor2.DataModel.prototype.useData = function(usingState, setId, dataType) {
-  var id = this.dataId_(setId, dataType);
-  this.data_[id]['usingState'] = usingState;
+anychart.ui.chartEditor2.DataModel.prototype.currentId = function(opt_setFullId) {
+  if (goog.isDef(opt_setFullId)) {
+    this.currentId_ = opt_setFullId;
 
-  this.dispatchEvent({
-    type: anychart.ui.chartEditor2.events.EventType.UPDATE_DATA_USING_STATE,
-    state: usingState,
-    setId: setId,
-    dataType: dataType
-  });
+    this.dispatchEvent({
+      type: anychart.ui.chartEditor2.events.EventType.DATA_UPDATE_USING_STATE,
+      setFullId: this.currentId_
+    });
+  }
+
+  return this.currentId_;
 };
 
 
@@ -129,7 +133,7 @@ anychart.ui.chartEditor2.DataModel.prototype.prepareData_ = function() {
 
 
 anychart.ui.chartEditor2.DataModel.prototype.prepareDataSet_ = function(dataSet) {
-  var result = {type: dataSet['type'], setId: dataSet['setId']/*, data: dataSet['data']*/};
+  var result = {type: dataSet['type'], setId: dataSet['setId']};
 
   var row = dataSet['type'] == anychart.ui.chartEditor2.DataModel.dataType.GEO ?
       dataSet['data']['features'][0]['properties'] :

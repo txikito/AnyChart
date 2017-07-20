@@ -9,7 +9,7 @@ anychart.ui.chartEditor2.events.EventType = {
   DATA_ADD: goog.events.getUniqueId('data-add'),
   DATA_REMOVE: goog.events.getUniqueId('data-remove'),
   DATA_USE: goog.events.getUniqueId('data-use'),
-  DATA_RELEASE: goog.events.getUniqueId('data-release'),
+  // DATA_RELEASE: goog.events.getUniqueId('data-release'),
   DATA_UPDATE_USING_STATE: goog.events.getUniqueId('data-update-using-state'),
 
   // widgets events

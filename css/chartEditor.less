@@ -319,16 +319,25 @@
       padding: 0 10px 10px;
     }
   }
-
   .field {
     padding: 3px 5px;
     margin-bottom: 5px;
     border: 1px solid @color-dark-gray;
     background-color: @color-light-gray;
-    cursor: move;
+    //cursor: move;
     text-transform: uppercase;
     &:hover {
       background-color: @color-gray;
+    }
+  }
+  .disabled {
+    background-color: @color-dark-gray;
+    .field {
+      opacity: 0.7;
+      background-color: @color-gray;
+      &:hover {
+        background-color: @color-gray;
+      }
     }
   }
 }

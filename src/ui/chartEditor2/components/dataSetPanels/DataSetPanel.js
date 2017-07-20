@@ -7,13 +7,14 @@ goog.require('goog.ui.MenuItem');
 goog.require('goog.ui.MenuSeparator');
 
 
-
 /**
  * @constructor
  * @extends {anychart.ui.Component}
  */
 anychart.ui.chartEditor2.DataSetPanel = function(data) {
   goog.base(this);
+
+  this.disabled = false;
 
   this.data_ = data;
 };
@@ -63,7 +64,7 @@ anychart.ui.chartEditor2.DataSetPanel.prototype.createDom = function() {
   if (goog.isArray(this.data_['fields'])) {
     for (var i = 0; i < this.data_['fields'].length; i++) {
       fields.push(dom.createDom(goog.dom.TagName.DIV,
-          {'class': 'field', 'draggable': 'true'}, this.data_['fields'][i]['name']))
+          {'class': 'field'}, this.data_['fields'][i]['name']))
     }
   }
 
@@ -79,4 +80,20 @@ anychart.ui.chartEditor2.DataSetPanel.prototype.removeDataSet = function() {
     setId: this.data_['setId'],
     dataType: this.data_['type']
   });
+};
+
+
+anychart.ui.chartEditor2.DataSetPanel.prototype.getDataFullId = function() {
+  return this.data_['type'] + this.data_['setId'];
+};
+
+
+/**
+ * @param {boolean} value
+ */
+anychart.ui.chartEditor2.DataSetPanel.prototype.setDisabled = function(value) {
+  if (this.disabled != value) {
+    this.disabled = value;
+    goog.dom.classlist.enable(this.getElement(), 'disabled', this.disabled);
+  }
 };

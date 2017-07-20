@@ -103,6 +103,7 @@ anychart.ui.chartEditor2.ChartTypeSelector.prototype.createDom = function() {
 anychart.ui.chartEditor2.ChartTypeSelector.prototype.enterDocument = function() {
   anychart.ui.chartEditor2.ChartTypeSelector.base(this, 'enterDocument');
   this.listen(anychart.ui.chartEditor2.events.EventType.PANEL_CLOSE, this.onClosePlot_);
+  this.listen(goog.ui.Component.EventType.CHANGE, this.onSelectField_);
   this.getHandler().listen(this.chartTypeSelect_, goog.events.EventType.CHANGE, this.onChangeChartType_);
 
   // this.getHandler().listen(this.dataModel_, anychart.ui.chartEditor2.events.EventType.DATA_UPDATE_MODEL, this.update);\
@@ -116,7 +117,7 @@ anychart.ui.chartEditor2.ChartTypeSelector.prototype.enterDocument = function() 
 };
 
 
-anychart.ui.chartEditor2.ChartTypeSelector.prototype.onChangeChartType_ = function(evt) {
+anychart.ui.chartEditor2.ChartTypeSelector.prototype.onChangeChartType_ = function() {
   this.typeIcon_.setAttribute('src', this.chartTypeSelect_.getIcon());
   this.setChartType(this.chartTypeSelect_.getSelectedItem().getModel());
 
@@ -177,7 +178,22 @@ anychart.ui.chartEditor2.ChartTypeSelector.prototype.setChartType = function(cha
 
 anychart.ui.chartEditor2.ChartTypeSelector.prototype.getDefaultChartType = function() {
   // todo: Do more deliberate choice
+  // учитывать данные
   return 'line';
+};
+
+
+anychart.ui.chartEditor2.ChartTypeSelector.prototype.onSelectField_ = function(evt) {
+  var fieldSelect = evt.target.getParent();
+  if (goog.isDef(fieldSelect.role) && fieldSelect.role == anychart.ui.chartEditor2.FieldSelect.Role.DATA_FIELD) {
+    var setFullId = fieldSelect.getValue2();
+    if (setFullId) {
+      this.dispatchEvent({
+        type: anychart.ui.chartEditor2.events.EventType.DATA_USE,
+        setFullId: setFullId
+      });
+    }
+  }
 };
 
 
