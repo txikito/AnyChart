@@ -1,5 +1,6 @@
 goog.provide('anychart.ui.chartEditor2.PlotPanel');
 
+goog.require('anychart.ui.chartEditor2.FieldSelect');
 goog.require('anychart.ui.chartEditor2.MenuItemWithTwoValues');
 goog.require('anychart.ui.chartEditor2.SeriesPanel');
 goog.require('goog.ui.Component');
@@ -11,7 +12,7 @@ goog.require('goog.ui.Component');
  * @extends {goog.ui.Component}
  */
 anychart.ui.chartEditor2.PlotPanel = function(dataModel, chartType, index) {
-  anychart.ui.chartEditor2.PlotPanel.base(this, 'constructor');
+  goog.base(this);
 
   /**
    * @type {anychart.ui.chartEditor2.DataModel}
@@ -19,7 +20,7 @@ anychart.ui.chartEditor2.PlotPanel = function(dataModel, chartType, index) {
    */
   this.dataModel_ = dataModel;
 
-  this.type_ = chartType;
+  this.chartType_ = chartType;
 
   this.index_ = index;
 
@@ -33,11 +34,11 @@ anychart.ui.chartEditor2.PlotPanel.prototype.createDom = function() {
   anychart.ui.chartEditor2.PlotPanel.base(this, 'createDom');
 
   goog.dom.classlist.add(this.getElement(), 'plot-panel');
-  goog.dom.classlist.add(this.getElement(), 'plot-panel-' + this.type_);
+  goog.dom.classlist.add(this.getElement(), 'plot-panel-' + this.chartType_);
   goog.dom.classlist.add(this.getElement(), 'closable');
 
   var dom = this.getDomHelper();
-  if (this.type_ == 'stock' && this.index_ > 0) {
+  if (this.chartType_ == 'stock' && this.index_ > 0) {
     this.close_ = dom.createDom(goog.dom.TagName.DIV, 'close', 'X');
     this.getElement().appendChild(this.close_);
   }
@@ -46,8 +47,8 @@ anychart.ui.chartEditor2.PlotPanel.prototype.createDom = function() {
   this.getElement().appendChild(this.title_);
 
   // X Values Input
-  this.xInput_ = new goog.ui.Select();
-  this.addChild(this.xInput_, true);
+  this.xValueSelect_ = new anychart.ui.chartEditor2.FieldSelect('X Values');
+  this.addChild(this.xValueSelect_, true);
 
   this.addSeriesBtn_ = new goog.ui.Button('Add series');
   this.addChild(this.addSeriesBtn_, true);
@@ -72,8 +73,8 @@ anychart.ui.chartEditor2.PlotPanel.prototype.enterDocument = function() {
 anychart.ui.chartEditor2.PlotPanel.prototype.update = function(evt) {
   var data = this.dataModel_.getPreparedData();
 
-  for (var a = this.xInput_.getItemCount(); a--;) {
-    this.xInput_.removeItemAt(a);
+  for (var a = this.xValueSelect_.getItemCount(); a--;) {
+    this.xValueSelect_.removeItemAt(a);
   }
 
   for(var i = 0; i < data.length; i++) {
@@ -81,12 +82,12 @@ anychart.ui.chartEditor2.PlotPanel.prototype.update = function(evt) {
     for(var j = 0; j < fields.length; j++) {
       var caption = data.length == 1 ? fields[j]['name'] : data[i]['name'] + ' - ' + fields[j]['name'];
       var item = new anychart.ui.chartEditor2.MenuItemWithTwoValues(caption, fields[j]['key'], data[i]['setId']);
-      this.xInput_.addItem(item);
+      this.xValueSelect_.addItem(item);
     }
   }
 
   // todo: Do more deliberate choice
-  this.xInput_.setSelectedIndex(0);
+  this.xValueSelect_.setSelectedIndex(0);
 };
 
 
@@ -94,7 +95,7 @@ anychart.ui.chartEditor2.PlotPanel.prototype.index = function(opt_value) {
   if (goog.isDef(opt_value)) {
     if (goog.isNumber(opt_value)) {
       this.index_ = opt_value;
-      this.title_.innerHTML = this.type_ + ' plot ' + (this.index_ + 1);
+      this.title_.innerHTML = 'Plot ' + (this.index_ + 1);
     }
     return this;
   }
@@ -103,9 +104,17 @@ anychart.ui.chartEditor2.PlotPanel.prototype.index = function(opt_value) {
 
 
 anychart.ui.chartEditor2.PlotPanel.prototype.addSeries_ = function(seriesType) {
-  var series = new anychart.ui.chartEditor2.SeriesPanel(seriesType, this.series_.length);
+  var series = new anychart.ui.chartEditor2.SeriesPanel(this.dataModel_, this.chartType_, seriesType, this.series_.length);
   this.series_.push(series);
   this.addChildAt(series, this.getChildCount() - 1, true);
+};
+
+
+anychart.ui.chartEditor2.PlotPanel.prototype.getDefaultSeriesType_ = function() {
+  /**
+   * todo: проверять, позволяют ли выбранные данные использовать дефолтную серию.
+   */
+  return anychart.ui.chartEditor2.ChartTypeSelector.chartTypes[this.chartType_]['series'][0];
 };
 
 
@@ -125,11 +134,6 @@ anychart.ui.chartEditor2.PlotPanel.prototype.onCloseSeries_ = function(evt) {
       this.series_[i].index(i);
     }
   }
-};
-
-
-anychart.ui.chartEditor2.PlotPanel.prototype.getDefaultSeriesType_ = function() {
-  return 'line';
 };
 
 

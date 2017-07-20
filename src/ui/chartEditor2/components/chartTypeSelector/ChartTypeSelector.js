@@ -25,7 +25,6 @@ anychart.ui.chartEditor2.ChartTypeSelector = function(dataModel) {
    * @private
    */
   this.plots_ = [];
-
 };
 goog.inherits(anychart.ui.chartEditor2.ChartTypeSelector, goog.ui.Component);
 
@@ -35,25 +34,25 @@ anychart.ui.chartEditor2.ChartTypeSelector.chartTypes = {
     'value': 'line',
     'name': 'Line Chart',
     'icon': 'line-chart-1.svg', // 'http://www.anychart.com/_design/img/upload/charts/types/'
-    'series': ['line', 'spline', 'column', 'area'] // first value is default
+    'series': ['line', 'spline', 'column', 'area', 'ohlc'] // first value is default
   },
   'column': {
     'value': 'column',
     'name': 'Column Chart',
     'icon': 'column-chart.svg',
-    'series': ['column', 'line', 'spline', 'area']
+    'series': ['column', 'line', 'spline', 'area', 'ohlc']
   },
   'area': {
     'value': 'area',
     'name': 'Area Chart',
     'icon': 'area-chart.svg',
-    'series': ['area', 'line', 'spline', 'column']
+    'series': ['area', 'line', 'spline', 'column', 'ohlc']
   },
   'stock': {
     'value': 'stock',
     'name': 'Stock Chart',
     'icon': 'stock-chart.svg',
-    'series': ['ohlc', 'line', 'column', 'area']
+    'series': ['ohlc', 'line', 'spline', 'column', 'area']
   }
 };
 
@@ -97,9 +96,7 @@ anychart.ui.chartEditor2.ChartTypeSelector.prototype.createDom = function() {
   });
   dom.appendChild(this.getElement(), this.typeIcon_);
   this.addChild(this.chartTypeSelect_, true);
-
-  this.chartType_ = 'line';
-  this.setChartType();
+  goog.dom.classlist.add(this.chartTypeSelect_.getElement(), 'type-select');
 };
 
 
@@ -107,16 +104,24 @@ anychart.ui.chartEditor2.ChartTypeSelector.prototype.enterDocument = function() 
   anychart.ui.chartEditor2.ChartTypeSelector.base(this, 'enterDocument');
   this.listen(anychart.ui.chartEditor2.events.EventType.CLOSE_PANEL, this.onClosePlot_);
   this.getHandler().listen(this.chartTypeSelect_, goog.events.EventType.CHANGE, this.onChangeChartType_);
-  this.getHandler().listen(this.dataModel_, anychart.ui.chartEditor2.events.EventType.UPDATE_DATA_MODEL, this.update);
 
-  this.update(null);
+  // this.getHandler().listen(this.dataModel_, anychart.ui.chartEditor2.events.EventType.UPDATE_DATA_MODEL, this.update);\
+  // this.update(null);
+
+  if (!this.chartType_)
+    this.setChartType(this.getDefaultChartType());
+
+  if(this.addPlotBtn_)
+    this.getHandler().listen(this.addPlotBtn_, goog.ui.Component.EventType.ACTION, this.onAddPlot_);
 };
 
 
 anychart.ui.chartEditor2.ChartTypeSelector.prototype.onChangeChartType_ = function(evt) {
   this.typeIcon_.setAttribute('src', this.chartTypeSelect_.getIcon());
-  this.chartType_ = this.chartTypeSelect_.getSelectedItem().getModel();
-  this.setChartType();
+  this.setChartType(this.chartTypeSelect_.getSelectedItem().getModel());
+
+  if(this.addPlotBtn_)
+    this.getHandler().listen(this.addPlotBtn_, goog.ui.Component.EventType.ACTION, this.onAddPlot_);
 };
 
 
@@ -143,7 +148,11 @@ anychart.ui.chartEditor2.ChartTypeSelector.prototype.onClosePlot_ = function(evt
 };
 
 
-anychart.ui.chartEditor2.ChartTypeSelector.prototype.setChartType = function() {
+anychart.ui.chartEditor2.ChartTypeSelector.prototype.setChartType = function(chartType) {
+  if (this.chartType_ == chartType) return;
+
+  this.chartType_ = chartType;
+
   for (var i = 0; i < this.plots_.length; i++) {
     this.removeChild(this.plots_[i], true);
     this.plots_[i].dispose();
@@ -154,10 +163,9 @@ anychart.ui.chartEditor2.ChartTypeSelector.prototype.setChartType = function() {
   this.plots_.push(plot);
   this.addChild(plot, true);
 
-  if (this.chartType_ == 'stock') {
+  if (this.chartType_ == 'stock' && !this.addPlotBtn_) {
     this.addPlotBtn_ = new goog.ui.Button('Add plot');
     this.addChildAt(this.addPlotBtn_, this.getChildCount(), true);
-    this.getHandler().listen(this.addPlotBtn_, goog.ui.Component.EventType.ACTION, this.onAddPlot_);
   } else if (this.addPlotBtn_) {
     // Убрать кнопку
     this.removeChild(this.addPlotBtn_, true);
@@ -167,8 +175,9 @@ anychart.ui.chartEditor2.ChartTypeSelector.prototype.setChartType = function() {
 };
 
 
-anychart.ui.chartEditor2.ChartTypeSelector.prototype.update = function(evt) {
-  // TODO: надо ли что-то делать?
+anychart.ui.chartEditor2.ChartTypeSelector.prototype.getDefaultChartType = function() {
+  // todo: Do more deliberate choice
+  return 'line';
 };
 
 
