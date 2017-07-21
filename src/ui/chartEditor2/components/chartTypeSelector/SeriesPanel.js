@@ -7,7 +7,6 @@ goog.require('goog.ui.Select');
 goog.require('goog.ui.MenuItem');
 
 
-
 /**
  * @constructor
  * @extends {goog.ui.Component}
@@ -32,6 +31,12 @@ anychart.ui.chartEditor2.SeriesPanel = function(dataModel, chartType, seriesType
    * @private
    */
   this.fields_ = [];
+
+  /**
+   * @type {?String}
+   * @private
+   */
+  this.currentSetId_ = null;
 };
 goog.inherits(anychart.ui.chartEditor2.SeriesPanel, goog.ui.Component);
 
@@ -49,40 +54,39 @@ anychart.ui.chartEditor2.SeriesPanel.prototype.createDom = function() {
     this.getElement().appendChild(this.close_);
   }
 
-  // this.title_ = dom.createDom(goog.dom.TagName.H3, null, this.seriesType_ + ' series ' + this.index_);
-  // this.getElement().appendChild(this.title_);
-
   this.typeSelect_ = new anychart.ui.chartEditor2.FieldSelect('Series type');
-  //this.typeSelect_ = new goog.ui.Select();
   this.addChild(this.typeSelect_, true);
 
   var seriesTypes = anychart.ui.chartEditor2.ChartTypeSelector.chartTypes[this.chartType_]['series'];
-  for(var i = 0; i < seriesTypes.length; i++) {
+  for (var i = 0; i < seriesTypes.length; i++) {
     var item = new goog.ui.MenuItem(seriesTypes[i], seriesTypes[i]);
     this.typeSelect_.addItem(item);
   }
 };
 
 
+/** @inheritDoc */
 anychart.ui.chartEditor2.SeriesPanel.prototype.enterDocument = function() {
   anychart.ui.chartEditor2.SeriesPanel.base(this, 'enterDocument');
 
   if (this.close_)
     this.getHandler().listen(this.close_, goog.events.EventType.CLICK, this.onClose_);
-  this.getHandler().listen(this.dataModel_, anychart.ui.chartEditor2.events.EventType.DATA_UPDATE_MODEL, this.update);
+
+  this.getHandler().listen(this.getParent(), anychart.ui.chartEditor2.events.EventType.DATA_USE, this.onDataUse_);
   this.getHandler().listen(this.typeSelect_, goog.ui.Component.EventType.CHANGE, this.onChangeType_);
 
-  // todo: Do more deliberate choice
-  this.typeSelect_.setSelectedIndex(0);
+  if (!this.currentSetId_) {
+    // todo: Do more deliberate choice
+    this.typeSelect_.setSelectedIndex(0);
 
-  this.createFields();
-  this.update(null);
+    this.createFields();
+  }
 };
 
 
 anychart.ui.chartEditor2.SeriesPanel.prototype.createFields = function() {
   var self = this;
-  var data = this.dataModel_.getPreparedData();
+
   for (var a = this.fields_.length; a--;) {
     this.removeChild(this.fields_[a], true);
     this.fields_[a].dispose();
@@ -96,29 +100,58 @@ anychart.ui.chartEditor2.SeriesPanel.prototype.createFields = function() {
         var fieldSelect = new anychart.ui.chartEditor2.FieldSelect(fieldName);
         self.fields_.push(fieldSelect);
         self.addChild(fieldSelect, true);
-
-        for(var i = 0; i < data.length; i++) {
-          if (self.dataModel_.currentId() != data[i]['type'] + data[i]['setId']) continue;
-
-          var fields = data[i]['fields'];
-          for(var j = 0; j < fields.length; j++) {
-            var caption = data.length == 1 ? fields[j]['name'] : data[i]['name'] + ' - ' + fields[j]['name'];
-            var setFullId = data[i]['type'] + data[i]['setId'];
-            var option = new anychart.ui.chartEditor2.MenuItemWithTwoValues(caption, fields[j]['key'], setFullId);
-            fieldSelect.addItem(option);
-          }
-        }
-
-        // todo: Do more deliberate choice
-        fieldSelect.setSelectedIndex(0);
       });
 };
 
 
-anychart.ui.chartEditor2.SeriesPanel.prototype.update = function(evt) {
-  var data = this.dataModel_.getPreparedData();
+anychart.ui.chartEditor2.SeriesPanel.prototype.createFieldsOptions = function(opt_currentSetId) {
+  if (goog.isDef(opt_currentSetId))
+    this.currentSetId_ = opt_currentSetId;
 
-  //console.log(data);
+  var preparedData = this.dataModel_.getPreparedData();
+  var data;
+  for (var a = preparedData.length; a--;) {
+    if (preparedData[a]['type'] + preparedData[a]['setId'] == this.currentSetId_) {
+      data = preparedData[a];
+      break;
+    }
+  }
+
+  if (data) {
+    for (var i = 0; i < this.fields_.length; i++) {
+      for (var b = this.fields_[i].getItemCount(); b--;) {
+        this.fields_[i].removeItemAt(b);
+      }
+
+      var dataFields = data['fields'];
+      for (var j = 0; j < dataFields.length; j++) {
+        var caption = data['name'] + ' - ' + dataFields[j]['name'];
+        var option = new anychart.ui.chartEditor2.MenuItemWithTwoValues(caption, dataFields[j]['key'], this.currentSetId_);
+        this.fields_[i].addItem(option);
+      }
+
+      // todo: Do more deliberate choice
+      this.fields_[i].setSelectedIndex(0);
+    }
+  }
+};
+
+
+anychart.ui.chartEditor2.SeriesPanel.prototype.onDataUse_ = function(evt) {
+  if (this.currentSetId_ != evt.setFullId) {
+    this.currentSetId_ = evt.setFullId;
+    this.createFieldsOptions();
+  }
+};
+
+
+anychart.ui.chartEditor2.SeriesPanel.prototype.onChangeType_ = function(evt) {
+  var type = evt.target.getValue();
+  if (type && type != this.seriesType_) {
+    this.seriesType_ = type;
+    this.createFields();
+    this.createFieldsOptions();
+  }
 };
 
 
@@ -126,7 +159,6 @@ anychart.ui.chartEditor2.SeriesPanel.prototype.index = function(opt_value) {
   if (goog.isDef(opt_value)) {
     if (goog.isNumber(opt_value)) {
       this.index_ = opt_value;
-      //this.title_.innerHTML = this.seriesType_ + ' series ' + this.index_;
     }
     return this;
   }
@@ -140,13 +172,4 @@ anychart.ui.chartEditor2.SeriesPanel.prototype.onClose_ = function(evt) {
     panelType: 'series',
     index: this.index_
   });
-};
-
-
-anychart.ui.chartEditor2.SeriesPanel.prototype.onChangeType_ = function(evt) {
-  var type = evt.target.getValue();
-  if (type && type != this.seriesType_) {
-    this.seriesType_ = type;
-    this.createFields();
-  }
 };

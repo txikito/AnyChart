@@ -58,7 +58,7 @@ anychart.ui.chartEditor2.FieldSelect.prototype.removeItemAt = function(index) {
 
 
 /**
- * @param item {anychart.ui.chartEditor2.MenuItemWithTwoValues}
+ * @param item {goog.ui.MenuItem|anychart.ui.chartEditor2.MenuItemWithTwoValues}
  */
 anychart.ui.chartEditor2.FieldSelect.prototype.addItem = function(item) {
   return this.select_.addItem(item);

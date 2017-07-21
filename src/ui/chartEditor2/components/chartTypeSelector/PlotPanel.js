@@ -24,7 +24,17 @@ anychart.ui.chartEditor2.PlotPanel = function(dataModel, chartType, index) {
 
   this.index_ = index;
 
+  /**
+   * @type {Array.<anychart.ui.chartEditor2.SeriesPanel>}
+   * @private
+   */
   this.series_ = [];
+
+  /**
+   * @type {?String}
+   * @private
+   */
+  this.currentSetId_ = null;
 };
 goog.inherits(anychart.ui.chartEditor2.PlotPanel, goog.ui.Component);
 
@@ -66,13 +76,12 @@ anychart.ui.chartEditor2.PlotPanel.prototype.enterDocument = function() {
   this.getHandler().listen(this.xValueSelect_, goog.ui.Component.EventType.CHANGE, this.onChangeXValue_);
 
   this.update(null);
-
-  // add first series
-  //this.addSeries_(this.getDefaultSeriesType_());
 };
 
 
 anychart.ui.chartEditor2.PlotPanel.prototype.update = function(evt) {
+  if (evt && evt.action == 'add') return;
+
   var data = this.dataModel_.getPreparedData();
 
   for (var a = this.xValueSelect_.getItemCount(); a--;) {
@@ -91,10 +100,6 @@ anychart.ui.chartEditor2.PlotPanel.prototype.update = function(evt) {
 
   // todo: Do more deliberate choice
   this.xValueSelect_.setSelectedIndex(0);
-
-  for (var j = this.series_.length; j--;) {
-    this.series_[j].update();
-  }
 };
 
 
@@ -110,10 +115,11 @@ anychart.ui.chartEditor2.PlotPanel.prototype.index = function(opt_value) {
 };
 
 
-anychart.ui.chartEditor2.PlotPanel.prototype.addSeries_ = function(seriesType) {
+anychart.ui.chartEditor2.PlotPanel.prototype.addSeries_ = function(seriesType, opt_createFieldsOptions) {
   var series = new anychart.ui.chartEditor2.SeriesPanel(this.dataModel_, this.chartType_, seriesType, this.series_.length);
   this.series_.push(series);
   this.addChildAt(series, this.getChildCount() - 1, true);
+  series.createFieldsOptions(this.currentSetId_);
 };
 
 
@@ -126,7 +132,7 @@ anychart.ui.chartEditor2.PlotPanel.prototype.getDefaultSeriesType_ = function() 
 
 
 anychart.ui.chartEditor2.PlotPanel.prototype.onAddSeries_ = function(evt) {
-  this.addSeries_(this.getDefaultSeriesType_());
+  this.addSeries_(this.getDefaultSeriesType_(), true);
 };
 
 
@@ -145,16 +151,17 @@ anychart.ui.chartEditor2.PlotPanel.prototype.onCloseSeries_ = function(evt) {
 
 
 anychart.ui.chartEditor2.PlotPanel.prototype.onChangeXValue_ = function(evt) {
-    var setFullId = evt.target.getParent().getValue2();
+  var setFullId = evt.target.getParent().getValue2();
   if (setFullId) {
+    this.currentSetId_ = setFullId;
+    if (!this.series_.length)
+      this.addSeries_(this.getDefaultSeriesType_());
+
     this.dispatchEvent({
       type: anychart.ui.chartEditor2.events.EventType.DATA_USE,
-      setFullId: setFullId
+      setFullId: this.currentSetId_
     });
   }
-
-  if (!this.series_.length)
-    this.addSeries_(this.getDefaultSeriesType_());
 };
 
 

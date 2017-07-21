@@ -47,7 +47,8 @@ anychart.ui.chartEditor2.DataModel.prototype.addData = function(setId, data, dat
   this.preparedData_.length = 0;
 
   this.dispatchEvent({
-    type: anychart.ui.chartEditor2.events.EventType.DATA_UPDATE_MODEL
+    type: anychart.ui.chartEditor2.events.EventType.DATA_UPDATE_MODEL,
+    action: 'add'
   });
 };
 
@@ -58,7 +59,10 @@ anychart.ui.chartEditor2.DataModel.prototype.removeData = function(setId, dataTy
   this.preparedData_.length = 0;
 
   this.dispatchEvent({
-    type: anychart.ui.chartEditor2.events.EventType.DATA_UPDATE_MODEL
+    type: anychart.ui.chartEditor2.events.EventType.DATA_UPDATE_MODEL,
+    action: 'remove',
+    setFullId: id,
+    isActiveRemoved: this.currentId_ == id
   });
 };
 
