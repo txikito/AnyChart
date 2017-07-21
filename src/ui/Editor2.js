@@ -393,6 +393,11 @@ anychart.ui.Editor2.prototype.getDataModel = function() {
 };
 
 
+anychart.ui.Editor2.prototype.getEditorModel = function() {
+  return this.editorModel_;
+};
+
+
 anychart.ui.Editor2.prototype.onDataAdd_ = function(evt) {
   this.dataModel_.addData(evt['setId'], evt['data'], evt['dataType']);
 };

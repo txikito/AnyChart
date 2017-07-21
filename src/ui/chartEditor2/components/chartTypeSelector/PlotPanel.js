@@ -11,14 +11,14 @@ goog.require('goog.ui.Component');
  * @constructor
  * @extends {goog.ui.Component}
  */
-anychart.ui.chartEditor2.PlotPanel = function(dataModel, chartType, index) {
+anychart.ui.chartEditor2.PlotPanel = function(editor, chartType, index) {
   goog.base(this);
 
   /**
-   * @type {anychart.ui.chartEditor2.DataModel}
+   * @type {anychart.ui.Editor2}
    * @private
    */
-  this.dataModel_ = dataModel;
+  this.editor_ = editor;
 
   this.chartType_ = chartType;
 
@@ -57,7 +57,7 @@ anychart.ui.chartEditor2.PlotPanel.prototype.createDom = function() {
   this.getElement().appendChild(this.title_);
 
   // X Values Input
-  this.xValueSelect_ = new anychart.ui.chartEditor2.FieldSelect('X Values', anychart.ui.chartEditor2.FieldSelect.Role.DATA_FIELD);
+  this.xValueSelect_ = new anychart.ui.chartEditor2.FieldSelect('X Values');
   this.addChild(this.xValueSelect_, true);
 
   this.addSeriesBtn_ = new goog.ui.Button('Add series');
@@ -72,7 +72,7 @@ anychart.ui.chartEditor2.PlotPanel.prototype.enterDocument = function() {
   this.listen(anychart.ui.chartEditor2.events.EventType.PANEL_CLOSE, this.onCloseSeries_);
   if (this.close_)
     this.getHandler().listen(this.close_, goog.events.EventType.CLICK, this.onClose_);
-  this.getHandler().listen(this.dataModel_, anychart.ui.chartEditor2.events.EventType.DATA_UPDATE_MODEL, this.update);
+  this.getHandler().listen(this.editor_.getDataModel(), anychart.ui.chartEditor2.events.EventType.DATA_UPDATE_MODEL, this.update);
   this.getHandler().listen(this.xValueSelect_, goog.ui.Component.EventType.CHANGE, this.onChangeXValue_);
 
   this.update(null);
@@ -85,7 +85,7 @@ anychart.ui.chartEditor2.PlotPanel.prototype.update = function(evt) {
   // if (evt.action == 'remove' && !evt.action.isActiveRemoved) {
   //
   // }
-  var data = this.dataModel_.getPreparedData();
+  var data = this.editor_.getDataModel().getPreparedData();
 
   for (var a = this.xValueSelect_.getItemCount(); a--;) {
     this.xValueSelect_.removeItemAt(a);
@@ -120,7 +120,7 @@ anychart.ui.chartEditor2.PlotPanel.prototype.index = function(opt_value) {
 
 
 anychart.ui.chartEditor2.PlotPanel.prototype.addSeries_ = function(seriesType) {
-  var series = new anychart.ui.chartEditor2.SeriesPanel(this.dataModel_, this.chartType_, seriesType, this.series_.length);
+  var series = new anychart.ui.chartEditor2.SeriesPanel(this.editor_, this.chartType_, seriesType, this.series_.length);
   this.series_.push(series);
   this.addChildAt(series, this.getChildCount() - 1, true);
   series.createFieldsOptions(this.currentSetId_);
@@ -131,7 +131,7 @@ anychart.ui.chartEditor2.PlotPanel.prototype.getDefaultSeriesType_ = function() 
   /**
    * todo: проверять, позволяют ли выбранные данные использовать дефолтную серию.
    */
-  return anychart.ui.chartEditor2.ChartTypeSelector.chartTypes[this.chartType_]['series'][0];
+  return anychart.ui.chartEditor2.EditorModel.chartTypes[this.chartType_]['series'][0];
 };
 
 

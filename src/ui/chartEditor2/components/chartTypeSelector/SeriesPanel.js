@@ -11,14 +11,14 @@ goog.require('goog.ui.MenuItem');
  * @constructor
  * @extends {goog.ui.Component}
  */
-anychart.ui.chartEditor2.SeriesPanel = function(dataModel, chartType, seriesType, index) {
+anychart.ui.chartEditor2.SeriesPanel = function(editor, chartType, seriesType, index) {
   anychart.ui.chartEditor2.SeriesPanel.base(this, 'constructor');
 
   /**
-   * @type {anychart.ui.chartEditor2.DataModel}
+   * @type {anychart.ui.Editor2}
    * @private
    */
-  this.dataModel_ = dataModel;
+  this.editor_  = editor;
 
   this.index_ = index;
 
@@ -57,7 +57,7 @@ anychart.ui.chartEditor2.SeriesPanel.prototype.createDom = function() {
   this.typeSelect_ = new anychart.ui.chartEditor2.FieldSelect('Series type');
   this.addChild(this.typeSelect_, true);
 
-  var seriesTypes = anychart.ui.chartEditor2.ChartTypeSelector.chartTypes[this.chartType_]['series'];
+  var seriesTypes = anychart.ui.chartEditor2.EditorModel.chartTypes[this.chartType_]['series'];
   for (var i = 0; i < seriesTypes.length; i++) {
     var item = new goog.ui.MenuItem(seriesTypes[i], seriesTypes[i]);
     this.typeSelect_.addItem(item);
@@ -93,7 +93,7 @@ anychart.ui.chartEditor2.SeriesPanel.prototype.createFields = function() {
   }
   this.fields_.length = 0;
 
-  var fieldsMap = anychart.ui.chartEditor2.ChartTypeSelector.series[this.seriesType_]['fields'];
+  var fieldsMap = anychart.ui.chartEditor2.EditorModel.series[this.seriesType_]['fields'];
   goog.object.forEach(fieldsMap,
       function(item) {
         var fieldName = item['name'] ? item['name'] : item['field'];
@@ -108,7 +108,7 @@ anychart.ui.chartEditor2.SeriesPanel.prototype.createFieldsOptions = function(op
   if (goog.isDef(opt_currentSetId))
     this.currentSetId_ = opt_currentSetId;
 
-  var preparedData = this.dataModel_.getPreparedData();
+  var preparedData = this.editor_.getDataModel().getPreparedData();
   var data;
   for (var a = preparedData.length; a--;) {
     if (preparedData[a]['type'] + preparedData[a]['setId'] == this.currentSetId_) {

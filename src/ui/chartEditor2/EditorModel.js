@@ -8,7 +8,7 @@ goog.require('goog.events.EventTarget');
  * @constructor
  * @extends {goog.events.EventTarget}
  */
-anychart.ui.anychart.ui.chartEditor2.EditorModel = function() {
+anychart.ui.chartEditor2.EditorModel = function() {
   goog.base(this);
 
   this.inputs_ = {
@@ -18,7 +18,7 @@ anychart.ui.anychart.ui.chartEditor2.EditorModel = function() {
       'chart': [
         // group = 0
         {
-          // key = 'type', value = 'line'
+          // name = 'type', value = 'line'
           'type': 'line'
         }
       ],
@@ -26,10 +26,10 @@ anychart.ui.anychart.ui.chartEditor2.EditorModel = function() {
       'series': [
         // group = 0
         {
-          // key = 'type', value = 'ohlc'
+          // name = 'type', value = 'ohlc'
           'type': 'ohlc',
 
-          // key = 'open', value = 'field0'
+          // name = 'open', value = 'field0'
           'open': 'field0',
 
           // so on...
@@ -40,55 +40,99 @@ anychart.ui.anychart.ui.chartEditor2.EditorModel = function() {
       ],
      ...
      */
-    'chart': [
-      {'type': null}
-    ],
-    'plot': [
-      {
-        'setId': null,
-        'xValue': null
-      }
-    ],
-    'series': [
-      {
-        'type': null,
-        'xValue': null
-      }
-    ]
+    'chart': [],
+    'plot': [],
+    'series': []
   };
 };
 goog.inherits(anychart.ui.chartEditor2.EditorModel, goog.events.EventTarget);
 
 
 /**
- * Setter for input's state
- * @param {String} category
- * @param {String} key
- * @param {String} value
- * @param {?number} opt_group Default is 0
+ * @typedef {{category: String, name: String, group: number=}}
  */
-anychart.ui.anychart.ui.chartEditor2.EditorModel.prototype.setInput = function(category, key, value, opt_group) {
-  var group = goog.isDef(opt_group) ? opt_group : 0;
-  if (this.inputs_[category].length <= group) {
-    if (this.inputs_[category].length == group) {
-      this.inputs_[category].push({});
+anychart.ui.chartEditor2.EditorModel.Key;
+
+
+anychart.ui.chartEditor2.EditorModel.chartTypes = {
+  'line': {
+    'value': 'line',
+    'name': 'Line Chart',
+    'icon': 'line-chart-1.svg', // 'http://www.anychart.com/_design/img/upload/charts/types/'
+    'series': ['line', 'spline', 'column', 'area', 'ohlc'] // first value is default
+  },
+  'column': {
+    'value': 'column',
+    'name': 'Column Chart',
+    'icon': 'column-chart.svg',
+    'series': ['column', 'line', 'spline', 'area', 'ohlc']
+  },
+  'area': {
+    'value': 'area',
+    'name': 'Area Chart',
+    'icon': 'area-chart.svg',
+    'series': ['area', 'line', 'spline', 'column', 'ohlc']
+  },
+  'stock': {
+    'value': 'stock',
+    'name': 'Stock Chart',
+    'icon': 'stock-chart.svg',
+    'series': ['ohlc', 'line', 'spline', 'column', 'area']
+  }
+};
+
+
+anychart.ui.chartEditor2.EditorModel.series = {
+  'line': {
+    'fields': [{name: 'Y Value', field: 'y'}]
+  },
+  'spline': {
+    'fields': [{name: 'Y Value', field: 'y'}]
+  },
+  'column': {
+    'fields': [{name: 'Y Value', field: 'y'}]
+  },
+  'area': {
+    'fields': [{name: 'Y Value', field: 'y'}]
+  },
+  'ohlc': {
+    'fields': [
+      {field: 'open'},
+      {field: 'high'},
+      {field: 'low'},
+      {field: 'close'}]
+  }
+};
+
+
+/**
+ * Setter for input's state
+ * @param {anychart.ui.chartEditor2.EditorModel.Key} key
+ * @param {*} value
+ */
+anychart.ui.chartEditor2.EditorModel.prototype.setInputValue = function(key, value) {
+  var group = goog.isDef(key['group']) ? key['group'] : 0;
+  if (this.inputs_[key['category']].length >= group) {
+    if (this.inputs_[key['category']].length == group) {
+      this.inputs_[key['category']].push({});
     }
-    this.inputs_[category][group][key] = value;
+    this.inputs_[key['category']][group][key['name']] = value;
   } else {
-    console.warn('Bad group! EditorModel.setInput(\'', category, key, value, opt_group, '\'');
+    console.warn('Bad group! EditorModel.setInput(\'', key, value, '\'');
   }
 };
 
 
 /**
  * Getter for input's value
- * @param {String} category
- * @param {String} key
- * @param {?number} opt_group Default is 0
- * @return {String} Input's value
+ * @param {anychart.ui.chartEditor2.EditorModel.Key} key
+ * @return {*} Input's value
  */
-anychart.ui.anychart.ui.chartEditor2.EditorModel.prototype.getInput = function(category, key, opt_group) {
-  return this.inputs_[category][goog.isDef(opt_group) ? opt_group : 0][key];
+anychart.ui.chartEditor2.EditorModel.prototype.getInputValue = function(key) {
+  var group = goog.isDef(key['group']) ? key['group'] : 0;
+  return this.inputs_[key['category']] && this.inputs_[key['category']][group] && goog.isDef(this.inputs_[key['category']][group][key['name']]) ?
+      this.inputs_[key['category']][group][key['name']] :
+      void 0;
 };
 
 
@@ -96,6 +140,6 @@ anychart.ui.anychart.ui.chartEditor2.EditorModel.prototype.getInput = function(c
  * @param {String} category
  * @param {number} group
  */
-anychart.ui.anychart.ui.chartEditor2.EditorModel.prototype.removeInputsGroup = function(category, group) {
+anychart.ui.chartEditor2.EditorModel.prototype.removeInputsGroup = function(category, group) {
   goog.array.splice(this.inputs_[category], group, 1);
 };

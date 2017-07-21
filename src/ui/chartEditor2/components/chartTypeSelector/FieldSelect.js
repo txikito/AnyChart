@@ -6,30 +6,17 @@ goog.require('goog.ui.Select');
 
 /**
  * @param name {String}
- * @param opt_role {anychart.ui.chartEditor2.FieldSelect.Role=}
  * @param opt_domHelper
  * @constructor
  * @extends {goog.ui.Container}
  */
-anychart.ui.chartEditor2.FieldSelect = function(name, opt_role, opt_domHelper) {
+anychart.ui.chartEditor2.FieldSelect = function(name, opt_domHelper) {
   anychart.ui.chartEditor2.FieldSelect.base(this, 'constructor', opt_domHelper);
 
   this.name_ = name;
-
-  /**
-   * @type {anychart.ui.chartEditor2.FieldSelect.Role}
-   * @public
-   */
-  this.role = goog.isDef(opt_role) ? opt_role : anychart.ui.chartEditor2.FieldSelect.Role.SIMPLE;
 };
 goog.inherits(anychart.ui.chartEditor2.FieldSelect, goog.ui.Component);
 
-
-/** @enum {number} */
-anychart.ui.chartEditor2.FieldSelect.Role = {
-  SIMPLE: 0,
-  DATA_FIELD: 1
-};
 
 
 anychart.ui.chartEditor2.FieldSelect.prototype.createDom = function() {
