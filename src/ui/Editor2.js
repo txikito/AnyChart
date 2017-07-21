@@ -73,7 +73,6 @@ anychart.ui.Editor2 = function(opt_domHelper) {
   this.listen(anychart.ui.chartEditor2.events.EventType.DATA_ADD, this.onDataAdd_);
   this.listen(anychart.ui.chartEditor2.events.EventType.DATA_REMOVE, this.onDataRemove_);
   this.listen(anychart.ui.chartEditor2.events.EventType.DATA_USE, this.onUpdateUsingState_);
-  this.listen(anychart.ui.chartEditor2.events.EventType.DATA_RELEASE, this.onUpdateUsingState_);
 };
 goog.inherits(anychart.ui.Editor2, anychart.ui.Component);
 
