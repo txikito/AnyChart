@@ -106,9 +106,6 @@ anychart.ui.chartEditor2.ChartTypeSelector.prototype.enterDocument = function() 
   this.listen(goog.ui.Component.EventType.CHANGE, this.onSelectField_);
   this.getHandler().listen(this.chartTypeSelect_, goog.events.EventType.CHANGE, this.onChangeChartType_);
 
-  // this.getHandler().listen(this.dataModel_, anychart.ui.chartEditor2.events.EventType.DATA_UPDATE_MODEL, this.update);\
-  // this.update(null);
-
   if (!this.chartType_)
     this.setChartType(this.getDefaultChartType());
 

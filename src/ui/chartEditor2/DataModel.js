@@ -7,6 +7,7 @@ goog.require('goog.format.JsonPrettyPrinter');
 
 /**
  * @constructor
+ * @extends {goog.events.EventTarget}
  */
 anychart.ui.chartEditor2.DataModel = function() {
   goog.base(this);

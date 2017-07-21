@@ -6,6 +6,7 @@ goog.require('anychart.ui.Preloader');
 goog.require('anychart.ui.button.Primary');
 goog.require('anychart.ui.button.Secondary');
 goog.require('anychart.ui.chartEditor2.DataModel');
+goog.require('anychart.ui.chartEditor2.EditorModel');
 goog.require('anychart.ui.chartEditor2.events');
 goog.require('anychart.ui.chartEditor2.steps.PrepareData');
 goog.require('anychart.ui.chartEditor2.steps.SetupChart');
@@ -52,6 +53,8 @@ anychart.ui.Editor2 = function(opt_domHelper) {
   this.steps_ = [];
 
   this.dataModel_ = new anychart.ui.chartEditor2.DataModel();
+
+  this.editorModel_ = new anychart.ui.chartEditor2.EditorModel();
 
   this.imagesLoaded_ = true;
   this.preloader_ = new anychart.ui.Preloader();
