@@ -1,7 +1,7 @@
 goog.provide('anychart.ui.chartEditor2.SeriesPanel');
 
-goog.require('anychart.ui.chartEditor2.FieldSelect');
-goog.require('anychart.ui.chartEditor2.MenuItemWithTwoValues');
+goog.require('anychart.ui.chartEditor2.controls.FieldSelect');
+goog.require('anychart.ui.chartEditor2.controls.MenuItemWithTwoValues');
 goog.require('goog.ui.Component');
 goog.require('goog.ui.Select');
 goog.require('goog.ui.MenuItem');
@@ -27,7 +27,7 @@ anychart.ui.chartEditor2.SeriesPanel = function(editor, chartType, seriesType, i
   this.seriesType_ = seriesType;
 
   /**
-   * @type {Array.<anychart.ui.chartEditor2.FieldSelect>}
+   * @type {Array.<anychart.ui.chartEditor2.controls.FieldSelect>}
    * @private
    */
   this.fields_ = [];
@@ -54,7 +54,7 @@ anychart.ui.chartEditor2.SeriesPanel.prototype.createDom = function() {
     this.getElement().appendChild(this.close_);
   }
 
-  this.typeSelect_ = new anychart.ui.chartEditor2.FieldSelect('Series type');
+  this.typeSelect_ = new anychart.ui.chartEditor2.controls.FieldSelect('Series type');
   this.addChild(this.typeSelect_, true);
 
   var seriesTypes = anychart.ui.chartEditor2.EditorModel.chartTypes[this.chartType_]['series'];
@@ -97,7 +97,7 @@ anychart.ui.chartEditor2.SeriesPanel.prototype.createFields = function() {
   goog.object.forEach(fieldsMap,
       function(item) {
         var fieldName = item['name'] ? item['name'] : item['field'];
-        var fieldSelect = new anychart.ui.chartEditor2.FieldSelect(fieldName);
+        var fieldSelect = new anychart.ui.chartEditor2.controls.FieldSelect(fieldName);
         self.fields_.push(fieldSelect);
         self.addChild(fieldSelect, true);
       });
@@ -126,7 +126,7 @@ anychart.ui.chartEditor2.SeriesPanel.prototype.createFieldsOptions = function(op
       var dataFields = data['fields'];
       for (var j = 0; j < dataFields.length; j++) {
         var caption = data['name'] + ' - ' + dataFields[j]['name'];
-        var option = new anychart.ui.chartEditor2.MenuItemWithTwoValues(caption, dataFields[j]['key'], this.currentSetId_);
+        var option = new anychart.ui.chartEditor2.controls.MenuItemWithTwoValues(caption, dataFields[j]['key'], this.currentSetId_);
         this.fields_[i].addItem(option);
       }
 

@@ -1,7 +1,7 @@
 goog.provide('anychart.ui.chartEditor2.PlotPanel');
 
-goog.require('anychart.ui.chartEditor2.FieldSelect');
-goog.require('anychart.ui.chartEditor2.MenuItemWithTwoValues');
+goog.require('anychart.ui.chartEditor2.controls.SelectWithLabel');
+goog.require('anychart.ui.chartEditor2.controls.MenuItemWithTwoValues');
 goog.require('anychart.ui.chartEditor2.SeriesPanel');
 goog.require('goog.ui.Component');
 
@@ -57,7 +57,8 @@ anychart.ui.chartEditor2.PlotPanel.prototype.createDom = function() {
   this.getElement().appendChild(this.title_);
 
   // X Values Input
-  this.xValueSelect_ = new anychart.ui.chartEditor2.FieldSelect('X Values');
+  this.xValueSelect_ = new anychart.ui.chartEditor2.controls.SelectWithLabel('X Values');
+  this.xValueSelect_.setEditorModel(this.editor_.getEditorModel(), {'category': 'plot', 'group': 0, 'name': 'x'});
   this.addChild(this.xValueSelect_, true);
 
   this.addSeriesBtn_ = new goog.ui.Button('Add series');
@@ -96,14 +97,14 @@ anychart.ui.chartEditor2.PlotPanel.prototype.update = function(evt) {
     for(var j = 0; j < fields.length; j++) {
       var caption = data.length == 1 ? fields[j]['name'] : data[i]['name'] + ' - ' + fields[j]['name'];
       var setFullId = data[i]['type'] + data[i]['setId'];
-      var item = new anychart.ui.chartEditor2.MenuItemWithTwoValues(caption, fields[j]['key'], setFullId);
+      var item = new anychart.ui.chartEditor2.controls.MenuItemWithTwoValues(caption, fields[j]['key'], setFullId);
       this.xValueSelect_.addItem(item);
     }
   }
 
 
   // todo: Do more deliberate choice
-  this.xValueSelect_.setSelectedIndex(0);
+  this.xValueSelect_.setSelectedByModel();
 };
 
 
@@ -155,7 +156,7 @@ anychart.ui.chartEditor2.PlotPanel.prototype.onCloseSeries_ = function(evt) {
 
 
 anychart.ui.chartEditor2.PlotPanel.prototype.onChangeXValue_ = function(evt) {
-  var setFullId = evt.target.getParent().getValue2();
+  var setFullId = evt.target.getValue2();
   if (setFullId) {
     this.currentSetId_ = setFullId;
     this.dispatchEvent({
