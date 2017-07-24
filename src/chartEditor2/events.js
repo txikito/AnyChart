@@ -1,9 +1,9 @@
-goog.provide('anychart.ui.chartEditor2.events');
+goog.provide('anychart.chartEditor2Module.events');
 goog.require('goog.events');
 
 
 /** @enum {string} */
-anychart.ui.chartEditor2.events.EventType = {
+anychart.chartEditor2Module.events.EventType = {
   // working with data model
   DATA_UPDATE_MODEL: goog.events.getUniqueId('data-update-model'),
   DATA_ADD: goog.events.getUniqueId('data-add'),

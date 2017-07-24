@@ -1,4 +1,4 @@
-goog.provide('anychart.ui.chartEditor2.steps.Base');
+goog.provide('anychart.chartEditor2Module.steps.Base');
 
 goog.require('anychart.ui.Component');
 goog.require('anychart.ui.button.Primary');
@@ -20,7 +20,7 @@ goog.forwardDeclare('anychart.data.Set');
  * @param {goog.dom.DomHelper=} opt_domHelper Optional DOM helper.
  * @extends {anychart.ui.Component}
  */
-anychart.ui.chartEditor2.steps.Base = function(index, opt_domHelper) {
+anychart.chartEditor2Module.steps.Base = function(index, opt_domHelper) {
   goog.base(this, opt_domHelper);
 
   /**
@@ -48,22 +48,22 @@ anychart.ui.chartEditor2.steps.Base = function(index, opt_domHelper) {
    */
   this.index_ = index;
 };
-goog.inherits(anychart.ui.chartEditor2.steps.Base, anychart.ui.Component);
+goog.inherits(anychart.chartEditor2Module.steps.Base, anychart.ui.Component);
 
 
 /**
  * CSS class name.
  * @type {string}
  */
-anychart.ui.chartEditor2.steps.Base.CSS_CLASS = goog.getCssName('anychart-chart-editor-step');
+anychart.chartEditor2Module.steps.Base.CSS_CLASS = goog.getCssName('anychart-chart-editor-step');
 
 
 /**
  * Getter/setter for step name.
  * @param {string=} opt_value
- * @return {string|anychart.ui.chartEditor2.steps.Base}
+ * @return {string|anychart.chartEditor2Module.steps.Base}
  */
-anychart.ui.chartEditor2.steps.Base.prototype.name = function(opt_value) {
+anychart.chartEditor2Module.steps.Base.prototype.name = function(opt_value) {
   if (opt_value) {
     this.name_ = opt_value;
     return this;
@@ -75,9 +75,9 @@ anychart.ui.chartEditor2.steps.Base.prototype.name = function(opt_value) {
 /**
  * Getter/setter for step title.
  * @param {string=} opt_value
- * @return {string|anychart.ui.chartEditor2.steps.Base}
+ * @return {string|anychart.chartEditor2Module.steps.Base}
  */
-anychart.ui.chartEditor2.steps.Base.prototype.title = function(opt_value) {
+anychart.chartEditor2Module.steps.Base.prototype.title = function(opt_value) {
   if (opt_value) {
     this.title_ = opt_value;
     return this;
@@ -89,15 +89,15 @@ anychart.ui.chartEditor2.steps.Base.prototype.title = function(opt_value) {
 /**
  * @returns {number}
  */
-anychart.ui.chartEditor2.steps.Base.prototype.getIndex = function() {
+anychart.chartEditor2Module.steps.Base.prototype.getIndex = function() {
   return this.index_;
 };
 
 
 /** @override */
-anychart.ui.chartEditor2.steps.Base.prototype.createDom = function() {
+anychart.chartEditor2Module.steps.Base.prototype.createDom = function() {
   goog.base(this, 'createDom');
 
   var element = /** @type {Element} */(this.getElement());
-  goog.dom.classlist.add(element, anychart.ui.chartEditor2.steps.Base.CSS_CLASS);
+  goog.dom.classlist.add(element, anychart.chartEditor2Module.steps.Base.CSS_CLASS);
 };

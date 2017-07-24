@@ -1,7 +1,7 @@
 goog.provide('anychart.chartEditorModule.Editor');
 goog.provide('anychart.chartEditorModule.Editor.Dialog');
 
-goog.require('anychart.chartEditorModule.Component');
+goog.require('anychart.ui.Component');
 goog.require('anychart.chartEditorModule.Controller');
 goog.require('anychart.chartEditorModule.events');
 goog.require('anychart.chartEditorModule.steps.ChartType');
@@ -20,7 +20,7 @@ goog.require('goog.ui.Dialog');
  * Chart Editor Component Class.
  * @constructor
  * @param {goog.dom.DomHelper=} opt_domHelper Optional DOM helper; see {@link goog.ui.Component} for semantics.
- * @extends {anychart.chartEditorModule.Component}
+ * @extends {anychart.ui.Component}
  */
 anychart.chartEditorModule.Editor = function(opt_domHelper) {
   anychart.chartEditorModule.Editor.base(this, 'constructor', opt_domHelper);
@@ -343,7 +343,7 @@ anychart.chartEditorModule.Editor = function(opt_domHelper) {
 
   goog.events.listen(this, anychart.enums.EventType.COMPLETE, this.onComplete_, false, this);
 };
-goog.inherits(anychart.chartEditorModule.Editor, anychart.chartEditorModule.Component);
+goog.inherits(anychart.chartEditorModule.Editor, anychart.ui.Component);
 
 
 /** @inheritDoc */

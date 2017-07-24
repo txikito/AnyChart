@@ -1,16 +1,15 @@
-goog.provide('anychart.ui.chartEditor2.GeoDataSelector');
+goog.provide('anychart.chartEditor2Module.GeoDataSelector');
 
-goog.require('anychart.ui.Component');
-goog.require('anychart.ui.chartEditor2.DataSelectorBase');
+goog.require('anychart.chartEditor2Module.DataSelectorBase');
 
 
 
 /**
  * @constructor
- * @extends {anychart.ui.chartEditor2.DataSelectorBase}
+ * @extends {anychart.chartEditor2Module.DataSelectorBase}
  */
-anychart.ui.chartEditor2.GeoDataSelector = function(dataModel) {
-  anychart.ui.chartEditor2.GeoDataSelector.base(this, 'constructor', dataModel);
+anychart.chartEditor2Module.GeoDataSelector = function(dataModel) {
+  anychart.chartEditor2Module.GeoDataSelector.base(this, 'constructor', dataModel);
 
   this.jsonUrl = 'https://cdn.anychart.com/anydata/geo/';
 
@@ -20,12 +19,12 @@ anychart.ui.chartEditor2.GeoDataSelector = function(dataModel) {
 
   this.className = 'geo-data-selector';
 
-  this.dataType = anychart.ui.chartEditor2.DataModel.dataType.GEO;
+  this.dataType = anychart.chartEditor2Module.DataModel.dataType.GEO;
 };
-goog.inherits(anychart.ui.chartEditor2.GeoDataSelector, anychart.ui.chartEditor2.DataSelectorBase);
+goog.inherits(anychart.chartEditor2Module.GeoDataSelector, anychart.chartEditor2Module.DataSelectorBase);
 
 
-anychart.ui.chartEditor2.GeoDataSelector.prototype.createItem = function(itemJson, state) {
+anychart.chartEditor2Module.GeoDataSelector.prototype.createItem = function(itemJson, state) {
   var imgUrl = this.baseUrl + itemJson['logo'];
   var dom = this.getDomHelper();
 
@@ -42,7 +41,7 @@ anychart.ui.chartEditor2.GeoDataSelector.prototype.createItem = function(itemJso
           dom.createDom(goog.dom.TagName.DIV, 'title', itemJson['name']),
           dom.createDom(goog.dom.TagName.DIV, 'buttons', downloadButton, removeButton)));
 
-  if (state == anychart.ui.chartEditor2.DataSelectorBase.DatasetState.LOADED) {
+  if (state == anychart.chartEditor2Module.DataSelectorBase.DatasetState.LOADED) {
     goog.dom.classlist.add(item, 'loaded');
   }
 
@@ -50,14 +49,14 @@ anychart.ui.chartEditor2.GeoDataSelector.prototype.createItem = function(itemJso
 };
 
 
-anychart.ui.chartEditor2.GeoDataSelector.prototype.getDataSetUrl = function(fileName) {
+anychart.chartEditor2Module.GeoDataSelector.prototype.getDataSetUrl = function(fileName) {
   return this.baseUrl + fileName;
 };
 
 
-anychart.ui.chartEditor2.GeoDataSelector.prototype.onLoadData = function(json, setId) {
+anychart.chartEditor2Module.GeoDataSelector.prototype.onLoadData = function(json, setId) {
   this.dispatchEvent({
-    type: anychart.ui.chartEditor2.events.EventType.DATA_ADD,
+    type: anychart.chartEditor2Module.events.EventType.DATA_ADD,
     data: json,
     setId: setId,
     dataType: this.dataType

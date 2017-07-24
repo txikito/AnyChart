@@ -1,16 +1,15 @@
-goog.provide('anychart.ui.chartEditor2.PredefinedDataSelector');
+goog.provide('anychart.chartEditor2Module.PredefinedDataSelector');
 
-goog.require('anychart.ui.Component');
-goog.require('anychart.ui.chartEditor2.DataSelectorBase');
+goog.require('anychart.chartEditor2Module.DataSelectorBase');
 
 
 
 /**
  * @constructor
- * @extends {anychart.ui.chartEditor2.DataSelectorBase}
+ * @extends {anychart.chartEditor2Module.DataSelectorBase}
  */
-anychart.ui.chartEditor2.PredefinedDataSelector = function(dataModel) {
-  anychart.ui.chartEditor2.PredefinedDataSelector.base(this, 'constructor', dataModel);
+anychart.chartEditor2Module.PredefinedDataSelector = function(dataModel) {
+  anychart.chartEditor2Module.PredefinedDataSelector.base(this, 'constructor', dataModel);
 
   this.jsonUrl = 'https://cdn.anychart.com/anydata/common/';
 
@@ -18,12 +17,12 @@ anychart.ui.chartEditor2.PredefinedDataSelector = function(dataModel) {
 
   this.className = 'predefined-data-selector';
 
-  this.dataType = anychart.ui.chartEditor2.DataModel.dataType.PREDEFINED;
+  this.dataType = anychart.chartEditor2Module.DataModel.dataType.PREDEFINED;
 };
-goog.inherits(anychart.ui.chartEditor2.PredefinedDataSelector, anychart.ui.chartEditor2.DataSelectorBase);
+goog.inherits(anychart.chartEditor2Module.PredefinedDataSelector, anychart.chartEditor2Module.DataSelectorBase);
 
 
-anychart.ui.chartEditor2.PredefinedDataSelector.prototype.createItem = function(itemJson, state) {
+anychart.chartEditor2Module.PredefinedDataSelector.prototype.createItem = function(itemJson, state) {
   var imgUrl = itemJson['logo'].replace('./', 'https://cdn.anychart.com/anydata/common/');
   var dom = this.getDomHelper();
 
@@ -52,15 +51,15 @@ anychart.ui.chartEditor2.PredefinedDataSelector.prototype.createItem = function(
 };
 
 
-anychart.ui.chartEditor2.PredefinedDataSelector.prototype.getDataSetUrl = function(fileName) {
+anychart.chartEditor2Module.PredefinedDataSelector.prototype.getDataSetUrl = function(fileName) {
   return fileName.replace('./', this.jsonUrl);
 };
 
 
-anychart.ui.chartEditor2.PredefinedDataSelector.prototype.onLoadData = function(json, setId) {
+anychart.chartEditor2Module.PredefinedDataSelector.prototype.onLoadData = function(json, setId) {
   if (json['data']) {
     this.dispatchEvent({
-      type: anychart.ui.chartEditor2.events.EventType.DATA_ADD,
+      type: anychart.chartEditor2Module.events.EventType.DATA_ADD,
       data: json['data'],
       setId: setId,
       dataType: this.dataType

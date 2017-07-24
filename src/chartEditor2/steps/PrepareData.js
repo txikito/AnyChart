@@ -1,10 +1,10 @@
-goog.provide('anychart.ui.chartEditor2.steps.PrepareData');
+goog.provide('anychart.chartEditor2Module.steps.PrepareData');
 
 goog.require('anychart.ui.button.Base');
-goog.require('anychart.ui.chartEditor2.GeoDataSelector');
-goog.require('anychart.ui.chartEditor2.PredefinedDataSelector');
-goog.require('anychart.ui.chartEditor2.events');
-goog.require('anychart.ui.chartEditor2.steps.Base');
+goog.require('anychart.chartEditor2Module.GeoDataSelector');
+goog.require('anychart.chartEditor2Module.PredefinedDataSelector');
+goog.require('anychart.chartEditor2Module.events');
+goog.require('anychart.chartEditor2Module.steps.Base');
 goog.require('goog.dom.classlist');
 
 goog.forwardDeclare('anychart.data.Mapping');
@@ -15,20 +15,20 @@ goog.forwardDeclare('anychart.data.Mapping');
  * @constructor
  * @param {number} index Step index
  * @param {goog.dom.DomHelper=} opt_domHelper Optional DOM helper.
- * @extends {anychart.ui.chartEditor2.steps.Base}
+ * @extends {anychart.chartEditor2Module.steps.Base}
  */
-anychart.ui.chartEditor2.steps.PrepareData = function(index, opt_domHelper) {
+anychart.chartEditor2Module.steps.PrepareData = function(index, opt_domHelper) {
   goog.base(this, index, opt_domHelper);
 
   this.name('Prepare Data');
   this.title('Prepare Data');
 };
-goog.inherits(anychart.ui.chartEditor2.steps.PrepareData, anychart.ui.chartEditor2.steps.Base);
+goog.inherits(anychart.chartEditor2Module.steps.PrepareData, anychart.chartEditor2Module.steps.Base);
 
 
 
 /** @override */
-anychart.ui.chartEditor2.steps.PrepareData.prototype.createDom = function() {
+anychart.chartEditor2Module.steps.PrepareData.prototype.createDom = function() {
   goog.base(this, 'createDom');
 
   var element = /** @type {Element} */(this.getElement());
@@ -58,11 +58,11 @@ anychart.ui.chartEditor2.steps.PrepareData.prototype.createDom = function() {
   goog.dom.classlist.add(this.connectDataEl_, 'section');
   element.appendChild(this.connectDataEl_);
 
-  var predefinedDataSelector = new anychart.ui.chartEditor2.PredefinedDataSelector(this.getParent().getDataModel());
+  var predefinedDataSelector = new anychart.chartEditor2Module.PredefinedDataSelector(this.getParent().getDataModel());
   this.addChild(predefinedDataSelector, true);
   goog.dom.classlist.add(predefinedDataSelector.getElement(), 'section');
 
-  var geoDataSelector = new anychart.ui.chartEditor2.GeoDataSelector(this.getParent().getDataModel());
+  var geoDataSelector = new anychart.chartEditor2Module.GeoDataSelector(this.getParent().getDataModel());
   this.addChild(geoDataSelector, true);
   goog.dom.classlist.add(geoDataSelector.getElement(), 'section');
 };

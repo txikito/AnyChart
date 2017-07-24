@@ -1,4 +1,4 @@
-goog.provide('anychart.ui.chartEditor2.EditorModel');
+goog.provide('anychart.chartEditor2Module.EditorModel');
 
 goog.require('goog.events.EventTarget');
 
@@ -8,7 +8,7 @@ goog.require('goog.events.EventTarget');
  * @constructor
  * @extends {goog.events.EventTarget}
  */
-anychart.ui.chartEditor2.EditorModel = function() {
+anychart.chartEditor2Module.EditorModel = function() {
   goog.base(this);
 
   this.inputs_ = {
@@ -45,16 +45,16 @@ anychart.ui.chartEditor2.EditorModel = function() {
     'series': []
   };
 };
-goog.inherits(anychart.ui.chartEditor2.EditorModel, goog.events.EventTarget);
+goog.inherits(anychart.chartEditor2Module.EditorModel, goog.events.EventTarget);
 
 
 /**
  * @typedef {{category: String, name: String, group: number=}}
  */
-anychart.ui.chartEditor2.EditorModel.Key;
+anychart.chartEditor2Module.EditorModel.Key;
 
 
-anychart.ui.chartEditor2.EditorModel.chartTypes = {
+anychart.chartEditor2Module.EditorModel.chartTypes = {
   'line': {
     'value': 'line',
     'name': 'Line Chart',
@@ -82,18 +82,18 @@ anychart.ui.chartEditor2.EditorModel.chartTypes = {
 };
 
 
-anychart.ui.chartEditor2.EditorModel.series = {
+anychart.chartEditor2Module.EditorModel.series = {
   'line': {
-    'fields': [{name: 'Y Value', field: 'y'}]
+    'fields': [{field: 'value', name: 'Y Value'}]
   },
   'spline': {
-    'fields': [{name: 'Y Value', field: 'y'}]
+    'fields': [{field: 'value', name: 'Y Value'}]
   },
   'column': {
-    'fields': [{name: 'Y Value', field: 'y'}]
+    'fields': [{field: 'value', name: 'Y Value'}]
   },
   'area': {
-    'fields': [{name: 'Y Value', field: 'y'}]
+    'fields': [{field: 'value', name: 'Y Value'}]
   },
   'ohlc': {
     'fields': [
@@ -107,10 +107,10 @@ anychart.ui.chartEditor2.EditorModel.series = {
 
 /**
  * Setter for input's state
- * @param {anychart.ui.chartEditor2.EditorModel.Key} key
+ * @param {anychart.chartEditor2Module.EditorModel.Key} key
  * @param {*} value
  */
-anychart.ui.chartEditor2.EditorModel.prototype.setInputValue = function(key, value) {
+anychart.chartEditor2Module.EditorModel.prototype.setInputValue = function(key, value) {
   var group = goog.isDef(key['group']) ? key['group'] : 0;
   if (this.inputs_[key['category']].length >= group) {
     if (this.inputs_[key['category']].length == group) {
@@ -125,10 +125,10 @@ anychart.ui.chartEditor2.EditorModel.prototype.setInputValue = function(key, val
 
 /**
  * Getter for input's value
- * @param {anychart.ui.chartEditor2.EditorModel.Key} key
+ * @param {anychart.chartEditor2Module.EditorModel.Key} key
  * @return {*} Input's value
  */
-anychart.ui.chartEditor2.EditorModel.prototype.getInputValue = function(key) {
+anychart.chartEditor2Module.EditorModel.prototype.getInputValue = function(key) {
   var group = goog.isDef(key['group']) ? key['group'] : 0;
   return this.inputs_[key['category']] && this.inputs_[key['category']][group] && goog.isDef(this.inputs_[key['category']][group][key['name']]) ?
       this.inputs_[key['category']][group][key['name']] :
@@ -140,6 +140,6 @@ anychart.ui.chartEditor2.EditorModel.prototype.getInputValue = function(key) {
  * @param {String} category
  * @param {number} group
  */
-anychart.ui.chartEditor2.EditorModel.prototype.removeInputsGroup = function(category, group) {
+anychart.chartEditor2Module.EditorModel.prototype.removeInputsGroup = function(category, group) {
   goog.array.splice(this.inputs_[category], group, 1);
 };

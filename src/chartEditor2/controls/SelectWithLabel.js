@@ -1,8 +1,8 @@
-goog.provide('anychart.ui.chartEditor2.controls.SelectWithLabel');
+goog.provide('anychart.chartEditor2Module.controls.SelectWithLabel');
 
 goog.require('goog.ui.Component');
-goog.require('anychart.ui.chartEditor2.controls.Select');
-goog.require('anychart.ui.chartEditor2.controls.SelectWithLabelRenderer');
+goog.require('anychart.chartEditor2Module.controls.Select');
+goog.require('anychart.chartEditor2Module.controls.SelectWithLabelRenderer');
 
 
 /**
@@ -18,20 +18,20 @@ goog.require('anychart.ui.chartEditor2.controls.SelectWithLabelRenderer');
  * @param {!goog.ui.MenuRenderer=} opt_menuRenderer Renderer used to render or
  *     decorate the menu; defaults to {@link goog.ui.MenuRenderer}.
  * @constructor
- * @extends {anychart.ui.chartEditor2.controls.Select}
+ * @extends {anychart.chartEditor2Module.controls.Select}
  */
-anychart.ui.chartEditor2.controls.SelectWithLabel = function(label, opt_caption, opt_menu, opt_renderer, opt_domHelper, opt_menuRenderer) {
-  anychart.ui.chartEditor2.controls.SelectWithLabel.base(this, 'constructor', opt_caption, opt_menu,
-      opt_renderer || anychart.ui.chartEditor2.controls.SelectWithLabelRenderer.getInstance(),
+anychart.chartEditor2Module.controls.SelectWithLabel = function(label, opt_caption, opt_menu, opt_renderer, opt_domHelper, opt_menuRenderer) {
+  anychart.chartEditor2Module.controls.SelectWithLabel.base(this, 'constructor', opt_caption, opt_menu,
+      opt_renderer || anychart.chartEditor2Module.controls.SelectWithLabelRenderer.getInstance(),
       opt_domHelper, opt_menuRenderer);
 
   this.label_ = label;
 };
-goog.inherits(anychart.ui.chartEditor2.controls.SelectWithLabel, anychart.ui.chartEditor2.controls.Select);
+goog.inherits(anychart.chartEditor2Module.controls.SelectWithLabel, anychart.chartEditor2Module.controls.Select);
 
 
 
-anychart.ui.chartEditor2.controls.SelectWithLabel.prototype.createDom = function() {
+anychart.chartEditor2Module.controls.SelectWithLabel.prototype.createDom = function() {
   goog.base(this, 'createDom');
 
    var dom = this.getDomHelper();
@@ -43,7 +43,7 @@ anychart.ui.chartEditor2.controls.SelectWithLabel.prototype.createDom = function
 };
 
 
-anychart.ui.chartEditor2.controls.SelectWithLabel.prototype.getValue2 = function() {
+anychart.chartEditor2Module.controls.SelectWithLabel.prototype.getValue2 = function() {
   var selectedItem = this.getSelectedItem();
   return selectedItem ? selectedItem.getValue2() : null;
 };

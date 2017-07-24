@@ -1,4 +1,4 @@
-goog.provide('anychart.ui.chartEditor2.DataModel');
+goog.provide('anychart.chartEditor2Module.DataModel');
 
 goog.require('goog.events.EventTarget');
 goog.require('goog.format.JsonPrettyPrinter');
@@ -9,7 +9,7 @@ goog.require('goog.format.JsonPrettyPrinter');
  * @constructor
  * @extends {goog.events.EventTarget}
  */
-anychart.ui.chartEditor2.DataModel = function() {
+anychart.chartEditor2Module.DataModel = function() {
   goog.base(this);
 
   this.data_ = {};
@@ -22,25 +22,25 @@ anychart.ui.chartEditor2.DataModel = function() {
    */
   this.currentId_ = null;
 };
-goog.inherits(anychart.ui.chartEditor2.DataModel, goog.events.EventTarget);
+goog.inherits(anychart.chartEditor2Module.DataModel, goog.events.EventTarget);
 
 
 /**
  * @enum {string}
  */
-anychart.ui.chartEditor2.DataModel.dataType = {
+anychart.chartEditor2Module.DataModel.dataType = {
   UPLOADED: 'u',
   PREDEFINED: 'p',
   GEO: 'g'
 };
 
 
-anychart.ui.chartEditor2.DataModel.prototype.getFullId = function(setId, dataType) {
+anychart.chartEditor2Module.DataModel.prototype.getFullId = function(setId, dataType) {
   return dataType + setId;
 };
 
 
-anychart.ui.chartEditor2.DataModel.prototype.addData = function(setId, data, dataType) {
+anychart.chartEditor2Module.DataModel.prototype.addData = function(setId, data, dataType) {
   var id = this.getFullId(setId, dataType);
   if (!this.data_[id]) {
     this.data_[id] = {'setId': setId, 'type': dataType, 'data': data};
@@ -48,19 +48,19 @@ anychart.ui.chartEditor2.DataModel.prototype.addData = function(setId, data, dat
   this.preparedData_.length = 0;
 
   this.dispatchEvent({
-    type: anychart.ui.chartEditor2.events.EventType.DATA_UPDATE_MODEL,
+    type: anychart.chartEditor2Module.events.EventType.DATA_UPDATE_MODEL,
     action: 'add'
   });
 };
 
 
-anychart.ui.chartEditor2.DataModel.prototype.removeData = function(setId, dataType) {
+anychart.chartEditor2Module.DataModel.prototype.removeData = function(setId, dataType) {
   var id = this.getFullId(setId, dataType);
   delete this.data_[id];
   this.preparedData_.length = 0;
 
   this.dispatchEvent({
-    type: anychart.ui.chartEditor2.events.EventType.DATA_UPDATE_MODEL,
+    type: anychart.chartEditor2Module.events.EventType.DATA_UPDATE_MODEL,
     action: 'remove',
     setFullId: id,
     isActiveRemoved: this.currentId_ == id
@@ -71,12 +71,12 @@ anychart.ui.chartEditor2.DataModel.prototype.removeData = function(setId, dataTy
 /**
  * @param opt_setFullId {String=}
  */
-anychart.ui.chartEditor2.DataModel.prototype.currentId = function(opt_setFullId) {
+anychart.chartEditor2Module.DataModel.prototype.currentId = function(opt_setFullId) {
   if (goog.isDef(opt_setFullId)) {
     this.currentId_ = opt_setFullId;
 
     this.dispatchEvent({
-      type: anychart.ui.chartEditor2.events.EventType.DATA_UPDATE_USING_STATE,
+      type: anychart.chartEditor2Module.events.EventType.DATA_UPDATE_USING_STATE,
       setFullId: this.currentId_
     });
   }
@@ -85,22 +85,22 @@ anychart.ui.chartEditor2.DataModel.prototype.currentId = function(opt_setFullId)
 };
 
 
-anychart.ui.chartEditor2.DataModel.prototype.getDataKeys = function() {
+anychart.chartEditor2Module.DataModel.prototype.getDataKeys = function() {
   return goog.object.getKeys(this.data_);
 };
 
 
-anychart.ui.chartEditor2.DataModel.prototype.getPreparedData = function() {
+anychart.chartEditor2Module.DataModel.prototype.getPreparedData = function() {
   return this.isDirty() ? this.prepareData_() : this.preparedData_;
 };
 
 
-anychart.ui.chartEditor2.DataModel.prototype.isDirty = function() {
+anychart.chartEditor2Module.DataModel.prototype.isDirty = function() {
   return !this.preparedData_.length;
 };
 
 
-anychart.ui.chartEditor2.DataModel.prototype.prepareData_ = function() {
+anychart.chartEditor2Module.DataModel.prototype.prepareData_ = function() {
   var joinedSets = [];
   var singleSets = [];
   var geoSets = [];
@@ -121,7 +121,7 @@ anychart.ui.chartEditor2.DataModel.prototype.prepareData_ = function() {
       if (joined) {
         dataSet['name'] = 'Joined set ' + (joinedSets.length + 1);
         joinedSets.push(dataSet);
-      } else if (dataSet.type == anychart.ui.chartEditor2.DataModel.dataType.GEO) {
+      } else if (dataSet.type == anychart.chartEditor2Module.DataModel.dataType.GEO) {
         dataSet['name'] = 'Geo data ' + (geoSets.length + 1);
         geoSets.push(dataSet);
       } else {
@@ -137,10 +137,10 @@ anychart.ui.chartEditor2.DataModel.prototype.prepareData_ = function() {
 };
 
 
-anychart.ui.chartEditor2.DataModel.prototype.prepareDataSet_ = function(dataSet) {
+anychart.chartEditor2Module.DataModel.prototype.prepareDataSet_ = function(dataSet) {
   var result = {type: dataSet['type'], setId: dataSet['setId']};
 
-  var row = dataSet['type'] == anychart.ui.chartEditor2.DataModel.dataType.GEO ?
+  var row = dataSet['type'] == anychart.chartEditor2Module.DataModel.dataType.GEO ?
       dataSet['data']['features'][0]['properties'] :
       dataSet['data'][0];
 

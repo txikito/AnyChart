@@ -1,15 +1,15 @@
-goog.provide('anychart.ui.Editor2');
-goog.provide('anychart.ui.Editor2.Dialog');
+goog.provide('anychart.chartEditor2Module.Editor');
+goog.provide('anychart.chartEditor2Module.Editor.Dialog');
 
 goog.require('anychart.ui.Component');
 goog.require('anychart.ui.Preloader');
 goog.require('anychart.ui.button.Primary');
 goog.require('anychart.ui.button.Secondary');
-goog.require('anychart.ui.chartEditor2.DataModel');
-goog.require('anychart.ui.chartEditor2.EditorModel');
-goog.require('anychart.ui.chartEditor2.events');
-goog.require('anychart.ui.chartEditor2.steps.PrepareData');
-goog.require('anychart.ui.chartEditor2.steps.SetupChart');
+goog.require('anychart.chartEditor2Module.DataModel');
+goog.require('anychart.chartEditor2Module.EditorModel');
+goog.require('anychart.chartEditor2Module.events');
+goog.require('anychart.chartEditor2Module.steps.PrepareData');
+goog.require('anychart.chartEditor2Module.steps.SetupChart');
 goog.require('goog.fx.AnimationSerialQueue');
 goog.require('goog.fx.Transition.EventType');
 goog.require('goog.fx.dom');
@@ -24,8 +24,8 @@ goog.require('goog.ui.Dialog');
  * @param {goog.dom.DomHelper=} opt_domHelper Optional DOM helper; see {@link goog.ui.Component} for semantics.
  * @extends {anychart.ui.Component}
  */
-anychart.ui.Editor2 = function(opt_domHelper) {
-  anychart.ui.Editor2.base(this, 'constructor', opt_domHelper);
+anychart.chartEditor2Module.Editor = function(opt_domHelper) {
+  anychart.chartEditor2Module.Editor.base(this, 'constructor', opt_domHelper);
 
   /**
    * @type {?goog.ui.Dialog}
@@ -41,20 +41,20 @@ anychart.ui.Editor2 = function(opt_domHelper) {
 
   /**
    * Current step.
-   * @type {anychart.ui.chartEditor2.steps.Base}
+   * @type {anychart.chartEditor2Module.steps.Base}
    * @private
    */
   this.currentStep_ = null;
 
   /**
-   * @type {Array<anychart.ui.chartEditor2.steps.Base>}
+   * @type {Array<anychart.chartEditor2Module.steps.Base>}
    * @private
    */
   this.steps_ = [];
 
-  this.dataModel_ = new anychart.ui.chartEditor2.DataModel();
+  this.dataModel_ = new anychart.chartEditor2Module.DataModel();
 
-  this.editorModel_ = new anychart.ui.chartEditor2.EditorModel();
+  this.editorModel_ = new anychart.chartEditor2Module.EditorModel();
 
   this.imagesLoaded_ = true;
   this.preloader_ = new anychart.ui.Preloader();
@@ -73,30 +73,30 @@ anychart.ui.Editor2 = function(opt_domHelper) {
 
   goog.events.listen(this, anychart.enums.EventType.COMPLETE, this.onComplete_, false, this);
 
-  this.listen(anychart.ui.chartEditor2.events.EventType.DATA_ADD, this.onDataAdd_);
-  this.listen(anychart.ui.chartEditor2.events.EventType.DATA_REMOVE, this.onDataRemove_);
-  this.listen(anychart.ui.chartEditor2.events.EventType.DATA_USE, this.onUpdateUsingState_);
+  this.listen(anychart.chartEditor2Module.events.EventType.DATA_ADD, this.onDataAdd_);
+  this.listen(anychart.chartEditor2Module.events.EventType.DATA_REMOVE, this.onDataRemove_);
+  this.listen(anychart.chartEditor2Module.events.EventType.DATA_USE, this.onUpdateUsingState_);
 };
-goog.inherits(anychart.ui.Editor2, anychart.ui.Component);
+goog.inherits(anychart.chartEditor2Module.Editor, anychart.ui.Component);
 
 
 /**
  * CSS class name.
  * @type {string}
  */
-anychart.ui.Editor2.CSS_CLASS = goog.getCssName('anychart-chart-editor');
+anychart.chartEditor2Module.Editor.CSS_CLASS = goog.getCssName('anychart-chart-editor');
 
 
 /** @inheritDoc */
-anychart.ui.Editor2.prototype.render = function(opt_parentElement) {
-  anychart.ui.Editor2.base(this, 'render', opt_parentElement);
+anychart.chartEditor2Module.Editor.prototype.render = function(opt_parentElement) {
+  anychart.chartEditor2Module.Editor.base(this, 'render', opt_parentElement);
   this.showPreloader_();
 };
 
 
 /** @inheritDoc */
-anychart.ui.Editor2.prototype.decorate = function(element) {
-  anychart.ui.Editor2.base(this, 'decorate', element);
+anychart.chartEditor2Module.Editor.prototype.decorate = function(element) {
+  anychart.chartEditor2Module.Editor.base(this, 'decorate', element);
   this.showPreloader_();
 };
 
@@ -110,8 +110,8 @@ anychart.ui.Editor2.prototype.decorate = function(element) {
  *     issue by using an iframe instead of a div for bg element.
  * @param {goog.dom.DomHelper=} opt_domHelper Optional DOM helper; see {@link goog.ui.Component} for semantics.
  */
-anychart.ui.Editor2.prototype.renderAsDialog = function(opt_class, opt_useIframeMask, opt_domHelper) {
-  this.dialog_ = new anychart.ui.Editor2.Dialog(opt_class, opt_useIframeMask, opt_domHelper);
+anychart.chartEditor2Module.Editor.prototype.renderAsDialog = function(opt_class, opt_useIframeMask, opt_domHelper) {
+  this.dialog_ = new anychart.chartEditor2Module.Editor.Dialog(opt_class, opt_useIframeMask, opt_domHelper);
   this.dialog_.addChild(this, true);
 };
 
@@ -120,9 +120,9 @@ anychart.ui.Editor2.prototype.renderAsDialog = function(opt_class, opt_useIframe
  * Sets the visibility of the dialog box and moves focus to the
  * default button. Lazily renders the component if needed.
  * @param {boolean=} opt_value Whether the dialog should be visible.
- * @return {boolean|!anychart.ui.Editor2}
+ * @return {boolean|!anychart.chartEditor2Module.Editor}
  */
-anychart.ui.Editor2.prototype.visible = function(opt_value) {
+anychart.chartEditor2Module.Editor.prototype.visible = function(opt_value) {
   if (!this.dialog_) return true;
 
   if (goog.isDef(opt_value)) {
@@ -139,7 +139,7 @@ anychart.ui.Editor2.prototype.visible = function(opt_value) {
  * Check if images are not fully loaded and shows preloader if need.
  * @private
  */
-anychart.ui.Editor2.prototype.showPreloader_ = function() {
+anychart.chartEditor2Module.Editor.prototype.showPreloader_ = function() {
   if (!this.imagesLoaded_) {
     var element = this.getContentElement();
     this.preloader_.render(element);
@@ -152,18 +152,18 @@ anychart.ui.Editor2.prototype.showPreloader_ = function() {
  * Close dialog (if exists) on complete button press.
  * @private
  */
-anychart.ui.Editor2.prototype.onComplete_ = function() {
+anychart.chartEditor2Module.Editor.prototype.onComplete_ = function() {
   if (this.dialog_)
     this.dialog_.setVisible(false);
 };
 
 
 /** @override */
-anychart.ui.Editor2.prototype.createDom = function() {
-  if(!this.getElement()) anychart.ui.Editor2.base(this, 'createDom');
+anychart.chartEditor2Module.Editor.prototype.createDom = function() {
+  if(!this.getElement()) anychart.chartEditor2Module.Editor.base(this, 'createDom');
 
   var dom = this.getDomHelper();
-  goog.dom.classlist.add(this.getElement(), anychart.ui.Editor2.CSS_CLASS);
+  goog.dom.classlist.add(this.getElement(), anychart.chartEditor2Module.Editor.CSS_CLASS);
 
   // Create progress element
   this.breadcrumbsEl_ = dom.createDom(goog.dom.TagName.DIV, 'breadcrumbs');
@@ -182,8 +182,8 @@ anychart.ui.Editor2.prototype.createDom = function() {
   this.getElement().appendChild(this.progressEl_);
 
   // Add steps
-  this.steps_.push(new anychart.ui.chartEditor2.steps.PrepareData(0));
-  this.steps_.push(new anychart.ui.chartEditor2.steps.SetupChart(1));
+  this.steps_.push(new anychart.chartEditor2Module.steps.PrepareData(0));
+  this.steps_.push(new anychart.chartEditor2Module.steps.SetupChart(1));
   for (var i = 0; i < this.steps_.length; i++) {
     this.addChildAt(this.steps_[i], i); // not render until this.setCurrentStepByIndex_() call
   }
@@ -191,10 +191,10 @@ anychart.ui.Editor2.prototype.createDom = function() {
 
 
 /** @override */
-anychart.ui.Editor2.prototype.enterDocument = function() {
+anychart.chartEditor2Module.Editor.prototype.enterDocument = function() {
   if(!this.breadcrumbsEl_) this.createDom();
 
-  anychart.ui.Editor2.base(this, 'enterDocument');
+  anychart.chartEditor2Module.Editor.base(this, 'enterDocument');
   var handler = this.getHandler();
   handler.listen(this.breadcrumbsEl_, goog.events.EventType.CLICK, this.breadcrumbsClickHandler_);
   handler.listen(this.nextBtn_, goog.ui.Component.EventType.ACTION, this.nextBtnClickHandler_);
@@ -209,7 +209,7 @@ anychart.ui.Editor2.prototype.enterDocument = function() {
  * Render progress list.
  * @private
  */
-anychart.ui.Editor2.prototype.updateProgress_ = function() {
+anychart.chartEditor2Module.Editor.prototype.updateProgress_ = function() {
   var dom = this.getDomHelper();
 
   if (this.breadcrumbsEl_)
@@ -267,7 +267,7 @@ anychart.ui.Editor2.prototype.updateProgress_ = function() {
  * @return {boolean}
  * @private
  */
-anychart.ui.Editor2.prototype.isLastStep_ = function() {
+anychart.chartEditor2Module.Editor.prototype.isLastStep_ = function() {
   return this.currentStep_.getIndex() == this.steps_.length - 1;
 };
 
@@ -276,7 +276,7 @@ anychart.ui.Editor2.prototype.isLastStep_ = function() {
  * @param {number} stepIndex
  * @private
  */
-anychart.ui.Editor2.prototype.changeStep_ = function(stepIndex) {
+anychart.chartEditor2Module.Editor.prototype.changeStep_ = function(stepIndex) {
   if (stepIndex != this.currentStep_.getIndex()) {
     this.setCurrentStepByIndex_(stepIndex, true);
     // this.currentStep_.update();
@@ -286,10 +286,10 @@ anychart.ui.Editor2.prototype.changeStep_ = function(stepIndex) {
 
 /**
  * Remove step from DOM.
- * @param {anychart.ui.chartEditor2.steps.Base} step
+ * @param {anychart.chartEditor2Module.steps.Base} step
  * @private
  */
-anychart.ui.Editor2.prototype.removeStep_ = function(step) {
+anychart.chartEditor2Module.Editor.prototype.removeStep_ = function(step) {
   // Remove the child component's DOM from the document.  We have to call
   // exitDocument first (see documentation).
   step.exitDocument();
@@ -299,11 +299,11 @@ anychart.ui.Editor2.prototype.removeStep_ = function(step) {
 
 /**
  * Render the given step.
- * @param {anychart.ui.chartEditor2.steps.Base} step
+ * @param {anychart.chartEditor2Module.steps.Base} step
  * @param {boolean} doAnimation
  * @private
  */
-anychart.ui.Editor2.prototype.setCurrentStep_ = function(step, doAnimation) {
+anychart.chartEditor2Module.Editor.prototype.setCurrentStep_ = function(step, doAnimation) {
   if (!this.isInDocument() || !step || step.isInDocument()) return;
 
   var animationSpeed = 150;
@@ -339,7 +339,7 @@ anychart.ui.Editor2.prototype.setCurrentStep_ = function(step, doAnimation) {
  * @param {boolean} doAnimation
  * @private
  */
-anychart.ui.Editor2.prototype.setCurrentStepByIndex_ = function(index, doAnimation) {
+anychart.chartEditor2Module.Editor.prototype.setCurrentStepByIndex_ = function(index, doAnimation) {
   this.setCurrentStep_(this.steps_[index], doAnimation);
 };
 
@@ -348,7 +348,7 @@ anychart.ui.Editor2.prototype.setCurrentStepByIndex_ = function(index, doAnimati
  * Enable transition to next step.
  * @param {boolean} value
  */
-anychart.ui.Editor2.prototype.enableNextStep = function(value) {
+anychart.chartEditor2Module.Editor.prototype.enableNextStep = function(value) {
   this.enableNextStep_ = value;
 
   if (this.isInDocument()) {
@@ -362,7 +362,7 @@ anychart.ui.Editor2.prototype.enableNextStep = function(value) {
  * @param {!goog.events.Event} e
  * @private
  */
-anychart.ui.Editor2.prototype.breadcrumbsClickHandler_ = function(e) {
+anychart.chartEditor2Module.Editor.prototype.breadcrumbsClickHandler_ = function(e) {
   var element = /** @type {Element} */(e.target);
 
   if (goog.dom.classlist.contains(element, 'item-content')) {
@@ -375,12 +375,12 @@ anychart.ui.Editor2.prototype.breadcrumbsClickHandler_ = function(e) {
 };
 
 
-anychart.ui.Editor2.prototype.prevBtnClickHandler_ = function() {
+anychart.chartEditor2Module.Editor.prototype.prevBtnClickHandler_ = function() {
   this.changeStep_(this.currentStep_.getIndex() - 1);
 };
 
 
-anychart.ui.Editor2.prototype.nextBtnClickHandler_ = function() {
+anychart.chartEditor2Module.Editor.prototype.nextBtnClickHandler_ = function() {
   if (this.isLastStep_())
     console.log("Complete pressed!");
   else
@@ -388,27 +388,27 @@ anychart.ui.Editor2.prototype.nextBtnClickHandler_ = function() {
 };
 
 
-anychart.ui.Editor2.prototype.getDataModel = function() {
+anychart.chartEditor2Module.Editor.prototype.getDataModel = function() {
   return this.dataModel_;
 };
 
 
-anychart.ui.Editor2.prototype.getEditorModel = function() {
+anychart.chartEditor2Module.Editor.prototype.getEditorModel = function() {
   return this.editorModel_;
 };
 
 
-anychart.ui.Editor2.prototype.onDataAdd_ = function(evt) {
+anychart.chartEditor2Module.Editor.prototype.onDataAdd_ = function(evt) {
   this.dataModel_.addData(evt['setId'], evt['data'], evt['dataType']);
 };
 
 
-anychart.ui.Editor2.prototype.onDataRemove_ = function(evt) {
+anychart.chartEditor2Module.Editor.prototype.onDataRemove_ = function(evt) {
   this.dataModel_.removeData(evt['setId'], evt['dataType']);
 };
 
 
-anychart.ui.Editor2.prototype.onUpdateUsingState_ = function(evt) {
+anychart.chartEditor2Module.Editor.prototype.onUpdateUsingState_ = function(evt) {
   this.dataModel_.currentId(evt.setFullId);
 };
 
@@ -425,8 +425,8 @@ anychart.ui.Editor2.prototype.onUpdateUsingState_ = function(evt) {
  *     goog.ui.Component} for semantics.
  * @extends {goog.ui.Dialog}
  */
-anychart.ui.Editor2.Dialog = function(opt_class, opt_useIframeMask, opt_domHelper) {
-  anychart.ui.Editor2.Dialog.base(this, 'constructor', opt_class || goog.getCssName('anychart-chart-editor-dialog'), opt_useIframeMask, opt_domHelper);
+anychart.chartEditor2Module.Editor.Dialog = function(opt_class, opt_useIframeMask, opt_domHelper) {
+  anychart.chartEditor2Module.Editor.Dialog.base(this, 'constructor', opt_class || goog.getCssName('anychart-chart-editor-dialog'), opt_useIframeMask, opt_domHelper);
 
   /**
    * Element for the logo of the title bar.
@@ -438,25 +438,25 @@ anychart.ui.Editor2.Dialog = function(opt_class, opt_useIframeMask, opt_domHelpe
   this.setTitle('Chart Editor');
   this.setButtonSet(null);
 };
-goog.inherits(anychart.ui.Editor2.Dialog, goog.ui.Dialog);
+goog.inherits(anychart.chartEditor2Module.Editor.Dialog, goog.ui.Dialog);
 
 
 /** @override */
-anychart.ui.Editor2.Dialog.prototype.createDom = function() {
-  anychart.ui.Editor2.Dialog.base(this, 'createDom');
+anychart.chartEditor2Module.Editor.Dialog.prototype.createDom = function() {
+  anychart.chartEditor2Module.Editor.Dialog.base(this, 'createDom');
   this.initTitleElements_();
 };
 
 
 /** @override */
-anychart.ui.Editor2.Dialog.prototype.decorateInternal = function(element) {
-  anychart.ui.Editor2.Dialog.base(this, 'decorateInternal', element);
+anychart.chartEditor2Module.Editor.Dialog.prototype.decorateInternal = function(element) {
+  anychart.chartEditor2Module.Editor.Dialog.base(this, 'decorateInternal', element);
   this.initTitleElements_();
 };
 
 
 /** @private */
-anychart.ui.Editor2.Dialog.prototype.initTitleElements_ = function() {
+anychart.chartEditor2Module.Editor.Dialog.prototype.initTitleElements_ = function() {
   var dom = this.getDomHelper();
 
   var titleElement = this.getTitleElement();
@@ -473,8 +473,8 @@ anychart.ui.Editor2.Dialog.prototype.initTitleElements_ = function() {
 
 
 /** @override */
-anychart.ui.Editor2.Dialog.prototype.enterDocument = function() {
-  anychart.ui.Editor2.Dialog.base(this, 'enterDocument');
+anychart.chartEditor2Module.Editor.Dialog.prototype.enterDocument = function() {
+  anychart.chartEditor2Module.Editor.Dialog.base(this, 'enterDocument');
   var bgEl = this.getBackgroundElement();
   if (bgEl)
     this.getHandler().listen(bgEl, goog.events.EventType.CLICK, this.onBackgroundClick_);
@@ -482,14 +482,14 @@ anychart.ui.Editor2.Dialog.prototype.enterDocument = function() {
 
 
 /** @override */
-anychart.ui.Editor2.Dialog.prototype.disposeInternal = function() {
+anychart.chartEditor2Module.Editor.Dialog.prototype.disposeInternal = function() {
   this.titleLogoEl_ = null;
-  anychart.ui.Editor2.Dialog.base(this, 'disposeInternal');
+  anychart.chartEditor2Module.Editor.Dialog.base(this, 'disposeInternal');
 };
 
 
 /** @private */
-anychart.ui.Editor2.Dialog.prototype.onBackgroundClick_ = function() {
+anychart.chartEditor2Module.Editor.Dialog.prototype.onBackgroundClick_ = function() {
   this.setVisible(false);
 };
 // endregion
@@ -497,10 +497,10 @@ anychart.ui.Editor2.Dialog.prototype.onBackgroundClick_ = function() {
 
 /**
  * Constructor function for Chart Editor.
- * @return {anychart.ui.Editor2}
+ * @return {anychart.chartEditor2Module.Editor}
  */
 anychart.ui.editor2 = function() {
-  return new anychart.ui.Editor2();
+  return new anychart.chartEditor2Module.Editor();
 };
 
 //exports

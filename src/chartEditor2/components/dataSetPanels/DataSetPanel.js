@@ -1,4 +1,4 @@
-goog.provide('anychart.ui.chartEditor2.DataSetPanel');
+goog.provide('anychart.chartEditor2Module.DataSetPanel');
 
 goog.require('anychart.ui.Component');
 goog.require('goog.ui.Menu');
@@ -11,18 +11,18 @@ goog.require('goog.ui.MenuSeparator');
  * @constructor
  * @extends {anychart.ui.Component}
  */
-anychart.ui.chartEditor2.DataSetPanel = function(data) {
+anychart.chartEditor2Module.DataSetPanel = function(data) {
   goog.base(this);
 
   this.disabled = false;
 
   this.data_ = data;
 };
-goog.inherits(anychart.ui.chartEditor2.DataSetPanel, anychart.ui.Component);
+goog.inherits(anychart.chartEditor2Module.DataSetPanel, anychart.ui.Component);
 
 
 /** @inheritDoc */
-anychart.ui.chartEditor2.DataSetPanel.prototype.createDom = function() {
+anychart.chartEditor2Module.DataSetPanel.prototype.createDom = function() {
   goog.base(this, 'createDom');
 
   var self = this;
@@ -74,16 +74,16 @@ anychart.ui.chartEditor2.DataSetPanel.prototype.createDom = function() {
 };
 
 
-anychart.ui.chartEditor2.DataSetPanel.prototype.removeDataSet = function() {
+anychart.chartEditor2Module.DataSetPanel.prototype.removeDataSet = function() {
   this.dispatchEvent({
-    type: anychart.ui.chartEditor2.events.EventType.DATA_REMOVE,
+    type: anychart.chartEditor2Module.events.EventType.DATA_REMOVE,
     setId: this.data_['setId'],
     dataType: this.data_['type']
   });
 };
 
 
-anychart.ui.chartEditor2.DataSetPanel.prototype.getDataFullId = function() {
+anychart.chartEditor2Module.DataSetPanel.prototype.getDataFullId = function() {
   return this.data_['type'] + this.data_['setId'];
 };
 
@@ -91,7 +91,7 @@ anychart.ui.chartEditor2.DataSetPanel.prototype.getDataFullId = function() {
 /**
  * @param {boolean} value
  */
-anychart.ui.chartEditor2.DataSetPanel.prototype.setDisabled = function(value) {
+anychart.chartEditor2Module.DataSetPanel.prototype.setDisabled = function(value) {
   if (this.disabled != value) {
     this.disabled = value;
     goog.dom.classlist.enable(this.getElement(), 'disabled', this.disabled);
