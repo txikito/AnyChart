@@ -6,7 +6,7 @@ goog.require('anychart.chartEditor2Module.controls.SelectWithLabelRenderer');
 
 
 /**
- * @param {String} label
+ * @param {String} field
  * @param {goog.ui.ControlContent=} opt_caption Default caption or existing DOM
  *     structure to display as the button's caption when nothing is selected.
  *     Defaults to no caption.
@@ -20,30 +20,24 @@ goog.require('anychart.chartEditor2Module.controls.SelectWithLabelRenderer');
  * @constructor
  * @extends {anychart.chartEditor2Module.controls.Select}
  */
-anychart.chartEditor2Module.controls.SelectWithLabel = function(label, opt_caption, opt_menu, opt_renderer, opt_domHelper, opt_menuRenderer) {
+anychart.chartEditor2Module.controls.SelectWithLabel = function(field, opt_caption, opt_menu, opt_renderer, opt_domHelper, opt_menuRenderer) {
   anychart.chartEditor2Module.controls.SelectWithLabel.base(this, 'constructor', opt_caption, opt_menu,
       opt_renderer || anychart.chartEditor2Module.controls.SelectWithLabelRenderer.getInstance(),
       opt_domHelper, opt_menuRenderer);
 
-  this.label_ = label;
+  this.label_ = goog.isDef(opt_caption) ? opt_caption : field;
+  this.setModel(field);
 };
 goog.inherits(anychart.chartEditor2Module.controls.SelectWithLabel, anychart.chartEditor2Module.controls.Select);
 
 
 
-anychart.chartEditor2Module.controls.SelectWithLabel.prototype.createDom = function() {
-  goog.base(this, 'createDom');
-
-   var dom = this.getDomHelper();
-   var element = this.getElement();
-
-  goog.dom.classlist.add(this.getElement(), 'field-select');
-
-  element.appendChild(dom.createDom(goog.dom.TagName.LABEL, 'label', this.label_));
-};
-
-
 anychart.chartEditor2Module.controls.SelectWithLabel.prototype.getValue2 = function() {
   var selectedItem = this.getSelectedItem();
   return selectedItem ? selectedItem.getValue2() : null;
+};
+
+
+anychart.chartEditor2Module.controls.SelectWithLabel.prototype.getLabel = function() {
+  return this.label_ ? this.label_ : '';
 };

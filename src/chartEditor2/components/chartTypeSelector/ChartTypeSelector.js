@@ -1,6 +1,6 @@
 goog.provide('anychart.chartEditor2Module.ChartTypeSelector');
 
-goog.require('goog.ui.Component');
+goog.require('anychart.chartEditor2Module.Component');
 goog.require('anychart.chartEditor2Module.PlotPanel');
 goog.require('anychart.chartEditor2Module.controls.ChartTypeSelect');
 
@@ -9,7 +9,7 @@ goog.require('anychart.chartEditor2Module.controls.ChartTypeSelect');
  * Chart type selection widget.
  * Allows to choose chart type and contains PlotPanel widget(s).
  * @constructor
- * @extends {anychart.ui.Container}
+ * @extends {anychart.chartEditor2Module.Component}
  */
 anychart.chartEditor2Module.ChartTypeSelector = function(editor) {
   anychart.chartEditor2Module.ChartTypeSelector.base(this, 'constructor');
@@ -25,8 +25,10 @@ anychart.chartEditor2Module.ChartTypeSelector = function(editor) {
    * @private
    */
   this.plots_ = [];
+
+  this.key_ = [['chart', 0]];
 };
-goog.inherits(anychart.chartEditor2Module.ChartTypeSelector, goog.ui.Component);
+goog.inherits(anychart.chartEditor2Module.ChartTypeSelector, anychart.chartEditor2Module.Component);
 
 
 
@@ -38,7 +40,7 @@ anychart.chartEditor2Module.ChartTypeSelector.prototype.createDom = function() {
   var dom = this.getDomHelper();
 
   this.chartTypeSelect_ = new anychart.chartEditor2Module.controls.ChartTypeSelect();
-  this.chartTypeSelect_.setEditorModel(this.editor_.getEditorModel(), {'category': 'chart', 'name': 'type'});
+  this.chartTypeSelect_.setEditorModel(this.editor_.getEditorModel(), this.getKey('ctor'));
   this.chartTypeSelect_.setOptions(goog.object.getValues(anychart.chartEditor2Module.EditorModel.chartTypes));
 
   this.typeIcon_ = dom.createDom(goog.dom.TagName.IMG, {'class': 'type-image', 'src': this.chartTypeSelect_.getIcon()});

@@ -1,5 +1,6 @@
 goog.provide('anychart.chartEditor2Module.PlotPanel');
 
+goog.require('anychart.chartEditor2Module.Component');
 goog.require('anychart.chartEditor2Module.controls.SelectWithLabel');
 goog.require('anychart.chartEditor2Module.controls.MenuItemWithTwoValues');
 goog.require('anychart.chartEditor2Module.SeriesPanel');
@@ -9,7 +10,7 @@ goog.require('goog.ui.Component');
 
 /**
  * @constructor
- * @extends {goog.ui.Component}
+ * @extends {anychart.chartEditor2Module.Component}
  */
 anychart.chartEditor2Module.PlotPanel = function(editor, chartType, index) {
   goog.base(this);
@@ -36,7 +37,7 @@ anychart.chartEditor2Module.PlotPanel = function(editor, chartType, index) {
    */
   this.currentSetId_ = null;
 };
-goog.inherits(anychart.chartEditor2Module.PlotPanel, goog.ui.Component);
+goog.inherits(anychart.chartEditor2Module.PlotPanel, anychart.chartEditor2Module.Component);
 
 
 /** @inheritDoc */
@@ -57,8 +58,8 @@ anychart.chartEditor2Module.PlotPanel.prototype.createDom = function() {
   this.getElement().appendChild(this.title_);
 
   // X Values Input
-  this.xValueSelect_ = new anychart.chartEditor2Module.controls.SelectWithLabel('X Values');
-  this.xValueSelect_.setEditorModel(this.editor_.getEditorModel(), {'category': 'plot', 'group': 0, 'name': 'x'});
+  this.xValueSelect_ = new anychart.chartEditor2Module.controls.SelectWithLabel('x', 'X Values');
+  this.xValueSelect_.setEditorModel(this.editor_.getEditorModel(), this.getKey([['mapping', 0], 'x']));
   this.addChild(this.xValueSelect_, true);
 
   this.addSeriesBtn_ = new goog.ui.Button('Add series');
@@ -77,6 +78,12 @@ anychart.chartEditor2Module.PlotPanel.prototype.enterDocument = function() {
   this.getHandler().listen(this.xValueSelect_, goog.ui.Component.EventType.CHANGE, this.onChangeXValue_);
 
   this.update(null);
+};
+
+
+anychart.chartEditor2Module.PlotPanel.prototype.getKey = function(opt_completion) {
+  this.key_ = [['plot', this.index()]];
+  return goog.base(this, 'getKey', opt_completion);
 };
 
 
@@ -176,4 +183,9 @@ anychart.chartEditor2Module.PlotPanel.prototype.onClose_ = function(evt) {
     panelType: 'plot',
     index: this.index_
   })
+};
+
+anychart.chartEditor2Module.PlotPanel.prototype.dispose = function() {
+  this.editor_.getEditorModel().removeByKey(this.getKey());
+  goog.base(this, 'dispose');
 };

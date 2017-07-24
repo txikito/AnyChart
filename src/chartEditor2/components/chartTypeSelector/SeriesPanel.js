@@ -1,5 +1,6 @@
 goog.provide('anychart.chartEditor2Module.SeriesPanel');
 
+goog.require('anychart.chartEditor2Module.Component');
 goog.require('anychart.chartEditor2Module.controls.SelectWithLabel');
 goog.require('anychart.chartEditor2Module.controls.MenuItemWithTwoValues');
 goog.require('goog.ui.Component');
@@ -9,7 +10,7 @@ goog.require('goog.ui.MenuItem');
 
 /**
  * @constructor
- * @extends {goog.ui.Component}
+ * @extends {anychart.chartEditor2Module.Component}
  */
 anychart.chartEditor2Module.SeriesPanel = function(editor, chartType, seriesType, index) {
   anychart.chartEditor2Module.SeriesPanel.base(this, 'constructor');
@@ -38,7 +39,7 @@ anychart.chartEditor2Module.SeriesPanel = function(editor, chartType, seriesType
    */
   this.currentSetId_ = null;
 };
-goog.inherits(anychart.chartEditor2Module.SeriesPanel, goog.ui.Component);
+goog.inherits(anychart.chartEditor2Module.SeriesPanel, anychart.chartEditor2Module.Component);
 
 
 /** @inheritDoc */
@@ -54,8 +55,8 @@ anychart.chartEditor2Module.SeriesPanel.prototype.createDom = function() {
     this.getElement().appendChild(this.close_);
   }
 
-  this.typeSelect_ = new anychart.chartEditor2Module.controls.SelectWithLabel('Series type');
-  this.typeSelect_.setEditorModel(this.editor_.getEditorModel(), {'category': 'series', 'name': 'ctor', 'group': this.index_});
+  this.typeSelect_ = new anychart.chartEditor2Module.controls.SelectWithLabel('ctor', 'Series type');
+  this.typeSelect_.setEditorModel(this.editor_.getEditorModel(), this.getKey('ctor'));
   this.addChild(this.typeSelect_, true);
 
   var seriesTypes = anychart.chartEditor2Module.EditorModel.chartTypes[this.chartType_]['series'];
@@ -64,6 +65,11 @@ anychart.chartEditor2Module.SeriesPanel.prototype.createDom = function() {
     this.typeSelect_.addItem(item);
   }
 };
+
+
+/*anychart.chartEditor2Module.SeriesPanel.prototype.getKey = function(opt_completion) {
+  return key;
+};*/
 
 
 /** @inheritDoc */
@@ -85,21 +91,33 @@ anychart.chartEditor2Module.SeriesPanel.prototype.enterDocument = function() {
 };
 
 
+anychart.chartEditor2Module.SeriesPanel.prototype.getKey = function(opt_completion) {
+  if (!this.parentKey_ && this.getParent())
+    this.parentKey_ = this.getParent().getKey();
+
+  this.key_ = goog.array.concat(this.parentKey_, [['series', this.index()]]);
+  return goog.base(this, 'getKey', opt_completion);
+};
+
+
 anychart.chartEditor2Module.SeriesPanel.prototype.createFields = function() {
   var self = this;
 
   for (var a = this.fields_.length; a--;) {
-    this.removeChild(this.fields_[a], true);
-    this.fields_[a].dispose();
+    var field = this.fields_[a];
+    this.removeChild(field, true);
+    var completion = [['mapping', 0], field.getModel()];
+    this.editor_.getEditorModel().removeByKey(this.getKey(completion));
+    field.dispose();
   }
   this.fields_.length = 0;
 
   var fieldsMap = anychart.chartEditor2Module.EditorModel.series[this.seriesType_]['fields'];
   goog.object.forEach(fieldsMap,
       function(item) {
-        var fieldName = item['name'] ? item['name'] : item['field'];
-        var fieldSelect = new anychart.chartEditor2Module.controls.SelectWithLabel(fieldName);
-        fieldSelect.setEditorModel(self.editor_.getEditorModel(), {'category': 'series', 'name': item['field'], 'group': self.index_});
+        var fieldLabel = item['name'] ? item['name'] : item['field'];
+        var fieldSelect = new anychart.chartEditor2Module.controls.SelectWithLabel(item['field'], fieldLabel);
+        fieldSelect.setEditorModel(self.editor_.getEditorModel(), self.getKey([['mapping', 0], item['field']]));
         self.fields_.push(fieldSelect);
         self.addChild(fieldSelect, true);
       });
@@ -174,4 +192,10 @@ anychart.chartEditor2Module.SeriesPanel.prototype.onClose_ = function(evt) {
     panelType: 'series',
     index: this.index_
   });
+};
+
+
+anychart.chartEditor2Module.SeriesPanel.prototype.dispose = function() {
+  this.editor_.getEditorModel().removeByKey(this.getKey());
+  goog.base(this, 'dispose');
 };

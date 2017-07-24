@@ -393,19 +393,23 @@
       font-size: 1.2em;
     }
   }
-  .field-select {
+  .select-with-label {
+    margin-bottom: 3px;
+    background: none;
+    .anychart-menu-button-inner-box {
+      width: 150px;
+      margin-left: 5px;
+    }
     label {
-      width: 80px;
       text-transform: capitalize;
       font-weight: bolder;
-      display: inline-block;
+      float: right;
       text-align: right;
-      padding-right: 5px;
     }
   }
   .series-panel {
-    label {
-      width: 75px;
+    .anychart-menu-button-inner-box {
+      margin-left: 0;
     }
   }
 }

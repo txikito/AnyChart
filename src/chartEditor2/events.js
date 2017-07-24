@@ -12,6 +12,9 @@ anychart.chartEditor2Module.events.EventType = {
   // DATA_RELEASE: goog.events.getUniqueId('data-release'),
   DATA_UPDATE_USING_STATE: goog.events.getUniqueId('data-update-using-state'),
 
+  // editor model
+  EDITOR_MODEL_UPDATE: goog.events.getUniqueId('editor-model-update'),
+
   // widgets events
   FILTER_UPDATE: goog.events.getUniqueId('filter-update'),
   PANEL_CLOSE: goog.events.getUniqueId('panel-close')

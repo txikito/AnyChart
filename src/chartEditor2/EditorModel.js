@@ -12,37 +12,8 @@ anychart.chartEditor2Module.EditorModel = function() {
   goog.base(this);
 
   this.inputs_ = {
-    /**
-     * Format:
-      // category = 'chart'
-      'chart': [
-        // group = 0
-        {
-          // name = 'type', value = 'line'
-          'type': 'line'
-        }
-      ],
-      // category = 'series'
-      'series': [
-        // group = 0
-        {
-          // name = 'type', value = 'ohlc'
-          'type': 'ohlc',
-
-          // name = 'open', value = 'field0'
-          'open': 'field0',
-
-          // so on...
-          'high': 'field1',
-          'low': 'field2',
-          'close': 'field3'
-        }
-      ],
-     ...
-     */
     'chart': [],
-    'plot': [],
-    'series': []
+    'plot': []
   };
 };
 goog.inherits(anychart.chartEditor2Module.EditorModel, goog.events.EventTarget);
@@ -107,19 +78,55 @@ anychart.chartEditor2Module.EditorModel.series = {
 
 /**
  * Setter for input's state
- * @param {anychart.chartEditor2Module.EditorModel.Key} key
+ * @param {Array.<*>} key
  * @param {*} value
  */
 anychart.chartEditor2Module.EditorModel.prototype.setInputValue = function(key, value) {
-  var group = goog.isDef(key['group']) ? key['group'] : 0;
-  if (this.inputs_[key['category']].length >= group) {
-    if (this.inputs_[key['category']].length == group) {
-      this.inputs_[key['category']].push({});
+  var target = this.inputs_;
+  for (var i = 0; i < key.length; i++) {
+    if (goog.isArray(key[i])) {
+      if (!goog.isDef(target[key[i][0]]))
+        target[key[i][0]] = [];
+
+      if (target[key[i][0]].length == key[i][1])
+        target[key[i][0]].push({});
+
+      target = target[key[i][0]][key[i][1]];
+    } else if (goog.isString(key[i])) {
+      target[String(key[i])] = value;
     }
-    this.inputs_[key['category']][group][key['name']] = value;
-  } else {
-    console.warn('Bad group! EditorModel.setInput(\'', key, value, '\'');
   }
+  this.dispatchUpdate();
+};
+
+
+/**
+ * @param {Array} key
+ */
+anychart.chartEditor2Module.EditorModel.prototype.removeByKey = function(key) {
+  var target = this.inputs_;
+  var level;
+  for (var i = 0; i < key.length; i++) {
+    level = key[i];
+    if (i == key.length - 1) {
+      // remove
+      if (goog.isArray(level))
+        goog.array.splice(target[level[0]], level[1], 1);
+      else if (goog.isString(level))
+        delete target[level];
+
+    } else {
+      // drill down
+      if (goog.isArray(level))
+        target = target[level[0]][level[1]];
+      else if (goog.isString(level))
+        target = target[level];
+
+      if (!target)
+        break;
+    }
+  }
+  this.dispatchUpdate();
 };
 
 
@@ -129,17 +136,16 @@ anychart.chartEditor2Module.EditorModel.prototype.setInputValue = function(key, 
  * @return {*} Input's value
  */
 anychart.chartEditor2Module.EditorModel.prototype.getInputValue = function(key) {
-  var group = goog.isDef(key['group']) ? key['group'] : 0;
-  return this.inputs_[key['category']] && this.inputs_[key['category']][group] && goog.isDef(this.inputs_[key['category']][group][key['name']]) ?
-      this.inputs_[key['category']][group][key['name']] :
-      void 0;
+  // var group = goog.isDef(key['group']) ? key['group'] : 0;
+  // return this.inputs_[key['category']] && this.inputs_[key['category']][group] && goog.isDef(this.inputs_[key['category']][group][key['name']]) ?
+  //     this.inputs_[key['category']][group][key['name']] :
+  //     void 0;
 };
 
 
-/**
- * @param {String} category
- * @param {number} group
- */
-anychart.chartEditor2Module.EditorModel.prototype.removeInputsGroup = function(category, group) {
-  goog.array.splice(this.inputs_[category], group, 1);
+anychart.chartEditor2Module.EditorModel.prototype.dispatchUpdate = function() {
+  console.log(this.inputs_);
+  this.dispatchEvent({
+    type: anychart.chartEditor2Module.events.EventType.EDITOR_MODEL_UPDATE
+  });
 };
