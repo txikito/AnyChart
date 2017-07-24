@@ -20,7 +20,7 @@ goog.inherits(anychart.chartEditor2Module.EditorModel, goog.events.EventTarget);
 
 
 /**
- * @typedef {{category: String, name: String, group: number=}}
+ * @typedef {Array.<(Array|String)>}
  */
 anychart.chartEditor2Module.EditorModel.Key;
 
