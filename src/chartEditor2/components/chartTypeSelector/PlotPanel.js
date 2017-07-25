@@ -94,28 +94,34 @@ anychart.chartEditor2Module.PlotPanel.prototype.getKey = function(opt_completion
 anychart.chartEditor2Module.PlotPanel.prototype.update = function(evt) {
   if (evt && evt.action == 'add') return;
 
-  // if (evt.action == 'remove' && !evt.action.isActiveRemoved) {
-  //
-  // }
-  var data = this.editor_.getDataModel().getPreparedData();
+  var removedItemId;
+  if (evt && evt.action == 'remove')
+    if (evt.isActiveRemoved)
+      this.xValueSelect_.resetEditorModel();
+    else
+      removedItemId = evt.setFullId;
 
   for (var a = this.xValueSelect_.getItemCount(); a--;) {
-    this.xValueSelect_.removeItemAt(a);
+    if (!removedItemId || this.xValueSelect_.getItemAt(a).getValue2() == removedItemId)
+      this.xValueSelect_.removeItemAt(a);
   }
 
-  for(var i = 0; i < data.length; i++) {
-    var fields = data[i]['fields'];
-    for(var j = 0; j < fields.length; j++) {
-      var caption = data.length == 1 ? fields[j]['name'] : data[i]['name'] + ' - ' + fields[j]['name'];
-      var setFullId = data[i]['type'] + data[i]['setId'];
-      var item = new anychart.chartEditor2Module.controls.MenuItemWithTwoValues(caption, fields[j]['key'], setFullId);
-      this.xValueSelect_.addItem(item);
+  if (!removedItemId) {
+    var data = this.editor_.getDataModel().getPreparedData();
+
+    for(var i = 0; i < data.length; i++) {
+      var fields = data[i]['fields'];
+      for(var j = 0; j < fields.length; j++) {
+        var caption = data.length == 1 ? fields[j]['name'] : data[i]['name'] + ' - ' + fields[j]['name'];
+        var setFullId = data[i]['type'] + data[i]['setId'];
+        var item = new anychart.chartEditor2Module.controls.MenuItemWithTwoValues(caption, fields[j]['key'], setFullId);
+        this.xValueSelect_.addItem(item);
+      }
     }
-  }
 
-
-  // todo: Do more deliberate choice
-  this.xValueSelect_.setSelectedByModel();
+    this.xValueSelect_.setSelectedByModel();
+  } else
+    this.onChangeXValue_()
 };
 
 
@@ -131,7 +137,8 @@ anychart.chartEditor2Module.PlotPanel.prototype.index = function(opt_value) {
 };
 
 
-anychart.chartEditor2Module.PlotPanel.prototype.addSeries_ = function(seriesType) {
+anychart.chartEditor2Module.PlotPanel.prototype.addSeries_ = function() {
+  var seriesType = this.getDefaultSeriesType_();
   var series = new anychart.chartEditor2Module.SeriesPanel(this.editor_, this.chartType_, seriesType, this.series_.length);
   this.series_.push(series);
   this.addChildAt(series, this.getChildCount() - 1, true);
@@ -147,8 +154,8 @@ anychart.chartEditor2Module.PlotPanel.prototype.getDefaultSeriesType_ = function
 };
 
 
-anychart.chartEditor2Module.PlotPanel.prototype.onAddSeries_ = function(evt) {
-  this.addSeries_(this.getDefaultSeriesType_(), true);
+anychart.chartEditor2Module.PlotPanel.prototype.onAddSeries_ = function() {
+  this.addSeries_();
 };
 
 
@@ -166,8 +173,8 @@ anychart.chartEditor2Module.PlotPanel.prototype.onCloseSeries_ = function(evt) {
 };
 
 
-anychart.chartEditor2Module.PlotPanel.prototype.onChangeXValue_ = function(evt) {
-  var setFullId = evt.target.getValue2();
+anychart.chartEditor2Module.PlotPanel.prototype.onChangeXValue_ = function() {
+  var setFullId = this.xValueSelect_.getValue2();
   if (setFullId) {
     this.currentSetId_ = setFullId;
     this.dispatchEvent({
@@ -176,7 +183,7 @@ anychart.chartEditor2Module.PlotPanel.prototype.onChangeXValue_ = function(evt) 
     });
 
     if (!this.series_.length)
-      this.addSeries_(this.getDefaultSeriesType_());
+      this.addSeries_();
   }
 };
 

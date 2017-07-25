@@ -138,10 +138,29 @@ anychart.chartEditor2Module.EditorModel.prototype.removeByKey = function(key) {
  * @return {*} Input's value
  */
 anychart.chartEditor2Module.EditorModel.prototype.getInputValue = function(key) {
-  // var group = goog.isDef(key['group']) ? key['group'] : 0;
-  // return this.inputs_[key['category']] && this.inputs_[key['category']][group] && goog.isDef(this.inputs_[key['category']][group][key['name']]) ?
-  //     this.inputs_[key['category']][group][key['name']] :
-  //     void 0;
+  var target = this.inputs_;
+  var level;
+  var result;
+  for (var i = 0; i < key.length; i++) {
+    level = key[i];
+    if (i == key.length - 1) {
+      // result
+      if (goog.isArray(level))
+        return target[level[0]][level[1]];
+      else if (goog.isString(level))
+        return target[level];
+
+    } else {
+      // drill down
+      if (goog.isArray(level))
+        target = goog.isArray(target[level[0]]) ? target[level[0]][level[1]] : target[level[0]];
+      else if (goog.isString(level))
+        target = target[level];
+
+      if (!target)
+        return void 0;
+    }
+  }
 };
 
 

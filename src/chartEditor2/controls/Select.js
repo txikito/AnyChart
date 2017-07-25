@@ -40,6 +40,12 @@ anychart.chartEditor2Module.controls.Select.prototype.setEditorModel = function(
 };
 
 
+anychart.chartEditor2Module.controls.Select.prototype.resetEditorModel = function(model) {
+  if (this.editorModel_ && this.key_)
+    this.editorModel_.removeByKey(this.key_);
+};
+
+
 anychart.chartEditor2Module.controls.Select.prototype.setSelectedByModel = function() {
   var value;
   if (this.editorModel_ && this.key_)
@@ -48,5 +54,10 @@ anychart.chartEditor2Module.controls.Select.prototype.setSelectedByModel = funct
   if (goog.isDef(value))
     this.setValue(value);
   else
-    this.setSelectedIndex(0);
+    this.setSelectedDefault();
+};
+
+
+anychart.chartEditor2Module.controls.Select.prototype.setSelectedDefault = function() {
+  this.setSelectedIndex(0);
 };
