@@ -51,15 +51,29 @@ anychart.chartEditor2Module.ChartTypeSelector.prototype.createDom = function() {
 
 
 anychart.chartEditor2Module.ChartTypeSelector.prototype.enterDocument = function() {
-  anychart.chartEditor2Module.ChartTypeSelector.base(this, 'enterDocument');
+  goog.base(this, 'enterDocument');
 
-  this.listen(anychart.chartEditor2Module.events.EventType.PANEL_CLOSE, this.onClosePlot_);
+  this.getHandler().listen(this.editor_.getDataModel(), anychart.chartEditor2Module.events.EventType.DATA_UPDATE_MODEL, this.onDataUpdate_);
   this.getHandler().listen(this.chartTypeSelect_, goog.ui.Component.EventType.CHANGE, this.onChangeChartType_);
 
   if(this.addPlotBtn_)
     this.getHandler().listen(this.addPlotBtn_, goog.ui.Component.EventType.ACTION, this.onAddPlot_);
 
+  this.listen(anychart.chartEditor2Module.events.EventType.PANEL_CLOSE, this.onClosePlot_);
+
+  this.onDataUpdate_();
   this.chartTypeSelect_.setSelectedByModel();
+};
+
+
+anychart.chartEditor2Module.ChartTypeSelector.prototype.onDataUpdate_ = function() {
+  var data = this.editor_.getDataModel().getPreparedData();
+  if (!data.length) {
+    this.removePlots_();
+    this.chartTypeSelect_.resetEditorModel();
+  }
+
+  goog.dom.classlist.enable(this.getElement(), 'hidden', !data.length);
 };
 
 
@@ -95,15 +109,11 @@ anychart.chartEditor2Module.ChartTypeSelector.prototype.onClosePlot_ = function(
 
 anychart.chartEditor2Module.ChartTypeSelector.prototype.setChartType = function(chartType) {
   if (this.chartType_ == chartType) return;
-
   this.chartType_ = chartType;
+  if (!this.chartType_) return;
 
-  for (var i = 0; i < this.plots_.length; i++) {
-    this.removeChild(this.plots_[i], true);
-    this.plots_[i].dispose();
-  }
+  this.removePlots_();
 
-  this.plots_.length = 0;
   var plot = new anychart.chartEditor2Module.PlotPanel(this.editor_, this.chartType_, 0);
   this.plots_.push(plot);
   this.addChild(plot, true);
@@ -117,4 +127,13 @@ anychart.chartEditor2Module.ChartTypeSelector.prototype.setChartType = function(
     this.addPlotBtn_.dispose();
     this.addPlotBtn_ = null;
   }
+};
+
+
+anychart.chartEditor2Module.ChartTypeSelector.prototype.removePlots_ = function() {
+  for (var i = 0; i < this.plots_.length; i++) {
+    this.removeChild(this.plots_[i], true);
+    this.plots_[i].dispose();
+  }
+  this.plots_.length = 0;
 };

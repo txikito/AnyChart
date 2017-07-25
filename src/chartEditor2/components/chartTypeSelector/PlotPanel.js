@@ -76,12 +76,14 @@ anychart.chartEditor2Module.PlotPanel.prototype.enterDocument = function() {
 
   this.getHandler().listen(this.addSeriesBtn_, goog.ui.Component.EventType.ACTION, this.onAddSeries_);
   this.listen(anychart.chartEditor2Module.events.EventType.PANEL_CLOSE, this.onCloseSeries_);
+
   if (this.close_)
     this.getHandler().listen(this.close_, goog.events.EventType.CLICK, this.onClose_);
-  this.getHandler().listen(this.editor_.getDataModel(), anychart.chartEditor2Module.events.EventType.DATA_UPDATE_MODEL, this.update);
+
+  this.getHandler().listen(this.editor_.getDataModel(), anychart.chartEditor2Module.events.EventType.DATA_UPDATE_MODEL, this.onDataUpdate_);
   this.getHandler().listen(this.xValueSelect_, goog.ui.Component.EventType.CHANGE, this.onChangeXValue_);
 
-  this.update(null);
+  this.onDataUpdate_(null);
 };
 
 
@@ -91,37 +93,26 @@ anychart.chartEditor2Module.PlotPanel.prototype.getKey = function(opt_completion
 };
 
 
-anychart.chartEditor2Module.PlotPanel.prototype.update = function(evt) {
-  if (evt && evt.action == 'add') return;
-
-  var removedItemId;
-  if (evt && evt.action == 'remove')
-    if (evt.isActiveRemoved)
-      this.xValueSelect_.resetEditorModel();
-    else
-      removedItemId = evt.setFullId;
+anychart.chartEditor2Module.PlotPanel.prototype.onDataUpdate_ = function(evt) {
+  if (evt && evt.isActiveRemoved)
+    this.xValueSelect_.resetEditorModel();
 
   for (var a = this.xValueSelect_.getItemCount(); a--;) {
-    if (!removedItemId || this.xValueSelect_.getItemAt(a).getValue2() == removedItemId)
-      this.xValueSelect_.removeItemAt(a);
+    this.xValueSelect_.removeItemAt(a);
   }
 
-  if (!removedItemId) {
-    var data = this.editor_.getDataModel().getPreparedData();
-
-    for(var i = 0; i < data.length; i++) {
-      var fields = data[i]['fields'];
-      for(var j = 0; j < fields.length; j++) {
-        var caption = data.length == 1 ? fields[j]['name'] : data[i]['name'] + ' - ' + fields[j]['name'];
-        var setFullId = data[i]['type'] + data[i]['setId'];
-        var item = new anychart.chartEditor2Module.controls.MenuItemWithTwoValues(caption, fields[j]['key'], setFullId);
-        this.xValueSelect_.addItem(item);
-      }
+  var data = this.editor_.getDataModel().getPreparedData();
+  for(var i = 0; i < data.length; i++) {
+    var fields = data[i]['fields'];
+    for(var j = 0; j < fields.length; j++) {
+      var caption = data.length == 1 ? fields[j]['name'] : data[i]['name'] + ' - ' + fields[j]['name'];
+      var setFullId = data[i]['type'] + data[i]['setId'];
+      var item = new anychart.chartEditor2Module.controls.MenuItemWithTwoValues(caption, fields[j]['key'], setFullId);
+      this.xValueSelect_.addItem(item);
     }
+  }
 
-    this.xValueSelect_.setSelectedByModel();
-  } else
-    this.onChangeXValue_()
+  this.xValueSelect_.setSelectedByModel();
 };
 
 
@@ -182,19 +173,21 @@ anychart.chartEditor2Module.PlotPanel.prototype.onChangeXValue_ = function() {
       setFullId: this.currentSetId_
     });
 
+    console.log("CURRENT DATASET", this.currentSetId_);
     if (!this.series_.length)
       this.addSeries_();
   }
 };
 
 
-anychart.chartEditor2Module.PlotPanel.prototype.onClose_ = function(evt) {
+anychart.chartEditor2Module.PlotPanel.prototype.onClose_ = function() {
   this.dispatchEvent({
     type: anychart.chartEditor2Module.events.EventType.PANEL_CLOSE,
     panelType: 'plot',
     index: this.index_
   })
 };
+
 
 anychart.chartEditor2Module.PlotPanel.prototype.dispose = function() {
   this.editor_.getEditorModel().removeByKey(this.getKey());

@@ -25,7 +25,8 @@ anychart.chartEditor2Module.controls.Select.prototype.enterDocument = function()
 
 
 anychart.chartEditor2Module.controls.Select.prototype.onChange_ = function(evt) {
-  this.editorModel_.setInputValue(this.key_, this.getValue());
+  if (goog.isDefAndNotNull(this.getValue()))
+    this.editorModel_.setInputValue(this.key_, this.getValue());
 };
 
 
@@ -40,9 +41,11 @@ anychart.chartEditor2Module.controls.Select.prototype.setEditorModel = function(
 };
 
 
-anychart.chartEditor2Module.controls.Select.prototype.resetEditorModel = function(model) {
+anychart.chartEditor2Module.controls.Select.prototype.resetEditorModel = function() {
   if (this.editorModel_ && this.key_)
     this.editorModel_.removeByKey(this.key_);
+
+  this.setSelectedIndex(-1);
 };
 
 
