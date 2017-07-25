@@ -59,8 +59,12 @@ anychart.chartEditor2Module.PlotPanel.prototype.createDom = function() {
 
   // X Values Input
   this.xValueSelect_ = new anychart.chartEditor2Module.controls.SelectWithLabel('x', 'X Values');
-  this.xValueSelect_.setEditorModel(this.editor_.getEditorModel(), this.getKey([['mapping', 0], 'x']));
+  this.xValueSelect_.setEditorModel(this.editor_.getEditorModel(), this.getKey([['mapping'], 'x']));
   this.addChild(this.xValueSelect_, true);
+
+  // todo: синхронизировать значение X у всех плотов
+  // if (this.index_ > 0)
+  //   this.xValueSelect_.addClassName('hidden');
 
   this.addSeriesBtn_ = new goog.ui.Button('Add series');
   this.addChild(this.addSeriesBtn_, true);

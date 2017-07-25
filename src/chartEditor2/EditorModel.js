@@ -11,10 +11,7 @@ goog.require('goog.events.EventTarget');
 anychart.chartEditor2Module.EditorModel = function() {
   goog.base(this);
 
-  this.inputs_ = {
-    'chart': [],
-    'plot': []
-  };
+  this.inputs_ = {};
 };
 goog.inherits(anychart.chartEditor2Module.EditorModel, goog.events.EventTarget);
 
@@ -84,16 +81,21 @@ anychart.chartEditor2Module.EditorModel.series = {
 anychart.chartEditor2Module.EditorModel.prototype.setInputValue = function(key, value) {
   var target = this.inputs_;
   for (var i = 0; i < key.length; i++) {
-    if (goog.isArray(key[i])) {
-      if (!goog.isDef(target[key[i][0]]))
-        target[key[i][0]] = [];
+    var level = key[i];
+    if (goog.isArray(level)) {
+      if (!goog.isDef(target[level[0]])) {
+        if (level.length > 1)
+          target[level[0]] = [];
+        else
+          target[level[0]] = {};
+      }
 
-      if (target[key[i][0]].length == key[i][1])
-        target[key[i][0]].push({});
+      if (goog.isArray(target[level[0]]) && target[level[0]].length == level[1])
+        target[level[0]].push({});
 
-      target = target[key[i][0]][key[i][1]];
-    } else if (goog.isString(key[i])) {
-      target[String(key[i])] = value;
+      target = goog.isArray(target[level[0]]) ? target[level[0]][level[1]] : target[level[0]];
+    } else if (goog.isString(level)) {
+      target[String(level)] = value;
     }
   }
   this.dispatchUpdate();
@@ -118,7 +120,7 @@ anychart.chartEditor2Module.EditorModel.prototype.removeByKey = function(key) {
     } else {
       // drill down
       if (goog.isArray(level))
-        target = target[level[0]][level[1]];
+        target = goog.isArray(target[level[0]]) ? target[level[0]][level[1]] : target[level[0]];
       else if (goog.isString(level))
         target = target[level];
 

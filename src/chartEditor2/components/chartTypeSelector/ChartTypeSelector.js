@@ -26,7 +26,7 @@ anychart.chartEditor2Module.ChartTypeSelector = function(editor) {
    */
   this.plots_ = [];
 
-  this.key_ = [['chart', 0]];
+  this.key_ = [['chart']];
 };
 goog.inherits(anychart.chartEditor2Module.ChartTypeSelector, anychart.chartEditor2Module.Component);
 

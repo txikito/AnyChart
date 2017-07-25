@@ -106,7 +106,7 @@ anychart.chartEditor2Module.SeriesPanel.prototype.createFields = function() {
   for (var a = this.fields_.length; a--;) {
     var field = this.fields_[a];
     this.removeChild(field, true);
-    var completion = [['mapping', 0], field.getModel()];
+    var completion = [['mapping'], field.getModel()];
     this.editor_.getEditorModel().removeByKey(this.getKey(completion));
     field.dispose();
   }
@@ -117,7 +117,7 @@ anychart.chartEditor2Module.SeriesPanel.prototype.createFields = function() {
       function(item) {
         var fieldLabel = item['name'] ? item['name'] : item['field'];
         var fieldSelect = new anychart.chartEditor2Module.controls.SelectWithLabel(item['field'], fieldLabel);
-        fieldSelect.setEditorModel(self.editor_.getEditorModel(), self.getKey([['mapping', 0], item['field']]));
+        fieldSelect.setEditorModel(self.editor_.getEditorModel(), self.getKey([['mapping'], item['field']]));
         self.fields_.push(fieldSelect);
         self.addChild(fieldSelect, true);
       });
