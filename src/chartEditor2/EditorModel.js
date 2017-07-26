@@ -73,6 +73,21 @@ anychart.chartEditor2Module.EditorModel.series = {
 };
 
 
+anychart.chartEditor2Module.EditorModel.consistencyObject = {
+  'chart': {
+    'ctor': ''
+  },
+  'plot': [{
+    'mapping': {'x': ''},
+
+    'series': [{
+      'ctor': '',
+      'mapping': {}
+    }]
+  }]
+};
+
+
 /**
  * Setter for input's state
  * @param {Array.<*>} key
@@ -94,11 +109,11 @@ anychart.chartEditor2Module.EditorModel.prototype.setInputValue = function(key, 
         target[level[0]].push({});
 
       target = goog.isArray(target[level[0]]) ? target[level[0]][level[1]] : target[level[0]];
-    } else if (goog.isString(level)) {
+    } else if (goog.isString(level) && target[String(level)] != value) {
       target[String(level)] = value;
+      this.dispatchUpdate();
     }
   }
-  this.dispatchUpdate();
 };
 
 
@@ -112,10 +127,13 @@ anychart.chartEditor2Module.EditorModel.prototype.removeByKey = function(key) {
     level = key[i];
     if (i == key.length - 1) {
       // remove
-      if (goog.isArray(level))
+      if (goog.isArray(level)) {
         goog.array.splice(target[level[0]], level[1], 1);
-      else if (goog.isString(level))
+      }
+      else if (goog.isString(level)) {
         delete target[level];
+      }
+
 
     } else {
       // drill down
@@ -140,7 +158,7 @@ anychart.chartEditor2Module.EditorModel.prototype.removeByKey = function(key) {
 anychart.chartEditor2Module.EditorModel.prototype.getInputValue = function(key) {
   var target = this.inputs_;
   var level;
-  var result;
+
   for (var i = 0; i < key.length; i++) {
     level = key[i];
     if (i == key.length - 1) {
@@ -165,8 +183,62 @@ anychart.chartEditor2Module.EditorModel.prototype.getInputValue = function(key) 
 
 
 anychart.chartEditor2Module.EditorModel.prototype.dispatchUpdate = function() {
-  console.log(this.inputs_);
+  var isConsistent = this.checkConsistency_();
+
+  if (isConsistent) {
+    console.log(this.inputs_);
+  }
+
   this.dispatchEvent({
-    type: anychart.chartEditor2Module.events.EventType.EDITOR_MODEL_UPDATE
+    type: anychart.chartEditor2Module.events.EventType.EDITOR_MODEL_UPDATE,
+    isDataConsistent: isConsistent
   });
+};
+
+
+/**
+ * Checks if available data is enough to build chart
+ * @return {boolean} true if available data is enough
+ */
+anychart.chartEditor2Module.EditorModel.prototype.checkConsistency_ = function() {
+  // console.log(this.inputs_);
+
+  // Check by consistencyObject
+  if (!this.checkConsistencyByObject_(this.inputs_, anychart.chartEditor2Module.EditorModel.consistencyObject))
+    return false;
+
+  // Check series fields
+  for (var i = this.inputs_['plot'].length; i--;) {
+    for (var j = this.inputs_['plot'][i]['series'].length; j--;) {
+      var series = this.inputs_['plot'][i]['series'][j];
+      var mapping = series['mapping'];
+      var fields = /** @type {Array.<String>} */(goog.object.getKeys(mapping));
+      var seriesFields = goog.array.map(anychart.chartEditor2Module.EditorModel.series[series['ctor']]['fields'],
+          function(item) {
+            return item['field']
+          });
+
+      if (goog.array.compare3(fields, seriesFields) != 0)
+        return false;
+    }
+  }
+
+  return true;
+};
+
+
+anychart.chartEditor2Module.EditorModel.prototype.checkConsistencyByObject_ = function(opt_target, opt_object) {
+  if (goog.typeOf(opt_target) != goog.typeOf(opt_object))
+    return false;
+
+  if (goog.isObject(opt_object)) {
+    for (var i in opt_object) {
+      if (opt_object.hasOwnProperty(i)) {
+        if (!opt_target.hasOwnProperty(i) || !this.checkConsistencyByObject_(opt_target[i], opt_object[i]))
+          return false;
+      }
+    }
+  }
+
+  return true;
 };

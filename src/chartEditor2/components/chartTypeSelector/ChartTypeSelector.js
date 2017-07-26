@@ -8,6 +8,7 @@ goog.require('anychart.chartEditor2Module.controls.ChartTypeSelect');
 /**
  * Chart type selection widget.
  * Allows to choose chart type and contains PlotPanel widget(s).
+ * @param {anychart.chartEditor2Module.Editor} editor
  * @constructor
  * @extends {anychart.chartEditor2Module.Component}
  */
