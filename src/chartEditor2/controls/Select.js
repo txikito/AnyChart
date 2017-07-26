@@ -54,9 +54,14 @@ anychart.chartEditor2Module.controls.Select.prototype.setSelectedByModel = funct
   if (this.editorModel_ && this.key_)
     value = this.editorModel_.getInputValue(this.key_);
 
-  if (goog.isDef(value))
+  if (goog.isDef(value)) {
     this.setValue(value);
-  else
+
+    if (!this.getSelectedItem()) {
+      this.setSelectedDefault();
+
+    }
+  } else
     this.setSelectedDefault();
 };
 
