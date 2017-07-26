@@ -74,6 +74,9 @@ anychart.chartEditor2Module.PlotPanel.prototype.createDom = function() {
 anychart.chartEditor2Module.PlotPanel.prototype.enterDocument = function() {
   goog.base(this, 'enterDocument');
 
+  // Fint by ears to prevent build chart twice on dataset change
+  this.xValueSelect_.unlisten(goog.ui.Component.EventType.CHANGE, this.xValueSelect_.onChange);
+
   this.getHandler().listen(this.addSeriesBtn_, goog.ui.Component.EventType.ACTION, this.onAddSeries_);
   this.listen(anychart.chartEditor2Module.events.EventType.PANEL_CLOSE, this.onCloseSeries_);
 
@@ -164,18 +167,23 @@ anychart.chartEditor2Module.PlotPanel.prototype.onCloseSeries_ = function(evt) {
 };
 
 
-anychart.chartEditor2Module.PlotPanel.prototype.onChangeXValue_ = function() {
+anychart.chartEditor2Module.PlotPanel.prototype.onChangeXValue_ = function(evt) {
   var setFullId = this.xValueSelect_.getValue2();
   if (setFullId) {
+    this.editor_.getEditorModel().suspendDispatch();
     this.currentSetId_ = setFullId;
+
+    this.editor_.getDataModel().currentId(this.currentSetId_);
     this.dispatchEvent({
       type: anychart.chartEditor2Module.events.EventType.DATA_USE,
       setFullId: this.currentSetId_
     });
 
-    console.log("CURRENT DATASET", this.currentSetId_);
     if (!this.series_.length)
       this.addSeries_();
+
+    this.xValueSelect_.onChange(evt);
+    this.editor_.getEditorModel().resumeDispatch();
   }
 };
 

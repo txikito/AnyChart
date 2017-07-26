@@ -17,6 +17,8 @@ anychart.chartEditor2Module.Chart = function(editor) {
    * @private
    */
   this.editor_ = editor;
+
+  this.anychart_ = /** @type {Object} */(goog.dom.getWindow()['anychart']);
 };
 goog.inherits(anychart.chartEditor2Module.Chart, anychart.chartEditor2Module.Component);
 
@@ -35,20 +37,25 @@ anychart.chartEditor2Module.Chart.prototype.enterDocument = function() {
   goog.base(this, 'enterDocument');
 
   this.getHandler().listen(this.editor_.getEditorModel(), anychart.chartEditor2Module.events.EventType.EDITOR_MODEL_UPDATE, this.update_);
-  // this.getHandler().listen(this.chartTypeSelect_, goog.ui.Component.EventType.CHANGE, this.onChangeChartType_);
-  //
-  // if(this.addPlotBtn_)
-  //   this.getHandler().listen(this.addPlotBtn_, goog.ui.Component.EventType.ACTION, this.onAddPlot_);
-  //
-  // this.listen(anychart.chartEditor2Module.events.EventType.PANEL_CLOSE, this.onClosePlot_);
-  //
-  // this.onDataUpdate_();
-  // this.chartTypeSelect_.setSelectedByModel();
 };
 
 
 anychart.chartEditor2Module.Chart.prototype.update_ = function(evt) {
   if (evt.isDataConsistent) {
     console.log("Build chart!");
+    var dataModel = this.editor_.getDataModel();
+    var rawData = dataModel.getRawData();
+    console.log(rawData);
+
+    // var editorModel = this.editor_.getEditorModel();
+    //
+    //
+    // if (this.chart && typeof this.chart['dispose'] == 'function') {
+    //   this.chart['dispose']();
+    // }
+
+    // this.chart = model.getChart();
+
+
   }
 };

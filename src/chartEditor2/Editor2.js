@@ -75,7 +75,6 @@ anychart.chartEditor2Module.Editor = function(opt_domHelper) {
 
   this.listen(anychart.chartEditor2Module.events.EventType.DATA_ADD, this.onDataAdd_);
   this.listen(anychart.chartEditor2Module.events.EventType.DATA_REMOVE, this.onDataRemove_);
-  this.listen(anychart.chartEditor2Module.events.EventType.DATA_USE, this.onUpdateUsingState_);
 };
 goog.inherits(anychart.chartEditor2Module.Editor, anychart.ui.Component);
 
@@ -405,11 +404,6 @@ anychart.chartEditor2Module.Editor.prototype.onDataAdd_ = function(evt) {
 
 anychart.chartEditor2Module.Editor.prototype.onDataRemove_ = function(evt) {
   this.dataModel_.removeData(evt['setId'], evt['dataType']);
-};
-
-
-anychart.chartEditor2Module.Editor.prototype.onUpdateUsingState_ = function(evt) {
-  this.dataModel_.currentId(evt.setFullId);
 };
 
 

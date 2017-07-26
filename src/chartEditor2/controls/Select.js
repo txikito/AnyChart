@@ -20,11 +20,11 @@ goog.inherits(anychart.chartEditor2Module.controls.Select, goog.ui.Select);
 anychart.chartEditor2Module.controls.Select.prototype.enterDocument = function() {
   goog.base(this, 'enterDocument');
 
-  this.listen(goog.ui.Component.EventType.CHANGE, this.onChange_);
+  this.listen(goog.ui.Component.EventType.CHANGE, this.onChange);
 };
 
 
-anychart.chartEditor2Module.controls.Select.prototype.onChange_ = function(evt) {
+anychart.chartEditor2Module.controls.Select.prototype.onChange = function(evt) {
   if (goog.isDefAndNotNull(this.getValue()))
     this.editorModel_.setInputValue(this.key_, this.getValue());
 };

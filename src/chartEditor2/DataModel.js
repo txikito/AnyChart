@@ -73,12 +73,14 @@ anychart.chartEditor2Module.DataModel.prototype.removeData = function(setId, dat
  */
 anychart.chartEditor2Module.DataModel.prototype.currentId = function(opt_setFullId) {
   if (goog.isDef(opt_setFullId)) {
-    this.currentId_ = opt_setFullId;
+    if (this.currentId_ != opt_setFullId) {
+      this.currentId_ = opt_setFullId;
 
-    this.dispatchEvent({
-      type: anychart.chartEditor2Module.events.EventType.DATA_UPDATE_USING_STATE,
-      setFullId: this.currentId_
-    });
+      this.dispatchEvent({
+        type: anychart.chartEditor2Module.events.EventType.DATA_UPDATE_USING_STATE,
+        setFullId: this.currentId_
+      });
+    }
   }
 
   return this.currentId_;
@@ -92,6 +94,12 @@ anychart.chartEditor2Module.DataModel.prototype.getDataKeys = function() {
 
 anychart.chartEditor2Module.DataModel.prototype.getPreparedData = function() {
   return this.isDirty() ? this.prepareData_() : this.preparedData_;
+};
+
+
+anychart.chartEditor2Module.DataModel.prototype.getRawData = function() {
+  var dataSet = this.data_[this.currentId_];
+  return dataSet ? dataSet['data'] : null;
 };
 
 

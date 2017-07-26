@@ -133,6 +133,7 @@ anychart.chartEditor2Module.SeriesPanel.prototype.createFieldsOptions = function
 
   if (data) {
     for (var i = 0; i < this.fields_.length; i++) {
+      this.fields_[i].resetEditorModel();
       for (var b = this.fields_[i].getItemCount(); b--;) {
         this.fields_[i].removeItemAt(b);
       }

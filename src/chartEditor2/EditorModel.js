@@ -12,6 +12,8 @@ anychart.chartEditor2Module.EditorModel = function() {
   goog.base(this);
 
   this.inputs_ = {};
+
+  this.dispatchSuspended_ = false;
 };
 goog.inherits(anychart.chartEditor2Module.EditorModel, goog.events.EventTarget);
 
@@ -183,6 +185,8 @@ anychart.chartEditor2Module.EditorModel.prototype.getInputValue = function(key) 
 
 
 anychart.chartEditor2Module.EditorModel.prototype.dispatchUpdate = function() {
+  if (this.dispatchSuspended_) return;
+
   var isConsistent = this.checkConsistency_();
 
   if (isConsistent) {
@@ -241,4 +245,14 @@ anychart.chartEditor2Module.EditorModel.prototype.checkConsistencyByObject_ = fu
   }
 
   return true;
+};
+
+
+anychart.chartEditor2Module.EditorModel.prototype.suspendDispatch = function() {
+  this.dispatchSuspended_ = true;
+};
+
+anychart.chartEditor2Module.EditorModel.prototype.resumeDispatch = function() {
+  this.dispatchSuspended_ = false;
+  this.dispatchUpdate();
 };
