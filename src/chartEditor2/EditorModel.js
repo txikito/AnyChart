@@ -29,25 +29,29 @@ anychart.chartEditor2Module.EditorModel.chartTypes = {
     'value': 'line',
     'name': 'Line Chart',
     'icon': 'line-chart-1.svg', // 'http://www.anychart.com/_design/img/upload/charts/types/'
-    'series': ['line', 'spline', 'column', 'area', 'ohlc'] // first value is default
+    'series': ['line', 'spline', 'column', 'area', 'ohlc'], // first value is default
+    'dataSetCtor': 'set'
   },
   'column': {
     'value': 'column',
     'name': 'Column Chart',
     'icon': 'column-chart.svg',
-    'series': ['column', 'line', 'spline', 'area', 'ohlc']
+    'series': ['column', 'line', 'spline', 'area', 'ohlc'],
+    'dataSetCtor': 'set'
   },
   'area': {
     'value': 'area',
     'name': 'Area Chart',
     'icon': 'area-chart.svg',
-    'series': ['area', 'line', 'spline', 'column', 'ohlc']
+    'series': ['area', 'line', 'spline', 'column', 'ohlc'],
+    'dataSetCtor': 'set'
   },
   'stock': {
     'value': 'stock',
     'name': 'Stock Chart',
     'icon': 'stock-chart.svg',
-    'series': ['ohlc', 'line', 'spline', 'column', 'area']
+    'series': ['ohlc', 'line', 'spline', 'column', 'area'],
+    'dataSetCtor': 'table'
   }
 };
 
@@ -87,6 +91,11 @@ anychart.chartEditor2Module.EditorModel.consistencyObject = {
       'mapping': {}
     }]
   }]
+};
+
+
+anychart.chartEditor2Module.EditorModel.prototype.getInputs = function() {
+  return this.inputs_;
 };
 
 
@@ -190,7 +199,7 @@ anychart.chartEditor2Module.EditorModel.prototype.dispatchUpdate = function() {
   var isConsistent = this.checkConsistency_();
 
   if (isConsistent) {
-    console.log(this.inputs_);
+    //console.log(this.inputs_);
   }
 
   this.dispatchEvent({

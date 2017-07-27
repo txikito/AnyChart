@@ -55,6 +55,9 @@ anychart.chartEditor2Module.ChartTypeSelector.prototype.enterDocument = function
   goog.base(this, 'enterDocument');
 
   this.getHandler().listen(this.editor_.getDataModel(), anychart.chartEditor2Module.events.EventType.DATA_UPDATE_MODEL, this.onDataUpdate_);
+
+  // Fint by ears to prevent build chart twice on dataset change
+  this.chartTypeSelect_.unlisten(goog.ui.Component.EventType.CHANGE, this.chartTypeSelect_.onChange);
   this.getHandler().listen(this.chartTypeSelect_, goog.ui.Component.EventType.CHANGE, this.onChangeChartType_);
 
   if(this.addPlotBtn_)
@@ -78,11 +81,34 @@ anychart.chartEditor2Module.ChartTypeSelector.prototype.onDataUpdate_ = function
 };
 
 
-anychart.chartEditor2Module.ChartTypeSelector.prototype.onChangeChartType_ = function() {
+anychart.chartEditor2Module.ChartTypeSelector.prototype.onChangeChartType_ = function(evt) {
+  this.chartType_ = this.chartTypeSelect_.getValue();
+  if (!this.chartType_) return;
+
   this.typeIcon_.setAttribute('src', this.chartTypeSelect_.getIcon());
-  this.setChartType(this.chartTypeSelect_.getValue());
-  if(this.addPlotBtn_)
+
+  this.editor_.getEditorModel().suspendDispatch();
+  this.removePlots_();
+
+  var plot = new anychart.chartEditor2Module.PlotPanel(this.editor_, this.chartType_, 0);
+  this.plots_.push(plot);
+  this.addChild(plot, true);
+
+  if (this.chartType_ == 'stock' && !this.addPlotBtn_) {
+    this.addPlotBtn_ = new goog.ui.Button('Add plot');
+    this.addChildAt(this.addPlotBtn_, this.getChildCount(), true);
     this.getHandler().listen(this.addPlotBtn_, goog.ui.Component.EventType.ACTION, this.onAddPlot_);
+
+  } else if (this.addPlotBtn_) {
+    // Убрать кнопку
+    this.getHandler().unlisten(this.addPlotBtn_, goog.ui.Component.EventType.ACTION, this.onAddPlot_);
+    this.removeChild(this.addPlotBtn_, true);
+    this.addPlotBtn_.dispose();
+    this.addPlotBtn_ = null;
+  }
+
+  this.chartTypeSelect_.onChange(evt);
+  this.editor_.getEditorModel().resumeDispatch();
 };
 
 
@@ -104,29 +130,6 @@ anychart.chartEditor2Module.ChartTypeSelector.prototype.onClosePlot_ = function(
     for (var i = 0; i < this.plots_.length; i++) {
       this.plots_[i].index(i);
     }
-  }
-};
-
-
-anychart.chartEditor2Module.ChartTypeSelector.prototype.setChartType = function(chartType) {
-  if (this.chartType_ == chartType) return;
-  this.chartType_ = chartType;
-  if (!this.chartType_) return;
-
-  this.removePlots_();
-
-  var plot = new anychart.chartEditor2Module.PlotPanel(this.editor_, this.chartType_, 0);
-  this.plots_.push(plot);
-  this.addChild(plot, true);
-
-  if (this.chartType_ == 'stock' && !this.addPlotBtn_) {
-    this.addPlotBtn_ = new goog.ui.Button('Add plot');
-    this.addChildAt(this.addPlotBtn_, this.getChildCount(), true);
-  } else if (this.addPlotBtn_) {
-    // Убрать кнопку
-    this.removeChild(this.addPlotBtn_, true);
-    this.addPlotBtn_.dispose();
-    this.addPlotBtn_ = null;
   }
 };
 
