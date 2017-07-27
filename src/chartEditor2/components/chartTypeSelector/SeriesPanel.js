@@ -25,8 +25,6 @@ anychart.chartEditor2Module.SeriesPanel = function(editor, chartType, seriesType
 
   this.chartType_ = chartType;
 
-  this.seriesType_ = seriesType;
-
   /**
    * @type {Array.<anychart.chartEditor2Module.controls.SelectWithLabel>}
    * @private
@@ -76,6 +74,9 @@ anychart.chartEditor2Module.SeriesPanel.prototype.enterDocument = function() {
     this.getHandler().listen(this.close_, goog.events.EventType.CLICK, this.onClose_);
 
   this.getHandler().listen(this.getParent(), anychart.chartEditor2Module.events.EventType.DATA_USE, this.onDataUse_);
+
+  // Fint by ears to prevent build chart twice on type change
+  this.typeSelect_.unlisten(goog.ui.Component.EventType.CHANGE, this.typeSelect_.onChange);
   this.getHandler().listen(this.typeSelect_, goog.ui.Component.EventType.CHANGE, this.onChangeType_);
 
   this.typeSelect_.setSelectedByModel();
@@ -162,10 +163,15 @@ anychart.chartEditor2Module.SeriesPanel.prototype.onDataUse_ = function(evt) {
 
 anychart.chartEditor2Module.SeriesPanel.prototype.onChangeType_ = function(evt) {
   var type = evt.target.getValue();
-  if (type && type != this.seriesType_) {
+  if (type) {
+    this.editor_.getEditorModel().suspendDispatch();
+
     this.seriesType_ = type;
     this.createFields();
     this.createFieldsOptions();
+
+    this.typeSelect_.onChange(evt);
+    this.editor_.getEditorModel().resumeDispatch();
   }
 };
 

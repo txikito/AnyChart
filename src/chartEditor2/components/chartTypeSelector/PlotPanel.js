@@ -74,9 +74,6 @@ anychart.chartEditor2Module.PlotPanel.prototype.createDom = function() {
 anychart.chartEditor2Module.PlotPanel.prototype.enterDocument = function() {
   goog.base(this, 'enterDocument');
 
-  // Fint by ears to prevent build chart twice on dataset change
-  this.xValueSelect_.unlisten(goog.ui.Component.EventType.CHANGE, this.xValueSelect_.onChange);
-
   this.getHandler().listen(this.addSeriesBtn_, goog.ui.Component.EventType.ACTION, this.onAddSeries_);
   this.listen(anychart.chartEditor2Module.events.EventType.PANEL_CLOSE, this.onCloseSeries_);
 
@@ -84,6 +81,9 @@ anychart.chartEditor2Module.PlotPanel.prototype.enterDocument = function() {
     this.getHandler().listen(this.close_, goog.events.EventType.CLICK, this.onClose_);
 
   this.getHandler().listen(this.editor_.getDataModel(), anychart.chartEditor2Module.events.EventType.DATA_UPDATE_MODEL, this.onDataUpdate_);
+
+  // Fint by ears to prevent build chart twice on dataset change
+  this.xValueSelect_.unlisten(goog.ui.Component.EventType.CHANGE, this.xValueSelect_.onChange);
   this.getHandler().listen(this.xValueSelect_, goog.ui.Component.EventType.CHANGE, this.onChangeXValue_);
 
   this.onDataUpdate_(null);
@@ -174,6 +174,7 @@ anychart.chartEditor2Module.PlotPanel.prototype.onChangeXValue_ = function(evt) 
     this.currentSetId_ = setFullId;
 
     this.editor_.getDataModel().currentId(this.currentSetId_);
+
     this.dispatchEvent({
       type: anychart.chartEditor2Module.events.EventType.DATA_USE,
       setFullId: this.currentSetId_
