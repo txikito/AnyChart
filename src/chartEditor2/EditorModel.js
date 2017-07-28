@@ -265,3 +265,28 @@ anychart.chartEditor2Module.EditorModel.prototype.resumeDispatch = function() {
   this.suspendQueue_--;
   this.dispatchUpdate();
 };
+
+
+/**
+ * Converts string to valid model key.
+ * @param {anychart.chartEditor2Module.EditorModel.Key} key
+ * @return {String} key as a string
+ */
+anychart.chartEditor2Module.EditorModel.getStringKey = function(key) {
+  var stringKey = '';
+
+  for (var i = 0; i < key.length; i++) {
+    var level = key[i];
+    if (i == 0 && level == 'chart') continue;
+
+    if (goog.isArray(level))
+      stringKey += level[0] + '(' + level[1] + ')';
+    else if (goog.isString(level))
+      stringKey += level;
+
+    if (i < key.length - 1)
+      stringKey += '.';
+  }
+
+  return stringKey;
+};

@@ -101,8 +101,7 @@ anychart.chartEditor2Module.SeriesPanel.prototype.createFields = function() {
   for (var a = this.fields_.length; a--;) {
     var field = this.fields_[a];
     this.removeChild(field, true);
-    var completion = [['mapping'], field.getModel()];
-    this.editor_.getEditorModel().removeByKey(this.getKey(completion));
+    field.resetEditorModel();
     field.dispose();
   }
   this.fields_.length = 0;

@@ -1,5 +1,6 @@
 goog.provide('anychart.chartEditor2Module.Chart');
 
+goog.require('anychart.bindingModule.entry');
 goog.require('anychart.chartEditor2Module.Component');
 goog.require('anychart.chartEditor2Module.EditorModel');
 goog.require('anychart.chartEditor2Module.DataModel');
@@ -26,6 +27,8 @@ anychart.chartEditor2Module.Chart = function(editor) {
 goog.inherits(anychart.chartEditor2Module.Chart, anychart.chartEditor2Module.Component);
 
 
+anychart.chartEditor2Module.Chart.CHART_ID = goog.string.createUniqueString();
+
 
 /** @inheritDoc */
 anychart.chartEditor2Module.Chart.prototype.createDom = function() {
@@ -42,6 +45,9 @@ anychart.chartEditor2Module.Chart.prototype.enterDocument = function() {
   goog.base(this, 'enterDocument');
 
   this.getHandler().listen(this.editor_.getEditorModel(), anychart.chartEditor2Module.events.EventType.EDITOR_MODEL_UPDATE, this.update_);
+
+  if (this.chart_)
+    anychart.ui.binding.init();
 };
 
 
@@ -64,6 +70,7 @@ anychart.chartEditor2Module.Chart.prototype.update_ = function(evt) {
     }
 
     this.chart_ = this.anychart[inputs['chart']['ctor']]();
+    this.chart_['id'](anychart.chartEditor2Module.Chart.CHART_ID);
 
     // create mapping and series
     // var mappings = [];
@@ -84,8 +91,13 @@ anychart.chartEditor2Module.Chart.prototype.update_ = function(evt) {
         this.chart_[inputs['plot'][i]['series'][j]['ctor']](mappingInstance);
       }
     }
+    // DEBUG
+    this.chart_['title'](true);
+
     this.chart_['container']('chart-container');
     this.chart_['draw']();
+
+    anychart.ui.binding.init();
   }
 };
 
@@ -101,4 +113,21 @@ anychart.chartEditor2Module.Chart.prototype.deepClone_ = function(obj) {
   } else {
     return obj;
   }
+};
+
+
+/**
+ *
+ * @param {Element} element
+ * @param {String} key
+ */
+anychart.chartEditor2Module.Chart.bindElement = function(element, key) {
+
+  if (element) {
+    goog.dom.classlist.add(element, 'ac-control');
+    element.setAttribute('ac-key', key);
+    element.setAttribute('ac-chart-id', anychart.chartEditor2Module.Chart.CHART_ID);
+  }
+
+  console.log("bindElement", element, key);
 };
