@@ -35,9 +35,8 @@ anychart.chartEditor2Module.BasicSettings.prototype.createDom = function() {
   goog.dom.classlist.add(this.getElement(), 'basic-settings');
   // var dom = this.getDomHelper();
 
-  // var titleEnabled = new anychart.chartEditor2Module.controls.Checkbox();
-  // this.addChild(titleEnabled, true);
-  // titleEnabled.setEditorModel(this.editor_.getEditorModel(), ['chart', 'title().enabled()'], true);
+  this.titleEnabled = new anychart.chartEditor2Module.controls.Checkbox();
+  this.addChild(this.titleEnabled, true);
 
   this.titleText = new anychart.chartEditor2Module.controls.Input();
   this.addChild(this.titleText, true);
@@ -49,6 +48,8 @@ anychart.chartEditor2Module.BasicSettings.prototype.enterDocument = function() {
 
   var self = this;
   this.getHandler().listenOnce(this.editor_, anychart.chartEditor2Module.events.EventType.CHART_DRAW, function(evt){
-    this.titleText.setEditorModel(self.editor_.getEditorModel(), [['chart'], 'title().text()'], evt.chart);
+    var chart = evt.chart;
+    this.titleEnabled.setEditorModel(self.editor_.getEditorModel(), [['chart'], 'title().enabled()'], chart);
+    this.titleText.setEditorModel(self.editor_.getEditorModel(), [['chart'], 'title().text()'], chart);
   });
 };

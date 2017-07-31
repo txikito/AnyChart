@@ -101,9 +101,6 @@ anychart.chartEditor2Module.Chart.prototype.update_ = function(evt) {
         this.chart_[inputs['plot'][i]['series'][j]['ctor']](mappingInstance);
       }
     }
-    // DEBUG
-    this.chart_['title'](true);
-
     this.chart_['container']('chart-container');
 
     this.getHandler().listenOnce(this.chart_, 'chartdraw',
