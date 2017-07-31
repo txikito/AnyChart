@@ -279,7 +279,7 @@ anychart.chartEditor2Module.EditorModel.getStringKey = function(key) {
 
   for (var i = 0; i < key.length; i++) {
     var level = key[i];
-    if (i == 0 && goog.isArray(level) && level[0] == 'chart') continue;
+    if (i == 0 && goog.isArray(level) && (level[0] == 'anychart' || level[0] == 'chart')) continue;
 
     if (goog.isArray(level))
       stringKey += level[0] + '(' + level[1] + ')';

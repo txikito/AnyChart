@@ -52,15 +52,20 @@ anychart.chartEditor2Module.Chart.prototype.enterDocument = function() {
 
 
 anychart.chartEditor2Module.Chart.prototype.update_ = function(evt) {
+  var inputs = this.editor_.getEditorModel().getInputs();
+  console.log(inputs);
+
+  // Global settings
+  goog.object.forEach(inputs['anychart'], function(value, key) {
+    console.log("anychart settings", key, value);
+    anychart.bindingModule.exec(goog.dom.getWindow()['anychart'], key, value);
+  });
+
   if (evt.isDataConsistent) {
     var self = this;
 
     console.log("Build chart!");
-    var editorModel = this.editor_.getEditorModel();
     var dataModel = this.editor_.getDataModel();
-
-    var inputs = editorModel.getInputs();
-    console.log(inputs);
 
     // Create data set
     var dsCtor = anychart.chartEditor2Module.EditorModel.chartTypes[inputs['chart']['ctor']]['dataSetCtor'];

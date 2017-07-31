@@ -10,8 +10,6 @@ goog.require('goog.ui.Select');
  */
 anychart.chartEditor2Module.controls.Select = function(opt_caption, opt_menu, opt_renderer, opt_domHelper, opt_menuRenderer) {
   anychart.chartEditor2Module.controls.Select.base(this, 'constructor', opt_caption, opt_menu, opt_renderer, opt_domHelper, opt_menuRenderer);
-
-  this.options_ = [];
 };
 goog.inherits(anychart.chartEditor2Module.controls.Select, goog.ui.Select);
 
@@ -24,7 +22,7 @@ anychart.chartEditor2Module.controls.Select.prototype.enterDocument = function()
 
 
 anychart.chartEditor2Module.controls.Select.prototype.onChange = function(evt) {
-  if (goog.isDefAndNotNull(this.getValue()))
+  if (this.editorModel_ && this.key_ && goog.isDefAndNotNull(this.getValue()))
     this.editorModel_.setInputValue(this.key_, this.getValue());
 };
 
@@ -33,17 +31,17 @@ anychart.chartEditor2Module.controls.Select.prototype.onChange = function(evt) {
  *
  * @param {anychart.chartEditor2Module.EditorModel} model
  * @param {anychart.chartEditor2Module.EditorModel.Key} key
- * @param {boolean=} opt_binded
+ * @param {?{Object}=} opt_target
  */
-anychart.chartEditor2Module.controls.Select.prototype.setEditorModel = function(model, key, opt_chart) {
+anychart.chartEditor2Module.controls.Select.prototype.setEditorModel = function(model, key, opt_target) {
   this.editorModel_ = model;
   this.key_ = key;
-  // if (opt_chart) {
-  //   var stringKey = anychart.chartEditor2Module.EditorModel.getStringKey(key);
-  //   debugger;
-  //   var value = anychart.chartEditor2Module.Chart.getChartValue(stringKey);
-  //   this.setValue(value);
-  // }
+  if (opt_target) {
+    var stringKey = anychart.chartEditor2Module.EditorModel.getStringKey(key);
+    var value = anychart.bindingModule.exec(opt_target, stringKey);
+    this.setValue(value);
+    this.editorModel_.setInputValue(this.key_, value, true);
+  }
 };
 
 
@@ -74,4 +72,24 @@ anychart.chartEditor2Module.controls.Select.prototype.setSelectedByModel = funct
 
 anychart.chartEditor2Module.controls.Select.prototype.setSelectedDefault = function() {
   this.setSelectedIndex(0);
+};
+
+
+anychart.chartEditor2Module.controls.Select.prototype.setOptions = function(options, opt_default) {
+  var self = this;
+  goog.array.forEach(options,
+      function(label) {
+        var item;
+        if (label) {
+          item = new goog.ui.MenuItem(label);
+          item.setId(label);
+        } else {
+          item = new goog.ui.MenuSeparator();
+        }
+        self.addItem(item);
+      });
+
+  if (opt_default) {
+    this.setValue(opt_default);
+  }
 };
