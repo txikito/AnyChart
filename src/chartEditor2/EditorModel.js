@@ -103,8 +103,9 @@ anychart.chartEditor2Module.EditorModel.prototype.getInputs = function() {
  * Setter for input's state
  * @param {Array.<*>} key
  * @param {*} value
+ * @param {boolean=} opt_noDispatch
  */
-anychart.chartEditor2Module.EditorModel.prototype.setInputValue = function(key, value) {
+anychart.chartEditor2Module.EditorModel.prototype.setInputValue = function(key, value, opt_noDispatch) {
   var target = this.inputs_;
   for (var i = 0; i < key.length; i++) {
     var level = key[i];
@@ -122,7 +123,8 @@ anychart.chartEditor2Module.EditorModel.prototype.setInputValue = function(key, 
       target = goog.isArray(target[level[0]]) ? target[level[0]][level[1]] : target[level[0]];
     } else if (goog.isString(level) && target[String(level)] != value) {
       target[String(level)] = value;
-      this.dispatchUpdate();
+      if (!opt_noDispatch)
+        this.dispatchUpdate();
     }
   }
 };
@@ -277,7 +279,7 @@ anychart.chartEditor2Module.EditorModel.getStringKey = function(key) {
 
   for (var i = 0; i < key.length; i++) {
     var level = key[i];
-    if (i == 0 && level == 'chart') continue;
+    if (i == 0 && goog.isArray(level) && level[0] == 'chart') continue;
 
     if (goog.isArray(level))
       stringKey += level[0] + '(' + level[1] + ')';

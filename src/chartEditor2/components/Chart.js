@@ -53,6 +53,8 @@ anychart.chartEditor2Module.Chart.prototype.enterDocument = function() {
 
 anychart.chartEditor2Module.Chart.prototype.update_ = function(evt) {
   if (evt.isDataConsistent) {
+    var self = this;
+
     console.log("Build chart!");
     var editorModel = this.editor_.getEditorModel();
     var dataModel = this.editor_.getDataModel();
@@ -71,6 +73,14 @@ anychart.chartEditor2Module.Chart.prototype.update_ = function(evt) {
 
     this.chart_ = this.anychart[inputs['chart']['ctor']]();
     this.chart_['id'](anychart.chartEditor2Module.Chart.CHART_ID);
+
+    // Chart settings
+    goog.object.forEach(inputs['chart'], function(value, key) {
+      if (key != 'ctor') {
+        console.log("chart settings", key, value);
+        anychart.bindingModule.exec(self.chart_, key, value);
+      }
+    });
 
     // create mapping and series
     // var mappings = [];
@@ -95,9 +105,16 @@ anychart.chartEditor2Module.Chart.prototype.update_ = function(evt) {
     this.chart_['title'](true);
 
     this.chart_['container']('chart-container');
-    this.chart_['draw']();
 
-    anychart.ui.binding.init();
+    this.getHandler().listenOnce(this.chart_, 'chartdraw',
+        function() {
+          self.dispatchEvent({
+            type: anychart.chartEditor2Module.events.EventType.CHART_DRAW,
+            chart: self.chart_
+          });
+        });
+
+    this.chart_['draw']();
   }
 };
 
@@ -107,27 +124,10 @@ anychart.chartEditor2Module.Chart.prototype.deepClone_ = function(obj) {
     var res = {};
     for (var key in obj) {
       if (obj.hasOwnProperty(key))
-        res[key] = anychart.themes.merging.deepClone_(obj[key]);
+        res[key] = this.deepClone_(obj[key]);
     }
     return res;
   } else {
     return obj;
   }
-};
-
-
-/**
- *
- * @param {Element} element
- * @param {String} key
- */
-anychart.chartEditor2Module.Chart.bindElement = function(element, key) {
-
-  if (element) {
-    goog.dom.classlist.add(element, 'ac-control');
-    element.setAttribute('ac-key', key);
-    element.setAttribute('ac-chart-id', anychart.chartEditor2Module.Chart.CHART_ID);
-  }
-
-  console.log("bindElement", element, key);
 };

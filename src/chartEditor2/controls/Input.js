@@ -18,12 +18,14 @@ goog.inherits(anychart.chartEditor2Module.controls.Input, goog.ui.BidiInput);
 
 anychart.chartEditor2Module.controls.Input.prototype.enterDocument = function() {
   goog.base(this, 'enterDocument');
-  this.listen(goog.events.EventType.INPUT, this.onChange);
+  this.inputHandler_ = new goog.events.InputHandler(this.getElement());
+  goog.events.listen(
+      this.inputHandler_, goog.events.InputHandler.EventType.INPUT,
+      this.onChange, false, this);
 };
 
 
 anychart.chartEditor2Module.controls.Input.prototype.onChange = function(evt) {
-  console.log("input changes");
   if (this.editorModel_ && this.key_ && goog.isDefAndNotNull(this.getValue()))
     this.editorModel_.setInputValue(this.key_, this.getValue());
 };
@@ -32,14 +34,16 @@ anychart.chartEditor2Module.controls.Input.prototype.onChange = function(evt) {
 /**
  * @param {anychart.chartEditor2Module.EditorModel} model
  * @param {anychart.chartEditor2Module.EditorModel.Key} key
- * @param {boolean=} opt_useBinding
+ * @param {?{Object}=} opt_chart
  */
-anychart.chartEditor2Module.controls.Input.prototype.setEditorModel = function(model, key, opt_useBinding) {
+anychart.chartEditor2Module.controls.Input.prototype.setEditorModel = function(model, key, opt_chart) {
   this.editorModel_ = model;
   this.key_ = key;
-  if (opt_useBinding) {
+  if (opt_chart) {
     var stringKey = anychart.chartEditor2Module.EditorModel.getStringKey(key);
-    anychart.chartEditor2Module.Chart.bindElement(this.getElement(), stringKey);
+    var value = anychart.bindingModule.exec(opt_chart, stringKey);
+    this.setValue(value);
+    this.editorModel_.setInputValue(this.key_, value, true);
   }
 };
 
@@ -47,26 +51,4 @@ anychart.chartEditor2Module.controls.Input.prototype.setEditorModel = function(m
 anychart.chartEditor2Module.controls.Input.prototype.resetEditorModel = function() {
   if (this.editorModel_ && this.key_)
     this.editorModel_.removeByKey(this.key_);
-};
-
-
-anychart.chartEditor2Module.controls.Input.prototype.setSelectedByModel = function() {
-  var value;
-  if (this.editorModel_ && this.key_)
-    value = this.editorModel_.getInputValue(this.key_);
-
-  if (goog.isDef(value)) {
-    this.setValue(value);
-
-    if (!this.getSelectedItem()) {
-      this.setSelectedDefault();
-
-    }
-  } else
-    this.setSelectedDefault();
-};
-
-
-anychart.chartEditor2Module.controls.Input.prototype.setSelectedDefault = function() {
-  this.setSelectedIndex(0);
 };

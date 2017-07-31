@@ -3,7 +3,6 @@ goog.provide('anychart.chartEditor2Module.controls.Select');
 goog.require('goog.ui.Select');
 
 
-
 /**
  * Overrides control to work with EditorModel.
  * @constructor
@@ -34,10 +33,17 @@ anychart.chartEditor2Module.controls.Select.prototype.onChange = function(evt) {
  *
  * @param {anychart.chartEditor2Module.EditorModel} model
  * @param {anychart.chartEditor2Module.EditorModel.Key} key
+ * @param {boolean=} opt_binded
  */
-anychart.chartEditor2Module.controls.Select.prototype.setEditorModel = function(model, key) {
+anychart.chartEditor2Module.controls.Select.prototype.setEditorModel = function(model, key, opt_chart) {
   this.editorModel_ = model;
   this.key_ = key;
+  // if (opt_chart) {
+  //   var stringKey = anychart.chartEditor2Module.EditorModel.getStringKey(key);
+  //   debugger;
+  //   var value = anychart.chartEditor2Module.Chart.getChartValue(stringKey);
+  //   this.setValue(value);
+  // }
 };
 
 

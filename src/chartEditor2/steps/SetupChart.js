@@ -48,3 +48,23 @@ anychart.chartEditor2Module.steps.SetupChart.prototype.createDom = function() {
   this.basicSettings_ = new anychart.chartEditor2Module.BasicSettings(/** @type {anychart.chartEditor2Module.Editor} */(this.getParent()));
   this.addChild(this.basicSettings_, true);
 };
+
+
+anychart.chartEditor2Module.steps.SetupChart.prototype.enterDocument = function() {
+  goog.base(this, 'enterDocument');
+
+  goog.events.listen(this.chart_, 'chartdraw',
+      function() {
+        console.log("chart draw! 3");
+      });
+
+  this.getHandler().listen(this.chart_, 'chartdraw',
+      function() {
+        console.log("chart draw! 3/1");
+      });
+
+  this.listen('chartdraw',
+      function() {
+        console.log("chart draw! 3/2");
+      });
+};
