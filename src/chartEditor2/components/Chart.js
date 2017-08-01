@@ -54,18 +54,18 @@ anychart.chartEditor2Module.Chart.prototype.enterDocument = function() {
 anychart.chartEditor2Module.Chart.prototype.update_ = function(evt) {
   var anychart = goog.dom.getWindow()['anychart'];
   var inputs = this.editor_.getEditorModel().getInputs();
-  console.log(inputs);
+  //console.log(inputs);
 
   // Global settings
   goog.object.forEach(inputs['anychart'], function(value, key) {
-    console.log("anychart settings", key, value);
+    //console.log("anychart settings", key, value);
     anychart.bindingModule.exec(anychart, key, value);
   });
 
   if (evt.isDataConsistent) {
     var self = this;
 
-    console.log("Build chart!");
+    //console.log("Build chart!");
     var dataModel = this.editor_.getDataModel();
 
     // Create data set
@@ -83,7 +83,7 @@ anychart.chartEditor2Module.Chart.prototype.update_ = function(evt) {
     // Chart settings
     goog.object.forEach(inputs['chart'], function(value, key) {
       if (key != 'ctor') {
-        // console.log("chart settings", key, value);
+        // //console.log("chart settings", key, value);
         if (key == "palette()") {
           value = anychart['palettes'][value];
         }

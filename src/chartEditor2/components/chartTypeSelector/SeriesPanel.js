@@ -12,7 +12,7 @@ goog.require('goog.ui.MenuItem');
  * @constructor
  * @extends {anychart.chartEditor2Module.Component}
  */
-anychart.chartEditor2Module.SeriesPanel = function(editor, chartType, seriesType, index) {
+anychart.chartEditor2Module.SeriesPanel = function(editor, index) {
   anychart.chartEditor2Module.SeriesPanel.base(this, 'constructor');
 
   /**
@@ -22,8 +22,6 @@ anychart.chartEditor2Module.SeriesPanel = function(editor, chartType, seriesType
   this.editor_  = editor;
 
   this.index_ = index;
-
-  this.chartType_ = chartType;
 
   /**
    * @type {Array.<anychart.chartEditor2Module.controls.SelectWithLabel>}
@@ -53,16 +51,16 @@ anychart.chartEditor2Module.SeriesPanel.prototype.createDom = function() {
     this.getElement().appendChild(this.close_);
   }
 
-  this.typeSelect_ = new anychart.chartEditor2Module.controls.SelectWithLabel('ctor', 'Series type');
-  this.typeSelect_.setEditorModel(this.editor_.getEditorModel(), this.getKey('ctor'));
-  this.typeSelect_.resetEditorModel();
-  this.addChild(this.typeSelect_, true);
-
-  var seriesTypes = anychart.chartEditor2Module.EditorModel.chartTypes[this.chartType_]['series'];
-  for (var i = 0; i < seriesTypes.length; i++) {
-    var item = new goog.ui.MenuItem(seriesTypes[i], seriesTypes[i]);
-    this.typeSelect_.addItem(item);
-  }
+  // this.typeSelect_ = new anychart.chartEditor2Module.controls.SelectWithLabel('ctor', 'Series type');
+  // this.typeSelect_.setEditorModel(this.editor_.getEditorModel(), this.getKey('ctor'));
+  // this.typeSelect_.resetEditorModel();
+  // this.addChild(this.typeSelect_, true);
+  //
+  // var seriesTypes = anychart.chartEditor2Module.EditorModel.chartTypes[this.chartType_]['series'];
+  // for (var i = 0; i < seriesTypes.length; i++) {
+  //   var item = new goog.ui.MenuItem(seriesTypes[i], seriesTypes[i]);
+  //   this.typeSelect_.addItem(item);
+  // }
 };
 
 
@@ -70,19 +68,19 @@ anychart.chartEditor2Module.SeriesPanel.prototype.createDom = function() {
 anychart.chartEditor2Module.SeriesPanel.prototype.enterDocument = function() {
   anychart.chartEditor2Module.SeriesPanel.base(this, 'enterDocument');
 
-  if (this.close_)
-    this.getHandler().listen(this.close_, goog.events.EventType.CLICK, this.onClose_);
-
-  this.getHandler().listen(this.getParent(), anychart.chartEditor2Module.events.EventType.DATA_USE, this.onDataUse_);
-
-  // Fint by ears to prevent build chart twice on type change
-  this.typeSelect_.unlisten(goog.ui.Component.EventType.CHANGE, this.typeSelect_.onChange);
-  this.getHandler().listen(this.typeSelect_, goog.ui.Component.EventType.CHANGE, this.onChangeType_);
-
-  this.typeSelect_.setSelectedByModel();
-
-  if (!this.currentSetId_)
-    this.createFields();
+  // if (this.close_)
+  //   this.getHandler().listen(this.close_, goog.events.EventType.CLICK, this.onClose_);
+  //
+  // this.getHandler().listen(this.getParent(), anychart.chartEditor2Module.events.EventType.DATA_USE, this.onDataUse_);
+  //
+  // // Fint by ears to prevent build chart twice on type change
+  // this.typeSelect_.unlisten(goog.ui.Component.EventType.CHANGE, this.typeSelect_.onChange);
+  // this.getHandler().listen(this.typeSelect_, goog.ui.Component.EventType.CHANGE, this.onChangeType_);
+  //
+  // this.typeSelect_.setSelectedByModel();
+  //
+  // if (!this.currentSetId_)
+  //   this.createFields();
 };
 
 
@@ -195,7 +193,7 @@ anychart.chartEditor2Module.SeriesPanel.prototype.onClose_ = function(evt) {
 };
 
 
-anychart.chartEditor2Module.SeriesPanel.prototype.dispose = function() {
-  this.editor_.getEditorModel().removeByKey(this.getKey());
-  goog.base(this, 'dispose');
-};
+// anychart.chartEditor2Module.SeriesPanel.prototype.dispose = function() {
+//   this.editor_.getEditorModel().removeByKey(this.getKey());
+//   goog.base(this, 'dispose');
+// };

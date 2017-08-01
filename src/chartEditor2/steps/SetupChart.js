@@ -49,22 +49,3 @@ anychart.chartEditor2Module.steps.SetupChart.prototype.createDom = function() {
   this.addChild(this.basicSettings_, true);
 };
 
-
-anychart.chartEditor2Module.steps.SetupChart.prototype.enterDocument = function() {
-  goog.base(this, 'enterDocument');
-
-  goog.events.listen(this.chart_, 'chartdraw',
-      function() {
-        console.log("chart draw! 3");
-      });
-
-  this.getHandler().listen(this.chart_, 'chartdraw',
-      function() {
-        console.log("chart draw! 3/1");
-      });
-
-  this.listen('chartdraw',
-      function() {
-        console.log("chart draw! 3/2");
-      });
-};

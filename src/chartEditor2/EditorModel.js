@@ -13,6 +13,37 @@ anychart.chartEditor2Module.EditorModel = function() {
 
   this.inputs_ = {};
 
+  this.model_ = {
+    generateInitialMappingsOnChangeView: true,
+    defaultSeriesType: null,
+    // datasets: [
+    //   {keys: [0, 1, 2], caption: ['Col 1', 'Col 2', 'Col 3'], types: ['string', 'number', 'number'], data: []},
+    //   {
+    //     keys: ['x', 'actual', 'expected'],
+    //     caption: ['x', 'actual', 'expected'],
+    //     types: ['string', 'number', 'number'],
+    //     data: []
+    //   }
+    // ],
+    datasetSettings: {
+      active: null,
+      field: null,
+      mappings: [
+        // [ // plot
+        //   {ctl: 'line', mapping: {value: 1}},
+        //   {ctl: 'column', mapping: {value: 2}}
+        // ]
+      ]
+    },
+    chart: {
+      type: null,
+      seriesType: null,
+      settings: {
+        //'getSeriesAt(0).name()': 'my series'
+      }
+    }
+  };
+
   this.suspendQueue_ = 0;
 };
 goog.inherits(anychart.chartEditor2Module.EditorModel, goog.events.EventTarget);
@@ -94,19 +125,93 @@ anychart.chartEditor2Module.EditorModel.consistencyObject = {
 };
 
 
+anychart.chartEditor2Module.EditorModel.prototype.createInitialMappings = function() {
+  //todo: generate model.mapping based on model.datasets
+  return {
+    active: 0,
+    field: 0,
+    mappings: [
+        this.chooseDefaultMapping()
+    ]
+  };
+};
+
+anychart.chartEditor2Module.EditorModel.prototype.chooseDefaultMapping = function() {
+  //todo: придумываем тип серии на основе данных
+  return [{ctor: 'line', mapping: {value: 1}}];
+};
+
+
+anychart.chartEditor2Module.EditorModel.prototype.chooseDefaultChartType = function() {
+  //todo: придумываем тип серии на основе данных
+  return 'line';
+};
+
+
+anychart.chartEditor2Module.EditorModel.prototype.chooseDefaultSeriesType = function() {
+  //todo: придумываем тип серии на основе данных
+  return 'line';
+};
+
+
+anychart.chartEditor2Module.EditorModel.prototype.addPlot = function() {
+  var mapping = [{ctor: 'line', mapping: {value: 1}}];
+  this.model_.datasetSettings.mappings.push(mapping);
+  this.dispatchUpdate();
+};
+
+anychart.chartEditor2Module.EditorModel.prototype.removePlot = function(index) {
+  if (index > 0 && this.model_.datasetSettings.mappings.length > index) {
+    goog.array.splice(this.model_.datasetSettings.mappings, index, 1);
+    this.dispatchUpdate();
+  }
+};
+
+
+anychart.chartEditor2Module.EditorModel.prototype.onChangeView = function() {
+  if (this.model_.generateInitialMappingsOnChangeView) {
+    this.model_.generateInitialMappingsOnChangeView = false;
+    this.model_.chart.type = this.chooseDefaultChartType();
+    this.model_.chart.seriesType = this.chooseDefaultSeriesType();
+    this.model_.datasetSettings = this.createInitialMappings();
+  }
+};
+
+
+anychart.chartEditor2Module.EditorModel.prototype.onChangeDatasetsComposition = function() {
+  this.model_.mapping = [];
+  this.model_.chart.settings = {};
+  this.model_.generateInitialMappingsOnChangeView = true;
+};
+
+
+anychart.chartEditor2Module.EditorModel.prototype.setChartType = function(type) {
+  var prevChartType = this.model_.chart.type;
+  var prevDefaultSeriesType = this.model_.chart.seriesType;
+
+  this.model_.chart.type = type;
+  this.model_.chart.seriesType = this.chooseDefaultSeriesType();
+
+  if (this.model_.chart.type != 'stock') {
+    this.model_.datasetSettings.mappings = [this.chooseDefaultMapping()];
+  }
+  this.dispatchUpdate();
+};
+
+
 anychart.chartEditor2Module.EditorModel.prototype.getInputs = function() {
   return this.inputs_;
 };
 
 
 /**
- * Setter for input's state
+ * Setter for model's field state
  * @param {Array.<*>} key
  * @param {*} value
  * @param {boolean=} opt_noDispatch
  */
-anychart.chartEditor2Module.EditorModel.prototype.setInputValue = function(key, value, opt_noDispatch) {
-  var target = this.inputs_;
+anychart.chartEditor2Module.EditorModel.prototype.setModelValue = function(key, value, opt_noDispatch) {
+  var target = this.model_;
   for (var i = 0; i < key.length; i++) {
     var level = key[i];
     if (goog.isArray(level)) {
@@ -123,6 +228,7 @@ anychart.chartEditor2Module.EditorModel.prototype.setInputValue = function(key, 
       target = goog.isArray(target[level[0]]) ? target[level[0]][level[1]] : target[level[0]];
     } else if (goog.isString(level) && target[String(level)] != value) {
       target[String(level)] = value;
+
       if (!opt_noDispatch)
         this.dispatchUpdate();
     }
@@ -168,8 +274,8 @@ anychart.chartEditor2Module.EditorModel.prototype.removeByKey = function(key) {
  * @param {anychart.chartEditor2Module.EditorModel.Key} key
  * @return {*} Input's value
  */
-anychart.chartEditor2Module.EditorModel.prototype.getInputValue = function(key) {
-  var target = this.inputs_;
+anychart.chartEditor2Module.EditorModel.prototype.getModelValue = function(key) {
+  var target = this.model_;
   var level;
 
   for (var i = 0; i < key.length; i++) {
@@ -200,9 +306,9 @@ anychart.chartEditor2Module.EditorModel.prototype.dispatchUpdate = function() {
 
   var isConsistent = this.checkConsistency_();
 
-  if (isConsistent) {
-    //console.log(this.inputs_);
-  }
+  //if (isConsistent) {
+  console.log(this.model_);
+  //}
 
   this.dispatchEvent({
     type: anychart.chartEditor2Module.events.EventType.EDITOR_MODEL_UPDATE,

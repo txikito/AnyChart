@@ -60,7 +60,7 @@ anychart.chartEditor2Module.BasicSettings.prototype.enterDocument = function() {
     var themes = goog.object.filter(goog.dom.getWindow()['anychart']['themes'], function(item){
       return item['palette'];
     });
-    debugger;
+
     this.themeSelect.setOptions(goog.object.getKeys(themes), 'defaultTheme');
     this.themeSelect.setEditorModel(self.editor_.getEditorModel(), [['anychart'], 'theme()'], goog.dom.getWindow()['anychart']);
 

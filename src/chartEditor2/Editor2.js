@@ -320,6 +320,10 @@ anychart.chartEditor2Module.Editor.prototype.setCurrentStep_ = function(step, do
     }
   }
 
+  if (step.getIndex() != 0) {
+    this.editorModel_.onChangeView();
+  }
+
   step.render(this.getElement());
 
   var appearAnimation = new goog.fx.AnimationSerialQueue();
