@@ -77,6 +77,8 @@ anychart.chartEditor2Module.controls.Select.prototype.setSelectedDefault = funct
 
 anychart.chartEditor2Module.controls.Select.prototype.setOptions = function(options, opt_default) {
   var self = this;
+  if (this.getItemCount() > 0) return;
+
   goog.array.forEach(options,
       function(label) {
         var item;
