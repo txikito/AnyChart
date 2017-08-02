@@ -56,8 +56,13 @@ anychart.chartEditor2Module.PlotPanel.prototype.createDom = function() {
 
   this.title_ = dom.createDom(goog.dom.TagName.H2, 'title', 'Plot ' + (this.index_ + 1));
   this.getElement().appendChild(this.title_);
+};
 
+
+anychart.chartEditor2Module.PlotPanel.prototype.update = function() {
   // Series
+  this.removeAllSeries_();
+
   var plotModel = this.editor_.getEditorModel().getModelValue([['datasetSettings'], ['mappings', this.index_]]);
   for (var i = 0; i < plotModel.length; i++) {
     var series = new anychart.chartEditor2Module.SeriesPanel(this.editor_, i);
@@ -65,43 +70,36 @@ anychart.chartEditor2Module.PlotPanel.prototype.createDom = function() {
     this.addChild(series, true);
   }
 
-  // this.addSeriesBtn_ = new goog.ui.Button('Add series');
-  // this.addChild(this.addSeriesBtn_, true);
+  this.addSeriesBtn_ = new goog.ui.Button('Add series');
+  this.addChild(this.addSeriesBtn_, true);
+
 };
 
 
 anychart.chartEditor2Module.PlotPanel.prototype.enterDocument = function() {
   goog.base(this, 'enterDocument');
 
+  this.update();
+
   if (this.close_)
-    this.getHandler().listen(this.close_, goog.events.EventType.CLICK, this.onClose_);
+    this.getHandler().listen(this.close_, goog.events.EventType.CLICK, function() {
+      this.editor_.getEditorModel().dropPlot(this.index_);
+    });
 
-  // this.getHandler().listen(this.addSeriesBtn_, goog.ui.Component.EventType.ACTION, this.addSeries_);
-  //
-  // this.listen(anychart.chartEditor2Module.events.EventType.PANEL_CLOSE, this.onCloseSeries_);
-
+  this.getHandler().listen(this.addSeriesBtn_, goog.ui.Component.EventType.ACTION, function() {
+    this.editor_.getEditorModel().addSeries(this.index_);
+  });
 
   // this.getHandler().listen(this.editor_.getDataModel(), anychart.chartEditor2Module.events.EventType.DATA_UPDATE_MODEL, this.onDataUpdate_);
-  //
-  // // Fint by ears to prevent build chart twice on dataset change
-  // this.xValueSelect_.unlisten(goog.ui.Component.EventType.CHANGE, this.xValueSelect_.onChange);
-  // this.getHandler().listen(this.xValueSelect_, goog.ui.Component.EventType.CHANGE, this.onChangeXValue_);
-  //
-  // this.onDataUpdate_(null);
 };
 
 
-anychart.chartEditor2Module.PlotPanel.prototype.addSeries_ = function() {
-  var series = new anychart.chartEditor2Module.SeriesPanel(this.editor_, this.series_.length);
-  this.series_.push(series);
-  this.addChildAt(series, this.getChildCount() - 1, true);
-  series.createFieldsOptions(this.currentSetId_);
-};
-
-
-anychart.chartEditor2Module.PlotPanel.prototype.getKey = function(opt_completion) {
-  this.key_ = [['plot', this.index()]];
-  return goog.base(this, 'getKey', opt_completion);
+anychart.chartEditor2Module.PlotPanel.prototype.removeAllSeries_ = function() {
+  for (var i = 0; i < this.series_.length; i++) {
+    this.removeChild(this.series_[i], true);
+    this.series_[i].dispose();
+  }
+  this.series_.length = 0;
 };
 
 
@@ -117,31 +115,16 @@ anychart.chartEditor2Module.PlotPanel.prototype.index = function(opt_value) {
 };
 
 
-anychart.chartEditor2Module.PlotPanel.prototype.onCloseSeries_ = function(evt) {
+anychart.chartEditor2Module.PlotPanel.prototype.dispose = function() {
+  // this.editor_.getEditorModel().removeByKey(this.getKey());
 
-  if (evt.panelType == 'series') {
-    var series = goog.array.splice(this.series_, evt.index, 1)[0];
-    this.removeChild(series, true);
-    series.dispose();
+  this.removeAllSeries_();
 
-    for (var i = 0; i < this.series_.length; i++) {
-      this.series_[i].index(i);
-    }
-  }
+  goog.base(this, 'dispose');
 };
 
 
-anychart.chartEditor2Module.PlotPanel.prototype.onClose_ = function() {
-  this.dispatchEvent({
-    type: anychart.chartEditor2Module.events.EventType.PANEL_CLOSE,
-    panelType: 'plot',
-    index: this.index_
-  })
+anychart.chartEditor2Module.PlotPanel.prototype.getKey = function(opt_completion) {
+  this.key_ = [['plot', this.index()]];
+  return goog.base(this, 'getKey', opt_completion);
 };
-
-
-// anychart.chartEditor2Module.PlotPanel.prototype.dispose = function() {
-//
-//   this.editor_.getEditorModel().removeByKey(this.getKey());
-//   goog.base(this, 'dispose');
-// };

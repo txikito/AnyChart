@@ -64,7 +64,8 @@ anychart.chartEditor2Module.ChartTypeSelector.prototype.update = function() {
   this.xValueSelect_.setValueByModel();
 
   // Plots
-  this.removePlots_();
+  this.removeAllPlots_();
+
   var dsSettings = this.editor_.getEditorModel().getModelValue(['datasetSettings']);
   for (var i = 0; i < dsSettings['mappings'].length; i++) {
     var plot = new anychart.chartEditor2Module.PlotPanel(this.editor_, i);
@@ -97,8 +98,6 @@ anychart.chartEditor2Module.ChartTypeSelector.prototype.enterDocument = function
   if(this.addPlotBtn_)
     this.getHandler().listen(this.addPlotBtn_, goog.ui.Component.EventType.ACTION, this.onAddPlot_);
 
-  this.listen(anychart.chartEditor2Module.events.EventType.PANEL_CLOSE, this.onClosePlot_);
-
   //this.getHandler().listen(this.editor_.getDataModel(), anychart.chartEditor2Module.events.EventType.DATA_UPDATE_MODEL, this.onDataUpdate_);
   this.getHandler().listen(this.editor_.getEditorModel(), anychart.chartEditor2Module.events.EventType.EDITOR_MODEL_UPDATE, this.update);
 };
@@ -127,48 +126,10 @@ anychart.chartEditor2Module.ChartTypeSelector.prototype.onAddPlot_ = function() 
 };
 
 
-anychart.chartEditor2Module.ChartTypeSelector.prototype.onClosePlot_ = function(evt) {
-  if (evt.panelType == 'plot')
-    this.editor_.getEditorModel().removePlot(evt.index);
-};
-
-
-anychart.chartEditor2Module.ChartTypeSelector.prototype.removePlots_ = function() {
+anychart.chartEditor2Module.ChartTypeSelector.prototype.removeAllPlots_ = function() {
   for (var i = 0; i < this.plots_.length; i++) {
     this.removeChild(this.plots_[i], true);
     this.plots_[i].dispose();
   }
   this.plots_.length = 0;
 };
-
-
-/*
-anychart.chartEditor2Module.ChartTypeSelector.prototype.onDataUpdate_ = function() {
-  var data = this.editor_.getDataModel().getPreparedData();
-  if (!data.length) {
-    this.removePlots_();
-    this.chartTypeSelect_.resetEditorModel();
-  }
-
-  goog.dom.classlist.enable(this.getElement(), 'hidden', !data.length);
-};
-
-
-anychart.chartEditor2Module.ChartTypeSelector.prototype.onChangeChartType_ = function(evt) {
-  this.chartType_ = this.chartTypeSelect_.getValue();
-  if (!this.chartType_) return;
-
-  this.typeIcon_.setAttribute('src', this.chartTypeSelect_.getIcon());
-
-  this.editor_.getEditorModel().suspendDispatch();
-  this.removePlots_();
-
-  var plot = new anychart.chartEditor2Module.PlotPanel(this.editor_, this.chartType_, 0);
-  this.plots_.push(plot);
-  this.addChild(plot, true);
-
-  this.chartTypeSelect_.onChange(evt);
-  this.editor_.getEditorModel().resumeDispatch();
-};
-
-*/

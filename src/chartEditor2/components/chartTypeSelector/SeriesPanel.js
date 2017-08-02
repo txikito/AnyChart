@@ -64,13 +64,22 @@ anychart.chartEditor2Module.SeriesPanel.prototype.createDom = function() {
 };
 
 
+anychart.chartEditor2Module.SeriesPanel.prototype.update = function() {
+
+};
+
+
 /** @inheritDoc */
 anychart.chartEditor2Module.SeriesPanel.prototype.enterDocument = function() {
-  anychart.chartEditor2Module.SeriesPanel.base(this, 'enterDocument');
+  goog.base(this, 'enterDocument');
 
-  // if (this.close_)
-  //   this.getHandler().listen(this.close_, goog.events.EventType.CLICK, this.onClose_);
-  //
+  this.update();
+
+  if (this.close_)
+    this.getHandler().listen(this.close_, goog.events.EventType.CLICK, function() {
+      this.editor_.getEditorModel().dropSeries(this.getParent().index(), this.index_);
+    });
+
   // this.getHandler().listen(this.getParent(), anychart.chartEditor2Module.events.EventType.DATA_USE, this.onDataUse_);
   //
   // // Fint by ears to prevent build chart twice on type change

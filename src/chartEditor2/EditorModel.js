@@ -160,11 +160,32 @@ anychart.chartEditor2Module.EditorModel.prototype.addPlot = function() {
   this.dispatchUpdate();
 };
 
-anychart.chartEditor2Module.EditorModel.prototype.removePlot = function(index) {
+anychart.chartEditor2Module.EditorModel.prototype.dropPlot = function(index) {
   if (index > 0 && this.model_.datasetSettings.mappings.length > index) {
     goog.array.splice(this.model_.datasetSettings.mappings, index, 1);
     this.dispatchUpdate();
   }
+};
+
+
+anychart.chartEditor2Module.EditorModel.prototype.addSeries = function(plotIndex) {
+  var mapping = this.generateMapping(this.model_.chart.seriesType);
+  this.model_.datasetSettings.mappings[plotIndex].push(mapping);
+  this.dispatchUpdate();
+};
+
+
+anychart.chartEditor2Module.EditorModel.prototype.dropSeries = function(plotIndex, seriesIndex) {
+  if (this.model_.datasetSettings.mappings.length > plotIndex && this.model_.datasetSettings.mappings[plotIndex].length > seriesIndex) {
+    goog.array.splice(this.model_.datasetSettings.mappings[plotIndex], seriesIndex, 1);
+    this.dispatchUpdate();
+  }
+};
+
+
+anychart.chartEditor2Module.EditorModel.prototype.generateMapping = function(type) {
+  // todo: generate based on data
+  return {ctor: 'line', mapping: {value: 1}};
 };
 
 
@@ -192,7 +213,7 @@ anychart.chartEditor2Module.EditorModel.prototype.setChartType = function(type) 
   this.model_.chart.type = type;
   this.model_.chart.seriesType = this.chooseDefaultSeriesType();
 
-  if (this.model_.chart.type != 'stock') {
+  if (prevChartType == 'stock' || this.model_.chart.type == 'stock') {
     this.model_.datasetSettings.mappings = [this.chooseDefaultMapping()];
   }
   this.dispatchUpdate();
