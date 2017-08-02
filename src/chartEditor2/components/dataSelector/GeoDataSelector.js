@@ -19,7 +19,7 @@ anychart.chartEditor2Module.GeoDataSelector = function(dataModel) {
 
   this.className = 'geo-data-selector';
 
-  this.dataType = anychart.chartEditor2Module.DataModel.dataType.GEO;
+  this.dataType = anychart.chartEditor2Module.EditorModel.dataType.GEO;
 };
 goog.inherits(anychart.chartEditor2Module.GeoDataSelector, anychart.chartEditor2Module.DataSelectorBase);
 
@@ -58,7 +58,9 @@ anychart.chartEditor2Module.GeoDataSelector.prototype.onLoadData = function(json
   this.dispatchEvent({
     type: anychart.chartEditor2Module.events.EventType.DATA_ADD,
     data: json,
+    dataType: this.dataType,
     setId: setId,
-    dataType: this.dataType
+    setFullId: this.dataType + setId
+
   });
 };

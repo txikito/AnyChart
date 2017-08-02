@@ -5,7 +5,6 @@ goog.require('anychart.ui.Component');
 goog.require('anychart.ui.Preloader');
 goog.require('anychart.ui.button.Primary');
 goog.require('anychart.ui.button.Secondary');
-goog.require('anychart.chartEditor2Module.DataModel');
 goog.require('anychart.chartEditor2Module.EditorModel');
 goog.require('anychart.chartEditor2Module.events');
 goog.require('anychart.chartEditor2Module.steps.PrepareData');
@@ -52,9 +51,7 @@ anychart.chartEditor2Module.Editor = function(opt_domHelper) {
    */
   this.steps_ = [];
 
-  this.dataModel_ = new anychart.chartEditor2Module.DataModel();
-
-  this.editorModel_ = new anychart.chartEditor2Module.EditorModel();
+  this.setModel(new anychart.chartEditor2Module.EditorModel());
 
   this.imagesLoaded_ = true;
   this.preloader_ = new anychart.ui.Preloader();
@@ -321,7 +318,7 @@ anychart.chartEditor2Module.Editor.prototype.setCurrentStep_ = function(step, do
   }
 
   if (step.getIndex() != 0) {
-    this.editorModel_.onChangeView();
+    this.getModel().onChangeView();
   }
 
   step.render(this.getElement());
@@ -391,23 +388,13 @@ anychart.chartEditor2Module.Editor.prototype.nextBtnClickHandler_ = function() {
 };
 
 
-anychart.chartEditor2Module.Editor.prototype.getDataModel = function() {
-  return this.dataModel_;
-};
-
-
-anychart.chartEditor2Module.Editor.prototype.getEditorModel = function() {
-  return this.editorModel_;
-};
-
-
 anychart.chartEditor2Module.Editor.prototype.onDataAdd_ = function(evt) {
-  this.dataModel_.addData(evt['setId'], evt['data'], evt['dataType']);
+  this.getModel().addData(evt['dataType'], evt['setId'], evt['data']);
 };
 
 
 anychart.chartEditor2Module.Editor.prototype.onDataRemove_ = function(evt) {
-  this.dataModel_.removeData(evt['setId'], evt['dataType']);
+  this.getModel().removeData(evt['setFullId']);
 };
 
 

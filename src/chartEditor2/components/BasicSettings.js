@@ -6,7 +6,6 @@ goog.require('anychart.chartEditor2Module.controls.Input');
 goog.require('anychart.chartEditor2Module.controls.Select');
 goog.require('anychart.chartEditor2Module.controls.SelectPalettes');
 goog.require('anychart.chartEditor2Module.EditorModel');
-goog.require('anychart.chartEditor2Module.DataModel');
 
 
 
@@ -62,7 +61,7 @@ anychart.chartEditor2Module.BasicSettings.prototype.enterDocument = function() {
     });
 
     this.themeSelect.setOptions(goog.object.getKeys(themes), 'defaultTheme');
-    this.themeSelect.setEditorModel(self.editor_.getEditorModel(), [['anychart'], 'theme()'], goog.dom.getWindow()['anychart']);
+    this.themeSelect.setEditorModel(self.editor_.getModel(), [['anychart'], 'theme()'], goog.dom.getWindow()['anychart']);
 
     this.paletteSelect.setOptions([
         'defaultPalette',
@@ -70,9 +69,9 @@ anychart.chartEditor2Module.BasicSettings.prototype.enterDocument = function() {
         'monochrome',
         'provence'
     ], 'defaultPalette');
-    this.paletteSelect.setEditorModel(self.editor_.getEditorModel(), [['chart'], 'palette()'], chart);
+    this.paletteSelect.setEditorModel(self.editor_.getModel(), [['chart'], 'palette()'], chart);
 
-    this.titleEnabled.setEditorModel(self.editor_.getEditorModel(), [['chart'], 'title().enabled()'], chart);
-    this.titleText.setEditorModel(self.editor_.getEditorModel(), [['chart'], 'title().text()'], chart);
+    this.titleEnabled.setEditorModel(self.editor_.getModel(), [['chart'], 'title().enabled()'], chart);
+    this.titleText.setEditorModel(self.editor_.getModel(), [['chart'], 'title().text()'], chart);
   });
 };

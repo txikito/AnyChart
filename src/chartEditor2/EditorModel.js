@@ -13,6 +13,10 @@ anychart.chartEditor2Module.EditorModel = function() {
 
   this.inputs_ = {};
 
+  this.data_ = {};
+
+  this.preparedData_ = [];
+
   this.model_ = {
     generateInitialMappingsOnChangeView: true,
     defaultSeriesType: null,
@@ -125,13 +129,25 @@ anychart.chartEditor2Module.EditorModel.consistencyObject = {
 };
 
 
-anychart.chartEditor2Module.EditorModel.prototype.createInitialMappings = function() {
+anychart.chartEditor2Module.EditorModel.prototype.createInitialMappings = function(opt_active, opt_field) {
+  var preparedData = this.getPreparedData();
+
   //todo: generate model.mapping based on model.datasets
+  var active = opt_active;
+  var field = opt_field;
+
+  if (preparedData.length) {
+    active = goog.isDefAndNotNull(active) ? active : preparedData[0]['setFullId'];
+    field = goog.isDefAndNotNull(field) ? field : preparedData[0]['fields'][0]['key'];
+  }
+
+  var mapping = this.chooseDefaultMapping(active, field);
+
   return {
-    active: 0,
-    field: 0,
+    active: active,
+    field: field,
     mappings: [
-        this.chooseDefaultMapping()
+      mapping
     ]
   };
 };
@@ -151,6 +167,20 @@ anychart.chartEditor2Module.EditorModel.prototype.chooseDefaultChartType = funct
 anychart.chartEditor2Module.EditorModel.prototype.chooseDefaultSeriesType = function() {
   //todo: придумываем тип серии на основе данных
   return 'line';
+};
+
+
+anychart.chartEditor2Module.EditorModel.prototype.setActiveField = function(input) {
+  var key = input.getKey();
+  var field = input.getValue();
+  var active = input.getValue2();
+
+  if (active != this.model_.datasetSettings.active) {
+    this.model_.datasetSettings = this.createInitialMappings(active, field);
+    // dropChartSettings('getSeriesAt');
+
+    this.dispatchUpdate();
+  }
 };
 
 
@@ -185,7 +215,9 @@ anychart.chartEditor2Module.EditorModel.prototype.dropSeries = function(plotInde
 
 anychart.chartEditor2Module.EditorModel.prototype.generateMapping = function(type) {
   // todo: generate based on data
-  return {ctor: 'line', mapping: {value: 1}};
+  return type == 'ohlc' ?
+      {ctor: type, mapping: {open: 1, high: 2, low: 3, close: 4}} :
+      {ctor: type, mapping: {value: 1}};
 };
 
 
@@ -206,7 +238,8 @@ anychart.chartEditor2Module.EditorModel.prototype.onChangeDatasetsComposition = 
 };
 
 
-anychart.chartEditor2Module.EditorModel.prototype.setChartType = function(type) {
+anychart.chartEditor2Module.EditorModel.prototype.setChartType = function(input) {
+  var type = input.getValue();
   var prevChartType = this.model_.chart.type;
   var prevDefaultSeriesType = this.model_.chart.seriesType;
 
@@ -216,8 +249,34 @@ anychart.chartEditor2Module.EditorModel.prototype.setChartType = function(type) 
   if (prevChartType == 'stock' || this.model_.chart.type == 'stock') {
     this.model_.datasetSettings.mappings = [this.chooseDefaultMapping()];
   }
+  // this.updateSeriesConstructors();
+
   this.dispatchUpdate();
 };
+
+
+anychart.chartEditor2Module.EditorModel.prototype.setSeriesType = function(input) {
+  var key = input.getKey();
+  var type = input.getValue();
+  var plotIndex = key[1][1]; // see SeriesPanel.getKey()
+  var seriesIndex = key[2][0];
+  if (this.model_.datasetSettings.mappings[plotIndex][seriesIndex].ctor != type) {
+    this.model_.datasetSettings.mappings[plotIndex][seriesIndex] = this.generateMapping(type);
+    this.dispatchUpdate();
+  }
+};
+
+
+// anychart.chartEditor2Module.EditorModel.prototype.updateSeriesConstructors = function(defaultType, newType) {
+//   for (var i = 0; i < this.model_.datasetSettings.mappings.length; i++) {
+//     var plot = this.model_.datasetSettings.mappings.mappings[i];
+//     for (var j = 0; j < plot.length; j+) {
+//       var mapping = this.model_.datasetSettings.mappings.mappings[i][j];
+//       if (mapping.ctor == defaultType)
+//         this.model_.datasetSettings.mappings.mappings[i][j] = this.generateMapping(newType);
+//     }
+//   }
+// };
 
 
 anychart.chartEditor2Module.EditorModel.prototype.getInputs = function() {
@@ -231,7 +290,7 @@ anychart.chartEditor2Module.EditorModel.prototype.getInputs = function() {
  * @param {*} value
  * @param {boolean=} opt_noDispatch
  */
-anychart.chartEditor2Module.EditorModel.prototype.setModelValue = function(key, value, opt_noDispatch) {
+anychart.chartEditor2Module.EditorModel.prototype.setValue = function(key, value, opt_noDispatch) {
   var target = this.model_;
   for (var i = 0; i < key.length; i++) {
     var level = key[i];
@@ -295,7 +354,7 @@ anychart.chartEditor2Module.EditorModel.prototype.removeByKey = function(key) {
  * @param {anychart.chartEditor2Module.EditorModel.Key} key
  * @return {*} Input's value
  */
-anychart.chartEditor2Module.EditorModel.prototype.getModelValue = function(key) {
+anychart.chartEditor2Module.EditorModel.prototype.getValue = function(key) {
   var target = this.model_;
   var level;
 
@@ -319,22 +378,6 @@ anychart.chartEditor2Module.EditorModel.prototype.getModelValue = function(key) 
         return void 0;
     }
   }
-};
-
-
-anychart.chartEditor2Module.EditorModel.prototype.dispatchUpdate = function() {
-  if (this.suspendQueue_ > 0) return;
-
-  var isConsistent = this.checkConsistency_();
-
-  //if (isConsistent) {
-  console.log(this.model_);
-  //}
-
-  this.dispatchEvent({
-    type: anychart.chartEditor2Module.events.EventType.EDITOR_MODEL_UPDATE,
-    isDataConsistent: isConsistent
-  });
 };
 
 
@@ -386,13 +429,36 @@ anychart.chartEditor2Module.EditorModel.prototype.checkConsistencyByObject_ = fu
 };
 
 
+anychart.chartEditor2Module.EditorModel.prototype.dispatchUpdate = function() {
+  if (this.suspendQueue_ > 0) {
+    this.needDispatch_ = true;
+    return;
+  }
+
+  var isConsistent = this.checkConsistency_();
+
+  //if (isConsistent) {
+  console.log(this.model_);
+  //}
+
+  this.dispatchEvent({
+    type: anychart.chartEditor2Module.events.EventType.EDITOR_MODEL_UPDATE,
+    isDataConsistent: isConsistent
+  });
+
+  this.needDispatch_ = false;
+};
+
+
 anychart.chartEditor2Module.EditorModel.prototype.suspendDispatch = function() {
   this.suspendQueue_++;
 };
 
 anychart.chartEditor2Module.EditorModel.prototype.resumeDispatch = function() {
   this.suspendQueue_--;
-  this.dispatchUpdate();
+
+  if (this.needDispatch_)
+    this.dispatchUpdate();
 };
 
 
@@ -418,4 +484,148 @@ anychart.chartEditor2Module.EditorModel.getStringKey = function(key) {
   }
 
   return stringKey;
+};
+
+
+///////////////////////////////////////////////////////////////////
+/**
+ * @enum {string}
+ */
+anychart.chartEditor2Module.EditorModel.dataType = {
+  UPLOADED: 'u',
+  PREDEFINED: 'p',
+  GEO: 'g'
+};
+
+
+anychart.chartEditor2Module.EditorModel.prototype.getFullId = function(dataType, setId) {
+  return dataType + setId;
+};
+
+
+anychart.chartEditor2Module.EditorModel.prototype.addData = function(dataType, setId, data) {
+  var id = this.getFullId(dataType, setId);
+  if (!this.data_[id]) {
+    this.data_[id] = {'type': dataType, 'setId': setId, 'setFullId': id, 'data': data};
+  }
+  this.preparedData_.length = 0;
+
+  this.dispatchUpdate();
+};
+
+
+anychart.chartEditor2Module.EditorModel.prototype.removeData = function(setFullId) {
+  delete this.data_[setFullId];
+  this.preparedData_.length = 0;
+
+  if (setFullId == this.model_.datasetSettings.active) {
+    this.model_.datasetSettings = this.createInitialMappings();
+  }
+
+  this.dispatchUpdate();
+};
+
+
+anychart.chartEditor2Module.EditorModel.prototype.getDataKeys = function() {
+  return goog.object.getKeys(this.data_);
+};
+
+
+/**
+ * @return {!Array.<*>}
+ */
+anychart.chartEditor2Module.EditorModel.prototype.getPreparedData = function() {
+  return this.isDirty() ? this.prepareData_() : this.preparedData_;
+};
+
+
+/**
+ * @return {?String}
+ */
+anychart.chartEditor2Module.EditorModel.prototype.getActive = function() {
+  return this.model_.datasetSettings.active;
+};
+
+
+anychart.chartEditor2Module.EditorModel.prototype.getRawData = function() {
+  var dataSet = this.data_[this.getActive()];
+  return dataSet ? dataSet['data'] : null;
+};
+
+
+anychart.chartEditor2Module.EditorModel.prototype.isDirty = function() {
+  return !this.preparedData_.length;
+};
+
+
+anychart.chartEditor2Module.EditorModel.prototype.prepareData_ = function() {
+  var joinedSets = [];
+  var singleSets = [];
+  var geoSets = [];
+  var dataSet;
+
+  for (var i in this.data_) {
+    if (this.data_.hasOwnProperty(i)) {
+      dataSet = this.prepareDataSet_(this.data_[i]);
+
+      var joined = false;
+      if (dataSet['join']) {
+        /*
+         * todo: process join
+         */
+        joined = true;
+      }
+
+      if (joined) {
+        dataSet['name'] = 'Joined set ' + (joinedSets.length + 1);
+        joinedSets.push(dataSet);
+      } else if (dataSet.type == anychart.chartEditor2Module.EditorModel.dataType.GEO) {
+        dataSet['name'] = 'Geo data ' + (geoSets.length + 1);
+        geoSets.push(dataSet);
+      } else {
+        dataSet['name'] = 'Data set ' + (singleSets.length + 1);
+        singleSets.push(dataSet);
+      }
+    }
+  }
+
+  this.preparedData_ = goog.array.concat(joinedSets, singleSets, geoSets);
+
+  return this.preparedData_;
+};
+
+
+anychart.chartEditor2Module.EditorModel.prototype.prepareDataSet_ = function(dataSet) {
+  var result = {type: dataSet['type'], setId: dataSet['setId'], setFullId: dataSet['setFullId']};
+
+  var row = dataSet['type'] == anychart.chartEditor2Module.EditorModel.dataType.GEO ?
+      dataSet['data']['features'][0]['properties'] :
+      dataSet['data'][0];
+
+  var settings = new goog.format.JsonPrettyPrinter.SafeHtmlDelimiters();
+  settings.lineBreak = '';
+  settings.objectStart = '\n{';
+  settings.arrayStart = '\n[';
+  settings.space = '';
+  settings.propertySeparator = ', ';
+  settings.nameValueSeparator = ': ';
+
+  var f = new goog.format.JsonPrettyPrinter(settings);
+  result['sample'] = f.format(row);
+
+  var fields = [];
+  var i;
+  var field;
+
+  for (i in row) {
+    field = {
+      'name': goog.isArray(row) ? 'Field ' + i : i,
+      'type': typeof(row[i]),
+      'key': i
+    };
+    fields.push(field);
+  }
+  result['fields'] = fields;
+
+  return result;
 };

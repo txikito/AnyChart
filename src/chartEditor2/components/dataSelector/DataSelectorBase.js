@@ -277,7 +277,8 @@ anychart.chartEditor2Module.DataSelectorBase.prototype.onLoadData = function(jso
 anychart.chartEditor2Module.DataSelectorBase.prototype.dispatchRemoveData = function(setId) {
   this.dispatchEvent({
     type: anychart.chartEditor2Module.events.EventType.DATA_REMOVE,
+    dataType: this.dataType,
     setId: setId,
-    dataType: this.dataType
+    setFullId: this.dataType + setId
   });
 };

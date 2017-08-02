@@ -2,7 +2,7 @@ goog.provide('anychart.chartEditor2Module.DataSetPanelList');
 
 goog.require('anychart.ui.Component');
 goog.require('anychart.chartEditor2Module.DataSetPanel');
-goog.require('anychart.chartEditor2Module.DataModel');
+goog.require('anychart.chartEditor2Module.EditorModel');
 
 
 
@@ -13,11 +13,7 @@ goog.require('anychart.chartEditor2Module.DataModel');
 anychart.chartEditor2Module.DataSetPanelList = function(dataModel) {
   goog.base(this);
 
-  /**
-   * @type {anychart.chartEditor2Module.DataModel}
-   * @private
-   */
-  this.dataModel_ = dataModel;
+  this.setModel(dataModel);
 
   this.panels_ = [];
 };
@@ -36,14 +32,12 @@ anychart.chartEditor2Module.DataSetPanelList.prototype.createDom = function() {
 /** @inheritDoc */
 anychart.chartEditor2Module.DataSetPanelList.prototype.enterDocument = function() {
   goog.base(this, 'enterDocument');
-  this.getHandler().listen(this.dataModel_, anychart.chartEditor2Module.events.EventType.DATA_UPDATE_MODEL, this.update);
-  this.getHandler().listen(this.dataModel_, anychart.chartEditor2Module.events.EventType.DATA_UPDATE_USING_STATE, this.updateUsing);
-
-  this.update(null);
+  this.update();
+  this.getHandler().listen(this.model_, anychart.chartEditor2Module.events.EventType.EDITOR_MODEL_UPDATE, this.update);
 };
 
 
-anychart.chartEditor2Module.DataSetPanelList.prototype.onRemoveData_ = function(evt) {
+/*anychart.chartEditor2Module.DataSetPanelList.prototype.onRemoveData_ = function(evt) {
   var panel = evt.target;
   this.panels_ = goog.array.filter(this.panels_, function(item){
     return panel != item;
@@ -51,25 +45,20 @@ anychart.chartEditor2Module.DataSetPanelList.prototype.onRemoveData_ = function(
 
   this.removeChild(panel, true);
   panel.dispose();
-};
+};*/
 
 
-anychart.chartEditor2Module.DataSetPanelList.prototype.update = function(evt) {
-  var data = this.dataModel_.getPreparedData();
+anychart.chartEditor2Module.DataSetPanelList.prototype.update = function() {
   this.removeChildren(true);
   goog.disposeAll(this.panels_);
   this.panels_.length = 0;
 
+  var active = this.model_.getActive();
+  var data = this.model_.getPreparedData();
+
   for(var i = 0; i < data.length; i++) {
     this.panels_.push(new anychart.chartEditor2Module.DataSetPanel(data[i]));
     this.addChild(this.panels_[i], true);
-    this.getHandler().listen(this.panels_[i], anychart.chartEditor2Module.events.EventType.DATA_REMOVE, this.onRemoveData_);
-  }
-};
-
-
-anychart.chartEditor2Module.DataSetPanelList.prototype.updateUsing = function(evt) {
-  for(var i = this.panels_.length; i--;) {
-    this.panels_[i].setDisabled(this.panels_[i].getDataFullId() != evt.setFullId);
+    this.panels_[i].setDisabled(this.panels_[i].getSetFullId() != active);
   }
 };

@@ -5,16 +5,11 @@ goog.require('goog.events');
 /** @enum {string} */
 anychart.chartEditor2Module.events.EventType = {
   // working with data model
-  DATA_UPDATE_MODEL: goog.events.getUniqueId('data-update-model'),
   DATA_ADD: goog.events.getUniqueId('data-add'),
   DATA_REMOVE: goog.events.getUniqueId('data-remove'),
-  DATA_USE: goog.events.getUniqueId('data-use'),
-  // DATA_RELEASE: goog.events.getUniqueId('data-release'),
-  DATA_UPDATE_USING_STATE: goog.events.getUniqueId('data-update-using-state'),
 
   // editor model
   EDITOR_MODEL_UPDATE: goog.events.getUniqueId('editor-model-update'),
-
 
   CHART_DRAW: goog.events.getUniqueId('chart-draw'),
 

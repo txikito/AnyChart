@@ -43,7 +43,7 @@ anychart.chartEditor2Module.PlotPanel.prototype.createDom = function() {
   anychart.chartEditor2Module.PlotPanel.base(this, 'createDom');
 
   var dom = this.getDomHelper();
-  this.chartType_ = this.editor_.getEditorModel().getModelValue([['chart'], 'type']);
+  this.chartType_ = this.editor_.getModel().getValue([['chart'], 'type']);
 
   goog.dom.classlist.add(this.getElement(), 'plot-panel');
   goog.dom.classlist.add(this.getElement(), 'plot-panel-' + this.chartType_);
@@ -63,7 +63,7 @@ anychart.chartEditor2Module.PlotPanel.prototype.update = function() {
   // Series
   this.removeAllSeries_();
 
-  var plotModel = this.editor_.getEditorModel().getModelValue([['datasetSettings'], ['mappings', this.index_]]);
+  var plotModel = this.editor_.getModel().getValue([['datasetSettings'], ['mappings', this.index_]]);
   for (var i = 0; i < plotModel.length; i++) {
     var series = new anychart.chartEditor2Module.SeriesPanel(this.editor_, i);
     this.series_.push(series);
@@ -83,14 +83,12 @@ anychart.chartEditor2Module.PlotPanel.prototype.enterDocument = function() {
 
   if (this.close_)
     this.getHandler().listen(this.close_, goog.events.EventType.CLICK, function() {
-      this.editor_.getEditorModel().dropPlot(this.index_);
+      this.editor_.getModel().dropPlot(this.index_);
     });
 
   this.getHandler().listen(this.addSeriesBtn_, goog.ui.Component.EventType.ACTION, function() {
-    this.editor_.getEditorModel().addSeries(this.index_);
+    this.editor_.getModel().addSeries(this.index_);
   });
-
-  // this.getHandler().listen(this.editor_.getDataModel(), anychart.chartEditor2Module.events.EventType.DATA_UPDATE_MODEL, this.onDataUpdate_);
 };
 
 
@@ -116,7 +114,7 @@ anychart.chartEditor2Module.PlotPanel.prototype.index = function(opt_value) {
 
 
 anychart.chartEditor2Module.PlotPanel.prototype.dispose = function() {
-  // this.editor_.getEditorModel().removeByKey(this.getKey());
+  // this.editor_.getModel().removeByKey(this.getKey());
 
   this.removeAllSeries_();
 

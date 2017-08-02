@@ -18,7 +18,5 @@ goog.inherits(anychart.chartEditor2Module.Component, goog.ui.Component);
  * @return {!Array.<*>|*}
  */
 anychart.chartEditor2Module.Component.prototype.getKey = function(opt_completion) {
-  if (goog.isDef(opt_completion))
-    this.key_ = goog.array.concat(this.key_, opt_completion);
-  return this.key_;
+  return goog.isDef(opt_completion) ? goog.array.concat(this.key_, opt_completion) : this.key_;
 };

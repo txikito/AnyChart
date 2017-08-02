@@ -58,11 +58,11 @@ anychart.chartEditor2Module.steps.PrepareData.prototype.createDom = function() {
   goog.dom.classlist.add(this.connectDataEl_, 'section');
   element.appendChild(this.connectDataEl_);
 
-  var predefinedDataSelector = new anychart.chartEditor2Module.PredefinedDataSelector(this.getParent().getDataModel());
+  var predefinedDataSelector = new anychart.chartEditor2Module.PredefinedDataSelector(this.getParent().getModel());
   this.addChild(predefinedDataSelector, true);
   goog.dom.classlist.add(predefinedDataSelector.getElement(), 'section');
 
-  var geoDataSelector = new anychart.chartEditor2Module.GeoDataSelector(this.getParent().getDataModel());
+  var geoDataSelector = new anychart.chartEditor2Module.GeoDataSelector(this.getParent().getModel());
   this.addChild(geoDataSelector, true);
   goog.dom.classlist.add(geoDataSelector.getElement(), 'section');
 };

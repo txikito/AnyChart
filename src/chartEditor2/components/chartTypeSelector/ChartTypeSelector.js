@@ -44,13 +44,13 @@ anychart.chartEditor2Module.ChartTypeSelector.prototype.createDom = function() {
   dom.appendChild(this.getElement(), this.typeIcon_);
 
   this.chartTypeSelect_ = new anychart.chartEditor2Module.controls.ChartTypeSelect();
-  this.chartTypeSelect_.setEditorModel(this.editor_.getEditorModel(), [['chart'], 'type'], 'setChartType');
+  this.chartTypeSelect_.setEditorModel(this.editor_.getModel(), [['chart'], 'type'], 'setChartType');
   this.chartTypeSelect_.setOptions(goog.object.getValues(anychart.chartEditor2Module.EditorModel.chartTypes));
   this.addChild(this.chartTypeSelect_, true);
 
   // X Values Input
   this.xValueSelect_ = new anychart.chartEditor2Module.controls.SelectWithLabel('x', 'X Values');
-  this.xValueSelect_.setEditorModel(this.editor_.getEditorModel(), [['datasetSettings'], 'field']);
+  this.xValueSelect_.setEditorModel(this.editor_.getModel(), [['datasetSettings'], 'field'], 'setActiveField');
   this.addChild(this.xValueSelect_, true);
 };
 
@@ -66,7 +66,7 @@ anychart.chartEditor2Module.ChartTypeSelector.prototype.update = function() {
   // Plots
   this.removeAllPlots_();
 
-  var dsSettings = this.editor_.getEditorModel().getModelValue(['datasetSettings']);
+  var dsSettings = this.editor_.getModel().getValue(['datasetSettings']);
   for (var i = 0; i < dsSettings['mappings'].length; i++) {
     var plot = new anychart.chartEditor2Module.PlotPanel(this.editor_, i);
     this.plots_.push(plot);
@@ -81,7 +81,7 @@ anychart.chartEditor2Module.ChartTypeSelector.prototype.update = function() {
     this.addPlotBtn_ = null;
   }
 
-  var chartType = this.editor_.getEditorModel().getModelValue([['chart'], 'type']);
+  var chartType = this.editor_.getModel().getValue([['chart'], 'type']);
   if (chartType == 'stock') {
     this.addPlotBtn_ = new goog.ui.Button('Add plot');
     this.addChildAt(this.addPlotBtn_, this.getChildCount(), true);
@@ -98,8 +98,7 @@ anychart.chartEditor2Module.ChartTypeSelector.prototype.enterDocument = function
   if(this.addPlotBtn_)
     this.getHandler().listen(this.addPlotBtn_, goog.ui.Component.EventType.ACTION, this.onAddPlot_);
 
-  //this.getHandler().listen(this.editor_.getDataModel(), anychart.chartEditor2Module.events.EventType.DATA_UPDATE_MODEL, this.onDataUpdate_);
-  this.getHandler().listen(this.editor_.getEditorModel(), anychart.chartEditor2Module.events.EventType.EDITOR_MODEL_UPDATE, this.update);
+  this.getHandler().listen(this.editor_.getModel(), anychart.chartEditor2Module.events.EventType.EDITOR_MODEL_UPDATE, this.update);
 };
 
 
@@ -108,7 +107,7 @@ anychart.chartEditor2Module.ChartTypeSelector.prototype.createXValuesOptions_ = 
     this.xValueSelect_.removeItemAt(a);
   }
 
-  var data = this.editor_.getDataModel().getPreparedData();
+  var data = this.editor_.getModel().getPreparedData();
   for(var i = 0; i < data.length; i++) {
     var fields = data[i]['fields'];
     for(var j = 0; j < fields.length; j++) {
@@ -122,7 +121,7 @@ anychart.chartEditor2Module.ChartTypeSelector.prototype.createXValuesOptions_ = 
 
 
 anychart.chartEditor2Module.ChartTypeSelector.prototype.onAddPlot_ = function() {
-  this.editor_.getEditorModel().addPlot();
+  this.editor_.getModel().addPlot();
 };
 
 

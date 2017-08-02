@@ -38,8 +38,8 @@ anychart.chartEditor2Module.steps.SetupChart.prototype.createDom = function() {
   this.chart_ = new anychart.chartEditor2Module.Chart(/** @type {anychart.chartEditor2Module.Editor} */(this.getParent()));
   this.addChild(this.chart_, true);
 
-  var dataModel = /** @type {anychart.chartEditor2Module.Editor} */(this.getParent()).getDataModel();
-  this.panelsList_ = new anychart.chartEditor2Module.DataSetPanelList(dataModel);
+  var model = /** @type {anychart.chartEditor2Module.Editor} */(this.getParent()).getModel();
+  this.panelsList_ = new anychart.chartEditor2Module.DataSetPanelList(model);
   this.addChild(this.panelsList_, true);
 
   this.chartTypeSelector_ = new anychart.chartEditor2Module.ChartTypeSelector(/** @type {anychart.chartEditor2Module.Editor} */(this.getParent()));
@@ -48,4 +48,3 @@ anychart.chartEditor2Module.steps.SetupChart.prototype.createDom = function() {
   this.basicSettings_ = new anychart.chartEditor2Module.BasicSettings(/** @type {anychart.chartEditor2Module.Editor} */(this.getParent()));
   this.addChild(this.basicSettings_, true);
 };
-

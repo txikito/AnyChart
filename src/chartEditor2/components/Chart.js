@@ -3,7 +3,6 @@ goog.provide('anychart.chartEditor2Module.Chart');
 goog.require('anychart.bindingModule.entry');
 goog.require('anychart.chartEditor2Module.Component');
 goog.require('anychart.chartEditor2Module.EditorModel');
-goog.require('anychart.chartEditor2Module.DataModel');
 
 
 
@@ -44,7 +43,7 @@ anychart.chartEditor2Module.Chart.prototype.createDom = function() {
 anychart.chartEditor2Module.Chart.prototype.enterDocument = function() {
   goog.base(this, 'enterDocument');
 
-  this.getHandler().listen(this.editor_.getEditorModel(), anychart.chartEditor2Module.events.EventType.EDITOR_MODEL_UPDATE, this.update_);
+  this.getHandler().listen(this.editor_.getModel(), anychart.chartEditor2Module.events.EventType.EDITOR_MODEL_UPDATE, this.update_);
 
   if (this.chart_)
     anychart.ui.binding.init();
@@ -53,7 +52,7 @@ anychart.chartEditor2Module.Chart.prototype.enterDocument = function() {
 
 anychart.chartEditor2Module.Chart.prototype.update_ = function(evt) {
   var anychart = goog.dom.getWindow()['anychart'];
-  var inputs = this.editor_.getEditorModel().getInputs();
+  var inputs = this.editor_.getModel().getInputs();
   //console.log(inputs);
 
   // Global settings
@@ -66,7 +65,7 @@ anychart.chartEditor2Module.Chart.prototype.update_ = function(evt) {
     var self = this;
 
     //console.log("Build chart!");
-    var dataModel = this.editor_.getDataModel();
+    var dataModel = this.editor_.getModel();
 
     // Create data set
     var dsCtor = anychart.chartEditor2Module.EditorModel.chartTypes[inputs['chart']['ctor']]['dataSetCtor'];

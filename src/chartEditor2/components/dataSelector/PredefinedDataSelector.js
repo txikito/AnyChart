@@ -17,7 +17,7 @@ anychart.chartEditor2Module.PredefinedDataSelector = function(dataModel) {
 
   this.className = 'predefined-data-selector';
 
-  this.dataType = anychart.chartEditor2Module.DataModel.dataType.PREDEFINED;
+  this.dataType = anychart.chartEditor2Module.EditorModel.dataType.PREDEFINED;
 };
 goog.inherits(anychart.chartEditor2Module.PredefinedDataSelector, anychart.chartEditor2Module.DataSelectorBase);
 
@@ -61,8 +61,9 @@ anychart.chartEditor2Module.PredefinedDataSelector.prototype.onLoadData = functi
     this.dispatchEvent({
       type: anychart.chartEditor2Module.events.EventType.DATA_ADD,
       data: json['data'],
+      dataType: this.dataType,
       setId: setId,
-      dataType: this.dataType
+      setFullId: this.dataType + setId
     });
   }
 };

@@ -24,9 +24,9 @@ anychart.chartEditor2Module.controls.Select.prototype.enterDocument = function()
 anychart.chartEditor2Module.controls.Select.prototype.onChange = function(evt) {
   if (this.editorModel_ && goog.isDefAndNotNull(this.getValue())) {
     if (this.callback_)
-      this.editorModel_[this.callback_].call(this.editorModel_, this.getValue());
+      this.editorModel_[this.callback_].call(this.editorModel_, this);
     else
-      this.editorModel_.setModelValue(this.key_, this.getValue());
+      this.editorModel_.setValue(this.key_, this.getValue());
   }
 };
 
@@ -46,15 +46,20 @@ anychart.chartEditor2Module.controls.Select.prototype.setEditorModel = function(
     var stringKey = anychart.chartEditor2Module.EditorModel.getStringKey(key);
     var value = anychart.bindingModule.exec(opt_target, stringKey);
     this.setValue(value);
-    this.editorModel_.setModelValue(this.key_, value, true);
+    this.editorModel_.setValue(this.key_, value, true);
   }
+};
+
+
+anychart.chartEditor2Module.controls.Select.prototype.getKey = function() {
+  return this.key_;
 };
 
 
 anychart.chartEditor2Module.controls.Select.prototype.setValueByModel = function() {
   var value;
   if (this.editorModel_ && this.key_)
-    value = this.editorModel_.getModelValue(this.key_);
+    value = this.editorModel_.getValue(this.key_);
 
   if (goog.isDef(value)) {
     this.setValue(value);
@@ -89,9 +94,9 @@ anychart.chartEditor2Module.controls.Select.prototype.setOptions = function(opti
 };
 
 
-anychart.chartEditor2Module.controls.Select.prototype.resetEditorModel = function() {
-  if (this.editorModel_ && this.key_)
-    this.editorModel_.removeByKey(this.key_);
-
-  this.setSelectedIndex(-1);
-};
+// anychart.chartEditor2Module.controls.Select.prototype.resetEditorModel = function() {
+//   if (this.editorModel_ && this.key_)
+//     this.editorModel_.removeByKey(this.key_);
+//
+//   this.setSelectedIndex(-1);
+// };

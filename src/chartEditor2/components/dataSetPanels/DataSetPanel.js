@@ -78,13 +78,14 @@ anychart.chartEditor2Module.DataSetPanel.prototype.removeDataSet = function() {
   this.dispatchEvent({
     type: anychart.chartEditor2Module.events.EventType.DATA_REMOVE,
     setId: this.data_['setId'],
-    dataType: this.data_['type']
+    dataType: this.data_['type'],
+    setFullId: this.data_['setFullId']
   });
 };
 
 
-anychart.chartEditor2Module.DataSetPanel.prototype.getDataFullId = function() {
-  return this.data_['type'] + this.data_['setId'];
+anychart.chartEditor2Module.DataSetPanel.prototype.getSetFullId = function() {
+  return this.data_['setFullId'];
 };
 
 
