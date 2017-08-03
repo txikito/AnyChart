@@ -10,19 +10,22 @@ goog.require('goog.ui.Select');
  */
 anychart.chartEditor2Module.controls.Select = function(opt_caption, opt_menu, opt_renderer, opt_domHelper, opt_menuRenderer) {
   anychart.chartEditor2Module.controls.Select.base(this, 'constructor', opt_caption, opt_menu, opt_renderer, opt_domHelper, opt_menuRenderer);
+
+  this.suspendDispatch_ = false;
 };
 goog.inherits(anychart.chartEditor2Module.controls.Select, goog.ui.Select);
 
 
 anychart.chartEditor2Module.controls.Select.prototype.enterDocument = function() {
   goog.base(this, 'enterDocument');
-
   this.listen(goog.ui.Component.EventType.CHANGE, this.onChange);
 };
 
 
 anychart.chartEditor2Module.controls.Select.prototype.onChange = function(evt) {
-  if (this.editorModel_ && goog.isDefAndNotNull(this.getValue())) {
+  if (!this.suspendDispatch_ && this.editorModel_ && goog.isDefAndNotNull(this.getValue())) {
+    console.log("Select onChange()", this.getValue());
+    // debugger;
     if (this.callback_)
       this.editorModel_[this.callback_].call(this.editorModel_, this);
     else
@@ -58,17 +61,21 @@ anychart.chartEditor2Module.controls.Select.prototype.getKey = function() {
 
 anychart.chartEditor2Module.controls.Select.prototype.setValueByModel = function(opt_value2) {
   var value;
+  this.suspendDispatch_ = true;
+
   if (this.editorModel_ && this.key_)
     value = this.editorModel_.getValue(this.key_);
 
-  if (goog.isDef(value)) {
+  if (goog.isDef(value))
     this.setValue(value, opt_value2);
 
-    if (!this.getSelectedItem()) {
-      this.setSelectedIndex(0);
-    }
-  } else
-    this.setSelectedIndex(0);
+  if (!this.getSelectedItem()) {
+    debugger;
+    console.warn("no model value by key:", this.key_);
+  }
+
+
+  this.suspendDispatch_ = false;
 };
 
 

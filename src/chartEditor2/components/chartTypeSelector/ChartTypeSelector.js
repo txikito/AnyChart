@@ -50,7 +50,7 @@ anychart.chartEditor2Module.ChartTypeSelector.prototype.createDom = function() {
 
   // X Values Input
   this.xValueSelect_ = new anychart.chartEditor2Module.controls.SelectWithLabel('x', 'X Values');
-  this.xValueSelect_.setEditorModel(this.editor_.getModel(), [['datasetSettings'], 'field'], 'setActiveField');
+  this.xValueSelect_.setEditorModel(this.editor_.getModel(), [['dataSettings'], 'field'], 'setActiveField');
   this.addChild(this.xValueSelect_, true);
 };
 
@@ -62,13 +62,12 @@ anychart.chartEditor2Module.ChartTypeSelector.prototype.update = function() {
 
   this.createXValuesOptions_();
   var activeDatasetId = this.editor_.getModel().getActive();
-  // this.xValueSelect_.setValue2(setFullId);
   this.xValueSelect_.setValueByModel(activeDatasetId);
 
   // Plots
   this.removeAllPlots_();
 
-  var dsSettings = this.editor_.getModel().getValue(['datasetSettings']);
+  var dsSettings = this.editor_.getModel().getValue(['dataSettings']);
   for (var i = 0; i < dsSettings['mappings'].length; i++) {
     var plot = new anychart.chartEditor2Module.PlotPanel(this.editor_, i);
     this.plots_.push(plot);

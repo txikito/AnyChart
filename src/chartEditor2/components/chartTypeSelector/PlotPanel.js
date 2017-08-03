@@ -63,7 +63,7 @@ anychart.chartEditor2Module.PlotPanel.prototype.update = function() {
   // Series
   this.removeAllSeries_();
 
-  var plotModel = this.editor_.getModel().getValue([['datasetSettings'], ['mappings', this.index_]]);
+  var plotModel = this.editor_.getModel().getValue([['dataSettings'], ['mappings', this.index_]]);
   for (var i = 0; i < plotModel.length; i++) {
     var series = new anychart.chartEditor2Module.SeriesPanel(this.editor_, i);
     this.series_.push(series);
