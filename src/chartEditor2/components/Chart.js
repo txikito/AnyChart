@@ -62,6 +62,7 @@ anychart.chartEditor2Module.Chart.prototype.update = function() {
   var self = this;
 
   // Chart creation
+  console.log("BUILD CHART");
   if (this.chart_ && typeof this.chart_['dispose'] == 'function')
     this.chart_['dispose']();
 

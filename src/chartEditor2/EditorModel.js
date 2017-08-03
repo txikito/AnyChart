@@ -262,9 +262,8 @@ anychart.chartEditor2Module.EditorModel.prototype.setSeriesType = function(input
 
 
 anychart.chartEditor2Module.EditorModel.prototype.setTheme = function(input) {
-  console.log("set theme");
+  this.model_.chart.settings['palette()'] = null;
   this.model_.anychart['theme()'] = input.getValue();
-  this.model_.chart.settings['palette()'] = 'defaultPalette';
   this.dispatchUpdate();
 };
 

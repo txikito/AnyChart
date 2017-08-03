@@ -22,6 +22,8 @@ anychart.chartEditor2Module.BasicSettings = function(editor) {
    * @private
    */
   this.editor_ = editor;
+
+  this.seriesNames_ = [];
 };
 goog.inherits(anychart.chartEditor2Module.BasicSettings, anychart.chartEditor2Module.Component);
 
@@ -40,17 +42,25 @@ anychart.chartEditor2Module.BasicSettings.prototype.createDom = function() {
   this.addChild(this.paletteSelect, true);
   this.getElement().appendChild(dom.createDom(goog.dom.TagName.DIV, 'fields-row', this.themeSelect.getElement(), this.paletteSelect.getElement()));
 
-
   this.titleEnabled = new anychart.chartEditor2Module.controls.Checkbox();
   this.titleText = new anychart.chartEditor2Module.controls.Input();
   this.addChild(this.titleEnabled, true);
   this.addChild(this.titleText, true);
   this.getElement().appendChild(dom.createDom(goog.dom.TagName.DIV, 'fields-row', [this.titleEnabled.getElement(), this.titleText.getElement()]));
+
+  // Series names
+  this.seriesNamesContainer = dom.createDom(goog.dom.TagName.DIV, 'fields-row series-names',
+      dom.createDom(goog.dom.TagName.H4, null, 'Series names'));
+  this.getElement().appendChild(this.seriesNamesContainer);
+
+  // Stack mode
+
 };
 
 
 anychart.chartEditor2Module.BasicSettings.prototype.update = function() {
   var self = this;
+  var model = self.editor_.getModel();
   this.getHandler().listenOnce(this.editor_, anychart.chartEditor2Module.events.EventType.CHART_DRAW,
       function(evt) {
         var themes = goog.object.filter(goog.dom.getWindow()['anychart']['themes'], function(item) {
@@ -58,7 +68,7 @@ anychart.chartEditor2Module.BasicSettings.prototype.update = function() {
         });
 
         this.themeSelect.setOptions(goog.object.getKeys(themes), 'defaultTheme');
-        this.themeSelect.setEditorModel(self.editor_.getModel(), [['anychart'], 'theme()'], 'setTheme', goog.dom.getWindow()['anychart']);
+        this.themeSelect.setEditorModel(model, [['anychart'], 'theme()'], 'setTheme', goog.dom.getWindow()['anychart']);
 
         var realPalettes = goog.dom.getWindow()['anychart']['palettes'];
         var paletteNames = [];
@@ -68,10 +78,28 @@ anychart.chartEditor2Module.BasicSettings.prototype.update = function() {
           }
         }
         this.paletteSelect.setOptions(paletteNames, 'defaultPalette');
-        this.paletteSelect.setEditorModel(self.editor_.getModel(), [['chart'], ['settings'], 'palette()'], void 0, evt.chart);
+        this.paletteSelect.setEditorModel(model, [['chart'], ['settings'], 'palette()'], void 0, evt.chart);
 
-        this.titleEnabled.setEditorModel(self.editor_.getModel(), [['chart'], ['settings'], 'title().enabled()'], void 0, evt.chart);
-        this.titleText.setEditorModel(self.editor_.getModel(), [['chart'], ['settings'], 'title().text()'], void 0, evt.chart);
+        this.titleEnabled.setEditorModel(model, [['chart'], ['settings'], 'title().enabled()'], void 0, evt.chart);
+        this.titleText.setEditorModel(model, [['chart'], ['settings'], 'title().text()'], void 0, evt.chart);
+
+        // Series names
+        this.removeSeriesNames_();
+        var chartType = model.getValue([['chart'], 'type']);
+        var mappings = model.getValue([['dataSettings'], 'mappings']);
+        for (var i = 0; i < mappings.length; i++) {
+          for (var j = 0; j < mappings[i].length; j++) {
+            var keyStr = chartType == 'stock' ? 'plot(' + i + ').' : '';
+            keyStr += 'getSeriesAt(' + j + ').name()';
+            var key = [['chart'], ['settings'], keyStr];
+            var input = new anychart.chartEditor2Module.controls.Input();
+            this.addChild(input, true);
+            this.seriesNamesContainer.appendChild(input.getElement());
+
+            input.setEditorModel(model, key, void 0, evt.chart);
+            this.seriesNames_.push(input);
+          }
+        }
       });
 };
 
@@ -82,4 +110,12 @@ anychart.chartEditor2Module.BasicSettings.prototype.enterDocument = function() {
   this.update();
 
   this.getHandler().listen(this.editor_.getModel(), anychart.chartEditor2Module.events.EventType.EDITOR_MODEL_UPDATE, this.update);
+};
+
+anychart.chartEditor2Module.BasicSettings.prototype.removeSeriesNames_ = function() {
+  for (var i = 0; i < this.seriesNames_.length; i++) {
+    this.removeChild(this.seriesNames_[i], true);
+    this.seriesNames_[i].dispose();
+  }
+  this.seriesNames_.length = 0;
 };
