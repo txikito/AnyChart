@@ -37,17 +37,6 @@ anychart.chartEditor2Module.DataSetPanelList.prototype.enterDocument = function(
 };
 
 
-/*anychart.chartEditor2Module.DataSetPanelList.prototype.onRemoveData_ = function(evt) {
-  var panel = evt.target;
-  this.panels_ = goog.array.filter(this.panels_, function(item){
-    return panel != item;
-  });
-
-  this.removeChild(panel, true);
-  panel.dispose();
-};*/
-
-
 anychart.chartEditor2Module.DataSetPanelList.prototype.update = function() {
   this.removeChildren(true);
   goog.disposeAll(this.panels_);

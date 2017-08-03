@@ -61,7 +61,9 @@ anychart.chartEditor2Module.ChartTypeSelector.prototype.update = function() {
   this.typeIcon_.setAttribute('src', this.chartTypeSelect_.getIcon());
 
   this.createXValuesOptions_();
-  this.xValueSelect_.setValueByModel();
+  var activeDatasetId = this.editor_.getModel().getActive();
+  // this.xValueSelect_.setValue2(setFullId);
+  this.xValueSelect_.setValueByModel(activeDatasetId);
 
   // Plots
   this.removeAllPlots_();

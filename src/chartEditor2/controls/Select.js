@@ -56,19 +56,37 @@ anychart.chartEditor2Module.controls.Select.prototype.getKey = function() {
 };
 
 
-anychart.chartEditor2Module.controls.Select.prototype.setValueByModel = function() {
+anychart.chartEditor2Module.controls.Select.prototype.setValueByModel = function(opt_value2) {
   var value;
   if (this.editorModel_ && this.key_)
     value = this.editorModel_.getValue(this.key_);
 
   if (goog.isDef(value)) {
-    this.setValue(value);
+    this.setValue(value, opt_value2);
 
     if (!this.getSelectedItem()) {
       this.setSelectedIndex(0);
     }
   } else
     this.setSelectedIndex(0);
+};
+
+
+anychart.chartEditor2Module.controls.Select.prototype.setValue = function(value, opt_value2) {
+  //if (goog.isDef(opt_value2) && ) {}
+  if (goog.isDefAndNotNull(value) && this.selectionModel_) {
+    for (var i = 0, item; item = this.selectionModel_.getItemAt(i); i++) {
+      if (item &&
+          typeof item.getValue == 'function' && item.getValue() == value &&
+          (!goog.isDef(opt_value2) || typeof item.getValue2 == 'function' && item.getValue2() == opt_value2)
+      ) {
+        this.setSelectedItem(/** @type {!goog.ui.MenuItem} */ (item));
+        return;
+      }
+    }
+  }
+
+  this.setSelectedItem(null);
 };
 
 
