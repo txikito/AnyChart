@@ -5,7 +5,6 @@ goog.require('anychart.chartEditor2Module.Component');
 goog.require('anychart.chartEditor2Module.EditorModel');
 
 
-
 /**
  * Chart widget.
  * @param {anychart.chartEditor2Module.Editor} editor
@@ -43,84 +42,74 @@ anychart.chartEditor2Module.Chart.prototype.createDom = function() {
 anychart.chartEditor2Module.Chart.prototype.enterDocument = function() {
   goog.base(this, 'enterDocument');
 
-  this.getHandler().listen(this.editor_.getModel(), anychart.chartEditor2Module.events.EventType.EDITOR_MODEL_UPDATE, this.update_);
-
-  if (this.chart_)
-    anychart.ui.binding.init();
+  this.update();
+  this.getHandler().listen(this.editor_.getModel(), anychart.chartEditor2Module.events.EventType.EDITOR_MODEL_UPDATE, this.update);
 };
 
 
-anychart.chartEditor2Module.Chart.prototype.update_ = function(evt) {
+anychart.chartEditor2Module.Chart.prototype.update = function() {
   var anychart = goog.dom.getWindow()['anychart'];
-  var inputs = this.editor_.getModel().getInputs();
-  //console.log(inputs);
+  var editorModel = this.editor_.getModel();
+  var rawData = editorModel.getRawData();
+  var settings = editorModel.getModel();
 
   // Global settings
-  goog.object.forEach(inputs['anychart'], function(value, key) {
+  goog.object.forEach(settings['anychart'], function(value, key) {
     //console.log("anychart settings", key, value);
     anychart.bindingModule.exec(anychart, key, value);
   });
 
-  if (evt.isDataConsistent) {
-    var self = this;
+  var self = this;
 
-    //console.log("Build chart!");
-    var dataModel = this.editor_.getModel();
+  // Chart creation
+  if (this.chart_ && typeof this.chart_['dispose'] == 'function')
+    this.chart_['dispose']();
 
-    // Create data set
-    var dsCtor = anychart.chartEditor2Module.EditorModel.chartTypes[inputs['chart']['ctor']]['dataSetCtor'];
-    var dataSet = this.anychart['data'][dsCtor](dataModel.getRawData());
+  this.chart_ = this.anychart[settings['chart']['type']]();
+  // this.chart_['id'](anychart.chartEditor2Module.Chart.CHART_ID);
 
-    // Chart creation
-    if (this.chart_ && typeof this.chart_['dispose'] == 'function') {
-      this.chart_['dispose']();
-    }
+  // Create data set
+  var dsCtor = anychart.chartEditor2Module.EditorModel.chartTypes[settings['chart']['type']]['dataSetCtor'];
+  var dataSet = this.anychart['data'][dsCtor](rawData);
 
-    this.chart_ = this.anychart[inputs['chart']['ctor']]();
-    this.chart_['id'](anychart.chartEditor2Module.Chart.CHART_ID);
-
-    // Chart settings
-    goog.object.forEach(inputs['chart'], function(value, key) {
-      if (key != 'ctor') {
-        // //console.log("chart settings", key, value);
-        if (key == "palette()") {
-          value = anychart['palettes'][value];
-        }
-        anychart.bindingModule.exec(self.chart_, key, value);
+  // create mapping and series
+  for (var i = 0; i < settings['dataSettings']['mappings'].length; i++) {
+    // mappings.push([]);
+    for (var j = 0; j < settings['dataSettings']['mappings'][i].length; j++) {
+      var seriesMapping = settings['dataSettings']['mappings'][i][j]['mapping'];
+      var mappingObj = {'x': settings['dataSettings']['field']};
+      for (var k in seriesMapping) {
+        if (seriesMapping.hasOwnProperty(k))
+          mappingObj[k] = seriesMapping[k];
       }
-    });
+      var mappingInstance = dataSet['mapAs'](mappingObj);
 
-    // create mapping and series
-    // var mappings = [];
-    for (var i = 0; i < inputs['plot'].length; i++) {
-      // mappings.push([]);
-      for (var j = 0; j < inputs['plot'][i]['series'].length; j++) {
-        var seriesMapping = inputs['plot'][i]['series'][j]['mapping'];
-        var mappingObj = this.deepClone_(inputs['plot'][0]['mapping']);
-        for (var k in seriesMapping) {
-          if (seriesMapping.hasOwnProperty(k))
-            mappingObj[k] = seriesMapping[k];
-        }
-        var mappingInstance = dataSet['mapAs'](mappingObj);
-        //mappings[i].push(mappingInstance);
-
-        // Create series
-        // todo: process stock too
-        this.chart_[inputs['plot'][i]['series'][j]['ctor']](mappingInstance);
-      }
+      // Create series
+      // todo: process stock too
+      this.chart_[settings['dataSettings']['mappings'][i][j]['ctor']](mappingInstance);
     }
-    this.chart_['container']('chart-container');
-
-    this.getHandler().listenOnce(this.chart_, 'chartdraw',
-        function() {
-          self.dispatchEvent({
-            type: anychart.chartEditor2Module.events.EventType.CHART_DRAW,
-            chart: self.chart_
-          });
-        });
-
-    this.chart_['draw']();
   }
+
+  // Chart settings
+  goog.object.forEach(settings['chart']['settings'], function(value, key) {
+    // //console.log("chart settings", key, value);
+    if (key == "palette()") {
+      value = anychart['palettes'][value];
+    }
+    anychart.bindingModule.exec(self.chart_, key, value);
+  });
+
+  this.chart_['container']('chart-container');
+
+  this.getHandler().listenOnce(this.chart_, 'chartdraw',
+      function() {
+        self.dispatchEvent({
+          type: anychart.chartEditor2Module.events.EventType.CHART_DRAW,
+          chart: self.chart_
+        });
+      });
+
+  this.chart_['draw']();
 };
 
 

@@ -114,10 +114,7 @@ anychart.chartEditor2Module.PlotPanel.prototype.index = function(opt_value) {
 
 
 anychart.chartEditor2Module.PlotPanel.prototype.dispose = function() {
-  // this.editor_.getModel().removeByKey(this.getKey());
-
   this.removeAllSeries_();
-
   goog.base(this, 'dispose');
 };
 

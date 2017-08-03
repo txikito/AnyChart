@@ -8,7 +8,6 @@ goog.require('anychart.chartEditor2Module.controls.SelectPalettes');
 goog.require('anychart.chartEditor2Module.EditorModel');
 
 
-
 /**
  * Chart widget.
  * @param {anychart.chartEditor2Module.Editor} editor
@@ -22,10 +21,9 @@ anychart.chartEditor2Module.BasicSettings = function(editor) {
    * @type {anychart.chartEditor2Module.Editor}
    * @private
    */
-  this.editor_  = editor;
+  this.editor_ = editor;
 };
 goog.inherits(anychart.chartEditor2Module.BasicSettings, anychart.chartEditor2Module.Component);
-
 
 
 /** @inheritDoc */
@@ -34,44 +32,54 @@ anychart.chartEditor2Module.BasicSettings.prototype.createDom = function() {
 
   goog.dom.classlist.add(this.getElement(), 'settings-panel');
   goog.dom.classlist.add(this.getElement(), 'basic-settings');
-  // var dom = this.getDomHelper();
+  var dom = this.getDomHelper();
 
-  this.themeSelect = new anychart.chartEditor2Module.controls.Select("Theme");
+  this.themeSelect = new anychart.chartEditor2Module.controls.Select("-- Choose theme --");
+  this.paletteSelect = new anychart.chartEditor2Module.controls.SelectPalettes("-- Choose palette --");
   this.addChild(this.themeSelect, true);
-
-  this.paletteSelect = new anychart.chartEditor2Module.controls.SelectPalettes("Palette");
   this.addChild(this.paletteSelect, true);
+  this.getElement().appendChild(dom.createDom(goog.dom.TagName.DIV, 'fields-row', this.themeSelect.getElement(), this.paletteSelect.getElement()));
+
 
   this.titleEnabled = new anychart.chartEditor2Module.controls.Checkbox();
-  this.addChild(this.titleEnabled, true);
-
   this.titleText = new anychart.chartEditor2Module.controls.Input();
+  this.addChild(this.titleEnabled, true);
   this.addChild(this.titleText, true);
+  this.getElement().appendChild(dom.createDom(goog.dom.TagName.DIV, 'fields-row', [this.titleEnabled.getElement(), this.titleText.getElement()]));
+};
+
+
+anychart.chartEditor2Module.BasicSettings.prototype.update = function() {
+  var self = this;
+  this.getHandler().listenOnce(this.editor_, anychart.chartEditor2Module.events.EventType.CHART_DRAW,
+      function(evt) {
+        var themes = goog.object.filter(goog.dom.getWindow()['anychart']['themes'], function(item) {
+          return item['palette'];
+        });
+
+        this.themeSelect.setOptions(goog.object.getKeys(themes), 'defaultTheme');
+        this.themeSelect.setEditorModel(self.editor_.getModel(), [['anychart'], 'theme()'], 'setTheme', goog.dom.getWindow()['anychart']);
+
+        var realPalettes = goog.dom.getWindow()['anychart']['palettes'];
+        var paletteNames = [];
+        for (var paletteName in realPalettes) {
+          if (realPalettes.hasOwnProperty(paletteName) && goog.isArray(realPalettes[paletteName])) {
+            paletteNames.push(paletteName);
+          }
+        }
+        this.paletteSelect.setOptions(paletteNames, 'defaultPalette');
+        this.paletteSelect.setEditorModel(self.editor_.getModel(), [['chart'], ['settings'], 'palette()'], void 0, evt.chart);
+
+        this.titleEnabled.setEditorModel(self.editor_.getModel(), [['chart'], ['settings'], 'title().enabled()'], void 0, evt.chart);
+        this.titleText.setEditorModel(self.editor_.getModel(), [['chart'], ['settings'], 'title().text()'], void 0, evt.chart);
+      });
 };
 
 
 anychart.chartEditor2Module.BasicSettings.prototype.enterDocument = function() {
   goog.base(this, 'enterDocument');
 
-  var self = this;
-  this.getHandler().listenOnce(this.editor_, anychart.chartEditor2Module.events.EventType.CHART_DRAW, function(evt){
-    var chart = evt.chart;
-    var themes = goog.object.filter(goog.dom.getWindow()['anychart']['themes'], function(item){
-      return item['palette'];
-    });
+  this.update();
 
-    this.themeSelect.setOptions(goog.object.getKeys(themes), 'defaultTheme');
-    this.themeSelect.setEditorModel(self.editor_.getModel(), [['anychart'], 'theme()'], goog.dom.getWindow()['anychart']);
-
-    this.paletteSelect.setOptions([
-        'defaultPalette',
-        'earth',
-        'monochrome',
-        'provence'
-    ], 'defaultPalette');
-    this.paletteSelect.setEditorModel(self.editor_.getModel(), [['chart'], 'palette()'], chart);
-
-    this.titleEnabled.setEditorModel(self.editor_.getModel(), [['chart'], 'title().enabled()'], chart);
-    this.titleText.setEditorModel(self.editor_.getModel(), [['chart'], 'title().text()'], chart);
-  });
+  this.getHandler().listen(this.editor_.getModel(), anychart.chartEditor2Module.events.EventType.EDITOR_MODEL_UPDATE, this.update);
 };

@@ -10,7 +10,6 @@ goog.require('goog.ui.Select');
  */
 anychart.chartEditor2Module.controls.Select = function(opt_caption, opt_menu, opt_renderer, opt_domHelper, opt_menuRenderer) {
   anychart.chartEditor2Module.controls.Select.base(this, 'constructor', opt_caption, opt_menu, opt_renderer, opt_domHelper, opt_menuRenderer);
-
   this.suspendDispatch_ = false;
 };
 goog.inherits(anychart.chartEditor2Module.controls.Select, goog.ui.Select);
@@ -22,7 +21,7 @@ anychart.chartEditor2Module.controls.Select.prototype.enterDocument = function()
 };
 
 
-anychart.chartEditor2Module.controls.Select.prototype.onChange = function(evt) {
+anychart.chartEditor2Module.controls.Select.prototype.onChange = function() {
   if (!this.suspendDispatch_ && this.editorModel_ && goog.isDefAndNotNull(this.getValue())) {
     console.log("Select onChange()", this.getValue());
     // debugger;
@@ -45,11 +44,14 @@ anychart.chartEditor2Module.controls.Select.prototype.setEditorModel = function(
   this.editorModel_ = model;
   this.key_ = key;
   this.callback_ = opt_callback;
+
   if (opt_target) {
     var stringKey = anychart.chartEditor2Module.EditorModel.getStringKey(key);
     var value = anychart.bindingModule.exec(opt_target, stringKey);
+    this.suspendDispatch_ = true;
     this.setValue(value);
     this.editorModel_.setValue(this.key_, value, true);
+    this.suspendDispatch_ = false;
   }
 };
 
@@ -73,7 +75,6 @@ anychart.chartEditor2Module.controls.Select.prototype.setValueByModel = function
     debugger;
     console.warn("no model value by key:", this.key_);
   }
-
 
   this.suspendDispatch_ = false;
 };
@@ -117,11 +118,3 @@ anychart.chartEditor2Module.controls.Select.prototype.setOptions = function(opti
     this.setValue(opt_default);
   }
 };
-
-
-// anychart.chartEditor2Module.controls.Select.prototype.resetEditorModel = function() {
-//   if (this.editorModel_ && this.key_)
-//     this.editorModel_.removeByKey(this.key_);
-//
-//   this.setSelectedIndex(-1);
-// };

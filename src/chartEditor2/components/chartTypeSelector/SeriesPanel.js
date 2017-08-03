@@ -162,7 +162,5 @@ anychart.chartEditor2Module.SeriesPanel.prototype.getKey = function(opt_completi
 
 anychart.chartEditor2Module.SeriesPanel.prototype.dispose = function() {
   this.removeAllFields_();
-
-  // this.editor_.getModel().removeByKey(this.getKey());
   goog.base(this, 'dispose');
 };

@@ -11,8 +11,6 @@ goog.require('goog.events.EventTarget');
 anychart.chartEditor2Module.EditorModel = function() {
   goog.base(this);
 
-  this.inputs_ = {};
-
   this.data_ = {};
 
   this.preparedData_ = [];
@@ -116,6 +114,11 @@ anychart.chartEditor2Module.EditorModel.consistencyObject = {
       'mapping': {}
     }]
   }]
+};
+
+
+anychart.chartEditor2Module.EditorModel.prototype.getModel = function() {
+  return this.model_;
 };
 
 
@@ -258,8 +261,11 @@ anychart.chartEditor2Module.EditorModel.prototype.setSeriesType = function(input
 };
 
 
-anychart.chartEditor2Module.EditorModel.prototype.getInputs = function() {
-  return this.inputs_;
+anychart.chartEditor2Module.EditorModel.prototype.setTheme = function(input) {
+  console.log("set theme");
+  this.model_.anychart['theme()'] = input.getValue();
+  this.model_.chart.settings['palette()'] = 'defaultPalette';
+  this.dispatchUpdate();
 };
 
 
@@ -299,7 +305,7 @@ anychart.chartEditor2Module.EditorModel.prototype.setValue = function(key, value
  * @param {Array} key
  */
 anychart.chartEditor2Module.EditorModel.prototype.removeByKey = function(key) {
-  var target = this.inputs_;
+  var target = this.model_;
   var level;
   for (var i = 0; i < key.length; i++) {
     level = key[i];
@@ -368,15 +374,15 @@ anychart.chartEditor2Module.EditorModel.prototype.checkConsistency_ = function()
   // console.log(this.inputs_);
 
   // Check by consistencyObject
-  if (!this.checkConsistencyByObject_(this.inputs_, anychart.chartEditor2Module.EditorModel.consistencyObject))
+  if (!this.checkConsistencyByObject_(this.model_, anychart.chartEditor2Module.EditorModel.consistencyObject))
     return false;
 
   // Check series fields
-  for (var i = this.inputs_['plot'].length; i--;) {
+  /*for (var i = this.inputs_['plot'].length; i--;) {
     for (var j = this.inputs_['plot'][i]['series'].length; j--;) {
       var series = this.inputs_['plot'][i]['series'][j];
       var mapping = series['mapping'];
-      var fields = /** @type {Array.<String>} */(goog.object.getKeys(mapping));
+      var fields = /!** @type {Array.<String>} *!/(goog.object.getKeys(mapping));
       var seriesFields = goog.array.map(anychart.chartEditor2Module.EditorModel.series[series['ctor']]['fields'],
           function(item) {
             return item['field']
@@ -385,7 +391,7 @@ anychart.chartEditor2Module.EditorModel.prototype.checkConsistency_ = function()
       if (goog.array.compare3(fields, seriesFields) != 0)
         return false;
     }
-  }
+  }*/
 
   return true;
 };
@@ -414,7 +420,7 @@ anychart.chartEditor2Module.EditorModel.prototype.dispatchUpdate = function() {
     return;
   }
 
-  var isConsistent = this.checkConsistency_();
+  // var isConsistent = this.checkConsistency_();
 
   //if (isConsistent) {
   console.log(this.model_);
@@ -422,7 +428,7 @@ anychart.chartEditor2Module.EditorModel.prototype.dispatchUpdate = function() {
 
   this.dispatchEvent({
     type: anychart.chartEditor2Module.events.EventType.EDITOR_MODEL_UPDATE,
-    isDataConsistent: isConsistent
+    isDataConsistent: true
   });
 
   this.needDispatch_ = false;
@@ -447,22 +453,22 @@ anychart.chartEditor2Module.EditorModel.prototype.resumeDispatch = function() {
  * @return {String} key as a string
  */
 anychart.chartEditor2Module.EditorModel.getStringKey = function(key) {
-  var stringKey = '';
+  // var stringKey = '';
 
-  for (var i = 0; i < key.length; i++) {
-    var level = key[i];
-    if (i == 0 && goog.isArray(level) && (level[0] == 'anychart' || level[0] == 'chart')) continue;
+  // for (var i = 0; i < key.length; i++) {
+  //   var level = key[i];
+  //   if (i == 0 && goog.isArray(level) && (level[0] == 'anychart' || level[0] == 'chart')) continue;
+  //
+  //   if (goog.isArray(level))
+  //     stringKey += level[0] + '(' + level[1] + ')';
+  //   else if (goog.isString(level))
+  //     stringKey += level;
+  //
+  //   if (i < key.length - 1)
+  //     stringKey += '.';
+  // }
 
-    if (goog.isArray(level))
-      stringKey += level[0] + '(' + level[1] + ')';
-    else if (goog.isString(level))
-      stringKey += level;
-
-    if (i < key.length - 1)
-      stringKey += '.';
-  }
-
-  return stringKey;
+  return key[key.length - 1];
 };
 
 

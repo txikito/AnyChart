@@ -12,6 +12,7 @@ goog.require('goog.ui.Checkbox');
  */
 anychart.chartEditor2Module.controls.Checkbox = function(opt_checked, opt_domHelper, opt_renderer) {
   anychart.chartEditor2Module.controls.Checkbox.base(this, 'constructor', opt_checked, opt_domHelper, opt_renderer);
+  this.suspendDispatch_ = false;
 };
 goog.inherits(anychart.chartEditor2Module.controls.Checkbox, goog.ui.Checkbox);
 
@@ -22,30 +23,39 @@ anychart.chartEditor2Module.controls.Checkbox.prototype.enterDocument = function
 };
 
 
-anychart.chartEditor2Module.controls.Checkbox.prototype.onChange = function(evt) {
-  if (this.editorModel_ && this.key_)
-    this.editorModel_.setInputValue(this.key_, this.getChecked());
-};
-
-
-/**
- * @param {anychart.chartEditor2Module.EditorModel} model
- * @param {anychart.chartEditor2Module.EditorModel.Key} key
- * @param {?{Object}=} opt_chart
- */
-anychart.chartEditor2Module.controls.Checkbox.prototype.setEditorModel = function(model, key, opt_chart) {
-  this.editorModel_ = model;
-  this.key_ = key;
-  if (opt_chart) {
-    var stringKey = anychart.chartEditor2Module.EditorModel.getStringKey(key);
-    var value = anychart.bindingModule.exec(opt_chart, stringKey);
-    this.setChecked(value);
-    this.editorModel_.setInputValue(this.key_, value, true);
+anychart.chartEditor2Module.controls.Checkbox.prototype.onChange = function() {
+  if (!this.suspendDispatch_ && this.editorModel_) {
+    console.log("Checkbox onChange()", this.getChecked());
+    if (this.callback_)
+      this.editorModel_[this.callback_].call(this.editorModel_, this);
+    else
+      this.editorModel_.setValue(this.key_, this.getChecked());
   }
 };
 
 
-anychart.chartEditor2Module.controls.Checkbox.prototype.resetEditorModel = function() {
-  if (this.editorModel_ && this.key_)
-    this.editorModel_.removeByKey(this.key_);
+/**
+ *
+ * @param {anychart.chartEditor2Module.EditorModel} model
+ * @param {anychart.chartEditor2Module.EditorModel.Key} key
+ * @param {String=} opt_callback
+ * @param {?{Object}=} opt_target
+ */
+anychart.chartEditor2Module.controls.Checkbox.prototype.setEditorModel = function(model, key, opt_callback, opt_target) {
+  this.editorModel_ = model;
+  this.key_ = key;
+  this.callback_ = opt_callback;
+
+  if (opt_target) {
+    var stringKey = anychart.chartEditor2Module.EditorModel.getStringKey(key);
+    var value = anychart.bindingModule.exec(opt_target, stringKey);
+    this.suspendDispatch_ = true;
+    this.setChecked(value);
+    this.editorModel_.setValue(this.key_, value, true);
+    this.suspendDispatch_ = false;
+  }
+};
+
+anychart.chartEditor2Module.controls.Checkbox.prototype.getKey = function() {
+  return this.key_;
 };
