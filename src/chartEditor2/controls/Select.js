@@ -11,6 +11,7 @@ goog.require('goog.ui.Select');
 anychart.chartEditor2Module.controls.Select = function(opt_caption, opt_menu, opt_renderer, opt_domHelper, opt_menuRenderer) {
   anychart.chartEditor2Module.controls.Select.base(this, 'constructor', opt_caption, opt_menu, opt_renderer, opt_domHelper, opt_menuRenderer);
   this.suspendDispatch_ = false;
+  this.noRebuild_ = false;
 };
 goog.inherits(anychart.chartEditor2Module.controls.Select, goog.ui.Select);
 
@@ -23,12 +24,10 @@ anychart.chartEditor2Module.controls.Select.prototype.enterDocument = function()
 
 anychart.chartEditor2Module.controls.Select.prototype.onChange = function() {
   if (!this.suspendDispatch_ && this.editorModel_ && goog.isDefAndNotNull(this.getValue())) {
-    console.log("Select onChange()", this.getValue());
-    // debugger;
     if (this.callback_)
       this.editorModel_[this.callback_].call(this.editorModel_, this);
     else
-      this.editorModel_.setValue(this.key_, this.getValue());
+      this.editorModel_.setValue(this.key_, this.getValue(), false, this.noRebuild_);
   }
 };
 
@@ -38,12 +37,14 @@ anychart.chartEditor2Module.controls.Select.prototype.onChange = function() {
  * @param {anychart.chartEditor2Module.EditorModel} model
  * @param {anychart.chartEditor2Module.EditorModel.Key} key
  * @param {String=} opt_callback
- * @param {?{Object}=} opt_target
+ * @param {?Object=} opt_target
+ * @param {Boolean=} opt_noRebuild
  */
-anychart.chartEditor2Module.controls.Select.prototype.setEditorModel = function(model, key, opt_callback, opt_target) {
+anychart.chartEditor2Module.controls.Select.prototype.setEditorModel = function(model, key, opt_callback, opt_target, opt_noRebuild) {
   this.editorModel_ = model;
   this.key_ = key;
   this.callback_ = opt_callback;
+  this.noRebuild_ = !!opt_noRebuild;
 
   if (opt_target) {
     var stringKey = anychart.chartEditor2Module.EditorModel.getStringKey(key);

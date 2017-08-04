@@ -53,8 +53,6 @@ anychart.chartEditor2Module.BasicSettings.prototype.createDom = function() {
       dom.createDom(goog.dom.TagName.H4, null, 'Series names'));
   this.getElement().appendChild(this.seriesNamesContainer);
 
-  // Stack mode
-
 };
 
 

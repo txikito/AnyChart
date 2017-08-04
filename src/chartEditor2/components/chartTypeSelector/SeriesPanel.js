@@ -117,7 +117,7 @@ anychart.chartEditor2Module.SeriesPanel.prototype.createFieldsOptions = function
 
       var dataFields = data['fields'];
       for (var j = 0; j < dataFields.length; j++) {
-        var caption = data['name'] + ' - ' + dataFields[j]['name'];
+        var caption = /*data['name'] + ' - ' + */dataFields[j]['name'];
         var option = new goog.ui.MenuItem(caption, dataFields[j]['key']);
         this.fields_[i].addItem(option);
       }
