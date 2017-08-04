@@ -273,8 +273,9 @@ anychart.chartEditor2Module.EditorModel.prototype.setTheme = function(input) {
  * @param {Array.<*>} key
  * @param {*} value
  * @param {boolean=} opt_noDispatch
+ * @param {boolean=} opt_noRebuild
  */
-anychart.chartEditor2Module.EditorModel.prototype.setValue = function(key, value, opt_noDispatch) {
+anychart.chartEditor2Module.EditorModel.prototype.setValue = function(key, value, opt_noDispatch, opt_noRebuild) {
   var target = this.model_;
   for (var i = 0; i < key.length; i++) {
     var level = key[i];
@@ -294,7 +295,7 @@ anychart.chartEditor2Module.EditorModel.prototype.setValue = function(key, value
       target[String(level)] = value;
 
       if (!opt_noDispatch)
-        this.dispatchUpdate();
+        this.dispatchUpdate(opt_noRebuild);
     }
   }
 };
@@ -413,7 +414,11 @@ anychart.chartEditor2Module.EditorModel.prototype.checkConsistencyByObject_ = fu
 };
 
 
-anychart.chartEditor2Module.EditorModel.prototype.dispatchUpdate = function() {
+/**
+ *
+ * @param {Boolean=} opt_noRebuild
+ */
+anychart.chartEditor2Module.EditorModel.prototype.dispatchUpdate = function(opt_noRebuild) {
   if (this.suspendQueue_ > 0) {
     this.needDispatch_ = true;
     return;
@@ -427,7 +432,8 @@ anychart.chartEditor2Module.EditorModel.prototype.dispatchUpdate = function() {
 
   this.dispatchEvent({
     type: anychart.chartEditor2Module.events.EventType.EDITOR_MODEL_UPDATE,
-    isDataConsistent: true
+    //isDataConsistent: true
+    rebuild: !opt_noRebuild
   });
 
   this.needDispatch_ = false;

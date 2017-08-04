@@ -63,41 +63,43 @@ anychart.chartEditor2Module.BasicSettings.prototype.update = function() {
   var model = self.editor_.getModel();
   this.getHandler().listenOnce(this.editor_, anychart.chartEditor2Module.events.EventType.CHART_DRAW,
       function(evt) {
-        var themes = goog.object.filter(goog.dom.getWindow()['anychart']['themes'], function(item) {
-          return item['palette'];
-        });
+        if (evt.rebuild) {
+          var themes = goog.object.filter(goog.dom.getWindow()['anychart']['themes'], function(item) {
+            return item['palette'];
+          });
 
-        this.themeSelect.setOptions(goog.object.getKeys(themes), 'defaultTheme');
-        this.themeSelect.setEditorModel(model, [['anychart'], 'theme()'], 'setTheme', goog.dom.getWindow()['anychart']);
+          this.themeSelect.setOptions(goog.object.getKeys(themes), 'defaultTheme');
+          this.themeSelect.setEditorModel(model, [['anychart'], 'theme()'], 'setTheme', goog.dom.getWindow()['anychart']);
 
-        var realPalettes = goog.dom.getWindow()['anychart']['palettes'];
-        var paletteNames = [];
-        for (var paletteName in realPalettes) {
-          if (realPalettes.hasOwnProperty(paletteName) && goog.isArray(realPalettes[paletteName])) {
-            paletteNames.push(paletteName);
+          var realPalettes = goog.dom.getWindow()['anychart']['palettes'];
+          var paletteNames = [];
+          for (var paletteName in realPalettes) {
+            if (realPalettes.hasOwnProperty(paletteName) && goog.isArray(realPalettes[paletteName])) {
+              paletteNames.push(paletteName);
+            }
           }
-        }
-        this.paletteSelect.setOptions(paletteNames, 'defaultPalette');
-        this.paletteSelect.setEditorModel(model, [['chart'], ['settings'], 'palette()'], void 0, evt.chart);
+          this.paletteSelect.setOptions(paletteNames, 'defaultPalette');
+          this.paletteSelect.setEditorModel(model, [['chart'], ['settings'], 'palette()'], void 0, evt.chart);
 
-        this.titleEnabled.setEditorModel(model, [['chart'], ['settings'], 'title().enabled()'], void 0, evt.chart);
-        this.titleText.setEditorModel(model, [['chart'], ['settings'], 'title().text()'], void 0, evt.chart);
+          this.titleEnabled.setEditorModel(model, [['chart'], ['settings'], 'title().enabled()'], void 0, evt.chart, true);
+          this.titleText.setEditorModel(model, [['chart'], ['settings'], 'title().text()'], void 0, evt.chart, true);
 
-        // Series names
-        this.removeSeriesNames_();
-        var chartType = model.getValue([['chart'], 'type']);
-        var mappings = model.getValue([['dataSettings'], 'mappings']);
-        for (var i = 0; i < mappings.length; i++) {
-          for (var j = 0; j < mappings[i].length; j++) {
-            var keyStr = chartType == 'stock' ? 'plot(' + i + ').' : '';
-            keyStr += 'getSeriesAt(' + j + ').name()';
-            var key = [['chart'], ['settings'], keyStr];
-            var input = new anychart.chartEditor2Module.controls.Input();
-            this.addChild(input, true);
-            this.seriesNamesContainer.appendChild(input.getElement());
+          // Series names
+          this.removeSeriesNames_();
+          var chartType = model.getValue([['chart'], 'type']);
+          var mappings = model.getValue([['dataSettings'], 'mappings']);
+          for (var i = 0; i < mappings.length; i++) {
+            for (var j = 0; j < mappings[i].length; j++) {
+              var keyStr = chartType == 'stock' ? 'plot(' + i + ').' : '';
+              keyStr += 'getSeriesAt(' + j + ').name()';
+              var key = [['chart'], ['settings'], keyStr];
+              var input = new anychart.chartEditor2Module.controls.Input();
+              this.addChild(input, true);
+              this.seriesNamesContainer.appendChild(input.getElement());
 
-            input.setEditorModel(model, key, void 0, evt.chart);
-            this.seriesNames_.push(input);
+              input.setEditorModel(model, key, void 0, evt.chart, true);
+              this.seriesNames_.push(input);
+            }
           }
         }
       });

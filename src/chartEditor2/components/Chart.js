@@ -47,11 +47,12 @@ anychart.chartEditor2Module.Chart.prototype.enterDocument = function() {
 };
 
 
-anychart.chartEditor2Module.Chart.prototype.update = function() {
+anychart.chartEditor2Module.Chart.prototype.update = function(opt_evt) {
   var anychart = goog.dom.getWindow()['anychart'];
   var editorModel = this.editor_.getModel();
   var rawData = editorModel.getRawData();
   var settings = editorModel.getModel();
+  var rebuild = !goog.isDefAndNotNull(opt_evt) || opt_evt.rebuild;
 
   // Global settings
   goog.object.forEach(settings['anychart'], function(value, key) {
@@ -62,32 +63,34 @@ anychart.chartEditor2Module.Chart.prototype.update = function() {
   var self = this;
 
   // Chart creation
-  console.log("BUILD CHART");
-  if (this.chart_ && typeof this.chart_['dispose'] == 'function')
+  if (rebuild && this.chart_ && typeof this.chart_['dispose'] == 'function') {
     this.chart_['dispose']();
+    this.chart_ = null;
+  }
 
-  this.chart_ = this.anychart[settings['chart']['type']]();
-  // this.chart_['id'](anychart.chartEditor2Module.Chart.CHART_ID);
+  if (rebuild) {
+    console.log("BUILD CHART");
+    this.chart_ = this.anychart[settings['chart']['type']]();
 
-  // Create data set
-  var dsCtor = anychart.chartEditor2Module.EditorModel.chartTypes[settings['chart']['type']]['dataSetCtor'];
-  var dataSet = this.anychart['data'][dsCtor](rawData);
+    // Create data set
+    var dsCtor = anychart.chartEditor2Module.EditorModel.chartTypes[settings['chart']['type']]['dataSetCtor'];
+    var dataSet = this.anychart['data'][dsCtor](rawData);
 
-  // create mapping and series
-  for (var i = 0; i < settings['dataSettings']['mappings'].length; i++) {
-    // mappings.push([]);
-    for (var j = 0; j < settings['dataSettings']['mappings'][i].length; j++) {
-      var seriesMapping = settings['dataSettings']['mappings'][i][j]['mapping'];
-      var mappingObj = {'x': settings['dataSettings']['field']};
-      for (var k in seriesMapping) {
-        if (seriesMapping.hasOwnProperty(k))
-          mappingObj[k] = seriesMapping[k];
+    // create mapping and series
+    for (var i = 0; i < settings['dataSettings']['mappings'].length; i++) {
+      for (var j = 0; j < settings['dataSettings']['mappings'][i].length; j++) {
+        var seriesMapping = settings['dataSettings']['mappings'][i][j]['mapping'];
+        var mappingObj = {'x': settings['dataSettings']['field']};
+        for (var k in seriesMapping) {
+          if (seriesMapping.hasOwnProperty(k))
+            mappingObj[k] = seriesMapping[k];
+        }
+        var mappingInstance = dataSet['mapAs'](mappingObj);
+
+        // Create series
+        // todo: process stock too
+        this.chart_[settings['dataSettings']['mappings'][i][j]['ctor']](mappingInstance);
       }
-      var mappingInstance = dataSet['mapAs'](mappingObj);
-
-      // Create series
-      // todo: process stock too
-      this.chart_[settings['dataSettings']['mappings'][i][j]['ctor']](mappingInstance);
     }
   }
 
@@ -100,29 +103,17 @@ anychart.chartEditor2Module.Chart.prototype.update = function() {
     anychart.bindingModule.exec(self.chart_, key, value);
   });
 
-  this.chart_['container']('chart-container');
-
   this.getHandler().listenOnce(this.chart_, 'chartdraw',
       function() {
         self.dispatchEvent({
           type: anychart.chartEditor2Module.events.EventType.CHART_DRAW,
-          chart: self.chart_
+          chart: self.chart_,
+          rebuild: rebuild
         });
       });
 
-  this.chart_['draw']();
-};
-
-
-anychart.chartEditor2Module.Chart.prototype.deepClone_ = function(obj) {
-  if (goog.typeOf(obj) == 'object') {
-    var res = {};
-    for (var key in obj) {
-      if (obj.hasOwnProperty(key))
-        res[key] = this.deepClone_(obj[key]);
-    }
-    return res;
-  } else {
-    return obj;
+  if (rebuild) {
+    this.chart_['container']('chart-container');
+    this.chart_['draw']();
   }
 };
