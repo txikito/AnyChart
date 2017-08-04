@@ -52,7 +52,6 @@ anychart.chartEditor2Module.BasicSettings.prototype.createDom = function() {
   this.seriesNamesContainer = dom.createDom(goog.dom.TagName.DIV, 'fields-row series-names',
       dom.createDom(goog.dom.TagName.H4, null, 'Series names'));
   this.getElement().appendChild(this.seriesNamesContainer);
-
 };
 
 

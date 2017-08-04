@@ -47,6 +47,7 @@ goog.inherits(anychart.chartEditor2Module.EditorModel, goog.events.EventTarget);
 anychart.chartEditor2Module.EditorModel.Key;
 
 
+// region Structures
 anychart.chartEditor2Module.EditorModel.chartTypes = {
   'line': {
     'value': 'line',
@@ -115,13 +116,10 @@ anychart.chartEditor2Module.EditorModel.consistencyObject = {
     }]
   }]
 };
+// endregion
 
 
-anychart.chartEditor2Module.EditorModel.prototype.getModel = function() {
-  return this.model_;
-};
-
-
+// region Model initialization
 anychart.chartEditor2Module.EditorModel.prototype.chooseDefaultChartType = function() {
   //todo: придумываем тип серии на основе данных
   return 'line';
@@ -141,7 +139,6 @@ anychart.chartEditor2Module.EditorModel.prototype.createDataSettings = function(
   var active = goog.isDefAndNotNull(opt_active) ? opt_active : preparedData[0]['setFullId'];
   var field = goog.isDefAndNotNull(opt_field) ? opt_field : preparedData[0]['fields'][0]['key'];
   var mapping = this.createMapping(active);
-
 
   return {
     active: active,
@@ -172,6 +169,27 @@ anychart.chartEditor2Module.EditorModel.prototype.createSeriesConfig = function(
 };
 
 
+anychart.chartEditor2Module.EditorModel.prototype.dropChartSettings = function(opt_pattern) {
+  if (goog.isDef(opt_pattern)) {
+    for (var key in this.model_.chart.settings) {
+      if (key.indexOf(opt_pattern) >= 0) {
+        delete this.model_.chart.settings[key];
+      }
+    }
+  } else
+    this.model_.chart.settings = {};
+};
+
+
+anychart.chartEditor2Module.EditorModel.prototype.onChangeDatasetsComposition = function() {
+  this.model_.mapping = [];
+  this.model_.chart.settings = {};
+  this.model_.generateInitialMappingsOnChangeView = true;
+};
+// endregion
+
+
+// region Controls callback functions
 anychart.chartEditor2Module.EditorModel.prototype.setActiveField = function(input) {
   var field = input.getValue();
   var active = input.getValue2();
@@ -192,18 +210,6 @@ anychart.chartEditor2Module.EditorModel.prototype.setActiveField = function(inpu
 };
 
 
-anychart.chartEditor2Module.EditorModel.prototype.dropChartSettings = function(opt_pattern) {
-  if (goog.isDef(opt_pattern)) {
-    for (var key in this.model_.chart.settings) {
-      if (key.indexOf(opt_pattern) >= 0) {
-        delete this.model_.chart.settings[key];
-      }
-    }
-  } else
-    this.model_.chart.settings = {};
-};
-
-
 anychart.chartEditor2Module.EditorModel.prototype.onChangeView = function() {
   if (this.model_.generateInitialMappingsOnChangeView) {
     this.model_.generateInitialMappingsOnChangeView = false;
@@ -211,13 +217,6 @@ anychart.chartEditor2Module.EditorModel.prototype.onChangeView = function() {
     this.model_.chart.seriesType = this.chooseDefaultSeriesType();
     this.model_.dataSettings = this.createDataSettings();
   }
-};
-
-
-anychart.chartEditor2Module.EditorModel.prototype.onChangeDatasetsComposition = function() {
-  this.model_.mapping = [];
-  this.model_.chart.settings = {};
-  this.model_.generateInitialMappingsOnChangeView = true;
 };
 
 
@@ -288,8 +287,10 @@ anychart.chartEditor2Module.EditorModel.prototype.setTheme = function(input) {
   this.model_.anychart['theme()'] = input.getValue();
   this.dispatchUpdate();
 };
+// endregion
 
 
+// region Editor Model API function
 /**
  * Setter for model's field state
  * @param {Array.<*>} key
@@ -460,6 +461,7 @@ anychart.chartEditor2Module.EditorModel.prototype.suspendDispatch = function() {
   this.suspendQueue_++;
 };
 
+
 anychart.chartEditor2Module.EditorModel.prototype.resumeDispatch = function() {
   this.suspendQueue_--;
   if (this.suspendQueue_ == 0 && this.needDispatch_)
@@ -492,7 +494,13 @@ anychart.chartEditor2Module.EditorModel.getStringKey = function(key) {
 };
 
 
-///////////////////////////////////////////////////////////////////
+anychart.chartEditor2Module.EditorModel.prototype.getModel = function() {
+  return this.model_;
+};
+// endregion
+
+
+// region Data Model
 /**
  * @enum {string}
  */
@@ -642,3 +650,4 @@ anychart.chartEditor2Module.EditorModel.prototype.prepareDataSet_ = function(dat
 
   return result;
 };
+// endregion
