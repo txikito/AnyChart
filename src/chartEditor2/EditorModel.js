@@ -135,10 +135,13 @@ anychart.chartEditor2Module.EditorModel.prototype.chooseDefaultSeriesType = func
 
 
 anychart.chartEditor2Module.EditorModel.prototype.createDataSettings = function(opt_active, opt_field) {
+  this.dropChartSettings();
+
   var preparedData = this.getPreparedData();
   var active = goog.isDefAndNotNull(opt_active) ? opt_active : preparedData[0]['setFullId'];
   var field = goog.isDefAndNotNull(opt_field) ? opt_field : preparedData[0]['fields'][0]['key'];
   var mapping = this.createMapping(active);
+
 
   return {
     active: active,
@@ -154,13 +157,16 @@ anychart.chartEditor2Module.EditorModel.prototype.createMapping = function(opt_a
 };
 
 
-anychart.chartEditor2Module.EditorModel.prototype.createSeriesConfig = function(type, opt_active) {
+anychart.chartEditor2Module.EditorModel.prototype.createSeriesConfig = function(type, opt_active, opt_id) {
   var active = goog.isDef(opt_active) ? opt_active : this.model_.dataSettings.active;
   var data = this.getPreparedDataActive(active)[0];
-  var config = {ctor: type, mapping: {}};
+  var config = {'ctor': type, 'mapping': {}};
+  if (goog.isDef(opt_id))
+    config['id'] = opt_id;
+
   var fields = anychart.chartEditor2Module.EditorModel.series[type]['fields'];
   for (var i = 0; i < fields.length; i++) {
-    config.mapping[fields[i].field] = data['fields'][1]['key'];
+    config['mapping'][fields[i]['field']] = data['fields'][1]['key'];
   }
   return config;
 };
@@ -174,7 +180,7 @@ anychart.chartEditor2Module.EditorModel.prototype.setActiveField = function(inpu
 
   if (active != this.model_.dataSettings.active) {
     this.model_.dataSettings = this.createDataSettings(active, field);
-    // dropChartSettings('getSeriesAt');
+    this.dropChartSettings('getSeries');
     this.dispatchUpdate();
 
   } else if (field != this.model_.dataSettings.field) {
@@ -186,11 +192,41 @@ anychart.chartEditor2Module.EditorModel.prototype.setActiveField = function(inpu
 };
 
 
+anychart.chartEditor2Module.EditorModel.prototype.dropChartSettings = function(opt_pattern) {
+  if (goog.isDef(opt_pattern)) {
+    for (var key in this.model_.chart.settings) {
+      if (key.indexOf(opt_pattern) >= 0) {
+        delete this.model_.chart.settings[key];
+      }
+    }
+  } else
+    this.model_.chart.settings = {};
+};
+
+
+anychart.chartEditor2Module.EditorModel.prototype.onChangeView = function() {
+  if (this.model_.generateInitialMappingsOnChangeView) {
+    this.model_.generateInitialMappingsOnChangeView = false;
+    this.model_.chart.type = this.chooseDefaultChartType();
+    this.model_.chart.seriesType = this.chooseDefaultSeriesType();
+    this.model_.dataSettings = this.createDataSettings();
+  }
+};
+
+
+anychart.chartEditor2Module.EditorModel.prototype.onChangeDatasetsComposition = function() {
+  this.model_.mapping = [];
+  this.model_.chart.settings = {};
+  this.model_.generateInitialMappingsOnChangeView = true;
+};
+
+
 anychart.chartEditor2Module.EditorModel.prototype.addPlot = function() {
   var mapping = this.createMapping();
   this.model_.dataSettings.mappings.push(mapping);
   this.dispatchUpdate();
 };
+
 
 anychart.chartEditor2Module.EditorModel.prototype.dropPlot = function(index) {
   if (index > 0 && this.model_.dataSettings.mappings.length > index) {
@@ -209,26 +245,10 @@ anychart.chartEditor2Module.EditorModel.prototype.addSeries = function(plotIndex
 
 anychart.chartEditor2Module.EditorModel.prototype.dropSeries = function(plotIndex, seriesIndex) {
   if (this.model_.dataSettings.mappings.length > plotIndex && this.model_.dataSettings.mappings[plotIndex].length > seriesIndex) {
-    goog.array.splice(this.model_.dataSettings.mappings[plotIndex], seriesIndex, 1);
+    var removedSeries = goog.array.splice(this.model_.dataSettings.mappings[plotIndex], seriesIndex, 1);
+    this.dropChartSettings('getSeries(' + removedSeries[0]['id'] + ')');
     this.dispatchUpdate();
   }
-};
-
-
-anychart.chartEditor2Module.EditorModel.prototype.onChangeView = function() {
-  if (this.model_.generateInitialMappingsOnChangeView) {
-    this.model_.generateInitialMappingsOnChangeView = false;
-    this.model_.chart.type = this.chooseDefaultChartType();
-    this.model_.chart.seriesType = this.chooseDefaultSeriesType();
-    this.model_.dataSettings = this.createDataSettings();
-  }
-};
-
-
-anychart.chartEditor2Module.EditorModel.prototype.onChangeDatasetsComposition = function() {
-  this.model_.mapping = [];
-  this.model_.chart.settings = {};
-  this.model_.generateInitialMappingsOnChangeView = true;
 };
 
 
@@ -254,8 +274,10 @@ anychart.chartEditor2Module.EditorModel.prototype.setSeriesType = function(input
   var type = input.getValue();
   var plotIndex = key[1][1]; // see SeriesPanel.getKey()
   var seriesIndex = key[2][0];
+
   if (this.model_.dataSettings.mappings[plotIndex][seriesIndex].ctor != type) {
-    this.model_.dataSettings.mappings[plotIndex][seriesIndex] = this.createSeriesConfig(type);
+    var oldConfig = this.model_.dataSettings.mappings[plotIndex][seriesIndex];
+    this.model_.dataSettings.mappings[plotIndex][seriesIndex] = this.createSeriesConfig(type, void 0, oldConfig['id']);
     this.dispatchUpdate();
   }
 };
@@ -302,39 +324,6 @@ anychart.chartEditor2Module.EditorModel.prototype.setValue = function(key, value
 
 
 /**
- * @param {Array} key
- */
-anychart.chartEditor2Module.EditorModel.prototype.removeByKey = function(key) {
-  var target = this.model_;
-  var level;
-  for (var i = 0; i < key.length; i++) {
-    level = key[i];
-    if (i == key.length - 1) {
-      // remove
-      if (goog.isArray(level)) {
-        goog.array.splice(target[level[0]], level[1], 1);
-      }
-      else if (goog.isString(level)) {
-        delete target[level];
-      }
-
-
-    } else {
-      // drill down
-      if (goog.isArray(level))
-        target = goog.isArray(target[level[0]]) ? target[level[0]][level[1]] : target[level[0]];
-      else if (goog.isString(level))
-        target = target[level];
-
-      if (!target)
-        break;
-    }
-  }
-  this.dispatchUpdate();
-};
-
-
-/**
  * Getter for input's value
  * @param {anychart.chartEditor2Module.EditorModel.Key} key
  * @return {*} Input's value
@@ -363,6 +352,38 @@ anychart.chartEditor2Module.EditorModel.prototype.getValue = function(key) {
         return void 0;
     }
   }
+};
+
+
+/**
+ * @param {Array} key
+ */
+anychart.chartEditor2Module.EditorModel.prototype.removeByKey = function(key) {
+  var target = this.model_;
+  var level;
+  for (var i = 0; i < key.length; i++) {
+    level = key[i];
+    if (i == key.length - 1) {
+      // remove
+      if (goog.isArray(level)) {
+        goog.array.splice(target[level[0]], level[1], 1);
+      }
+      else if (goog.isString(level)) {
+        delete target[level];
+      }
+
+    } else {
+      // drill down
+      if (goog.isArray(level))
+        target = goog.isArray(target[level[0]]) ? target[level[0]][level[1]] : target[level[0]];
+      else if (goog.isString(level))
+        target = target[level];
+
+      if (!target)
+        break;
+    }
+  }
+  this.dispatchUpdate();
 };
 
 
@@ -424,15 +445,10 @@ anychart.chartEditor2Module.EditorModel.prototype.dispatchUpdate = function(opt_
     return;
   }
 
-  // var isConsistent = this.checkConsistency_();
-
-  //if (isConsistent) {
   console.log(this.model_);
-  //}
 
   this.dispatchEvent({
     type: anychart.chartEditor2Module.events.EventType.EDITOR_MODEL_UPDATE,
-    //isDataConsistent: true
     rebuild: !opt_noRebuild
   });
 
@@ -446,8 +462,7 @@ anychart.chartEditor2Module.EditorModel.prototype.suspendDispatch = function() {
 
 anychart.chartEditor2Module.EditorModel.prototype.resumeDispatch = function() {
   this.suspendQueue_--;
-
-  if (this.needDispatch_)
+  if (this.suspendQueue_ == 0 && this.needDispatch_)
     this.dispatchUpdate();
 };
 

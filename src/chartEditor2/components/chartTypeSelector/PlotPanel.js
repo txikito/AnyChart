@@ -120,6 +120,7 @@ anychart.chartEditor2Module.PlotPanel.prototype.dispose = function() {
 
 
 anychart.chartEditor2Module.PlotPanel.prototype.getKey = function(opt_completion) {
-  this.key_ = [['plot', this.index()]];
+  if (!this.key_)
+    this.key_ = [['plot', this.index()]];
   return goog.base(this, 'getKey', opt_completion);
 };

@@ -91,12 +91,11 @@ anychart.chartEditor2Module.BasicSettings.prototype.update = function() {
           for (var i = 0; i < mappings.length; i++) {
             for (var j = 0; j < mappings[i].length; j++) {
               var keyStr = chartType == 'stock' ? 'plot(' + i + ').' : '';
-              keyStr += 'getSeriesAt(' + j + ').name()';
+              keyStr += 'getSeries(' + mappings[i][j]['id'] + ').name()';
               var key = [['chart'], ['settings'], keyStr];
               var input = new anychart.chartEditor2Module.controls.Input();
               this.addChild(input, true);
               this.seriesNamesContainer.appendChild(input.getElement());
-
               input.setEditorModel(model, key, void 0, evt.chart, true);
               this.seriesNames_.push(input);
             }

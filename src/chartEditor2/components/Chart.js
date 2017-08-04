@@ -89,7 +89,12 @@ anychart.chartEditor2Module.Chart.prototype.update = function(opt_evt) {
 
         // Create series
         // todo: process stock too
-        this.chart_[settings['dataSettings']['mappings'][i][j]['ctor']](mappingInstance);
+        var series = this.chart_[settings['dataSettings']['mappings'][i][j]['ctor']](mappingInstance);
+        var id = settings['dataSettings']['mappings'][i][j]['id'];
+        if (goog.isDef(id))
+          series['id'](id);
+        else
+          settings['dataSettings']['mappings'][i][j]['id'] = series['id']();
       }
     }
   }
