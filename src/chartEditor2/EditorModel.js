@@ -248,6 +248,7 @@ anychart.chartEditor2Module.EditorModel.prototype.addPlot = function() {
 
 anychart.chartEditor2Module.EditorModel.prototype.dropPlot = function(index) {
   if (index > 0 && this.model_.dataSettings.mappings.length > index) {
+    this.dropChartSettings('plot(');
     goog.array.splice(this.model_.dataSettings.mappings, index, 1);
     this.dispatchUpdate();
   }
