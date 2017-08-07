@@ -96,9 +96,9 @@ anychart.chartEditor2Module.EditorModel.series = {
   'ohlc': {
     'fields': [
       {field: 'open'},
+      {field: 'close'},
       {field: 'high'},
-      {field: 'low'},
-      {field: 'close'}]
+      {field: 'low'}]
   }
 };
 
@@ -121,42 +121,61 @@ anychart.chartEditor2Module.EditorModel.consistencyObject = {
 
 // region Model initialization
 anychart.chartEditor2Module.EditorModel.prototype.chooseDefaultChartType = function() {
-  //todo: придумываем тип серии на основе данных
-  return 'line';
+  //todo: придумываем тип чарта на основе данных
+  this.model_.chart.type = 'line';
 };
 
 
-anychart.chartEditor2Module.EditorModel.prototype.chooseDefaultSeriesType = function() {
-  //todo: пробуем придумать тип серии на основе данных, если не получается -берём дефолтное первое значение из списка доступных серий
-  return anychart.chartEditor2Module.EditorModel.chartTypes[this.model_.chart.type]['series'][0];
-};
-
-
-anychart.chartEditor2Module.EditorModel.prototype.createDataSettings = function(opt_active, opt_field) {
+anychart.chartEditor2Module.EditorModel.prototype.chooseActiveAndField = function(opt_active, opt_field) {
   this.dropChartSettings();
 
   var preparedData = this.getPreparedData();
   var active = goog.isDefAndNotNull(opt_active) ? opt_active : preparedData[0]['setFullId'];
   var field = goog.isDefAndNotNull(opt_field) ? opt_field : preparedData[0]['fields'][0]['key'];
-  var mapping = this.createMapping(active);
 
-  return {
+  this.model_.dataSettings = {
     active: active,
-    field: field,
-    mappings: [mapping]
+    field: field
   };
+
+  this.chooseDefaultSeriesType();
+  this.model_.dataSettings.mappings = [this.createPlotMapping()];
 };
 
 
-anychart.chartEditor2Module.EditorModel.prototype.createMapping = function(opt_active) {
-  var seriesConfig = this.createSeriesConfig(this.model_.chart.seriesType, opt_active);
+anychart.chartEditor2Module.EditorModel.prototype.chooseDefaultSeriesType = function() {
+  var seriesType = anychart.chartEditor2Module.EditorModel.chartTypes[this.model_.chart.type]['series'][0];
+
+  var data = this.getPreparedDataActive(this.model_.dataSettings.active);
+  var fields = data['fields'];
+
+  // Try to choose series type by data.
+  // console.log(fields);
+
+  this.model_.chart.seriesType = seriesType;
+};
+
+
+/**
+ * Creates plot mapping. Need active dataset and default series type to be chosen.
+ * @return {[*]}
+ */
+anychart.chartEditor2Module.EditorModel.prototype.createPlotMapping = function() {
+  var seriesConfig = this.createSeriesConfig(this.model_.chart.seriesType);
   return [seriesConfig];
 };
 
 
+/**
+ * Creates series config.
+ * @param {String} type Series type.
+ * @param {String=} opt_active Active dataset id.
+ * @param {String=} opt_id Series id.
+ * @return {{ctor: *, mapping: {}}}
+ */
 anychart.chartEditor2Module.EditorModel.prototype.createSeriesConfig = function(type, opt_active, opt_id) {
   var active = goog.isDef(opt_active) ? opt_active : this.model_.dataSettings.active;
-  var data = this.getPreparedDataActive(active)[0];
+  var data = this.getPreparedDataActive(active);
   var config = {'ctor': type, 'mapping': {}};
   if (goog.isDef(opt_id))
     config['id'] = opt_id;
@@ -181,11 +200,11 @@ anychart.chartEditor2Module.EditorModel.prototype.dropChartSettings = function(o
 };
 
 
-anychart.chartEditor2Module.EditorModel.prototype.onChangeDatasetsComposition = function() {
-  this.model_.mapping = [];
-  this.model_.chart.settings = {};
-  this.model_.generateInitialMappingsOnChangeView = true;
-};
+// anychart.chartEditor2Module.EditorModel.prototype.onChangeDatasetsComposition = function() {
+//   this.model_.mapping = [];
+//   this.model_.chart.settings = {};
+//   this.model_.generateInitialMappingsOnChangeView = true;
+// };
 // endregion
 
 
@@ -197,7 +216,8 @@ anychart.chartEditor2Module.EditorModel.prototype.setActiveField = function(inpu
   this.suspendDispatch();
 
   if (active != this.model_.dataSettings.active) {
-    this.model_.dataSettings = this.createDataSettings(active, field);
+    this.chooseActiveAndField(active, field);
+
     this.dropChartSettings('getSeries');
     this.dispatchUpdate();
 
@@ -213,15 +233,14 @@ anychart.chartEditor2Module.EditorModel.prototype.setActiveField = function(inpu
 anychart.chartEditor2Module.EditorModel.prototype.onChangeView = function() {
   if (this.model_.generateInitialMappingsOnChangeView) {
     this.model_.generateInitialMappingsOnChangeView = false;
-    this.model_.chart.type = this.chooseDefaultChartType();
-    this.model_.chart.seriesType = this.chooseDefaultSeriesType();
-    this.model_.dataSettings = this.createDataSettings();
+    this.chooseDefaultChartType();
+    this.chooseActiveAndField();
   }
 };
 
 
 anychart.chartEditor2Module.EditorModel.prototype.addPlot = function() {
-  var mapping = this.createMapping();
+  var mapping = this.createPlotMapping();
   this.model_.dataSettings.mappings.push(mapping);
   this.dispatchUpdate();
 };
@@ -257,10 +276,11 @@ anychart.chartEditor2Module.EditorModel.prototype.setChartType = function(input)
   var prevDefaultSeriesType = this.model_.chart.seriesType;
 
   this.model_.chart.type = type;
-  this.model_.chart.seriesType = this.chooseDefaultSeriesType();
+  this.chooseDefaultSeriesType();
 
   if (prevChartType == 'stock' || this.model_.chart.type == 'stock') {
-    this.model_.dataSettings.mappings = [this.createMapping()];
+    this.dropChartSettings();
+    this.model_.dataSettings.mappings = [this.createPlotMapping()];
   }
   // this.updateSeriesConstructors();
 
@@ -532,7 +552,7 @@ anychart.chartEditor2Module.EditorModel.prototype.removeData = function(setFullI
   this.preparedData_.length = 0;
 
   if (setFullId == this.model_.dataSettings.active) {
-    this.model_.dataSettings = this.createDataSettings();
+    this.chooseActiveAndField();
   }
 
   this.dispatchUpdate();
@@ -544,11 +564,17 @@ anychart.chartEditor2Module.EditorModel.prototype.getDataKeys = function() {
 };
 
 
+/**
+ * @param {String} active
+ * @return {?Object} Prepared active dataset.
+ */
 anychart.chartEditor2Module.EditorModel.prototype.getPreparedDataActive = function(active) {
-  var preparedData = this.getPreparedData();
-  return goog.array.filter(preparedData, function(item) {
+  var data = this.getPreparedData();
+  data = goog.array.filter(data, function(item) {
     return item['setFullId'] == active;
   });
+
+  return data.length ? data[0] : null
 };
 
 

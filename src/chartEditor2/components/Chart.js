@@ -74,12 +74,18 @@ anychart.chartEditor2Module.Chart.prototype.update = function(opt_evt) {
 
     // Create data set
     var dsCtor = anychart.chartEditor2Module.EditorModel.chartTypes[settings['chart']['type']]['dataSetCtor'];
-    var dataSet = this.anychart['data'][dsCtor](rawData);
+    var dataSet = this.anychart['data'][dsCtor]();
+
+    if (dsCtor == 'table')
+      dataSet['addData'](rawData);
+    else
+      dataSet['data'](rawData);
 
     // create mapping and series
     for (var i = 0; i < settings['dataSettings']['mappings'].length; i++) {
-      for (var j = 0; j < settings['dataSettings']['mappings'][i].length; j++) {
-        var seriesMapping = settings['dataSettings']['mappings'][i][j]['mapping'];
+      var plotMapping = settings['dataSettings']['mappings'][i];
+      for (var j = 0; j < plotMapping.length; j++) {
+        var seriesMapping = plotMapping[j]['mapping'];
         var mappingObj = {'x': settings['dataSettings']['field']};
         for (var k in seriesMapping) {
           if (seriesMapping.hasOwnProperty(k))
@@ -88,13 +94,21 @@ anychart.chartEditor2Module.Chart.prototype.update = function(opt_evt) {
         var mappingInstance = dataSet['mapAs'](mappingObj);
 
         // Create series
-        // todo: process stock too
-        var series = this.chart_[settings['dataSettings']['mappings'][i][j]['ctor']](mappingInstance);
-        var id = settings['dataSettings']['mappings'][i][j]['id'];
+        var seriesCtor = plotMapping[j]['ctor'];
+        var series;
+        if (settings['chart']['type'] == 'stock') {
+          var plot = this.chart_['plot'](i);
+          series = plot[seriesCtor](mappingInstance);
+        } else {
+          series = this.chart_[seriesCtor](mappingInstance);
+        }
+
+
+        var id = plotMapping[j]['id'];
         if (goog.isDef(id))
           series['id'](id);
         else
-          settings['dataSettings']['mappings'][i][j]['id'] = series['id']();
+          plotMapping[j]['id'] = series['id']();
       }
     }
   }

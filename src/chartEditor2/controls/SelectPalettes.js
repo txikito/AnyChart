@@ -32,18 +32,20 @@ anychart.chartEditor2Module.controls.SelectPalettes.prototype.setEditorModel = f
     var stringKey = anychart.chartEditor2Module.EditorModel.getStringKey(key);
     var value = anychart.bindingModule.exec(opt_target, stringKey);
 
-    var realPalettes = goog.dom.getWindow()['anychart']['palettes'];
-    var stringValue = '';
-    for (var paletteName in realPalettes) {
-      if (realPalettes.hasOwnProperty(paletteName) && goog.isArray(realPalettes[paletteName]) && goog.array.equals(value['items'](), realPalettes[paletteName])) {
-        stringValue = paletteName;
-        break;
+    if (value) {
+      var realPalettes = goog.dom.getWindow()['anychart']['palettes'];
+      var stringValue = '';
+      for (var paletteName in realPalettes) {
+        if (realPalettes.hasOwnProperty(paletteName) && goog.isArray(realPalettes[paletteName]) && goog.array.equals(value['items'](), realPalettes[paletteName])) {
+          stringValue = paletteName;
+          break;
+        }
       }
-    }
 
-    this.suspendDispatch_ = true;
-    this.setValue(stringValue);
-    this.editorModel_.setValue(this.key_, stringValue, true);
-    this.suspendDispatch_ = false;
+      this.suspendDispatch_ = true;
+      this.setValue(stringValue);
+      this.editorModel_.setValue(this.key_, stringValue, true);
+      this.suspendDispatch_ = false;
+    }
   }
 };
