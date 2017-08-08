@@ -125,12 +125,12 @@ anychart.chartEditor2Module.EditorModel.chartTypes = {
     'series': ['column', 'line', 'spline', 'area', 'ohlc'],
     'dataSetCtor': 'set'
   },
-  'stock': {
-    'value': 'stock',
-    'name': 'Stock',
-    'icon': 'stock-chart.svg',
-    'series': ['ohlc', 'line', 'spline', 'column', 'area'],
-    'dataSetCtor': 'table'
+  'scatter': {
+    'value': 'scatter',
+    'name': 'Scatter',
+    'icon': 'scatter-chart.svg',
+    'series': ['marker', 'bubble', 'line'],
+    'dataSetCtor': 'set'
   },
   'pie': {
     'value': 'pie',
@@ -138,6 +138,13 @@ anychart.chartEditor2Module.EditorModel.chartTypes = {
     'icon': 'pie-chart.svg',
     'series': ['pie'],
     'dataSetCtor': 'set'
+  },
+  'stock': {
+    'value': 'stock',
+    'name': 'Stock',
+    'icon': 'stock-chart.svg',
+    'series': ['ohlc', 'line', 'spline', 'column', 'area'],
+    'dataSetCtor': 'table'
   }
 };
 
@@ -167,6 +174,14 @@ anychart.chartEditor2Module.EditorModel.series = {
   },
   'pie': {
     'fields': [{'field': 'value', 'name': 'Value'}]
+  },
+  'marker': {
+    'fields': [{'field': 'value', 'name': 'Y Value'}]
+  },
+  'bubble': {
+    'fields': [
+        {'field': 'value', 'name': 'Value'},
+        {'field': 'size', 'name': 'Size'}]
   }
 };
 
@@ -266,13 +281,6 @@ anychart.chartEditor2Module.EditorModel.prototype.dropChartSettings = function(o
   } else
     this.model_.chart.settings = {};
 };
-
-
-// anychart.chartEditor2Module.EditorModel.prototype.onChangeDatasetsComposition = function() {
-//   this.model_.mapping = [];
-//   this.model_.chart.settings = {};
-//   this.model_.generateInitialMappingsOnChangeView = true;
-// };
 // endregion
 
 
