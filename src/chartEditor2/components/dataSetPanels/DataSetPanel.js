@@ -98,3 +98,11 @@ anychart.chartEditor2Module.DataSetPanel.prototype.setDisabled = function(value)
     goog.dom.classlist.enable(this.getElement(), 'disabled', this.disabled);
   }
 };
+
+
+/**
+ * @param {boolean} isActiveGeo
+ */
+anychart.chartEditor2Module.DataSetPanel.prototype.setActiveGeo= function(isActiveGeo) {
+  goog.dom.classlist.enable(this.getElement(), 'active-geo', isActiveGeo);
+};

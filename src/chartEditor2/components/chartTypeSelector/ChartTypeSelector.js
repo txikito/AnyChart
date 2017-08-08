@@ -47,23 +47,49 @@ anychart.chartEditor2Module.ChartTypeSelector.prototype.createDom = function() {
   this.chartTypeSelect_.setEditorModel(this.editor_.getModel(), [['chart'], 'type'], 'setChartType');
   this.chartTypeSelect_.setOptions(goog.object.getValues(anychart.chartEditor2Module.EditorModel.chartTypes));
   this.addChild(this.chartTypeSelect_, true);
-
-  // X Values Input
-  this.xValueSelect_ = new anychart.chartEditor2Module.controls.SelectWithLabel('x', 'X Values');
-  this.xValueSelect_.setEditorModel(this.editor_.getModel(), [['dataSettings'], 'field'], 'setActiveField');
-  this.addChild(this.xValueSelect_, true);
 };
 
 
 anychart.chartEditor2Module.ChartTypeSelector.prototype.update = function() {
+  var chartType = this.editor_.getModel().getValue([['chart'], 'type']);
   var stackMode = this.editor_.getModel().getValue([['chart'], ['settings'], 'yScale().stackMode()']);
   this.chartTypeSelect_.setValueByModel(stackMode);
 
   this.typeIcon_.setAttribute('src', this.chartTypeSelect_.getIcon());
 
-  this.createXValuesOptions_();
-  var activeDatasetId = this.editor_.getModel().getActive();
-  this.xValueSelect_.setValueByModel(activeDatasetId);
+  if(this.geoDataSelect_) {
+    this.removeChild(this.geoDataSelect_, true);
+    this.geoDataSelect_.dispose();
+    this.geoDataSelect_ = null;
+  }
+
+  if(this.xValueSelect_) {
+    this.removeChild(this.xValueSelect_, true);
+    this.xValueSelect_.dispose();
+    this.xValueSelect_ = null;
+  }
+
+  if (chartType == 'map') {
+    // Geo data select
+    this.geoDataSelect_ = new anychart.chartEditor2Module.controls.SelectWithLabel('activeGeo', 'Geo data');
+
+    // todo: задать нормальные имена пунктам
+    var options = goog.object.getKeys(this.editor_.getModel().getGeoData());
+    this.geoDataSelect_.setOptions(options);
+    this.geoDataSelect_.setEditorModel(this.editor_.getModel(), [['dataSettings'], 'activeGeo'], 'setActiveGeo');
+    this.addChild(this.geoDataSelect_, true);
+    this.geoDataSelect_.setValueByModel();
+
+  } else {
+    // X Values select
+    this.xValueSelect_ = new anychart.chartEditor2Module.controls.SelectWithLabel('x', 'X Values');
+    this.xValueSelect_.setEditorModel(this.editor_.getModel(), [['dataSettings'], 'field'], 'setActiveField');
+    this.addChild(this.xValueSelect_, true);
+
+    this.createXValuesOptions_();
+    var activeDatasetId = this.editor_.getModel().getActive();
+    this.xValueSelect_.setValueByModel(activeDatasetId);
+  }
 
   // Plots
   this.removeAllPlots_();
@@ -83,7 +109,6 @@ anychart.chartEditor2Module.ChartTypeSelector.prototype.update = function() {
     this.addPlotBtn_ = null;
   }
 
-  var chartType = this.editor_.getModel().getValue([['chart'], 'type']);
   if (chartType == 'stock') {
     this.addPlotBtn_ = new goog.ui.Button('Add plot');
     this.addChildAt(this.addPlotBtn_, this.getChildCount(), true);

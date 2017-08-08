@@ -72,6 +72,10 @@ anychart.chartEditor2Module.Chart.prototype.update = function(opt_evt) {
     console.log("BUILD CHART");
     this.chart_ = this.anychart[settings['chart']['type']]();
 
+    if (settings['chart']['type'] == 'map') {
+//      console.log(rawData);
+    }
+
     // Create data set
     var dsCtor = anychart.chartEditor2Module.EditorModel.chartTypes[settings['chart']['type']]['dataSetCtor'];
     var dataSet = this.anychart['data'][dsCtor]();

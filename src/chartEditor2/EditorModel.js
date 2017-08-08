@@ -19,6 +19,7 @@ anychart.chartEditor2Module.EditorModel = function() {
     generateInitialMappingsOnChangeView: true,
     dataSettings: {
       active: null,
+      activeGeo: null,
       field: null,
       mappings: [
         // [ // plot
@@ -139,13 +140,20 @@ anychart.chartEditor2Module.EditorModel.chartTypes = {
     'series': ['pie'],
     'dataSetCtor': 'set'
   },
+  'map': {
+    'value': 'map',
+    'name': 'Map',
+    'icon': 'choropleth-map.svg',
+    'series': ['marker', 'bubble'],
+    'dataSetCtor': 'set'
+  },
   'stock': {
     'value': 'stock',
     'name': 'Stock',
     'icon': 'stock-chart.svg',
     'series': ['ohlc', 'line', 'spline', 'column', 'area'],
     'dataSetCtor': 'table'
-  }
+  },
 };
 
 
@@ -216,13 +224,30 @@ anychart.chartEditor2Module.EditorModel.prototype.chooseActiveAndField = functio
   var active = goog.isDefAndNotNull(opt_active) ? opt_active : preparedData[0]['setFullId'];
   var field = goog.isDefAndNotNull(opt_field) ? opt_field : preparedData[0]['fields'][0]['key'];
 
-  this.model_.dataSettings = {
-    active: active,
-    field: field
-  };
+  this.model_.dataSettings.active = active;
+  this.model_.dataSettings.field = field;
 
   this.chooseDefaultSeriesType();
   this.model_.dataSettings.mappings = [this.createPlotMapping()];
+};
+
+
+anychart.chartEditor2Module.EditorModel.prototype.chooseActiveGeo = function(opt_activeGeo) {
+  var activeGeo = null;
+
+  if (goog.isDefAndNotNull(opt_activeGeo)) {
+    activeGeo = opt_activeGeo;
+  } else {
+    for (var i in this.data_) {
+      if (this.data_[i]['type'] == anychart.chartEditor2Module.EditorModel.dataType.GEO) {
+        activeGeo = this.data_[i]['setFullId'];
+        break;
+      }
+    }
+  }
+
+  console.log("activeGeo", activeGeo);
+  this.model_.dataSettings.activeGeo = activeGeo;
 };
 
 
@@ -306,11 +331,24 @@ anychart.chartEditor2Module.EditorModel.prototype.setActiveField = function(inpu
 };
 
 
+anychart.chartEditor2Module.EditorModel.prototype.setActiveGeo = function(input) {
+  var activeGeo = input.getValue();
+
+  if (activeGeo != this.model_.dataSettings.activeGeo) {
+    // this.dropChartSettings('getSeries');
+    this.chooseActiveGeo(activeGeo);
+
+    this.dispatchUpdate();
+  }
+};
+
+
 anychart.chartEditor2Module.EditorModel.prototype.onChangeView = function() {
   if (this.model_.generateInitialMappingsOnChangeView) {
     this.model_.generateInitialMappingsOnChangeView = false;
     this.chooseDefaultChartType();
     this.chooseActiveAndField();
+    this.chooseActiveGeo();
   }
 };
 
@@ -386,8 +424,8 @@ anychart.chartEditor2Module.EditorModel.prototype.setChartType = function(input)
 
 
 anychart.chartEditor2Module.EditorModel.prototype.needResetMappings = function(prevChartType, newChartType) {
-  return prevChartType == 'stock' ||
-      newChartType == 'stock' ||
+  return (prevChartType == 'stock' || newChartType == 'stock') ||
+      (prevChartType == 'map' || newChartType == 'map') ||
       newChartType == 'pie';
 };
 
@@ -673,9 +711,11 @@ anychart.chartEditor2Module.EditorModel.prototype.removeData = function(setFullI
   delete this.data_[setFullId];
   this.preparedData_.length = 0;
 
-  if (setFullId == this.model_.dataSettings.active) {
+  if (setFullId == this.model_.dataSettings.active)
     this.chooseActiveAndField();
-  }
+
+  if (setFullId == this.model_.dataSettings.activeGeo)
+    this.chooseActiveGeo();
 
   this.dispatchUpdate();
 };
@@ -716,9 +756,22 @@ anychart.chartEditor2Module.EditorModel.prototype.getActive = function() {
 };
 
 
+anychart.chartEditor2Module.EditorModel.prototype.getActiveGeo = function() {
+  return this.model_.dataSettings.activeGeo;
+};
+
+
 anychart.chartEditor2Module.EditorModel.prototype.getRawData = function() {
   var dataSet = this.data_[this.getActive()];
   return dataSet ? dataSet['data'] : null;
+};
+
+
+anychart.chartEditor2Module.EditorModel.prototype.getGeoData = function() {
+  var result = goog.object.filter(this.data_, function(item){
+    return item['type'] == anychart.chartEditor2Module.EditorModel.dataType.GEO;
+  });
+  return result;
 };
 
 

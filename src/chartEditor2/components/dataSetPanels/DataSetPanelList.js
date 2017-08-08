@@ -42,12 +42,15 @@ anychart.chartEditor2Module.DataSetPanelList.prototype.update = function() {
   goog.disposeAll(this.panels_);
   this.panels_.length = 0;
 
+  var chartType = this.model_.getValue([['chart'], 'type']);
   var active = this.model_.getActive();
+  var activeGeo = this.model_.getActiveGeo();
   var data = this.model_.getPreparedData();
 
   for(var i = 0; i < data.length; i++) {
     this.panels_.push(new anychart.chartEditor2Module.DataSetPanel(data[i]));
     this.addChild(this.panels_[i], true);
     this.panels_[i].setDisabled(this.panels_[i].getSetFullId() != active);
+    this.panels_[i].setActiveGeo(chartType == 'map' && this.panels_[i].getSetFullId() == activeGeo);
   }
 };
