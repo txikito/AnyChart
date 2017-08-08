@@ -51,9 +51,55 @@ anychart.chartEditor2Module.EditorModel.Key;
 anychart.chartEditor2Module.EditorModel.chartTypes = {
   'line': {
     'value': 'line',
-    'name': 'Line Chart',
+    'name': 'Line',
     'icon': 'line-chart-1.svg', // 'http://www.anychart.com/_design/img/upload/charts/types/'
     'series': ['line', 'spline', 'column', 'area', 'ohlc'], // first value is default
+    'dataSetCtor': 'set'
+  },
+  'area': {
+    'value': 'area',
+    'name': 'Area',
+    'icon': 'area-chart.svg',
+    'series': ['area', 'line', 'spline', 'column', 'ohlc'],
+    'dataSetCtor': 'set'
+  },
+  'area-stacked-value': {
+    'value': 'area',
+    'stackMode': 'value',
+    'name': 'Area stacked (value)',
+    'icon': 'stacked-area-chart.svg',
+    'series': ['area', 'line', 'spline', 'column', 'ohlc'],
+    'dataSetCtor': 'set'
+  },
+  'area-stacked-percent': {
+    'value': 'area',
+    'stackMode': 'percent',
+    'name': 'Area stacked (percent)',
+    'icon': 'percent-stacked-area-chart.svg',
+    'series': ['area', 'line', 'spline', 'column', 'ohlc'],
+    'dataSetCtor': 'set'
+  },
+  'bar': {
+    'value': 'bar',
+    'name': 'Bar',
+    'icon': 'bar-chart.svg',
+    'series': ['bar', 'line', 'spline', 'area', 'ohlc'],
+    'dataSetCtor': 'set'
+  },
+  'bar-stacked-volume': {
+    'value': 'bar',
+    'stackMode': 'value',
+    'name': 'Bar stacked (value)',
+    'icon': 'stacked-bar-chart.svg',
+    'series': ['bar', 'line', 'spline', 'area', 'ohlc'],
+    'dataSetCtor': 'set'
+  },
+  'bar-stacked-percent': {
+    'value': 'bar',
+    'stackMode': 'percent',
+    'name': 'Bar stacked (percent)',
+    'icon': 'percent-stacked-bar-chart.svg',
+    'series': ['bar', 'line', 'spline', 'area', 'ohlc'],
     'dataSetCtor': 'set'
   },
   'column': {
@@ -79,19 +125,19 @@ anychart.chartEditor2Module.EditorModel.chartTypes = {
     'series': ['column', 'line', 'spline', 'area', 'ohlc'],
     'dataSetCtor': 'set'
   },
-  'area': {
-    'value': 'area',
-    'name': 'Area Chart',
-    'icon': 'area-chart.svg',
-    'series': ['area', 'line', 'spline', 'column', 'ohlc'],
-    'dataSetCtor': 'set'
-  },
   'stock': {
     'value': 'stock',
-    'name': 'Stock Chart',
+    'name': 'Stock',
     'icon': 'stock-chart.svg',
     'series': ['ohlc', 'line', 'spline', 'column', 'area'],
     'dataSetCtor': 'table'
+  },
+  'pie': {
+    'value': 'pie',
+    'name': 'Pie',
+    'icon': 'pie-chart.svg',
+    'series': ['pie'],
+    'dataSetCtor': 'set'
   }
 };
 
@@ -106,6 +152,9 @@ anychart.chartEditor2Module.EditorModel.series = {
   'column': {
     'fields': [{'field': 'value', 'name': 'Y Value'}]
   },
+  'bar': {
+    'fields': [{'field': 'value', 'name': 'Y Value'}]
+  },
   'area': {
     'fields': [{'field': 'value', 'name': 'Y Value'}]
   },
@@ -115,6 +164,9 @@ anychart.chartEditor2Module.EditorModel.series = {
       {'field': 'close'},
       {'field': 'high'},
       {'field': 'low'}]
+  },
+  'pie': {
+    'fields': [{'field': 'value', 'name': 'Value'}]
   }
 };
 
@@ -326,7 +378,9 @@ anychart.chartEditor2Module.EditorModel.prototype.setChartType = function(input)
 
 
 anychart.chartEditor2Module.EditorModel.prototype.needResetMappings = function(prevChartType, newChartType) {
-  return prevChartType == 'stock' || this.model_.chart.type == 'stock';
+  return prevChartType == 'stock' ||
+      newChartType == 'stock' ||
+      newChartType == 'pie';
 };
 
 

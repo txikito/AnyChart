@@ -93,22 +93,25 @@ anychart.chartEditor2Module.Chart.prototype.update = function(opt_evt) {
         }
         var mappingInstance = dataSet['mapAs'](mappingObj);
 
-        // Create series
-        var seriesCtor = plotMapping[j]['ctor'];
-        var series;
-        if (settings['chart']['type'] == 'stock') {
-          var plot = this.chart_['plot'](i);
-          series = plot[seriesCtor](mappingInstance);
+        if (settings['chart']['type'] == 'pie') {
+          this.chart_['data'](mappingInstance);
+
         } else {
-          series = this.chart_[seriesCtor](mappingInstance);
+          var seriesCtor = plotMapping[j]['ctor'];
+          var series;
+          if (settings['chart']['type'] == 'stock') {
+            var plot = this.chart_['plot'](i);
+            series = plot[seriesCtor](mappingInstance);
+          } else {
+            series = this.chart_[seriesCtor](mappingInstance);
+          }
+
+          var id = plotMapping[j]['id'];
+          if (goog.isDef(id))
+            series['id'](id);
+          else
+            plotMapping[j]['id'] = series['id']();
         }
-
-
-        var id = plotMapping[j]['id'];
-        if (goog.isDef(id))
-          series['id'](id);
-        else
-          plotMapping[j]['id'] = series['id']();
       }
     }
   }

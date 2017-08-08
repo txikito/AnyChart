@@ -70,9 +70,20 @@ anychart.chartEditor2Module.PlotPanel.prototype.update = function() {
     this.addChild(series, true);
   }
 
-  this.addSeriesBtn_ = new goog.ui.Button('Add series');
-  this.addChild(this.addSeriesBtn_, true);
+  if (this.addSeriesBtn_) {
+    // Убрать старую кнопку
+    this.getHandler().unlisten(this.addSeriesBtn_, goog.ui.Component.EventType.ACTION, this.onAddSeries_);
+    this.removeChild(this.addSeriesBtn_, true);
+    this.addSeriesBtn_.dispose();
+    this.addSeriesBtn_ = null;
+  }
 
+  var chartType = this.editor_.getModel().getValue([['chart'], 'type']);
+  if (chartType != 'pie') {
+    this.addSeriesBtn_ = new goog.ui.Button('Add series');
+    this.addChildAt(this.addSeriesBtn_, this.getChildCount(), true);
+    this.getHandler().listen(this.addSeriesBtn_, goog.ui.Component.EventType.ACTION, this.onAddSeries_);
+  }
 };
 
 
@@ -85,10 +96,11 @@ anychart.chartEditor2Module.PlotPanel.prototype.enterDocument = function() {
     this.getHandler().listen(this.close_, goog.events.EventType.CLICK, function() {
       this.editor_.getModel().dropPlot(this.index_);
     });
+};
 
-  this.getHandler().listen(this.addSeriesBtn_, goog.ui.Component.EventType.ACTION, function() {
-    this.editor_.getModel().addSeries(this.index_);
-  });
+
+anychart.chartEditor2Module.PlotPanel.prototype.onAddSeries_ = function() {
+  this.editor_.getModel().addSeries(this.index_);
 };
 
 
