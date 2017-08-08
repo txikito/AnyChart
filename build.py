@@ -53,7 +53,7 @@ CLOSURE_BUILDER_PATH = os.path.join(CLOSURE_BIN_PATH, 'build', 'closurebuilder.p
 
 # special files
 STAT_REPORT_OUT_PATH = os.path.join(OUT_PATH, 'size.stat.json')
-MODULES_CONFIG_PATH = os.path.join(PROJECT_PATH, 'modules.json')
+MODULES_CONFIG_PATH = os.path.join(PROJECT_PATH, 'bin', 'modules.json')
 VERSION_INI_PATH = os.path.join(PROJECT_PATH, 'version.ini')
 ANYCHART_DEPS_PATH = os.path.join(SRC_PATH, 'deps.js')
 CLOSURE_DEPS_PATH = os.path.join(CLOSURE_SOURCE_PATH, 'deps.js')
@@ -686,6 +686,11 @@ def __compile_project(*args, **kwargs):
             modules_json['parts'][part] = {'deps': part_config.get('deps', [])}
         for bundle, parts in built_bundles.iteritems():
             modules_json['modules'][bundle] = {'parts': parts}
+            if bundle in bundles:
+                if 'type' in bundles[bundle]: modules_json['modules'][bundle]['type'] = bundles[bundle]['type']
+                if 'name' in bundles[bundle]: modules_json['modules'][bundle]['name'] = bundles[bundle]['name']
+                if 'icon' in bundles[bundle]: modules_json['modules'][bundle]['icon'] = bundles[bundle]['icon']
+        modules_json['themes'] = __get_modules_config()['themes']
         with open(MODULES_CONFIG_OUT_PATH, 'w') as f:
             f.write(json.dumps(modules_json))
 
