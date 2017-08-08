@@ -58,6 +58,11 @@ VERSION_INI_PATH = os.path.join(PROJECT_PATH, 'version.ini')
 ANYCHART_DEPS_PATH = os.path.join(SRC_PATH, 'deps.js')
 CLOSURE_DEPS_PATH = os.path.join(CLOSURE_SOURCE_PATH, 'deps.js')
 
+CHECKS_FLAGS = os.path.join(PROJECT_PATH, 'bin', 'checks.flags')
+COMMON_FLAGS = os.path.join(PROJECT_PATH, 'bin', 'common.flags')
+BINARIES_WRAPPER_START = os.path.join(PROJECT_PATH, 'bin', 'binaries_wrapper_start.txt')
+BINARIES_WRAPPER_END = os.path.join(PROJECT_PATH, 'bin', 'binaries_wrapper_end.txt')
+
 
 # endregion
 # region --- Utils
@@ -291,6 +296,7 @@ def __parse_deps():
                             raise Exception('Duplicate namespace %s provided in file %s. Original provide in %s' %
                                             (ns, file_name, result[ns][0]))
                         result[ns] = (file_name, provides, requires)
+
     result = dict()
     __parse_file(CLOSURE_DEPS_PATH)
     __parse_file(ANYCHART_DEPS_PATH)
@@ -317,7 +323,7 @@ def __call_console_commands(commands):
 
 
 def __compile(entry_point=None, output=None, js_files=True, level="ADVANCED_OPTIMIZATIONS", theme=None,
-              flag_file='common.flags', defines=None, version=False, dev_edition=None, perf_mon=None,
+              flag_file=COMMON_FLAGS, defines=None, version=False, dev_edition=None, perf_mon=None,
               additional_params=None, manifest=None, checks_only=False, debug_files=None, externs=None):
     def make_define(*args):
         if isinstance(args[0], tuple):
@@ -523,7 +529,7 @@ def __make_build(build_name, modules, checks_only=False, theme_name='none', dev_
         all_files.extend(module_files)
 
     with open(files_list_file_name, 'w') as files_list:
-        with open(os.path.join(PROJECT_PATH, 'checks.flags'), 'r') as checks:
+        with open(CHECKS_FLAGS, 'r') as checks:
             for line in checks:
                 files_list.write(line)
         files_list.write('\n'.join(map(lambda f: '--js="%s"' % f, all_files)))
@@ -589,35 +595,28 @@ def __get_bundle_wrapper(bundle_name, modules, file_name='', performance_monitor
                    "window.performance.now():+new Date()-window.anychart_%s_init_start).toFixed(5),'ms');" \
                    "delete window.anychart_%s_init_start;" % (bundle_name, bundle_name, bundle_name)
     source_mapping = ('//# sourceMappingURL=%s.map' % file_name) if debug_files else ''
-    header = '''/**
- * AnyChart is lightweight robust charting library with great API and Docs,
- * that works with your stack and has tons of chart types and features.
- *
- * This file contains following modules: %s
- * Version: %s (%s)
- * License: http://www.anychart.com/buy/
- * Contact: sales@anychart.com
- * Copyright: AnyChart.com %s. All rights reserved.
- */
-''' % (', '.join(modules), __get_build_version(), time.strftime('%Y-%m-%d'), time.strftime('%Y'))
+
+    f = open(BINARIES_WRAPPER_START, 'r')
+    start = f.read()
+    f.close()
+
+    f = open(BINARIES_WRAPPER_END, 'r')
+    end = f.read()
+    f.close()
+
     core_check = '' \
         if any(map(lambda item: __get_modules_config()['parts'][item].get('skipCoreCheck', False), modules)) \
         else "throw Error('anychart-base.min.js module should be included first');"
-    start = "%s(function(global,factory){" \
-            "if(typeof module==='object'&&typeof module.exports==='object'){" \
-            "var wrapper=function(w){" \
-            "if(!w.document){throw Error('AnyChart requires a window with a document');}" \
-            "factory.call(w,w,w.document);" \
-            "w.anychart.getGlobal=function(){return w;};" \
-            "return w.anychart;};" \
-            "module.exports=global.document?wrapper(global):wrapper;" \
-            "}else{" \
-            "factory.call(global,window,document)" \
-            "}})(typeof window!=='undefined'?window:this,function(window,document,opt_noGlobal){" \
-            "var $,_,$_=window.anychart;%s" \
-            "if($_&&(_=$_._)){$=$_.$}else{%s$={};_={}}" % \
-            (header, perf_start, core_check)
-    end = '%s$_=window.anychart;$_.$=$;$_._=_})%s' % (perf_end, source_mapping)
+
+    start = start % (
+        ', '.join(modules),
+        __get_build_version(),
+        time.strftime('%Y-%m-%d'),
+        time.strftime('%Y'),
+        perf_start,
+        core_check
+    )
+    end = end % (perf_end, source_mapping)
 
     return start, end
 
@@ -630,7 +629,7 @@ def __get_bundle_wrapper(bundle_name, modules, file_name='', performance_monitor
 def build_theme(theme):
     min_file_name = os.path.join(OUT_PATH, theme + '.min.js')
     file_name = os.path.join(OUT_PATH, theme + '.js')
-    __compile(__get_theme_entry_point(theme), min_file_name, flag_file='checks.flags')
+    __compile(__get_theme_entry_point(theme), min_file_name, flag_file=CHECKS_FLAGS)
     try:
         import jsbeautifier
         res = jsbeautifier.beautify_file(min_file_name)
@@ -800,7 +799,7 @@ def __stat(*args, **kwargs):
 
     if not kwargs['skip_building']:
         with open(files_list_file_name, 'w') as files_list:
-            with open(os.path.join(PROJECT_PATH, 'checks.flags'), 'r') as checks:
+            with open(CHECKS_FLAGS, 'r') as checks:
                 for line in checks:
                     files_list.write(line)
             files_list.write('\n'.join(map(lambda f: '--js="%s"' % f, all_files)))

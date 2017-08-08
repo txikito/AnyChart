@@ -248,48 +248,64 @@
 
     "anychart-annotations": {
       "type": "feature",
+      "name": "Drawing Annotations",
+      "icon": "/products/anystock/history/images/stock_drawing_tools.svg",
       "parts": [
         "annotations"
       ]
     },
     "anychart-chart-editor": {
       "type": "feature",
+      "name": "Chart Editor",
+      "icon": "/_design/img/upload/charts/types/area-chart.svg",
       "parts": [
         "chart-editor"
       ]
     },
     "anychart-data-adapter": {
       "type": "feature",
+      "name": "Data Adapter",
+      "icon": "/_design/img/upload/charts/types/area-chart.svg",
       "parts": [
         "data-adapter"
       ]
     },
     "anychart-exports": {
       "type": "feature",
+      "name": "Exports",
+      "icon": "/_design/img/upload/charts/types/area-chart.svg",
       "parts": [
         "exports"
       ]
     },
     "anychart-table": {
       "type": "feature",
+      "name": "Table UI",
+      "icon": "/_design/img/upload/charts/types/area-chart.svg",
       "parts": [
         "table"
       ]
     },
     "anychart-ui": {
       "type": "feature",
+      "name": "Common UI",
+      "icon": "/_design/img/upload/charts/types/area-chart.svg",
       "parts": [
         "ui"
       ]
     },
     "anychart-ui-binding": {
       "type": "feature",
+      "name": "UI Binding",
+      "icon": "/_design/img/upload/charts/types/area-chart.svg",
       "parts": [
         "binding"
       ]
     },
     "anychart-vml": {
       "type": "feature",
+      "name": "VML Renderer",
+      "icon": "/_design/img/upload/charts/types/area-chart.svg",
       "parts": [
         "vml"
       ]
@@ -297,24 +313,32 @@
 
     "anychart-bullet": {
       "type": "chart-type",
+      "name": "Bullet Charts",
+      "icon": "/_design/img/upload/charts/types/bullet-chart.svg",
       "parts": [
         "bullet"
       ]
     },
     "anychart-cartesian-3d": {
       "type": "chart-type",
+      "name": "3D Cartesian Charts",
+      "icon": "/_design/img/upload/charts/types/area-chart.svg",
       "parts": [
         "cartesian-3d"
       ]
     },
     "anychart-circular-gauge": {
       "type": "chart-type",
+      "name": "Circular Gauges",
+      "icon": "/_design/img/upload/charts/types/circular-gauge.svg",
       "parts": [
         "circular-gauge"
       ]
     },
     "anychart-linear-gauge": {
       "type": "chart-type",
+      "name": "Linear Gauges",
+      "icon": "/_design/img/upload/charts/types/vertical-gauge-1.svg",
       "parts": [
         "color-scales",
         "linear-gauge-part"
@@ -322,60 +346,80 @@
     },
     "anychart-mekko": {
       "type": "chart-type",
+      "name": "Mekko Charts",
+      "icon": "/_design/img/upload/charts/types/mosaic-chart.svg",
       "parts": [
         "mekko"
       ]
     },
     "anychart-pareto": {
       "type": "chart-type",
+      "name": "Pareto Chart",
+      "icon": "/_design/img/upload/charts/types/pareto-chart.svg",
       "parts": [
         "pareto"
       ]
     },
     "anychart-pyramid-funnel": {
       "type": "chart-type",
+      "name": "Pyramid and Funnel Charts",
+      "icon": "/_design/img/upload/charts/types/funnel-chart.svg",
       "parts": [
         "pyramid-funnel"
       ]
     },
     "anychart-resource": {
       "type": "chart-type",
+      "name": "Resource Chart",
+      "icon": "/_design/img/upload/charts/types/area-chart.svg",
       "parts": [
         "resource"
       ]
     },
     "anychart-sparkline": {
       "type": "chart-type",
+      "name": "Sparkline Charts",
+      "icon": "/_design/img/upload/charts/types/sparkline-chart-1.svg",
       "parts": [
         "sparkline"
       ]
     },
     "anychart-stock": {
       "type": "chart-type",
+      "name": "Stock Charts",
+      "icon": "/_design/img/upload/charts/types/stock-chart.svg",
       "parts": [
         "stock"
       ]
     },
     "anychart-venn": {
       "type": "chart-type",
+      "name": "Venn Diagram",
+      "icon": "/_design/img/upload/charts/types/venn-diagram.svg",
       "parts": [
         "venn"
       ]
     },
     "anychart-waterfall": {
       "type": "chart-type",
+      "name": "Waterfall Chart",
+      "icon": "/_design/img/upload/charts/types/waterfall-chart.svg",
       "parts": [
         "waterfall"
       ]
     },
     "anychart-cartesian": {
       "type": "chart-type",
+      "name": "Cartesian Charts",
+      "icon": "/_design/img/upload/charts/types/area-chart.svg",
       "parts": [
         "cartesian"
       ]
     },
     "anychart-scatter": {
       "type": "chart-type",
+      "name": "Scatter Charts",
+      "icon": "/_design/img/upload/charts/types/dot-marker-chart.svg",
       "parts": [
         "cartesian",
         "scatter"
@@ -383,12 +427,16 @@
     },
     "anychart-pie": {
       "type": "chart-type",
+      "name": "Pie and Donut Charts",
+      "icon": "/_design/img/upload/charts/types/pie-chart.svg",
       "parts": [
         "pie"
       ]
     },
     "anychart-radar": {
       "type": "chart-type",
+      "name": "Radar Charts",
+      "icon": "/_design/img/upload/charts/types/radar-chart-1.svg",
       "parts": [
         "radar-polar-base",
         "radar-part"
@@ -396,6 +444,8 @@
     },
     "anychart-polar": {
       "type": "chart-type",
+      "name": "Polar Charts",
+      "icon": "/_design/img/upload/charts/types/polar-polyline-chart.svg",
       "parts": [
         "radar-polar-base",
         "polar-part"
@@ -403,6 +453,8 @@
     },
     "anychart-gantt": {
       "type": "chart-type",
+      "name": "Gantt Charts",
+      "icon": "/_design/img/upload/charts/types/gantt-chart.svg",
       "parts": [
         "tree-data",
         "gantt-part"
@@ -410,6 +462,8 @@
     },
     "anychart-heatmap": {
       "type": "chart-type",
+      "name": "Heatmap Chart",
+      "icon": "/_design/img/upload/charts/types/heatmap-chart.svg",
       "parts": [
         "color-scales",
         "heatmap-part"
@@ -417,6 +471,8 @@
     },
     "anychart-map": {
       "type": "chart-type",
+      "name": "Geo Maps",
+      "icon": "/_design/img/upload/charts/types/choropleth-map.svg",
       "parts": [
         "color-scales",
         "map-part"
@@ -424,6 +480,8 @@
     },
     "anychart-pert": {
       "type": "chart-type",
+      "name": "Pert Chart",
+      "icon": "/_design/img/upload/charts/types/pert-chart.svg",
       "parts": [
         "tree-data",
         "pert"
@@ -431,6 +489,8 @@
     },
     "anychart-tag-cloud": {
       "type": "chart-type",
+      "name": "Tag Cloud (Word Cloud)",
+      "icon": "/_design/img/upload/charts/types/tag-cloud.svg",
       "parts": [
         "color-scales",
         "tag-cloud-part"
@@ -438,6 +498,8 @@
     },
     "anychart-treemap": {
       "type": "chart-type",
+      "name": "Treemap",
+      "icon": "/_design/img/upload/charts/types/treemap-chart.svg",
       "parts": [
         "tree-data",
         "color-scales",
