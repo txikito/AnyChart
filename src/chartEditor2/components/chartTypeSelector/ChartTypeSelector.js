@@ -56,7 +56,8 @@ anychart.chartEditor2Module.ChartTypeSelector.prototype.createDom = function() {
 
 
 anychart.chartEditor2Module.ChartTypeSelector.prototype.update = function() {
-  this.chartTypeSelect_.setValueByModel();
+  var stackMode = this.editor_.getModel().getValue([['chart'], ['settings'], 'yScale().stackMode()']);
+  this.chartTypeSelect_.setValueByModel(stackMode);
 
   this.typeIcon_.setAttribute('src', this.chartTypeSelect_.getIcon());
 

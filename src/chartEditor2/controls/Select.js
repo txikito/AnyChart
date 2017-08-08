@@ -73,7 +73,6 @@ anychart.chartEditor2Module.controls.Select.prototype.setValueByModel = function
     this.setValue(value, opt_value2);
 
   if (!this.getSelectedItem()) {
-    debugger;
     console.warn("no model value by key:", this.key_);
   }
 

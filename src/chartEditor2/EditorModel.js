@@ -58,8 +58,24 @@ anychart.chartEditor2Module.EditorModel.chartTypes = {
   },
   'column': {
     'value': 'column',
-    'name': 'Column Chart',
+    'name': 'Column',
     'icon': 'column-chart.svg',
+    'series': ['column', 'line', 'spline', 'area', 'ohlc'],
+    'dataSetCtor': 'set'
+  },
+  'column-stacked-volume': {
+    'value': 'column',
+    'stackMode': 'value',
+    'name': 'Column stacked (value)',
+    'icon': 'stacked-column-chart.svg',
+    'series': ['column', 'line', 'spline', 'area', 'ohlc'],
+    'dataSetCtor': 'set'
+  },
+  'column-stacked-percent': {
+    'value': 'column',
+    'stackMode': 'percent',
+    'name': 'Column stacked (percent)',
+    'icon': 'percent-stacked-step-line-area-chart.svg',
     'series': ['column', 'line', 'spline', 'area', 'ohlc'],
     'dataSetCtor': 'set'
   },
@@ -82,23 +98,23 @@ anychart.chartEditor2Module.EditorModel.chartTypes = {
 
 anychart.chartEditor2Module.EditorModel.series = {
   'line': {
-    'fields': [{field: 'value', name: 'Y Value'}]
+    'fields': [{'field': 'value', 'name': 'Y Value'}]
   },
   'spline': {
-    'fields': [{field: 'value', name: 'Y Value'}]
+    'fields': [{'field': 'value', 'name': 'Y Value'}]
   },
   'column': {
-    'fields': [{field: 'value', name: 'Y Value'}]
+    'fields': [{'field': 'value', 'name': 'Y Value'}]
   },
   'area': {
-    'fields': [{field: 'value', name: 'Y Value'}]
+    'fields': [{'field': 'value', 'name': 'Y Value'}]
   },
   'ohlc': {
     'fields': [
-      {field: 'open'},
-      {field: 'close'},
-      {field: 'high'},
-      {field: 'low'}]
+      {'field': 'open'},
+      {'field': 'close'},
+      {'field': 'high'},
+      {'field': 'low'}]
   }
 };
 
@@ -273,19 +289,62 @@ anychart.chartEditor2Module.EditorModel.prototype.dropSeries = function(plotInde
 
 anychart.chartEditor2Module.EditorModel.prototype.setChartType = function(input) {
   var type = input.getValue();
+  var stackMode = input.getValue2();
+
   var prevChartType = this.model_.chart.type;
   var prevDefaultSeriesType = this.model_.chart.seriesType;
 
   this.model_.chart.type = type;
   this.chooseDefaultSeriesType();
 
-  if (prevChartType == 'stock' || this.model_.chart.type == 'stock') {
+  if (this.needResetMappings(prevChartType, type)) {
     this.dropChartSettings();
     this.model_.dataSettings.mappings = [this.createPlotMapping()];
+  } else {
+    // Update default series
+    for (var i = 0; i < this.model_.dataSettings.mappings.length; i++) {
+      for (var j = 0; j < this.model_.dataSettings.mappings[i].length; j++) {
+        var seriesConfig = this.model_.dataSettings.mappings[i][j];
+        if (prevDefaultSeriesType == seriesConfig['ctor']) {
+          if (this.checkSeriesFieldsCompatible(prevDefaultSeriesType, this.model_.chart.seriesType)) {
+            this.model_.dataSettings.mappings[i][j]['ctor'] = this.model_.chart.seriesType;
+          }
+        }
+      }
+    }
   }
-  // this.updateSeriesConstructors();
+
+  this.dropChartSettings("stackMode(");
+  if (stackMode) {
+    if (this.model_.chart.type != 'stock') {
+      this.setValue([['chart'], ['settings'], 'yScale().stackMode()'], stackMode);
+    }
+  }
 
   this.dispatchUpdate();
+};
+
+
+anychart.chartEditor2Module.EditorModel.prototype.needResetMappings = function(prevChartType, newChartType) {
+  return prevChartType == 'stock' || this.model_.chart.type == 'stock';
+};
+
+
+anychart.chartEditor2Module.EditorModel.prototype.checkSeriesFieldsCompatible = function(seriesType1, seriesType2) {
+  var fields1 = anychart.chartEditor2Module.EditorModel.series[seriesType1]['fields'];
+  var fields2 = anychart.chartEditor2Module.EditorModel.series[seriesType2]['fields'];
+  var compatible = true;
+  if (fields1.length == fields2.length) {
+    for (var i = fields1.length; i--;) {
+      if (fields1[i]['field'] != fields2[i]['field']) {
+        compatible = false;
+        break;
+      }
+    }
+  } else
+    compatible = false;
+
+  return compatible;
 };
 
 
