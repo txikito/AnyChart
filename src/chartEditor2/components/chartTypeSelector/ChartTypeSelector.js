@@ -70,6 +70,14 @@ anychart.chartEditor2Module.ChartTypeSelector.prototype.update = function() {
   }
 
   if (chartType == 'map') {
+    // Dataset select
+    this.xValueSelect_ = new anychart.chartEditor2Module.controls.SelectWithLabel('x', 'Data set');
+    this.xValueSelect_.setEditorModel(this.editor_.getModel(), [['dataSettings'], 'field'], 'setActiveField');
+    this.addChild(this.xValueSelect_, true);
+
+    this.createDataSetsOptions_();
+    this.xValueSelect_.setValueByModel(this.editor_.getModel().getActive());
+
     // Geo data select
     this.geoDataSelect_ = new anychart.chartEditor2Module.controls.SelectWithLabel('activeGeo', 'Geo data');
 
@@ -91,8 +99,7 @@ anychart.chartEditor2Module.ChartTypeSelector.prototype.update = function() {
     this.addChild(this.xValueSelect_, true);
 
     this.createXValuesOptions_();
-    var activeDatasetId = this.editor_.getModel().getActive();
-    this.xValueSelect_.setValueByModel(activeDatasetId);
+    this.xValueSelect_.setValueByModel(this.editor_.getModel().getActive());
   }
 
   // Plots
@@ -133,6 +140,22 @@ anychart.chartEditor2Module.ChartTypeSelector.prototype.enterDocument = function
 };
 
 
+anychart.chartEditor2Module.ChartTypeSelector.prototype.createDataSetsOptions_ = function() {
+  for (var a = this.xValueSelect_.getItemCount(); a--;) {
+    this.xValueSelect_.removeItemAt(a);
+  }
+
+  var data = this.editor_.getModel().getPreparedData();
+  for(var i = 0; i < data.length; i++) {
+    var fields = data[i]['fields'];
+    var caption = data[i]['title'];
+    var setFullId = data[i]['setFullId'];
+    var item = new anychart.chartEditor2Module.controls.MenuItemWithTwoValues(caption, fields[0]['key'], setFullId);
+    this.xValueSelect_.addItem(item);
+  }
+};
+
+
 anychart.chartEditor2Module.ChartTypeSelector.prototype.createXValuesOptions_ = function() {
   for (var a = this.xValueSelect_.getItemCount(); a--;) {
     this.xValueSelect_.removeItemAt(a);
@@ -143,7 +166,8 @@ anychart.chartEditor2Module.ChartTypeSelector.prototype.createXValuesOptions_ = 
     var fields = data[i]['fields'];
     for(var j = 0; j < fields.length; j++) {
       var caption = data.length == 1 ? fields[j]['name'] : data[i]['title'] + ' - ' + fields[j]['name'];
-      var setFullId = data[i]['type'] + data[i]['setId'];
+      // var setFullId = data[i]['type'] + data[i]['setId'];
+      var setFullId = data[i]['setFullId'];
       var item = new anychart.chartEditor2Module.controls.MenuItemWithTwoValues(caption, fields[j]['key'], setFullId);
       this.xValueSelect_.addItem(item);
     }

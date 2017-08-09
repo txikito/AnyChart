@@ -144,7 +144,7 @@ anychart.chartEditor2Module.EditorModel.chartTypes = {
     'value': 'map',
     'name': 'Map',
     'icon': 'choropleth-map.svg',
-    'series': ['marker-by-id', 'marker-by-coordinates', 'bubble-by-id', 'bubble-by-coordinates', 'choropleth', 'connector'],
+    'series': ['marker-by-id', 'marker-by-coordinates', 'bubble-by-id', 'bubble-by-coordinates', 'choropleth'],
     'dataSetCtor': 'set'
   },
   'stock': {
@@ -194,7 +194,7 @@ anychart.chartEditor2Module.EditorModel.series = {
     'name': 'Marker (by geoId field)',
     'fields': [
         {'field': 'geoIdField', 'name': 'GeoId Field'},
-        {'field': 'value', 'name': 'Y Value'}
+        {'field': 'value', 'name': 'Value'}
     ]
   },
   'marker-by-coordinates': {
@@ -228,11 +228,7 @@ anychart.chartEditor2Module.EditorModel.series = {
       {'field': 'value', 'name': 'Value'}
     ]
   },
-  'connector': {
-    'fields': [
-        {'field': 'value', 'name': 'Y Value'}
-    ]
-  }
+  // 'connector': {'fields': [{'field': 'value', 'name': 'Y Value'}]}
 };
 
 
