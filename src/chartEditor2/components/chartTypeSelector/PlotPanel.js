@@ -92,10 +92,18 @@ anychart.chartEditor2Module.PlotPanel.prototype.enterDocument = function() {
 
   this.update();
 
+  this.getHandler().listen(this.editor_.getModel(), anychart.chartEditor2Module.events.EventType.EDITOR_MODEL_UPDATE, this.update);
+
   if (this.close_)
     this.getHandler().listen(this.close_, goog.events.EventType.CLICK, function() {
       this.editor_.getModel().dropPlot(this.index_);
     });
+};
+
+
+anychart.chartEditor2Module.PlotPanel.prototype.exitDocument = function() {
+  this.removeAllSeries_();
+  goog.base(this, 'exitDocument');
 };
 
 

@@ -15,8 +15,9 @@ anychart.chartEditor2Module.EditorModel = function() {
 
   this.preparedData_ = [];
 
+  this.generateInitialMappingsOnChangeView_ = true;
+
   this.model_ = {
-    generateInitialMappingsOnChangeView: true,
     dataSettings: {
       active: null,
       activeGeo: null,
@@ -249,27 +250,6 @@ anychart.chartEditor2Module.EditorModel.consistencyObject = {
 
 
 // region Model initialization
-anychart.chartEditor2Module.EditorModel.prototype.chooseDefaultChartType = function() {
-  //todo: придумываем тип чарта на основе данных
-  this.model_.chart.type = 'line';
-};
-
-
-anychart.chartEditor2Module.EditorModel.prototype.chooseActiveAndField = function(opt_active, opt_field) {
-  this.dropChartSettings();
-
-  var preparedData = this.getPreparedData();
-  var active = goog.isDefAndNotNull(opt_active) ? opt_active : preparedData[0]['setFullId'];
-  var field = goog.isDefAndNotNull(opt_field) ? opt_field : preparedData[0]['fields'][0]['key'];
-
-  this.model_.dataSettings.active = active;
-  this.model_.dataSettings.field = field;
-
-  this.chooseDefaultSeriesType();
-  this.model_.dataSettings.mappings = [this.createPlotMapping()];
-};
-
-
 anychart.chartEditor2Module.EditorModel.prototype.chooseActiveGeo = function(opt_activeGeo) {
   var activeGeo = null;
 
@@ -284,9 +264,58 @@ anychart.chartEditor2Module.EditorModel.prototype.chooseActiveGeo = function(opt
     }
   }
 
-  console.log("activeGeo", activeGeo);
   this.model_.dataSettings.activeGeo = activeGeo;
 };
+
+
+anychart.chartEditor2Module.EditorModel.prototype.chooseActiveAndField = function(opt_active, opt_field) {
+  this.dropChartSettings();
+
+  var preparedData = this.getPreparedData();
+  var active = goog.isDefAndNotNull(opt_active) ? opt_active : preparedData[0]['setFullId'];
+  var field = goog.isDefAndNotNull(opt_field) ? opt_field : preparedData[0]['fields'][0]['key'];
+
+  this.model_.dataSettings.active = active;
+  this.model_.dataSettings.field = field;
+};
+
+
+anychart.chartEditor2Module.EditorModel.prototype.chooseDefaultChartType = function() {
+  var chartType = 'line';
+
+  if (this.model_.dataSettings.activeGeo)
+    chartType = 'map';
+  else {
+    var dateField;
+    var fieldValue;
+    var dataRow = this.getRawData()[0];
+    for (var i in dataRow) {
+      fieldValue = dataRow[i];
+      if (goog.isString(fieldValue)) {
+        var dateFromValue = new Date(fieldValue);
+        if (dateFromValue.getTime()) {
+          dateField = i;
+          break;
+        }
+      }
+    }
+    if (dateField) {
+      fieldValue = dataRow[dateField];
+      if (fieldValue.length > 4) {
+        chartType = 'stock';
+      } else {
+        chartType = 'column';
+      }
+    }
+
+  };
+
+  this.model_.chart.type = chartType;
+};
+
+// var isDate = function(date) {
+//   return (new Date(date) !== "Invalid Date") && !isNaN(new Date(date));
+// }
 
 
 anychart.chartEditor2Module.EditorModel.prototype.chooseDefaultSeriesType = function() {
@@ -299,6 +328,11 @@ anychart.chartEditor2Module.EditorModel.prototype.chooseDefaultSeriesType = func
   // console.log(fields);
 
   this.model_.chart.seriesType = seriesType;
+};
+
+
+anychart.chartEditor2Module.EditorModel.prototype.createDefaultMappings = function() {
+  this.model_.dataSettings.mappings = [this.createPlotMapping()];
 };
 
 
@@ -356,6 +390,7 @@ anychart.chartEditor2Module.EditorModel.prototype.setActiveField = function(inpu
 
   if (active != this.model_.dataSettings.active) {
     this.chooseActiveAndField(active, field);
+    this.createDefaultMappings();
 
     this.dropChartSettings('getSeries');
     this.dispatchUpdate();
@@ -382,11 +417,17 @@ anychart.chartEditor2Module.EditorModel.prototype.setActiveGeo = function(input)
 
 
 anychart.chartEditor2Module.EditorModel.prototype.onChangeView = function() {
-  if (this.model_.generateInitialMappingsOnChangeView) {
-    this.model_.generateInitialMappingsOnChangeView = false;
-    this.chooseDefaultChartType();
-    this.chooseActiveAndField();
+  console.log("Model.onChangeView()");
+  if (this.generateInitialMappingsOnChangeView_) {
+    this.generateInitialMappingsOnChangeView_ = false;
+
+    this.dropChartSettings();
+
     this.chooseActiveGeo();
+    this.chooseActiveAndField();
+    this.chooseDefaultChartType();
+    this.chooseDefaultSeriesType();
+    this.createDefaultMappings();
   }
 };
 
@@ -435,7 +476,8 @@ anychart.chartEditor2Module.EditorModel.prototype.setChartType = function(input)
 
   if (this.needResetMappings(prevChartType, type)) {
     this.dropChartSettings();
-    this.model_.dataSettings.mappings = [this.createPlotMapping()];
+    this.createDefaultMappings();
+
   } else {
     // Update default series
     for (var i = 0; i < this.model_.dataSettings.mappings.length; i++) {
@@ -746,6 +788,8 @@ anychart.chartEditor2Module.EditorModel.prototype.addData = function(evt) {
   }
   this.preparedData_.length = 0;
 
+  this.generateInitialMappingsOnChangeView_ = true;
+
   this.dispatchUpdate();
 };
 
@@ -754,11 +798,15 @@ anychart.chartEditor2Module.EditorModel.prototype.removeData = function(setFullI
   delete this.data_[setFullId];
   this.preparedData_.length = 0;
 
-  if (setFullId == this.model_.dataSettings.active)
-    this.chooseActiveAndField();
+  this.generateInitialMappingsOnChangeView_ = true;
 
-  if (setFullId == this.model_.dataSettings.activeGeo)
-    this.chooseActiveGeo();
+  // if (setFullId == this.model_.dataSettings.active) {
+  //   this.chooseActiveAndField();
+  //   this.createDefaultMappings();
+  // }
+  //
+  // if (setFullId == this.model_.dataSettings.activeGeo)
+  //   this.chooseActiveGeo();
 
   this.dispatchUpdate();
 };

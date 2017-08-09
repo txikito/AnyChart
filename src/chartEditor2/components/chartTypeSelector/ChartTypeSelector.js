@@ -140,6 +140,12 @@ anychart.chartEditor2Module.ChartTypeSelector.prototype.enterDocument = function
 };
 
 
+anychart.chartEditor2Module.ChartTypeSelector.prototype.exitDocument = function() {
+  this.removeAllPlots_();
+  goog.base(this, 'exitDocument');
+};
+
+
 anychart.chartEditor2Module.ChartTypeSelector.prototype.createDataSetsOptions_ = function() {
   for (var a = this.xValueSelect_.getItemCount(); a--;) {
     this.xValueSelect_.removeItemAt(a);
