@@ -144,6 +144,22 @@ def __gzip_file(f):
         f_out.writelines(f_in)
 
 
+def __get_gzip_file_size(f):
+    gzip_path = f + '.gz'
+    rm_after = False
+
+    if not os.path.exists(gzip_path):
+        __gzip_file(f)
+        rm_after = True
+    size = os.path.getsize(gzip_path)
+
+    if rm_after:
+        os.remove(gzip_path)
+
+    return int(round(size / 1000))
+
+
+
 # endregion
 # region --- Decorators
 # ======================================================================================================================
@@ -690,6 +706,7 @@ def __compile_project(*args, **kwargs):
                 if 'type' in bundles[bundle]: modules_json['modules'][bundle]['type'] = bundles[bundle]['type']
                 if 'name' in bundles[bundle]: modules_json['modules'][bundle]['name'] = bundles[bundle]['name']
                 if 'icon' in bundles[bundle]: modules_json['modules'][bundle]['icon'] = bundles[bundle]['icon']
+                modules_json['modules'][bundle]['size'] = __get_gzip_file_size(os.path.join(OUT_PATH, bundle + '.min.js'))
         modules_json['themes'] = __get_modules_config()['themes']
         with open(MODULES_CONFIG_OUT_PATH, 'w') as f:
             f.write(json.dumps(modules_json))

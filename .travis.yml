@@ -19,6 +19,8 @@ after_success:
   - echo -e "Host $STATIC_HOST\n\tStrictHostKeyChecking no\n" >> ~/.ssh/config
   - ssh $STATIC_HOST_SSH_STRING "mkdir -p /apps/static/js/$TRAVIS_BRANCH/parts && mkdir -p /apps/static/css/$TRAVIS_BRANCH"
   - git rev-parse HEAD >> ./out/commit-hash.txt
+  - scp ./bin/binaries_wrapper_end.txt $STATIC_HOST_SSH_STRING:/apps/static/js/$TRAVIS_BRANCH/binaries_wrapper_end.txt
+  - scp ./bin/binaries_wrapper_start.txt $STATIC_HOST_SSH_STRING:/apps/static/js/$TRAVIS_BRANCH/binaries_wrapper_start.txt
   - cd ./out/
   - zip -r upload.zip *
   - scp upload.zip $STATIC_HOST_SSH_STRING:/apps/static/js/$TRAVIS_BRANCH/upload.zip
