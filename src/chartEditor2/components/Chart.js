@@ -73,7 +73,10 @@ anychart.chartEditor2Module.Chart.prototype.update = function(opt_evt) {
     this.chart_ = this.anychart[settings['chart']['type']]();
 
     if (settings['chart']['type'] == 'map') {
-//      console.log(rawData);
+      var geoData = editorModel.getRawData(true);
+      if (geoData)
+        this.chart_['geoData'](geoData);
+      //console.log(geoData);
     }
 
     // Create data set

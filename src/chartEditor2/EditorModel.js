@@ -766,8 +766,8 @@ anychart.chartEditor2Module.EditorModel.prototype.getActiveGeo = function() {
 };
 
 
-anychart.chartEditor2Module.EditorModel.prototype.getRawData = function() {
-  var dataSet = this.data_[this.getActive()];
+anychart.chartEditor2Module.EditorModel.prototype.getRawData = function(opt_activeGeo) {
+  var dataSet = this.data_[opt_activeGeo ? this.getActiveGeo() : this.getActive()];
   return dataSet ? dataSet['data'] : null;
 };
 
