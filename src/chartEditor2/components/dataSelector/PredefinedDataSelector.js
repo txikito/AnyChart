@@ -56,14 +56,15 @@ anychart.chartEditor2Module.PredefinedDataSelector.prototype.getDataSetUrl = fun
 };
 
 
-anychart.chartEditor2Module.PredefinedDataSelector.prototype.onLoadData = function(json, setId) {
+anychart.chartEditor2Module.PredefinedDataSelector.prototype.onLoadData = function(json, setId, opt_name) {
   if (json['data']) {
     this.dispatchEvent({
       type: anychart.chartEditor2Module.events.EventType.DATA_ADD,
       data: json['data'],
       dataType: this.dataType,
       setId: setId,
-      setFullId: this.dataType + setId
+      setFullId: this.dataType + setId,
+      title: opt_name
     });
   }
 };

@@ -54,13 +54,13 @@ anychart.chartEditor2Module.GeoDataSelector.prototype.getDataSetUrl = function(f
 };
 
 
-anychart.chartEditor2Module.GeoDataSelector.prototype.onLoadData = function(json, setId) {
+anychart.chartEditor2Module.GeoDataSelector.prototype.onLoadData = function(json, setId, opt_name) {
   this.dispatchEvent({
     type: anychart.chartEditor2Module.events.EventType.DATA_ADD,
     data: json,
     dataType: this.dataType,
     setId: setId,
-    setFullId: this.dataType + setId
-
+    setFullId: this.dataType + setId,
+    title: opt_name
   });
 };

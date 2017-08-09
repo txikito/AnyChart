@@ -696,10 +696,15 @@ anychart.chartEditor2Module.EditorModel.prototype.getFullId = function(dataType,
 };
 
 
-anychart.chartEditor2Module.EditorModel.prototype.addData = function(dataType, setId, data) {
-  var id = this.getFullId(dataType, setId);
+anychart.chartEditor2Module.EditorModel.prototype.addData = function(evt) {
+  var id = this.getFullId(evt['dataType'], evt['setId']);
   if (!this.data_[id]) {
-    this.data_[id] = {'type': dataType, 'setId': setId, 'setFullId': id, 'data': data};
+    this.data_[id] = {
+      'setFullId': id,
+      'type': evt['dataType'],
+      'setId': evt['setId'],
+      'title': evt['title'],
+      'data': evt['data']};
   }
   this.preparedData_.length = 0;
 
@@ -799,13 +804,12 @@ anychart.chartEditor2Module.EditorModel.prototype.prepareData_ = function() {
       }
 
       if (joined) {
-        dataSet['name'] = 'Joined set ' + (joinedSets.length + 1);
+        dataSet['title'] = 'Joined set ' + (joinedSets.length + 1);
         joinedSets.push(dataSet);
       } else if (dataSet.type == anychart.chartEditor2Module.EditorModel.dataType.GEO) {
-        dataSet['name'] = 'Geo data ' + (geoSets.length + 1);
         geoSets.push(dataSet);
       } else {
-        dataSet['name'] = 'Data set ' + (singleSets.length + 1);
+        dataSet['title'] = 'Data set ' + (singleSets.length + 1);
         singleSets.push(dataSet);
       }
     }
@@ -818,7 +822,12 @@ anychart.chartEditor2Module.EditorModel.prototype.prepareData_ = function() {
 
 
 anychart.chartEditor2Module.EditorModel.prototype.prepareDataSet_ = function(dataSet) {
-  var result = {type: dataSet['type'], setId: dataSet['setId'], setFullId: dataSet['setFullId']};
+  var result = {
+    type: dataSet['type'],
+    setId: dataSet['setId'],
+    setFullId: dataSet['setFullId'],
+    title: dataSet['title']
+  };
 
   var row = dataSet['type'] == anychart.chartEditor2Module.EditorModel.dataType.GEO ?
       dataSet['data']['features'][0]['properties'] :

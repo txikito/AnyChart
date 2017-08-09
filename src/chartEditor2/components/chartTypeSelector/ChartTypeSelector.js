@@ -73,9 +73,13 @@ anychart.chartEditor2Module.ChartTypeSelector.prototype.update = function() {
     // Geo data select
     this.geoDataSelect_ = new anychart.chartEditor2Module.controls.SelectWithLabel('activeGeo', 'Geo data');
 
-    // todo: задать нормальные имена пунктам
-    var options = goog.object.getKeys(this.editor_.getModel().getGeoData());
+    var geoData = this.editor_.getModel().getGeoData();
+    var options = [];
+    for (var key in geoData) {
+      options.push([geoData[key]['title'], key]);
+    }
     this.geoDataSelect_.setOptions(options);
+
     this.geoDataSelect_.setEditorModel(this.editor_.getModel(), [['dataSettings'], 'activeGeo'], 'setActiveGeo');
     this.addChild(this.geoDataSelect_, true);
     this.geoDataSelect_.setValueByModel();
@@ -138,7 +142,7 @@ anychart.chartEditor2Module.ChartTypeSelector.prototype.createXValuesOptions_ = 
   for(var i = 0; i < data.length; i++) {
     var fields = data[i]['fields'];
     for(var j = 0; j < fields.length; j++) {
-      var caption = data.length == 1 ? fields[j]['name'] : data[i]['name'] + ' - ' + fields[j]['name'];
+      var caption = data.length == 1 ? fields[j]['name'] : data[i]['title'] + ' - ' + fields[j]['name'];
       var setFullId = data[i]['type'] + data[i]['setId'];
       var item = new anychart.chartEditor2Module.controls.MenuItemWithTwoValues(caption, fields[j]['key'], setFullId);
       this.xValueSelect_.addItem(item);

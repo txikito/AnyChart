@@ -240,7 +240,8 @@ anychart.chartEditor2Module.DataSelectorBase.prototype.onClickDownload_ = functi
         function(e) {
           if(e.target.getStatus() == 200) {
             var json = e.target.getResponseJson();
-            self.onLoadData(json, setId);
+
+            self.onLoadData(json, setId, self.dataIndex[setId]['name']);
 
             goog.dom.classlist.add(setEl, 'loaded');
             self.dataIndex[setId]['state'] = anychart.chartEditor2Module.DataSelectorBase.DatasetState.LOADED;
@@ -272,7 +273,7 @@ anychart.chartEditor2Module.DataSelectorBase.prototype.onRemoveData_ = function(
 
 anychart.chartEditor2Module.DataSelectorBase.prototype.getDataSetUrl = function(fileName) {return fileName;};
 
-anychart.chartEditor2Module.DataSelectorBase.prototype.onLoadData = function(json, setId) {};
+anychart.chartEditor2Module.DataSelectorBase.prototype.onLoadData = function(json, setId, opt_name) {};
 
 anychart.chartEditor2Module.DataSelectorBase.prototype.dispatchRemoveData = function(setId) {
   this.dispatchEvent({

@@ -389,7 +389,7 @@ anychart.chartEditor2Module.Editor.prototype.nextBtnClickHandler_ = function() {
 
 
 anychart.chartEditor2Module.Editor.prototype.onDataAdd_ = function(evt) {
-  this.getModel().addData(evt['dataType'], evt['setId'], evt['data']);
+  this.getModel().addData(evt);
 };
 
 

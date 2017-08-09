@@ -103,11 +103,19 @@ anychart.chartEditor2Module.controls.Select.prototype.setOptions = function(opti
   if (this.getItemCount() > 0) return;
 
   goog.array.forEach(options,
-      function(label) {
+      function(option) {
         var item;
-        if (label) {
-          item = new goog.ui.MenuItem(label);
-          item.setId(label);
+        var caption;
+        var value;
+        if (option) {
+          if (goog.isArray(option)) {
+            caption = option[0];
+            value = option[1];
+          } else
+            caption = option;
+
+          item = new goog.ui.MenuItem(caption, value);
+          // item.setId(label);
         } else {
           item = new goog.ui.MenuSeparator();
         }

@@ -69,7 +69,7 @@ anychart.chartEditor2Module.DataSetPanel.prototype.createDom = function() {
   }
 
   element.appendChild(dom.createDom(goog.dom.TagName.DIV, 'inner',
-      dom.createDom(goog.dom.TagName.H4, null, this.data_['name']),
+      dom.createDom(goog.dom.TagName.H4, null, this.data_['title']),
       fields));
 };
 
