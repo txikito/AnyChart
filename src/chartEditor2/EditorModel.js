@@ -144,7 +144,7 @@ anychart.chartEditor2Module.EditorModel.chartTypes = {
     'value': 'map',
     'name': 'Map',
     'icon': 'choropleth-map.svg',
-    'series': ['marker', 'bubble'],
+    'series': ['marker-by-id', 'marker-by-coordinates', 'bubble-by-id', 'bubble-by-coordinates', 'choropleth', 'connector'],
     'dataSetCtor': 'set'
   },
   'stock': {
@@ -153,7 +153,7 @@ anychart.chartEditor2Module.EditorModel.chartTypes = {
     'icon': 'stock-chart.svg',
     'series': ['ohlc', 'line', 'spline', 'column', 'area'],
     'dataSetCtor': 'table'
-  },
+  }
 };
 
 
@@ -187,9 +187,51 @@ anychart.chartEditor2Module.EditorModel.series = {
     'fields': [{'field': 'value', 'name': 'Y Value'}]
   },
   'bubble': {
+    'fields': [{'field': 'value', 'name': 'Value'}, {'field': 'size', 'name': 'Size'}]
+  },
+  // map series
+  'marker-by-id': {
+    'name': 'Marker (by geoId field)',
     'fields': [
-        {'field': 'value', 'name': 'Value'},
-        {'field': 'size', 'name': 'Size'}]
+        {'field': 'geoIdField', 'name': 'GeoId Field'},
+        {'field': 'value', 'name': 'Y Value'}
+    ]
+  },
+  'marker-by-coordinates': {
+    'name': 'Marker (by coordinates)',
+    'fields': [
+        {'field': 'lat', 'name': 'Latitude'},
+        {'field': 'long', 'name': 'Longitude'},
+        {'field': 'value', 'name': 'Value'}
+    ]
+  },
+  'bubble-by-id': {
+    'name': 'Bubble (by geoId field)',
+    'fields': [
+      {'field': 'geoIdField', 'name': 'GeoId Field'},
+      {'field': 'size', 'name': 'Size'},
+      {'field': 'value', 'name': 'Value'}
+    ]
+  },
+  'bubble-by-coordinates': {
+    'name': 'Bubble (by coordinates)',
+    'fields': [
+      {'field': 'lat', 'name': 'Latitude'},
+      {'field': 'long', 'name': 'Longitude'},
+      {'field': 'size', 'name': 'Size'},
+      {'field': 'value', 'name': 'Value'}
+    ]
+  },
+  'choropleth': {
+    'fields': [
+      {'field': 'geoIdField', 'name': 'GeoId Field'},
+      {'field': 'value', 'name': 'Value'}
+    ]
+  },
+  'connector': {
+    'fields': [
+        {'field': 'value', 'name': 'Y Value'}
+    ]
   }
 };
 

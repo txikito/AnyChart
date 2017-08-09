@@ -51,7 +51,11 @@ anychart.chartEditor2Module.SeriesPanel.prototype.createDom = function() {
   var chartType = this.editor_.getModel().getValue([['chart'], 'type']);
   var seriesTypes = anychart.chartEditor2Module.EditorModel.chartTypes[chartType]['series'];
   for (var i = 0; i < seriesTypes.length; i++) {
-    var item = new goog.ui.MenuItem(seriesTypes[i], seriesTypes[i]);
+    var type = seriesTypes[i];
+    var caption = anychart.chartEditor2Module.EditorModel.series[type]['name'] ?
+        anychart.chartEditor2Module.EditorModel.series[type]['name'] :
+        goog.string.capitalize(type);
+    var item = new goog.ui.MenuItem(caption, type);
     this.typeSelect_.addItem(item);
   }
 };

@@ -69,14 +69,13 @@ anychart.chartEditor2Module.Chart.prototype.update = function(opt_evt) {
   }
 
   if (rebuild) {
-    console.log("BUILD CHART");
+    // console.log("BUILD CHART");
     this.chart_ = this.anychart[settings['chart']['type']]();
 
     if (settings['chart']['type'] == 'map') {
       var geoData = editorModel.getRawData(true);
       if (geoData)
         this.chart_['geoData'](geoData);
-      //console.log(geoData);
     }
 
     // Create data set
@@ -98,6 +97,7 @@ anychart.chartEditor2Module.Chart.prototype.update = function(opt_evt) {
           if (seriesMapping.hasOwnProperty(k))
             mappingObj[k] = seriesMapping[k];
         }
+
         var mappingInstance = dataSet['mapAs'](mappingObj);
 
         if (settings['chart']['type'] == 'pie') {
@@ -110,7 +110,15 @@ anychart.chartEditor2Module.Chart.prototype.update = function(opt_evt) {
             var plot = this.chart_['plot'](i);
             series = plot[seriesCtor](mappingInstance);
           } else {
+            if (settings['chart']['type'] == 'map') {
+              seriesCtor = seriesCtor.split('-')[0];
+            }
+
             series = this.chart_[seriesCtor](mappingInstance);
+
+            if (settings['chart']['type'] == 'map' && mappingObj['geoIdField']) {
+              series['geoIdField'](mappingObj['geoIdField']);
+            }
           }
 
           var id = plotMapping[j]['id'];
