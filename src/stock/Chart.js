@@ -55,6 +55,12 @@ anychart.stockModule.Chart = function(opt_allowPointSettings) {
   this.dataController_.listenSignals(this.dataControllerInvalidated_, this);
 
   /**
+   * @type {boolean}
+   * @private
+   */
+  this.preserveSelectedRangeOnDataUpdate_ = false;
+
+  /**
    * Common X scale of all series of the chart.
    * @type {anychart.stockModule.scales.Scatter}
    * @private
@@ -831,6 +837,21 @@ anychart.stockModule.Chart.prototype.scrollerGrouping = function(opt_value) {
 };
 
 
+/**
+ * If the selected range absolute date start and absolute date end should be preserved on data update.
+ * If false - the ratio of start and end points relative to the whole range is preserved.
+ * @param {boolean=} opt_value
+ * @return {anychart.stockModule.Chart|boolean}
+ */
+anychart.stockModule.Chart.prototype.preserveSelectedRangeOnDataUpdate = function(opt_value) {
+  if (goog.isDef(opt_value)) {
+    this.preserveSelectedRangeOnDataUpdate_ = !!opt_value;
+    return this;
+  }
+  return this.preserveSelectedRangeOnDataUpdate_;
+};
+
+
 //endregion
 //region Infrastructure methods
 //----------------------------------------------------------------------------------------------------------------------
@@ -971,7 +992,7 @@ anychart.stockModule.Chart.prototype.drawContent = function(bounds) {
     anychart.performance.start('Stock data calc');
     var xScale = /** @type {anychart.stockModule.scales.Scatter} */(this.xScale());
     var scrollerXScale = /** @type {anychart.stockModule.scales.Scatter} */(this.scroller().xScale());
-    var changed = this.dataController_.refreshSelection(this.minPlotsDrawingWidth_);
+    var changed = this.dataController_.refreshSelection(this.minPlotsDrawingWidth_, this.preserveSelectedRangeOnDataUpdate_, xScale instanceof anychart.stockModule.scales.Ordinal);
     this.dataController_.updateFullScaleRange(xScale);
     this.dataController_.updateFullScaleRange(scrollerXScale);
     if (!!(changed & 1)) {
@@ -2829,4 +2850,5 @@ anychart.stockModule.Chart.prototype.toCsv = function(opt_chartDataExportMode, o
   // proto['zoomMarqueeFill'] = proto.zoomMarqueeFill;
   // proto['zoomMarqueeStroke'] = proto.zoomMarqueeStroke;
   proto['interactivity'] = proto.interactivity;
+  proto['preserveSelectedRangeOnDataUpdate'] = proto.preserveSelectedRangeOnDataUpdate;
 })();

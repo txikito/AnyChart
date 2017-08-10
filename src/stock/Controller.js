@@ -85,7 +85,11 @@ anychart.stockModule.Controller = function() {
     preFirstIndex: NaN,
     lastIndex: NaN,
     postLastIndex: NaN,
-    minDistance: NaN
+    minDistance: NaN,
+    startKeyRatio: NaN,
+    endKeyRatio: NaN,
+    startIndexRatio: NaN,
+    endIndexRatio: NaN
   };
 
   /**
@@ -102,7 +106,11 @@ anychart.stockModule.Controller = function() {
     preFirstIndex: NaN,
     lastIndex: NaN,
     postLastIndex: NaN,
-    minDistance: NaN
+    minDistance: NaN,
+    startKeyRatio: NaN,
+    endKeyRatio: NaN,
+    startIndexRatio: NaN,
+    endIndexRatio: NaN
   };
 
   /**
@@ -250,9 +258,11 @@ anychart.stockModule.Controller.prototype.refreshFullRange = function() {
  *    2 - scroller selection update;
  *    3 - both updated.
  * @param {number} newPixelWidth
+ * @param {boolean} preserveSelectedRange
+ * @param {boolean} useIndexes
  * @return {number}
  */
-anychart.stockModule.Controller.prototype.refreshSelection = function(newPixelWidth) {
+anychart.stockModule.Controller.prototype.refreshSelection = function(newPixelWidth, preserveSelectedRange, useIndexes) {
   this.refreshFullRange();
   var alignedFirst = this.getFirstKey();
   var alignedLast = this.getLastKey();
@@ -264,10 +274,24 @@ anychart.stockModule.Controller.prototype.refreshSelection = function(newPixelWi
   this.currentPixelWidth_ = newPixelWidth;
 
   var startKey = this.currentSelection_.startKey;
-  if (isNaN(startKey) || (this.currentSelectionSticksLeft() && !isNaN(alignedFirst)))
-    startKey = alignedFirst;
   var endKey = this.currentSelection_.endKey;
-  if (isNaN(endKey) || (this.currentSelectionSticksRight() && !isNaN(alignedLast)))
+  if (!isNaN(alignedFirst) &&
+      !isNaN(alignedLast) &&
+      (!preserveSelectedRange || this.currentSelectionSticksLeft() || this.currentSelectionSticksRight())) {
+    var indexesRange;
+    if (useIndexes && !isNaN(indexesRange = this.mainRegistry_.getLastIndex() + 1)) {
+      startKey = this.mainRegistry_.getKeyByIndex(this.currentSelection_.startIndexRatio * indexesRange);
+      endKey = this.mainRegistry_.getKeyByIndex(this.currentSelection_.endIndexRatio * indexesRange);
+    } else {
+      var keysStart = this.mainRegistry_.getFirstKey();
+      var keysRange = this.mainRegistry_.getLastKey() - keysStart;
+      startKey = this.currentSelection_.startKeyRatio * keysRange + keysStart;
+      endKey = this.currentSelection_.endKeyRatio * keysRange + keysStart;
+    }
+  }
+  if (isNaN(startKey))
+    startKey = alignedFirst;
+  if (isNaN(endKey))
     endKey = alignedLast;
 
   var result = 0;
@@ -281,6 +305,8 @@ anychart.stockModule.Controller.prototype.refreshSelection = function(newPixelWi
         this.currentSelection_,
         mainRegistryUpdated);
     if (selectionChanged) {
+      if (selectionChanged[0] != this.mainRegistry_)
+        this.mainRegistry_.normalizeSelectionIndexRatios(selectionChanged[1]);
       this.currentRegistry_ = selectionChanged[0];
       this.currentSelection_ = selectionChanged[1];
       result += 1;
@@ -295,6 +321,8 @@ anychart.stockModule.Controller.prototype.refreshSelection = function(newPixelWi
         this.currentScrollerSelection_,
         mainRegistryUpdated);
     if (scrollerSelectionChanged) {
+      if (scrollerSelectionChanged[0] != this.mainRegistry_)
+        this.mainRegistry_.normalizeSelectionIndexRatios(scrollerSelectionChanged[1]);
       this.currentScrollerRegistry_ = scrollerSelectionChanged[0];
       this.currentScrollerSelection_ = scrollerSelectionChanged[1];
       result += 2;
