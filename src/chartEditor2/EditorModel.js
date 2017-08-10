@@ -187,10 +187,12 @@ anychart.chartEditor2Module.EditorModel.series = {
     'fields': [{'field': 'value', 'name': 'Value'}]
   },
   'marker': {
-    'fields': [{'field': 'value', 'name': 'Y Value'}]
+    'fields': [{'field': 'value', 'name': 'Value'}]
   },
   'bubble': {
-    'fields': [{'field': 'value', 'name': 'Value'}, {'field': 'size', 'name': 'Size'}]
+    'fields': [
+      {'field': 'value', 'name': 'Value'},
+      {'field': 'size', 'name': 'Size'}]
   },
   // map series
   'marker-by-id': {
@@ -212,8 +214,8 @@ anychart.chartEditor2Module.EditorModel.series = {
     'name': 'Bubble (by geoId field)',
     'fields': [
       {'field': 'geoIdField', 'name': 'GeoId Field'},
-      {'field': 'size', 'name': 'Size'},
-      {'field': 'value', 'name': 'Value'}
+      {'field': 'size', 'name': 'Size'}
+      // {'field': 'value', 'name': 'Value'}
     ]
   },
   'bubble-by-coordinates': {
@@ -221,8 +223,8 @@ anychart.chartEditor2Module.EditorModel.series = {
     'fields': [
       {'field': 'lat', 'name': 'Latitude'},
       {'field': 'long', 'name': 'Longitude'},
-      {'field': 'size', 'name': 'Size'},
-      {'field': 'value', 'name': 'Value'}
+      {'field': 'size', 'name': 'Size'}
+      // {'field': 'value', 'name': 'Value'}
     ]
   },
   'choropleth': {
@@ -288,7 +290,9 @@ anychart.chartEditor2Module.EditorModel.prototype.chooseDefaultChartType = funct
     'count': 0,
     'stringsCount': 0,
     'numbersCount': 0,
-    'coordinates': []
+    'coordinates': [],
+    'strings': [],
+    'numbers': []
   };
 
   var rawData = this.getRawData();
@@ -302,8 +306,6 @@ anychart.chartEditor2Module.EditorModel.prototype.chooseDefaultChartType = funct
 
     if (goog.isString(fieldValue)) {
       numberValue = this.fieldsState_['count'] > 0 ? goog.string.toNumber(fieldValue) : NaN;
-      if (!this.fieldsState_['stringsCount'])
-        this.fieldsState_['string'] = [i, fieldValue];
 
       if (!this.fieldsState_['date'] && new Date(fieldValue).getTime()) {
         this.fieldsState_['date'] = [i, fieldValue];
@@ -314,16 +316,22 @@ anychart.chartEditor2Module.EditorModel.prototype.chooseDefaultChartType = funct
         this.fieldsState_['geoIdField'] = [i, fieldValue];
       }
 
+      this.fieldsState_['strings'].push([i, fieldValue]);
       this.fieldsState_['stringsCount']++;
 
     } else if (goog.isNumber(fieldValue) || !isNaN(numberValue)) {
+      var usedAsCoordinate = false;
       if (this.model_.dataSettings.activeGeo) {
         if (this.fieldsState_['coordinates'].length < 2 && new RegExp(/^-?([1-8]?[1-9]|[1-9]0)\.{1}\d{1,6}/).exec(fieldValue)) {
-          this.fieldsState_['coordinates'].push(fieldValue);
+          this.fieldsState_['coordinates'].push(i);
+          usedAsCoordinate = true;
         }
       }
 
-      this.fieldsState_['numbersCount']++;
+      if (!usedAsCoordinate) {
+        this.fieldsState_['numbers'].push([i, fieldValue]);
+        this.fieldsState_['numbersCount']++;
+      }
     }
     this.fieldsState_['count']++;
   }
@@ -340,7 +348,7 @@ anychart.chartEditor2Module.EditorModel.prototype.chooseDefaultChartType = funct
       else if (this.fieldsState_['numbersCount'] <= 5)
         chartType = this.setChartTypeAndStackMode('column', 'value');
 
-    } else if (this.fieldsState_['string']) {
+    } else if (this.fieldsState_['strings'][0]) {
       if (rawData.length <= 5 && this.fieldsState_['numbersCount'] == 1)
         chartType = 'pie';
       else if (this.fieldsState_['numbersCount'] <= 3)
@@ -362,8 +370,7 @@ anychart.chartEditor2Module.EditorModel.prototype.chooseDefaultSeriesType = func
   switch (this.model_.chart.type) {
     case 'map':
       if (this.fieldsState_['coordinates'].length == 2) {
-        var numbersCount = this.fieldsState_['numbersCount'] - 2; // minus lat/long
-        if (!(numbersCount % 2))
+        if (!(this.fieldsState_['numbersCount'] % 2))
           seriesType = 'bubble-by-coordinates';
         else
           seriesType = 'marker-by-coordinates';
@@ -390,17 +397,16 @@ anychart.chartEditor2Module.EditorModel.prototype.chooseDefaultSeriesType = func
       break;
   }
 
-  // var rawData = this.getRawData();
-  // var dataRow = rawData[0];
-  // console.log(dataRow, this.fieldsState_, this.model_.chart.type, seriesType);
-
   this.model_.chart.seriesType = seriesType;
 };
 
 
 anychart.chartEditor2Module.EditorModel.prototype.createDefaultMappings = function() {
-  // todo: create proper count of series and plots
-  this.model_.dataSettings.mappings = [this.createPlotMapping()];
+  if (this.model_.chart.type == 'stock')
+  // todo: process single/volume plot logic
+    this.model_.dataSettings.mappings = [this.createPlotMapping()];
+  else
+    this.model_.dataSettings.mappings = [this.createPlotMapping()];
 };
 
 
@@ -409,28 +415,59 @@ anychart.chartEditor2Module.EditorModel.prototype.createDefaultMappings = functi
  * @return {[*]}
  */
 anychart.chartEditor2Module.EditorModel.prototype.createPlotMapping = function() {
-  var seriesConfig = this.createSeriesConfig(this.model_.chart.seriesType);
-  return [seriesConfig];
+  var result = [];
+
+  var rawData = this.getRawData();
+  var dataRow = rawData[0];
+  console.log(dataRow, this.fieldsState_, this.model_.chart.type, this.model_.chart.seriesType);
+
+  var numValues = 1;
+  if (this.model_.chart.seriesType == 'bubble')
+    numValues = 2;
+  else if (this.model_.chart.seriesType == 'ohlc')
+    numValues = 4;
+
+  var numSeries = Math.floor(this.fieldsState_['numbersCount'] / numValues);
+  for (var i = 0; i < numSeries; i += numValues) {
+    var seriesConfig = this.createSeriesConfig(i, this.model_.chart.seriesType);
+    result.push(seriesConfig);
+  }
+
+  return result;
 };
 
 
 /**
  * Creates series config.
+ * @param {number} index
  * @param {String} type Series type.
- * @param {String=} opt_active Active dataset id.
  * @param {String=} opt_id Series id.
  * @return {{ctor: *, mapping: {}}}
  */
-anychart.chartEditor2Module.EditorModel.prototype.createSeriesConfig = function(type, opt_active, opt_id) {
-  var active = goog.isDef(opt_active) ? opt_active : this.model_.dataSettings.active;
-  var data = this.getPreparedDataActive(active);
+anychart.chartEditor2Module.EditorModel.prototype.createSeriesConfig = function(index, type, opt_id) {
   var config = {'ctor': type, 'mapping': {}};
   if (goog.isDef(opt_id))
     config['id'] = opt_id;
 
+  var numbers = goog.array.clone(this.fieldsState_['numbers']);
+  if (this.model_.chart.type == 'scatter')
+    goog.array.splice(numbers, 0, 1); // remove x field for scatter
+
   var fields = anychart.chartEditor2Module.EditorModel.series[type]['fields'];
   for (var i = 0; i < fields.length; i++) {
-    config['mapping'][fields[i]['field']] = data['fields'][1]['key'];
+    if (this.fieldsState_['geoIdField'] && fields[i]['field'] == 'geoIdField') {
+      config['mapping'][fields[i]['field']] = this.fieldsState_['geoIdField'][0];
+
+    } else if (this.fieldsState_['coordinates'] && (fields[i]['field'] == 'lat' || fields[i]['field'] == 'long')) {
+      config['mapping'][fields[i]['field']] = (fields[i]['field'] == 'lat') ?
+          this.fieldsState_['coordinates'][0] :
+          this.fieldsState_['coordinates'][1];
+
+    } else {
+      index += i;
+      var numberIndex = numbers.length > index ? index : index % numbers.length;
+      config['mapping'][fields[i]['field']] = numbers[numberIndex][0];
+    }
   }
   return config;
 };
@@ -522,7 +559,7 @@ anychart.chartEditor2Module.EditorModel.prototype.dropPlot = function(index) {
 
 
 anychart.chartEditor2Module.EditorModel.prototype.addSeries = function(plotIndex) {
-  var mapping = this.createSeriesConfig(this.model_.chart.seriesType);
+  var mapping = this.createSeriesConfig(this.model_.dataSettings.mappings[plotIndex].length, this.model_.chart.seriesType);
   this.model_.dataSettings.mappings[plotIndex].push(mapping);
   this.dispatchUpdate();
 };
@@ -616,7 +653,7 @@ anychart.chartEditor2Module.EditorModel.prototype.setSeriesType = function(input
 
   if (this.model_.dataSettings.mappings[plotIndex][seriesIndex].ctor != type) {
     var oldConfig = this.model_.dataSettings.mappings[plotIndex][seriesIndex];
-    this.model_.dataSettings.mappings[plotIndex][seriesIndex] = this.createSeriesConfig(type, void 0, oldConfig['id']);
+    this.model_.dataSettings.mappings[plotIndex][seriesIndex] = this.createSeriesConfig(seriesIndex, type, oldConfig['id']);
     this.dispatchUpdate();
   }
 };
@@ -903,11 +940,11 @@ anychart.chartEditor2Module.EditorModel.prototype.getDataKeys = function() {
 
 
 /**
- * @param {String} active
  * @return {?Object} Prepared active dataset.
  */
-anychart.chartEditor2Module.EditorModel.prototype.getPreparedDataActive = function(active) {
+anychart.chartEditor2Module.EditorModel.prototype.getPreparedDataActive = function() {
   var data = this.getPreparedData();
+  var active = this.model_.dataSettings.active;
   data = goog.array.filter(data, function(item) {
     return item['setFullId'] == active;
   });
