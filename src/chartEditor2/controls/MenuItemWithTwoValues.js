@@ -10,10 +10,8 @@ goog.require('goog.ui.Container');
  */
 anychart.chartEditor2Module.controls.MenuItemWithTwoValues = function(caption, value, value2, opt_domHelper, opt_renderer) {
   goog.ui.MenuItem.call(
-      this, caption, opt_renderer || goog.ui.MenuItemRenderer.getInstance(),
-      opt_domHelper);
-  
-  this.setValue(value);
+      this, caption, value, opt_domHelper, opt_renderer || goog.ui.MenuItemRenderer.getInstance());
+
   this.setValue2(value2);
 };
 goog.inherits(anychart.chartEditor2Module.controls.MenuItemWithTwoValues, goog.ui.MenuItem);

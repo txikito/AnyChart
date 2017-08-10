@@ -90,7 +90,7 @@ anychart.chartEditor2Module.EditorModel.chartTypes = {
     'series': ['bar', 'line', 'spline', 'area', 'ohlc'],
     'dataSetCtor': 'set'
   },
-  'bar-stacked-volume': {
+  'bar-stacked-value': {
     'value': 'bar',
     'stackMode': 'value',
     'name': 'Bar stacked (value)',
@@ -113,7 +113,7 @@ anychart.chartEditor2Module.EditorModel.chartTypes = {
     'series': ['column', 'line', 'spline', 'area', 'ohlc'],
     'dataSetCtor': 'set'
   },
-  'column-stacked-volume': {
+  'column-stacked-value': {
     'value': 'column',
     'stackMode': 'value',
     'name': 'Column stacked (value)',
@@ -290,9 +290,9 @@ anychart.chartEditor2Module.EditorModel.prototype.chooseDefaultChartType = funct
     'numbersCount': 0
   };
 
-  if (this.model_.dataSettings.activeGeo)
+  if (this.model_.dataSettings.activeGeo) {
     chartType = 'map';
-  else {
+  } else {
     var rawData = this.getRawData();
     var dataRow = rawData[0];
     for (var i in dataRow) {
@@ -316,19 +316,23 @@ anychart.chartEditor2Module.EditorModel.prototype.chooseDefaultChartType = funct
       fieldValue = this.fieldsState_['date'][1];
       if (fieldValue.length > 4)
         chartType = 'stock';
-      else if (this.fieldsState_['numbersCount'] <= 5)
+      else if (this.fieldsState_['numbersCount'] <= 3)
         chartType = 'column';
+      else if (this.fieldsState_['numbersCount'] <= 5)
+        chartType = this.setChartTypeAndStackMode('column', 'value');
 
     } else if (this.fieldsState_['string']) {
       if (rawData.length <= 5 && this.fieldsState_['numbersCount'] == 1)
         chartType = 'pie';
-      else if (this.fieldsState_['numbersCount'] <= 5)
+      else if (this.fieldsState_['numbersCount'] <= 3)
         chartType = 'bar';
+      else if (this.fieldsState_['numbersCount'] <= 5)
+        chartType = this.setChartTypeAndStackMode('bar', 'value');
+
     } else
       chartType = 'scatter';
   }
 
-  console.log(dataRow, this.fieldsState_, chartType);
   this.model_.chart.type = chartType;
 };
 
@@ -343,14 +347,34 @@ anychart.chartEditor2Module.EditorModel.prototype.chooseDefaultSeriesType = func
   var data = this.getPreparedDataActive(this.model_.dataSettings.active);
   var fields = data['fields'];
 
-  // Try to choose series type by data.
-  // console.log(fields);
+  var rawData = this.getRawData();
+  var dataRow = rawData[0];
+
+  switch (this.model_.chart.type) {
+    case 'map':
+      break;
+
+    case 'stock':
+
+      break;
+    case 'column':
+
+      break;
+    case 'bar':
+
+      break;
+    case 'scatter':
+      break;
+  }
+
+  console.log(dataRow, this.fieldsState_, this.model_.chart.type, seriesType);
 
   this.model_.chart.seriesType = seriesType;
 };
 
 
 anychart.chartEditor2Module.EditorModel.prototype.createDefaultMappings = function() {
+  // todo: create proper count of series and plots
   this.model_.dataSettings.mappings = [this.createPlotMapping()];
 };
 
@@ -495,7 +519,7 @@ anychart.chartEditor2Module.EditorModel.prototype.setChartType = function(input)
   var prevChartType = this.model_.chart.type;
   var prevDefaultSeriesType = this.model_.chart.seriesType;
 
-  this.model_.chart.type = type;
+  this.setChartTypeAndStackMode(type, stackMode);
   this.chooseDefaultSeriesType();
 
   if (this.needResetMappings(prevChartType, type)) {
@@ -516,14 +540,21 @@ anychart.chartEditor2Module.EditorModel.prototype.setChartType = function(input)
     }
   }
 
+  this.dispatchUpdate();
+};
+
+
+anychart.chartEditor2Module.EditorModel.prototype.setChartTypeAndStackMode = function(chartType, opt_stackMode) {
+  this.model_.chart.type = chartType;
+
   this.dropChartSettings("stackMode(");
-  if (stackMode) {
+  if (opt_stackMode) {
     if (this.model_.chart.type != 'stock') {
-      this.setValue([['chart'], ['settings'], 'yScale().stackMode()'], stackMode);
+      this.setValue([['chart'], ['settings'], 'yScale().stackMode()'], opt_stackMode);
     }
   }
 
-  this.dispatchUpdate();
+  return this.model_.chart.type;
 };
 
 
@@ -815,7 +846,7 @@ anychart.chartEditor2Module.EditorModel.prototype.addData = function(evt) {
 
   this.generateInitialMappingsOnChangeView_ = true;
   // debug
-  // this.onChangeView();
+  this.onChangeView();
 
   this.dispatchUpdate();
 };
@@ -827,7 +858,7 @@ anychart.chartEditor2Module.EditorModel.prototype.removeData = function(setFullI
 
   this.generateInitialMappingsOnChangeView_ = true;
   // debug
-  // this.onChangeView();
+  this.onChangeView();
 
   // if (setFullId == this.model_.dataSettings.active) {
   //   this.chooseActiveAndField();
