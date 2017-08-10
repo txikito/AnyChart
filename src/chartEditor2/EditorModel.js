@@ -580,11 +580,14 @@ anychart.chartEditor2Module.EditorModel.prototype.setChartType = function(input)
 
   var prevChartType = this.model_.chart.type;
   var prevDefaultSeriesType = this.model_.chart.seriesType;
-
+// TODO: start from here
+  // 1. Задать третий датасет - получится Column stacked
+  // 2. Переключиться на Bar stacked
+  // 3. Слетит стекирование
   this.setChartTypeAndStackMode(type, stackMode);
   this.chooseDefaultSeriesType();
 
-  if (this.needResetMappings(prevChartType, type)) {
+  if (this.needResetMappings(prevChartType, prevDefaultSeriesType)) {
     this.dropChartSettings();
     this.createDefaultMappings();
 
@@ -612,7 +615,7 @@ anychart.chartEditor2Module.EditorModel.prototype.setChartTypeAndStackMode = fun
   this.dropChartSettings("stackMode(");
   if (opt_stackMode) {
     if (this.model_.chart.type != 'stock') {
-      this.setValue([['chart'], ['settings'], 'yScale().stackMode()'], opt_stackMode);
+      this.setValue([['chart'], ['settings'], 'yScale().stackMode()'], opt_stackMode, true);
     }
   }
 
@@ -620,10 +623,13 @@ anychart.chartEditor2Module.EditorModel.prototype.setChartTypeAndStackMode = fun
 };
 
 
-anychart.chartEditor2Module.EditorModel.prototype.needResetMappings = function(prevChartType, newChartType) {
-  return (prevChartType == 'stock' || newChartType == 'stock') ||
-      (prevChartType == 'map' || newChartType == 'map') ||
-      newChartType == 'pie';
+anychart.chartEditor2Module.EditorModel.prototype.needResetMappings = function(prevChartType, prevSeriesType) {
+  if (goog.array.indexOf(anychart.chartEditor2Module.EditorModel.chartTypes[this.model_.chart.type]['series'], prevSeriesType) == -1)
+    return true;
+
+  return (prevChartType == 'stock' || this.model_.chart.type == 'stock') ||
+      (prevChartType == 'map' || this.model_.chart.type == 'map') ||
+      this.model_.chart.type == 'pie';
 };
 
 
