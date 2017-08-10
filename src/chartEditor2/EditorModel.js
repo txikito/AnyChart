@@ -287,31 +287,50 @@ anychart.chartEditor2Module.EditorModel.prototype.chooseDefaultChartType = funct
   this.fieldsState_ = {
     'count': 0,
     'stringsCount': 0,
-    'numbersCount': 0
+    'numbersCount': 0,
+    'coordinates': []
   };
+
+  var rawData = this.getRawData();
+  var dataRow = rawData[0];
+  var fieldValue;
+  var numberValue;
+
+  for (var i in dataRow) {
+    fieldValue = dataRow[i];
+    numberValue = NaN;
+
+    if (goog.isString(fieldValue)) {
+      numberValue = this.fieldsState_['count'] > 0 ? goog.string.toNumber(fieldValue) : NaN;
+      if (!this.fieldsState_['stringsCount'])
+        this.fieldsState_['string'] = [i, fieldValue];
+
+      if (!this.fieldsState_['date'] && new Date(fieldValue).getTime()) {
+        this.fieldsState_['date'] = [i, fieldValue];
+      }
+
+      if (this.model_.dataSettings.activeGeo &&
+          new RegExp(/^(AF|AX|AL|DZ|AS|AD|AO|AI|AQ|AG|AR|AM|AW|AU|AT|AZ|BS|BH|BD|BB|BY|BE|BZ|BJ|BM|BT|BO|BQ|BA|BW|BV|BR|IO|BN|BG|BF|BI|KH|CM|CA|CV|KY|CF|TD|CL|CN|CX|CC|CO|KM|CG|CD|CK|CR|CI|HR|CU|CW|CY|CZ|DK|DJ|DM|DO|EC|EG|SV|GQ|ER|EE|ET|FK|FO|FJ|FI|FR|GF|PF|TF|GA|GM|GE|DE|GH|GI|GR|GL|GD|GP|GU|GT|GG|GN|GW|GY|HT|HM|VA|HN|HK|HU|IS|IN|ID|IR|IQ|IE|IM|IL|IT|JM|JP|JE|JO|KZ|KE|KI|KP|KR|KW|KG|LA|LV|LB|LS|LR|LY|LI|LT|LU|MO|MK|MG|MW|MY|MV|ML|MT|MH|MQ|MR|MU|YT|MX|FM|MD|MC|MN|ME|MS|MA|MZ|MM|NA|NR|NP|NL|NC|NZ|NI|NE|NG|NU|NF|MP|NO|OM|PK|PW|PS|PA|PG|PY|PE|PH|PN|PL|PT|PR|QA|RE|RO|RU|RW|BL|SH|KN|LC|MF|PM|VC|WS|SM|ST|SA|SN|RS|SC|SL|SG|SX|SK|SI|SB|SO|ZA|GS|SS|ES|LK|SD|SR|SJ|SZ|SE|CH|SY|TW|TJ|TZ|TH|TL|TG|TK|TO|TT|TN|TR|TM|TC|TV|UG|UA|AE|GB|US|UM|UY|UZ|VU|VE|VN|VG|VI|WF|EH|YE|ZM|ZW)$/).exec(fieldValue)) {
+        this.fieldsState_['geoIdField'] = [i, fieldValue];
+      }
+
+      this.fieldsState_['stringsCount']++;
+
+    } else if (goog.isNumber(fieldValue) || !isNaN(numberValue)) {
+      if (this.model_.dataSettings.activeGeo) {
+        if (this.fieldsState_['coordinates'].length < 2 && new RegExp(/^-?([1-8]?[1-9]|[1-9]0)\.{1}\d{1,6}/).exec(fieldValue)) {
+          this.fieldsState_['coordinates'].push(fieldValue);
+        }
+      }
+
+      this.fieldsState_['numbersCount']++;
+    }
+    this.fieldsState_['count']++;
+  }
 
   if (this.model_.dataSettings.activeGeo) {
     chartType = 'map';
   } else {
-    var rawData = this.getRawData();
-    var dataRow = rawData[0];
-    for (var i in dataRow) {
-      this.fieldsState_['count']++;
-      var fieldValue = dataRow[i];
-      if (goog.isString(fieldValue)) {
-        if (!this.fieldsState_['stringsCount']) {
-          this.fieldsState_['string'] = [i, fieldValue];
-          this.fieldsState_['stringsCount']++;
-        }
-
-        if (!this.fieldsState_['date'] && new Date(fieldValue).getTime()) {
-          this.fieldsState_['date'] = [i, fieldValue];
-        }
-      } else if (goog.isNumber(fieldValue)) {
-        this.fieldsState_['numbersCount']++;
-      }
-    }
-
     if (this.fieldsState_['date']) {
       fieldValue = this.fieldsState_['date'][1];
       if (fieldValue.length > 4)
@@ -336,38 +355,44 @@ anychart.chartEditor2Module.EditorModel.prototype.chooseDefaultChartType = funct
   this.model_.chart.type = chartType;
 };
 
-// var isDate = function(date) {
-//   return (new Date(date) !== "Invalid Date") && !isNaN(new Date(date));
-// }
-
 
 anychart.chartEditor2Module.EditorModel.prototype.chooseDefaultSeriesType = function() {
   var seriesType = anychart.chartEditor2Module.EditorModel.chartTypes[this.model_.chart.type]['series'][0];
 
-  var data = this.getPreparedDataActive(this.model_.dataSettings.active);
-  var fields = data['fields'];
-
-  var rawData = this.getRawData();
-  var dataRow = rawData[0];
-
   switch (this.model_.chart.type) {
     case 'map':
+      if (this.fieldsState_['coordinates'].length == 2) {
+        var numbersCount = this.fieldsState_['numbersCount'] - 2; // minus lat/long
+        if (!(numbersCount % 2))
+          seriesType = 'bubble-by-coordinates';
+        else
+          seriesType = 'marker-by-coordinates';
+
+      } else if (this.fieldsState_['geoIdField']) {
+        if (!(this.fieldsState_['numbersCount'] % 2))
+          seriesType = 'bubble-by-id';
+        else
+          seriesType = 'marker-by-id';
+      }
       break;
 
     case 'stock':
-
+      if (this.fieldsState_['numbersCount'] < 4)
+        seriesType = 'line';
       break;
-    case 'column':
 
-      break;
-    case 'bar':
-
-      break;
     case 'scatter':
+      if (!(this.fieldsState_['numbersCount'] % 3)) {
+        seriesType = 'bubble';
+      } else if (!(this.fieldsState_['numbersCount'] % 2)) {
+        seriesType = 'marker';
+      }
       break;
   }
 
-  console.log(dataRow, this.fieldsState_, this.model_.chart.type, seriesType);
+  // var rawData = this.getRawData();
+  // var dataRow = rawData[0];
+  // console.log(dataRow, this.fieldsState_, this.model_.chart.type, seriesType);
 
   this.model_.chart.seriesType = seriesType;
 };
