@@ -288,11 +288,7 @@ anychart.chartEditor2Module.EditorModel.prototype.chooseActiveAndField = functio
 
   this.model_.dataSettings.active = active;
   this.model_.dataSettings.field = field;
-};
 
-
-anychart.chartEditor2Module.EditorModel.prototype.chooseDefaultChartType = function() {
-  var chartType = 'line';
   this.fieldsState_ = {
     'count': 0,
     'stringsCount': 0,
@@ -342,12 +338,18 @@ anychart.chartEditor2Module.EditorModel.prototype.chooseDefaultChartType = funct
     }
     this.fieldsState_['count']++;
   }
+};
+
+
+anychart.chartEditor2Module.EditorModel.prototype.chooseDefaultChartType = function() {
+  var chartType = 'line';
+  var rawData = this.getRawData();
 
   if (this.model_.dataSettings.activeGeo) {
     chartType = 'map';
   } else {
     if (this.fieldsState_['date']) {
-      fieldValue = this.fieldsState_['date'][1];
+      var fieldValue = this.fieldsState_['date'][1];
       if (fieldValue.length > 4)
         chartType = 'stock';
       else if (this.fieldsState_['numbersCount'] <= 3)
@@ -413,6 +415,8 @@ anychart.chartEditor2Module.EditorModel.prototype.chooseDefaultSeriesType = func
 
 
 anychart.chartEditor2Module.EditorModel.prototype.createDefaultMappings = function() {
+  this.model_.dataSettings.mappings = [];
+
   if (this.model_.chart.type == 'stock') {
     this.model_.dataSettings.mappings = [this.createPlotMapping()];
 
@@ -552,7 +556,7 @@ anychart.chartEditor2Module.EditorModel.prototype.setActiveGeo = function(input)
 anychart.chartEditor2Module.EditorModel.prototype.onChangeView = function() {
   if (this.generateInitialMappingsOnChangeView_) {
     this.generateInitialMappingsOnChangeView_ = false;
-
+debugger;
     this.getPreparedData();
 
     if (this.preparedData_.length > 0) {
