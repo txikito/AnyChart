@@ -71,8 +71,6 @@ anychart.chartEditor2Module.SeriesPanel.prototype.update = function() {
 
 /** @inheritDoc */
 anychart.chartEditor2Module.SeriesPanel.prototype.enterDocument = function() {
-  goog.base(this, 'enterDocument');
-
   this.update();
 
   this.getHandler().listen(this.editor_.getModel(), anychart.chartEditor2Module.events.EventType.EDITOR_MODEL_UPDATE, this.update);
@@ -81,6 +79,8 @@ anychart.chartEditor2Module.SeriesPanel.prototype.enterDocument = function() {
     this.getHandler().listen(this.close_, goog.events.EventType.CLICK, function() {
       this.editor_.getModel().dropSeries(this.getParent().index(), this.index_);
     });
+
+  goog.base(this, 'enterDocument');
 };
 
 

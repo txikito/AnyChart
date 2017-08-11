@@ -129,14 +129,14 @@ anychart.chartEditor2Module.ChartTypeSelector.prototype.update = function() {
 
 
 anychart.chartEditor2Module.ChartTypeSelector.prototype.enterDocument = function() {
-  goog.base(this, 'enterDocument');
-
   this.update();
 
   if(this.addPlotBtn_)
     this.getHandler().listen(this.addPlotBtn_, goog.ui.Component.EventType.ACTION, this.onAddPlot_);
 
   this.getHandler().listen(this.editor_.getModel(), anychart.chartEditor2Module.events.EventType.EDITOR_MODEL_UPDATE, this.update);
+
+  goog.base(this, 'enterDocument');
 };
 
 

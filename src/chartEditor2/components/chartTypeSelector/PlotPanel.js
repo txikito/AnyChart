@@ -88,8 +88,6 @@ anychart.chartEditor2Module.PlotPanel.prototype.update = function() {
 
 
 anychart.chartEditor2Module.PlotPanel.prototype.enterDocument = function() {
-  goog.base(this, 'enterDocument');
-
   this.update();
 
   this.getHandler().listen(this.editor_.getModel(), anychart.chartEditor2Module.events.EventType.EDITOR_MODEL_UPDATE, this.update);
@@ -98,6 +96,8 @@ anychart.chartEditor2Module.PlotPanel.prototype.enterDocument = function() {
     this.getHandler().listen(this.close_, goog.events.EventType.CLICK, function() {
       this.editor_.getModel().dropPlot(this.index_);
     });
+
+  goog.base(this, 'enterDocument');
 };
 
 

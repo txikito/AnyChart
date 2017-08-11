@@ -154,7 +154,7 @@ anychart.chartEditor2Module.EditorModel.chartTypes = {
     'value': 'stock',
     'name': 'Stock',
     'icon': 'stock-chart.svg',
-    'series': ['ohlc', 'line', 'spline', 'column', 'area'],
+    'series': ['ohlc', 'candlestick', 'line', 'spline', 'column', 'area'],
     'dataSetCtor': 'table'
   }
 };
@@ -179,9 +179,16 @@ anychart.chartEditor2Module.EditorModel.series = {
   'ohlc': {
     'fields': [
       {'field': 'open'},
-      {'field': 'close'},
       {'field': 'high'},
-      {'field': 'low'}]
+      {'field': 'low'},
+      {'field': 'close'}]
+  },
+  'candlestick': {
+    'fields': [
+      {'field': 'open'},
+      {'field': 'high'},
+      {'field': 'low'},
+      {'field': 'close'}]
   },
   'pie': {
     'fields': [{'field': 'value', 'name': 'Value'}]
@@ -388,7 +395,7 @@ anychart.chartEditor2Module.EditorModel.prototype.chooseDefaultSeriesType = func
       break;
 
     case 'stock':
-      if (this.fieldsState_['numbersCount'] < 4)
+      if (this.fieldsState_['numbersCount'] < 4 || this.fieldsState_['numbersCount'] > 5)
         seriesType = 'line';
       break;
 
@@ -406,9 +413,15 @@ anychart.chartEditor2Module.EditorModel.prototype.chooseDefaultSeriesType = func
 
 
 anychart.chartEditor2Module.EditorModel.prototype.createDefaultMappings = function() {
-  if (this.model_.chart.type == 'stock')
-  // todo: process single/volume plot logic
+  if (this.model_.chart.type == 'stock') {
     this.model_.dataSettings.mappings = [this.createPlotMapping()];
+
+    if (this.model_.chart.seriesType == 'ohlc' && this.fieldsState_['numbersCount'] == 5) {
+      this.model_.chart.seriesType = 'column';
+      this.model_.dataSettings.mappings.push(this.createPlotMapping());
+      this.model_.chart.seriesType = 'ohlc';
+    }
+  }
   else
     this.model_.dataSettings.mappings = [this.createPlotMapping()];
 };
@@ -423,7 +436,7 @@ anychart.chartEditor2Module.EditorModel.prototype.createPlotMapping = function()
 
   var rawData = this.getRawData();
   var dataRow = rawData[0];
-  console.log(dataRow, this.fieldsState_, this.model_.chart.type, this.model_.chart.seriesType);
+  //console.log(dataRow, this.fieldsState_, this.model_.chart.type, this.model_.chart.seriesType);
 
   var numValues = 1;
   if (this.model_.chart.seriesType == 'bubble')
@@ -431,9 +444,19 @@ anychart.chartEditor2Module.EditorModel.prototype.createPlotMapping = function()
   else if (this.model_.chart.seriesType == 'ohlc')
     numValues = 4;
 
-  var numSeries = this.model_.chart.type == 'pie' ? 1 : Math.floor(this.fieldsState_['numbersCount'] / numValues);
+  var plotIndex = this.model_.dataSettings.mappings.length;
+  var numSeries;
+  var fieldIndex;
+  if (this.model_.chart.type == 'pie' ||
+      (this.model_.chart.type == 'stock' && this.model_.chart.seriesType == 'column' && plotIndex == 1)) {
+    // try to ser volume second plot
+    numSeries = 1;
+    fieldIndex = 4;
+  } else
+    numSeries = Math.floor(this.fieldsState_['numbersCount'] / numValues);
+
   for (var i = 0; i < numSeries; i += numValues) {
-    var seriesConfig = this.createSeriesConfig(i, this.model_.chart.seriesType);
+    var seriesConfig = this.createSeriesConfig(i, this.model_.chart.seriesType, void 0, fieldIndex);
     result.push(seriesConfig);
   }
 
@@ -446,9 +469,10 @@ anychart.chartEditor2Module.EditorModel.prototype.createPlotMapping = function()
  * @param {number} index
  * @param {String} type Series type.
  * @param {String=} opt_id Series id.
+ * @param {number=} opt_startFieldIndex Index of number to start from.
  * @return {{ctor: *, mapping: {}}}
  */
-anychart.chartEditor2Module.EditorModel.prototype.createSeriesConfig = function(index, type, opt_id) {
+anychart.chartEditor2Module.EditorModel.prototype.createSeriesConfig = function(index, type, opt_id, opt_startFieldIndex) {
   var config = {'ctor': type, 'mapping': {}};
   if (goog.isDef(opt_id))
     config['id'] = opt_id;
@@ -468,8 +492,8 @@ anychart.chartEditor2Module.EditorModel.prototype.createSeriesConfig = function(
           this.fieldsState_['coordinates'][1];
 
     } else {
-      index += i;
-      var numberIndex = numbers.length > index ? index : index % numbers.length;
+      var j = index + i + (goog.isNumber(opt_startFieldIndex) ? opt_startFieldIndex : 0);
+      var numberIndex = numbers.length > j ? j : j % numbers.length;
       config['mapping'][fields[i]['field']] = numbers[numberIndex][0];
     }
   }
