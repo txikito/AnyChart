@@ -556,7 +556,6 @@ anychart.chartEditor2Module.EditorModel.prototype.setActiveGeo = function(input)
 anychart.chartEditor2Module.EditorModel.prototype.onChangeView = function() {
   if (this.generateInitialMappingsOnChangeView_) {
     this.generateInitialMappingsOnChangeView_ = false;
-debugger;
     this.getPreparedData();
 
     if (this.preparedData_.length > 0) {
