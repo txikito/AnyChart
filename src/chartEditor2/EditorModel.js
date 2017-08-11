@@ -345,16 +345,20 @@ anychart.chartEditor2Module.EditorModel.prototype.chooseDefaultChartType = funct
         chartType = 'stock';
       else if (this.fieldsState_['numbersCount'] <= 3)
         chartType = 'column';
-      else if (this.fieldsState_['numbersCount'] <= 5)
-        chartType = this.setChartTypeAndStackMode('column', 'value');
+      else if (this.fieldsState_['numbersCount'] <= 5) {
+        chartType = 'column';
+        this.setStackMode('value');
+      }
 
     } else if (this.fieldsState_['strings'][0]) {
       if (rawData.length <= 5 && this.fieldsState_['numbersCount'] == 1)
         chartType = 'pie';
       else if (this.fieldsState_['numbersCount'] <= 3)
         chartType = 'bar';
-      else if (this.fieldsState_['numbersCount'] <= 5)
-        chartType = this.setChartTypeAndStackMode('bar', 'value');
+      else if (this.fieldsState_['numbersCount'] <= 5) {
+        chartType = 'bar';
+        this.setStackMode('value');
+      }
 
     } else
       chartType = 'scatter';
@@ -427,7 +431,7 @@ anychart.chartEditor2Module.EditorModel.prototype.createPlotMapping = function()
   else if (this.model_.chart.seriesType == 'ohlc')
     numValues = 4;
 
-  var numSeries = Math.floor(this.fieldsState_['numbersCount'] / numValues);
+  var numSeries = this.model_.chart.type == 'pie' ? 1 : Math.floor(this.fieldsState_['numbersCount'] / numValues);
   for (var i = 0; i < numSeries; i += numValues) {
     var seriesConfig = this.createSeriesConfig(i, this.model_.chart.seriesType);
     result.push(seriesConfig);
@@ -575,16 +579,14 @@ anychart.chartEditor2Module.EditorModel.prototype.dropSeries = function(plotInde
 
 
 anychart.chartEditor2Module.EditorModel.prototype.setChartType = function(input) {
-  var type = input.getValue();
-  var stackMode = input.getValue2();
-
   var prevChartType = this.model_.chart.type;
   var prevDefaultSeriesType = this.model_.chart.seriesType;
 // TODO: start from here
   // 1. Задать третий датасет - получится Column stacked
   // 2. Переключиться на Bar stacked
   // 3. Слетит стекирование
-  this.setChartTypeAndStackMode(type, stackMode);
+
+  this.model_.chart.type = input.getValue();
   this.chooseDefaultSeriesType();
 
   if (this.needResetMappings(prevChartType, prevDefaultSeriesType)) {
@@ -605,21 +607,19 @@ anychart.chartEditor2Module.EditorModel.prototype.setChartType = function(input)
     }
   }
 
+  this.setStackMode(input.getValue2());
+
   this.dispatchUpdate();
 };
 
 
-anychart.chartEditor2Module.EditorModel.prototype.setChartTypeAndStackMode = function(chartType, opt_stackMode) {
-  this.model_.chart.type = chartType;
-
+anychart.chartEditor2Module.EditorModel.prototype.setStackMode = function(opt_stackMode) {
   this.dropChartSettings("stackMode(");
   if (opt_stackMode) {
     if (this.model_.chart.type != 'stock') {
       this.setValue([['chart'], ['settings'], 'yScale().stackMode()'], opt_stackMode, true);
     }
   }
-
-  return this.model_.chart.type;
 };
 
 
