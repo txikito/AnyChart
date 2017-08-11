@@ -79,7 +79,7 @@ anychart.chartEditor2Module.PlotPanel.prototype.update = function() {
   }
 
   var chartType = this.editor_.getModel().getValue([['chart'], 'type']);
-  if (chartType != 'pie') {
+  if (chartType != 'pie' && this.series_.length) {
     this.addSeriesBtn_ = new goog.ui.Button('Add series');
     this.addChildAt(this.addSeriesBtn_, this.getChildCount(), true);
     this.getHandler().listen(this.addSeriesBtn_, goog.ui.Component.EventType.ACTION, this.onAddSeries_);
