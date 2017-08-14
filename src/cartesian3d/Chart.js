@@ -9,6 +9,7 @@ goog.require('anychart.cartesian3dModule.axisMarkers.Range');
 goog.require('anychart.cartesian3dModule.axisMarkers.Text');
 goog.require('anychart.cartesian3dModule.drawers.Area');
 goog.require('anychart.cartesian3dModule.drawers.Column');
+goog.require('anychart.cartesian3dModule.drawers.Line');
 goog.require('anychart.core.CartesianBase');
 goog.require('anychart.core.I3DProvider');
 goog.require('anychart.core.reporting');
@@ -210,6 +211,46 @@ anychart.cartesian3dModule.Chart.barColumnPostProcessor = function(series, shape
 
 
 /**
+ * Coloring post processor for Line 3D series.
+ * @param {anychart.core.series.Base} series
+ * @param {Object.<string, acgraph.vector.Shape>} shapes
+ * @param {number|anychart.PointState} pointState
+ */
+anychart.cartesian3dModule.Chart.linePostProcessor = function(series, shapes, pointState) {
+  var pathStroke;
+  var resolver = anychart.color.getColorResolver(
+      ['fill', 'hoverFill', 'selectFill'], anychart.enums.ColorType.FILL);
+  var stroke = resolver(series, pointState);
+  var opacity = goog.isObject(stroke) ? stroke['opacity'] : 1;
+  var color = goog.isObject(stroke) ? stroke['color'] : stroke;
+  var parsedColor = anychart.color.parseColor(color);
+
+  if (goog.isNull(parsedColor)) {
+    pathStroke = 'none';
+  } else {
+    color = parsedColor.hex;
+    var rgbColor = goog.color.hexToRgb(color);
+    var rgbDarken03 = goog.color.darken(rgbColor, .3);
+    var darkBlendedColor2 = goog.color.rgbArrayToHex(goog.color.blend(rgbColor, rgbDarken03, .7));
+
+    pathStroke = /** @type {string} */(anychart.color.lighten(darkBlendedColor2, .2));
+  }
+
+  shapes['path']
+      .fill({
+        'color': pathStroke,
+        'opacity': opacity
+      })
+      // fix for batik (DVF-2068)
+      .stroke({
+        'color': pathStroke,
+        'thickness': 0.8
+      });
+};
+
+
+
+/**
  * Series config for Cartesian chart.
  * @type {!Object.<string, anychart.core.series.TypeConfig>}
  */
@@ -281,6 +322,18 @@ anychart.cartesian3dModule.Chart.prototype.seriesConfig = (function() {
     capabilities: capabilities,
     anchoredPositionTop: 'value',
     anchoredPositionBottom: 'zero'
+  };
+  res[anychart.enums.Cartesian3dSeriesType.LINE] = {
+    drawerType: anychart.enums.SeriesDrawerTypes.LINE_3D,
+    shapeManagerType: anychart.enums.ShapeManagerTypes.PER_SERIES,
+    shapesConfig: [
+      anychart.core.shapeManagers.pathLine3DConfig
+    ],
+    secondaryShapesConfig: null,
+    postProcessor: anychart.cartesian3dModule.Chart.linePostProcessor,
+    capabilities: capabilities,
+    anchoredPositionTop: 'value',
+    anchoredPositionBottom: 'value'
   };
   return res;
 })();

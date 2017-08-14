@@ -1183,6 +1183,7 @@ anychart.themes.merging.mergingMap_ = (function() {
           'area',
           'bar',
           'column',
+          'line',
           'cartesian'
         ], '3d']
       ]
@@ -1201,7 +1202,9 @@ anychart.themes.merging.mergingMap_ = (function() {
     },
     {
       defaultObj: 'area',
-      targets: ['area3d']
+      targets: [
+        [['area', 'line'], '3d']
+      ]
     },
     {
       defaultObj: 'mekko.defaultSeriesSettings.base',

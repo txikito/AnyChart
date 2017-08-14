@@ -579,6 +579,20 @@ anychart.core.shapeManagers.pathTop3DHatchConfig = {
  * Template shape config for easy reusage.
  * @const {anychart.core.shapeManagers.ShapeConfig}
  */
+anychart.core.shapeManagers.pathLine3DConfig = {
+  name: 'path',
+  shapeType: anychart.enums.ShapeType.PATH,
+  fillNames: null,
+  strokeNames: null,
+  isHatchFill: false,
+  zIndex: anychart.core.shapeManagers.FILL_SHAPES_ZINDEX
+};
+
+
+/**
+ * Template shape config for easy reusage.
+ * @const {anychart.core.shapeManagers.ShapeConfig}
+ */
 anychart.core.shapeManagers.pathScrollerFillConfig = {
   name: 'fill',
   shapeType: anychart.enums.ShapeType.PATH,
