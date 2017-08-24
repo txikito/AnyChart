@@ -30,8 +30,6 @@ PROJECT_PATH = os.path.abspath(os.path.dirname(__file__))
 LIBS_PATH = os.path.join(PROJECT_PATH, 'libs')
 SRC_PATH = os.path.join(PROJECT_PATH, 'src')
 OUT_PATH = os.path.join(PROJECT_PATH, 'out')
-MODULES_OUT_DIR = os.path.join(OUT_PATH, 'parts')
-MODULES_CONFIG_OUT_PATH = os.path.join(OUT_PATH, 'modules.json')
 MANIFEST_OUT_PATH = os.path.join(OUT_PATH, 'file.manifest.json')
 TRAVIS_COMMANDS_PATH = os.path.join(OUT_PATH, 'travis-copy-bundles')
 DIST_PATH = os.path.join(PROJECT_PATH, 'dist')
@@ -513,12 +511,13 @@ def __make_manifest(module_name, files, theme_name='none', gen_manifest=False, a
 
 @stopwatch()
 def __make_build(build_name, modules, checks_only=False, theme_name='none', dev_edition=False, perf_mon=False,
-                 gen_manifest=False, debug_files=False):
-    __create_dir_if_not_exists(MODULES_OUT_DIR)
-    print '\nBuilding manifests for target "%s" (%s parts) to %s' % (build_name, len(modules), MODULES_OUT_DIR)
+                 gen_manifest=False, debug_files=False, output=None):
+    modules_parts_output = os.path.join(output, 'parts')
+    __create_dir_if_not_exists(modules_parts_output)
+    print '\nBuilding manifests for target "%s" (%s parts) to %s' % (build_name, len(modules), modules_parts_output)
     files_list_file_name = os.path.join(OUT_PATH, '%s.files.list' % build_name)
     additional_flags = [
-        '--module_output_path_prefix "%s%s"' % (MODULES_OUT_DIR, os.path.sep),
+        '--module_output_path_prefix "%s%s"' % (modules_parts_output, os.path.sep),
         '--rename_prefix_namespace="$"',
         '--rewrite_polyfills="false"'
     ]
@@ -567,8 +566,10 @@ def __make_build(build_name, modules, checks_only=False, theme_name='none', dev_
 
 
 @stopwatch()
-def __make_bundle(bundle_name, modules, dev_edition=False, perf_mon=False, debug_files=False, gzip=False, stat=False):
-    file_name = os.path.join(OUT_PATH, '%s.min.js' % bundle_name)
+def __make_bundle(bundle_name, modules, dev_edition=False, perf_mon=False, debug_files=False, gzip=False, stat=False,
+                  output=None):
+    modules_parts_output = os.path.join(output, 'parts')
+    file_name = os.path.join(output, '%s.min.js' % bundle_name)
 
     if not stat:
         print 'Assembling module "%s"' \
@@ -585,7 +586,7 @@ def __make_bundle(bundle_name, modules, dev_edition=False, perf_mon=False, debug
     with open(file_name, 'w') as output:
         output.write(wrapper[0])
         for module_name in modules:
-            with open(os.path.join(MODULES_OUT_DIR, '%s.js' % module_name)) as f:
+            with open(os.path.join(modules_parts_output, '%s.js' % module_name)) as f:
                 for line in f:
                     output.write(line)
         output.write(wrapper[1])
@@ -665,13 +666,16 @@ def __compile_project(*args, **kwargs):
     __build_deps()
 
     checks = kwargs['check_only']
+    output = os.path.join(PROJECT_PATH, kwargs['output']) if kwargs['output'] else OUT_PATH
+
+    __create_dir_if_not_exists(output)
 
     builds = kwargs['build'] or ['bundle']
     print '\n%s AnyChart\nVersion: %s' % ('Checking' if checks else 'Building', __get_build_version())
     for build_name, build in __get_builds().iteritems():
         if build_name in builds:
             __make_build(build_name, build, checks, kwargs['theme'], kwargs['develop'],
-                         kwargs['performance_monitoring'], kwargs['manifest'], kwargs['debug_files'])
+                         kwargs['performance_monitoring'], kwargs['manifest'], kwargs['debug_files'], output)
 
     if not checks:
         print '\nBuilding bundles\n'
@@ -681,18 +685,14 @@ def __compile_project(*args, **kwargs):
         for bundle_name, bundle in bundles.iteritems():
             if all(map(lambda module_name: __get_build_name(module_configs[module_name]) in builds, bundle['parts'])):
                 __make_bundle(bundle_name, bundle['parts'], kwargs['develop'], kwargs['performance_monitoring'],
-                              kwargs['debug_files'], kwargs['gzip'])
+                              kwargs['debug_files'], kwargs['gzip'], output=kwargs['output'])
                 built_bundles[bundle_name] = bundle['parts']
             else:
                 print 'Skipping bundle "%s"' % bundle_name
         for build_name, build in __get_builds().iteritems():
             if build_name in builds:
-                # for name in build:
-                #     __make_bundle('anychart-' + name, [name], kwargs['develop'], kwargs['performance_monitoring'],
-                #                   kwargs['debug_files'], kwargs['gzip'])
-                #     built_bundles['anychart-' + name] = [name]
                 __make_bundle('anychart-' + build_name, build, kwargs['develop'], kwargs['performance_monitoring'],
-                              kwargs['debug_files'], kwargs['gzip'])
+                              kwargs['debug_files'], kwargs['gzip'], output=kwargs['output'])
                 built_bundles['anychart-' + build_name] = build
 
         modules_json = {'parts': {}, 'modules': {}}
@@ -705,9 +705,10 @@ def __compile_project(*args, **kwargs):
                 if 'name' in bundles[bundle]: modules_json['modules'][bundle]['name'] = bundles[bundle]['name']
                 if 'icon' in bundles[bundle]: modules_json['modules'][bundle]['icon'] = bundles[bundle]['icon']
                 modules_json['modules'][bundle]['size'] = __get_gzip_file_size(
-                    os.path.join(OUT_PATH, bundle + '.min.js'))
+                    os.path.join(output, bundle + '.min.js'))
         modules_json['themes'] = __get_modules_config()['themes']
-        with open(MODULES_CONFIG_OUT_PATH, 'w') as f:
+
+        with open(os.path.join(output, 'modules.json'), 'w') as f:
             f.write(json.dumps(modules_json))
 
     print ''
@@ -791,15 +792,16 @@ def __stat(*args, **kwargs):
     build_name = 'bundle'
     theme_name = 'defaultTheme'
     modules = __get_builds()[build_name]
+    modules_parts_output = os.path.join(OUT_PATH, 'parts')
 
     print '\nBuilding size statistics report to %s' % STAT_REPORT_OUT_PATH
 
     print '  Building manifests (%s items)' % len(modules)
 
-    __create_dir_if_not_exists(MODULES_OUT_DIR)
+    __create_dir_if_not_exists(modules_parts_output)
     files_list_file_name = os.path.join(OUT_PATH, '%s.files.list' % build_name)
     additional_flags = [
-        '--module_output_path_prefix "%s%s"' % (MODULES_OUT_DIR, os.path.sep),
+        '--module_output_path_prefix "%s%s"' % (modules_parts_output, os.path.sep),
         '--rename_prefix_namespace="$"',
         '--rewrite_polyfills="false"',
         '--formatting="PRINT_INPUT_DELIMITER"',
@@ -975,6 +977,10 @@ def __exec_main_script():
     compile_parser.add_argument('-c', '--check_only',
                                 action='store_true',
                                 help='only compilation checks are applied - no output is generated')
+    compile_parser.add_argument('-o', '--output',
+                                dest='output',
+                                action='store',
+                                help='Output directory')
 
     # compile_parser.add_argument('-m', '--module',
     #                             metavar='',
