@@ -511,7 +511,7 @@ def __make_manifest(module_name, files, theme_name='none', gen_manifest=False, a
 
 @stopwatch()
 def __make_build(build_name, modules, checks_only=False, theme_name='none', dev_edition=False, perf_mon=False,
-                 gen_manifest=False, debug_files=False, output=None):
+                 gen_manifest=False, debug_files=False, output=OUT_PATH):
     modules_parts_output = os.path.join(output, 'parts')
     __create_dir_if_not_exists(modules_parts_output)
     print '\nBuilding manifests for target "%s" (%s parts) to %s' % (build_name, len(modules), modules_parts_output)
@@ -567,7 +567,8 @@ def __make_build(build_name, modules, checks_only=False, theme_name='none', dev_
 
 @stopwatch()
 def __make_bundle(bundle_name, modules, dev_edition=False, perf_mon=False, debug_files=False, gzip=False, stat=False,
-                  output=None):
+                  output=OUT_PATH):
+    print output
     modules_parts_output = os.path.join(output, 'parts')
     file_name = os.path.join(output, '%s.min.js' % bundle_name)
 
@@ -675,7 +676,7 @@ def __compile_project(*args, **kwargs):
     for build_name, build in __get_builds().iteritems():
         if build_name in builds:
             __make_build(build_name, build, checks, kwargs['theme'], kwargs['develop'],
-                         kwargs['performance_monitoring'], kwargs['manifest'], kwargs['debug_files'], output)
+                         kwargs['performance_monitoring'], kwargs['manifest'], kwargs['debug_files'], output=output)
 
     if not checks:
         print '\nBuilding bundles\n'
@@ -685,14 +686,14 @@ def __compile_project(*args, **kwargs):
         for bundle_name, bundle in bundles.iteritems():
             if all(map(lambda module_name: __get_build_name(module_configs[module_name]) in builds, bundle['parts'])):
                 __make_bundle(bundle_name, bundle['parts'], kwargs['develop'], kwargs['performance_monitoring'],
-                              kwargs['debug_files'], kwargs['gzip'], output=kwargs['output'])
+                              kwargs['debug_files'], kwargs['gzip'], output=output)
                 built_bundles[bundle_name] = bundle['parts']
             else:
                 print 'Skipping bundle "%s"' % bundle_name
         for build_name, build in __get_builds().iteritems():
             if build_name in builds:
                 __make_bundle('anychart-' + build_name, build, kwargs['develop'], kwargs['performance_monitoring'],
-                              kwargs['debug_files'], kwargs['gzip'], output=kwargs['output'])
+                              kwargs['debug_files'], kwargs['gzip'], output=output)
                 built_bundles['anychart-' + build_name] = build
 
         modules_json = {'parts': {}, 'modules': {}}
