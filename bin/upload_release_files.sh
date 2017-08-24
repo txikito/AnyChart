@@ -6,6 +6,14 @@ if [ "${TRAVIS_BRANCH}" = "DVF-3234-minor-build-fixes" ]; then
     cp ./bin/binaries_wrapper_end.txt ./dist/binaries_wrapper_end.txt
     cp ./bin/binaries_wrapper_start.txt ./dist/binaries_wrapper_start.txt
 
+    # download docs
+    wget https://docs.anychart.com/download docs.zip
+    unzip docs.zip
+
+    # download demos
+    wget https://playground.anychart.com/gallery/7.14.3/download demos.zip
+    unzip demos.zip
+
     # zip files
     cd ./dist/
     zip -r upload.zip *
@@ -13,6 +21,6 @@ if [ "${TRAVIS_BRANCH}" = "DVF-3234-minor-build-fixes" ]; then
     # create release branch
     ssh $STATIC_HOST_SSH_STRING "mkdir -p /apps/static/cdn/releases/$TRAVIS_BRANCH"
     scp upload.zip $STATIC_HOST_SSH_STRING:/apps/static/cdn/releases/$TRAVIS_BRANCH/upload.zip
-    ssh $STATIC_HOST_SSH_STRING "unzip -o /apps/static/cdn/releases/$TRAVIS_BRANCH/upload.zip -d /apps/static/cdn/releases/$TRAVIS_BRANCH/"
+    ssh $STATIC_HOST_SSH_STRING "unzip -o /apps/static/cdn/releases/$TRAVIS_BRANCH/upload.zip -d /apps/static/cdn/releases/$TRAVIS_BRANCH/ && rm /apps/static/cdn/releases/$TRAVIS_BRANCH/upload.zip"
 
 fi
