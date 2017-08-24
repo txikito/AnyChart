@@ -1,5 +1,4 @@
 #!/bin/bash
-set -ev
 if [ "${TRAVIS_BRANCH}" = "DVF-3234-minor-build-fixes" ]; then
 
     # copy bin files
@@ -11,11 +10,13 @@ if [ "${TRAVIS_BRANCH}" = "DVF-3234-minor-build-fixes" ]; then
 
     # download docs
     wget https://docs.anychart.com/download -O docs.zip
-    unzip docs.zip -d docs
+    unzip -q docs.zip -d docs
+    rm docs.zip
 
     # download demos
     wget https://playground.anychart.com/gallery/7.14.3/download -O demos.zip
-    unzip demos.zip -d demos
+    unzip -q demos.zip -d demos
+    rm demos.zip
 
     # zip files
     zip -r upload.zip *
