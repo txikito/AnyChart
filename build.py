@@ -159,7 +159,6 @@ def __get_gzip_file_size(f):
     return int(round(size / 1000))
 
 
-
 # endregion
 # region --- Decorators
 # ======================================================================================================================
@@ -641,9 +640,9 @@ def __get_bundle_wrapper(bundle_name, modules, file_name='', performance_monitor
 # ======================================================================================================================
 # Themes building
 # ======================================================================================================================
-def build_theme(theme):
-    min_file_name = os.path.join(OUT_PATH, theme + '.min.js')
-    file_name = os.path.join(OUT_PATH, theme + '.js')
+def build_theme(theme, output):
+    min_file_name = os.path.join(output, theme + '.min.js')
+    file_name = os.path.join(output, theme + '.js')
     __compile(__get_theme_entry_point(theme), min_file_name, flag_file=CHECKS_FLAGS)
     try:
         import jsbeautifier
@@ -705,7 +704,8 @@ def __compile_project(*args, **kwargs):
                 if 'type' in bundles[bundle]: modules_json['modules'][bundle]['type'] = bundles[bundle]['type']
                 if 'name' in bundles[bundle]: modules_json['modules'][bundle]['name'] = bundles[bundle]['name']
                 if 'icon' in bundles[bundle]: modules_json['modules'][bundle]['icon'] = bundles[bundle]['icon']
-                modules_json['modules'][bundle]['size'] = __get_gzip_file_size(os.path.join(OUT_PATH, bundle + '.min.js'))
+                modules_json['modules'][bundle]['size'] = __get_gzip_file_size(
+                    os.path.join(OUT_PATH, bundle + '.min.js'))
         modules_json['themes'] = __get_modules_config()['themes']
         with open(MODULES_CONFIG_OUT_PATH, 'w') as f:
             f.write(json.dumps(modules_json))
@@ -736,18 +736,21 @@ def __build_deps(*args, **kwargs):
 @sync_required(needs_jsb=True)
 @needs_out_dir
 @stopwatch()
-def __build_theme(*args, **kwargs):
+def __build_themes(*args, **kwargs):
     themes = kwargs['themes'] if len(kwargs['themes']) > 0 else __get_themes_list()
+    output = os.path.join(PROJECT_PATH, kwargs['output']) if kwargs['output'] else OUT_PATH
     text = 'Building %s theme'
+
     if len(themes) > 1:
         print 'Building themes (%i items)' % len(themes)
         text = '  ' + text
         func = stopwatch('    ')(build_theme)
     else:
         func = build_theme
+
     for theme in themes:
         print text % theme
-        func(theme)
+        func(theme, output)
 
 
 @sync_required(needs_lesscpy=True)
@@ -928,11 +931,10 @@ def __stat(*args, **kwargs):
 def __exec_main_script():
     # root parser
     parser = argparse.ArgumentParser()
-    parser.set_defaults(compile_css=False,
-                        gzip=False)
+    parser.set_defaults(compile_css=False, gzip=False)
     subparsers = parser.add_subparsers(help='AnyChart framework build script commands:')
 
-    # create the parser for the 'compile' command
+    # region ---- create parser for the 'compile' command
     compile_parser = subparsers.add_parser('compile', help='compile project or project modules')
     compile_parser.set_defaults(action=__compile_project,
                                 sources=False,
@@ -981,19 +983,27 @@ def __exec_main_script():
     #                             help='specify modules to compile, can be specified multiple times. '
     #                                  'Possible modules values: %s' % ', '.join(__get_macro_modules_list().keys()))
 
-    # create the parser for the 'theme' command
+    # endregion
+
+    # region ---- create parser for the 'themes' command
     themes_parser = subparsers.add_parser('themes',
                                           help='build standalone theme file by name. Default value is "defaultTheme"')
-    themes_parser.set_defaults(action=__build_theme,
+    themes_parser.set_defaults(action=__build_themes,
                                themes=[])
+    themes_parser.add_argument('-o', '--output',
+                               dest='output',
+                               action='store',
+                               help='Output directory')
+
     themes_parser.add_argument('-n', '--name',
                                dest='themes',
                                action='append',
                                help='name of the theme, default value is "defaultTheme". '
                                     'Can be passed multiple times.\nPossible values are: %s. '
                                     % ', '.join(__get_themes_list()))
+    # endregion
 
-    # create the parser for the 'libs' command
+    # region --- create parser for the 'libs' command
     libs_parser = subparsers.add_parser('libs', help='download project requirements')
     libs_parser.set_defaults(action=__sync_libs,
                              skip_less=False,
@@ -1004,22 +1014,25 @@ def __exec_main_script():
     libs_parser.add_argument('-sb', '--skip_jsb',
                              action='store_true',
                              help='skip jsbeautifier installing')
+    # endregion
 
-    # create the parser for the 'deps' command
+    # region ---- create the parser for the 'deps' command
     subparsers.add_parser('deps', help='generate deps.js file') \
         .set_defaults(action=__build_deps)
 
     # create the parser for the 'css' command
     subparsers.add_parser('css', help='compile AnyChart UI css') \
         .set_defaults(action=__compile_css)
+    # endregion
 
-    # create the parser for the 'css' command
+    # region ---- create the parser for the 'css' command
     stat_parser = subparsers.add_parser('stat', help='build size statistics report')
     stat_parser.set_defaults(action=__stat,
                              skip_build=False)
     stat_parser.add_argument('-s', '--skip_building',
                              action='store_true',
                              help='skip building stat-min')
+    # endregion
 
     params = parser.parse_args()
     params.action(**vars(params))
