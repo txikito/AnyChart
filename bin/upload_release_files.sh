@@ -11,11 +11,11 @@ if [ "${TRAVIS_BRANCH}" = "DVF-3234-minor-build-fixes" ]; then
 
     # download docs
     wget https://docs.anychart.com/download -O docs.zip
-    unzip docs.zip
+    unzip docs.zip -d docs
 
     # download demos
     wget https://playground.anychart.com/gallery/7.14.3/download -O demos.zip
-    unzip demos.zip
+    unzip demos.zip -d demos
 
     # zip files
     zip -r upload.zip *
