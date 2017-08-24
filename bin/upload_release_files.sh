@@ -6,6 +6,9 @@ if [ "${TRAVIS_BRANCH}" = "DVF-3234-minor-build-fixes" ]; then
     cp ./bin/binaries_wrapper_end.txt ./dist/binaries_wrapper_end.txt
     cp ./bin/binaries_wrapper_start.txt ./dist/binaries_wrapper_start.txt
 
+    # go to dist directory
+    cd ./dist/
+
     # download docs
     wget https://docs.anychart.com/download docs.zip
     unzip docs.zip
@@ -15,7 +18,6 @@ if [ "${TRAVIS_BRANCH}" = "DVF-3234-minor-build-fixes" ]; then
     unzip demos.zip
 
     # zip files
-    cd ./dist/
     zip -r upload.zip *
 
     # create release branch
