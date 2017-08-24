@@ -1,14 +1,13 @@
 #!/bin/bash
 set -ev
-#if [ "${TRAVIS_BRANCH}" = "DVF-3234-minor-build-fixes" ]; then
-if [ "DVF-3234-minor-build-fixes" = "DVF-3234-minor-build-fixes" ]; then
+if [ "${TRAVIS_BRANCH}" = "DVF-3234-minor-build-fixes" ]; then
 
     # copy bin files
     cp ./bin/binaries_wrapper_end.txt ./dist/binaries_wrapper_end.txt
     cp ./bin/binaries_wrapper_start.txt ./dist/binaries_wrapper_start.txt
 
     # zip files
-    cd ./out/
+    cd ./dist/
     zip -r upload.zip *
 
     # create release branch
