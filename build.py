@@ -758,13 +758,16 @@ def __build_themes(*args, **kwargs):
 @needs_out_dir
 @stopwatch()
 def __compile_css(*args, **kwargs):
+    output = os.path.join(PROJECT_PATH, kwargs['output']) if kwargs['output'] else OUT_PATH
+    __create_dir_if_not_exists(output)
+
     try:
         import lesscpy
 
         print 'Compiling AnyChart UI css'
         css_src_path = os.path.join(PROJECT_PATH, 'css', 'anychart.less')
-        css_out_path = os.path.join(OUT_PATH, 'anychart-ui.css')
-        css_min_out_path = os.path.join(OUT_PATH, 'anychart-ui.min.css')
+        css_out_path = os.path.join(output, 'anychart-ui.css')
+        css_min_out_path = os.path.join(output, 'anychart-ui.min.css')
 
         # Less
         with open(css_out_path, 'w') as f:
@@ -1025,13 +1028,20 @@ def __exec_main_script():
     # region ---- create the parser for the 'deps' command
     subparsers.add_parser('deps', help='generate deps.js file') \
         .set_defaults(action=__build_deps)
-
-    # create the parser for the 'css' command
-    subparsers.add_parser('css', help='compile AnyChart UI css') \
-        .set_defaults(action=__compile_css)
     # endregion
 
     # region ---- create the parser for the 'css' command
+    css_parser = subparsers.add_parser('css', help='compile AnyChart UI css')
+
+    css_parser.set_defaults(action=__compile_css)
+
+    css_parser.add_argument('-o', '--output',
+                            dest='output',
+                            action='store',
+                            help='Output directory')
+    # endregion
+
+    # region ---- create the parser for the 'stat' command
     stat_parser = subparsers.add_parser('stat', help='build size statistics report')
     stat_parser.set_defaults(action=__stat,
                              skip_build=False)
