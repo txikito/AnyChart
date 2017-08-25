@@ -45,15 +45,17 @@ if [ "${TRAVIS_BRANCH}" = "DVF-3234-minor-build-fixes" ]; then
     cp /apps/static/cdn/releases/$TRAVIS_BRANCH/json-schema.json /apps/static/cdn/schemas/$TRAVIS_BRANCH/json-schema.json &&
     cp /apps/static/cdn/releases/$TRAVIS_BRANCH/xml-schema.xsd /apps/static/cdn/schemas/$TRAVIS_BRANCH/xml-schema.xsd"
 
+    cd ../
+    ./bin/drop_cdn_cache.py $TRAVIS_BRANCH $CDN_ALIASE $CDN_CONSUMER_KEY $CDN_CONSUMER_SECRET $CDN_ZONE_ID
+
 fi
 
 
 # todo
-# 3. drop cdn cache for releases
-# 4. drop cdn cache for legacy files
 # 5. create github tag
 # 6. upload github release
 # 7. make npm publish
 # 8. version regexp or develop
 # 9. build export server ???
-# 10. copy legacy files to latest cp -r /apps/static/cdn/releases/$TRAVIS_BRANCH/js/. /apps/static/cdn/js/latest/
+# 10. copy legacy files to latest cp -r /apps/static/cdn/releases/$TRAVIS_BRANCH/js/. /apps/static/cdn/js/latest/c
+# 11. uncomment legacy cache drop in drop_cdn_cache.py

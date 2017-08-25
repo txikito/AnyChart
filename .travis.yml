@@ -9,6 +9,7 @@ git:
 before_install:
   - git submodule update --init
   - ./build.py libs
+  - pip install maxcdn
 
 script: 
   - ./build.py compile
