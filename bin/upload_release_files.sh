@@ -26,7 +26,7 @@ if [ "${TRAVIS_BRANCH}" = "DVF-3234-minor-build-fixes" ]; then
     mkdir -p /apps/static/cdn/releases/$TRAVIS_BRANCH &&
     rm -rf /apps/static/cdn/releases/$TRAVIS_BRANCH/* &&
     mkdir -p /apps/static/cdn/releases/latest &&
-    rm -rf /apps/static/cdn/releases/latest/*"
+    rm -rf /apps/static/cdn/releases/latest"
 
     # upload content
     scp installation-package.zip $STATIC_HOST_SSH_STRING:/apps/static/cdn/releases/$TRAVIS_BRANCH/installation-package.zip
@@ -56,3 +56,4 @@ fi
 # 7. make npm publish
 # 8. version regexp or develop
 # 9. build export server ???
+# 10. copy legacy files to latest cp -r /apps/static/cdn/releases/$TRAVIS_BRANCH/js/. /apps/static/cdn/js/latest/
