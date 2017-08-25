@@ -39,16 +39,11 @@ if [ "${TRAVIS_BRANCH}" = "DVF-3234-minor-build-fixes" ]; then
     # copy legacy files by version and latest
     ssh $STATIC_HOST_SSH_STRING "
     cp -r /apps/static/cdn/releases/$TRAVIS_BRANCH/js /apps/static/cdn/js/$TRAVIS_BRANCH &&
-    cp -r /apps/static/cdn/releases/$TRAVIS_BRANCH/js /apps/static/cdn/js/latest &&
     cp -r /apps/static/cdn/releases/$TRAVIS_BRANCH/css /apps/static/cdn/css/$TRAVIS_BRANCH &&
-    cp -r /apps/static/cdn/releases/$TRAVIS_BRANCH/css /apps/static/cdn/css/latest &&
     cp -r /apps/static/cdn/releases/$TRAVIS_BRANCH/themes /apps/static/cdn/themes/$TRAVIS_BRANCH &&
-    cp -r /apps/static/cdn/releases/$TRAVIS_BRANCH/themes /apps/static/cdn/themes/latest &&
     mkdir -p /apps/static/cdn/schemas/$TRAVIS_BRANCH &&
     cp /apps/static/cdn/releases/$TRAVIS_BRANCH/json-schema.json /apps/static/cdn/schemas/$TRAVIS_BRANCH/json-schema.json &&
-    cp /apps/static/cdn/releases/$TRAVIS_BRANCH/json-schema.json /apps/static/cdn/schemas/latest/json-schema.json &&
-    cp /apps/static/cdn/releases/$TRAVIS_BRANCH/xml-schema.xsd /apps/static/cdn/schemas/$TRAVIS_BRANCH/xml-schema.xsd &&
-    cp /apps/static/cdn/releases/$TRAVIS_BRANCH/xml-schema.xsd /apps/static/cdn/schemas/latest/xml-schema.xsd"
+    cp /apps/static/cdn/releases/$TRAVIS_BRANCH/xml-schema.xsd /apps/static/cdn/schemas/$TRAVIS_BRANCH/xml-schema.xsd"
 
 fi
 
