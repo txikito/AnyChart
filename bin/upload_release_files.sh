@@ -1,5 +1,5 @@
 #!/bin/bash
-if [ "${TRAVIS_BRANCH}" = "DVF-3234-minor-build-fixes" ]; then
+if [ "${TRAVIS_BRANCH}" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ || "${TRAVIS_BRANCH}" = "DVF-3234-minor-build-fixes" ]; then
 
     # copy bin files
     cp ./bin/binaries_wrapper_end.txt ./dist/binaries_wrapper_end.txt
@@ -45,16 +45,18 @@ if [ "${TRAVIS_BRANCH}" = "DVF-3234-minor-build-fixes" ]; then
     cp /apps/static/cdn/releases/$TRAVIS_BRANCH/json-schema.json /apps/static/cdn/schemas/$TRAVIS_BRANCH/json-schema.json &&
     cp /apps/static/cdn/releases/$TRAVIS_BRANCH/xml-schema.xsd /apps/static/cdn/schemas/$TRAVIS_BRANCH/xml-schema.xsd"
 
-    cd ../
-    ./bin/drop_cdn_cache.py $TRAVIS_BRANCH $CDN_ALIASE $CDN_CONSUMER_KEY $CDN_CONSUMER_SECRET $CDN_ZONE_ID
+    echo $ANYCHART_VERSION >> ./test.txt
 
+    #cd ../
+    #./bin/drop_cdn_cache.py $TRAVIS_BRANCH $CDN_ALIASE $CDN_CONSUMER_KEY $CDN_CONSUMER_SECRET $CDN_ZONE_ID
+    #./bin/upload_github_release.py $GITHUB_ACCESS_TOKEN
+    #npm publish
 fi
 
 
+
+
 # todo
-# 5. create github tag
-# 6. upload github release
-# 7. make npm publish
 # 8. version regexp or develop
 # 9. build export server ???
 # 10. copy legacy files to latest cp -r /apps/static/cdn/releases/$TRAVIS_BRANCH/js/. /apps/static/cdn/js/latest/c

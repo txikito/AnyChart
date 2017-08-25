@@ -26,8 +26,6 @@ def split(array, size):
 
 
 if __name__ == '__main__':
-    print sys.argv
-
     branch = sys.argv[1]
     cdn_alias = sys.argv[2]
     cdn_consumer_key = sys.argv[3]
