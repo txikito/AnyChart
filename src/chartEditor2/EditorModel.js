@@ -941,7 +941,7 @@ anychart.chartEditor2Module.EditorModel.prototype.addData = function(evt) {
 
   this.generateInitialMappingsOnChangeView_ = true;
   // debug
-  this.onChangeView();
+  // this.onChangeView();
 
   this.dispatchUpdate();
 };
@@ -953,15 +953,11 @@ anychart.chartEditor2Module.EditorModel.prototype.removeData = function(setFullI
 
   this.generateInitialMappingsOnChangeView_ = true;
   // debug
-  this.onChangeView();
+  //this.onChangeView();
 
-  // if (setFullId == this.model_.dataSettings.active) {
-  //   this.chooseActiveAndField();
-  //   this.createDefaultMappings();
-  // }
-  //
-  // if (setFullId == this.model_.dataSettings.activeGeo)
-  //   this.chooseActiveGeo();
+  if (setFullId == this.model_.dataSettings.active || setFullId == this.model_.dataSettings.activeGeo) {
+    this.onChangeView();
+  }
 
   this.dispatchUpdate();
 };
