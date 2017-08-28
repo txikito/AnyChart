@@ -58,6 +58,7 @@ anychart.chartEditor2Module.BasicSettings.prototype.createDom = function() {
 anychart.chartEditor2Module.BasicSettings.prototype.update = function() {
   var self = this;
   var model = self.editor_.getModel();
+
   this.getHandler().listenOnce(this.editor_, anychart.chartEditor2Module.events.EventType.CHART_DRAW,
       function(evt) {
         if (evt.rebuild) {
@@ -75,15 +76,21 @@ anychart.chartEditor2Module.BasicSettings.prototype.update = function() {
               paletteNames.push(paletteName);
             }
           }
-          this.paletteSelect.setOptions(paletteNames, 'defaultPalette');
-          this.paletteSelect.setEditorModel(model, [['chart'], ['settings'], 'palette()'], void 0, evt.chart);
+
+          var chartType = model.getValue([['chart'], 'type']);
+          if (chartType == 'stock') {
+            this.paletteSelect.hide();
+          } else {
+            this.paletteSelect.show();
+            this.paletteSelect.setOptions(paletteNames, 'defaultPalette');
+            this.paletteSelect.setEditorModel(model, [['chart'], ['settings'], 'palette()'], void 0, evt.chart);
+          }
 
           this.titleEnabled.setEditorModel(model, [['chart'], ['settings'], 'title().enabled()'], void 0, evt.chart, true);
           this.titleText.setEditorModel(model, [['chart'], ['settings'], 'title().text()'], void 0, evt.chart, true);
 
           // Series names
           this.removeSeriesNames_();
-          var chartType = model.getValue([['chart'], 'type']);
           var mappings = model.getValue([['dataSettings'], 'mappings']);
           for (var i = 0; i < mappings.length; i++) {
             for (var j = 0; j < mappings[i].length; j++) {

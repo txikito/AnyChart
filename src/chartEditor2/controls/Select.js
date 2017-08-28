@@ -126,3 +126,13 @@ anychart.chartEditor2Module.controls.Select.prototype.setOptions = function(opti
     this.setValue(opt_default);
   }
 };
+
+
+anychart.chartEditor2Module.controls.Select.prototype.hide = function() {
+  goog.dom.classlist.add(this.getElement(), 'hidden');
+};
+
+
+anychart.chartEditor2Module.controls.Select.prototype.show = function() {
+  goog.dom.classlist.remove(this.getElement(), 'hidden');
+};
