@@ -19,7 +19,7 @@ if [ "${TRAVIS_BRANCH}" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ || "${TRAVIS_BRANCH}" = "DVF
     rm demos.zip
 
     # zip files
-    zip -r installation-package.zip *
+    zip -q -r installation-package.zip *
 
     # ensure releases branch exists and clean, as far as cdn always hosts removed content, we are free to remove files
     ssh $STATIC_HOST_SSH_STRING "
@@ -33,7 +33,7 @@ if [ "${TRAVIS_BRANCH}" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ || "${TRAVIS_BRANCH}" = "DVF
 
     # copy unzip release files and copy to latest
     ssh $STATIC_HOST_SSH_STRING "
-    unzip -o /apps/static/cdn/releases/$TRAVIS_BRANCH/installation-package.zip -d /apps/static/cdn/releases/$TRAVIS_BRANCH/ &&
+    unzip -q -o /apps/static/cdn/releases/$TRAVIS_BRANCH/installation-package.zip -d /apps/static/cdn/releases/$TRAVIS_BRANCH/ &&
     cp -r /apps/static/cdn/releases/$TRAVIS_BRANCH /apps/static/cdn/releases/latest"
 
     # copy legacy files by version and latest
@@ -45,8 +45,6 @@ if [ "${TRAVIS_BRANCH}" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ || "${TRAVIS_BRANCH}" = "DVF
     cp /apps/static/cdn/releases/$TRAVIS_BRANCH/json-schema.json /apps/static/cdn/schemas/$TRAVIS_BRANCH/json-schema.json &&
     cp /apps/static/cdn/releases/$TRAVIS_BRANCH/xml-schema.xsd /apps/static/cdn/schemas/$TRAVIS_BRANCH/xml-schema.xsd"
 
-    echo $ANYCHART_VERSION >> ./test.txt
-
     #cd ../
     #./bin/drop_cdn_cache.py $TRAVIS_BRANCH $CDN_ALIASE $CDN_CONSUMER_KEY $CDN_CONSUMER_SECRET $CDN_ZONE_ID
     #./bin/upload_github_release.py $GITHUB_ACCESS_TOKEN
@@ -57,7 +55,9 @@ fi
 
 
 # todo
-# 8. version regexp or develop
 # 9. build export server ???
 # 10. copy legacy files to latest cp -r /apps/static/cdn/releases/$TRAVIS_BRANCH/js/. /apps/static/cdn/js/latest/c
 # 11. uncomment legacy cache drop in drop_cdn_cache.py
+# 12. попробовать разобратьяс с npm и модулями
+# 13. Нужны проврки на существование тега, версии итд
+# 14. Интеграция с сайтом
