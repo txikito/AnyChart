@@ -312,6 +312,7 @@ anychart.chartEditor2Module.EditorModel.prototype.chooseActiveAndField = functio
 
       if (!this.fieldsState_['date'] && new Date(fieldValue).getTime()) {
         this.fieldsState_['date'] = [i, fieldValue];
+        this.model_.dataSettings.field = i;
       }
 
       if (this.model_.dataSettings.activeGeo &&

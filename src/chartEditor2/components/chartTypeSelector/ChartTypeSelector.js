@@ -152,7 +152,11 @@ anychart.chartEditor2Module.ChartTypeSelector.prototype.createDataSetsOptions_ =
   }
 
   var data = this.editor_.getModel().getPreparedData();
+
   for(var i = 0; i < data.length; i++) {
+    if (data[i]['type'] == anychart.chartEditor2Module.EditorModel.dataType.GEO)
+      continue;
+
     var fields = data[i]['fields'];
     var caption = data[i]['title'];
     var setFullId = data[i]['setFullId'];
@@ -169,6 +173,9 @@ anychart.chartEditor2Module.ChartTypeSelector.prototype.createXValuesOptions_ = 
 
   var data = this.editor_.getModel().getPreparedData();
   for(var i = 0; i < data.length; i++) {
+    if (data[i]['type'] == anychart.chartEditor2Module.EditorModel.dataType.GEO)
+      continue;
+
     var fields = data[i]['fields'];
     for(var j = 0; j < fields.length; j++) {
       var caption = data.length == 1 ? fields[j]['name'] : data[i]['title'] + ' - ' + fields[j]['name'];

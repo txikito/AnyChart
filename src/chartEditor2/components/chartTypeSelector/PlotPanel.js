@@ -28,12 +28,6 @@ anychart.chartEditor2Module.PlotPanel = function(editor, index) {
    * @private
    */
   this.series_ = [];
-
-  /**
-   * @type {?String}
-   * @private
-   */
-  this.currentSetId_ = null;
 };
 goog.inherits(anychart.chartEditor2Module.PlotPanel, anychart.chartEditor2Module.Component);
 
