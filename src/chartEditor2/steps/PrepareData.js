@@ -95,17 +95,81 @@ anychart.chartEditor2Module.steps.PrepareData.prototype.onUploadButtonClick = fu
 
 
 anychart.chartEditor2Module.steps.PrepareData.prototype.openDialog = function(dialogType, opt_dataType) {
-  console.log(dialogType, opt_dataType);
-
   if(!this.dataDialog_) {
     this.dataDialog_ = new anychart.chartEditor2Module.DataDialog('data-dialog');
     this.dataDialog_.setButtonSet(goog.ui.Dialog.ButtonSet.createOkCancel());
 
-    goog.events.listen(this.dataDialog_, goog.ui.Dialog.EventType.SELECT, function(e) {
-      console.log('You chose: ' + e.key);
-    });
+    goog.events.listen(this.dataDialog_, goog.ui.Dialog.EventType.SELECT, this.onCloseDialog);
   }
 
-  this.dataDialog_.setTitle('My favorite LOLCat');
+  this.dataDialog_.update(dialogType, opt_dataType);
+
+  //this.dataDialog_.setTitle('My favorite LOLCat');
   this.dataDialog_.setVisible(true);
 };
+
+
+anychart.chartEditor2Module.steps.PrepareData.prototype.onCloseDialog = function(evt) {
+  if(evt.key == 'ok') {
+    var dialogType = this.getType();
+    var dataType = this.getDataType();
+    var inputValue = this.getInputValue();
+    if (inputValue) {
+
+      if (dialogType == 'file') {
+        //
+      }
+
+      var data;
+      switch(dataType) {
+        case 'json':
+          try {
+            data = goog.json.hybrid.parse(inputValue);
+          } catch(err) {
+            console.log("Invalid JSON string!");
+          }
+          break;
+
+        case 'csv':
+          data = anychart.data.parseText(inputValue, {ignoreFirstRow: true});
+          break;
+
+        case 'xml':
+          data = anychart.chartEditor2Module.steps.PrepareData.xmlStringToJson_(inputValue);
+          break;
+      }
+
+      console.log(data);
+    }
+  }
+};
+
+
+anychart.chartEditor2Module.steps.PrepareData.xmlStringToJson_ = function(xmlString) {
+  var wnd = goog.dom.getWindow();
+  var parseXml;
+
+  if (wnd.DOMParser) {
+    parseXml = function(xmlStr) {
+      return ( new wnd.DOMParser() ).parseFromString(xmlStr, "text/xml");
+    };
+  } else if (typeof wnd.ActiveXObject != "undefined" && new wnd.ActiveXObject("Microsoft.XMLDOM")) {
+    parseXml = function(xmlStr) {
+      var xmlDoc = new wnd.ActiveXObject("Microsoft.XMLDOM");
+      xmlDoc.async = "false";
+      xmlDoc.loadXML(xmlStr);
+      return xmlDoc;
+    };
+  } else {
+    parseXml = function() { return null; }
+  }
+
+  var xmlDoc = parseXml(xmlString);
+  if (xmlDoc) {
+    //console.log(xmlDoc, xmlDoc.documentElement.nodeName);
+    return anychart.utils.xml2json(xmlDoc);
+  }
+
+  return null;
+};
+
