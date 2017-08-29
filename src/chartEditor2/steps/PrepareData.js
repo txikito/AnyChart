@@ -1,11 +1,12 @@
 goog.provide('anychart.chartEditor2Module.steps.PrepareData');
 
-goog.require('anychart.ui.button.Base');
+goog.require('anychart.chartEditor2Module.DataDialog');
 goog.require('anychart.chartEditor2Module.GeoDataSelector');
 goog.require('anychart.chartEditor2Module.PredefinedDataSelector');
 goog.require('anychart.chartEditor2Module.events');
 goog.require('anychart.chartEditor2Module.steps.Base');
 goog.require('goog.dom.classlist');
+goog.require('goog.ui.Button');
 
 goog.forwardDeclare('anychart.data.Mapping');
 
@@ -22,6 +23,12 @@ anychart.chartEditor2Module.steps.PrepareData = function(index, opt_domHelper) {
 
   this.name('Prepare Data');
   this.title('Prepare Data');
+
+  /**
+   * @type {?anychart.chartEditor2Module.DataDialog}
+   * @private
+   */
+  this.dataDialog_ = null;
 };
 goog.inherits(anychart.chartEditor2Module.steps.PrepareData, anychart.chartEditor2Module.steps.Base);
 
@@ -35,15 +42,28 @@ anychart.chartEditor2Module.steps.PrepareData.prototype.createDom = function() {
   goog.dom.classlist.add(element, 'step-prepare-data');
 
   var dom = this.getDomHelper();
-  var uploadButtonsFormats = ['csv', 'xls', 'mysql', 'csv', 'xls', 'mysql'];
+
+  var buttonsMap = [
+    {name: 'file-csv', img: 'csv'},
+    {name: 'file-json', img: 'json'},
+    {name: 'file-xml', img: 'xml'},
+    {name: 'string-csv', img: 'csv'},
+    {name: 'string-json', img: 'json'},
+    {name: 'string-xml', img: 'xml'},
+    {name: 'spreadsheets', img: 'spreadsheets'}
+  ];
+
   var buttonsBar = dom.createDom(goog.dom.TagName.DIV, 'buttons');
-  for (var i = 0; i < 6; i++) {
-    var format = uploadButtonsFormats[i];
-    var button = new anychart.ui.button.Base(format);
-    button.setIcon(format);
-    button.setValue(format);
+  for (var i = 0; i < buttonsMap.length; i++) {
+    var name = buttonsMap[i].name;
+
+    var button = new goog.ui.Button(name);
+    button.setValue(name);
+
     button.render(buttonsBar);
-    goog.dom.classlist.add(button.getElement(), 'upload-' + format);
+    // goog.dom.classlist.add(button.getElement(), 'upload-' + format);
+
+    button.listen(goog.ui.Component.EventType.ACTION, this.onUploadButtonClick, false, this);
   }
 
   this.connectDataEl_ = dom.createDom(goog.dom.TagName.DIV, 'connect-data',
@@ -65,4 +85,27 @@ anychart.chartEditor2Module.steps.PrepareData.prototype.createDom = function() {
   var geoDataSelector = new anychart.chartEditor2Module.GeoDataSelector(this.getParent().getModel());
   this.addChild(geoDataSelector, true);
   goog.dom.classlist.add(geoDataSelector.getElement(), 'section');
+};
+
+anychart.chartEditor2Module.steps.PrepareData.prototype.onUploadButtonClick = function(evt) {
+  var type = evt.target.getValue();
+  var tmp = type.split('-');
+  this.openDialog(tmp[0], tmp[1]);
+};
+
+
+anychart.chartEditor2Module.steps.PrepareData.prototype.openDialog = function(dialogType, opt_dataType) {
+  console.log(dialogType, opt_dataType);
+
+  if(!this.dataDialog_) {
+    this.dataDialog_ = new anychart.chartEditor2Module.DataDialog('data-dialog');
+    this.dataDialog_.setButtonSet(goog.ui.Dialog.ButtonSet.createOkCancel());
+
+    goog.events.listen(this.dataDialog_, goog.ui.Dialog.EventType.SELECT, function(e) {
+      console.log('You chose: ' + e.key);
+    });
+  }
+
+  this.dataDialog_.setTitle('My favorite LOLCat');
+  this.dataDialog_.setVisible(true);
 };
