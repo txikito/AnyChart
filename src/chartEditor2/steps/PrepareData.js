@@ -11,6 +11,7 @@ goog.require('goog.ui.Button');
 goog.forwardDeclare('anychart.data.Mapping');
 
 
+
 /**
  * Chart Editor Step Class.
  * @constructor
@@ -31,7 +32,6 @@ anychart.chartEditor2Module.steps.PrepareData = function(index, opt_domHelper) {
   this.dataDialog_ = null;
 };
 goog.inherits(anychart.chartEditor2Module.steps.PrepareData, anychart.chartEditor2Module.steps.Base);
-
 
 
 /** @override */
@@ -95,11 +95,13 @@ anychart.chartEditor2Module.steps.PrepareData.prototype.onUploadButtonClick = fu
 
 
 anychart.chartEditor2Module.steps.PrepareData.prototype.openDialog = function(dialogType, opt_dataType) {
-  if(!this.dataDialog_) {
+  this.dialogType_ = dialogType;
+  this.dialogDataType_ = opt_dataType;
+
+  if (!this.dataDialog_) {
     this.dataDialog_ = new anychart.chartEditor2Module.DataDialog('data-dialog');
     this.dataDialog_.setButtonSet(goog.ui.Dialog.ButtonSet.createOkCancel());
-
-    goog.events.listen(this.dataDialog_, goog.ui.Dialog.EventType.SELECT, this.onCloseDialog);
+    goog.events.listen(this.dataDialog_, goog.ui.Dialog.EventType.SELECT, this.onCloseDialog, void 0, this);
   }
 
   this.dataDialog_.update(dialogType, opt_dataType);
@@ -110,38 +112,103 @@ anychart.chartEditor2Module.steps.PrepareData.prototype.openDialog = function(di
 
 
 anychart.chartEditor2Module.steps.PrepareData.prototype.onCloseDialog = function(evt) {
-  if(evt.key == 'ok') {
-    var dialogType = this.getType();
-    var dataType = this.getDataType();
-    var inputValue = this.getInputValue();
+  var dialog = evt.target;
+  if (evt.key == 'ok') {
+    var self = this;
+    var dialogType = this.dialogType_;
+    var dataType = this.dialogDataType_;
+
+    var inputValue = dialog.getInputValue();
     if (inputValue) {
-
       if (dialogType == 'file') {
-        //
-      }
+        var expression = /[-a-zA-Z0-9@:%_\+.~#?&//=]{2,256}\.[a-z]{2,4}\b(\/[-a-zA-Z0-9@:%_\+.~#?&//=]*)?/gi;
+        var regex = new RegExp(expression);
+        if (inputValue.match(regex)) {
+          switch (dataType) {
+            case 'json':
+              anychart.data.loadJsonFile(inputValue, function(data) {
+                self.onSuccessDataLoad(data, dataType);
+              }, this.onErrorDataLoad);
 
-      var data;
-      switch(dataType) {
-        case 'json':
-          try {
-            data = goog.json.hybrid.parse(inputValue);
-          } catch(err) {
-            console.log("Invalid JSON string!");
+              break;
+
+            case 'csv':
+              anychart.data.loadCsvFile(inputValue, function(data) {
+                self.onSuccessDataLoad(data, dataType);
+              }, this.onErrorDataLoad);
+              break;
+
+            case 'xml':
+              anychart.data.loadXmlFile(inputValue, function(data) {
+                self.onSuccessDataLoad(data, dataType);
+              }, this.onErrorDataLoad);
+              break;
           }
-          break;
+        } else {
+          console.warn("Invalid url!")
+        }
 
-        case 'csv':
-          data = anychart.data.parseText(inputValue, {ignoreFirstRow: true});
-          break;
-
-        case 'xml':
-          data = anychart.chartEditor2Module.steps.PrepareData.xmlStringToJson_(inputValue);
-          break;
+      } else if (dialogType == 'string') {
+        this.addLoadedData(inputValue, dataType);
       }
-
-      console.log(data);
     }
   }
+};
+
+
+anychart.chartEditor2Module.steps.PrepareData.prototype.addLoadedData = function(data, dataType) {
+  var result = null;
+  var typeOf = goog.typeOf(data);
+  if (typeOf == 'object' || typeOf == 'array') {
+    result = data;
+
+  } else {
+    var error = false;
+    switch (dataType) {
+      case 'json':
+        if (typeOf == 'string') {
+          try {
+            result = goog.json.hybrid.parse(data);
+          } catch (err) {
+            // parsing error
+            error = true;
+          }
+        }
+        break;
+
+      case 'csv':
+        result = anychart.data.parseText(data);
+        break;
+
+      case 'xml':
+        try {
+          result = anychart.chartEditor2Module.steps.PrepareData.xmlStringToJson_(data);
+        } catch (err) {
+          // parsing error
+          error = true;
+        }
+
+        break;
+    }
+
+    if (!result || error)
+      console.warn("Invalid data!");
+  }
+
+  console.log(result);
+
+  return result;
+};
+
+
+anychart.chartEditor2Module.steps.PrepareData.prototype.onSuccessDataLoad = function(data, dataType) {
+  if (!data) return;
+  this.addLoadedData(data, dataType);
+};
+
+
+anychart.chartEditor2Module.steps.PrepareData.prototype.onErrorDataLoad = function(errorCode) {
+  console.warn("Invalid data!", errorCode);
 };
 
 
@@ -150,8 +217,26 @@ anychart.chartEditor2Module.steps.PrepareData.xmlStringToJson_ = function(xmlStr
   var parseXml;
 
   if (wnd.DOMParser) {
+    var isParseError = function(parsedDocument) {
+      // parser and parsererrorNS could be cached on startup for efficiency
+      var parser = new DOMParser(),
+          errorneousParse = parser.parseFromString('<', 'text/xml'),
+          parsererrorNS = errorneousParse.getElementsByTagName("parsererror")[0].namespaceURI;
+
+      if (parsererrorNS === 'http://www.w3.org/1999/xhtml') {
+        // In PhantomJS the parseerror element doesn't seem to have a special namespace, so we are just guessing here :(
+        return parsedDocument.getElementsByTagName("parsererror").length > 0;
+      }
+      return parsedDocument.getElementsByTagNameNS(parsererrorNS, 'parsererror').length > 0;
+    };
+
     parseXml = function(xmlStr) {
-      return ( new wnd.DOMParser() ).parseFromString(xmlStr, "text/xml");
+      var parser = new DOMParser();
+      var dom = parser.parseFromString(xmlStr, 'text/xml');
+      if (isParseError(dom)) {
+        throw new Error('Error parsing XML');
+      }
+      return dom;
     };
   } else if (typeof wnd.ActiveXObject != "undefined" && new wnd.ActiveXObject("Microsoft.XMLDOM")) {
     parseXml = function(xmlStr) {
@@ -161,15 +246,15 @@ anychart.chartEditor2Module.steps.PrepareData.xmlStringToJson_ = function(xmlStr
       return xmlDoc;
     };
   } else {
-    parseXml = function() { return null; }
+    parseXml = function() {
+      return null;
+    }
   }
 
   var xmlDoc = parseXml(xmlString);
   if (xmlDoc) {
-    //console.log(xmlDoc, xmlDoc.documentElement.nodeName);
     return anychart.utils.xml2json(xmlDoc);
   }
 
   return null;
 };
-
