@@ -1,10 +1,11 @@
 goog.provide('anychart.chartEditor2Module.steps.PrepareData');
 
 goog.require('anychart.chartEditor2Module.DataDialog');
+goog.require('anychart.chartEditor2Module.events');
 goog.require('anychart.chartEditor2Module.GeoDataSelector');
 goog.require('anychart.chartEditor2Module.PredefinedDataSelector');
-goog.require('anychart.chartEditor2Module.events');
 goog.require('anychart.chartEditor2Module.steps.Base');
+goog.require('anychart.chartEditor2Module.UploadedDataSetPanelList');
 goog.require('goog.dom.classlist');
 goog.require('goog.ui.Button');
 
@@ -66,17 +67,20 @@ anychart.chartEditor2Module.steps.PrepareData.prototype.createDom = function() {
     button.listen(goog.ui.Component.EventType.ACTION, this.onUploadButtonClick, false, this);
   }
 
+  var model = /** @type {anychart.chartEditor2Module.Editor} */(this.getParent()).getModel();
+  var uploadedDataSetsPanelList = new anychart.chartEditor2Module.UploadedDataSetPanelList(model);
+  this.addChild(uploadedDataSetsPanelList, true);
   this.connectDataEl_ = dom.createDom(goog.dom.TagName.DIV, 'connect-data',
       dom.createDom(goog.dom.TagName.DIV, 'section-content',
           dom.createDom(goog.dom.TagName.DIV, 'inner',
               dom.createDom(goog.dom.TagName.DIV, 'top',
                   dom.createDom(goog.dom.TagName.H2, null, 'Connect your data')),
               buttonsBar,
-              dom.createDom(goog.dom.TagName.DIV, 'uploaded',
-                  dom.createDom(goog.dom.TagName.DIV, 'inner', 'Nothing uploaded yet...')),
+              uploadedDataSetsPanelList.getElement(),
               dom.createDom(goog.dom.TagName.DIV, 'cb'))));
   goog.dom.classlist.add(this.connectDataEl_, 'section');
   element.appendChild(this.connectDataEl_);
+
 
   var predefinedDataSelector = new anychart.chartEditor2Module.PredefinedDataSelector(this.getParent().getModel());
   this.addChild(predefinedDataSelector, true);
@@ -195,9 +199,18 @@ anychart.chartEditor2Module.steps.PrepareData.prototype.addLoadedData = function
       console.warn("Invalid data!");
   }
 
-  console.log(result);
-
-  return result;
+  if (result) {
+    var type = anychart.chartEditor2Module.EditorModel.dataType.UPLOADED;
+    this.uploadedSetId_ = this.uploadedSetId_ ? ++this.uploadedSetId_ : 1;
+    this.dispatchEvent({
+      type: anychart.chartEditor2Module.events.EventType.DATA_ADD,
+      data: result,
+      dataType: type,
+      setId: this.uploadedSetId_,
+      setFullId: type + this.uploadedSetId_,
+      title: "Data " + this.uploadedSetId_
+    });
+  }
 };
 
 

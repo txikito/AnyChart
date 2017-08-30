@@ -283,18 +283,11 @@ anychart.chartEditor2Module.EditorModel.prototype.chooseActiveAndField = functio
   this.dropChartSettings();
 
   var preparedData = this.getPreparedData();
-  var active = goog.isDefAndNotNull(opt_active) ? opt_active : preparedData[0]['setFullId'];
-  var field = goog.isDefAndNotNull(opt_field) ? opt_field : preparedData[0]['fields'][0]['key'];
-
-  this.model_.dataSettings.active = active;
-  this.model_.dataSettings.field = field;
+  this.model_.dataSettings.active = goog.isDefAndNotNull(opt_active) ? opt_active : preparedData[0]['setFullId'];
 
   this.fieldsState_ = {
-    'count': 0,
-    'stringsCount': 0,
     'numbersCount': 0,
     'coordinates': [],
-    'strings': [],
     'numbers': []
   };
 
@@ -302,43 +295,62 @@ anychart.chartEditor2Module.EditorModel.prototype.chooseActiveAndField = functio
   var dataRow = rawData[0];
   var fieldValue;
   var numberValue;
+  //debugger;
+  var key;
+  for (key in dataRow) {
+    fieldValue = dataRow[key];
+    numberValue = goog.string.toNumber(fieldValue);
 
-  for (var i in dataRow) {
-    fieldValue = dataRow[i];
-    numberValue = NaN;
+    if (!this.fieldsState_['date'] && goog.isString(fieldValue) && isNaN(numberValue) && new Date(fieldValue).getTime()) {
+        // Full valid date by string ("2010-05-17")
+        this.fieldsState_['date'] = key;
+    }
 
-    if (goog.isString(fieldValue)) {
-      numberValue = this.fieldsState_['count'] > 0 ? goog.string.toNumber(fieldValue) : NaN;
+    if (!this.fieldsState_['date_short'] && !isNaN(numberValue) && /^[0-2]\d{3}$/.test(fieldValue)) {
+      // Short date ("2010")
+      this.fieldsState_['date_short'] = key;
+    }
 
-      if (!this.fieldsState_['date'] && new Date(fieldValue).getTime()) {
-        this.fieldsState_['date'] = [i, fieldValue];
-        this.model_.dataSettings.field = i;
+    if (!isNaN(numberValue)) {
+      if (this.model_.dataSettings.activeGeo && this.fieldsState_['coordinates'].length < 2 && new RegExp(/^-?([1-8]?[1-9]|[1-9]0)\.{1}\d{1,6}/).exec(fieldValue)) {
+        this.fieldsState_['coordinates'].push(key);
       }
 
+    } else if (goog.isString(fieldValue)) {
+      this.fieldsState_['firstString'] = goog.isDef(this.fieldsState_['firstString']) ? this.fieldsState_['firstString'] : key;
       if (this.model_.dataSettings.activeGeo &&
           new RegExp(/^(AF|AX|AL|DZ|AS|AD|AO|AI|AQ|AG|AR|AM|AW|AU|AT|AZ|BS|BH|BD|BB|BY|BE|BZ|BJ|BM|BT|BO|BQ|BA|BW|BV|BR|IO|BN|BG|BF|BI|KH|CM|CA|CV|KY|CF|TD|CL|CN|CX|CC|CO|KM|CG|CD|CK|CR|CI|HR|CU|CW|CY|CZ|DK|DJ|DM|DO|EC|EG|SV|GQ|ER|EE|ET|FK|FO|FJ|FI|FR|GF|PF|TF|GA|GM|GE|DE|GH|GI|GR|GL|GD|GP|GU|GT|GG|GN|GW|GY|HT|HM|VA|HN|HK|HU|IS|IN|ID|IR|IQ|IE|IM|IL|IT|JM|JP|JE|JO|KZ|KE|KI|KP|KR|KW|KG|LA|LV|LB|LS|LR|LY|LI|LT|LU|MO|MK|MG|MW|MY|MV|ML|MT|MH|MQ|MR|MU|YT|MX|FM|MD|MC|MN|ME|MS|MA|MZ|MM|NA|NR|NP|NL|NC|NZ|NI|NE|NG|NU|NF|MP|NO|OM|PK|PW|PS|PA|PG|PY|PE|PH|PN|PL|PT|PR|QA|RE|RO|RU|RW|BL|SH|KN|LC|MF|PM|VC|WS|SM|ST|SA|SN|RS|SC|SL|SG|SX|SK|SI|SB|SO|ZA|GS|SS|ES|LK|SD|SR|SJ|SZ|SE|CH|SY|TW|TJ|TZ|TH|TL|TG|TK|TO|TT|TN|TR|TM|TC|TV|UG|UA|AE|GB|US|UM|UY|UZ|VU|VE|VN|VG|VI|WF|EH|YE|ZM|ZW)$/).exec(fieldValue)) {
-        this.fieldsState_['geoIdField'] = [i, fieldValue];
-      }
-
-      this.fieldsState_['strings'].push([i, fieldValue]);
-      this.fieldsState_['stringsCount']++;
-
-    } else if (goog.isNumber(fieldValue) || !isNaN(numberValue)) {
-      var usedAsCoordinate = false;
-      if (this.model_.dataSettings.activeGeo) {
-        if (this.fieldsState_['coordinates'].length < 2 && new RegExp(/^-?([1-8]?[1-9]|[1-9]0)\.{1}\d{1,6}/).exec(fieldValue)) {
-          this.fieldsState_['coordinates'].push(i);
-          usedAsCoordinate = true;
-        }
-      }
-
-      if (!usedAsCoordinate) {
-        this.fieldsState_['numbers'].push([i, fieldValue]);
-        this.fieldsState_['numbersCount']++;
+        this.fieldsState_['geoIdField'] = key;
       }
     }
-    this.fieldsState_['count']++;
   }
+
+  // Set up field
+  if (goog.isDefAndNotNull(opt_field)) {
+    this.model_.dataSettings.field = opt_field;
+
+  } else {
+    this.model_.dataSettings.field = goog.isDef(this.fieldsState_['date']) ?
+        this.fieldsState_['date'] :
+        goog.isDef(this.fieldsState_['date_short']) ?
+            this.fieldsState_['date_short'] :
+            goog.isDef(this.fieldsState_['firstString']) ?
+                this.fieldsState_['firstString'] :
+                preparedData[0]['fields'][0]['key'];
+  }
+  //debugger;
+  // Counting numbers
+  for (key in dataRow) {
+    if (this.model_.dataSettings.field == key)
+      continue;
+
+    numberValue = goog.string.toNumber(dataRow[key]);
+    if (!isNaN(numberValue) && goog.array.indexOf(this.fieldsState_['coordinates'], key) == -1) {
+      this.fieldsState_['numbers'].push(key);
+      this.fieldsState_['numbersCount']++;
+    }
+  }
+  //debugger;
 };
 
 
@@ -349,18 +361,16 @@ anychart.chartEditor2Module.EditorModel.prototype.chooseDefaultChartType = funct
   if (this.model_.dataSettings.activeGeo) {
     chartType = 'map';
   } else {
-    if (this.fieldsState_['date']) {
-      var fieldValue = this.fieldsState_['date'][1];
-      if (fieldValue.length > 4)
-        chartType = 'stock';
-      else if (this.fieldsState_['numbersCount'] <= 3)
-        chartType = 'column';
-      else if (this.fieldsState_['numbersCount'] <= 5) {
-        chartType = 'column';
-        this.setStackMode('value');
-      }
+    if (this.model_.dataSettings.field == this.fieldsState_['date']) {
+      chartType = 'stock';
 
-    } else if (this.fieldsState_['strings'][0]) {
+    } else if (this.model_.dataSettings.field == this.fieldsState_['date_short']) {
+      chartType = 'column';
+
+      if (this.fieldsState_['numbersCount'] > 3)
+        this.setStackMode('value');
+
+    } else if (this.model_.dataSettings.field == this.fieldsState_['firstString']) {
       if (rawData.length <= 5 && this.fieldsState_['numbersCount'] == 1)
         chartType = 'pie';
       else if (this.fieldsState_['numbersCount'] <= 3)
@@ -403,11 +413,10 @@ anychart.chartEditor2Module.EditorModel.prototype.chooseDefaultSeriesType = func
       break;
 
     case 'scatter':
-      if (!(this.fieldsState_['numbersCount'] % 3)) {
+      if (!(this.fieldsState_['numbersCount'] % 2))
         seriesType = 'bubble';
-      } else if (!(this.fieldsState_['numbersCount'] % 2)) {
+      else
         seriesType = 'marker';
-      }
       break;
   }
 
@@ -440,7 +449,7 @@ anychart.chartEditor2Module.EditorModel.prototype.createPlotMapping = function()
   var result = [];
 
   var rawData = this.getRawData();
-  var dataRow = rawData[0];
+  //var dataRow = rawData[0];
   //console.log(dataRow, this.fieldsState_, this.model_.chart.type, this.model_.chart.seriesType);
 
   var numValues = 1;
@@ -483,13 +492,13 @@ anychart.chartEditor2Module.EditorModel.prototype.createSeriesConfig = function(
     config['id'] = opt_id;
 
   var numbers = goog.array.clone(this.fieldsState_['numbers']);
-  if (this.model_.chart.type == 'scatter')
-    goog.array.splice(numbers, 0, 1); // remove x field for scatter
+  // if (this.model_.chart.type == 'scatter')
+  //   goog.array.splice(numbers, 0, 1); // remove x field for scatter
 
   var fields = anychart.chartEditor2Module.EditorModel.series[type]['fields'];
   for (var i = 0; i < fields.length; i++) {
     if (this.fieldsState_['geoIdField'] && fields[i]['field'] == 'geoIdField') {
-      config['mapping'][fields[i]['field']] = this.fieldsState_['geoIdField'][0];
+      config['mapping'][fields[i]['field']] = this.fieldsState_['geoIdField'];
 
     } else if (this.fieldsState_['coordinates'] && (fields[i]['field'] == 'lat' || fields[i]['field'] == 'long')) {
       config['mapping'][fields[i]['field']] = (fields[i]['field'] == 'lat') ?
@@ -499,7 +508,7 @@ anychart.chartEditor2Module.EditorModel.prototype.createSeriesConfig = function(
     } else {
       var j = index + i + (goog.isNumber(opt_startFieldIndex) ? opt_startFieldIndex : 0);
       var numberIndex = numbers.length > j ? j : j % numbers.length;
-      config['mapping'][fields[i]['field']] = numbers[numberIndex][0];
+      config['mapping'][fields[i]['field']] = numbers[numberIndex];
     }
   }
   return config;
@@ -1047,7 +1056,7 @@ anychart.chartEditor2Module.EditorModel.prototype.prepareData_ = function() {
       } else if (dataSet.type == anychart.chartEditor2Module.EditorModel.dataType.GEO) {
         geoSets.push(dataSet);
       } else {
-        dataSet['title'] = 'Data set ' + (singleSets.length + 1);
+        dataSet['title'] = dataSet['title'] ? dataSet['title'] : 'Data set ' + (singleSets.length + 1);
         singleSets.push(dataSet);
       }
     }
