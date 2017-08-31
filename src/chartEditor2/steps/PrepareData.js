@@ -62,7 +62,7 @@ anychart.chartEditor2Module.steps.PrepareData.prototype.createDom = function() {
     button.setValue(name);
 
     button.render(buttonsBar);
-    // goog.dom.classlist.add(button.getElement(), 'upload-' + format);
+    goog.dom.classlist.add(button.getElement(), 'upload-' + name);
 
     button.listen(goog.ui.Component.EventType.ACTION, this.onUploadButtonClick, false, this);
   }
@@ -127,15 +127,21 @@ anychart.chartEditor2Module.steps.PrepareData.prototype.onCloseDialog = function
     if (inputValue) {
       var urlExpression = /[-a-zA-Z0-9@:%_\+.~#?&//=]{2,256}\.[a-z]{2,4}\b(\/[-a-zA-Z0-9@:%_\+.~#?&//=]*)?/gi;
       var urlRegex = new RegExp(urlExpression);
+      var errorCallback = goog.bind(this.onErrorDataLoad, this);
 
       if (dialogType == 'file') {
         if (inputValue.match(urlRegex)) {
+          this.dispatchEvent({
+            type: anychart.chartEditor2Module.events.EventType.WAIT,
+            wait: true
+          });
+
           switch (dataType) {
             case 'json':
               anychart.data.loadJsonFile(inputValue,
                   function(data) {
                     self.onSuccessDataLoad(data, dataType);
-                  }, this.onErrorDataLoad);
+                  }, errorCallback);
 
               break;
 
@@ -143,14 +149,14 @@ anychart.chartEditor2Module.steps.PrepareData.prototype.onCloseDialog = function
               anychart.data.loadCsvFile(inputValue,
                   function(data) {
                     self.onSuccessDataLoad(data, dataType);
-                  }, this.onErrorDataLoad);
+                  }, errorCallback);
               break;
 
             case 'xml':
               anychart.data.loadXmlFile(inputValue,
                   function(data) {
                     self.onSuccessDataLoad(data, dataType);
-                  }, this.onErrorDataLoad);
+                  }, errorCallback);
               break;
           }
         } else {
@@ -171,11 +177,15 @@ anychart.chartEditor2Module.steps.PrepareData.prototype.onCloseDialog = function
         if (input2Value)
           key['sheet'] = input2Value;
 
+        this.dispatchEvent({
+          type: anychart.chartEditor2Module.events.EventType.WAIT,
+          wait: true
+        });
         anychart.data.loadGoogleSpreadsheet(key,
             function(data) {
               self.onSuccessDataLoad(data, dataType);
             },
-            this.onErrorDataLoad);
+            errorCallback);
       }
     }
   }
@@ -244,12 +254,22 @@ anychart.chartEditor2Module.steps.PrepareData.prototype.addLoadedData = function
 
 
 anychart.chartEditor2Module.steps.PrepareData.prototype.onSuccessDataLoad = function(data, dataType) {
+  this.dispatchEvent({
+    type: anychart.chartEditor2Module.events.EventType.WAIT,
+    wait: false
+  });
+
   if (!data) return;
   this.addLoadedData(data, dataType);
 };
 
 
 anychart.chartEditor2Module.steps.PrepareData.prototype.onErrorDataLoad = function(errorCode) {
+  this.dispatchEvent({
+    type: anychart.chartEditor2Module.events.EventType.WAIT,
+    wait: false
+  });
+
   console.warn("Invalid data!", errorCode);
 };
 

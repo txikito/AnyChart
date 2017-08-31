@@ -232,18 +232,43 @@
       width: 50px;
       height: 60px;
       margin-bottom: 1em;
-      //background: #ffffff no-repeat center center;
-      //background-size: cover;
-      //text-indent: -9999px;
+      background: #ffffff no-repeat center center;
+      background-size: cover;
+      text-indent: -9999px;
+
+      &::after {
+        display: block;
+        text-indent: 0;
+        position: absolute;
+        bottom: 26px;
+      }
     }
-    .upload-csv {
+    .upload-file-csv {
       background-image: url('https://cdn.anychart.com/anydata/editor/csv_s.png');
+      &::after {
+        content: "FILE";
+      }
     }
-    .upload-xls {
-      background-image: url('https://cdn.anychart.com/anydata/editor/xls_s.png');
+    .upload-string-csv {
+      background-image: url('https://cdn.anychart.com/anydata/editor/csv_s.png');
+      &::after {
+        content: "STRING";
+      }
     }
-    .upload-mysql {
-      background-image: url('https://cdn.anychart.com/anydata/editor/mysql_s.png');
+    .upload-file-json {
+      background-image: url('https://cdn.anychart.com/anydata/editor/json_s.png');
+      &::after {
+        content: "FILE";
+      }
+    }
+    .upload-string-json {
+      background-image: url('https://cdn.anychart.com/anydata/editor/json_s.png');
+      &::after {
+        content: "STRING";
+      }
+    }
+    .upload-google-spreadsheets {
+      background-image: url('https://cdn.anychart.com/anydata/editor/spreadsh_s.png');
     }
   }
   .uploaded {
@@ -1026,6 +1051,7 @@
   position: absolute;
   z-index: 1002;
   width: 60%;
+  top: 15% !important;
 
   a,
   a:link,

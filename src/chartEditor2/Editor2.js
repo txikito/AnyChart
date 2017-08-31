@@ -55,6 +55,7 @@ anychart.chartEditor2Module.Editor = function(opt_domHelper) {
 
   this.imagesLoaded_ = true;
   this.preloader_ = new anychart.ui.Preloader();
+
   // var imageLoader = new goog.net.ImageLoader();
   // this.registerDisposable(imageLoader);
   // goog.events.listen(imageLoader, goog.net.EventType.COMPLETE, function() {
@@ -72,6 +73,7 @@ anychart.chartEditor2Module.Editor = function(opt_domHelper) {
 
   this.listen(anychart.chartEditor2Module.events.EventType.DATA_ADD, this.onDataAdd_);
   this.listen(anychart.chartEditor2Module.events.EventType.DATA_REMOVE, this.onDataRemove_);
+  this.listen(anychart.chartEditor2Module.events.EventType.WAIT, this.onWait_);
 };
 goog.inherits(anychart.chartEditor2Module.Editor, anychart.ui.Component);
 
@@ -86,14 +88,14 @@ anychart.chartEditor2Module.Editor.CSS_CLASS = goog.getCssName('anychart-chart-e
 /** @inheritDoc */
 anychart.chartEditor2Module.Editor.prototype.render = function(opt_parentElement) {
   anychart.chartEditor2Module.Editor.base(this, 'render', opt_parentElement);
-  this.showPreloader_();
+  this.waitForImages_();
 };
 
 
 /** @inheritDoc */
 anychart.chartEditor2Module.Editor.prototype.decorate = function(element) {
   anychart.chartEditor2Module.Editor.base(this, 'decorate', element);
-  this.showPreloader_();
+  this.waitForImages_();
 };
 
 
@@ -123,7 +125,7 @@ anychart.chartEditor2Module.Editor.prototype.visible = function(opt_value) {
 
   if (goog.isDef(opt_value)) {
     this.dialog_.setVisible(opt_value);
-    this.showPreloader_();
+    this.waitForImages_();
     return this;
   }
 
@@ -132,15 +134,27 @@ anychart.chartEditor2Module.Editor.prototype.visible = function(opt_value) {
 
 
 /**
+ * @param {boolean} show
+ * @private
+ */
+anychart.chartEditor2Module.Editor.prototype.showWaitAnimation_ = function(show) {
+  if (show && !this.preloader_.isInDocument()) {
+    var element = this.getContentElement();
+    this.preloader_.render(element);
+  }
+
+  this.preloader_.visible(show);
+};
+
+
+
+/**
  * Check if images are not fully loaded and shows preloader if need.
  * @private
  */
-anychart.chartEditor2Module.Editor.prototype.showPreloader_ = function() {
-  if (!this.imagesLoaded_) {
-    var element = this.getContentElement();
-    this.preloader_.render(element);
-    this.preloader_.visible(true);
-  }
+anychart.chartEditor2Module.Editor.prototype.waitForImages_ = function() {
+  if (!this.imagesLoaded_)
+    this.showWaitAnimation_(true);
 };
 
 
@@ -395,6 +409,11 @@ anychart.chartEditor2Module.Editor.prototype.onDataAdd_ = function(evt) {
 
 anychart.chartEditor2Module.Editor.prototype.onDataRemove_ = function(evt) {
   this.getModel().removeData(evt['setFullId']);
+};
+
+
+anychart.chartEditor2Module.Editor.prototype.onWait_ = function(evt) {
+  this.showWaitAnimation_(evt['wait']);
 };
 
 
