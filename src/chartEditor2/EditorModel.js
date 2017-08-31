@@ -295,8 +295,8 @@ anychart.chartEditor2Module.EditorModel.prototype.chooseActiveAndField = functio
   var dataRow = rawData[0];
   var fieldValue;
   var numberValue;
-  //debugger;
   var key;
+
   for (key in dataRow) {
     fieldValue = dataRow[key];
     numberValue = goog.string.toNumber(fieldValue);
@@ -338,7 +338,10 @@ anychart.chartEditor2Module.EditorModel.prototype.chooseActiveAndField = functio
                 this.fieldsState_['firstString'] :
                 preparedData[0]['fields'][0]['key'];
   }
-  //debugger;
+
+  if (this.fieldsState_['coordinates'].length < 2)
+    this.fieldsState_['coordinates'] = [];
+
   // Counting numbers
   for (key in dataRow) {
     if (this.model_.dataSettings.field == key)
