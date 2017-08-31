@@ -27,6 +27,7 @@ anychart.chartEditor2Module.DataDialog.prototype.update = function(dialogType, o
   var contentEl = this.getContentElement();
 
   this.input_ = null;
+  this.input2_ = null;
   while (contentEl.firstChild) {
     contentEl.removeChild(contentEl.firstChild);
   }
@@ -43,8 +44,14 @@ anychart.chartEditor2Module.DataDialog.prototype.update = function(dialogType, o
     contentEl.appendChild(this.input_);
 
   } else {
-    var text = dom.createDom(goog.dom.TagName.DIV, 'text', 'Coming soon...');
-    contentEl.appendChild(text);
+    pholder = 'ID or URL to spreadsheet';
+    this.input_ = dom.createDom(goog.dom.TagName.INPUT, {class: 'input', placeholder: pholder});
+
+    pholder = 'Sheet ID or index';
+    this.input2_ = dom.createDom(goog.dom.TagName.INPUT, {class: 'input', placeholder: pholder});
+
+    contentEl.appendChild(this.input_);
+    contentEl.appendChild(this.input2_);
   }
 };
 
@@ -53,10 +60,17 @@ anychart.chartEditor2Module.DataDialog.prototype.getType = function(){
   return this.type_;
 };
 
+
 anychart.chartEditor2Module.DataDialog.prototype.getDataType = function(){
   return this.dataType_;
 };
 
+
 anychart.chartEditor2Module.DataDialog.prototype.getInputValue = function(){
   return this.input_ && this.input_.value;
+};
+
+
+anychart.chartEditor2Module.DataDialog.prototype.getInput2Value = function(){
+  return this.input2_ && this.input2_.value;
 };

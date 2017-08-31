@@ -47,11 +47,11 @@ anychart.chartEditor2Module.steps.PrepareData.prototype.createDom = function() {
   var buttonsMap = [
     {name: 'file-csv', img: 'csv'},
     {name: 'file-json', img: 'json'},
-    {name: 'file-xml', img: 'xml'},
+    // {name: 'file-xml', img: 'xml'},
     {name: 'string-csv', img: 'csv'},
     {name: 'string-json', img: 'json'},
-    {name: 'string-xml', img: 'xml'},
-    {name: 'spreadsheets', img: 'spreadsheets'}
+    // {name: 'string-xml', img: 'xml'},
+    {name: 'google-spreadsheets', img: 'google-spreadsheets'}
   ];
 
   var buttonsBar = dom.createDom(goog.dom.TagName.DIV, 'buttons');
@@ -91,6 +91,7 @@ anychart.chartEditor2Module.steps.PrepareData.prototype.createDom = function() {
   goog.dom.classlist.add(geoDataSelector.getElement(), 'section');
 };
 
+
 anychart.chartEditor2Module.steps.PrepareData.prototype.onUploadButtonClick = function(evt) {
   var type = evt.target.getValue();
   var tmp = type.split('-');
@@ -124,10 +125,11 @@ anychart.chartEditor2Module.steps.PrepareData.prototype.onCloseDialog = function
 
     var inputValue = dialog.getInputValue();
     if (inputValue) {
+      var urlExpression = /[-a-zA-Z0-9@:%_\+.~#?&//=]{2,256}\.[a-z]{2,4}\b(\/[-a-zA-Z0-9@:%_\+.~#?&//=]*)?/gi;
+      var urlRegex = new RegExp(urlExpression);
+
       if (dialogType == 'file') {
-        var expression = /[-a-zA-Z0-9@:%_\+.~#?&//=]{2,256}\.[a-z]{2,4}\b(\/[-a-zA-Z0-9@:%_\+.~#?&//=]*)?/gi;
-        var regex = new RegExp(expression);
-        if (inputValue.match(regex)) {
+        if (inputValue.match(urlRegex)) {
           switch (dataType) {
             case 'json':
               anychart.data.loadJsonFile(inputValue, function(data) {
@@ -154,6 +156,13 @@ anychart.chartEditor2Module.steps.PrepareData.prototype.onCloseDialog = function
 
       } else if (dialogType == 'string') {
         this.addLoadedData(inputValue, dataType);
+      } else if(dialogType == 'google') {
+          var key = {'key': inputValue};
+          var input2Value = dialog.getInput2Value();
+          if (input2Value)
+            key['sheet'] = input2Value;
+          debugger;
+          anychart.data.loadGoogleSpreadsheet(key, function(data) {self.onSuccessDataLoad(data, dataType)}, this.onErrorDataLoad);
       }
     }
   }
@@ -163,12 +172,15 @@ anychart.chartEditor2Module.steps.PrepareData.prototype.onCloseDialog = function
 anychart.chartEditor2Module.steps.PrepareData.prototype.addLoadedData = function(data, dataType) {
   var result = null;
   var typeOf = goog.typeOf(data);
-  if (typeOf == 'object' || typeOf == 'array') {
+  if (dataType != 'spreadsheets' && (typeOf == 'object' || typeOf == 'array')) {
     result = data;
 
   } else {
     var error = false;
     switch (dataType) {
+      case 'spreadsheets':
+        result = data['rows'];
+        break;
       case 'json':
         if (typeOf == 'string') {
           try {
@@ -191,7 +203,6 @@ anychart.chartEditor2Module.steps.PrepareData.prototype.addLoadedData = function
           // parsing error
           error = true;
         }
-
         break;
     }
 
@@ -202,13 +213,18 @@ anychart.chartEditor2Module.steps.PrepareData.prototype.addLoadedData = function
   if (result) {
     var type = anychart.chartEditor2Module.EditorModel.dataType.UPLOADED;
     this.uploadedSetId_ = this.uploadedSetId_ ? ++this.uploadedSetId_ : 1;
+    var title = "Data " + this.uploadedSetId_;
+    if (data.title) {
+      title = data.title.substr(0, 12) + '...';
+    }
+
     this.dispatchEvent({
       type: anychart.chartEditor2Module.events.EventType.DATA_ADD,
       data: result,
       dataType: type,
       setId: this.uploadedSetId_,
       setFullId: type + this.uploadedSetId_,
-      title: "Data " + this.uploadedSetId_
+      title: title
     });
   }
 };

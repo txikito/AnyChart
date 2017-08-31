@@ -576,6 +576,9 @@ anychart.chartEditor2Module.EditorModel.prototype.onChangeView = function() {
       this.chooseDefaultChartType();
       this.chooseDefaultSeriesType();
       this.createDefaultMappings();
+
+      // Set default chart title by dataset title
+      this.setValue([['chart'], ['settings'], 'title()'], this.data_[this.getActive()]['title'])
     } else {
       console.log("NO DATA");
     }
