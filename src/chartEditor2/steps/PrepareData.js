@@ -228,7 +228,7 @@ anychart.chartEditor2Module.steps.PrepareData.prototype.addLoadedData = function
     this.uploadedSetId_ = this.uploadedSetId_ ? ++this.uploadedSetId_ : 1;
     var title = "Data " + this.uploadedSetId_;
     if (data.title) {
-      title = data.title.substr(0, 12) + '...';
+      title = data.title.substr(0, 20) + '...';
     }
 
     this.dispatchEvent({

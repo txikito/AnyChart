@@ -54,6 +54,9 @@ anychart.chartEditor2Module.Chart.prototype.update = function(opt_evt) {
   var settings = editorModel.getModel();
   var rebuild = !goog.isDefAndNotNull(opt_evt) || opt_evt.rebuild;
 
+  if (!settings['chart']['type'])
+    return;
+
   // Global settings
   goog.object.forEach(settings['anychart'], function(value, key) {
     //console.log("anychart settings", key, value);

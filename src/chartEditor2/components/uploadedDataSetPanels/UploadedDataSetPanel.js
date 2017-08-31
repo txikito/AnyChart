@@ -26,7 +26,11 @@ anychart.chartEditor2Module.UploadedDataSetPanel.prototype.createDom = function(
   var element = /** @type {Element} */(this.getElement());
   goog.dom.classlist.add(element, 'panel');
 
-  element.appendChild(dom.createDom(goog.dom.TagName.H4, null, this.data_['title']));
+  var removeButton = dom.createDom(goog.dom.TagName.A, {'class': 'anychart-button anychart-button-danger remove'}, 'Remove');
+  this.getHandler().listen(removeButton, goog.events.EventType.CLICK, this.removeDataSet);
+  element.appendChild(dom.createDom(goog.dom.TagName.DIV, 'content',
+      dom.createDom(goog.dom.TagName.DIV, 'title', this.data_['title']),
+      removeButton));
 };
 
 
@@ -38,9 +42,4 @@ anychart.chartEditor2Module.UploadedDataSetPanel.prototype.removeDataSet = funct
     setFullId: this.data_['setFullId']
   });
 };
-
-
-// anychart.chartEditor2Module.UploadedDataSetPanel.prototype.getSetFullId = function() {
-//   return this.data_['setFullId'];
-// };
 
