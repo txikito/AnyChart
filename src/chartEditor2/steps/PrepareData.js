@@ -132,22 +132,25 @@ anychart.chartEditor2Module.steps.PrepareData.prototype.onCloseDialog = function
         if (inputValue.match(urlRegex)) {
           switch (dataType) {
             case 'json':
-              anychart.data.loadJsonFile(inputValue, function(data) {
-                self.onSuccessDataLoad(data, dataType);
-              }, this.onErrorDataLoad);
+              anychart.data.loadJsonFile(inputValue,
+                  function(data) {
+                    self.onSuccessDataLoad(data, dataType);
+                  }, this.onErrorDataLoad);
 
               break;
 
             case 'csv':
-              anychart.data.loadCsvFile(inputValue, function(data) {
-                self.onSuccessDataLoad(data, dataType);
-              }, this.onErrorDataLoad);
+              anychart.data.loadCsvFile(inputValue,
+                  function(data) {
+                    self.onSuccessDataLoad(data, dataType);
+                  }, this.onErrorDataLoad);
               break;
 
             case 'xml':
-              anychart.data.loadXmlFile(inputValue, function(data) {
-                self.onSuccessDataLoad(data, dataType);
-              }, this.onErrorDataLoad);
+              anychart.data.loadXmlFile(inputValue,
+                  function(data) {
+                    self.onSuccessDataLoad(data, dataType);
+                  }, this.onErrorDataLoad);
               break;
           }
         } else {
@@ -156,13 +159,23 @@ anychart.chartEditor2Module.steps.PrepareData.prototype.onCloseDialog = function
 
       } else if (dialogType == 'string') {
         this.addLoadedData(inputValue, dataType);
-      } else if(dialogType == 'google') {
-          var key = {'key': inputValue};
-          var input2Value = dialog.getInput2Value();
-          if (input2Value)
-            key['sheet'] = input2Value;
-          debugger;
-          anychart.data.loadGoogleSpreadsheet(key, function(data) {self.onSuccessDataLoad(data, dataType)}, this.onErrorDataLoad);
+
+      } else if (dialogType == 'google') {
+        var key = {'key': inputValue};
+        var keyRegex = new RegExp(/spreadsheets\/d\/([\w|-]+)\//);
+        var parseResult = inputValue.match(keyRegex);
+        if (parseResult) {
+          key['key'] = parseResult[1];
+        }
+        var input2Value = dialog.getInput2Value();
+        if (input2Value)
+          key['sheet'] = input2Value;
+
+        anychart.data.loadGoogleSpreadsheet(key,
+            function(data) {
+              self.onSuccessDataLoad(data, dataType);
+            },
+            this.onErrorDataLoad);
       }
     }
   }
