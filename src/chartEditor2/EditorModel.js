@@ -539,10 +539,13 @@ anychart.chartEditor2Module.EditorModel.prototype.setActiveField = function(inpu
   this.suspendDispatch();
 
   if (active != this.model_.dataSettings.active) {
+    this.dropChartSettings('getSeries');
+
     this.chooseActiveAndField(active, field);
+    this.chooseDefaultChartType();
+    this.chooseDefaultSeriesType();
     this.createDefaultMappings();
 
-    this.dropChartSettings('getSeries');
     this.dispatchUpdate();
 
   } else if (field != this.model_.dataSettings.field) {
