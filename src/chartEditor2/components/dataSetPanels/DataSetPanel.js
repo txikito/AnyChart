@@ -17,6 +17,8 @@ anychart.chartEditor2Module.DataSetPanel = function(data) {
   this.disabled = false;
 
   this.data_ = data;
+
+  this.menuItems_ = {};
 };
 goog.inherits(anychart.chartEditor2Module.DataSetPanel, anychart.ui.Component);
 
@@ -40,6 +42,8 @@ anychart.chartEditor2Module.DataSetPanel.prototype.createDom = function() {
           if (label == 'Join/Unjoin') {
             item.setEnabled(false);
           }
+
+          self.menuItems_[label] = item;
         } else {
           item = new goog.ui.MenuSeparator();
         }
@@ -97,6 +101,7 @@ anychart.chartEditor2Module.DataSetPanel.prototype.setDisabled = function(value)
     this.disabled = value;
     goog.dom.classlist.enable(this.getElement(), 'disabled', this.disabled);
   }
+  this.menuItems_['Remove'].setEnabled(this.disabled);
 };
 
 

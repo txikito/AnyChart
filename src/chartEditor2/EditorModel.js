@@ -1019,6 +1019,11 @@ anychart.chartEditor2Module.EditorModel.prototype.getActiveGeo = function() {
 };
 
 
+anychart.chartEditor2Module.EditorModel.prototype.getDataSetsCount = function() {
+  return this.getPreparedData().length;
+};
+
+
 anychart.chartEditor2Module.EditorModel.prototype.getRawData = function(opt_activeGeo) {
   var dataSet = this.data_[opt_activeGeo ? this.getActiveGeo() : this.getActive()];
   return dataSet ? dataSet['data'] : null;
