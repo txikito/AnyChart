@@ -57,7 +57,6 @@ anychart.chartEditor2Module.steps.PrepareData.prototype.createDom = function() {
   var buttonsBar = dom.createDom(goog.dom.TagName.DIV, 'buttons');
   for (var i = 0; i < buttonsMap.length; i++) {
     var name = buttonsMap[i].name;
-
     var button = new goog.ui.Button(name);
     button.setValue(name);
 
@@ -85,38 +84,32 @@ anychart.chartEditor2Module.steps.PrepareData.prototype.createDom = function() {
   var predefinedDataSelector = new anychart.chartEditor2Module.PredefinedDataSelector(this.getParent().getModel());
   this.addChild(predefinedDataSelector, true);
   goog.dom.classlist.add(predefinedDataSelector.getElement(), 'section');
-
-  var geoDataSelector = new anychart.chartEditor2Module.GeoDataSelector(this.getParent().getModel());
-  this.addChild(geoDataSelector, true);
-  goog.dom.classlist.add(geoDataSelector.getElement(), 'section');
 };
 
 
 anychart.chartEditor2Module.steps.PrepareData.prototype.onUploadButtonClick = function(evt) {
   var type = evt.target.getValue();
   var tmp = type.split('-');
-  this.openDialog(tmp[0], tmp[1]);
+  this.openDataDialog(tmp[0], tmp[1]);
 };
 
 
-anychart.chartEditor2Module.steps.PrepareData.prototype.openDialog = function(dialogType, opt_dataType) {
+anychart.chartEditor2Module.steps.PrepareData.prototype.openDataDialog = function(dialogType, opt_dataType) {
   this.dialogType_ = dialogType;
   this.dialogDataType_ = opt_dataType;
 
   if (!this.dataDialog_) {
     this.dataDialog_ = new anychart.chartEditor2Module.DataDialog('data-dialog');
     this.dataDialog_.setButtonSet(goog.ui.Dialog.ButtonSet.createOkCancel());
-    goog.events.listen(this.dataDialog_, goog.ui.Dialog.EventType.SELECT, this.onCloseDialog, void 0, this);
+    goog.events.listen(this.dataDialog_, goog.ui.Dialog.EventType.SELECT, this.onCloseDataDialog, void 0, this);
   }
 
   this.dataDialog_.update(dialogType, opt_dataType);
-
-  //this.dataDialog_.setTitle('My favorite LOLCat');
   this.dataDialog_.setVisible(true);
 };
 
 
-anychart.chartEditor2Module.steps.PrepareData.prototype.onCloseDialog = function(evt) {
+anychart.chartEditor2Module.steps.PrepareData.prototype.onCloseDataDialog = function(evt) {
   var dialog = evt.target;
   if (evt.key == 'ok') {
     var self = this;

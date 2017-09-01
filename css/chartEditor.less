@@ -124,7 +124,7 @@
   }
   .section {
     width: 100%;
-    height: 33.333%;
+    //height: 33.333%;
     overflow: hidden;
     position: relative;
 
@@ -164,7 +164,7 @@
 
 .data-selector {
   clear: both;
-  height: 40% !important;
+  height: 70%;
 
   .data-set {
     width: 240px;
@@ -220,7 +220,7 @@
 //.step-prepare-data {}
 
 .connect-data {
-  height: 20% !important;
+  height: 30% !important;
   .inner {
     padding-top: 64px;
   }
@@ -235,12 +235,13 @@
       background: #ffffff no-repeat center center;
       background-size: cover;
       text-indent: -9999px;
+      position: relative;
 
       &::after {
         display: block;
         text-indent: 0;
         position: absolute;
-        bottom: 26px;
+        bottom: -30px;
       }
     }
     .upload-file-csv {
