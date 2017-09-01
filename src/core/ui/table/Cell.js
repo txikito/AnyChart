@@ -91,7 +91,7 @@ anychart.core.ui.table.Cell.prototype.content = function(opt_value) {
         this.table.clearContent(this.realContent);
       if ((goog.isNumber(opt_value) || goog.isString(opt_value))) {
         this.realContent = this.table.createTextCellContent(opt_value);
-      } else if (opt_value instanceof acgraph.vector.Element) {
+      } else if (acgraph.utils.instanceOf(opt_value, acgraph.vector.Element)) {
         this.realContent = acgraph.layer();
         this.realContent.addChild(opt_value);
       } else {

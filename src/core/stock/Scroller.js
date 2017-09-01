@@ -1399,7 +1399,7 @@ anychart.core.stock.Scroller.prototype.yScale = function(opt_value) {
     if (goog.isString(opt_value)) {
       opt_value = anychart.scales.ScatterBase.fromString(opt_value, false);
     }
-    if (!(opt_value instanceof anychart.scales.ScatterBase)) {
+    if (!(acgraph.utils.instanceOf(opt_value, anychart.scales.ScatterBase))) {
       anychart.core.reporting.error(anychart.enums.ErrorCode.INCORRECT_SCALE_TYPE, undefined, ['Scatter chart scales', 'scatter', 'linear, log']);
       return this;
     }
@@ -1580,10 +1580,10 @@ anychart.core.stock.Scroller.prototype.draw = function() {
  * @return {!(anychart.palettes.RangeColors|anychart.palettes.DistinctColors|anychart.core.stock.Scroller)} .
  */
 anychart.core.stock.Scroller.prototype.palette = function(opt_value) {
-  if (opt_value instanceof anychart.palettes.RangeColors) {
+  if (acgraph.utils.instanceOf(opt_value, anychart.palettes.RangeColors)) {
     this.setupPalette_(anychart.palettes.RangeColors, opt_value);
     return this;
-  } else if (opt_value instanceof anychart.palettes.DistinctColors) {
+  } else if (acgraph.utils.instanceOf(opt_value, anychart.palettes.DistinctColors)) {
     this.setupPalette_(anychart.palettes.DistinctColors, opt_value);
     return this;
   } else if (goog.isObject(opt_value) && opt_value['type'] == 'range') {
@@ -1606,7 +1606,7 @@ anychart.core.stock.Scroller.prototype.palette = function(opt_value) {
  */
 anychart.core.stock.Scroller.prototype.setupPalette_ = function(cls, opt_cloneFrom) {
   this.invalidateSeries_();
-  if (this.palette_ instanceof cls) {
+  if (acgraph.utils.instanceOf(this.palette_, cls)) {
     if (opt_cloneFrom)
       this.palette_.setup(opt_cloneFrom);
   } else {

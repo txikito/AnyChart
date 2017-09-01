@@ -618,10 +618,10 @@ anychart.core.ChartWithSeries.prototype.invalidateSeriesLabels = function() {
  * @return {!(anychart.palettes.RangeColors|anychart.palettes.DistinctColors|anychart.core.ChartWithSeries)} .
  */
 anychart.core.ChartWithSeries.prototype.palette = function(opt_value) {
-  if (opt_value instanceof anychart.palettes.RangeColors) {
+  if (acgraph.utils.instanceOf(opt_value, anychart.palettes.RangeColors)) {
     this.setupPalette_(anychart.palettes.RangeColors, opt_value);
     return this;
-  } else if (opt_value instanceof anychart.palettes.DistinctColors) {
+  } else if (acgraph.utils.instanceOf(opt_value, anychart.palettes.DistinctColors)) {
     this.setupPalette_(anychart.palettes.DistinctColors, opt_value);
     return this;
   } else if (goog.isObject(opt_value) && opt_value['type'] == 'range') {
@@ -687,7 +687,7 @@ anychart.core.ChartWithSeries.prototype.hatchFillPalette = function(opt_value) {
  * @private
  */
 anychart.core.ChartWithSeries.prototype.setupPalette_ = function(cls, opt_cloneFrom) {
-  if (this.palette_ instanceof cls) {
+  if (acgraph.utils.instanceOf(this.palette_, cls)) {
     if (opt_cloneFrom)
       this.palette_.setup(opt_cloneFrom);
   } else {
@@ -909,7 +909,7 @@ anychart.core.ChartWithSeries.prototype.data = function(opt_value) {
     } else this.rawData_ = opt_value;
 
     /** @type {anychart.data.Set} */
-    var dataSet = opt_value instanceof anychart.data.Set ?
+    var dataSet = acgraph.utils.instanceOf(opt_value, anychart.data.Set) ?
         opt_value :
         anychart.data.set(this.rawData_);
 
@@ -1109,7 +1109,7 @@ anychart.core.ChartWithSeries.prototype.createLegendItemsProvider = function(sou
   this.calculate();
   if (this.allowLegendCategoriesMode() &&
       sourceMode == anychart.enums.LegendItemsSourceMode.CATEGORIES &&
-      (this.xScale() instanceof anychart.scales.Ordinal)) {
+      (acgraph.utils.instanceOf(this.xScale(), anychart.scales.Ordinal))) {
     var names = this.xScale().names();
 
     if (goog.isFunction(itemsFormat)) {

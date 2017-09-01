@@ -1905,8 +1905,8 @@ anychart.core.ui.Tooltip.prototype.setContainerToTooltip_ = function(tooltip) {
         tooltip.getRootLayer_().parent(/** @type {acgraph.vector.ILayer} */ (tooltip.container()));
         var stage = container.getStage();
         var wrapper = stage.getDomWrapper();
-        tc.container(wrapper);
-        tc.allocTooltip(tooltip);
+        // tc.container(wrapper);
+        // tc.allocTooltip(tooltip);
         tooltip.markConsistent(anychart.ConsistencyState.CONTAINER);
       }
 

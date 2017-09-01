@@ -1225,7 +1225,7 @@ anychart.core.series.Base.prototype.getXScale = function() {
  */
 anychart.core.series.Base.prototype.yScale = function(opt_value) {
   if (goog.isDef(opt_value)) {
-    if (!(opt_value instanceof anychart.scales.Base))
+    if (!(acgraph.utils.instanceOf(opt_value, anychart.scales.Base)))
       opt_value = null;
     if (this.yScale_ != opt_value) {
       if (this.yScale_)
@@ -2703,7 +2703,7 @@ anychart.core.series.Base.prototype.a11y = function(opt_enabledOrJson) {
     this.a11y_ = new anychart.core.utils.SeriesA11y(this);
     this.registerDisposable(this.a11y_);
     this.a11y_.listenSignals(this.onA11ySignal_, this);
-    if (this.chart instanceof anychart.core.Chart) {
+    if (acgraph.utils.instanceOf(this.chart, anychart.core.Chart)) {
       this.a11y_.parentA11y(/** @type {anychart.core.utils.A11y} */ (/** @type {anychart.core.Chart} */ (this.chart).a11y()));
       this.a11y_.parentA11y().applyChangesInChildA11y();
     }
@@ -3104,7 +3104,7 @@ anychart.core.series.Base.prototype.applyClip = function(opt_customClip) {
  * @protected
  */
 anychart.core.series.Base.prototype.updateColors = function() {
-  if (this.shapeManager instanceof anychart.core.shapeManagers.PerPoint) {
+  if (acgraph.utils.instanceOf(this.shapeManager, anychart.core.shapeManagers.PerPoint)) {
     var iterator = this.getResetIterator();
     while (iterator.advance()) {
       this.shapeManager.updateColors(this.getPointState(iterator.getIndex()),
@@ -4455,7 +4455,7 @@ anychart.core.series.Base.prototype.serialize = function() {
   var json = anychart.core.series.Base.base(this, 'serialize');
 
   json['seriesType'] = this.seriesType();
-  json['clip'] = (this.clip_ instanceof anychart.math.Rect) ? this.clip_.serialize() : this.clip_;
+  json['clip'] = (acgraph.utils.instanceOf(this.clip_, anychart.math.Rect)) ? this.clip_.serialize() : this.clip_;
 
   if (this.meta_)
     json['meta'] = this.meta();

@@ -263,8 +263,8 @@ anychart.ui.binding.setRealValue_ = function(element) {
           break;
         case goog.dom.InputType.COLOR:
           if (goog.isObject(value) && goog.isFunction(value['fill'])) {
-            // if value instanceof anychart.core.ui.Background
-            value = value['fill']();
+            // if acgraph.utils.instanceOf(value, anychart.core.ui.Background
+)            value = value['fill']();
           }
           break;
         case goog.dom.InputType.DATE:
