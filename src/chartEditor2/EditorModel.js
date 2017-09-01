@@ -261,24 +261,6 @@ anychart.chartEditor2Module.EditorModel.consistencyObject = {
 
 
 // region Model initialization
-anychart.chartEditor2Module.EditorModel.prototype.chooseActiveGeo = function(opt_activeGeo) {
-  var activeGeo = null;
-
-  if (goog.isDefAndNotNull(opt_activeGeo)) {
-    activeGeo = opt_activeGeo;
-  } else {
-    for (var i in this.data_) {
-      if (this.data_[i]['type'] == anychart.chartEditor2Module.EditorModel.dataType.GEO) {
-        activeGeo = this.data_[i]['setFullId'];
-        break;
-      }
-    }
-  }
-
-  this.model_.dataSettings.activeGeo = activeGeo;
-};
-
-
 anychart.chartEditor2Module.EditorModel.prototype.chooseActiveAndField = function(opt_active, opt_field) {
   this.dropChartSettings();
 
@@ -318,8 +300,7 @@ anychart.chartEditor2Module.EditorModel.prototype.chooseActiveAndField = functio
 
     } else if (goog.isString(fieldValue)) {
       this.fieldsState_['firstString'] = goog.isDef(this.fieldsState_['firstString']) ? this.fieldsState_['firstString'] : key;
-      if (this.model_.dataSettings.activeGeo &&
-          new RegExp(/^(AF|AX|AL|DZ|AS|AD|AO|AI|AQ|AG|AR|AM|AW|AU|AT|AZ|BS|BH|BD|BB|BY|BE|BZ|BJ|BM|BT|BO|BQ|BA|BW|BV|BR|IO|BN|BG|BF|BI|KH|CM|CA|CV|KY|CF|TD|CL|CN|CX|CC|CO|KM|CG|CD|CK|CR|CI|HR|CU|CW|CY|CZ|DK|DJ|DM|DO|EC|EG|SV|GQ|ER|EE|ET|FK|FO|FJ|FI|FR|GF|PF|TF|GA|GM|GE|DE|GH|GI|GR|GL|GD|GP|GU|GT|GG|GN|GW|GY|HT|HM|VA|HN|HK|HU|IS|IN|ID|IR|IQ|IE|IM|IL|IT|JM|JP|JE|JO|KZ|KE|KI|KP|KR|KW|KG|LA|LV|LB|LS|LR|LY|LI|LT|LU|MO|MK|MG|MW|MY|MV|ML|MT|MH|MQ|MR|MU|YT|MX|FM|MD|MC|MN|ME|MS|MA|MZ|MM|NA|NR|NP|NL|NC|NZ|NI|NE|NG|NU|NF|MP|NO|OM|PK|PW|PS|PA|PG|PY|PE|PH|PN|PL|PT|PR|QA|RE|RO|RU|RW|BL|SH|KN|LC|MF|PM|VC|WS|SM|ST|SA|SN|RS|SC|SL|SG|SX|SK|SI|SB|SO|ZA|GS|SS|ES|LK|SD|SR|SJ|SZ|SE|CH|SY|TW|TJ|TZ|TH|TL|TG|TK|TO|TT|TN|TR|TM|TC|TV|UG|UA|AE|GB|US|UM|UY|UZ|VU|VE|VN|VG|VI|WF|EH|YE|ZM|ZW)$/).exec(fieldValue)) {
+      if (new RegExp(/^(AF|AX|AL|DZ|AS|AD|AO|AI|AQ|AG|AR|AM|AW|AU|AT|AZ|BS|BH|BD|BB|BY|BE|BZ|BJ|BM|BT|BO|BQ|BA|BW|BV|BR|IO|BN|BG|BF|BI|KH|CM|CA|CV|KY|CF|TD|CL|CN|CX|CC|CO|KM|CG|CD|CK|CR|CI|HR|CU|CW|CY|CZ|DK|DJ|DM|DO|EC|EG|SV|GQ|ER|EE|ET|FK|FO|FJ|FI|FR|GF|PF|TF|GA|GM|GE|DE|GH|GI|GR|GL|GD|GP|GU|GT|GG|GN|GW|GY|HT|HM|VA|HN|HK|HU|IS|IN|ID|IR|IQ|IE|IM|IL|IT|JM|JP|JE|JO|KZ|KE|KI|KP|KR|KW|KG|LA|LV|LB|LS|LR|LY|LI|LT|LU|MO|MK|MG|MW|MY|MV|ML|MT|MH|MQ|MR|MU|YT|MX|FM|MD|MC|MN|ME|MS|MA|MZ|MM|NA|NR|NP|NL|NC|NZ|NI|NE|NG|NU|NF|MP|NO|OM|PK|PW|PS|PA|PG|PY|PE|PH|PN|PL|PT|PR|QA|RE|RO|RU|RW|BL|SH|KN|LC|MF|PM|VC|WS|SM|ST|SA|SN|RS|SC|SL|SG|SX|SK|SI|SB|SO|ZA|GS|SS|ES|LK|SD|SR|SJ|SZ|SE|CH|SY|TW|TJ|TZ|TH|TL|TG|TK|TO|TT|TN|TR|TM|TC|TV|UG|UA|AE|GB|US|UM|UY|UZ|VU|VE|VN|VG|VI|WF|EH|YE|ZM|ZW)$/).exec(fieldValue)) {
         this.fieldsState_['geoIdField'] = key;
       }
     }
@@ -557,18 +538,6 @@ anychart.chartEditor2Module.EditorModel.prototype.setActiveField = function(inpu
 };
 
 
-anychart.chartEditor2Module.EditorModel.prototype.setActiveGeo = function(input) {
-  var activeGeo = input.getValue();
-
-  if (activeGeo != this.model_.dataSettings.activeGeo) {
-    // this.dropChartSettings('getSeries');
-    this.chooseActiveGeo(activeGeo);
-
-    this.dispatchUpdate();
-  }
-};
-
-
 anychart.chartEditor2Module.EditorModel.prototype.onChangeView = function() {
   if (this.generateInitialMappingsOnChangeView_) {
     this.generateInitialMappingsOnChangeView_ = false;
@@ -577,7 +546,6 @@ anychart.chartEditor2Module.EditorModel.prototype.onChangeView = function() {
     if (this.preparedData_.length > 0) {
       this.dropChartSettings();
 
-      this.chooseActiveGeo();
       this.chooseActiveAndField();
       this.chooseDefaultChartType();
       this.chooseDefaultSeriesType();
@@ -627,16 +595,19 @@ anychart.chartEditor2Module.EditorModel.prototype.dropSeries = function(plotInde
 anychart.chartEditor2Module.EditorModel.prototype.setChartType = function(input) {
   var prevChartType = this.model_.chart.type;
   var prevDefaultSeriesType = this.model_.chart.seriesType;
-// TODO: start from here
-  // 1. Задать третий датасет - получится Column stacked
-  // 2. Переключиться на Bar stacked
-  // 3. Слетит стекирование
+
+  if (prevChartType == 'map') {
+    delete this.data_[this.model_.dataSettings.activeGeo];
+    this.model_.dataSettings.activeGeo = null;
+    this.preparedData_.length = 0;
+  }
 
   this.model_.chart.type = input.getValue();
   this.chooseDefaultSeriesType();
 
   if (this.needResetMappings(prevChartType, prevDefaultSeriesType)) {
-    this.dropChartSettings();
+    this.chooseActiveAndField();
+    this.chooseDefaultSeriesType();
     this.createDefaultMappings();
 
   } else {
@@ -947,6 +918,11 @@ anychart.chartEditor2Module.EditorModel.prototype.getFullId = function(dataType,
 
 anychart.chartEditor2Module.EditorModel.prototype.addData = function(evt) {
   var id = this.getFullId(evt['dataType'], evt['setId']);
+  if (evt['dataType'] == anychart.chartEditor2Module.EditorModel.dataType.GEO) {
+    delete this.data_[this.model_.dataSettings.activeGeo];
+    this.model_.dataSettings.activeGeo = id;
+  }
+
   if (!this.data_[id]) {
     this.data_[id] = {
       'setFullId': id,

@@ -108,6 +108,6 @@ anychart.chartEditor2Module.DataSetPanel.prototype.setDisabled = function(value)
 /**
  * @param {boolean} isActiveGeo
  */
-anychart.chartEditor2Module.DataSetPanel.prototype.setActiveGeo= function(isActiveGeo) {
+anychart.chartEditor2Module.DataSetPanel.prototype.setActiveGeo = function(isActiveGeo) {
   goog.dom.classlist.enable(this.getElement(), 'active-geo', isActiveGeo);
 };
