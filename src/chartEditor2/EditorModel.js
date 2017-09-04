@@ -203,26 +203,23 @@ anychart.chartEditor2Module.EditorModel.series = {
   },
   // map series
   'marker-by-id': {
-    'name': 'Marker (by geoId field)',
+    'name': 'Marker (by geo Id)',
     'fields': [
-      {'field': 'geoIdField', 'name': 'GeoId Field'},
-      {'field': 'value', 'name': 'Value'}
+      {'field': 'id', 'name': 'Id'}
     ]
   },
   'marker-by-coordinates': {
     'name': 'Marker (by coordinates)',
     'fields': [
       {'field': 'lat', 'name': 'Latitude'},
-      {'field': 'long', 'name': 'Longitude'},
-      {'field': 'value', 'name': 'Value'}
+      {'field': 'long', 'name': 'Longitude'}
     ]
   },
   'bubble-by-id': {
-    'name': 'Bubble (by geoId field)',
+    'name': 'Bubble (by geo Id)',
     'fields': [
-      {'field': 'geoIdField', 'name': 'GeoId Field'},
+      {'field': 'id', 'name': 'Id'},
       {'field': 'size', 'name': 'Size'}
-      // {'field': 'value', 'name': 'Value'}
     ]
   },
   'bubble-by-coordinates': {
@@ -231,31 +228,15 @@ anychart.chartEditor2Module.EditorModel.series = {
       {'field': 'lat', 'name': 'Latitude'},
       {'field': 'long', 'name': 'Longitude'},
       {'field': 'size', 'name': 'Size'}
-      // {'field': 'value', 'name': 'Value'}
     ]
   },
   'choropleth': {
     'fields': [
-      {'field': 'geoIdField', 'name': 'GeoId Field'},
+      {'field': 'id', 'name': 'Id'},
       {'field': 'value', 'name': 'Value'}
     ]
   },
   // 'connector': {'fields': [{'field': 'value', 'name': 'Y Value'}]}
-};
-
-
-anychart.chartEditor2Module.EditorModel.consistencyObject = {
-  'chart': {
-    'ctor': ''
-  },
-  'plot': [{
-    'mapping': {'x': ''},
-
-    'series': [{
-      'ctor': '',
-      'mapping': {}
-    }]
-  }]
 };
 // endregion
 
@@ -294,15 +275,15 @@ anychart.chartEditor2Module.EditorModel.prototype.chooseActiveAndField = functio
     }
 
     if (!isNaN(numberValue)) {
-      if (this.model_.dataSettings.activeGeo && this.fieldsState_['coordinates'].length < 2 && new RegExp(/^-?([1-8]?[1-9]|[1-9]0)\.{1}\d{1,6}/).exec(fieldValue)) {
+      if (this.fieldsState_['coordinates'].length < 2 && new RegExp(/^-?([1-8]?[1-9]|[1-9]0)\.{1}\d{1,6}/).exec(fieldValue)) {
         this.fieldsState_['coordinates'].push(key);
       }
 
     } else if (goog.isString(fieldValue)) {
       this.fieldsState_['firstString'] = goog.isDef(this.fieldsState_['firstString']) ? this.fieldsState_['firstString'] : key;
 
-      if (!this.fieldsState_['geoIdField'] && this.isGeoId_(fieldValue))
-        this.fieldsState_['geoIdField'] = key;
+      if (!this.fieldsState_['geoId'] && this.isGeoId_(fieldValue))
+        this.fieldsState_['geoId'] = key;
     }
   }
 
@@ -329,12 +310,11 @@ anychart.chartEditor2Module.EditorModel.prototype.chooseActiveAndField = functio
       continue;
 
     numberValue = goog.string.toNumber(dataRow[key]);
-    if (!isNaN(numberValue) && goog.array.indexOf(this.fieldsState_['coordinates'], key) == -1) {
+    if (!isNaN(numberValue)) {
       this.fieldsState_['numbers'].push(key);
       this.fieldsState_['numbersCount']++;
     }
   }
-  //debugger;
 };
 
 
@@ -378,13 +358,13 @@ anychart.chartEditor2Module.EditorModel.prototype.chooseDefaultSeriesType = func
   switch (this.model_.chart.type) {
     case 'map':
       if (this.fieldsState_['coordinates'].length == 2) {
-        if (!(this.fieldsState_['numbersCount'] % 2))
+        if (this.fieldsState_['numbersCount'])
           seriesType = 'bubble-by-coordinates';
         else
           seriesType = 'marker-by-coordinates';
 
-      } else if (this.fieldsState_['geoIdField']) {
-        if (!(this.fieldsState_['numbersCount'] % 2))
+      } else if (this.fieldsState_['geoId']) {
+        if (this.fieldsState_['numbersCount'])
           seriesType = 'bubble-by-id';
         else
           seriesType = 'marker-by-id';
@@ -445,13 +425,14 @@ anychart.chartEditor2Module.EditorModel.prototype.createPlotMapping = function()
   var plotIndex = this.model_.dataSettings.mappings.length;
   var numSeries;
   var fieldIndex;
-  if (this.model_.chart.type == 'pie' ||
-      (this.model_.chart.type == 'stock' && this.model_.chart.seriesType == 'column' && plotIndex == 1)) {
-    // try to ser volume second plot
+  if (this.model_.chart.type == 'pie' || this.model_.chart.type == 'map' ||
+      (this.model_.chart.type == 'stock' && this.model_.chart.seriesType == 'column' && plotIndex == 1))
     numSeries = 1;
-    fieldIndex = 4;
-  } else
+  else
     numSeries = Math.floor(this.fieldsState_['numbersCount'] / numValues);
+
+  if (this.model_.chart.type == 'stock' && this.model_.chart.seriesType == 'column' && plotIndex == 1)
+    fieldIndex = 4; // try to set volume plot
 
   for (var i = 0; i < numSeries; i += numValues) {
     var seriesConfig = this.createSeriesConfig(i, this.model_.chart.seriesType, void 0, fieldIndex);
@@ -476,13 +457,20 @@ anychart.chartEditor2Module.EditorModel.prototype.createSeriesConfig = function(
     config['id'] = opt_id;
 
   var numbers = goog.array.clone(this.fieldsState_['numbers']);
-  // if (this.model_.chart.type == 'scatter')
-  //   goog.array.splice(numbers, 0, 1); // remove x field for scatter
+  if (this.model_.chart.type == 'map') {
+    var self = this;
+    numbers = goog.array.filter(numbers, function(item){
+      return goog.array.indexOf(self.fieldsState_['coordinates'], item) == -1;
+    });
+    this.fieldsState_['numbersCount'] -= 2;
+  }
 
+  //
   var fields = anychart.chartEditor2Module.EditorModel.series[type]['fields'];
+
   for (var i = 0; i < fields.length; i++) {
-    if (this.fieldsState_['geoIdField'] && fields[i]['field'] == 'geoIdField') {
-      config['mapping'][fields[i]['field']] = this.fieldsState_['geoIdField'];
+    if (fields[i]['field'] == 'id' && this.fieldsState_['geoId']) {
+      config['mapping'][fields[i]['field']] = this.fieldsState_['geoId'];
 
     } else if (this.fieldsState_['coordinates'] && (fields[i]['field'] == 'lat' || fields[i]['field'] == 'long')) {
       config['mapping'][fields[i]['field']] = (fields[i]['field'] == 'lat') ?
@@ -789,54 +777,6 @@ anychart.chartEditor2Module.EditorModel.prototype.removeByKey = function(key) {
 
 
 /**
- * Checks if available data is enough to build chart
- * @return {boolean} true if available data is enough
- */
-anychart.chartEditor2Module.EditorModel.prototype.checkConsistency_ = function() {
-  // console.log(this.inputs_);
-
-  // Check by consistencyObject
-  if (!this.checkConsistencyByObject_(this.model_, anychart.chartEditor2Module.EditorModel.consistencyObject))
-    return false;
-
-  // Check series fields
-  /*for (var i = this.inputs_['plot'].length; i--;) {
-   for (var j = this.inputs_['plot'][i]['series'].length; j--;) {
-   var series = this.inputs_['plot'][i]['series'][j];
-   var mapping = series['mapping'];
-   var fields = /!** @type {Array.<String>} *!/(goog.object.getKeys(mapping));
-   var seriesFields = goog.array.map(anychart.chartEditor2Module.EditorModel.series[series['ctor']]['fields'],
-   function(item) {
-   return item['field']
-   });
-
-   if (goog.array.compare3(fields, seriesFields) != 0)
-   return false;
-   }
-   }*/
-
-  return true;
-};
-
-
-anychart.chartEditor2Module.EditorModel.prototype.checkConsistencyByObject_ = function(opt_target, opt_object) {
-  if (goog.typeOf(opt_target) != goog.typeOf(opt_object))
-    return false;
-
-  if (goog.isObject(opt_object)) {
-    for (var i in opt_object) {
-      if (opt_object.hasOwnProperty(i)) {
-        if (!opt_target.hasOwnProperty(i) || !this.checkConsistencyByObject_(opt_target[i], opt_object[i]))
-          return false;
-      }
-    }
-  }
-
-  return true;
-};
-
-
-/**
  *
  * @param {Boolean=} opt_noRebuild
  */
@@ -954,15 +894,18 @@ anychart.chartEditor2Module.EditorModel.prototype.addData = function(evt) {
 
 anychart.chartEditor2Module.EditorModel.prototype.removeData = function(setFullId) {
   delete this.data_[setFullId];
+
+  if (this.model_.dataSettings.activeGeo && this.preparedData_.length == 2) {
+    // Geo data should not be alone
+    delete this.data_[this.model_.dataSettings.activeGeo];
+    this.model_.dataSettings.activeGeo = null;
+  }
+
   this.preparedData_.length = 0;
 
   this.generateInitialMappingsOnChangeView_ = true;
   // debug
   //this.onChangeView();
-
-  if (setFullId == this.model_.dataSettings.active || setFullId == this.model_.dataSettings.activeGeo) {
-    this.onChangeView();
-  }
 
   this.dispatchUpdate();
 };
