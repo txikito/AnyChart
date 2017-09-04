@@ -551,6 +551,8 @@ anychart.core.ui.Tooltip.prototype.background = function(opt_value) {
   if (!this.background_) {
     this.background_ = new anychart.core.ui.Background();
     this.background_.listenSignals(this.backgroundInvalidated_, this);
+    this.background_.setParentEventTarget(this);
+
     this.registerDisposable(this.background_);
   }
 
@@ -621,6 +623,7 @@ anychart.core.ui.Tooltip.prototype.separator = function(opt_value) {
   if (!this.separator_) {
     this.separator_ = new anychart.core.ui.Separator();
     this.separator_.listenSignals(this.onSeparatorSignal_, this);
+    this.separator_.setParentEventTarget(this);
     this.registerDisposable(this.separator_);
   }
 
@@ -1137,32 +1140,32 @@ anychart.core.ui.Tooltip.prototype.showForPosition_ = function(clientX, clientY)
     return;
   }
 
-  this.updateForceInvalidation();
+  // this.updateForceInvalidation();
 
   if (!this.getRootLayer_().parent()) {
     this.invalidate(anychart.ConsistencyState.CONTAINER);
   }
 
-  this.setContainerToTooltip_(this);
+  // this.setContainerToTooltip_(this);
 
   if (this.delay_ && this.delay_.isActive()) this.delay_.stop();
   this.draw();
 
-  var rootLayer = this.getRootLayer_();
-  var domElement = rootLayer.domElement();
+  // var rootLayer = this.getRootLayer_();
+  // var domElement = rootLayer.domElement();
 
   // like selectable && enabled
-  if (this.getOption('selectable') && domElement) {
-    rootLayer.disablePointerEvents(false);
-
-    this.createTriangle_(clientX, clientY);
-
-    // bug fix (separated mode, the points are on top of one another)
-    goog.events.unlisten(goog.dom.getDocument(), goog.events.EventType.MOUSEMOVE, this.movementOutsideThePoint_, false, this);
-
-  } else if (domElement) {
-    rootLayer.disablePointerEvents(true);
-  }
+  // if (this.getOption('selectable') && domElement) {
+  //   rootLayer.disablePointerEvents(false);
+  //
+  //   this.createTriangle_(clientX, clientY);
+  //
+  //   // bug fix (separated mode, the points are on top of one another)
+  //   goog.events.unlisten(goog.dom.getDocument(), goog.events.EventType.MOUSEMOVE, this.movementOutsideThePoint_, false, this);
+  //
+  // } else if (domElement) {
+  //   rootLayer.disablePointerEvents(true);
+  // }
 };
 
 
@@ -1394,7 +1397,6 @@ anychart.core.ui.Tooltip.prototype.updateForceInvalidation = function() {
  * @return {!anychart.math.Rect} Tooltip pixel bounds.
  */
 anychart.core.ui.Tooltip.prototype.getPixelBounds = function() {
-  this.contentBounds_ = null;
   this.instantPosition_ = null;
   this.calculatePosition_(); //also calculate content bounds, because it needs it.
   return new anychart.math.Rect(
@@ -1575,10 +1577,18 @@ anychart.core.ui.Tooltip.prototype.calculateContentBounds_ = function() {
     var separator = /** @type {anychart.core.ui.Separator} */(this.separator());
     var content = /** @type {anychart.core.ui.Label} */(this.contentInternal());
 
+    title.suspendSignalsDispatching();
+    separator.suspendSignalsDispatching();
+    content.suspendSignalsDispatching();
+
     var tWidth, tHeight;
     if (!widthIsSet || !heightIsSet) { //auto width and height calculation.
       if (title.enabled()) {
-        title.parentBounds(null);
+        if (acgraph.type() == acgraph.StageType.SVG) {
+          title.parentBounds(null);
+        } else {
+          title.parentBounds(this.chart_ && this.chart_.container() ? this.chart_.container().getStage().getBounds() : null);
+        }
         var titleWidth = title.getOption('width');
         var titleHasOwnWidth = goog.isDefAndNotNull(title.getOwnOption('width'));
         var titleHeight = title.getOption('height');
@@ -1672,7 +1682,6 @@ anychart.core.ui.Tooltip.prototype.calculateContentBounds_ = function() {
       if (content.enabled()) {
         content.parentBounds(new anychart.math.Rect(0, 0, result.width, contentBounds.height));
       }
-
       if (separator.enabled()) {
         separator.parentBounds((title.enabled() || content.enabled()) ? result : null);
         separatorBounds = separator.getContentBounds();
@@ -1695,6 +1704,10 @@ anychart.core.ui.Tooltip.prototype.calculateContentBounds_ = function() {
     result.top = 0;
 
     this.contentBounds_ = result;
+
+    title.resumeSignalsDispatching(false);
+    separator.resumeSignalsDispatching(false);
+    content.resumeSignalsDispatching(false);
   }
 };
 
@@ -1882,7 +1895,7 @@ anychart.core.ui.Tooltip.prototype.getContainer_ = function(tooltip) {
 anychart.core.ui.Tooltip.prototype.setContainerToTooltip_ = function(tooltip) {
   if (tooltip.hasInvalidationState(anychart.ConsistencyState.CONTAINER)) {
     var tc;
-    if (tooltip.useGlobalContainer_()) {
+    if (tooltip.useGlobalContainer_() || acgraph.type() == acgraph.StageType.VML) {
       tc = anychart.core.utils.GlobalTooltipContainer.getInstance();
       if (this.tooltipContainer_ && this.tooltipContainer_.isLocal())
         tooltip.tooltipContainer_.container(null);
@@ -1905,8 +1918,8 @@ anychart.core.ui.Tooltip.prototype.setContainerToTooltip_ = function(tooltip) {
         tooltip.getRootLayer_().parent(/** @type {acgraph.vector.ILayer} */ (tooltip.container()));
         var stage = container.getStage();
         var wrapper = stage.getDomWrapper();
-        // tc.container(wrapper);
-        // tc.allocTooltip(tooltip);
+        tc.container(wrapper);
+        tc.allocTooltip(tooltip);
         tooltip.markConsistent(anychart.ConsistencyState.CONTAINER);
       }
 

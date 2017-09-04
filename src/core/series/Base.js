@@ -1674,6 +1674,7 @@ anychart.core.series.Base.prototype.tooltip = function(opt_value) {
     if (this.chart.supportsTooltip()) {
       var chart = /** @type {anychart.core.Chart} */ (this.chart);
       var parent = /** @type {anychart.core.ui.Tooltip} */ (chart.tooltip());
+      this.tooltipInternal.setParentEventTarget(this);
       this.tooltipInternal.parent(parent);
       this.tooltipInternal.chart(chart);
     }
