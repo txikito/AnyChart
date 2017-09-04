@@ -51,6 +51,16 @@ goog.inherits(anychart.chartEditor2Module.EditorModel, goog.events.EventTarget);
 anychart.chartEditor2Module.EditorModel.Key;
 
 
+/**
+ * @enum {string}
+ */
+anychart.chartEditor2Module.EditorModel.dataType = {
+  UPLOADED: 'u',
+  PREDEFINED: 'p',
+  GEO: 'g'
+};
+
+
 // region Structures
 anychart.chartEditor2Module.EditorModel.chartTypes = {
   'line': {
@@ -411,10 +421,6 @@ anychart.chartEditor2Module.EditorModel.prototype.createDefaultMappings = functi
  */
 anychart.chartEditor2Module.EditorModel.prototype.createPlotMapping = function() {
   var result = [];
-
-  var rawData = this.getRawData();
-  //var dataRow = rawData[0];
-  //console.log(dataRow, this.fieldsState_, this.model_.chart.type, this.model_.chart.seriesType);
 
   var numValues = 1;
   if (this.model_.chart.seriesType == 'bubble')
@@ -841,16 +847,6 @@ anychart.chartEditor2Module.EditorModel.prototype.getModel = function() {
 
 
 // region Data Model
-/**
- * @enum {string}
- */
-anychart.chartEditor2Module.EditorModel.dataType = {
-  UPLOADED: 'u',
-  PREDEFINED: 'p',
-  GEO: 'g'
-};
-
-
 anychart.chartEditor2Module.EditorModel.prototype.getFullId = function(dataType, setId) {
   return dataType + setId;
 };
@@ -933,7 +929,7 @@ anychart.chartEditor2Module.EditorModel.prototype.getPreparedData = function(opt
 
 
 /**
- * @param opt_activeGeo
+ * @param {String=} opt_activeGeo
  * @return {?Array.<*>}
  */
 anychart.chartEditor2Module.EditorModel.prototype.getRawData = function(opt_activeGeo) {
