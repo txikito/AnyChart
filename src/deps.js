@@ -47,7 +47,7 @@ goog.addDependency('../../../../src/cartesian3d/axisMarkers/Line.js', ['anychart
 goog.addDependency('../../../../src/cartesian3d/axisMarkers/Range.js', ['anychart.cartesian3dModule.axisMarkers.Range'], ['anychart.core.axisMarkers.Range'], false);
 goog.addDependency('../../../../src/cartesian3d/axisMarkers/Text.js', ['anychart.cartesian3dModule.axisMarkers.Text'], ['anychart.core.axisMarkers.Text'], false);
 goog.addDependency('../../../../src/cartesian3d/cartesian3d.module.js', ['anychart.cartesian3dModule.entry'], ['anychart.cartesian3dModule.Chart', 'anychart.cartesian3dModule.drawers.Area', 'anychart.cartesian3dModule.drawers.Column'], false);
-goog.addDependency('../../../../src/cartesian3d/defaultTheme.js', ['anychart.cartesian3dModule.defaultTheme'], ['anychart.cartesianModule.defaultTheme'], false);
+goog.addDependency('../../../../src/cartesian3d/defaultTheme.js', ['anychart.cartesian3dModule.defaultTheme'], [], false);
 goog.addDependency('../../../../src/cartesian3d/drawers/Area.js', ['anychart.cartesian3dModule.drawers.Area'], ['anychart.core.drawers', 'anychart.core.drawers.Base', 'anychart.enums'], false);
 goog.addDependency('../../../../src/cartesian3d/drawers/Column.js', ['anychart.cartesian3dModule.drawers.Column'], ['anychart.core.drawers', 'anychart.core.drawers.Base', 'anychart.enums'], false);
 goog.addDependency('../../../../src/cartesian3d/drawers/Line.js', ['anychart.cartesian3dModule.drawers.Line'], ['anychart.core.drawers', 'anychart.core.drawers.Base', 'anychart.enums'], false);

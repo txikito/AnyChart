@@ -1,5 +1,4 @@
 goog.provide('anychart.cartesian3dModule.defaultTheme');
-goog.require('anychart.cartesianModule.defaultTheme');
 
 
 goog.mixin(goog.global['anychart']['themes']['defaultTheme'], {
