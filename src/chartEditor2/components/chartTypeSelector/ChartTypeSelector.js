@@ -2,6 +2,7 @@ goog.provide('anychart.chartEditor2Module.ChartTypeSelector');
 
 goog.require('anychart.chartEditor2Module.Component');
 goog.require('anychart.chartEditor2Module.PlotPanel');
+goog.require('anychart.chartEditor2Module.GeoDataInputs');
 goog.require('anychart.chartEditor2Module.controls.ChartTypeSelect');
 
 
@@ -27,11 +28,7 @@ anychart.chartEditor2Module.ChartTypeSelector = function(editor) {
    */
   this.plots_ = [];
 
-  /**
-   * @type {Array}
-   * @protected
-   */
-  this.geoDataIndex = [];
+  this.geoDataInputs_ = null;
 };
 goog.inherits(anychart.chartEditor2Module.ChartTypeSelector, anychart.chartEditor2Module.Component);
 
@@ -50,6 +47,9 @@ anychart.chartEditor2Module.ChartTypeSelector.prototype.createDom = function() {
   this.chartTypeSelect_.setEditorModel(this.editor_.getModel(), [['chart'], 'type'], 'setChartType');
   this.chartTypeSelect_.setOptions(goog.object.getValues(anychart.chartEditor2Module.EditorModel.chartTypes));
   this.addChild(this.chartTypeSelect_, true);
+
+  this.geoDataInputs_ = new anychart.chartEditor2Module.GeoDataInputs(this.editor_.getModel());
+  this.addChild(this.geoDataInputs_, true);
 };
 
 
@@ -58,14 +58,7 @@ anychart.chartEditor2Module.ChartTypeSelector.prototype.update = function() {
   var chartType = model.getValue([['chart'], 'type']);
   var stackMode = model.getValue([['chart'], ['settings'], 'yScale().stackMode()']);
   this.chartTypeSelect_.setValueByModel(stackMode);
-
   this.typeIcon_.setAttribute('src', this.chartTypeSelect_.getIcon());
-
-  if (this.geoDataSelect_) {
-    this.removeChild(this.geoDataSelect_, true);
-    this.geoDataSelect_.dispose();
-    this.geoDataSelect_ = null;
-  }
 
   if (this.xValueSelect_) {
     this.removeChild(this.xValueSelect_, true);
@@ -74,15 +67,8 @@ anychart.chartEditor2Module.ChartTypeSelector.prototype.update = function() {
   }
 
   if (chartType == 'map') {
-    // Geo data select
-    this.geoDataSelect_ = new anychart.chartEditor2Module.controls.SelectWithLabel('activeGeo', 'Geo data');
-    this.addChild(this.geoDataSelect_, true);
-    this.getHandler().listen(this.geoDataSelect_, goog.ui.Component.EventType.CHANGE, this.onSelectGeoData_);
-
-    if (this.geoDataIndex.length)
-      this.createGeoDataOptions_();
-    else
-      this.loadGeoDataIndex_();
+    this.geoDataInputs_.show();
+    this.geoDataInputs_.update();
 
     // Dataset select
     this.xValueSelect_ = new anychart.chartEditor2Module.controls.SelectWithLabel('x', 'Data set');
@@ -93,6 +79,8 @@ anychart.chartEditor2Module.ChartTypeSelector.prototype.update = function() {
     this.xValueSelect_.setValueByModel(model.getActive());
 
   } else {
+    this.geoDataInputs_.hide();
+
     // X Values select
     this.xValueSelect_ = new anychart.chartEditor2Module.controls.SelectWithLabel('x', 'X Values');
     this.xValueSelect_.setEditorModel(model, [['dataSettings'], 'field'], 'setActiveField');
@@ -101,6 +89,7 @@ anychart.chartEditor2Module.ChartTypeSelector.prototype.update = function() {
     this.createXValuesOptions_();
     this.xValueSelect_.setValueByModel(model.getActive());
   }
+  goog.dom.classlist.add(this.xValueSelect_.getElement(), 'x-value-select');
 
   // Plots
   this.removeAllPlots_();
@@ -202,79 +191,4 @@ anychart.chartEditor2Module.ChartTypeSelector.prototype.removeAllPlots_ = functi
     this.plots_[i].dispose();
   }
   this.plots_.length = 0;
-};
-
-
-anychart.chartEditor2Module.ChartTypeSelector.prototype.loadGeoDataIndex_ = function() {
-  this.dispatchEvent({
-    type: anychart.chartEditor2Module.events.EventType.WAIT,
-    wait: true
-  });
-
-  var self = this;
-  goog.net.XhrIo.send('https://cdn.anychart.com/anydata/geo/index.json',
-      function(e) {
-        var xhr = e.target;
-        var indexJson = xhr.getResponseJson();
-        if (indexJson['sets']) {
-          for (var i in indexJson['sets']) {
-            self.geoDataIndex[indexJson['sets'][i]['id']] = indexJson['sets'][i];
-          }
-        }
-        self.createGeoDataOptions_();
-      });
-};
-
-
-anychart.chartEditor2Module.ChartTypeSelector.prototype.createGeoDataOptions_ = function() {
-  if (!this.geoDataSelect_ || !this.geoDataIndex.length) return;
-
-  var options = [];
-  for (var key in this.geoDataIndex) {
-    options.push([this.geoDataIndex[key]['name'], this.geoDataIndex[key]['id']]);
-  }
-  this.geoDataSelect_.setOptions(options);
-  var activeGeo = this.editor_.getModel().getValue([['dataSettings'], 'activeGeo']);
-
-  if (!activeGeo)
-    this.geoDataSelect_.setSelectedIndex(0);
-  else
-    this.geoDataSelect_.setValue(activeGeo.substr(1));
-};
-
-
-anychart.chartEditor2Module.ChartTypeSelector.prototype.onSelectGeoData_ = function(evt) {
-  if (!this.geoDataIndex.length) return;
-
-  var setId = evt.target.getValue();
-  var activeGeo = this.editor_.getModel().getValue([['dataSettings'], 'activeGeo']);
-  if (activeGeo && (anychart.chartEditor2Module.EditorModel.dataType.GEO + setId) == activeGeo) return;
-
-  this.dispatchEvent({
-    type: anychart.chartEditor2Module.events.EventType.WAIT,
-    wait: true
-  });
-
-  var setUrl = 'https://cdn.anychart.com/geodata/1.2.0' + this.geoDataIndex[setId]['data'];
-  var self = this;
-  goog.net.XhrIo.send(setUrl,
-      function(e) {
-        if (e.target.getStatus() == 200) {
-          var json = e.target.getResponseJson();
-          var dataType = anychart.chartEditor2Module.EditorModel.dataType.GEO;
-          self.dispatchEvent({
-            type: anychart.chartEditor2Module.events.EventType.DATA_ADD,
-            data: json,
-            dataType: dataType,
-            setId: setId,
-            setFullId: dataType + setId,
-            title: self.geoDataIndex[setId]['name']
-          });
-        }
-
-        self.dispatchEvent({
-          type: anychart.chartEditor2Module.events.EventType.WAIT,
-          wait: false
-        });
-      });
 };
