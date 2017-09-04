@@ -280,8 +280,8 @@ anychart.stockModule.Controller.prototype.refreshSelection = function(newPixelWi
       (!preserveSelectedRange || this.currentSelectionSticksLeft() || this.currentSelectionSticksRight())) {
     var indexesRange;
     if (useIndexes && !isNaN(indexesRange = this.mainRegistry_.getLastIndex() + 1)) {
-      startKey = this.mainRegistry_.getKeyByIndex(this.currentSelection_.startIndexRatio * indexesRange - 0.5);
-      endKey = this.mainRegistry_.getKeyByIndex(this.currentSelection_.endIndexRatio * indexesRange - 0.5);
+      startKey = this.mainRegistry_.getKeyByIndex(this.currentSelection_.startIndexRatio * indexesRange);
+      endKey = this.mainRegistry_.getKeyByIndex(this.currentSelection_.endIndexRatio * indexesRange);
     } else {
       var keysStart = this.mainRegistry_.getFirstKey();
       var keysRange = this.mainRegistry_.getLastKey() - keysStart;
@@ -321,8 +321,6 @@ anychart.stockModule.Controller.prototype.refreshSelection = function(newPixelWi
         this.currentScrollerSelection_,
         mainRegistryUpdated);
     if (scrollerSelectionChanged) {
-      if (scrollerSelectionChanged[0] != this.mainRegistry_)
-        this.mainRegistry_.normalizeSelectionIndexRatios(scrollerSelectionChanged[1]);
       this.currentScrollerRegistry_ = scrollerSelectionChanged[0];
       this.currentScrollerSelection_ = scrollerSelectionChanged[1];
       result += 2;
