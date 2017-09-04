@@ -1,10 +1,12 @@
 goog.provide('anychart.stockModule.Chart');
+
 goog.require('anychart.core.Chart');
 goog.require('anychart.core.IChart');
 goog.require('anychart.core.IChartWithAnnotations');
 goog.require('anychart.core.IGroupingProvider');
 goog.require('anychart.core.reporting');
 goog.require('anychart.core.settings');
+goog.require('anychart.core.ui.Crosshair');
 goog.require('anychart.core.ui.Tooltip');
 goog.require('anychart.enums');
 goog.require('anychart.stockModule.Controller');
@@ -149,6 +151,13 @@ anychart.stockModule.Chart = function(opt_allowPointSettings) {
    * @private
    */
   this.mwZoomAction_ = goog.bind(this.doMWZoom_, this);
+
+  /**
+   * Index of last plot.
+   * @type {number}
+   * @private
+   */
+  this.lastPlotIndex_ = -1;
 
   /**
    * Series config.
@@ -572,12 +581,22 @@ anychart.stockModule.Chart.prototype.plot = function(opt_indexOrValue, opt_value
   }
   var plot = this.plots_[index];
   if (!plot) {
+    //NOTE: plot.crosshair().interactivityTarget() is not set because stock chart controls crosshair itself.
     plot = new anychart.stockModule.Plot(this);
+
+    plot.crosshair().parent(/** @type {anychart.core.ui.Crosshair} */ (this.crosshair()));
     if (goog.isDef(this.defaultPlotSettings_))
       plot.setup(this.defaultPlotSettings_);
     plot.setParentEventTarget(this);
     this.plots_[index] = plot;
     plot.listenSignals(this.plotInvalidated_, this);
+    if (index > this.lastPlotIndex_) {
+      var prevPlot = this.plots_[this.lastPlotIndex_];
+      if (prevPlot)
+        prevPlot.isLastPlot(false);
+      plot.isLastPlot(true);
+      this.lastPlotIndex_ = index;
+    }
     this.invalidate(anychart.ConsistencyState.BOUNDS | anychart.ConsistencyState.STOCK_PLOTS_APPEARANCE,
         anychart.Signal.NEEDS_REDRAW | anychart.Signal.BOUNDS_CHANGED);
   }
@@ -627,8 +646,7 @@ anychart.stockModule.Chart.prototype.scroller = function(opt_value) {
  * @param {boolean=} opt_dispatchEvent
  * @return {anychart.stockModule.Chart}
  */
-anychart.stockModule.Chart.prototype.selectRange = function(
-    typeOrUnitOrStart, opt_endOrCountOrDispatchEvent, opt_anchorOrDispatchEvent, opt_dispatchEvent) {
+anychart.stockModule.Chart.prototype.selectRange = function(typeOrUnitOrStart, opt_endOrCountOrDispatchEvent, opt_anchorOrDispatchEvent, opt_dispatchEvent) {
   var type, unit;
   var offset, year, month;
 
@@ -1717,16 +1735,24 @@ anychart.stockModule.Chart.prototype.defaultAnnotationSettings = function(opt_va
 //endregion
 //region Interactivity
 /**
+ * @inheritDoc
+ */
+anychart.stockModule.Chart.prototype.onInteractivitySignal = goog.nullFunction;
+
+
+/**
  * Highlights points on all charts by ratio of current selected range. Used by plots.
  * @param {number} ratio
  * @param {number} clientX
  * @param {number} clientY
+ * @param {anychart.stockModule.Plot} plot
  */
-anychart.stockModule.Chart.prototype.highlightAtRatio = function(ratio, clientX, clientY) {
+anychart.stockModule.Chart.prototype.highlightAtRatio = function(ratio, clientX, clientY, plot) {
   this.highlightedRatio_ = ratio;
   this.highlightedClientX_ = clientX;
   this.highlightedClientY_ = clientY;
-  this.highlightAtRatio_(ratio, clientX, clientY);
+  this.highlightSourcePlot_ = plot;
+  this.highlightAtRatio_(ratio, clientX, clientY, plot);
 };
 
 
@@ -1737,6 +1763,7 @@ anychart.stockModule.Chart.prototype.unhighlight = function() {
   this.highlightedRatio_ = NaN;
   this.highlightedClientX_ = NaN;
   this.highlightedClientY_ = NaN;
+  this.highlightSourcePlot_ = null;
   this.unhighlight_();
 };
 
@@ -1774,7 +1801,7 @@ anychart.stockModule.Chart.prototype.allowHighlight = function() {
  */
 anychart.stockModule.Chart.prototype.refreshHighlight_ = function() {
   if (!isNaN(this.highlightedRatio_)) {
-    this.highlightAtRatio_(this.highlightedRatio_, this.highlightedClientX_, this.highlightedClientY_);
+    this.highlightAtRatio_(this.highlightedRatio_, this.highlightedClientX_, this.highlightedClientY_, this.highlightSourcePlot_);
   }
 };
 
@@ -1784,11 +1811,13 @@ anychart.stockModule.Chart.prototype.refreshHighlight_ = function() {
  * @param {number} ratio
  * @param {number} clientX
  * @param {number} clientY
+ * @param {anychart.stockModule.Plot} sourcePlot - .
  * @private
  */
-anychart.stockModule.Chart.prototype.highlightAtRatio_ = function(ratio, clientX, clientY) {
+anychart.stockModule.Chart.prototype.highlightAtRatio_ = function(ratio, clientX, clientY, sourcePlot) {
   if (this.highlightPrevented_ || ratio < 0 || ratio > 1) return;
-  var value = this.dataController_.alignHighlight(this.xScale().inverseTransform(ratio));
+  var rawValue = this.xScale().inverseTransform(ratio);
+  var value = this.dataController_.alignHighlight(rawValue);
   if (isNaN(value)) return;
 
   var i;
@@ -1802,10 +1831,12 @@ anychart.stockModule.Chart.prototype.highlightAtRatio_ = function(ratio, clientX
     }),
     'hoveredDate': value
   };
-  //if (this.dispatchEvent(eventInfo)) {
+
   for (i = 0; i < this.plots_.length; i++) {
-    if (this.plots_[i])
-      this.plots_[i].highlight(value);
+    if (this.plots_[i]) {
+      var plot = this.plots_[i];
+      plot.highlight(value, rawValue, sourcePlot, clientY);
+    }
   }
   this.highlighted_ = true;
 
@@ -1832,8 +1863,12 @@ anychart.stockModule.Chart.prototype.highlightAtRatio_ = function(ratio, clientX
     var grouping = /** @type {anychart.stockModule.Grouping} */(this.grouping());
     tooltip.showForSeriesPoints(points, clientX, clientY, null, false, {
       'hoveredDate': {value: value, type: anychart.enums.TokenType.DATE_TIME},
+      'rawHoveredDate': {value: rawValue, type: anychart.enums.TokenType.DATE_TIME},
       'dataIntervalUnit': {value: grouping.getCurrentDataInterval()['unit'], type: anychart.enums.TokenType.STRING},
-      'dataIntervalUnitCount': {value: grouping.getCurrentDataInterval()['count'], type: anychart.enums.TokenType.NUMBER},
+      'dataIntervalUnitCount': {
+        value: grouping.getCurrentDataInterval()['count'],
+        type: anychart.enums.TokenType.NUMBER
+      },
       'isGrouped': {value: grouping.isGrouped()}
     });
   }
@@ -1848,8 +1883,9 @@ anychart.stockModule.Chart.prototype.unhighlight_ = function() {
   if (this.highlighted_/* && this.dispatchEvent(anychart.enums.EventType.UNHIGHLIGHT)*/) {
     this.highlighted_ = false;
     for (var i = 0; i < this.plots_.length; i++) {
-      if (this.plots_[i])
-        this.plots_[i].unhighlight();
+      var plot = this.plots_[i];
+      if (plot)
+        plot.unhighlight();
     }
     this.tooltip().hide();
   }
@@ -1859,6 +1895,46 @@ anychart.stockModule.Chart.prototype.unhighlight_ = function() {
 /** @inheritDoc */
 anychart.stockModule.Chart.prototype.createInteractivitySettings = function() {
   return new anychart.stockModule.Interactivity(this);
+};
+
+
+//endregion
+//region Crosshair
+//----------------------------------------------------------------------------------------------------------------------
+//
+//  Crosshair
+//
+//----------------------------------------------------------------------------------------------------------------------
+/**
+ *
+ * @param {(Object|boolean|null)=} opt_value
+ * @return {!(anychart.core.ui.Crosshair|anychart.stockModule.Chart)}
+ */
+anychart.stockModule.Chart.prototype.crosshair = function(opt_value) {
+  if (!this.crosshair_) {
+    this.crosshair_ = new anychart.core.ui.Crosshair();
+    this.crosshair_.needsForceSignalsDispatching(true);
+    this.registerDisposable(this.crosshair_);
+    this.crosshair_.listenSignals(this.onCrosshairSignal_, this);
+    this.invalidate(anychart.ConsistencyState.AXES_CHART_CROSSHAIR, anychart.Signal.NEEDS_REDRAW);
+  }
+
+  if (goog.isDef(opt_value)) {
+    this.crosshair_.setup(opt_value);
+    return this;
+  } else {
+    return this.crosshair_;
+  }
+};
+
+
+/**
+ * Listener for crosshair invalidation.
+ * @param {anychart.SignalEvent} event Invalidation event.
+ * @private
+ */
+anychart.stockModule.Chart.prototype.onCrosshairSignal_ = function(event) {
+  this.invalidate(anychart.ConsistencyState.AXES_CHART_CROSSHAIR, anychart.Signal.NEEDS_REDRAW);
 };
 
 
@@ -2496,7 +2572,10 @@ anychart.stockModule.Chart.prototype.serialize = function() {
   json['scrollerGrouping'] = this.scrollerGrouping().serialize();
   json['xScale'] = this.xScale().serialize();
   json['scroller'] = this.scroller().serialize();
-  json['plots'] = goog.array.map(this.plots_, function(element) { return element ? element.serialize() : null; });
+  json['plots'] = goog.array.map(this.plots_, function(element) {
+    return element ? element.serialize() : null;
+  });
+  json['crosshair'] = this.crosshair().serialize();
 
   anychart.core.settings.serialize(this, anychart.stockModule.Chart.PROPERTY_DESCRIPTORS, json);
   json['interactivity'] = this.interactivity().serialize();
@@ -2511,6 +2590,8 @@ anychart.stockModule.Chart.prototype.setupByJSON = function(config, opt_default)
 
   if ('xScale' in config)
     this.xScale(config['xScale']);
+
+  this.crosshair().setupInternal(!!opt_default, config['crosshair']);
 
   if ('defaultPlotSettings' in config)
     this.setDefaultPlotSettings(config['defaultPlotSettings']);
@@ -2834,6 +2915,7 @@ anychart.stockModule.Chart.prototype.toCsv = function(opt_chartDataExportMode, o
   var proto = anychart.stockModule.Chart.prototype;
   goog.exportSymbol('anychart.stock', anychart.stock);
   proto['plot'] = proto.plot;
+  proto['crosshair'] = proto.crosshair;
   proto['scroller'] = proto.scroller;
   proto['xScale'] = proto.xScale;
   proto['selectRange'] = proto.selectRange;
