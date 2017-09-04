@@ -4,6 +4,7 @@ goog.require('anychart.chartEditor2Module.EditorModel');
 goog.require('anychart.chartEditor2Module.Component');
 
 
+
 /**
  * @param {anychart.chartEditor2Module.EditorModel} model
  * @constructor
@@ -36,7 +37,6 @@ anychart.chartEditor2Module.GeoDataInputs.prototype.createDom = function() {
 };
 
 
-
 anychart.chartEditor2Module.GeoDataInputs.prototype.update = function() {
   if (this.hidden_) return;
 
@@ -46,6 +46,12 @@ anychart.chartEditor2Module.GeoDataInputs.prototype.update = function() {
     this.removeChild(this.geoDataSelect_, true);
     this.geoDataSelect_.dispose();
     this.geoDataSelect_ = null;
+  }
+
+  if (this.geoIdFieldSelect_) {
+    this.removeChild(this.geoIdFieldSelect_, true);
+    this.geoIdFieldSelect_.dispose();
+    this.geoIdFieldSelect_ = null;
   }
 
   if (chartType == 'map') {
@@ -59,30 +65,12 @@ anychart.chartEditor2Module.GeoDataInputs.prototype.update = function() {
     else
       this.loadGeoDataIndex_();
 
-  } else {
-    // hide or dispose everything
-  }
-};
+    this.geoIdFieldSelect_ = new anychart.chartEditor2Module.controls.SelectWithLabel('id', 'Geo Id Field');
+    this.geoIdFieldSelect_.setEditorModel(this.model_, [['dataSettings'], 'geoIdField']);
+    this.addChild(this.geoIdFieldSelect_, true);
 
-
-anychart.chartEditor2Module.GeoDataInputs.prototype.createGeoDataOptions_ = function() {
-  for (var a = this.geoDataSelect_.getItemCount(); a--;) {
-    this.geoDataSelect_.removeItemAt(a);
-  }
-
-  var data = this.model_.getPreparedData();
-  // dummy field value - will not be used
-  var field = this.model_.getValue([['dataSettings'], 'field']);
-
-  for (var i = 0; i < data.length; i++) {
-    if (data[i]['type'] == anychart.chartEditor2Module.EditorModel.dataType.GEO)
-      continue;
-
-    var fields = data[i]['fields'];
-    var caption = data[i]['title'];
-    var setFullId = data[i]['setFullId'];
-    var item = new anychart.chartEditor2Module.controls.MenuItemWithTwoValues(caption, field, setFullId);
-    this.geoDataSelect_.addItem(item);
+    if (this.createGeoIdFieldOptions_())
+      this.geoIdFieldSelect_.setValueByModel();
   }
 };
 
@@ -159,4 +147,21 @@ anychart.chartEditor2Module.GeoDataInputs.prototype.onSelectGeoData_ = function(
           wait: false
         });
       });
+};
+
+
+anychart.chartEditor2Module.GeoDataInputs.prototype.createGeoIdFieldOptions_ = function() {
+  var activeGeo = this.model_.getActiveGeo();
+  if (!activeGeo ) return false;
+
+  var preparedData = this.model_.getPreparedData(activeGeo);
+  if (!preparedData.length) return false;
+
+  var options = [];
+  for (var key in preparedData[0]['fields']) {
+    options.push(preparedData[0]['fields'][key]['name']);
+  }
+  this.geoIdFieldSelect_.setOptions(options);
+
+  return true;
 };

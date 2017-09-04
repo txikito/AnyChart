@@ -110,5 +110,6 @@ anychart.chartEditor2Module.DataSetPanel.prototype.setDisabled = function(value)
  */
 anychart.chartEditor2Module.DataSetPanel.prototype.setActiveGeo = function(isActiveGeo) {
   goog.dom.classlist.enable(this.getElement(), 'active-geo', isActiveGeo);
-  this.menuItems_['Remove'].setEnabled(!isActiveGeo);
+  if (isActiveGeo)
+    this.menuItems_['Remove'].setEnabled(false);
 };

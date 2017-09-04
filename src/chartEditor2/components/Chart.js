@@ -77,8 +77,12 @@ anychart.chartEditor2Module.Chart.prototype.update = function(opt_evt) {
 
     if (settings['chart']['type'] == 'map') {
       var geoData = editorModel.getRawData(true);
-      if (geoData)
+      if (geoData) {
         this.chart_['geoData'](geoData);
+        var geoIdField = editorModel.getGeoIdField();
+        if (geoIdField)
+          this.chart_['geoIdField'](geoIdField);
+      }
     }
 
     // Create data set
@@ -119,9 +123,9 @@ anychart.chartEditor2Module.Chart.prototype.update = function(opt_evt) {
 
             series = this.chart_[seriesCtor](mappingInstance);
 
-            if (settings['chart']['type'] == 'map' && mappingObj['geoIdField']) {
-              series['geoIdField'](mappingObj['geoIdField']);
-            }
+            // if (settings['chart']['type'] == 'map' && mappingObj['geoIdField']) {
+            //   series['geoIdField'](mappingObj['geoIdField']);
+            // }
           }
 
           var id = plotMapping[j]['id'];
