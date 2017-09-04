@@ -53,16 +53,29 @@ anychart.chartEditor2Module.DataDialog.prototype.update = function(dialogType, o
     contentEl.appendChild(this.input_);
     contentEl.appendChild(this.input2_);
   }
+
+  if (this.dataType_ == 'csv') {
+    this.csvRSeparator_ = dom.createDom(goog.dom.TagName.INPUT, 'input');
+    this.csvRSeparator_.value = '\\n';
+    contentEl.appendChild(dom.createDom(goog.dom.TagName.LABEL, null, ['Rows Separator', this.csvRSeparator_]));
+
+    this.csvCSeparator_ = dom.createDom(goog.dom.TagName.INPUT, 'input');
+    this.csvCSeparator_.value = ',';
+    contentEl.appendChild(dom.createDom(goog.dom.TagName.LABEL, null, ['Columns Separator', this.csvCSeparator_]));
+
+    this.csvIgnoreFirstRow_ = dom.createDom(goog.dom.TagName.INPUT, {class: 'checkbox', type: 'checkbox'})
+    contentEl.appendChild(dom.createDom(goog.dom.TagName.LABEL, null, ['Ignore First Row', this.csvIgnoreFirstRow_]));
+
+    this.csvTrailingSpaces_ = dom.createDom(goog.dom.TagName.INPUT, {class: 'checkbox', type: 'checkbox'})
+    contentEl.appendChild(dom.createDom(goog.dom.TagName.LABEL, null, ['Ignore Trailing Spaces', this.csvTrailingSpaces_]));
+
+    contentEl.appendChild(this.dom_.createDom(goog.dom.TagName.DIV, 'cb'));
+  }
 };
 
 
 anychart.chartEditor2Module.DataDialog.prototype.getType = function(){
   return this.type_;
-};
-
-
-anychart.chartEditor2Module.DataDialog.prototype.getDataType = function(){
-  return this.dataType_;
 };
 
 
@@ -73,4 +86,32 @@ anychart.chartEditor2Module.DataDialog.prototype.getInputValue = function(){
 
 anychart.chartEditor2Module.DataDialog.prototype.getInput2Value = function(){
   return this.input2_ && this.input2_.value;
+};
+
+
+anychart.chartEditor2Module.DataDialog.prototype.getCSVSettings = function() {
+  var rowsSeparator = this.processSpecialChars_(this.csvRSeparator_.value);
+  var columnsSeparator = this.processSpecialChars_(this.csvCSeparator_.value);
+
+  return {
+    'rowsSeparator': rowsSeparator,
+    'columnsSeparator': columnsSeparator,
+    'ignoreFirstRow': !!this.csvIgnoreFirstRow_.checked,
+    'ignoreTrailingSpaces': !!this.csvTrailingSpaces_.checked
+  };
+};
+
+
+anychart.chartEditor2Module.DataDialog.prototype.processSpecialChars_ = function(string) {
+  return string.replace(/\\(r|n|t)/g, function(part, g1) {
+    switch (g1) {
+      case 'r':
+        return '\r';
+      case 'n':
+        return '\n';
+      case 't':
+        return '\t';
+    }
+    return part;
+  });
 };

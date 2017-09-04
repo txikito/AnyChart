@@ -929,7 +929,7 @@ anychart.chartEditor2Module.EditorModel.prototype.getPreparedData = function(opt
 
 
 /**
- * @param {String=} opt_activeGeo
+ * @param {boolean=} opt_activeGeo
  * @return {?Array.<*>}
  */
 anychart.chartEditor2Module.EditorModel.prototype.getRawData = function(opt_activeGeo) {

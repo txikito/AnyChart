@@ -209,7 +209,8 @@ anychart.chartEditor2Module.steps.PrepareData.prototype.addLoadedData = function
         break;
 
       case 'csv':
-        result = anychart.data.parseText(data);
+        var csvSettings = this.dataDialog_.getCSVSettings();
+        result = anychart.data.parseText(data, csvSettings);
         break;
 
       case 'xml':
