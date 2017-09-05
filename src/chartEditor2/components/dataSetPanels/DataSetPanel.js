@@ -1,6 +1,6 @@
 goog.provide('anychart.chartEditor2Module.DataSetPanel');
 
-goog.require('anychart.ui.Component');
+goog.require('anychart.chartEditor2Module.Component');
 goog.require('goog.ui.Menu');
 goog.require('goog.ui.MenuButton');
 goog.require('goog.ui.MenuItem');
@@ -13,7 +13,7 @@ goog.require('goog.ui.MenuSeparator');
  * @param {Object} dataSet Data set object
  * @param {goog.dom.DomHelper=} opt_domHelper Optional DOM helper; see {@link goog.ui.Component} for semantics.
  * @constructor
- * @extends {anychart.ui.Component}
+ * @extends {anychart.chartEditor2Module.Component}
  */
 anychart.chartEditor2Module.DataSetPanel = function(dataSet, opt_domHelper) {
   anychart.chartEditor2Module.DataSetPanel.base(this, 'constructor', opt_domHelper);
@@ -24,7 +24,7 @@ anychart.chartEditor2Module.DataSetPanel = function(dataSet, opt_domHelper) {
 
   this.menuItems_ = {};
 };
-goog.inherits(anychart.chartEditor2Module.DataSetPanel, anychart.ui.Component);
+goog.inherits(anychart.chartEditor2Module.DataSetPanel, anychart.chartEditor2Module.Component);
 
 
 /** @inheritDoc */
@@ -71,8 +71,7 @@ anychart.chartEditor2Module.DataSetPanel.prototype.createDom = function() {
   var fields = [];
   if (goog.isArray(this.dataSet_['fields'])) {
     for (var i = 0; i < this.dataSet_['fields'].length; i++) {
-      fields.push(dom.createDom(goog.dom.TagName.DIV,
-          {'class': 'field'}, this.dataSet_['fields'][i]['name']))
+      fields.push(dom.createDom(goog.dom.TagName.DIV, {'class': 'field'}, this.dataSet_['fields'][i]['name']));
     }
   }
 

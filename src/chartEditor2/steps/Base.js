@@ -1,6 +1,6 @@
 goog.provide('anychart.chartEditor2Module.steps.Base');
 
-goog.require('anychart.ui.Component');
+goog.require('anychart.chartEditor2Module.Component');
 goog.require('anychart.ui.button.Primary');
 goog.require('anychart.ui.button.Secondary');
 goog.require('goog.a11y.aria');
@@ -19,10 +19,10 @@ goog.forwardDeclare('anychart.data.Set');
  * @param {number} index Step index
  * @param {goog.dom.DomHelper=} opt_domHelper Optional DOM helper.
  * @constructor
- * @extends {anychart.ui.Component}
+ * @extends {anychart.chartEditor2Module.Component}
  */
 anychart.chartEditor2Module.steps.Base = function(index, opt_domHelper) {
-  goog.base(this, opt_domHelper);
+  anychart.chartEditor2Module.steps.Base.base(this, 'constructor', opt_domHelper);
 
   /**
    * @type {string}
@@ -49,7 +49,7 @@ anychart.chartEditor2Module.steps.Base = function(index, opt_domHelper) {
    */
   this.index_ = index;
 };
-goog.inherits(anychart.chartEditor2Module.steps.Base, anychart.ui.Component);
+goog.inherits(anychart.chartEditor2Module.steps.Base, anychart.chartEditor2Module.Component);
 
 
 /**

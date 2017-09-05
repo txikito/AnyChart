@@ -1,6 +1,6 @@
 goog.provide('anychart.chartEditor2Module.DataSelectorBase');
 
-goog.require('anychart.ui.Component');
+goog.require('anychart.chartEditor2Module.Component');
 goog.require('anychart.ui.Preloader');
 goog.require('goog.dom.forms');
 goog.require('goog.net.XhrIo');
@@ -8,11 +8,15 @@ goog.require('goog.net.XhrIo');
 
 
 /**
+ * Base class for predefined data set's selector widget.
+ *
+ * @param {anychart.chartEditor2Module.EditorModel} dataModel
+ * @param {goog.dom.DomHelper=} opt_domHelper Optional DOM helper; see {@link goog.ui.Component} for semantics.
  * @constructor
- * @extends {anychart.ui.Component}
+ * @extends {anychart.chartEditor2Module.Component}
  */
-anychart.chartEditor2Module.DataSelectorBase = function(dataModel) {
-  anychart.chartEditor2Module.DataSelectorBase.base(this, 'constructor');
+anychart.chartEditor2Module.DataSelectorBase = function(dataModel, opt_domHelper) {
+  anychart.chartEditor2Module.DataSelectorBase.base(this, 'constructor', opt_domHelper);
 
   this.title = '';
 
@@ -30,11 +34,15 @@ anychart.chartEditor2Module.DataSelectorBase = function(dataModel) {
 
   this.preloaders = {};
 
+  /**
+   * @type {anychart.chartEditor2Module.EditorModel}
+   * @private
+   */
   this.dataModel_ = dataModel;
 
   this.dataType = '';
 };
-goog.inherits(anychart.chartEditor2Module.DataSelectorBase, anychart.ui.Component);
+goog.inherits(anychart.chartEditor2Module.DataSelectorBase, anychart.chartEditor2Module.Component);
 
 
 /**
@@ -69,6 +77,7 @@ anychart.chartEditor2Module.DataSelectorBase.prototype.createDom = function() {
 };
 
 
+/** @inheritDoc */
 anychart.chartEditor2Module.DataSelectorBase.prototype.enterDocument = function() {
   anychart.chartEditor2Module.DataSelectorBase.base(this, 'enterDocument');
 
@@ -77,7 +86,7 @@ anychart.chartEditor2Module.DataSelectorBase.prototype.enterDocument = function(
   this.listen(anychart.chartEditor2Module.events.EventType.DATA_REMOVE, this.onRemoveData_);
   this.setButtonsListeners_();
 
-  this.updateDataIndex_();
+  this.updateDataIndexStates_();
 
   // to redraw data sets
   this.dispatchEvent({
@@ -86,6 +95,10 @@ anychart.chartEditor2Module.DataSelectorBase.prototype.enterDocument = function(
 };
 
 
+/**
+ * Sets listeners for data set's panels buttons.
+ * @private
+ */
 anychart.chartEditor2Module.DataSelectorBase.prototype.setButtonsListeners_ = function() {
   var buttons = goog.dom.findNodes(this.setsContainer_, function(el) {
     return goog.dom.classlist.contains(/** @type {Element} */(el), 'anychart-button');
@@ -98,6 +111,8 @@ anychart.chartEditor2Module.DataSelectorBase.prototype.setButtonsListeners_ = fu
 
 
 /**
+ * Loads index json.
+ * 
  * @private
  */
 anychart.chartEditor2Module.DataSelectorBase.prototype.loadDataIndex_ = function() {
@@ -118,14 +133,18 @@ anychart.chartEditor2Module.DataSelectorBase.prototype.loadDataIndex_ = function
 };
 
 
-anychart.chartEditor2Module.DataSelectorBase.prototype.updateDataIndex_ = function() {
+/**
+ * Sets states of data sets in data index.
+ *
+ * @private
+ */
+anychart.chartEditor2Module.DataSelectorBase.prototype.updateDataIndexStates_ = function() {
   var keys = this.dataModel_.getDataKeys();
   for (var i = 0; i < this.dataIndex.length; i++) {
-    if (goog.array.contains(keys, this.dataType + i)) {
+    if (goog.array.contains(keys, this.dataType + i))
       this.dataIndex[i]['state'] = anychart.chartEditor2Module.DataSelectorBase.DatasetState.LOADED;
-    } else {
+    else
       this.dataIndex[i]['state'] = anychart.chartEditor2Module.DataSelectorBase.DatasetState.NOT_LOADED;
-    }
   }
 };
 
@@ -141,13 +160,13 @@ anychart.chartEditor2Module.DataSelectorBase.prototype.showDataSets_ = function(
     var item;
     if (createItems) {
       dataSetJson['state'] = anychart.chartEditor2Module.DataSelectorBase.DatasetState.NOT_LOADED;
-      item = this.createItem(dataSetJson, dataSetJson['state']);
+      item = /** @type {Element} */(this.createItem(dataSetJson, dataSetJson['state']));
       this.setsContainer_.appendChild(this.createItem(dataSetJson, dataSetJson['state']));
     } else {
       var className = 'data-set-' + dataSetJson['id'];
-      item = goog.dom.findNode(this.setsContainer_, function(el) {
+      item = /** @type {Element} */(goog.dom.findNode(this.setsContainer_, function(el) {
         return goog.dom.classlist.contains(/** @type {Element} */(el), className);
-      });
+      }));
 
       if (dataSetJson['state'] != anychart.chartEditor2Module.DataSelectorBase.DatasetState.LOADED)
         goog.dom.classlist.remove(/** @type {Element} */(item), 'loaded');
@@ -166,11 +185,24 @@ anychart.chartEditor2Module.DataSelectorBase.prototype.showDataSets_ = function(
 };
 
 
+/**
+ * Creates DOM Element for data set.
+ *
+ * @param {Object} itemJson Object that describes data set.
+ * @param {anychart.chartEditor2Module.DataSelectorBase.DatasetState} state
+ * @return {Element}
+ */
 anychart.chartEditor2Module.DataSelectorBase.prototype.createItem = function(itemJson, state) {
   return null;
 };
 
 
+/**
+ * Filters list of data sets on change of filter input value.
+ *
+ * @param {Event} evt
+ * @private
+ */
 anychart.chartEditor2Module.DataSelectorBase.prototype.onFilterChange_ = function(evt) {
   var searchValue = goog.isDef(evt.currentTarget.value) ? evt.currentTarget.value : this.filterInput_.value;
   searchValue = searchValue.toLowerCase();
@@ -203,6 +235,7 @@ anychart.chartEditor2Module.DataSelectorBase.prototype.onFilterChange_ = functio
 };
 
 
+/** @private */
 anychart.chartEditor2Module.DataSelectorBase.prototype.resetFilter_ = function() {
   goog.dom.forms.setValue(this.filterInput_, '');
   this.dispatchEvent({
@@ -211,8 +244,13 @@ anychart.chartEditor2Module.DataSelectorBase.prototype.resetFilter_ = function()
 };
 
 
+/**
+ * Universal handler for all data set panel buttons.
+ * @param {Event} evt
+ * @private
+ */
 anychart.chartEditor2Module.DataSelectorBase.prototype.onClickButton_ = function(evt) {
-  var classes = goog.dom.classlist.get(evt.currentTarget);
+  var classes = goog.dom.classlist.get(/** @type {Element} */(evt.currentTarget));
   if (goog.array.contains(classes, 'download')) {
     this.onClickDownload_(evt);
   } else if (goog.array.contains(classes, 'remove')) {
@@ -221,11 +259,17 @@ anychart.chartEditor2Module.DataSelectorBase.prototype.onClickButton_ = function
 };
 
 
+/**
+ * Loads data set.
+ *
+ * @param {Event} evt
+ * @private
+ */
 anychart.chartEditor2Module.DataSelectorBase.prototype.onClickDownload_ = function(evt) {
   var setId = evt.currentTarget.getAttribute('data-set-id');
   if (setId && this.dataIndex[setId]['state'] != anychart.chartEditor2Module.DataSelectorBase.DatasetState.LOADED) {
     this.dataIndex[setId]['state'] = anychart.chartEditor2Module.DataSelectorBase.DatasetState.PROCESSING;
-    var setEl = goog.dom.getAncestorByClass(evt.currentTarget, 'data-set');
+    var setEl = goog.dom.getAncestorByClass(/** @type {Element} */(evt.currentTarget), 'data-set');
 
     var preloader = this.preloaders[setId];
     if (!preloader) {
@@ -254,14 +298,24 @@ anychart.chartEditor2Module.DataSelectorBase.prototype.onClickDownload_ = functi
 };
 
 
+/**
+ * @param {Event} evt
+ * @private
+ */
 anychart.chartEditor2Module.DataSelectorBase.prototype.onClickRemove_ = function(evt) {
   var setId = evt.currentTarget.getAttribute('data-set-id');
   this.dispatchRemoveData(setId);
 };
 
 
+/**
+ * Changes state of data set panel and updates filter.
+ *
+ * @param {Event} evt
+ * @private
+ */
 anychart.chartEditor2Module.DataSelectorBase.prototype.onRemoveData_ = function(evt) {
-  var setId = evt.setId;
+  var setId = evt['setId'];
   if (setId && this.dataIndex[setId]['state'] == anychart.chartEditor2Module.DataSelectorBase.DatasetState.LOADED) {
     this.dataIndex[setId]['state'] = anychart.chartEditor2Module.DataSelectorBase.DatasetState.NOT_LOADED;
     this.dispatchEvent({
@@ -271,10 +325,30 @@ anychart.chartEditor2Module.DataSelectorBase.prototype.onRemoveData_ = function(
 };
 
 
+/**
+ * Getter for data selector specific url for loaing of data set.
+ *
+ * @param {string} fileName
+ * @return {string}
+ */
 anychart.chartEditor2Module.DataSelectorBase.prototype.getDataSetUrl = function(fileName) {return fileName;};
 
+
+/**
+ * Callback function on successfull loading of data set.
+ *
+ * @param {Object} json
+ * @param {string} setId
+ * @param {string=} opt_name
+ */
 anychart.chartEditor2Module.DataSelectorBase.prototype.onLoadData = function(json, setId, opt_name) {};
 
+
+/**
+ * Dispatches event to remove data set from model.
+ *
+ * @param {string} setId
+ */
 anychart.chartEditor2Module.DataSelectorBase.prototype.dispatchRemoveData = function(setId) {
   this.dispatchEvent({
     type: anychart.chartEditor2Module.events.EventType.DATA_REMOVE,

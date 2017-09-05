@@ -5,11 +5,15 @@ goog.require('anychart.chartEditor2Module.DataSelectorBase');
 
 
 /**
+ * Predefined data sets selector widget.
+ *
+ * @param {anychart.chartEditor2Module.EditorModel} dataModel
+ * @param {goog.dom.DomHelper=} opt_domHelper Optional DOM helper; see {@link goog.ui.Component} for semantics.
  * @constructor
  * @extends {anychart.chartEditor2Module.DataSelectorBase}
  */
-anychart.chartEditor2Module.PredefinedDataSelector = function(dataModel) {
-  anychart.chartEditor2Module.PredefinedDataSelector.base(this, 'constructor', dataModel);
+anychart.chartEditor2Module.PredefinedDataSelector = function(dataModel, opt_domHelper) {
+  anychart.chartEditor2Module.PredefinedDataSelector.base(this, 'constructor', dataModel, opt_domHelper);
 
   this.jsonUrl = 'https://cdn.anychart.com/anydata/common/';
 
@@ -22,6 +26,7 @@ anychart.chartEditor2Module.PredefinedDataSelector = function(dataModel) {
 goog.inherits(anychart.chartEditor2Module.PredefinedDataSelector, anychart.chartEditor2Module.DataSelectorBase);
 
 
+/** @inheritDoc */
 anychart.chartEditor2Module.PredefinedDataSelector.prototype.createItem = function(itemJson, state) {
   var imgUrl = itemJson['logo'].replace('./', 'https://cdn.anychart.com/anydata/common/');
   var dom = this.getDomHelper();
@@ -51,11 +56,13 @@ anychart.chartEditor2Module.PredefinedDataSelector.prototype.createItem = functi
 };
 
 
+/** @inheritDoc */
 anychart.chartEditor2Module.PredefinedDataSelector.prototype.getDataSetUrl = function(fileName) {
   return fileName.replace('./', this.jsonUrl);
 };
 
 
+/** @inheritDoc */
 anychart.chartEditor2Module.PredefinedDataSelector.prototype.onLoadData = function(json, setId, opt_name) {
   if (json['data']) {
     this.dispatchEvent({

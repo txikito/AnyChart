@@ -913,7 +913,7 @@ anychart.chartEditor2Module.EditorModel.prototype.getDataKeys = function() {
 
 
 /**
- * @param {String?} opt_setFullId
+ * @param {string=} opt_setFullId
  * @return {!Array.<*>}
  */
 anychart.chartEditor2Module.EditorModel.prototype.getPreparedData = function(opt_setFullId) {

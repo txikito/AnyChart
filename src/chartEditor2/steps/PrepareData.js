@@ -1,7 +1,6 @@
 goog.provide('anychart.chartEditor2Module.steps.PrepareData');
 
 goog.require('anychart.chartEditor2Module.DataDialog');
-goog.require('anychart.chartEditor2Module.GeoDataSelector');
 goog.require('anychart.chartEditor2Module.PredefinedDataSelector');
 goog.require('anychart.chartEditor2Module.UploadedDataSetPanelList');
 goog.require('anychart.chartEditor2Module.events');
@@ -82,8 +81,7 @@ anychart.chartEditor2Module.steps.PrepareData.prototype.createDom = function() {
   goog.dom.classlist.add(this.connectDataEl_, 'section');
   element.appendChild(this.connectDataEl_);
 
-
-  var predefinedDataSelector = new anychart.chartEditor2Module.PredefinedDataSelector(this.getParent().getModel());
+  var predefinedDataSelector = new anychart.chartEditor2Module.PredefinedDataSelector(model);
   this.addChild(predefinedDataSelector, true);
   goog.dom.classlist.add(predefinedDataSelector.getElement(), 'section');
 };

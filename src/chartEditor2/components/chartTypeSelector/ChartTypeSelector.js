@@ -96,7 +96,7 @@ anychart.chartEditor2Module.ChartTypeSelector.prototype.update = function() {
 
   var dsSettings = model.getValue(['dataSettings']);
   for (var i = 0; i < dsSettings['mappings'].length; i++) {
-    var plot = new anychart.chartEditor2Module.PlotPanel(this.editor_, i);
+    var plot = new anychart.chartEditor2Module.PlotPanel(this.editor_.getModel(), i);
     this.plots_.push(plot);
     this.addChild(plot, true);
   }

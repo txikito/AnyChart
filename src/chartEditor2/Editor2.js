@@ -1,7 +1,7 @@
 goog.provide('anychart.chartEditor2Module.Editor');
 goog.provide('anychart.chartEditor2Module.Editor.Dialog');
 
-goog.require('anychart.ui.Component');
+goog.require('anychart.chartEditor2Module.Component');
 goog.require('anychart.ui.Preloader');
 goog.require('anychart.ui.button.Primary');
 goog.require('anychart.ui.button.Secondary');
@@ -21,7 +21,7 @@ goog.require('goog.ui.Dialog');
  * Chart Editor application Component Class.
  * @constructor
  * @param {goog.dom.DomHelper=} opt_domHelper Optional DOM helper; see {@link goog.ui.Component} for semantics.
- * @extends {anychart.ui.Component}
+ * @extends {anychart.chartEditor2Module.Component}
  */
 anychart.chartEditor2Module.Editor = function(opt_domHelper) {
   anychart.chartEditor2Module.Editor.base(this, 'constructor', opt_domHelper);
@@ -75,7 +75,7 @@ anychart.chartEditor2Module.Editor = function(opt_domHelper) {
   this.listen(anychart.chartEditor2Module.events.EventType.DATA_REMOVE, this.onDataRemove_);
   this.listen(anychart.chartEditor2Module.events.EventType.WAIT, this.onWait_);
 };
-goog.inherits(anychart.chartEditor2Module.Editor, anychart.ui.Component);
+goog.inherits(anychart.chartEditor2Module.Editor, anychart.chartEditor2Module.Component);
 
 
 /**

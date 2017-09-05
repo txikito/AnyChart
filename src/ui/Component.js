@@ -49,13 +49,6 @@ anychart.ui.Component.prototype.removeAllListeners = function(opt_type) {
 };
 
 
-/**
- * Updates component on model change.
- */
-anychart.ui.Component.prototype.update = function() {
-};
-
-
 //exports
 // (function() {
 //   var proto = anychart.ui.Component.prototype;

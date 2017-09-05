@@ -1,6 +1,6 @@
 goog.provide('anychart.chartEditor2Module.UploadedDataSetPanel');
 
-goog.require('anychart.ui.Component');
+goog.require('anychart.chartEditor2Module.Component');
 goog.require('goog.ui.Menu');
 goog.require('goog.ui.MenuButton');
 goog.require('goog.ui.MenuItem');
@@ -13,13 +13,13 @@ goog.require('goog.ui.MenuSeparator');
  * @param {Object} dataSet Data set object
  * @param {goog.dom.DomHelper=} opt_domHelper Optional DOM helper; see {@link goog.ui.Component} for semantics.
  * @constructor
- * @extends {anychart.ui.Component}
+ * @extends {anychart.chartEditor2Module.Component}
  */
 anychart.chartEditor2Module.UploadedDataSetPanel = function(dataSet, opt_domHelper) {
   anychart.chartEditor2Module.UploadedDataSetPanel.base(this, 'constructor', opt_domHelper);
   this.dataSet_ = dataSet;
 };
-goog.inherits(anychart.chartEditor2Module.UploadedDataSetPanel, anychart.ui.Component);
+goog.inherits(anychart.chartEditor2Module.UploadedDataSetPanel, anychart.chartEditor2Module.Component);
 
 
 /** @inheritDoc */

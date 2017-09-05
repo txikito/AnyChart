@@ -1,8 +1,8 @@
 goog.provide('anychart.chartEditor2Module.DataSetPanelList');
 
+goog.require('anychart.chartEditor2Module.Component');
 goog.require('anychart.chartEditor2Module.DataSetPanel');
 goog.require('anychart.chartEditor2Module.EditorModel');
-goog.require('anychart.ui.Component');
 
 
 
@@ -12,7 +12,7 @@ goog.require('anychart.ui.Component');
  * @param {anychart.chartEditor2Module.EditorModel} dataModel
  * @param {goog.dom.DomHelper=} opt_domHelper Optional DOM helper; see {@link goog.ui.Component} for semantics.
  * @constructor
- * @extends {anychart.ui.Component}
+ * @extends {anychart.chartEditor2Module.Component}
  */
 anychart.chartEditor2Module.DataSetPanelList = function(dataModel, opt_domHelper) {
   anychart.chartEditor2Module.DataSetPanelList.base(this, 'constructor', opt_domHelper);
@@ -21,7 +21,7 @@ anychart.chartEditor2Module.DataSetPanelList = function(dataModel, opt_domHelper
 
   this.panels_ = [];
 };
-goog.inherits(anychart.chartEditor2Module.DataSetPanelList, anychart.ui.Component);
+goog.inherits(anychart.chartEditor2Module.DataSetPanelList, anychart.chartEditor2Module.Component);
 
 
 /** @inheritDoc */
