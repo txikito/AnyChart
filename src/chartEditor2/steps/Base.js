@@ -15,9 +15,10 @@ goog.forwardDeclare('anychart.data.Set');
 
 /**
  * Chart Editor Step Class.
- * @constructor
+ *
  * @param {number} index Step index
  * @param {goog.dom.DomHelper=} opt_domHelper Optional DOM helper.
+ * @constructor
  * @extends {anychart.ui.Component}
  */
 anychart.chartEditor2Module.steps.Base = function(index, opt_domHelper) {

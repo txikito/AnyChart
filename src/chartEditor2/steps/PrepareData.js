@@ -68,7 +68,7 @@ anychart.chartEditor2Module.steps.PrepareData.prototype.createDom = function() {
     button.listen(goog.ui.Component.EventType.ACTION, this.onUploadButtonClick, false, this);
   }
 
-  var model = /** @type {anychart.chartEditor2Module.Editor} */(this.getParent()).getModel();
+  var model = /** @type {anychart.chartEditor2Module.EditorModel} */(/** @type {anychart.chartEditor2Module.Editor} */(this.getParent()).getModel());
   var uploadedDataSetsPanelList = new anychart.chartEditor2Module.UploadedDataSetPanelList(model);
   this.addChild(uploadedDataSetsPanelList, true);
   this.connectDataEl_ = dom.createDom(goog.dom.TagName.DIV, 'connect-data',
