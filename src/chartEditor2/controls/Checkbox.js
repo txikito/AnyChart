@@ -6,60 +6,74 @@ goog.require('goog.ui.Checkbox');
 
 
 /**
- * Overrides control to work with EditorModel.
+ * Extends control to work with EditorModel.
+ * 
+ * @param {goog.ui.Checkbox.State=} opt_checked Checked state to set.
+ * @param {goog.dom.DomHelper=} opt_domHelper Optional DOM helper, used for
+ *     document interaction.
+ * @param {goog.ui.CheckboxRenderer=} opt_renderer Renderer used to render or
+ *     decorate the checkbox; defaults to {@link goog.ui.CheckboxRenderer}.
+ *
  * @constructor
  * @extends {goog.ui.Checkbox}
  */
 anychart.chartEditor2Module.controls.Checkbox = function(opt_checked, opt_domHelper, opt_renderer) {
   anychart.chartEditor2Module.controls.Checkbox.base(this, 'constructor', opt_checked, opt_domHelper, opt_renderer);
-  this.noDispatch_ = false;
-  this.noRebuild_ = false;
+  this.noDispatch = false;
+  this.noRebuild = false;
 };
 goog.inherits(anychart.chartEditor2Module.controls.Checkbox, goog.ui.Checkbox);
 
 
+/** @inheritDoc */
 anychart.chartEditor2Module.controls.Checkbox.prototype.enterDocument = function() {
   goog.base(this, 'enterDocument');
   this.listen(goog.ui.Component.EventType.CHANGE, this.onChange);
 };
 
 
+/**
+ * Updates EditorModel's state on value change.
+ */
 anychart.chartEditor2Module.controls.Checkbox.prototype.onChange = function() {
-  if (!this.noDispatch_ && this.editorModel_) {
-    console.log("Checkbox onChange()", this.getChecked());
-    if (this.callback_)
-      this.editorModel_[this.callback_].call(this.editorModel_, this);
+  if (!this.noDispatch && this.editorModel) {
+    if (this.callback)
+      this.editorModel[this.callback].call(this.editorModel, this);
     else
-      this.editorModel_.setValue(this.key_, this.getChecked(), false, this.noRebuild_);
+      this.editorModel.setValue(this.key, this.getChecked(), false, this.noRebuild);
   }
 };
 
 
 /**
+ * Connects control with EditorMode.
  *
  * @param {anychart.chartEditor2Module.EditorModel} model
  * @param {anychart.chartEditor2Module.EditorModel.Key} key
- * @param {String=} opt_callback
- * @param {?{Object}=} opt_target
- * @param {Boolean=} opt_noRebuild
+ * @param {string=} opt_callback
+ * @param {?Object=} opt_target
+ * @param {boolean=} opt_noRebuild
  */
 anychart.chartEditor2Module.controls.Checkbox.prototype.setEditorModel = function(model, key, opt_callback, opt_target, opt_noRebuild) {
-  this.editorModel_ = model;
-  this.key_ = key;
-  this.callback_ = opt_callback;
-  this.noRebuild_ = !!opt_noRebuild;
+  this.editorModel = model;
+  this.key = key;
+  this.callback = opt_callback;
+  this.noRebuild = !!opt_noRebuild;
 
   if (opt_target) {
     var stringKey = anychart.chartEditor2Module.EditorModel.getStringKey(key);
-    var value = anychart.bindingModule.exec(opt_target, stringKey);
-    this.noDispatch_ = true;
+    var value = !!(/** @type {string|boolean} */(anychart.bindingModule.exec(opt_target, stringKey)));
+    this.noDispatch = true;
     this.setChecked(value);
-    this.editorModel_.setValue(this.key_, value, true);
-    this.noDispatch_ = false;
+    this.editorModel.setValue(this.key, value, true);
+    this.noDispatch = false;
   }
 };
 
 
+/**
+ * @return {anychart.chartEditor2Module.EditorModel.Key}
+ */
 anychart.chartEditor2Module.controls.Checkbox.prototype.getKey = function() {
-  return this.key_;
+  return this.key;
 };

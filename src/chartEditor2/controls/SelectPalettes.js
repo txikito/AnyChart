@@ -5,7 +5,19 @@ goog.require('anychart.chartEditor2Module.controls.Select');
 
 
 /**
- * Overrides control to work with EditorModel.
+ * Select input for palettes property.
+ *
+ * @param {goog.ui.ControlContent=} opt_caption Default caption or existing DOM
+ *     structure to display as the button's caption when nothing is selected.
+ *     Defaults to no caption.
+ * @param {goog.ui.Menu=} opt_menu Menu containing selection options.
+ * @param {goog.ui.ButtonRenderer=} opt_renderer Renderer used to render or
+ *     decorate the control; defaults to {@link goog.ui.MenuButtonRenderer}.
+ * @param {goog.dom.DomHelper=} opt_domHelper Optional DOM helper, used for
+ *     document interaction.
+ * @param {!goog.ui.MenuRenderer=} opt_menuRenderer Renderer used to render or
+ *     decorate the menu; defaults to {@link goog.ui.MenuRenderer}.
+ *
  * @constructor
  * @extends {anychart.chartEditor2Module.controls.Select}
  */
@@ -19,14 +31,14 @@ goog.inherits(anychart.chartEditor2Module.controls.SelectPalettes, anychart.char
  *
  * @param {anychart.chartEditor2Module.EditorModel} model
  * @param {anychart.chartEditor2Module.EditorModel.Key} key
- * @param {String=} opt_callback
- * @param {?{Object}=} opt_target
+ * @param {string=} opt_callback
+ * @param {?Object=} opt_target
+ * @param {boolean=} opt_noRebuild Should or not rebuild chart on change value of this control.
  */
-anychart.chartEditor2Module.controls.SelectPalettes.prototype.setEditorModel = function(model, key, opt_callback, opt_target) {
-
-  this.editorModel_ = model;
-  this.key_ = key;
-  this.callback_ = opt_callback;
+anychart.chartEditor2Module.controls.SelectPalettes.prototype.setEditorModel = function(model, key, opt_callback, opt_target, opt_noRebuild) {
+  this.editorModel = model;
+  this.key = key;
+  this.callback = opt_callback;
 
   if (opt_target) {
     var stringKey = anychart.chartEditor2Module.EditorModel.getStringKey(key);
@@ -42,10 +54,10 @@ anychart.chartEditor2Module.controls.SelectPalettes.prototype.setEditorModel = f
         }
       }
 
-      this.suspendDispatch_ = true;
+      this.suspendDispatch = true;
       this.setValue(stringValue);
-      this.editorModel_.setValue(this.key_, stringValue, true);
-      this.suspendDispatch_ = false;
+      this.editorModel.setValue(this.key, stringValue, true);
+      this.suspendDispatch = false;
     }
   }
 };

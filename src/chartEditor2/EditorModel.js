@@ -721,7 +721,7 @@ anychart.chartEditor2Module.EditorModel.prototype.setValue = function(key, value
 /**
  * Getter for input's value
  * @param {anychart.chartEditor2Module.EditorModel.Key} key
- * @return {*} Input's value
+ * @return {string} Input's value
  */
 anychart.chartEditor2Module.EditorModel.prototype.getValue = function(key) {
   var target = this.model_;
@@ -818,7 +818,7 @@ anychart.chartEditor2Module.EditorModel.prototype.resumeDispatch = function() {
 /**
  * Converts string to valid model key.
  * @param {anychart.chartEditor2Module.EditorModel.Key} key
- * @return {String} key as a string
+ * @return {string} key as a string
  */
 anychart.chartEditor2Module.EditorModel.getStringKey = function(key) {
   // var stringKey = '';

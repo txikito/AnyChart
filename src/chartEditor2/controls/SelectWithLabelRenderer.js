@@ -3,13 +3,20 @@ goog.provide('anychart.chartEditor2Module.controls.SelectWithLabelRenderer');
 goog.require('goog.ui.MenuButtonRenderer');
 
 
+
+/**
+ * Renderer for {@link anychart.chartEditor2Module.controls.SelectWithLabel}s.
+ * @constructor
+ * @extends {goog.ui.MenuButtonRenderer}
+ */
 anychart.chartEditor2Module.controls.SelectWithLabelRenderer = function() {
-  anychart.chartEditor2Module.controls.SelectWithLabelRenderer.base(this, 'constructor');
+  goog.ui.MenuButtonRenderer.call(this);
 };
 goog.inherits(anychart.chartEditor2Module.controls.SelectWithLabelRenderer, goog.ui.MenuButtonRenderer);
 goog.addSingletonGetter(anychart.chartEditor2Module.controls.SelectWithLabelRenderer);
 
 
+/** @inheritDoc */
 anychart.chartEditor2Module.controls.SelectWithLabelRenderer.prototype.createDom = function(control) {
   var button = /** @type {anychart.chartEditor2Module.controls.SelectWithLabel} */ (control);
   var classNames = this.getClassNames(button);
