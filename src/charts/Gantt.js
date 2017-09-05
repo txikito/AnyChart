@@ -369,11 +369,11 @@ anychart.charts.Gantt.prototype.data = function(opt_value, opt_fillMethod) {
   if (goog.isDef(opt_value)) {
     if (acgraph.utils.instanceOf(opt_value, anychart.data.Tree) || acgraph.utils.instanceOf(opt_value, anychart.data.TreeView)) {
       if (this.data_ != opt_value) {
-        this.data_ = opt_value;
+        this.data_ = /** @type {anychart.data.Tree|anychart.data.TreeView} */(opt_value);
         this.invalidate(anychart.ConsistencyState.GANTT_DATA, anychart.Signal.NEEDS_REDRAW);
       }
     } else {
-      this.data_ = new anychart.data.Tree(opt_value, opt_fillMethod);
+      this.data_ = new anychart.data.Tree(/** @type {Array.<Object>} */(opt_value), opt_fillMethod);
       this.invalidate(anychart.ConsistencyState.GANTT_DATA, anychart.Signal.NEEDS_REDRAW);
     }
     return this;

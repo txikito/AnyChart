@@ -1949,9 +1949,9 @@ anychart.charts.Map.prototype.clearLayer_ = function(layer) {
   for (var i = 0, len = children.length; i < len; i++) {
     var child = children[i];
     if (acgraph.utils.instanceOf(child, acgraph.vector.Path)) {
-      this.clearPath_(child);
+      this.clearPath_(/** @type {!acgraph.vector.Element} */(child));
     } else if (acgraph.utils.instanceOf(child, acgraph.vector.Layer)) {
-      this.clearLayer_(child);
+      this.clearLayer_(/** @type {!acgraph.vector.Layer} */(child));
     }
   }
 };

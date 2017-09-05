@@ -434,10 +434,10 @@ anychart.charts.TagCloud.prototype.data_;
  */
 anychart.charts.TagCloud.prototype.palette = function(opt_value) {
   if (acgraph.utils.instanceOf(opt_value, anychart.palettes.RangeColors)) {
-    this.setupPalette_(anychart.palettes.RangeColors, opt_value);
+    this.setupPalette_(anychart.palettes.RangeColors, /** @type {anychart.palettes.RangeColors} */(opt_value));
     return this;
   } else if (acgraph.utils.instanceOf(opt_value, anychart.palettes.DistinctColors)) {
-    this.setupPalette_(anychart.palettes.DistinctColors, opt_value);
+    this.setupPalette_(anychart.palettes.DistinctColors, /** @type {anychart.palettes.DistinctColors} */(opt_value));
     return this;
   } else if (goog.isObject(opt_value) && opt_value['type'] == 'range') {
     this.setupPalette_(anychart.palettes.RangeColors);
@@ -1098,7 +1098,7 @@ anychart.charts.TagCloud.prototype.scale = function(opt_value) {
     if (acgraph.utils.instanceOf(opt_value, anychart.scales.Linear) && this.scale_ != opt_value) {
       if (this.scale_)
         this.scale_.unlistenSignals(this.scaleInvalidated, this);
-      this.scale_ = opt_value;
+      this.scale_ = /** @type {anychart.scales.Linear} */(opt_value);
       if (this.scale_)
         this.scale_.listenSignals(this.scaleInvalidated, this);
 

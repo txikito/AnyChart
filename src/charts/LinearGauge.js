@@ -248,10 +248,10 @@ anychart.charts.LinearGauge.prototype.markerPaletteInvalidated_ = function(event
  */
 anychart.charts.LinearGauge.prototype.palette = function(opt_value) {
   if (acgraph.utils.instanceOf(opt_value, anychart.palettes.RangeColors)) {
-    this.setupPalette_(anychart.palettes.RangeColors, opt_value);
+    this.setupPalette_(anychart.palettes.RangeColors, /** @type {anychart.palettes.RangeColors} */(opt_value));
     return this;
   } else if (acgraph.utils.instanceOf(opt_value, anychart.palettes.DistinctColors)) {
-    this.setupPalette_(anychart.palettes.DistinctColors, opt_value);
+    this.setupPalette_(anychart.palettes.DistinctColors, /** @type {anychart.palettes.DistinctColors} */(opt_value));
     return this;
   } else if (goog.isObject(opt_value) && opt_value['type'] == 'range') {
     this.setupPalette_(anychart.palettes.RangeColors);

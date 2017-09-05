@@ -93,7 +93,7 @@ anychart.core.ui.table.Cell.prototype.content = function(opt_value) {
         this.realContent = this.table.createTextCellContent(opt_value);
       } else if (acgraph.utils.instanceOf(opt_value, acgraph.vector.Element)) {
         this.realContent = acgraph.layer();
-        this.realContent.addChild(opt_value);
+        this.realContent.addChild(/** @type {!acgraph.vector.Element} */(opt_value));
       } else {
         this.realContent = opt_value;
       }

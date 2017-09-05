@@ -619,10 +619,10 @@ anychart.core.ChartWithSeries.prototype.invalidateSeriesLabels = function() {
  */
 anychart.core.ChartWithSeries.prototype.palette = function(opt_value) {
   if (acgraph.utils.instanceOf(opt_value, anychart.palettes.RangeColors)) {
-    this.setupPalette_(anychart.palettes.RangeColors, opt_value);
+    this.setupPalette_(anychart.palettes.RangeColors, /** @type {anychart.palettes.RangeColors} */(opt_value));
     return this;
   } else if (acgraph.utils.instanceOf(opt_value, anychart.palettes.DistinctColors)) {
-    this.setupPalette_(anychart.palettes.DistinctColors, opt_value);
+    this.setupPalette_(anychart.palettes.DistinctColors, /** @type {anychart.palettes.DistinctColors} */(opt_value));
     return this;
   } else if (goog.isObject(opt_value) && opt_value['type'] == 'range') {
     this.setupPalette_(anychart.palettes.RangeColors);
@@ -910,7 +910,7 @@ anychart.core.ChartWithSeries.prototype.data = function(opt_value) {
 
     /** @type {anychart.data.Set} */
     var dataSet = acgraph.utils.instanceOf(opt_value, anychart.data.Set) ?
-        opt_value :
+        /** @type {anychart.data.Set} */(opt_value) :
         anychart.data.set(this.rawData_);
 
     // define cols count

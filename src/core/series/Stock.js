@@ -222,7 +222,7 @@ anychart.core.series.Stock.prototype.data = function(opt_value, opt_mappingSetti
     if (!(acgraph.utils.instanceOf(opt_value, anychart.data.Table)) && !(acgraph.utils.instanceOf(opt_value, anychart.data.TableMapping))) {
       data = new anychart.data.Table();
       if (opt_value)
-        data.addData(opt_value, false, opt_csvSettings);
+        data.addData(/** @type {!(Array|string)} */(opt_value), false, opt_csvSettings);
       this.dataToDispose_ = opt_value = data;
     }
 

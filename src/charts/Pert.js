@@ -571,11 +571,11 @@ anychart.charts.Pert.prototype.data = function(opt_data, opt_fillMethod, opt_dep
     if (acgraph.utils.instanceOf(opt_data, anychart.data.Tree) || acgraph.utils.instanceOf(opt_data, anychart.data.TreeView)) {
       if (this.data_ != opt_data) {
         if (this.data_) this.data_.unlistenSignals(this.dataInvalidated_, this);
-        this.data_ = opt_data;
+        this.data_ = /** @type {anychart.data.Tree|anychart.data.TreeView} */(opt_data);
       }
     } else {
       if (this.data_) this.data_.unlistenSignals(this.dataInvalidated_, this);
-      this.data_ = new anychart.data.Tree(opt_data, opt_fillMethod, opt_deps);
+      this.data_ = new anychart.data.Tree(/** @type {Array.<Object>} */(opt_data), opt_fillMethod, opt_deps);
     }
     this.data_.listenSignals(this.dataInvalidated_, this);
     this.invalidate(anychart.ConsistencyState.PERT_DATA, anychart.Signal.NEEDS_REDRAW);
