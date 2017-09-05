@@ -53,6 +53,7 @@ anychart.chartEditor2Module.ChartTypeSelector.prototype.createDom = function() {
 };
 
 
+/** @inheritDoc */
 anychart.chartEditor2Module.ChartTypeSelector.prototype.update = function() {
   var model = this.editor_.getModel();
   var chartType = model.getValue([['chart'], 'type']);
@@ -117,6 +118,7 @@ anychart.chartEditor2Module.ChartTypeSelector.prototype.update = function() {
 };
 
 
+/** @inheritDoc */
 anychart.chartEditor2Module.ChartTypeSelector.prototype.enterDocument = function() {
   this.update();
 
@@ -125,13 +127,14 @@ anychart.chartEditor2Module.ChartTypeSelector.prototype.enterDocument = function
 
   this.getHandler().listen(this.editor_.getModel(), anychart.chartEditor2Module.events.EventType.EDITOR_MODEL_UPDATE, this.update);
 
-  goog.base(this, 'enterDocument');
+  anychart.chartEditor2Module.ChartTypeSelector.base(this, 'enterDocument');
 };
 
 
+/** @inheritDoc */
 anychart.chartEditor2Module.ChartTypeSelector.prototype.exitDocument = function() {
   this.removeAllPlots_();
-  goog.base(this, 'exitDocument');
+  anychart.chartEditor2Module.ChartTypeSelector.base(this, 'exitDocument');
 };
 
 

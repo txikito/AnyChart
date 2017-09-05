@@ -589,6 +589,7 @@ anychart.chartEditor2Module.EditorModel.prototype.dropSeries = function(plotInde
 anychart.chartEditor2Module.EditorModel.prototype.setChartType = function(input) {
   var prevChartType = this.model_.chart.type;
   var prevDefaultSeriesType = this.model_.chart.seriesType;
+  this.model_.chart.type = input.getValue();
 
   if (prevChartType == 'map') {
     delete this.data_[this.model_.dataSettings.activeGeo];
@@ -596,16 +597,15 @@ anychart.chartEditor2Module.EditorModel.prototype.setChartType = function(input)
     this.preparedData_.length = 0;
   }
 
-  this.model_.chart.type = input.getValue();
-  this.chooseDefaultSeriesType();
-
   if (this.needResetMappings(prevChartType, prevDefaultSeriesType)) {
-    this.chooseActiveAndField();
+    this.chooseActiveAndField(this.model_.dataSettings.active);
     this.chooseDefaultSeriesType();
     this.createDefaultMappings();
 
   } else {
     // Update default series
+    this.chooseDefaultSeriesType();
+
     for (var i = 0; i < this.model_.dataSettings.mappings.length; i++) {
       for (var j = 0; j < this.model_.dataSettings.mappings[i].length; j++) {
         var seriesConfig = this.model_.dataSettings.mappings[i][j];
