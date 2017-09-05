@@ -8,15 +8,19 @@ goog.require('goog.ui.MenuSeparator');
 
 
 /**
+ * Uploaded dataset's panel with dataset's name and with 'remove' button.
+ *
+ * @param {Object} dataSet Data set object
+ * @param {goog.dom.DomHelper=} opt_domHelper Optional DOM helper; see {@link goog.ui.Component} for semantics.
  * @constructor
  * @extends {anychart.ui.Component}
  */
-anychart.chartEditor2Module.DataSetPanel = function(data) {
-  goog.base(this);
+anychart.chartEditor2Module.DataSetPanel = function(dataSet, opt_domHelper) {
+  anychart.chartEditor2Module.DataSetPanel.base(this, 'constructor', opt_domHelper);
 
   this.disabled = false;
 
-  this.data_ = data;
+  this.dataSet_ = dataSet;
 
   this.menuItems_ = {};
 };
@@ -65,31 +69,38 @@ anychart.chartEditor2Module.DataSetPanel.prototype.createDom = function() {
 
   var dom = this.getDomHelper();
   var fields = [];
-  if (goog.isArray(this.data_['fields'])) {
-    for (var i = 0; i < this.data_['fields'].length; i++) {
+  if (goog.isArray(this.dataSet_['fields'])) {
+    for (var i = 0; i < this.dataSet_['fields'].length; i++) {
       fields.push(dom.createDom(goog.dom.TagName.DIV,
-          {'class': 'field'}, this.data_['fields'][i]['name']))
+          {'class': 'field'}, this.dataSet_['fields'][i]['name']))
     }
   }
 
   element.appendChild(dom.createDom(goog.dom.TagName.DIV, 'inner',
-      dom.createDom(goog.dom.TagName.H4, null, this.data_['title']),
+      dom.createDom(goog.dom.TagName.H4, null, this.dataSet_['title']),
       fields));
 };
 
 
+/**
+ * Dispatches event to remove data set from model.
+ */
 anychart.chartEditor2Module.DataSetPanel.prototype.removeDataSet = function() {
   this.dispatchEvent({
     type: anychart.chartEditor2Module.events.EventType.DATA_REMOVE,
-    setId: this.data_['setId'],
-    dataType: this.data_['type'],
-    setFullId: this.data_['setFullId']
+    setId: this.dataSet_['setId'],
+    dataType: this.dataSet_['type'],
+    setFullId: this.dataSet_['setFullId']
   });
 };
 
 
+/**
+ * Getter for data set's full Id.
+ * @return {string}
+ */
 anychart.chartEditor2Module.DataSetPanel.prototype.getSetFullId = function() {
-  return this.data_['setFullId'];
+  return this.dataSet_['setFullId'];
 };
 
 

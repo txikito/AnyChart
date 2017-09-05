@@ -1,8 +1,8 @@
 goog.provide('anychart.chartEditor2Module.DataSetPanelList');
 
-goog.require('anychart.ui.Component');
 goog.require('anychart.chartEditor2Module.DataSetPanel');
 goog.require('anychart.chartEditor2Module.EditorModel');
+goog.require('anychart.ui.Component');
 
 
 

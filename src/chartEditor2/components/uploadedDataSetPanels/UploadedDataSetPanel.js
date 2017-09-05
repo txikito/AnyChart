@@ -39,7 +39,7 @@ anychart.chartEditor2Module.UploadedDataSetPanel.prototype.createDom = function(
 
 
 /**
- * Dispatches event to remove dataset from model.
+ * Dispatches event to remove data set from model.
  */
 anychart.chartEditor2Module.UploadedDataSetPanel.prototype.removeDataSet = function() {
   this.dispatchEvent({
