@@ -3,6 +3,15 @@ goog.provide('anychart.chartEditor2Module.DataDialog');
 goog.require('goog.ui.Dialog');
 
 
+/**
+ * Modal dialog for adding custom data on Prepare Data step.
+ *
+ * @param {string=} opt_class
+ * @param {boolean=} opt_useIframeMask
+ * @param {goog.dom.DomHelper=} opt_domHelper
+ * @constructor
+ * @extends {goog.ui.Dialog}
+ */
 anychart.chartEditor2Module.DataDialog = function(opt_class, opt_useIframeMask, opt_domHelper) {
   anychart.chartEditor2Module.DataDialog.base(this, 'constructor', opt_class, opt_useIframeMask, opt_domHelper);
 };
@@ -84,6 +93,10 @@ anychart.chartEditor2Module.DataDialog.prototype.getInputValue = function(){
 };
 
 
+/**
+ * Returns value if input2 field.
+ * @return {?string}
+ */
 anychart.chartEditor2Module.DataDialog.prototype.getInput2Value = function(){
   return this.input2_ && this.input2_.value;
 };

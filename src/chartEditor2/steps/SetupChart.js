@@ -29,6 +29,7 @@ anychart.chartEditor2Module.steps.SetupChart = function(index, opt_domHelper) {
 goog.inherits(anychart.chartEditor2Module.steps.SetupChart, anychart.chartEditor2Module.steps.Base);
 
 
+/** @inheritDoc */
 anychart.chartEditor2Module.steps.SetupChart.prototype.createDom = function() {
   goog.base(this, 'createDom');
 

@@ -1,11 +1,12 @@
 goog.provide('anychart.chartEditor2Module.steps.PrepareData');
 
 goog.require('anychart.chartEditor2Module.DataDialog');
-goog.require('anychart.chartEditor2Module.events');
 goog.require('anychart.chartEditor2Module.GeoDataSelector');
 goog.require('anychart.chartEditor2Module.PredefinedDataSelector');
-goog.require('anychart.chartEditor2Module.steps.Base');
 goog.require('anychart.chartEditor2Module.UploadedDataSetPanelList');
+goog.require('anychart.chartEditor2Module.events');
+goog.require('anychart.chartEditor2Module.steps.Base');
+goog.require('anychart.dataAdapterModule.entry');
 goog.require('goog.dom.classlist');
 goog.require('goog.ui.Button');
 
@@ -14,7 +15,8 @@ goog.forwardDeclare('anychart.data.Mapping');
 
 
 /**
- * Chart Editor Step Class.
+ * Chart Editor First Step Class.
+ *
  * @constructor
  * @param {number} index Step index
  * @param {goog.dom.DomHelper=} opt_domHelper Optional DOM helper.
@@ -87,13 +89,21 @@ anychart.chartEditor2Module.steps.PrepareData.prototype.createDom = function() {
 };
 
 
+/**
+ * @param {Event} evt
+ */
 anychart.chartEditor2Module.steps.PrepareData.prototype.onUploadButtonClick = function(evt) {
-  var type = evt.target.getValue();
+  var type = (/** @type {goog.ui.Button} */ (evt.target)).getValue();
   var tmp = type.split('-');
   this.openDataDialog(tmp[0], tmp[1]);
 };
 
 
+/**
+ * Opend data dialog.
+ * @param {string} dialogType
+ * @param {string=} opt_dataType
+ */
 anychart.chartEditor2Module.steps.PrepareData.prototype.openDataDialog = function(dialogType, opt_dataType) {
   this.dialogType_ = dialogType;
   this.dialogDataType_ = opt_dataType;
@@ -109,8 +119,12 @@ anychart.chartEditor2Module.steps.PrepareData.prototype.openDataDialog = functio
 };
 
 
+/**
+ * Starts processing inputs from data dialog if pressed 'ok'.
+ * @param {Event} evt
+ */
 anychart.chartEditor2Module.steps.PrepareData.prototype.onCloseDataDialog = function(evt) {
-  var dialog = evt.target;
+  var dialog = /** @type {anychart.chartEditor2Module.DataDialog} */(evt.target);
   if (evt.key == 'ok') {
     var self = this;
     var dialogType = this.dialogType_;
@@ -131,7 +145,7 @@ anychart.chartEditor2Module.steps.PrepareData.prototype.onCloseDataDialog = func
 
           switch (dataType) {
             case 'json':
-              anychart.data.loadJsonFile(inputValue,
+              anychart.dataAdapterModule.loadJsonFile(inputValue,
                   function(data) {
                     self.onSuccessDataLoad(data, dataType);
                   }, errorCallback);
@@ -139,21 +153,21 @@ anychart.chartEditor2Module.steps.PrepareData.prototype.onCloseDataDialog = func
               break;
 
             case 'csv':
-              anychart.data.loadCsvFile(inputValue,
+              anychart.dataAdapterModule.loadCsvFile(inputValue,
                   function(data) {
                     self.onSuccessDataLoad(data, dataType);
                   }, errorCallback);
               break;
 
             case 'xml':
-              anychart.data.loadXmlFile(inputValue,
+              anychart.dataAdapterModule.loadXmlFile(inputValue,
                   function(data) {
                     self.onSuccessDataLoad(data, dataType);
                   }, errorCallback);
               break;
           }
         } else {
-          console.warn("Invalid url!")
+          console.warn("Invalid url!");
         }
 
       } else if (dialogType == 'string') {
@@ -174,7 +188,7 @@ anychart.chartEditor2Module.steps.PrepareData.prototype.onCloseDataDialog = func
           type: anychart.chartEditor2Module.events.EventType.WAIT,
           wait: true
         });
-        anychart.data.loadGoogleSpreadsheet(key,
+        anychart.dataAdapterModule.loadGoogleSpreadsheet(key,
             function(data) {
               self.onSuccessDataLoad(data, dataType);
             },
@@ -185,6 +199,11 @@ anychart.chartEditor2Module.steps.PrepareData.prototype.onCloseDataDialog = func
 };
 
 
+/**
+ * Preprocesses loaded data and adds new data set to Editor Model.
+ * @param {*} data
+ * @param {string} dataType
+ */
 anychart.chartEditor2Module.steps.PrepareData.prototype.addLoadedData = function(data, dataType) {
   var result = null;
   var typeOf = goog.typeOf(data);
@@ -200,7 +219,7 @@ anychart.chartEditor2Module.steps.PrepareData.prototype.addLoadedData = function
       case 'json':
         if (typeOf == 'string') {
           try {
-            result = goog.json.hybrid.parse(data);
+            result = goog.json.hybrid.parse(/** @type {string} */(data));
           } catch (err) {
             // parsing error
             error = true;
@@ -210,12 +229,12 @@ anychart.chartEditor2Module.steps.PrepareData.prototype.addLoadedData = function
 
       case 'csv':
         var csvSettings = this.dataDialog_.getCSVSettings();
-        result = anychart.data.parseText(data, csvSettings);
+        result = anychart.data.parseText(/** @type {string} */(data), csvSettings);
         break;
 
       case 'xml':
         try {
-          result = anychart.chartEditor2Module.steps.PrepareData.xmlStringToJson_(data);
+          result = anychart.chartEditor2Module.steps.PrepareData.xmlStringToJson_(/** @type {string} */(data));
         } catch (err) {
           // parsing error
           error = true;
@@ -247,6 +266,11 @@ anychart.chartEditor2Module.steps.PrepareData.prototype.addLoadedData = function
 };
 
 
+/**
+ * @param {string} data
+ * @param {string} dataType
+ * @return {*}
+ */
 anychart.chartEditor2Module.steps.PrepareData.prototype.onSuccessDataLoad = function(data, dataType) {
   this.dispatchEvent({
     type: anychart.chartEditor2Module.events.EventType.WAIT,
@@ -258,6 +282,10 @@ anychart.chartEditor2Module.steps.PrepareData.prototype.onSuccessDataLoad = func
 };
 
 
+/**
+ * Callback in case of error while data load.
+ * @param {string} errorCode
+ */
 anychart.chartEditor2Module.steps.PrepareData.prototype.onErrorDataLoad = function(errorCode) {
   this.dispatchEvent({
     type: anychart.chartEditor2Module.events.EventType.WAIT,
@@ -268,6 +296,12 @@ anychart.chartEditor2Module.steps.PrepareData.prototype.onErrorDataLoad = functi
 };
 
 
+/**
+ * Converts xml-string to xml document.
+ * @param {string} xmlString
+ * @return {?(Object|string)} XML document
+ * @private
+ */
 anychart.chartEditor2Module.steps.PrepareData.xmlStringToJson_ = function(xmlString) {
   var wnd = goog.dom.getWindow();
   var parseXml;
@@ -304,7 +338,7 @@ anychart.chartEditor2Module.steps.PrepareData.xmlStringToJson_ = function(xmlStr
   } else {
     parseXml = function() {
       return null;
-    }
+    };
   }
 
   var xmlDoc = parseXml(xmlString);

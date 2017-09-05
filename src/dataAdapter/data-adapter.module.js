@@ -4,6 +4,7 @@
  */
 
 
+goog.provide('anychart.dataAdapterModule');
 goog.provide('anychart.dataAdapterModule.entry');
 goog.require('anychart.base');
 goog.require('goog.Uri');
@@ -167,7 +168,7 @@ anychart.fromXmlFile.onConfigFileLoadingComplete_ = function(onSuccessOrContaine
  *   })
  * }} This is a ?anychart.data.DataSettings, but due to modules it should be like this here.
  */
-anychart.dataAdapterModule.entry.parseHtmlTable = function(opt_tableSelector, opt_rowsSelector, opt_cellsSelector, opt_headersSelector, opt_captionSelector, opt_valueProcessor) {
+anychart.dataAdapterModule.parseHtmlTable = function(opt_tableSelector, opt_rowsSelector, opt_cellsSelector, opt_headersSelector, opt_captionSelector, opt_valueProcessor) {
   // find table
   var table = goog.dom.getDocument()['querySelector'](opt_tableSelector || 'table');
   var result = null, i, count;
@@ -246,11 +247,11 @@ anychart.dataAdapterModule.entry.parseHtmlTable = function(opt_tableSelector, op
  * @param {boolean=} opt_withCredentials
  * @param {*=} opt_context
  */
-anychart.dataAdapterModule.entry.loadJsonFile = function(url, onSuccess, opt_onError, opt_method, opt_content, opt_headers, opt_timeoutInterval, opt_withCredentials, opt_context) {
+anychart.dataAdapterModule.loadJsonFile = function(url, onSuccess, opt_onError, opt_method, opt_content, opt_headers, opt_timeoutInterval, opt_withCredentials, opt_context) {
   var callback = goog.bind(
-      anychart.dataAdapterModule.entry.onDataFileLoaded_,
+      anychart.dataAdapterModule.onDataFileLoaded_,
       undefined,
-      anychart.dataAdapterModule.entry.processAsJson_,
+      anychart.dataAdapterModule.processAsJson_,
       onSuccess,
       opt_onError,
       opt_context
@@ -279,11 +280,11 @@ anychart.dataAdapterModule.entry.loadJsonFile = function(url, onSuccess, opt_onE
  * @param {boolean=} opt_withCredentials
  * @param {*=} opt_context
  */
-anychart.dataAdapterModule.entry.loadXmlFile = function(url, onSuccess, opt_onError, opt_method, opt_content, opt_headers, opt_timeoutInterval, opt_withCredentials, opt_context) {
+anychart.dataAdapterModule.loadXmlFile = function(url, onSuccess, opt_onError, opt_method, opt_content, opt_headers, opt_timeoutInterval, opt_withCredentials, opt_context) {
   var callback = goog.bind(
-      anychart.dataAdapterModule.entry.onDataFileLoaded_,
+      anychart.dataAdapterModule.onDataFileLoaded_,
       undefined,
-      anychart.dataAdapterModule.entry.processAsXml_,
+      anychart.dataAdapterModule.processAsXml_,
       onSuccess,
       opt_onError,
       opt_context
@@ -312,11 +313,11 @@ anychart.dataAdapterModule.entry.loadXmlFile = function(url, onSuccess, opt_onEr
  * @param {boolean=} opt_withCredentials
  * @param {*=} opt_context
  */
-anychart.dataAdapterModule.entry.loadCsvFile = function(url, onSuccess, opt_onError, opt_method, opt_content, opt_headers, opt_timeoutInterval, opt_withCredentials, opt_context) {
+anychart.dataAdapterModule.loadCsvFile = function(url, onSuccess, opt_onError, opt_method, opt_content, opt_headers, opt_timeoutInterval, opt_withCredentials, opt_context) {
   var callback = goog.bind(
-      anychart.dataAdapterModule.entry.onDataFileLoaded_,
+      anychart.dataAdapterModule.onDataFileLoaded_,
       undefined,
-      anychart.dataAdapterModule.entry.processAsCsv_,
+      anychart.dataAdapterModule.processAsCsv_,
       onSuccess,
       opt_onError,
       opt_context
@@ -341,11 +342,11 @@ anychart.dataAdapterModule.entry.loadCsvFile = function(url, onSuccess, opt_onEr
  * @param {number=} opt_timeoutInterval
  * @param {*=} opt_context
  */
-anychart.dataAdapterModule.entry.loadGoogleSpreadsheet = function(key, onSuccess, opt_onError, opt_timeoutInterval, opt_context) {
+anychart.dataAdapterModule.loadGoogleSpreadsheet = function(key, onSuccess, opt_onError, opt_timeoutInterval, opt_context) {
   var callback = goog.bind(
-      anychart.dataAdapterModule.entry.onDataFileLoaded_,
+      anychart.dataAdapterModule.onDataFileLoaded_,
       undefined,
-      anychart.dataAdapterModule.entry.processAsGoogleSpreadsheet_,
+      anychart.dataAdapterModule.processAsGoogleSpreadsheet_,
       onSuccess,
       opt_onError,
       opt_context
@@ -381,7 +382,7 @@ anychart.dataAdapterModule.entry.loadGoogleSpreadsheet = function(key, onSuccess
  * @return {Array}
  * @private
  */
-anychart.dataAdapterModule.entry.processAsJson_ = function(xhr) {
+anychart.dataAdapterModule.processAsJson_ = function(xhr) {
   return [xhr.getResponseJson() || null];
 };
 
@@ -391,7 +392,7 @@ anychart.dataAdapterModule.entry.processAsJson_ = function(xhr) {
  * @return {Array}
  * @private
  */
-anychart.dataAdapterModule.entry.processAsXml_ = function(xhr) {
+anychart.dataAdapterModule.processAsXml_ = function(xhr) {
   var xml = xhr.getResponseXml();
   var json = window['anychart']['utils']['xml2json'](xml);
   return [json['data']];
@@ -403,7 +404,7 @@ anychart.dataAdapterModule.entry.processAsXml_ = function(xhr) {
  * @return {Array}
  * @private
  */
-anychart.dataAdapterModule.entry.processAsGoogleSpreadsheet_ = function(xhr) {
+anychart.dataAdapterModule.processAsGoogleSpreadsheet_ = function(xhr) {
   var rawData = xhr.getResponseJson();
   var cells = rawData['feed']['entry'];
   var result = {
@@ -432,7 +433,7 @@ anychart.dataAdapterModule.entry.processAsGoogleSpreadsheet_ = function(xhr) {
  * @return {Array}
  * @private
  */
-anychart.dataAdapterModule.entry.processAsCsv_ = function(xhr) {
+anychart.dataAdapterModule.processAsCsv_ = function(xhr) {
   return [xhr.getResponseText()];
 };
 
@@ -445,7 +446,7 @@ anychart.dataAdapterModule.entry.processAsCsv_ = function(xhr) {
  * @param {goog.events.Event} evt
  * @private
  */
-anychart.dataAdapterModule.entry.onDataFileLoaded_ = function(processFunc, onSuccess, onError, context, evt) {
+anychart.dataAdapterModule.onDataFileLoaded_ = function(processFunc, onSuccess, onError, context, evt) {
   var xhrIo = /** @type {goog.net.XhrIo} */(evt.target);
 
   if (xhrIo.isSuccess()) {
@@ -464,8 +465,8 @@ anychart.dataAdapterModule.entry.onDataFileLoaded_ = function(processFunc, onSuc
 
 goog.exportSymbol('anychart.fromXmlFile', anychart.fromXmlFile);
 goog.exportSymbol('anychart.fromJsonFile', anychart.fromJsonFile);
-goog.exportSymbol('anychart.data.parseHtmlTable', anychart.dataAdapterModule.entry.parseHtmlTable);
-goog.exportSymbol('anychart.data.loadJsonFile', anychart.dataAdapterModule.entry.loadJsonFile);
-goog.exportSymbol('anychart.data.loadXmlFile', anychart.dataAdapterModule.entry.loadXmlFile);
-goog.exportSymbol('anychart.data.loadCsvFile', anychart.dataAdapterModule.entry.loadCsvFile);
-goog.exportSymbol('anychart.data.loadGoogleSpreadsheet', anychart.dataAdapterModule.entry.loadGoogleSpreadsheet);
+goog.exportSymbol('anychart.data.parseHtmlTable', anychart.dataAdapterModule.parseHtmlTable);
+goog.exportSymbol('anychart.data.loadJsonFile', anychart.dataAdapterModule.loadJsonFile);
+goog.exportSymbol('anychart.data.loadXmlFile', anychart.dataAdapterModule.loadXmlFile);
+goog.exportSymbol('anychart.data.loadCsvFile', anychart.dataAdapterModule.loadCsvFile);
+goog.exportSymbol('anychart.data.loadGoogleSpreadsheet', anychart.dataAdapterModule.loadGoogleSpreadsheet);

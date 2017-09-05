@@ -32,7 +32,7 @@
       ]
     },
     "chart-editor": {
-      "entry": "anychart.chartEditorModule.entry",
+      "entry": "anychart.chartEditor2Module.entry",
       "deps": [
         "core",
         "ui"
