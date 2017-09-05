@@ -20,7 +20,7 @@ goog.require('anychart.chartEditor2Module.controls.Select');
  *     decorate the menu; defaults to {@link goog.ui.MenuRenderer}.
  *
  * @constructor
- * @extends {goog.ui.Select}
+ * @extends {anychart.chartEditor2Module.controls.Select}
  */
 anychart.chartEditor2Module.controls.ChartTypeSelect = function(opt_caption, opt_menu, opt_renderer, opt_domHelper, opt_menuRenderer) {
   anychart.chartEditor2Module.controls.ChartTypeSelect.base(this, 'constructor', opt_caption, opt_menu, opt_renderer, opt_domHelper, opt_menuRenderer);
