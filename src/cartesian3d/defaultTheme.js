@@ -80,5 +80,7 @@ goog.mixin(goog.global['anychart']['themes']['defaultTheme'], {
     ]
   },
   // merge with cartesian
-  'cartesian3d': {}
+  'cartesian3d': {
+    'defaultSeriesType': 'column'
+  }
 });
