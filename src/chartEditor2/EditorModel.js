@@ -46,7 +46,7 @@ goog.inherits(anychart.chartEditor2Module.EditorModel, goog.events.EventTarget);
 
 
 /**
- * @typedef {Array.<(Array|String)>}
+ * @typedef {Array.<(Array|string)>}
  */
 anychart.chartEditor2Module.EditorModel.Key;
 
@@ -274,7 +274,7 @@ anychart.chartEditor2Module.EditorModel.prototype.chooseActiveAndField = functio
     fieldValue = dataRow[key];
     numberValue = goog.string.toNumber(fieldValue);
 
-    if (!this.fieldsState_['date'] && goog.isString(fieldValue) && isNaN(numberValue) && new Date(fieldValue).getTime()) {
+    if (!this.fieldsState_['date'] && goog.isstring(fieldValue) && isNaN(numberValue) && new Date(fieldValue).getTime()) {
         // Full valid date by string ("2010-05-17")
         this.fieldsState_['date'] = key;
     }
@@ -289,8 +289,8 @@ anychart.chartEditor2Module.EditorModel.prototype.chooseActiveAndField = functio
         this.fieldsState_['coordinates'].push(key);
       }
 
-    } else if (goog.isString(fieldValue)) {
-      this.fieldsState_['firstString'] = goog.isDef(this.fieldsState_['firstString']) ? this.fieldsState_['firstString'] : key;
+    } else if (goog.isstring(fieldValue)) {
+      this.fieldsState_['firststring'] = goog.isDef(this.fieldsState_['firststring']) ? this.fieldsState_['firststring'] : key;
 
       if (!this.fieldsState_['geoId'] && this.isGeoId_(fieldValue))
         this.fieldsState_['geoId'] = key;
@@ -306,8 +306,8 @@ anychart.chartEditor2Module.EditorModel.prototype.chooseActiveAndField = functio
         this.fieldsState_['date'] :
         goog.isDef(this.fieldsState_['date_short']) ?
             this.fieldsState_['date_short'] :
-            goog.isDef(this.fieldsState_['firstString']) ?
-                this.fieldsState_['firstString'] :
+            goog.isDef(this.fieldsState_['firststring']) ?
+                this.fieldsState_['firststring'] :
                 preparedData[0]['fields'][0]['key'];
   }
 
@@ -344,7 +344,7 @@ anychart.chartEditor2Module.EditorModel.prototype.chooseDefaultChartType = funct
       if (this.fieldsState_['numbersCount'] > 3)
         this.setStackMode('value');
 
-    } else if (this.model_.dataSettings.field == this.fieldsState_['firstString']) {
+    } else if (this.model_.dataSettings.field == this.fieldsState_['firststring']) {
       if (rawData.length <= 5 && this.fieldsState_['numbersCount'] == 1)
         chartType = 'pie';
       else if (this.fieldsState_['numbersCount'] <= 3)
@@ -452,8 +452,8 @@ anychart.chartEditor2Module.EditorModel.prototype.createPlotMapping = function()
 /**
  * Creates series config.
  * @param {number} index
- * @param {String} type Series type.
- * @param {String=} opt_id Series id.
+ * @param {string} type Series type.
+ * @param {string=} opt_id Series id.
  * @param {number=} opt_startFieldIndex Index of number to start from.
  * @return {{ctor: *, mapping: {}}}
  */
@@ -708,8 +708,8 @@ anychart.chartEditor2Module.EditorModel.prototype.setValue = function(key, value
         target[level[0]].push({});
 
       target = goog.isArray(target[level[0]]) ? target[level[0]][level[1]] : target[level[0]];
-    } else if (goog.isString(level) && target[String(level)] != value) {
-      target[String(level)] = value;
+    } else if (goog.isstring(level) && target[string(level)] != value) {
+      target[string(level)] = value;
 
       if (!opt_noDispatch)
         this.dispatchUpdate(opt_noRebuild);
@@ -733,14 +733,14 @@ anychart.chartEditor2Module.EditorModel.prototype.getValue = function(key) {
       // result
       if (goog.isArray(level))
         return target[level[0]][level[1]];
-      else if (goog.isString(level))
+      else if (goog.isstring(level))
         return target[level];
 
     } else {
       // drill down
       if (goog.isArray(level))
         target = goog.isArray(target[level[0]]) ? target[level[0]][level[1]] : target[level[0]];
-      else if (goog.isString(level))
+      else if (goog.isstring(level))
         target = target[level];
 
       if (!target)
@@ -763,7 +763,7 @@ anychart.chartEditor2Module.EditorModel.prototype.removeByKey = function(key) {
       if (goog.isArray(level)) {
         goog.array.splice(target[level[0]], level[1], 1);
       }
-      else if (goog.isString(level)) {
+      else if (goog.isstring(level)) {
         delete target[level];
       }
 
@@ -771,7 +771,7 @@ anychart.chartEditor2Module.EditorModel.prototype.removeByKey = function(key) {
       // drill down
       if (goog.isArray(level))
         target = goog.isArray(target[level[0]]) ? target[level[0]][level[1]] : target[level[0]];
-      else if (goog.isString(level))
+      else if (goog.isstring(level))
         target = target[level];
 
       if (!target)
@@ -829,7 +829,7 @@ anychart.chartEditor2Module.EditorModel.getStringKey = function(key) {
   //
   //   if (goog.isArray(level))
   //     stringKey += level[0] + '(' + level[1] + ')';
-  //   else if (goog.isString(level))
+  //   else if (goog.isstring(level))
   //     stringKey += level;
   //
   //   if (i < key.length - 1)
@@ -939,13 +939,16 @@ anychart.chartEditor2Module.EditorModel.prototype.getRawData = function(opt_acti
 
 
 /**
- * @return {?String}
+ * @return {?string}
  */
 anychart.chartEditor2Module.EditorModel.prototype.getActive = function() {
   return this.model_.dataSettings.active;
 };
 
 
+/**
+ * @return {string}
+ */
 anychart.chartEditor2Module.EditorModel.prototype.getActiveGeo = function() {
   return this.model_.dataSettings.activeGeo;
 };

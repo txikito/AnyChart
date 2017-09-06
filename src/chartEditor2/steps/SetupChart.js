@@ -43,7 +43,7 @@ anychart.chartEditor2Module.steps.SetupChart.prototype.createDom = function() {
   this.panelsList_ = new anychart.chartEditor2Module.DataSetPanelList(model);
   this.addChild(this.panelsList_, true);
 
-  this.chartTypeSelector_ = new anychart.chartEditor2Module.ChartTypeSelector(/** @type {anychart.chartEditor2Module.Editor} */(this.getParent()));
+  this.chartTypeSelector_ = new anychart.chartEditor2Module.ChartTypeSelector(model);
   this.addChild(this.chartTypeSelector_, true);
 
   this.basicSettings_ = new anychart.chartEditor2Module.BasicSettings(/** @type {anychart.chartEditor2Module.Editor} */(this.getParent()));

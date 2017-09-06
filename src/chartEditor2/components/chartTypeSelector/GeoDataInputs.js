@@ -1,23 +1,23 @@
 goog.provide('anychart.chartEditor2Module.GeoDataInputs');
 
-goog.require('anychart.chartEditor2Module.EditorModel');
 goog.require('anychart.chartEditor2Module.Component');
+goog.require('anychart.chartEditor2Module.EditorModel');
+goog.require('anychart.chartEditor2Module.controls.SelectWithLabel');
 
 
 
 /**
+ * Inputs specific for map charts.
+ *
  * @param {anychart.chartEditor2Module.EditorModel} model
+ * @param {goog.dom.DomHelper=} opt_domHelper Optional DOM helper; see {@link goog.ui.Component} for semantics.
  * @constructor
  * @extends {anychart.chartEditor2Module.Component}
  */
-anychart.chartEditor2Module.GeoDataInputs = function(model) {
-  anychart.chartEditor2Module.GeoDataInputs.base(this, 'constructor');
+anychart.chartEditor2Module.GeoDataInputs = function(model, opt_domHelper) {
+  anychart.chartEditor2Module.GeoDataInputs.base(this, 'constructor', opt_domHelper);
 
-  /**
-   * @type {anychart.chartEditor2Module.Editor}
-   * @private
-   */
-  this.model_ = model;
+  this.setModel(model);
 
   /**
    * @type {Array}
@@ -31,16 +31,15 @@ goog.inherits(anychart.chartEditor2Module.GeoDataInputs, anychart.chartEditor2Mo
 /** @inheritDoc */
 anychart.chartEditor2Module.GeoDataInputs.prototype.createDom = function() {
   anychart.chartEditor2Module.GeoDataInputs.base(this, 'createDom');
-
   goog.dom.classlist.add(this.getElement(), 'geo-data-inputs');
-  var dom = this.getDomHelper();
 };
 
 
+/** @inheritDoc */
 anychart.chartEditor2Module.GeoDataInputs.prototype.update = function() {
-  if (this.hidden_) return;
+  if (this.isHidden()) return;
 
-  var chartType = this.model_.getValue([['chart'], 'type']);
+  var chartType = /** @type {anychart.chartEditor2Module.EditorModel} */(this.getModel()).getValue([['chart'], 'type']);
 
   if (this.geoDataSelect_) {
     this.removeChild(this.geoDataSelect_, true);
@@ -66,7 +65,7 @@ anychart.chartEditor2Module.GeoDataInputs.prototype.update = function() {
       this.loadGeoDataIndex_();
 
     this.geoIdFieldSelect_ = new anychart.chartEditor2Module.controls.SelectWithLabel('id', 'Geo Id Field');
-    this.geoIdFieldSelect_.setEditorModel(this.model_, [['dataSettings'], 'geoIdField']);
+    this.geoIdFieldSelect_.setEditorModel(/** @type {anychart.chartEditor2Module.EditorModel} */(this.getModel()), [['dataSettings'], 'geoIdField']);
     this.addChild(this.geoIdFieldSelect_, true);
 
     if (this.createGeoIdFieldOptions_())
@@ -75,6 +74,7 @@ anychart.chartEditor2Module.GeoDataInputs.prototype.update = function() {
 };
 
 
+/** @private */
 anychart.chartEditor2Module.GeoDataInputs.prototype.loadGeoDataIndex_ = function() {
   this.dispatchEvent({
     type: anychart.chartEditor2Module.events.EventType.WAIT,
@@ -96,15 +96,19 @@ anychart.chartEditor2Module.GeoDataInputs.prototype.loadGeoDataIndex_ = function
 };
 
 
+/**
+ * Creates options for geo data sets select.
+ * @private
+ */
 anychart.chartEditor2Module.GeoDataInputs.prototype.createGeoDataOptions_ = function() {
   if (!this.geoDataSelect_ || !this.geoDataIndex.length) return;
 
   var options = [];
-  for (var key in this.geoDataIndex) {
+  for (var key = 0; key < this.geoDataIndex.length; key++) {
     options.push([this.geoDataIndex[key]['name'], this.geoDataIndex[key]['id']]);
   }
   this.geoDataSelect_.setOptions(options);
-  var activeGeo = this.model_.getValue([['dataSettings'], 'activeGeo']);
+  var activeGeo = /** @type {anychart.chartEditor2Module.EditorModel} */(this.getModel()).getValue([['dataSettings'], 'activeGeo']);
 
   if (!activeGeo)
     this.geoDataSelect_.setSelectedIndex(0);
@@ -113,11 +117,17 @@ anychart.chartEditor2Module.GeoDataInputs.prototype.createGeoDataOptions_ = func
 };
 
 
+/**
+ * Loads geo data.
+ *
+ * @param {Event} evt
+ * @private
+ */
 anychart.chartEditor2Module.GeoDataInputs.prototype.onSelectGeoData_ = function(evt) {
   if (!this.geoDataIndex.length) return;
 
-  var setId = evt.target.getValue();
-  var activeGeo = this.model_.getValue([['dataSettings'], 'activeGeo']);
+  var setId = /** @type {number} */(/** @type {anychart.chartEditor2Module.controls.SelectWithLabel} */(evt.target).getValue());
+  var activeGeo = /** @type {anychart.chartEditor2Module.EditorModel} */(this.getModel()).getValue([['dataSettings'], 'activeGeo']);
   if (activeGeo && (anychart.chartEditor2Module.EditorModel.dataType.GEO + setId) == activeGeo) return;
 
   this.dispatchEvent({
@@ -150,11 +160,17 @@ anychart.chartEditor2Module.GeoDataInputs.prototype.onSelectGeoData_ = function(
 };
 
 
+/**
+ * Creates options for geo id field select.
+ *
+ * @return {boolean}
+ * @private
+ */
 anychart.chartEditor2Module.GeoDataInputs.prototype.createGeoIdFieldOptions_ = function() {
-  var activeGeo = this.model_.getActiveGeo();
-  if (!activeGeo ) return false;
+  var activeGeo = /** @type {anychart.chartEditor2Module.EditorModel} */(this.getModel()).getActiveGeo();
+  if (!activeGeo) return false;
 
-  var preparedData = this.model_.getPreparedData(activeGeo);
+  var preparedData = /** @type {anychart.chartEditor2Module.EditorModel} */(this.getModel()).getPreparedData(activeGeo);
   if (!preparedData.length) return false;
 
   var options = [];

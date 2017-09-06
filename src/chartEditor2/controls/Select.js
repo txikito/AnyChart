@@ -110,7 +110,7 @@ anychart.chartEditor2Module.controls.Select.prototype.getKey = function() {
 /**
  * Sets value of this control to model's value.
  *
- * @param {string=} opt_value2 Second value in case of using OptionWithTwoValues.
+ * @param {?string=} opt_value2 Second value in case of using OptionWithTwoValues.
  */
 anychart.chartEditor2Module.controls.Select.prototype.setValueByModel = function(opt_value2) {
   var value;
@@ -132,7 +132,7 @@ anychart.chartEditor2Module.controls.Select.prototype.setValueByModel = function
 
 /**
  * @param {*} value
- * @param {string=} opt_value2
+ * @param {?string=} opt_value2
  */
 anychart.chartEditor2Module.controls.Select.prototype.setValue = function(value, opt_value2) {
   var selectionModel = this.getSelectionModel();
