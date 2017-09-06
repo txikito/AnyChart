@@ -1438,9 +1438,10 @@ anychart.mapModule.scales.Geo.prototype.transform = function(lon, lat, opt_txNam
  * Transform coords in pixel value to degrees values (lon/lat).
  * @param {number} x X value to transform.
  * @param {number} y Y value to transform.
+ * @param {?string=} opt_txName Name of TX.
  * @return {Array.<number>} Transformed value adjust bounds.
  */
-anychart.mapModule.scales.Geo.prototype.inverseTransform = function(x, y) {
+anychart.mapModule.scales.Geo.prototype.inverseTransform = function(x, y, opt_txName) {
   this.calculate();
 
   if (!this.bounds_ || isNaN(x) || isNaN(y))
@@ -1464,7 +1465,7 @@ anychart.mapModule.scales.Geo.prototype.inverseTransform = function(x, y) {
   var resultX = +(/** @type {number} */(transformX)) / this.ratio + this.minX;
   var resultY = -(/** @type {number} */(transformY)) / this.ratio + this.maxY;
 
-  return this.scaleToLatLon(resultX, resultY);
+  return this.scaleToLatLon(resultX, resultY, opt_txName);
 };
 
 

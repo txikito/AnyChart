@@ -2879,11 +2879,11 @@ anychart.mapModule.Chart.prototype.calculate = function() {
       goog.object.forEach(mapTx || anychart.mapModule.Chart.DEFAULT_TX, function(value, key) {
         var tx_ = {};
 
-        tx_.crs = goog.isDef(value['crs']) ? anychart.enums.normalizeMapProjections(value['crs']) : defaultTx.crs;
+        tx_.crs = goog.isDef(value['crs']) ? anychart.enums.normalizeMapProjections(value['crs']) : defaultTx['crs'];
         tx_.srcCrs = tx_.crs;
         tx_.curProj = anychart.mapModule.projections.getProjection(tx_.crs);
         tx_.srcProj = anychart.mapModule.projections.getProjection(tx_.srcCrs);
-        tx_.scale = goog.isDef(value['scale']) ? parseFloat(value['scale']) : 1;
+        tx_.scale = goog.isDef(value['scale']) ? parseFloat(value['scale']) : defaultTx['scale'] || 1;
         tx_.xoffset = goog.isDef(value['xoffset']) ? parseFloat(value['xoffset']) : 0;
         tx_.yoffset = goog.isDef(value['yoffset']) ? parseFloat(value['yoffset']) : 0;
         if (goog.isDef(value['heatZone'])) {
@@ -4746,10 +4746,11 @@ anychart.mapModule.Chart.prototype.move = function(dx, dy) {
  * Use map.localToGlobal(x, y) for convert returned coordinates to global coords (relative document)
  * @param {number} xLong Longitude in degrees.
  * @param {number} yLat Latitude in degrees.
+ * @param {?string=} opt_txName Name of TX.
  * @return {Object.<string, number>} Transformed value adjust local map data bounds.
  */
-anychart.mapModule.Chart.prototype.transform = function(xLong, yLat) {
-  var pixCoords = this.scale().transform(xLong, yLat);
+anychart.mapModule.Chart.prototype.transform = function(xLong, yLat, opt_txName) {
+  var pixCoords = this.scale().transform(xLong, yLat, opt_txName);
   return {'x': pixCoords[0], 'y': pixCoords[1]};
 };
 
@@ -4759,10 +4760,11 @@ anychart.mapModule.Chart.prototype.transform = function(xLong, yLat) {
  * Use map.globalToLocal(x, y) for convert global coordinates to coordinates relative map data bounds.
  * @param {number} x X pixel value to transform.
  * @param {number} y Y pixel value to transform.
+ * @param {?string=} opt_txName Name of TX.
  * @return {Object.<string, number>} Object with ton/lat coordinates.
  */
-anychart.mapModule.Chart.prototype.inverseTransform = function(x, y) {
-  var lonLat = this.scale().inverseTransform(x, y);
+anychart.mapModule.Chart.prototype.inverseTransform = function(x, y, opt_txName) {
+  var lonLat = this.scale().inverseTransform(x, y, opt_txName);
   return {'x': lonLat[0], 'long': lonLat[0], 'y': lonLat[1], 'lat': lonLat[1]};
 };
 

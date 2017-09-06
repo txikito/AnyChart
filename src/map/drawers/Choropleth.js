@@ -77,6 +77,7 @@ anychart.mapModule.drawers.Choropleth.prototype.drawSubsequentPoint = function(p
         if (!element || !(element instanceof acgraph.vector.Shape))
           return;
 
+        shape['domElement'] = element;
         element.visible(true);
         point.meta('currentPointElement', shape);
         var shapes = this.shapesManager.getShapesGroup(state, undefined, undefined, element);
@@ -90,7 +91,7 @@ anychart.mapModule.drawers.Choropleth.prototype.drawSubsequentPoint = function(p
         var hatchFillElement = /** @type {!acgraph.vector.Path} */(shapes['hatchFill']);
         hatchFillElement.deserialize(element.serializePathArgs());
 
-        shape.hatchFillDomElement = hatchFillElement;
+        shape['hatchFillDomElement'] = shape.hatchFillDomElement = hatchFillElement;
       }, this);
     }
   }
