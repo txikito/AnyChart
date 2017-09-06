@@ -128,7 +128,8 @@ anychart.chartEditor2Module.ChartTypeSelector.prototype.enterDocument = function
   if (this.addPlotBtn_)
     this.getHandler().listen(this.addPlotBtn_, goog.ui.Component.EventType.ACTION, this.onAddPlot_);
 
-  this.getHandler().listen(/** @type {anychart.chartEditor2Module.EditorModel} */(this.getModel()), anychart.chartEditor2Module.events.EventType.EDITOR_MODEL_UPDATE, this.update);
+  this.getHandler().listen(/** @type {anychart.chartEditor2Module.EditorModel} */(this.getModel()),
+      anychart.chartEditor2Module.events.EventType.EDITOR_MODEL_UPDATE, this.update);
 
   anychart.chartEditor2Module.ChartTypeSelector.base(this, 'enterDocument');
 };

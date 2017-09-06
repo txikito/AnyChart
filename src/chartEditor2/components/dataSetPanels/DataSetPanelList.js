@@ -37,7 +37,8 @@ anychart.chartEditor2Module.DataSetPanelList.prototype.createDom = function() {
 anychart.chartEditor2Module.DataSetPanelList.prototype.enterDocument = function() {
   goog.base(this, 'enterDocument');
   this.update();
-  this.getHandler().listen(/** @type {anychart.chartEditor2Module.EditorModel} */(this.getModel()), anychart.chartEditor2Module.events.EventType.EDITOR_MODEL_UPDATE, this.update);
+  this.getHandler().listen(/** @type {anychart.chartEditor2Module.EditorModel} */(this.getModel()),
+      anychart.chartEditor2Module.events.EventType.EDITOR_MODEL_UPDATE, this.update);
 };
 
 

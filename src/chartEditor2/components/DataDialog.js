@@ -18,6 +18,12 @@ anychart.chartEditor2Module.DataDialog = function(opt_class, opt_useIframeMask, 
 goog.inherits(anychart.chartEditor2Module.DataDialog, goog.ui.Dialog);
 
 
+/**
+ * Updates dialog content for chosen type.
+ *
+ * @param {string} dialogType
+ * @param {string=} opt_dataType
+ */
 anychart.chartEditor2Module.DataDialog.prototype.update = function(dialogType, opt_dataType){
   this.type_ = dialogType;
   this.dataType_ = opt_dataType;
@@ -44,20 +50,20 @@ anychart.chartEditor2Module.DataDialog.prototype.update = function(dialogType, o
   var pholder = '';
   if (dialogType == 'file') {
     pholder = 'Enter URL to ' + opt_dataType.toUpperCase() + ' file';
-    this.input_ = dom.createDom(goog.dom.TagName.INPUT, {class: 'input', placeholder: pholder});
+    this.input_ = dom.createDom(goog.dom.TagName.INPUT, {'class': 'input', 'placeholder': pholder});
     contentEl.appendChild(this.input_);
 
   } else if (dialogType == 'string') {
     pholder = 'Paste ' + opt_dataType.toUpperCase() + ' string';
-    this.input_ = dom.createDom(goog.dom.TagName.TEXTAREA, {class: 'input', placeholder: pholder});
+    this.input_ = dom.createDom(goog.dom.TagName.TEXTAREA, {'class': 'input', 'placeholder': pholder});
     contentEl.appendChild(this.input_);
 
   } else {
     pholder = 'ID or URL to spreadsheet';
-    this.input_ = dom.createDom(goog.dom.TagName.INPUT, {class: 'input', placeholder: pholder});
+    this.input_ = dom.createDom(goog.dom.TagName.INPUT, {'class': 'input', 'placeholder': pholder});
 
     pholder = 'Sheet ID or index';
-    this.input2_ = dom.createDom(goog.dom.TagName.INPUT, {class: 'input', placeholder: pholder});
+    this.input2_ = dom.createDom(goog.dom.TagName.INPUT, {'class': 'input', 'placeholder': pholder});
 
     contentEl.appendChild(this.input_);
     contentEl.appendChild(this.input2_);
@@ -72,10 +78,10 @@ anychart.chartEditor2Module.DataDialog.prototype.update = function(dialogType, o
     this.csvCSeparator_.value = ',';
     contentEl.appendChild(dom.createDom(goog.dom.TagName.LABEL, null, ['Columns Separator', this.csvCSeparator_]));
 
-    this.csvIgnoreFirstRow_ = dom.createDom(goog.dom.TagName.INPUT, {class: 'checkbox', type: 'checkbox'})
+    this.csvIgnoreFirstRow_ = dom.createDom(goog.dom.TagName.INPUT, {'class': 'checkbox', 'type': 'checkbox'});
     contentEl.appendChild(dom.createDom(goog.dom.TagName.LABEL, null, ['Ignore First Row', this.csvIgnoreFirstRow_]));
 
-    this.csvTrailingSpaces_ = dom.createDom(goog.dom.TagName.INPUT, {class: 'checkbox', type: 'checkbox'})
+    this.csvTrailingSpaces_ = dom.createDom(goog.dom.TagName.INPUT, {'class': 'checkbox', 'type': 'checkbox'});
     contentEl.appendChild(dom.createDom(goog.dom.TagName.LABEL, null, ['Ignore Trailing Spaces', this.csvTrailingSpaces_]));
 
     contentEl.appendChild(this.dom_.createDom(goog.dom.TagName.DIV, 'cb'));
@@ -83,18 +89,23 @@ anychart.chartEditor2Module.DataDialog.prototype.update = function(dialogType, o
 };
 
 
+/** @return {string} */
 anychart.chartEditor2Module.DataDialog.prototype.getType = function(){
   return this.type_;
 };
 
 
+/**
+ * Returns value of input field.
+ * @return {?string}
+ */
 anychart.chartEditor2Module.DataDialog.prototype.getInputValue = function(){
   return this.input_ && this.input_.value;
 };
 
 
 /**
- * Returns value if input2 field.
+ * Returns value of input2 field.
  * @return {?string}
  */
 anychart.chartEditor2Module.DataDialog.prototype.getInput2Value = function(){
@@ -102,6 +113,11 @@ anychart.chartEditor2Module.DataDialog.prototype.getInput2Value = function(){
 };
 
 
+/**
+ * Returns prepared object with CSV import settings.
+ *
+ * @return {{rowsSeparator: string, columnsSeparator: string, ignoreFirstRow: boolean, ignoreTrailingSpaces: boolean}}
+ */
 anychart.chartEditor2Module.DataDialog.prototype.getCSVSettings = function() {
   var rowsSeparator = this.processSpecialChars_(this.csvRSeparator_.value);
   var columnsSeparator = this.processSpecialChars_(this.csvCSeparator_.value);
@@ -115,6 +131,13 @@ anychart.chartEditor2Module.DataDialog.prototype.getCSVSettings = function() {
 };
 
 
+/**
+ * Replaces escaped special chars to real special chars.
+ *
+ * @param {string} string String to process.
+ * @return {string}
+ * @private
+ */
 anychart.chartEditor2Module.DataDialog.prototype.processSpecialChars_ = function(string) {
   return string.replace(/\\(r|n|t)/g, function(part, g1) {
     switch (g1) {

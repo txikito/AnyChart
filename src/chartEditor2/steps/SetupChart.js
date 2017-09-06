@@ -36,10 +36,11 @@ anychart.chartEditor2Module.steps.SetupChart.prototype.createDom = function() {
   var element = /** @type {Element} */(this.getElement());
   goog.dom.classlist.add(element, 'step-setup-chart');
 
-  this.chart_ = new anychart.chartEditor2Module.Chart(/** @type {anychart.chartEditor2Module.Editor} */(this.getParent()));
+  var model = /** @type {anychart.chartEditor2Module.EditorModel} */(/** @type {anychart.chartEditor2Module.Editor} */(this.getParent()).getModel());
+
+  this.chart_ = new anychart.chartEditor2Module.Chart(model);
   this.addChild(this.chart_, true);
 
-  var model = /** @type {anychart.chartEditor2Module.EditorModel} */(/** @type {anychart.chartEditor2Module.Editor} */(this.getParent()).getModel());
   this.panelsList_ = new anychart.chartEditor2Module.DataSetPanelList(model);
   this.addChild(this.panelsList_, true);
 

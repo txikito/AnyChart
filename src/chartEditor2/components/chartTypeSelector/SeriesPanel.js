@@ -79,7 +79,8 @@ anychart.chartEditor2Module.SeriesPanel.prototype.update = function() {
 anychart.chartEditor2Module.SeriesPanel.prototype.enterDocument = function() {
   this.update();
 
-  this.getHandler().listen(/** @type {anychart.chartEditor2Module.EditorModel} */(this.getModel()), anychart.chartEditor2Module.events.EventType.EDITOR_MODEL_UPDATE, this.update);
+  this.getHandler().listen(/** @type {anychart.chartEditor2Module.EditorModel} */(this.getModel()),
+      anychart.chartEditor2Module.events.EventType.EDITOR_MODEL_UPDATE, this.update);
 
   if (this.close_)
     this.getHandler().listen(this.close_, goog.events.EventType.CLICK, function() {

@@ -1,21 +1,24 @@
 goog.provide('anychart.chartEditor2Module.BasicSettings');
 
 goog.require('anychart.chartEditor2Module.Component');
+goog.require('anychart.chartEditor2Module.EditorModel');
 goog.require('anychart.chartEditor2Module.controls.Checkbox');
 goog.require('anychart.chartEditor2Module.controls.Input');
 goog.require('anychart.chartEditor2Module.controls.Select');
 goog.require('anychart.chartEditor2Module.controls.SelectPalettes');
-goog.require('anychart.chartEditor2Module.EditorModel');
+
 
 
 /**
- * Chart widget.
+ * Basic setting widget.
+ *
  * @param {anychart.chartEditor2Module.Editor} editor
+ * @param {goog.dom.DomHelper=} opt_domHelper Optional DOM helper; see {@link goog.ui.Component} for semantics.
  * @constructor
  * @extends {anychart.chartEditor2Module.Component}
  */
-anychart.chartEditor2Module.BasicSettings = function(editor) {
-  anychart.chartEditor2Module.BasicSettings.base(this, 'constructor');
+anychart.chartEditor2Module.BasicSettings = function(editor, opt_domHelper) {
+  anychart.chartEditor2Module.BasicSettings.base(this, 'constructor', opt_domHelper);
 
   /**
    * @type {anychart.chartEditor2Module.Editor}
@@ -23,6 +26,10 @@ anychart.chartEditor2Module.BasicSettings = function(editor) {
    */
   this.editor_ = editor;
 
+  /**
+   * @type {Array.<anychart.chartEditor2Module.controls.Input>}
+   * @private
+   */
   this.seriesNames_ = [];
 };
 goog.inherits(anychart.chartEditor2Module.BasicSettings, anychart.chartEditor2Module.Component);
@@ -30,7 +37,7 @@ goog.inherits(anychart.chartEditor2Module.BasicSettings, anychart.chartEditor2Mo
 
 /** @inheritDoc */
 anychart.chartEditor2Module.BasicSettings.prototype.createDom = function() {
-  goog.base(this, 'createDom');
+  anychart.chartEditor2Module.BasicSettings.base(this, 'createDom');
 
   goog.dom.classlist.add(this.getElement(), 'settings-panel');
   goog.dom.classlist.add(this.getElement(), 'basic-settings');
@@ -55,9 +62,10 @@ anychart.chartEditor2Module.BasicSettings.prototype.createDom = function() {
 };
 
 
+/** @inheritDoc */
 anychart.chartEditor2Module.BasicSettings.prototype.update = function() {
   var self = this;
-  var model = self.editor_.getModel();
+  var model = /** @type {anychart.chartEditor2Module.EditorModel} */(self.editor_.getModel());
 
   this.getHandler().listenOnce(this.editor_, anychart.chartEditor2Module.events.EventType.CHART_DRAW,
       function(evt) {
@@ -109,14 +117,20 @@ anychart.chartEditor2Module.BasicSettings.prototype.update = function() {
 };
 
 
+/** @inheritDoc */
 anychart.chartEditor2Module.BasicSettings.prototype.enterDocument = function() {
-  goog.base(this, 'enterDocument');
+  anychart.chartEditor2Module.BasicSettings.base(this, 'enterDocument');
 
   this.update();
-
-  this.getHandler().listen(this.editor_.getModel(), anychart.chartEditor2Module.events.EventType.EDITOR_MODEL_UPDATE, this.update);
+  this.getHandler().listen(/** @type {anychart.chartEditor2Module.EditorModel} */(this.editor_.getModel()),
+      anychart.chartEditor2Module.events.EventType.EDITOR_MODEL_UPDATE, this.update);
 };
 
+
+/**
+ * Removes series names inputs.
+ * @private
+ */
 anychart.chartEditor2Module.BasicSettings.prototype.removeSeriesNames_ = function() {
   for (var i = 0; i < this.seriesNames_.length; i++) {
     this.removeChild(this.seriesNames_[i], true);

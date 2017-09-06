@@ -7,25 +7,20 @@ goog.require('anychart.chartEditor2Module.EditorModel');
 
 /**
  * Chart widget.
- * @param {anychart.chartEditor2Module.Editor} editor
+ *
+ * @param {anychart.chartEditor2Module.EditorModel} model
+ * @param {goog.dom.DomHelper=} opt_domHelper Optional DOM helper; see {@link goog.ui.Component} for semantics.
  * @constructor
  * @extends {anychart.chartEditor2Module.Component}
  */
-anychart.chartEditor2Module.Chart = function(editor) {
-  anychart.chartEditor2Module.Chart.base(this, 'constructor');
+anychart.chartEditor2Module.Chart = function(model, opt_domHelper) {
+  anychart.chartEditor2Module.Chart.base(this, 'constructor', opt_domHelper);
 
-  /**
-   * @type {anychart.chartEditor2Module.Editor}
-   * @private
-   */
-  this.editor_ = editor;
+  this.setModel(model);
 
   this.anychart = /** @type {Object} */(goog.dom.getWindow()['anychart']);
 };
 goog.inherits(anychart.chartEditor2Module.Chart, anychart.chartEditor2Module.Component);
-
-
-anychart.chartEditor2Module.Chart.CHART_ID = goog.string.createUniqueString();
 
 
 /** @inheritDoc */
@@ -39,20 +34,23 @@ anychart.chartEditor2Module.Chart.prototype.createDom = function() {
 };
 
 
+/** @inheritDoc */
 anychart.chartEditor2Module.Chart.prototype.enterDocument = function() {
   goog.base(this, 'enterDocument');
 
   this.update();
-  this.getHandler().listen(this.editor_.getModel(), anychart.chartEditor2Module.events.EventType.EDITOR_MODEL_UPDATE, this.update);
+  this.getHandler().listen(/** @type {anychart.chartEditor2Module.EditorModel} */(this.getModel()),
+      anychart.chartEditor2Module.events.EventType.EDITOR_MODEL_UPDATE, this.update);
 };
 
 
-anychart.chartEditor2Module.Chart.prototype.update = function(opt_evt) {
+/** @inheritDoc */
+anychart.chartEditor2Module.Chart.prototype.update = function() {
   var anychart = goog.dom.getWindow()['anychart'];
-  var editorModel = this.editor_.getModel();
-  var rawData = editorModel.getRawData();
-  var settings = editorModel.getModel();
-  var rebuild = !goog.isDefAndNotNull(opt_evt) || opt_evt.rebuild;
+  var model = /** @type {anychart.chartEditor2Module.EditorModel} */(this.getModel());
+  var rawData = model.getRawData();
+  var settings = model.getModel();
+  var rebuild = !arguments.length || arguments[0]['rebuild'];
 
   if (!settings['chart']['type'])
     return;
@@ -76,10 +74,10 @@ anychart.chartEditor2Module.Chart.prototype.update = function(opt_evt) {
     this.chart_ = this.anychart[settings['chart']['type']]();
 
     if (settings['chart']['type'] == 'map') {
-      var geoData = editorModel.getRawData(true);
+      var geoData = model.getRawData(true);
       if (geoData) {
         this.chart_['geoData'](geoData);
-        var geoIdField = editorModel.getGeoIdField();
+        var geoIdField = model.getGeoIdField();
         if (geoIdField)
           this.chart_['geoIdField'](geoIdField);
       }
