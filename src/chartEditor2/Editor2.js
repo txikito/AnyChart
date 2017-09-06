@@ -376,11 +376,13 @@ anychart.chartEditor2Module.Editor.prototype.breadcrumbsClickHandler_ = function
 };
 
 
+/** @private */
 anychart.chartEditor2Module.Editor.prototype.prevBtnClickHandler_ = function() {
   this.changeStep_(this.currentStep_.getIndex() - 1);
 };
 
 
+/** @private */
 anychart.chartEditor2Module.Editor.prototype.nextBtnClickHandler_ = function() {
   if (this.isLastStep_())
     console.log("Complete pressed!");
@@ -389,18 +391,30 @@ anychart.chartEditor2Module.Editor.prototype.nextBtnClickHandler_ = function() {
 };
 
 
+/**
+ * @param {Event} evt
+ * @private
+ */
 anychart.chartEditor2Module.Editor.prototype.onDataAdd_ = function(evt) {
   this.getModel().addData(evt);
   this.updateProgress_();
 };
 
 
+/**
+ * @param {Event} evt
+ * @private
+ */
 anychart.chartEditor2Module.Editor.prototype.onDataRemove_ = function(evt) {
   this.getModel().removeData(evt['setFullId']);
   this.updateProgress_();
 };
 
 
+/**
+ * @param {Event} evt
+ * @private
+ */
 anychart.chartEditor2Module.Editor.prototype.onWait_ = function(evt) {
   this.showWaitAnimation_(evt['wait']);
 };
