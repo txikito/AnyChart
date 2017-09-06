@@ -61,13 +61,3 @@ anychart.chartEditor2Module.controls.ChartTypeSelect.prototype.getIcon = functio
   var i = this.getSelectedIndex() >= 0 ? this.getSelectedIndex() : 0;
   return 'http://www.anychart.com/_design/img/upload/charts/types/' + this.options_[i]['icon'];
 };
-
-
-/**
- * Returns the second value associated with the menu item.
- * @return {*} Value associated with the menu item, if any, or its caption.
- */
-anychart.chartEditor2Module.controls.ChartTypeSelect.prototype.getValue2 = function() {
-  var selectedItem = this.getSelectedItem();
-  return selectedItem ? selectedItem.getValue2() : null;
-};

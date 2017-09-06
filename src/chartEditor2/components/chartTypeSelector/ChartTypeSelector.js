@@ -76,7 +76,7 @@ anychart.chartEditor2Module.ChartTypeSelector.prototype.update = function() {
 
     // Dataset select
     this.activeAndFieldSelect_ = new anychart.chartEditor2Module.controls.SelectWithLabel('x', 'Data set');
-    this.activeAndFieldSelect_.setEditorModel(model, [['dataSettings'], 'field'], 'setActiveField');
+    this.activeAndFieldSelect_.setEditorModel(model, [['dataSettings'], 'field'], 'setActiveAndField');
     this.addChild(this.activeAndFieldSelect_, true);
 
     this.createDataSetsOptions_();
@@ -87,7 +87,7 @@ anychart.chartEditor2Module.ChartTypeSelector.prototype.update = function() {
 
     // X Values select
     this.activeAndFieldSelect_ = new anychart.chartEditor2Module.controls.SelectWithLabel('x', 'X Values');
-    this.activeAndFieldSelect_.setEditorModel(model, [['dataSettings'], 'field'], 'setActiveField');
+    this.activeAndFieldSelect_.setEditorModel(model, [['dataSettings'], 'field'], 'setActiveAndField');
     this.addChild(this.activeAndFieldSelect_, true);
 
     this.createActiveAndFieldOptions_();

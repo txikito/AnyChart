@@ -2,13 +2,13 @@ goog.provide('anychart.chartEditor2Module.Editor');
 goog.provide('anychart.chartEditor2Module.Editor.Dialog');
 
 goog.require('anychart.chartEditor2Module.Component');
-goog.require('anychart.ui.Preloader');
-goog.require('anychart.ui.button.Primary');
-goog.require('anychart.ui.button.Secondary');
 goog.require('anychart.chartEditor2Module.EditorModel');
 goog.require('anychart.chartEditor2Module.events');
 goog.require('anychart.chartEditor2Module.steps.PrepareData');
 goog.require('anychart.chartEditor2Module.steps.SetupChart');
+goog.require('anychart.ui.Preloader');
+goog.require('anychart.ui.button.Primary');
+goog.require('anychart.ui.button.Secondary');
 goog.require('goog.fx.AnimationSerialQueue');
 goog.require('goog.fx.Transition.EventType');
 goog.require('goog.fx.dom');

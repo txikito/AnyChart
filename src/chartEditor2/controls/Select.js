@@ -9,6 +9,7 @@ goog.require('goog.ui.Select');
 
 /**
  * Extends select control to work with EditorModel.
+ * Also if this control has anychart.chartEditor2Module.controls.MenuItemWithTwoValues options it can return value2 of selected option.
  *
  * @param {goog.ui.ControlContent=} opt_caption Default caption or existing DOM
  *     structure to display as the button's caption when nothing is selected.
@@ -183,6 +184,17 @@ anychart.chartEditor2Module.controls.Select.prototype.setOptions = function(opti
   if (opt_default) {
     this.setValue(opt_default);
   }
+};
+
+
+/**
+ * Returns value2 of selected option (if option are anychart.chartEditor2Module.controls.MenuItemWithTwoValues instances.
+ *
+ * @return {?string}
+ */
+anychart.chartEditor2Module.controls.Select.prototype.getValue2 = function() {
+  var selectedItem = /** @type {?(goog.ui.MenuItem|anychart.chartEditor2Module.controls.MenuItemWithTwoValues)} */(this.getSelectedItem());
+  return selectedItem ? selectedItem.getValue2() : null;
 };
 
 

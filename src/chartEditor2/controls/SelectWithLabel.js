@@ -8,7 +8,6 @@ goog.require('goog.ui.Component');
 
 /**
  * Select control with label.
- * Also if this control has anychart.chartEditor2Module.controls.MenuItemWithTwoValues options it can return value2 of selected option.
  *
  * @param {string} field
  * @param {goog.ui.ControlContent=} opt_caption Default caption or existing DOM
@@ -36,17 +35,6 @@ anychart.chartEditor2Module.controls.SelectWithLabel = function(field, opt_capti
   this.setModel(field);
 };
 goog.inherits(anychart.chartEditor2Module.controls.SelectWithLabel, anychart.chartEditor2Module.controls.Select);
-
-
-/**
- * Returns value2 of selected option (if option are anychart.chartEditor2Module.controls.MenuItemWithTwoValues instances.
- *
- * @return {?string}
- */
-anychart.chartEditor2Module.controls.SelectWithLabel.prototype.getValue2 = function() {
-  var selectedItem = /** @type {?(goog.ui.MenuItem|anychart.chartEditor2Module.controls.MenuItemWithTwoValues)} */(this.getSelectedItem());
-  return selectedItem ? selectedItem.getValue2() : null;
-};
 
 
 /**

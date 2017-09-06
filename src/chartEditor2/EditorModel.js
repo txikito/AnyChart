@@ -1,22 +1,55 @@
 goog.provide('anychart.chartEditor2Module.EditorModel');
 
 goog.require('goog.events.EventTarget');
+goog.require('goog.format.JsonPrettyPrinter');
+goog.require('goog.format.JsonPrettyPrinter.SafeHtmlDelimiters');
 
 
 /**
+ * Model!
  *
  * @constructor
  * @extends {goog.events.EventTarget}
  */
 anychart.chartEditor2Module.EditorModel = function() {
-  goog.base(this);
+  anychart.chartEditor2Module.EditorModel.base(this, 'constructor');
 
+  /**
+   * Data container
+   * @type {Object}
+   * @private
+   */
   this.data_ = {};
 
+  /**
+   * Data sets descriptions container
+   * @type {Array}
+   * @private
+   */
   this.preparedData_ = [];
 
   this.generateInitialMappingsOnChangeView_ = true;
 
+  /**
+   * Model structure
+   * @type {{
+   *  dataSettings:
+   *  {
+   *      active: ?string,
+   *      activeGeo: ?string,
+   *      field: ?string,
+   *      mappings: Array
+   *  },
+   *  anychart: Object,
+   *  chart:
+   *  {
+   *      type: ?string,
+   *      seriesType: ?string,
+   *      settings: Object
+   *  }
+   * }}
+   * @private
+   */
   this.model_ = {
     dataSettings: {
       active: null,
@@ -29,6 +62,7 @@ anychart.chartEditor2Module.EditorModel = function() {
         // ]
       ]
     },
+    anychart: {},
     chart: {
       type: null,
       seriesType: null,
@@ -38,6 +72,11 @@ anychart.chartEditor2Module.EditorModel = function() {
     }
   };
 
+  /**
+   * Data set analysis result
+   * @type {Object}
+   * @private
+   */
   this.fieldsState_ = {};
 
   this.suspendQueue_ = 0;
@@ -62,6 +101,9 @@ anychart.chartEditor2Module.EditorModel.dataType = {
 
 
 // region Structures
+/**
+ * @type {Object}}
+ */
 anychart.chartEditor2Module.EditorModel.chartTypes = {
   'line': {
     'value': 'line',
@@ -170,6 +212,9 @@ anychart.chartEditor2Module.EditorModel.chartTypes = {
 };
 
 
+/**
+ * @type {Object}}
+ */
 anychart.chartEditor2Module.EditorModel.series = {
   'line': {
     'fields': [{'field': 'value', 'name': 'Y Value'}]
@@ -245,13 +290,19 @@ anychart.chartEditor2Module.EditorModel.series = {
       {'field': 'id', 'name': 'Id'},
       {'field': 'value', 'name': 'Value'}
     ]
-  },
+  }
   // 'connector': {'fields': [{'field': 'value', 'name': 'Y Value'}]}
 };
 // endregion
 
 
 // region Model initialization
+/**
+ * Processes analysis of active data set and sets field.
+ *
+ * @param {string=} opt_active Active data set id
+ * @param {string=} opt_field Field id
+ */
 anychart.chartEditor2Module.EditorModel.prototype.chooseActiveAndField = function(opt_active, opt_field) {
   this.dropChartSettings();
 
@@ -290,7 +341,7 @@ anychart.chartEditor2Module.EditorModel.prototype.chooseActiveAndField = functio
       }
 
     } else if (goog.isString(fieldValue)) {
-      this.fieldsState_['firststring'] = goog.isDef(this.fieldsState_['firststring']) ? this.fieldsState_['firststring'] : key;
+      this.fieldsState_['firstString'] = goog.isDef(this.fieldsState_['firstString']) ? this.fieldsState_['firstString'] : key;
 
       if (!this.fieldsState_['geoId'] && this.isGeoId_(fieldValue))
         this.fieldsState_['geoId'] = key;
@@ -306,8 +357,8 @@ anychart.chartEditor2Module.EditorModel.prototype.chooseActiveAndField = functio
         this.fieldsState_['date'] :
         goog.isDef(this.fieldsState_['date_short']) ?
             this.fieldsState_['date_short'] :
-            goog.isDef(this.fieldsState_['firststring']) ?
-                this.fieldsState_['firststring'] :
+            goog.isDef(this.fieldsState_['firstString']) ?
+                this.fieldsState_['firstString'] :
                 preparedData[0]['fields'][0]['key'];
   }
 
@@ -328,6 +379,9 @@ anychart.chartEditor2Module.EditorModel.prototype.chooseActiveAndField = functio
 };
 
 
+/**
+ * Chooses chart type.
+ */
 anychart.chartEditor2Module.EditorModel.prototype.chooseDefaultChartType = function() {
   var chartType = 'line';
   var rawData = this.getRawData();
@@ -344,7 +398,7 @@ anychart.chartEditor2Module.EditorModel.prototype.chooseDefaultChartType = funct
       if (this.fieldsState_['numbersCount'] > 3)
         this.setStackMode('value');
 
-    } else if (this.model_.dataSettings.field == this.fieldsState_['firststring']) {
+    } else if (this.model_.dataSettings.field == this.fieldsState_['firstString']) {
       if (rawData.length <= 5 && this.fieldsState_['numbersCount'] == 1)
         chartType = 'pie';
       else if (this.fieldsState_['numbersCount'] <= 3)
@@ -362,6 +416,9 @@ anychart.chartEditor2Module.EditorModel.prototype.chooseDefaultChartType = funct
 };
 
 
+/**
+ * Chooses default series type.
+ */
 anychart.chartEditor2Module.EditorModel.prototype.chooseDefaultSeriesType = function() {
   var seriesType = anychart.chartEditor2Module.EditorModel.chartTypes[this.model_.chart.type]['series'][0];
 
@@ -398,6 +455,9 @@ anychart.chartEditor2Module.EditorModel.prototype.chooseDefaultSeriesType = func
 };
 
 
+/**
+ * Creates default mappings for plots and series.
+ */
 anychart.chartEditor2Module.EditorModel.prototype.createDefaultMappings = function() {
   this.model_.dataSettings.mappings = [];
 
@@ -416,8 +476,8 @@ anychart.chartEditor2Module.EditorModel.prototype.createDefaultMappings = functi
 
 
 /**
- * Creates plot mapping. Need active dataset and default series type to be chosen.
- * @return {[*]}
+ * Creates plot mapping. Need active data set and default series type to be chosen.
+ * @return {Array}
  */
 anychart.chartEditor2Module.EditorModel.prototype.createPlotMapping = function() {
   var result = [];
@@ -441,7 +501,7 @@ anychart.chartEditor2Module.EditorModel.prototype.createPlotMapping = function()
     fieldIndex = 4; // try to set volume plot
 
   for (var i = 0; i < numSeries; i += numValues) {
-    var seriesConfig = this.createSeriesConfig(i, this.model_.chart.seriesType, void 0, fieldIndex);
+    var seriesConfig = this.createSeriesConfig(i, /** @type {string} */(this.model_.chart.seriesType), void 0, fieldIndex);
     result.push(seriesConfig);
   }
 
@@ -455,7 +515,7 @@ anychart.chartEditor2Module.EditorModel.prototype.createPlotMapping = function()
  * @param {string} type Series type.
  * @param {string=} opt_id Series id.
  * @param {number=} opt_startFieldIndex Index of number to start from.
- * @return {{ctor: *, mapping: {}}}
+ * @return {Object}
  */
 anychart.chartEditor2Module.EditorModel.prototype.createSeriesConfig = function(index, type, opt_id, opt_startFieldIndex) {
   var config = {'ctor': type, 'mapping': {}};
@@ -493,6 +553,54 @@ anychart.chartEditor2Module.EditorModel.prototype.createSeriesConfig = function(
 };
 
 
+/**
+ * Checks if current mapping are not compatible with new chart and series types.
+ *
+ * @param {string} prevChartType
+ * @param {string} prevSeriesType
+ * @return {boolean} true if mappings are not compatible.
+ */
+anychart.chartEditor2Module.EditorModel.prototype.needResetMappings = function(prevChartType, prevSeriesType) {
+  if (goog.array.indexOf(anychart.chartEditor2Module.EditorModel.chartTypes[this.model_.chart.type]['series'], prevSeriesType) == -1)
+    return true;
+
+  return (prevChartType == 'stock' || this.model_.chart.type == 'stock') ||
+      (prevChartType == 'map' || this.model_.chart.type == 'map') ||
+      this.model_.chart.type == 'pie';
+};
+
+
+/**
+ * Checks if fields of two series types are compatible.
+ *
+ * @param {string} seriesType1
+ * @param {string} seriesType2
+ * @return {boolean} true if compatible
+ */
+anychart.chartEditor2Module.EditorModel.prototype.checkSeriesFieldsCompatible = function(seriesType1, seriesType2) {
+  var fields1 = anychart.chartEditor2Module.EditorModel.series[seriesType1]['fields'];
+  var fields2 = anychart.chartEditor2Module.EditorModel.series[seriesType2]['fields'];
+  var compatible = true;
+  if (fields1.length == fields2.length) {
+    for (var i = fields1.length; i--;) {
+      if (fields1[i]['field'] != fields2[i]['field']) {
+        compatible = false;
+        break;
+      }
+    }
+  } else
+    compatible = false;
+
+  return compatible;
+};
+// endregion
+
+
+// region Public and controls callback functions
+/**
+ * Drops all or some chart settings.
+ * @param {string=} opt_pattern
+ */
 anychart.chartEditor2Module.EditorModel.prototype.dropChartSettings = function(opt_pattern) {
   if (goog.isDef(opt_pattern)) {
     for (var key in this.model_.chart.settings) {
@@ -503,13 +611,88 @@ anychart.chartEditor2Module.EditorModel.prototype.dropChartSettings = function(o
   } else
     this.model_.chart.settings = {};
 };
-// endregion
 
 
-// region Controls callback functions
-anychart.chartEditor2Module.EditorModel.prototype.setActiveField = function(input) {
-  var field = input.getValue();
-  var active = input.getValue2();
+/**
+ * Initializes default values for types selects.
+ */
+anychart.chartEditor2Module.EditorModel.prototype.onChangeView = function() {
+  if (this.generateInitialMappingsOnChangeView_) {
+    this.generateInitialMappingsOnChangeView_ = false;
+    this.getPreparedData();
+
+    if (this.preparedData_.length > 0) {
+      this.dropChartSettings();
+
+      this.chooseActiveAndField();
+      this.chooseDefaultChartType();
+      this.chooseDefaultSeriesType();
+      this.createDefaultMappings();
+
+      // Set default chart title by dataset title
+      this.setValue([['chart'], ['settings'], 'title()'], this.data_[this.getActive()]['title']);
+    } else {
+      console.warn("NO DATA");
+    }
+  }
+};
+
+
+/**
+ * Adds new plot default mapping.
+ */
+anychart.chartEditor2Module.EditorModel.prototype.addPlot = function() {
+  var mapping = this.createPlotMapping();
+  this.model_.dataSettings.mappings.push(mapping);
+  this.dispatchUpdate();
+};
+
+
+/**
+ * Drops plot mapping by index.
+ * @param {number} index
+ */
+anychart.chartEditor2Module.EditorModel.prototype.dropPlot = function(index) {
+  if (index > 0 && this.model_.dataSettings.mappings.length > index) {
+    this.dropChartSettings('plot(');
+    goog.array.splice(this.model_.dataSettings.mappings, index, 1);
+    this.dispatchUpdate();
+  }
+};
+
+
+/**
+ * Adds new series default mapping.
+ * @param {number} plotIndex
+ */
+anychart.chartEditor2Module.EditorModel.prototype.addSeries = function(plotIndex) {
+  var mapping = this.createSeriesConfig(this.model_.dataSettings.mappings[plotIndex].length, /** @type {string} */(this.model_.chart.seriesType));
+  this.model_.dataSettings.mappings[plotIndex].push(mapping);
+  this.dispatchUpdate();
+};
+
+
+/**
+ * Drops series mapping by plot and series index.
+ * @param {number} plotIndex
+ * @param {number} seriesIndex
+ */
+anychart.chartEditor2Module.EditorModel.prototype.dropSeries = function(plotIndex, seriesIndex) {
+  if (this.model_.dataSettings.mappings.length > plotIndex && this.model_.dataSettings.mappings[plotIndex].length > seriesIndex) {
+    var removedSeries = goog.array.splice(this.model_.dataSettings.mappings[plotIndex], seriesIndex, 1);
+    this.dropChartSettings('getSeries(' + removedSeries[0]['id'] + ')');
+    this.dispatchUpdate();
+  }
+};
+
+
+/**
+ * Callback function for change of active and field select.
+ * @param {anychart.chartEditor2Module.controls.Select} input
+ */
+anychart.chartEditor2Module.EditorModel.prototype.setActiveAndField = function(input) {
+  var field = /** @type {string} */(input.getValue());
+  var active = /** @type {string} */(input.getValue2());
 
   this.suspendDispatch();
 
@@ -532,64 +715,14 @@ anychart.chartEditor2Module.EditorModel.prototype.setActiveField = function(inpu
 };
 
 
-anychart.chartEditor2Module.EditorModel.prototype.onChangeView = function() {
-  if (this.generateInitialMappingsOnChangeView_) {
-    this.generateInitialMappingsOnChangeView_ = false;
-    this.getPreparedData();
-
-    if (this.preparedData_.length > 0) {
-      this.dropChartSettings();
-
-      this.chooseActiveAndField();
-      this.chooseDefaultChartType();
-      this.chooseDefaultSeriesType();
-      this.createDefaultMappings();
-
-      // Set default chart title by dataset title
-      this.setValue([['chart'], ['settings'], 'title()'], this.data_[this.getActive()]['title'])
-    } else {
-      console.warn("NO DATA");
-    }
-  }
-};
-
-
-anychart.chartEditor2Module.EditorModel.prototype.addPlot = function() {
-  var mapping = this.createPlotMapping();
-  this.model_.dataSettings.mappings.push(mapping);
-  this.dispatchUpdate();
-};
-
-
-anychart.chartEditor2Module.EditorModel.prototype.dropPlot = function(index) {
-  if (index > 0 && this.model_.dataSettings.mappings.length > index) {
-    this.dropChartSettings('plot(');
-    goog.array.splice(this.model_.dataSettings.mappings, index, 1);
-    this.dispatchUpdate();
-  }
-};
-
-
-anychart.chartEditor2Module.EditorModel.prototype.addSeries = function(plotIndex) {
-  var mapping = this.createSeriesConfig(this.model_.dataSettings.mappings[plotIndex].length, this.model_.chart.seriesType);
-  this.model_.dataSettings.mappings[plotIndex].push(mapping);
-  this.dispatchUpdate();
-};
-
-
-anychart.chartEditor2Module.EditorModel.prototype.dropSeries = function(plotIndex, seriesIndex) {
-  if (this.model_.dataSettings.mappings.length > plotIndex && this.model_.dataSettings.mappings[plotIndex].length > seriesIndex) {
-    var removedSeries = goog.array.splice(this.model_.dataSettings.mappings[plotIndex], seriesIndex, 1);
-    this.dropChartSettings('getSeries(' + removedSeries[0]['id'] + ')');
-    this.dispatchUpdate();
-  }
-};
-
-
+/**
+ * Callback function for change event of chart type select.
+ * @param {anychart.chartEditor2Module.controls.Select} input
+ */
 anychart.chartEditor2Module.EditorModel.prototype.setChartType = function(input) {
-  var prevChartType = this.model_.chart.type;
-  var prevDefaultSeriesType = this.model_.chart.seriesType;
-  this.model_.chart.type = input.getValue();
+  var prevChartType = /** @type {string} */(this.model_.chart.type);
+  var prevDefaultSeriesType = /** @type {string} */(this.model_.chart.seriesType);
+  this.model_.chart.type = /** @type {string} */(input.getValue());
 
   if (prevChartType == 'map') {
     delete this.data_[this.model_.dataSettings.activeGeo];
@@ -598,7 +731,7 @@ anychart.chartEditor2Module.EditorModel.prototype.setChartType = function(input)
   }
 
   if (this.needResetMappings(prevChartType, prevDefaultSeriesType)) {
-    this.chooseActiveAndField(this.model_.dataSettings.active);
+    this.chooseActiveAndField(/** @type {string} */(this.model_.dataSettings.active));
     this.chooseDefaultSeriesType();
     this.createDefaultMappings();
 
@@ -610,7 +743,7 @@ anychart.chartEditor2Module.EditorModel.prototype.setChartType = function(input)
       for (var j = 0; j < this.model_.dataSettings.mappings[i].length; j++) {
         var seriesConfig = this.model_.dataSettings.mappings[i][j];
         if (prevDefaultSeriesType == seriesConfig['ctor']) {
-          if (this.checkSeriesFieldsCompatible(prevDefaultSeriesType, this.model_.chart.seriesType)) {
+          if (this.checkSeriesFieldsCompatible(prevDefaultSeriesType, /** @type {string} */(this.model_.chart.seriesType))) {
             this.model_.dataSettings.mappings[i][j]['ctor'] = this.model_.chart.seriesType;
           }
         }
@@ -618,12 +751,16 @@ anychart.chartEditor2Module.EditorModel.prototype.setChartType = function(input)
     }
   }
 
-  this.setStackMode(input.getValue2());
+  this.setStackMode(/** @type {string} */(input.getValue2()));
 
   this.dispatchUpdate();
 };
 
 
+/**
+ * Updates stack mode setting in model.
+ * @param {string=} opt_stackMode
+ */
 anychart.chartEditor2Module.EditorModel.prototype.setStackMode = function(opt_stackMode) {
   this.dropChartSettings("stackMode(");
   if (opt_stackMode) {
@@ -634,37 +771,13 @@ anychart.chartEditor2Module.EditorModel.prototype.setStackMode = function(opt_st
 };
 
 
-anychart.chartEditor2Module.EditorModel.prototype.needResetMappings = function(prevChartType, prevSeriesType) {
-  if (goog.array.indexOf(anychart.chartEditor2Module.EditorModel.chartTypes[this.model_.chart.type]['series'], prevSeriesType) == -1)
-    return true;
-
-  return (prevChartType == 'stock' || this.model_.chart.type == 'stock') ||
-      (prevChartType == 'map' || this.model_.chart.type == 'map') ||
-      this.model_.chart.type == 'pie';
-};
-
-
-anychart.chartEditor2Module.EditorModel.prototype.checkSeriesFieldsCompatible = function(seriesType1, seriesType2) {
-  var fields1 = anychart.chartEditor2Module.EditorModel.series[seriesType1]['fields'];
-  var fields2 = anychart.chartEditor2Module.EditorModel.series[seriesType2]['fields'];
-  var compatible = true;
-  if (fields1.length == fields2.length) {
-    for (var i = fields1.length; i--;) {
-      if (fields1[i]['field'] != fields2[i]['field']) {
-        compatible = false;
-        break;
-      }
-    }
-  } else
-    compatible = false;
-
-  return compatible;
-};
-
-
+/**
+ * Callback function for change of series type select.
+ * @param {anychart.chartEditor2Module.controls.Select} input
+ */
 anychart.chartEditor2Module.EditorModel.prototype.setSeriesType = function(input) {
   var key = input.getKey();
-  var type = input.getValue();
+  var type = /** @type {string} */(input.getValue());
   var plotIndex = key[1][1]; // see SeriesPanel.getKey()
   var seriesIndex = key[2][0];
 
@@ -676,6 +789,10 @@ anychart.chartEditor2Module.EditorModel.prototype.setSeriesType = function(input
 };
 
 
+/**
+ * Callback function for change of theme select.
+ * @param {anychart.chartEditor2Module.controls.Select} input
+ */
 anychart.chartEditor2Module.EditorModel.prototype.setTheme = function(input) {
   delete this.model_.chart.settings['palette()'];
   this.model_.anychart['theme()'] = input.getValue();
@@ -687,7 +804,7 @@ anychart.chartEditor2Module.EditorModel.prototype.setTheme = function(input) {
 // region Editor Model API function
 /**
  * Setter for model's field state
- * @param {Array.<*>} key
+ * @param {anychart.chartEditor2Module.EditorModel.Key} key
  * @param {*} value
  * @param {boolean=} opt_noDispatch
  * @param {boolean=} opt_noRebuild
@@ -721,7 +838,7 @@ anychart.chartEditor2Module.EditorModel.prototype.setValue = function(key, value
 /**
  * Getter for input's value
  * @param {anychart.chartEditor2Module.EditorModel.Key} key
- * @return {string} Input's value
+ * @return {*} Input's value
  */
 anychart.chartEditor2Module.EditorModel.prototype.getValue = function(key) {
   var target = this.model_;
@@ -751,7 +868,7 @@ anychart.chartEditor2Module.EditorModel.prototype.getValue = function(key) {
 
 
 /**
- * @param {Array} key
+ * @param {anychart.chartEditor2Module.EditorModel.Key} key
  */
 anychart.chartEditor2Module.EditorModel.prototype.removeByKey = function(key) {
   var target = this.model_;
@@ -783,8 +900,7 @@ anychart.chartEditor2Module.EditorModel.prototype.removeByKey = function(key) {
 
 
 /**
- *
- * @param {Boolean=} opt_noRebuild
+ * @param {boolean=} opt_noRebuild
  */
 anychart.chartEditor2Module.EditorModel.prototype.dispatchUpdate = function(opt_noRebuild) {
   if (this.suspendQueue_ > 0) {
@@ -803,11 +919,17 @@ anychart.chartEditor2Module.EditorModel.prototype.dispatchUpdate = function(opt_
 };
 
 
+/**
+ * Suspends update model event dispatching on one step.
+ */
 anychart.chartEditor2Module.EditorModel.prototype.suspendDispatch = function() {
   this.suspendQueue_++;
 };
 
 
+/**
+ * suspend queue minus one.
+ */
 anychart.chartEditor2Module.EditorModel.prototype.resumeDispatch = function() {
   this.suspendQueue_--;
   if (this.suspendQueue_ == 0 && this.needDispatch_)
@@ -836,10 +958,21 @@ anychart.chartEditor2Module.EditorModel.getStringKey = function(key) {
   //     stringKey += '.';
   // }
 
-  return key[key.length - 1];
+  var result;
+  if (goog.isArray(key)) {
+    key = /** @type {Array} */(key);
+    result = /** @type {string} */(key[key.length - 1]);
+  }
+  else
+    result = String(key);
+
+  return  result;
 };
 
 
+/**
+ * @return {Object}
+ */
 anychart.chartEditor2Module.EditorModel.prototype.getModel = function() {
   return this.model_;
 };
@@ -847,11 +980,20 @@ anychart.chartEditor2Module.EditorModel.prototype.getModel = function() {
 
 
 // region Data Model
+/**
+ * @param {string} dataType
+ * @param {string} setId
+ * @return {string}
+ */
 anychart.chartEditor2Module.EditorModel.prototype.getFullId = function(dataType, setId) {
   return dataType + setId;
 };
 
 
+/**
+ * Add data set to data container.
+ * @param {Event} evt
+ */
 anychart.chartEditor2Module.EditorModel.prototype.addData = function(evt) {
   var id = this.getFullId(evt['dataType'], evt['setId']);
   if (!this.data_[id]) {
@@ -888,6 +1030,10 @@ anychart.chartEditor2Module.EditorModel.prototype.addData = function(evt) {
 };
 
 
+/**
+ * Removes data set from data container.
+ * @param {string} setFullId
+ */
 anychart.chartEditor2Module.EditorModel.prototype.removeData = function(setFullId) {
   delete this.data_[setFullId];
 
@@ -907,6 +1053,9 @@ anychart.chartEditor2Module.EditorModel.prototype.removeData = function(setFullI
 };
 
 
+/**
+ * @return {!Array.<string>}
+ */
 anychart.chartEditor2Module.EditorModel.prototype.getDataKeys = function() {
   return goog.object.getKeys(this.data_);
 };
@@ -914,10 +1063,10 @@ anychart.chartEditor2Module.EditorModel.prototype.getDataKeys = function() {
 
 /**
  * @param {string=} opt_setFullId
- * @return {!Array.<*>}
+ * @return {Array}
  */
 anychart.chartEditor2Module.EditorModel.prototype.getPreparedData = function(opt_setFullId) {
-  var data = this.isDirty() ? this.prepareData_() : this.preparedData_;
+  var data = !this.preparedData_.length ? this.prepareData_() : this.preparedData_;
   if (opt_setFullId) {
     data = goog.array.filter(data, function(item) {
       return item['setFullId'] == opt_setFullId;
@@ -930,7 +1079,7 @@ anychart.chartEditor2Module.EditorModel.prototype.getPreparedData = function(opt
 
 /**
  * @param {boolean=} opt_activeGeo
- * @return {?Array.<*>}
+ * @return {?(Array.<*>|Object)}
  */
 anychart.chartEditor2Module.EditorModel.prototype.getRawData = function(opt_activeGeo) {
   var dataSet = this.data_[opt_activeGeo ? this.getActiveGeo() : this.getActive()];
@@ -939,6 +1088,7 @@ anychart.chartEditor2Module.EditorModel.prototype.getRawData = function(opt_acti
 
 
 /**
+ * Getter for active data set id.
  * @return {?string}
  */
 anychart.chartEditor2Module.EditorModel.prototype.getActive = function() {
@@ -947,28 +1097,36 @@ anychart.chartEditor2Module.EditorModel.prototype.getActive = function() {
 
 
 /**
- * @return {string}
+ * Getter for active geo data set id.
+ * @return {?string}
  */
 anychart.chartEditor2Module.EditorModel.prototype.getActiveGeo = function() {
   return this.model_.dataSettings.activeGeo;
 };
 
 
+/**
+ * Getter for count of data sets.
+ * @return {number}
+ */
 anychart.chartEditor2Module.EditorModel.prototype.getDataSetsCount = function() {
   return this.getPreparedData().length;
 };
 
 
+/**
+ * Getter for geo id field.
+ * @return {?string}
+ */
 anychart.chartEditor2Module.EditorModel.prototype.getGeoIdField = function() {
   return this.model_.dataSettings.geoIdField;
 };
 
 
-anychart.chartEditor2Module.EditorModel.prototype.isDirty = function() {
-  return !this.preparedData_.length;
-};
-
-
+/**
+ * @return {Array}
+ * @private
+ */
 anychart.chartEditor2Module.EditorModel.prototype.prepareData_ = function() {
   var joinedSets = [];
   var singleSets = [];
@@ -1005,6 +1163,11 @@ anychart.chartEditor2Module.EditorModel.prototype.prepareData_ = function() {
 };
 
 
+/**
+ * @param {Object} dataSet
+ * @return {Object}
+ * @private
+ */
 anychart.chartEditor2Module.EditorModel.prototype.prepareDataSet_ = function(dataSet) {
   var result = {
     type: dataSet['type'],
@@ -1047,7 +1210,14 @@ anychart.chartEditor2Module.EditorModel.prototype.prepareDataSet_ = function(dat
 // endregion
 
 
+/**
+ * Is string looks like geo id string.
+ *
+ * @param {string} value
+ * @return {boolean}
+ * @private
+ */
 anychart.chartEditor2Module.EditorModel.prototype.isGeoId_ = function(value) {
   var pattern = /^[A-z]{2,3}([\W_]([A-z]{2}|\d+))?$/;
-  return new RegExp(pattern).exec(value);
+  return Boolean(new RegExp(pattern).exec(value));
 };
