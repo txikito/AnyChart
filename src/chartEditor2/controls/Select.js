@@ -56,7 +56,7 @@ anychart.chartEditor2Module.controls.Select.prototype.enterDocument = function()
 anychart.chartEditor2Module.controls.Select.prototype.onChange = function() {
   if (!this.suspendDispatch && this.editorModel && goog.isDefAndNotNull(this.getValue())) {
     if (this.callback)
-      this.editorModel[this.callback].call(this.editorModel, this);
+      this.editorModel.callbackByString(this.callback, this);
     else
       this.editorModel.setValue(this.key, this.getValue(), false, this.noRebuild);
   }

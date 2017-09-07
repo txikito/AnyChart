@@ -120,7 +120,7 @@ anychart.chartEditor2Module.GeoDataInputs.prototype.createGeoDataOptions_ = func
 /**
  * Loads geo data.
  *
- * @param {Event} evt
+ * @param {Object} evt
  * @private
  */
 anychart.chartEditor2Module.GeoDataInputs.prototype.onSelectGeoData_ = function(evt) {
@@ -174,8 +174,8 @@ anychart.chartEditor2Module.GeoDataInputs.prototype.createGeoIdFieldOptions_ = f
   if (!preparedData.length) return false;
 
   var options = [];
-  for (var key in preparedData[0]['fields']) {
-    options.push(preparedData[0]['fields'][key]['name']);
+  for (var key in preparedData[0].fields) {
+    options.push(preparedData[0].fields[key].name);
   }
   this.geoIdFieldSelect_.setOptions(options);
 

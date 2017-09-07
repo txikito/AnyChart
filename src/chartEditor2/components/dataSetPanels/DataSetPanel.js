@@ -69,9 +69,9 @@ anychart.chartEditor2Module.DataSetPanel.prototype.createDom = function() {
 
   var dom = this.getDomHelper();
   var fields = [];
-  if (goog.isArray(this.dataSet_['fields'])) {
-    for (var i = 0; i < this.dataSet_['fields'].length; i++) {
-      fields.push(dom.createDom(goog.dom.TagName.DIV, {'class': 'field'}, this.dataSet_['fields'][i]['name']));
+  if (goog.isArray(this.dataSet_.fields)) {
+    for (var i = 0; i < this.dataSet_.fields.length; i++) {
+      fields.push(dom.createDom(goog.dom.TagName.DIV, {'class': 'field'}, this.dataSet_.fields[i].name));
     }
   }
 
@@ -87,9 +87,9 @@ anychart.chartEditor2Module.DataSetPanel.prototype.createDom = function() {
 anychart.chartEditor2Module.DataSetPanel.prototype.removeDataSet = function() {
   this.dispatchEvent({
     type: anychart.chartEditor2Module.events.EventType.DATA_REMOVE,
-    setId: this.dataSet_['setId'],
-    dataType: this.dataSet_['type'],
-    setFullId: this.dataSet_['setFullId']
+    setId: this.dataSet_.setId,
+    dataType: this.dataSet_.type,
+    setFullId: this.dataSet_.setFullId
   });
 };
 
@@ -99,7 +99,7 @@ anychart.chartEditor2Module.DataSetPanel.prototype.removeDataSet = function() {
  * @return {string}
  */
 anychart.chartEditor2Module.DataSetPanel.prototype.getSetFullId = function() {
-  return this.dataSet_['setFullId'];
+  return this.dataSet_.setFullId;
 };
 
 

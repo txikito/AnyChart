@@ -58,9 +58,9 @@ anychart.chartEditor2Module.UploadedDataSetPanelList.prototype.update = function
 
   var data = this.getModel().getPreparedData();
   for(var i = 0; i < data.length; i++) {
-    if (data[i]['type'] == anychart.chartEditor2Module.EditorModel.dataType.UPLOADED) {
+    if (data[i].type == anychart.chartEditor2Module.EditorModel.dataType.UPLOADED) {
       this.panels_.push(new anychart.chartEditor2Module.UploadedDataSetPanel(data[i]));
-      this.addChild(this.panels_[i], true);
+      this.addChild(this.panels_[this.panels_.length - 1], true);
     }
   }
 

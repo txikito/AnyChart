@@ -35,7 +35,9 @@
       "entry": "anychart.chartEditor2Module.entry",
       "deps": [
         "core",
-        "ui"
+        "ui",
+        "data-adapter",
+        "binding"
       ]
     },
     "circular-gauge": {

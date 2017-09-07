@@ -125,12 +125,12 @@ anychart.chartEditor2Module.SeriesPanel.prototype.createFields = function() {
  */
 anychart.chartEditor2Module.SeriesPanel.prototype.createFieldsOptions = function() {
   var model = /** @type {anychart.chartEditor2Module.EditorModel} */(this.getModel());
-  var activeDatasetId = model.getActive();
+  var active = model.getActive();
   var preparedData = model.getPreparedData();
 
   var data;
   for (var a = preparedData.length; a--;) {
-    if (preparedData[a]['type'] + preparedData[a]['setId'] == activeDatasetId) {
+    if (preparedData[a].type + preparedData[a].setId == active) {
       data = preparedData[a];
       break;
     }
@@ -142,10 +142,10 @@ anychart.chartEditor2Module.SeriesPanel.prototype.createFieldsOptions = function
         this.fields_[i].removeItemAt(b);
       }
 
-      var dataFields = data['fields'];
+      var dataFields = data.fields;
       for (var j = 0; j < dataFields.length; j++) {
-        var caption = /*data['name'] + ' - ' + */dataFields[j]['name'];
-        var option = new goog.ui.MenuItem(caption, dataFields[j]['key']);
+        var caption = /*data['name'] + ' - ' + */dataFields[j].name;
+        var option = new goog.ui.MenuItem(caption, dataFields[j].key);
         this.fields_[i].addItem(option);
       }
       this.fields_[i].setValueByModel();

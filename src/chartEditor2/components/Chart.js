@@ -46,22 +46,19 @@ anychart.chartEditor2Module.Chart.prototype.enterDocument = function() {
 
 /** @inheritDoc */
 anychart.chartEditor2Module.Chart.prototype.update = function() {
-  var anychart = goog.dom.getWindow()['anychart'];
+  var self = this;
   var model = /** @type {anychart.chartEditor2Module.EditorModel} */(this.getModel());
   var rawData = model.getRawData();
   var settings = model.getModel();
-  var rebuild = !arguments.length || arguments[0]['rebuild'];
+  var rebuild = !arguments.length || arguments[0].rebuild;
 
   if (!settings['chart']['type'])
     return;
 
   // Global settings
   goog.object.forEach(settings['anychart'], function(value, key) {
-    //console.log("anychart settings", key, value);
-    anychart.bindingModule.exec(anychart, key, value);
+    anychart.bindingModule.exec(self.anychart, key, value);
   });
-
-  var self = this;
 
   // Chart creation
   if (rebuild && this.chart_ && typeof this.chart_['dispose'] == 'function') {
@@ -140,7 +137,7 @@ anychart.chartEditor2Module.Chart.prototype.update = function() {
   goog.object.forEach(settings['chart']['settings'], function(value, key) {
     // //console.log("chart settings", key, value);
     if (key == "palette()") {
-      value = anychart['palettes'][value];
+      value = self.anychart['palettes'][value];
     }
     anychart.bindingModule.exec(self.chart_, key, value);
   });

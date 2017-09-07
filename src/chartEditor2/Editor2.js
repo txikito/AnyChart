@@ -392,7 +392,7 @@ anychart.chartEditor2Module.Editor.prototype.nextBtnClickHandler_ = function() {
 
 
 /**
- * @param {Event} evt
+ * @param {Object} evt
  * @private
  */
 anychart.chartEditor2Module.Editor.prototype.onDataAdd_ = function(evt) {
@@ -402,21 +402,21 @@ anychart.chartEditor2Module.Editor.prototype.onDataAdd_ = function(evt) {
 
 
 /**
- * @param {Event} evt
+ * @param {Object} evt
  * @private
  */
 anychart.chartEditor2Module.Editor.prototype.onDataRemove_ = function(evt) {
-  this.getModel().removeData(evt['setFullId']);
+  this.getModel().removeData(evt.setFullId);
   this.updateProgress_();
 };
 
 
 /**
- * @param {Event} evt
+ * @param {Object} evt
  * @private
  */
 anychart.chartEditor2Module.Editor.prototype.onWait_ = function(evt) {
-  this.showWaitAnimation_(evt['wait']);
+  this.showWaitAnimation_(evt.wait);
 };
 
 
@@ -506,19 +506,20 @@ anychart.chartEditor2Module.Editor.Dialog.prototype.onBackgroundClick_ = functio
  * Constructor function for Chart Editor.
  * @return {anychart.chartEditor2Module.Editor}
  */
-anychart.ui.editor2 = function() {
+anychart.ui.editor = function() {
   return new anychart.chartEditor2Module.Editor();
 };
 
 //exports
 (function() {
-  // var proto = anychart.ui.Editor.prototype;
-  // goog.exportSymbol('anychart.ui.editor', anychart.ui.editor);
+  goog.exportSymbol('anychart.ui.editor', anychart.ui.editor);
+  var proto = anychart.chartEditor2Module.Editor.prototype;
   // proto['data'] = proto.data;
-  // proto['render'] = proto.render;
-  // proto['decorate'] = proto.decorate;
-  // proto['renderAsDialog'] = proto.renderAsDialog;
-  // proto['visible'] = proto.visible;
+  proto['render'] = proto.render;
+  proto['decorate'] = proto.decorate;
+  proto['renderAsDialog'] = proto.renderAsDialog;
+  proto['visible'] = proto.visible;
+
   // proto['listen'] = proto.listen;
   // proto['listenOnce'] = proto.listenOnce;
   // proto['unlisten'] = proto.unlisten;

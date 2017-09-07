@@ -2,6 +2,7 @@ goog.provide('anychart.chartEditor2Module.DataSelectorBase');
 
 goog.require('anychart.chartEditor2Module.Component');
 goog.require('anychart.ui.Preloader');
+goog.require('goog.dom');
 goog.require('goog.dom.forms');
 goog.require('goog.net.XhrIo');
 
@@ -200,7 +201,7 @@ anychart.chartEditor2Module.DataSelectorBase.prototype.createItem = function(ite
 /**
  * Filters list of data sets on change of filter input value.
  *
- * @param {Event} evt
+ * @param {Object} evt
  * @private
  */
 anychart.chartEditor2Module.DataSelectorBase.prototype.onFilterChange_ = function(evt) {
@@ -246,7 +247,7 @@ anychart.chartEditor2Module.DataSelectorBase.prototype.resetFilter_ = function()
 
 /**
  * Universal handler for all data set panel buttons.
- * @param {Event} evt
+ * @param {Object} evt
  * @private
  */
 anychart.chartEditor2Module.DataSelectorBase.prototype.onClickButton_ = function(evt) {
@@ -262,7 +263,7 @@ anychart.chartEditor2Module.DataSelectorBase.prototype.onClickButton_ = function
 /**
  * Loads data set.
  *
- * @param {Event} evt
+ * @param {Object} evt
  * @private
  */
 anychart.chartEditor2Module.DataSelectorBase.prototype.onClickDownload_ = function(evt) {
@@ -299,7 +300,7 @@ anychart.chartEditor2Module.DataSelectorBase.prototype.onClickDownload_ = functi
 
 
 /**
- * @param {Event} evt
+ * @param {Object} evt
  * @private
  */
 anychart.chartEditor2Module.DataSelectorBase.prototype.onClickRemove_ = function(evt) {
@@ -311,11 +312,11 @@ anychart.chartEditor2Module.DataSelectorBase.prototype.onClickRemove_ = function
 /**
  * Changes state of data set panel and updates filter.
  *
- * @param {Event} evt
+ * @param {Object} evt
  * @private
  */
 anychart.chartEditor2Module.DataSelectorBase.prototype.onRemoveData_ = function(evt) {
-  var setId = evt['setId'];
+  var setId = evt.setId;
   if (setId && this.dataIndex[setId]['state'] == anychart.chartEditor2Module.DataSelectorBase.DatasetState.LOADED) {
     this.dataIndex[setId]['state'] = anychart.chartEditor2Module.DataSelectorBase.DatasetState.NOT_LOADED;
     this.dispatchEvent({

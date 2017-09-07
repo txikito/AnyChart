@@ -38,7 +38,7 @@ anychart.chartEditor2Module.controls.Checkbox.prototype.enterDocument = function
 anychart.chartEditor2Module.controls.Checkbox.prototype.onChange = function() {
   if (!this.noDispatch && this.editorModel) {
     if (this.callback)
-      this.editorModel[this.callback].call(this.editorModel, this);
+      this.editorModel.callbackByString(this.callback, this);
     else
       this.editorModel.setValue(this.key, this.getChecked(), false, this.noRebuild);
   }

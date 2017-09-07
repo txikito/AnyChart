@@ -44,8 +44,8 @@ anychart.chartEditor2Module.UploadedDataSetPanel.prototype.createDom = function(
 anychart.chartEditor2Module.UploadedDataSetPanel.prototype.removeDataSet = function() {
   this.dispatchEvent({
     type: anychart.chartEditor2Module.events.EventType.DATA_REMOVE,
-    setId: this.dataSet_['setId'],
-    dataType: this.dataSet_['type'],
-    setFullId: this.dataSet_['setFullId']
+    setId: this.dataSet_.setId,
+    dataType: this.dataSet_.type,
+    setFullId: this.dataSet_.setFullId
   });
 };

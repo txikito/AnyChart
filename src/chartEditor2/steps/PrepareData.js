@@ -88,7 +88,7 @@ anychart.chartEditor2Module.steps.PrepareData.prototype.createDom = function() {
 
 
 /**
- * @param {Event} evt
+ * @param {Object} evt
  */
 anychart.chartEditor2Module.steps.PrepareData.prototype.onUploadButtonClick = function(evt) {
   var type = (/** @type {goog.ui.Button} */ (evt.target)).getValue();
@@ -119,7 +119,7 @@ anychart.chartEditor2Module.steps.PrepareData.prototype.openDataDialog = functio
 
 /**
  * Starts processing inputs from data dialog if pressed 'ok'.
- * @param {Event} evt
+ * @param {Object} evt
  */
 anychart.chartEditor2Module.steps.PrepareData.prototype.onCloseDataDialog = function(evt) {
   var dialog = /** @type {anychart.chartEditor2Module.DataDialog} */(evt.target);

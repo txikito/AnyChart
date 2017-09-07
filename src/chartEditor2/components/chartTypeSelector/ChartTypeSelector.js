@@ -158,11 +158,11 @@ anychart.chartEditor2Module.ChartTypeSelector.prototype.createDataSetsOptions_ =
   var field = model.getValue([['dataSettings'], 'field']);
 
   for (var i = 0; i < data.length; i++) {
-    if (data[i]['type'] == anychart.chartEditor2Module.EditorModel.dataType.GEO)
+    if (data[i].type == anychart.chartEditor2Module.EditorModel.dataType.GEO)
       continue;
 
-    var caption = data[i]['title'];
-    var setFullId = data[i]['setFullId'];
+    var caption = data[i].title;
+    var setFullId = data[i].setFullId;
     var item = new anychart.chartEditor2Module.controls.MenuItemWithTwoValues(caption, field, setFullId);
     this.activeAndFieldSelect_.addItem(item);
   }
@@ -180,15 +180,15 @@ anychart.chartEditor2Module.ChartTypeSelector.prototype.createActiveAndFieldOpti
 
   var data = /** @type {anychart.chartEditor2Module.EditorModel} */(this.getModel()).getPreparedData();
   for (var i = 0; i < data.length; i++) {
-    if (data[i]['type'] == anychart.chartEditor2Module.EditorModel.dataType.GEO)
+    if (data[i].type == anychart.chartEditor2Module.EditorModel.dataType.GEO)
       continue;
 
-    var fields = data[i]['fields'];
+    var fields = data[i].fields;
     for (var j = 0; j < fields.length; j++) {
-      var caption = data.length == 1 ? fields[j]['name'] : data[i]['title'] + ' - ' + fields[j]['name'];
+      var caption = data.length == 1 ? fields[j].name : data[i].title + ' - ' + fields[j].name;
       // var setFullId = data[i]['type'] + data[i]['setId'];
-      var setFullId = data[i]['setFullId'];
-      var item = new anychart.chartEditor2Module.controls.MenuItemWithTwoValues(caption, fields[j]['key'], setFullId);
+      var setFullId = data[i].setFullId;
+      var item = new anychart.chartEditor2Module.controls.MenuItemWithTwoValues(caption, fields[j].key, setFullId);
       this.activeAndFieldSelect_.addItem(item);
     }
   }
