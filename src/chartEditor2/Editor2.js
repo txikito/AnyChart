@@ -6,6 +6,7 @@ goog.require('anychart.chartEditor2Module.EditorModel');
 goog.require('anychart.chartEditor2Module.events');
 goog.require('anychart.chartEditor2Module.steps.PrepareData');
 goog.require('anychart.chartEditor2Module.steps.SetupChart');
+goog.require('anychart.chartEditor2Module.steps.VisualAppearance');
 goog.require('anychart.ui.Preloader');
 goog.require('anychart.ui.button.Primary');
 goog.require('anychart.ui.button.Secondary');
@@ -194,6 +195,7 @@ anychart.chartEditor2Module.Editor.prototype.createDom = function() {
   // Add steps
   this.steps_.push(new anychart.chartEditor2Module.steps.PrepareData(0));
   this.steps_.push(new anychart.chartEditor2Module.steps.SetupChart(1));
+  this.steps_.push(new anychart.chartEditor2Module.steps.VisualAppearance(2));
   for (var i = 0; i < this.steps_.length; i++) {
     this.addChildAt(this.steps_[i], i); // not render until this.setCurrentStepByIndex_() call
   }

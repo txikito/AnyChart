@@ -19,25 +19,31 @@ anychart.chartEditor2Module.Chart = function(model, opt_domHelper) {
   this.setModel(model);
 
   this.anychart = /** @type {Object} */(goog.dom.getWindow()['anychart']);
+
+  /**
+   * @type {string}
+   * @private
+   */
+  this.containerId_ = 'chart-container-' + goog.string.createUniqueString();
 };
 goog.inherits(anychart.chartEditor2Module.Chart, anychart.chartEditor2Module.Component);
 
 
 /** @inheritDoc */
 anychart.chartEditor2Module.Chart.prototype.createDom = function() {
-  goog.base(this, 'createDom');
+  anychart.chartEditor2Module.Chart.base(this, 'createDom');
+
 
   goog.dom.classlist.add(this.getElement(), 'chart-container');
   // var dom = this.getDomHelper();
 
-  this.getDomHelper().setProperties(this.getElement(), {'id': 'chart-container'});
+  this.getDomHelper().setProperties(this.getElement(), {'id': this.containerId_});
 };
 
 
 /** @inheritDoc */
 anychart.chartEditor2Module.Chart.prototype.enterDocument = function() {
-  goog.base(this, 'enterDocument');
-
+  anychart.chartEditor2Module.Chart.base(this, 'enterDocument');
   this.update();
   this.getHandler().listen(/** @type {anychart.chartEditor2Module.EditorModel} */(this.getModel()),
       anychart.chartEditor2Module.events.EventType.EDITOR_MODEL_UPDATE, this.update);
@@ -152,7 +158,18 @@ anychart.chartEditor2Module.Chart.prototype.update = function() {
       });
 
   if (rebuild) {
-    this.chart_['container']('chart-container');
+    this.chart_['container'](this.containerId_);
     this.chart_['draw']();
   }
+};
+
+
+/** @inheritDoc */
+anychart.chartEditor2Module.Chart.prototype.dispose = function() {
+  if (this.chart_ && typeof this.chart_['dispose'] == 'function') {
+    this.chart_['dispose']();
+    this.chart_ = null;
+  }
+
+  anychart.chartEditor2Module.Chart.base(this, 'dispose');
 };
