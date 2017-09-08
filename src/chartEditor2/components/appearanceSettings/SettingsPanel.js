@@ -18,7 +18,10 @@ anychart.chartEditor2Module.SettingsPanel = function(model, opt_domHelper) {
 
   this.setModel(model);
 
-  this.name_ = 'Settings Panel';
+  /**
+   * @type {string}
+   */
+  this.name = 'Settings Panel';
 };
 goog.inherits(anychart.chartEditor2Module.SettingsPanel, anychart.chartEditor2Module.Component);
 
@@ -31,14 +34,38 @@ anychart.chartEditor2Module.SettingsPanel.prototype.createDom = function() {
   goog.dom.classlist.add(element, 'settings-panel');
 
   var dom = this.getDomHelper();
-  element.appendChild(dom.createDom(goog.dom.TagName.DIV, 'inner',
-      dom.createDom(goog.dom.TagName.H4, null, this.name_)));
+
+
+  this.contentEl = dom.createDom(goog.dom.TagName.DIV, 'content');
+  element.appendChild(dom.createDom(goog.dom.TagName.DIV, 'top', dom.createDom(goog.dom.TagName.H4, 'title', this.name)));
+  element.appendChild(this.contentEl);
 };
+
+
+/** @inheritDoc */
+// anychart.chartEditor2Module.SettingsPanel.prototype.enterDocument = function() {
+//   anychart.chartEditor2Module.SettingsPanel.base(this, 'enterDocument');
+//
+//   this.update();
+//   this.getHandler().listen(/** @type {anychart.chartEditor2Module.EditorModel} */(this.editor_.getModel()),
+//       anychart.chartEditor2Module.events.EventType.EDITOR_MODEL_UPDATE, this.update);
+// };
+
 
 
 /**
  * @return {string}
  */
 anychart.chartEditor2Module.SettingsPanel.prototype.getName = function() {
-  return this.name_;
+  return this.name;
+};
+
+
+/**
+ * Checks if this panel can be enabled/disabled.
+ *
+ * @return {boolean}
+ */
+anychart.chartEditor2Module.SettingsPanel.prototype.canBeEnabled = function() {
+  return Boolean(this.key.length);
 };

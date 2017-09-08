@@ -13,7 +13,7 @@ goog.require('anychart.chartEditor2Module.SettingsPanel');
 anychart.chartEditor2Module.CreditsPanel = function(model, opt_domHelper) {
   anychart.chartEditor2Module.CreditsPanel.base(this, 'constructor', model, opt_domHelper);
 
-  this.name_ = 'Credits';
+  this.name = 'Credits';
 };
 goog.inherits(anychart.chartEditor2Module.CreditsPanel, anychart.chartEditor2Module.SettingsPanel);
 

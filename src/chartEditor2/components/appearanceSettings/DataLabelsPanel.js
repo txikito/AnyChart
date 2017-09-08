@@ -13,7 +13,7 @@ goog.require('anychart.chartEditor2Module.SettingsPanel');
 anychart.chartEditor2Module.DataLabelsPanel = function(model, opt_domHelper) {
   anychart.chartEditor2Module.DataLabelsPanel.base(this, 'constructor', model, opt_domHelper);
 
-  this.name_ = 'Data Labels';
+  this.name = 'Data Labels';
 };
 goog.inherits(anychart.chartEditor2Module.DataLabelsPanel, anychart.chartEditor2Module.SettingsPanel);
 

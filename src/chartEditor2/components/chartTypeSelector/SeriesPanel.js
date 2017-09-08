@@ -1,6 +1,6 @@
 goog.provide('anychart.chartEditor2Module.SeriesPanel');
 
-goog.require('anychart.chartEditor2Module.Component');
+goog.require('anychart.chartEditor2Module.ComponentWithKey');
 goog.require('anychart.chartEditor2Module.controls.SelectWithLabel');
 goog.require('goog.ui.Component');
 goog.require('goog.ui.MenuItem');
@@ -14,12 +14,10 @@ goog.require('goog.ui.Select');
  * @param {number} index
  * @param {goog.dom.DomHelper=} opt_domHelper Optional DOM helper; see {@link goog.ui.Component} for semantics.
  * @constructor
- * @extends {anychart.chartEditor2Module.Component}
+ * @extends {anychart.chartEditor2Module.ComponentWithKey}
  */
 anychart.chartEditor2Module.SeriesPanel = function(model, index, opt_domHelper) {
-  anychart.chartEditor2Module.SeriesPanel.base(this, 'constructor', opt_domHelper);
-
-  this.setModel(model);
+  anychart.chartEditor2Module.SeriesPanel.base(this, 'constructor', model, opt_domHelper);
 
   /**
    * @type {number}
@@ -33,7 +31,7 @@ anychart.chartEditor2Module.SeriesPanel = function(model, index, opt_domHelper) 
    */
   this.fields_ = [];
 };
-goog.inherits(anychart.chartEditor2Module.SeriesPanel, anychart.chartEditor2Module.Component);
+goog.inherits(anychart.chartEditor2Module.SeriesPanel, anychart.chartEditor2Module.ComponentWithKey);
 
 
 /** @inheritDoc */
@@ -77,17 +75,14 @@ anychart.chartEditor2Module.SeriesPanel.prototype.update = function() {
 
 /** @inheritDoc */
 anychart.chartEditor2Module.SeriesPanel.prototype.enterDocument = function() {
-  this.update();
-
-  this.getHandler().listen(/** @type {anychart.chartEditor2Module.EditorModel} */(this.getModel()),
-      anychart.chartEditor2Module.events.EventType.EDITOR_MODEL_UPDATE, this.update);
-
   if (this.close_)
     this.getHandler().listen(this.close_, goog.events.EventType.CLICK, function() {
-      /** @type {anychart.chartEditor2Module.EditorModel} */(this.getModel()).dropSeries(this.getParent().index(), this.index_);
+      var model = /** @type {anychart.chartEditor2Module.EditorModel} */(this.getModel());
+      var plotIndex = this.getParent().index();
+      model.dropSeries(plotIndex, this.index_);
     });
 
-  goog.base(this, 'enterDocument');
+  anychart.chartEditor2Module.SeriesPanel.base(this, 'enterDocument');
 };
 
 

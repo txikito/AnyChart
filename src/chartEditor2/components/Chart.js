@@ -148,14 +148,9 @@ anychart.chartEditor2Module.Chart.prototype.update = function() {
     anychart.bindingModule.exec(self.chart_, key, value);
   });
 
-  this.getHandler().listenOnce(this.chart_, 'chartdraw',
-      function() {
-        self.dispatchEvent({
-          type: anychart.chartEditor2Module.events.EventType.CHART_DRAW,
-          chart: self.chart_,
-          rebuild: rebuild
-        });
-      });
+  this.getHandler().listenOnce(this.chart_, 'chartdraw', function() {
+    model.onChartDraw(self.chart_, rebuild);
+  });
 
   if (rebuild) {
     this.chart_['container'](this.containerId_);

@@ -610,6 +610,19 @@ anychart.chartEditor2Module.EditorModel.prototype.checkSeriesFieldsCompatible = 
 
 // region Public and controls callback functions
 /**
+ *
+ * @param {Object} chart
+ * @param {boolean} rebuild
+ */
+anychart.chartEditor2Module.EditorModel.prototype.onChartDraw = function(chart, rebuild) {
+  this.dispatchEvent({
+    type: anychart.chartEditor2Module.events.EventType.CHART_DRAW,
+    chart: chart,
+    rebuild: rebuild
+  });
+};
+
+/**
  * Calls callback function by unminified method name.
  * @param {string} methodName
  * @param {...*} var_args
