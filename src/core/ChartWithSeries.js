@@ -68,7 +68,10 @@ anychart.core.ChartWithSeries = function() {
   this.dataBounds = null;
 
   anychart.core.settings.createDescriptorsMeta(this.descriptorsMeta, [
-    ['defaultSeriesType', 0, 0]
+    ['defaultSeriesType', 0, 0],
+    ['pointWidth', anychart.ConsistencyState.SERIES_CHART_SERIES, anychart.Signal.NEEDS_REDRAW, 0, this.invalidateWidthBasedSeries],
+    ['maxPointWidth', anychart.ConsistencyState.SERIES_CHART_SERIES, anychart.Signal.NEEDS_REDRAW, 0, this.invalidateWidthBasedSeries],
+    ['minPointLength', anychart.ConsistencyState.SERIES_CHART_SERIES, anychart.Signal.NEEDS_REDRAW, 0, this.resetSeriesStack]
   ]);
 };
 goog.inherits(anychart.core.ChartWithSeries, anychart.core.SeparateChart);
@@ -200,6 +203,21 @@ anychart.core.ChartWithSeries.PROPERTY_DESCRIPTORS = (function() {
       anychart.enums.PropertyHandlerType.SINGLE_ARG,
       'defaultSeriesType',
       seriesTypeNormalizer);
+  anychart.core.settings.createDescriptor(
+      map,
+      anychart.enums.PropertyHandlerType.SINGLE_ARG,
+      'pointWidth',
+      anychart.utils.normalizeNumberOrPercent);
+  anychart.core.settings.createDescriptor(
+      map,
+      anychart.enums.PropertyHandlerType.SINGLE_ARG,
+      'maxPointWidth',
+      anychart.utils.normalizeNumberOrPercent);
+  anychart.core.settings.createDescriptor(
+      map,
+      anychart.enums.PropertyHandlerType.SINGLE_ARG,
+      'minPointLength',
+      anychart.utils.normalizeNumberOrPercent);
 
   return map;
 })();
@@ -575,6 +593,19 @@ anychart.core.ChartWithSeries.prototype.minBubbleSize = function(opt_value) {
     return this;
   }
   return this.minBubbleSize_;
+};
+
+
+/**
+ * Resets series shared stack.
+ */
+anychart.core.ChartWithSeries.prototype.resetSeriesStack = function() {
+  for (var i = 0; i < this.seriesList.length; i++) {
+    var series = this.seriesList[i];
+    if (series)
+      series.resetSharedStack();
+  }
+  this.invalidateWidthBasedSeries();
 };
 
 
@@ -1071,6 +1102,7 @@ anychart.core.ChartWithSeries.prototype.drawSeries = function(opt_topAxisPadding
       this.seriesList[i].draw();
     }
     this.afterSeriesDraw();
+    this.resetSeriesStack();
 
     this.markConsistent(anychart.ConsistencyState.SERIES_CHART_SERIES);
     anychart.core.Base.resumeSignalsDispatchingFalse(this.seriesList);

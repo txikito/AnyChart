@@ -838,7 +838,10 @@ anychart.core.ChartWithOrthogonalScales.prototype.calculateYScales = function() 
               nextNegative: 0,
               prevMissing: false,
               nextMissing: false,
-              missing: false
+              missing: false,
+              shared: {
+                currAnchor: NaN
+              }
             });
           }
         }
@@ -854,6 +857,7 @@ anychart.core.ChartWithOrthogonalScales.prototype.calculateYScales = function() 
             for (j = firstIndex; j <= lastIndex; j++) {
               point = data[j];
               stackVal = stack[j - firstIndex];
+              point.meta['shared'] = stackVal.shared;
               point.meta['stackedMissing'] = stackVal.missing;
               if (anychart.core.series.filterPointAbsenceReason(point.meta['missing'],
                       anychart.core.series.PointAbsenceReason.ANY_BUT_RANGE)) {
