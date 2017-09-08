@@ -48,7 +48,7 @@ anychart.chartEditor2Module.ChartTypeSelector.prototype.createDom = function() {
 
   this.chartTypeSelect_ = new anychart.chartEditor2Module.controls.ChartTypeSelect();
   this.chartTypeSelect_.setEditorModel(/** @type {anychart.chartEditor2Module.EditorModel} */(this.getModel()), [['chart'], 'type'], 'setChartType');
-  this.chartTypeSelect_.setOptions(goog.object.getValues(anychart.chartEditor2Module.EditorModel.chartTypes));
+  this.chartTypeSelect_.initOptions(goog.object.getValues(anychart.chartEditor2Module.EditorModel.chartTypes));
   this.addChild(this.chartTypeSelect_, true);
 
   this.geoDataInputs_ = new anychart.chartEditor2Module.GeoDataInputs(/** @type {anychart.chartEditor2Module.EditorModel} */(this.getModel()));
@@ -62,7 +62,7 @@ anychart.chartEditor2Module.ChartTypeSelector.prototype.update = function() {
   var chartType = model.getValue([['chart'], 'type']);
   var stackMode = model.getValue([['chart'], ['settings'], 'yScale().stackMode()']);
   this.chartTypeSelect_.setValueByModel(stackMode);
-  this.typeIcon_.setAttribute('src', this.chartTypeSelect_.getIcon());
+  this.typeIcon_.setAttribute('src', this.chartTypeSelect_.getChartIcon());
 
   if (this.activeAndFieldSelect_) {
     this.removeChild(this.activeAndFieldSelect_, true);

@@ -4,7 +4,7 @@ goog.require('anychart.chartEditor2Module.ComponentWithKey');
 goog.require('anychart.chartEditor2Module.EditorModel');
 goog.require('anychart.chartEditor2Module.controls.Checkbox');
 goog.require('anychart.chartEditor2Module.controls.Input');
-goog.require('anychart.chartEditor2Module.controls.Select');
+goog.require('anychart.chartEditor2Module.select.Base');
 goog.require('anychart.chartEditor2Module.controls.SelectPalettes');
 
 
@@ -37,7 +37,7 @@ anychart.chartEditor2Module.BasicSettings.prototype.createDom = function() {
   goog.dom.classlist.add(this.getElement(), 'basic-settings');
   var dom = this.getDomHelper();
 
-  this.themeSelect = new anychart.chartEditor2Module.controls.Select("-- Choose theme --");
+  this.themeSelect = new anychart.chartEditor2Module.select.Base("-- Choose theme --");
   this.paletteSelect = new anychart.chartEditor2Module.controls.SelectPalettes("-- Choose palette --");
   this.addChild(this.themeSelect, true);
   this.addChild(this.paletteSelect, true);
@@ -65,7 +65,8 @@ anychart.chartEditor2Module.BasicSettings.prototype.onChartDraw = function(evt) 
       return item['palette'];
     });
 
-    this.themeSelect.setOptions(goog.object.getKeys(themes), 'defaultTheme');
+    this.themeSelect.setOptions(goog.object.getKeys(themes));
+    this.themeSelect.updateOptions();
     this.themeSelect.setEditorModel(model, [['anychart'], 'theme()'], 'setTheme', goog.dom.getWindow()['anychart']);
 
     var realPalettes = goog.dom.getWindow()['anychart']['palettes'];
@@ -81,7 +82,8 @@ anychart.chartEditor2Module.BasicSettings.prototype.onChartDraw = function(evt) 
       this.paletteSelect.hide();
     } else {
       this.paletteSelect.show();
-      this.paletteSelect.setOptions(paletteNames, 'defaultPalette');
+      this.paletteSelect.setOptions(paletteNames);
+      this.paletteSelect.updateOptions('defaultPalette');
       this.paletteSelect.setEditorModel(model, [['chart'], ['settings'], 'palette()'], void 0, evt.chart);
     }
 

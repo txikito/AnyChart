@@ -1,6 +1,6 @@
 goog.provide('anychart.chartEditor2Module.controls.SelectPalettes');
 
-goog.require('anychart.chartEditor2Module.controls.Select');
+goog.require('anychart.chartEditor2Module.select.Base');
 
 
 
@@ -19,12 +19,12 @@ goog.require('anychart.chartEditor2Module.controls.Select');
  *     decorate the menu; defaults to {@link goog.ui.MenuRenderer}.
  *
  * @constructor
- * @extends {anychart.chartEditor2Module.controls.Select}
+ * @extends {anychart.chartEditor2Module.select.Base}
  */
 anychart.chartEditor2Module.controls.SelectPalettes = function(opt_caption, opt_menu, opt_renderer, opt_domHelper, opt_menuRenderer) {
   anychart.chartEditor2Module.controls.SelectPalettes.base(this, 'constructor', opt_caption, opt_menu, opt_renderer, opt_domHelper, opt_menuRenderer);
 };
-goog.inherits(anychart.chartEditor2Module.controls.SelectPalettes, anychart.chartEditor2Module.controls.Select);
+goog.inherits(anychart.chartEditor2Module.controls.SelectPalettes, anychart.chartEditor2Module.select.Base);
 
 
 /**

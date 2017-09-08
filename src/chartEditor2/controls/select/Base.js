@@ -77,7 +77,6 @@ anychart.chartEditor2Module.select.Base.prototype.setOptions = function(options)
   var updateCaption = false;
   for (var i = 0; i < options.length; i++) {
     var option = options[i];
-    var caption;
     if (option) {
       if (goog.isArray(option)) {
         if (!updateCaption) {
@@ -143,9 +142,10 @@ anychart.chartEditor2Module.select.Base.prototype.createDom = function() {
 
 
 /**
- * Update options.
+ *
+ * @param {string=} opt_default
  */
-anychart.chartEditor2Module.select.Base.prototype.updateOptions = function() {
+anychart.chartEditor2Module.select.Base.prototype.updateOptions = function(opt_default) {
   var optionsCount = this.options_.length;
   var count = Math.max(this.getChildCount(), optionsCount);
 
@@ -170,6 +170,9 @@ anychart.chartEditor2Module.select.Base.prototype.updateOptions = function() {
       optionItem.setVisible(false);
     }
   }
+
+  if (opt_default && !this.getValue())
+    this.setValue(opt_default);
 };
 
 
@@ -345,27 +348,26 @@ anychart.chartEditor2Module.select.Base.prototype.show = function() {
  * @override
  * @suppress {visibility}
  */
-// anychart.chartEditor2Module.select.Base.prototype.updateCaption = function() {
-//   var selectedIndex = this.getSelectedIndex();
-//   var item = this.getSelectedItem();
-//   var option = this.options_[selectedIndex];
-//   var caption = this.captions_[selectedIndex];
-//   var icon = this.icons_[selectedIndex];
-//   var content = this.createContentElements(option, caption, icon);
-//
-//   this.setContent(content);
-//
-//   var contentElement = this.getRenderer().getContentElement(this.getElement());
-//   // Despite the ControlRenderer interface indicating the return value is
-//   // {Element}, many renderers cast element.firstChild to {Element} when it is
-//   // really {Node}. Checking tagName verifies this is an {!Element}.
-//   if (contentElement && this.getDomHelper().isElement(contentElement)) {
-//     if (this.initialAriaLabel_ == null) {
-//       this.initialAriaLabel_ = goog.a11y.aria.getLabel(contentElement);
-//     }
-//     var itemElement = item ? item.getElement() : null;
-//     goog.a11y.aria.setLabel(contentElement, itemElement ?
-//         goog.a11y.aria.getLabel(itemElement) : this.initialAriaLabel_);
-//     this.updateAriaActiveDescendant_();
-//   }
-// };
+anychart.chartEditor2Module.select.Base.prototype.updateCaption = function() {
+  var selectedIndex = this.getSelectedIndex();
+  var item = this.getSelectedItem();
+  var option = this.options_[selectedIndex];
+  var caption = this.captions_[selectedIndex];
+  var icon = this.icons_[selectedIndex];
+  var content = this.createContentElements(option, caption, icon);
+  this.setContent(content);
+
+  var contentElement = this.getRenderer().getContentElement(this.getElement());
+  // Despite the ControlRenderer interface indicating the return value is
+  // {Element}, many renderers cast element.firstChild to {Element} when it is
+  // really {Node}. Checking tagName verifies this is an {!Element}.
+  if (contentElement && this.getDomHelper().isElement(contentElement)) {
+    if (this.initialAriaLabel_ == null) {
+      this.initialAriaLabel_ = goog.a11y.aria.getLabel(contentElement);
+    }
+    var itemElement = item ? item.getElement() : null;
+    goog.a11y.aria.setLabel(contentElement, itemElement ?
+        goog.a11y.aria.getLabel(itemElement) : this.initialAriaLabel_);
+    this.updateAriaActiveDescendant_();
+  }
+};

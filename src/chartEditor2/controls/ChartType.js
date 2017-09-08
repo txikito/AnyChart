@@ -1,7 +1,7 @@
 goog.provide('anychart.chartEditor2Module.controls.ChartTypeSelect');
 
 goog.require('anychart.chartEditor2Module.controls.MenuItemWithTwoValues');
-goog.require('anychart.chartEditor2Module.controls.Select');
+goog.require('anychart.chartEditor2Module.select.Base');
 
 
 
@@ -20,7 +20,7 @@ goog.require('anychart.chartEditor2Module.controls.Select');
  *     decorate the menu; defaults to {@link goog.ui.MenuRenderer}.
  *
  * @constructor
- * @extends {anychart.chartEditor2Module.controls.Select}
+ * @extends {anychart.chartEditor2Module.select.Base}
  */
 anychart.chartEditor2Module.controls.ChartTypeSelect = function(opt_caption, opt_menu, opt_renderer, opt_domHelper, opt_menuRenderer) {
   anychart.chartEditor2Module.controls.ChartTypeSelect.base(this, 'constructor', opt_caption, opt_menu, opt_renderer, opt_domHelper, opt_menuRenderer);
@@ -29,27 +29,34 @@ anychart.chartEditor2Module.controls.ChartTypeSelect = function(opt_caption, opt
    * @type {Array}
    * @private
    */
-  this.options_ = [];
+  this.extendedOptions_ = [];
 };
-goog.inherits(anychart.chartEditor2Module.controls.ChartTypeSelect, anychart.chartEditor2Module.controls.Select);
+goog.inherits(anychart.chartEditor2Module.controls.ChartTypeSelect, anychart.chartEditor2Module.select.Base);
 
 
 /** @inheritDoc */
 anychart.chartEditor2Module.controls.ChartTypeSelect.prototype.createDom = function() {
-  goog.base(this, 'createDom');
+  anychart.chartEditor2Module.controls.ChartTypeSelect.base(this, 'createDom');
 
-  for(var i = 0; i < this.options_.length; i++) {
-    var item = new anychart.chartEditor2Module.controls.MenuItemWithTwoValues(this.options_[i]['name'], this.options_[i]['value'], this.options_[i]['stackMode']);
+  var options = [];
+  for(var i = 0; i < this.extendedOptions_.length; i++) {
+    options.push([this.extendedOptions_[i]['name'], this.extendedOptions_[i]['value']]);
+    var item = new anychart.chartEditor2Module.controls.MenuItemWithTwoValues(
+        this.extendedOptions_[i]['name'],
+        this.extendedOptions_[i]['value'],
+        this.extendedOptions_[i]['stackMode']);
+
     this.addItem(item);
   }
+  this.setOptions(options);
 
-  goog.dom.classlist.add(this.getElement(), 'type-select');
+  this.addClassName('type-select');
 };
 
 
 /** @inheritDoc */
-anychart.chartEditor2Module.controls.ChartTypeSelect.prototype.setOptions = function(options, opt_default) {
-  this.options_ = options;
+anychart.chartEditor2Module.controls.ChartTypeSelect.prototype.initOptions = function(options) {
+  this.extendedOptions_ = options;
 };
 
 
@@ -57,7 +64,7 @@ anychart.chartEditor2Module.controls.ChartTypeSelect.prototype.setOptions = func
  * Return icon url
  * @return {string}
  */
-anychart.chartEditor2Module.controls.ChartTypeSelect.prototype.getIcon = function() {
+anychart.chartEditor2Module.controls.ChartTypeSelect.prototype.getChartIcon = function() {
   var i = this.getSelectedIndex() >= 0 ? this.getSelectedIndex() : 0;
-  return 'http://www.anychart.com/_design/img/upload/charts/types/' + this.options_[i]['icon'];
+  return 'http://www.anychart.com/_design/img/upload/charts/types/' + this.extendedOptions_[i]['icon'];
 };
