@@ -45,7 +45,7 @@ goog.inherits(anychart.chartEditor2Module.controls.Select, goog.ui.Select);
 
 /** @inheritDoc */
 anychart.chartEditor2Module.controls.Select.prototype.enterDocument = function() {
-  goog.base(this, 'enterDocument');
+  anychart.chartEditor2Module.controls.Select.base(this, 'enterDocument');
   this.listen(goog.ui.Component.EventType.CHANGE, this.onChange);
 };
 

@@ -39,6 +39,16 @@ anychart.chartEditor2Module.ComponentWithKey.prototype.enterDocument = function(
 
 
 /**
+ * Setter for model key.
+ *
+ * @param {anychart.chartEditor2Module.EditorModel.Key} key
+ */
+anychart.chartEditor2Module.ComponentWithKey.prototype.setKey = function(key) {
+  this.key = key;
+};
+
+
+/**
  * Getter for model key.
  *
  * @param {(string|Array)=} opt_completion

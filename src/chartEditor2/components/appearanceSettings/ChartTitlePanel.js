@@ -1,6 +1,7 @@
 goog.provide('anychart.chartEditor2Module.ChartTitlePanel');
 
 goog.require('anychart.chartEditor2Module.SettingsPanel');
+goog.require('anychart.chartEditor2Module.settings.Title');
 
 
 
@@ -23,4 +24,25 @@ goog.inherits(anychart.chartEditor2Module.ChartTitlePanel, anychart.chartEditor2
 /** @inheritDoc */
 anychart.chartEditor2Module.ChartTitlePanel.prototype.createDom = function() {
   anychart.chartEditor2Module.ChartTitlePanel.base(this, 'createDom');
+
+  var title = new anychart.chartEditor2Module.settings.Title();
+  title.allowEnabled(false);
+  title.setKey([['chart'], ['settings'], 'title()']);
+  title.setPositionKey('orientation()');
+  this.addChild(title, true);
+
+  this.title_ = title;
 };
+
+
+/** @inheritDoc */
+anychart.chartEditor2Module.ChartTitlePanel.prototype.onChartDraw = function(evt) {
+  var model = /** @type {anychart.chartEditor2Module.EditorModel} */(this.getModel());
+
+  if (evt.rebuild) {
+
+  }
+
+  anychart.chartEditor2Module.ChartTitlePanel.base(this, 'onChartDraw', evt);
+};
+
