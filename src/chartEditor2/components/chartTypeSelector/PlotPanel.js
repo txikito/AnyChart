@@ -1,6 +1,6 @@
 goog.provide('anychart.chartEditor2Module.PlotPanel');
 
-goog.require('anychart.chartEditor2Module.Component');
+goog.require('anychart.chartEditor2Module.ComponentWithKey');
 goog.require('anychart.chartEditor2Module.SeriesPanel');
 goog.require('anychart.chartEditor2Module.controls.MenuItemWithTwoValues');
 goog.require('anychart.chartEditor2Module.controls.SelectWithLabel');
@@ -16,12 +16,10 @@ goog.require('goog.ui.Component');
  * @param {number} index
  * @param {goog.dom.DomHelper=} opt_domHelper Optional DOM helper; see {@link goog.ui.Component} for semantics.
  * @constructor
- * @extends {anychart.chartEditor2Module.Component}
+ * @extends {anychart.chartEditor2Module.ComponentWithKey}
  */
 anychart.chartEditor2Module.PlotPanel = function(model, index, opt_domHelper) {
-  anychart.chartEditor2Module.PlotPanel.base(this, 'constructor', opt_domHelper);
-
-  this.setModel(model);
+  anychart.chartEditor2Module.PlotPanel.base(this, 'constructor', model, opt_domHelper);
 
   /**
    * @type {number}
@@ -35,7 +33,7 @@ anychart.chartEditor2Module.PlotPanel = function(model, index, opt_domHelper) {
    */
   this.series_ = [];
 };
-goog.inherits(anychart.chartEditor2Module.PlotPanel, anychart.chartEditor2Module.Component);
+goog.inherits(anychart.chartEditor2Module.PlotPanel, anychart.chartEditor2Module.ComponentWithKey);
 
 
 /** @inheritDoc */
@@ -90,11 +88,6 @@ anychart.chartEditor2Module.PlotPanel.prototype.update = function() {
 
 /** @inheritDoc */
 anychart.chartEditor2Module.PlotPanel.prototype.enterDocument = function() {
-  this.update();
-
-  this.getHandler().listen(/** @type {anychart.chartEditor2Module.EditorModel} */(this.getModel()),
-      anychart.chartEditor2Module.events.EventType.EDITOR_MODEL_UPDATE, this.update);
-
   if (this.close_)
     this.getHandler().listen(this.close_, goog.events.EventType.CLICK, function() {
       /** @type {anychart.chartEditor2Module.EditorModel} */(this.getModel()).dropPlot(this.index_);

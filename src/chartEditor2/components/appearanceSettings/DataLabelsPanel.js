@@ -14,6 +14,8 @@ anychart.chartEditor2Module.DataLabelsPanel = function(model, opt_domHelper) {
   anychart.chartEditor2Module.DataLabelsPanel.base(this, 'constructor', model, opt_domHelper);
 
   this.name = 'Data Labels';
+
+  this.key = [['chart'], ['settings'], 'labels().enabled()'];
 };
 goog.inherits(anychart.chartEditor2Module.DataLabelsPanel, anychart.chartEditor2Module.SettingsPanel);
 

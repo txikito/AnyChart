@@ -27,7 +27,7 @@ goog.inherits(anychart.chartEditor2Module.controls.Checkbox, goog.ui.Checkbox);
 
 /** @inheritDoc */
 anychart.chartEditor2Module.controls.Checkbox.prototype.enterDocument = function() {
-  goog.base(this, 'enterDocument');
+  anychart.chartEditor2Module.controls.Checkbox.base(this, 'enterDocument');
   this.listen(goog.ui.Component.EventType.CHANGE, this.onChange);
 };
 

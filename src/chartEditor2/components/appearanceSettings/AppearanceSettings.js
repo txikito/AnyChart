@@ -1,5 +1,6 @@
 goog.provide('anychart.chartEditor2Module.AppearanceSettings');
 
+goog.require('anychart.chartEditor2Module.ChartTitlePanel');
 goog.require('anychart.chartEditor2Module.Component');
 goog.require('anychart.chartEditor2Module.CreditsPanel');
 goog.require('anychart.chartEditor2Module.DataLabelsPanel');
@@ -21,6 +22,7 @@ anychart.chartEditor2Module.AppearanceSettings = function(model, opt_domHelper) 
   this.setModel(model);
 
   this.panels_ = [
+    {classFunc: anychart.chartEditor2Module.ChartTitlePanel, instance: null},
     {classFunc: anychart.chartEditor2Module.LegendPanel, instance: null},
     {classFunc: anychart.chartEditor2Module.DataLabelsPanel, instance: null},
     {classFunc: anychart.chartEditor2Module.CreditsPanel, instance: null}
@@ -100,7 +102,6 @@ anychart.chartEditor2Module.AppearanceSettings.prototype.update = function() {
 anychart.chartEditor2Module.AppearanceSettings.prototype.onClickCategoryButton_ = function(evt) {
   var index = Number(evt.currentTarget.getAttribute('data-index'));
   if (this.currentPanel_ != index) {
-    console.log("Switch to ", index);
     this.currentPanel_ = index;
 
     for (var i = 0; i < this.panels_.length; i++) {

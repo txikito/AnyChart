@@ -14,6 +14,8 @@ anychart.chartEditor2Module.CreditsPanel = function(model, opt_domHelper) {
   anychart.chartEditor2Module.CreditsPanel.base(this, 'constructor', model, opt_domHelper);
 
   this.name = 'Credits';
+
+  this.key = [['chart'], ['settings'], 'credits().enabled()'];
 };
 goog.inherits(anychart.chartEditor2Module.CreditsPanel, anychart.chartEditor2Module.SettingsPanel);
 
