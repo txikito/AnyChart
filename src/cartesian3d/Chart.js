@@ -604,7 +604,7 @@ anychart.cartesian3dModule.Chart.prototype.prepare3d = function() {
  */
 anychart.cartesian3dModule.Chart.prototype.get3DSeriesCount_ = function() {
   return goog.array.count(this.seriesList, function(series) {
-    return series && series.enabled() && series.check(anychart.core.drawers.Capabilities.IS_3D_BASED);
+    return !!(series && series.enabled() && series.check(anychart.core.drawers.Capabilities.IS_3D_BASED));
   });
 };
 
