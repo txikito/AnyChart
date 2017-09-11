@@ -22,9 +22,11 @@ goog.mixin(goog.global['anychart']['themes']['defaultTheme'], {
         }
       },
       'line': {
-        'fill': anychart.core.defaultTheme.returnSourceColor,
-        'hoverFill': anychart.core.defaultTheme.returnLightenSourceColor,
-        'selectFill': anychart.core.defaultTheme.defaultSelectSolidColor
+      },
+      'line2d': {
+        'stroke': anychart.core.defaultTheme.returnSourceColor,
+        'hoverStroke': anychart.core.defaultTheme.returnLightenSourceColor,
+        'selectStroke': anychart.core.defaultTheme.defaultSelectSolidColor
       }
     }
   },

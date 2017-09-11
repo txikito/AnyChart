@@ -1027,7 +1027,7 @@ anychart.themes.merging.mergingMap_ = (function() {
         'bullet',
         'map',
         'sparkline',
-        [['cartesian', 'pieFunnelPyramid', 'gantt'], 'Base'],
+        [[['cartesian', ['', '3d']], 'pieFunnelPyramid', 'gantt'], 'Base'],
         ['stock', ['', '.defaultPlotSettings']],
         [['heat', 'tree'], 'Map'],
         [['circular', 'linear'], 'Gauge'],
@@ -1173,7 +1173,9 @@ anychart.themes.merging.mergingMap_ = (function() {
         ['cartesian3dBase.defaultSeriesSettings.', [
           'bar',
           'column',
-          'area'
+          'area',
+          'line',
+          'line2d'
         ]]
       ]
     },

@@ -12,9 +12,11 @@ goog.require('anychart.cartesian3dModule.drawers.Column');
 goog.require('anychart.cartesian3dModule.drawers.Line');
 goog.require('anychart.core.CartesianBase');
 goog.require('anychart.core.I3DProvider');
+goog.require('anychart.core.drawers.Line');
 goog.require('anychart.core.reporting');
 goog.require('anychart.core.settings');
 goog.require('anychart.enums');
+goog.require('goog.array');
 goog.require('goog.color');
 
 
@@ -335,6 +337,18 @@ anychart.cartesian3dModule.Chart.prototype.seriesConfig = (function() {
     anchoredPositionTop: 'value',
     anchoredPositionBottom: 'value'
   };
+  res[anychart.enums.Cartesian3dSeriesType.LINE_2D] = {
+    drawerType: anychart.enums.SeriesDrawerTypes.LINE,
+    shapeManagerType: anychart.enums.ShapeManagerTypes.PER_SERIES,
+    shapesConfig: [
+      anychart.core.shapeManagers.pathStrokeConfig
+    ],
+    secondaryShapesConfig: null,
+    postProcessor: null,
+    capabilities: capabilities | anychart.core.series.Capabilities.ALLOW_ERROR,
+    anchoredPositionTop: 'value',
+    anchoredPositionBottom: 'value'
+  };
   return res;
 })();
 anychart.core.ChartWithSeries.generateSeriesConstructors(anychart.cartesian3dModule.Chart, anychart.cartesian3dModule.Chart.prototype.seriesConfig);
@@ -364,6 +378,12 @@ anychart.chartTypesMap[anychart.enums.ChartTypes.CARTESIAN_3D] = anychart.cartes
 
 
 /** @inheritDoc */
+anychart.cartesian3dModule.Chart.prototype.normalizeSeriesType = function(type) {
+  return anychart.enums.normalizeCartesian3dSeriesType(type);
+};
+
+
+/** @inheritDoc */
 anychart.cartesian3dModule.Chart.prototype.isMode3d = function() {
   return true;
 };
@@ -379,7 +399,7 @@ anychart.cartesian3dModule.Chart.prototype.getX3DDistributionShift = function(se
   if (seriesIsStacked || !this.getOption('zDistribution')) {
     x3dShift = 0;
   } else {
-    var seriesCount = this.getSeriesCount();
+    var seriesCount = this.get3DSeriesCount_();
     var drawIndex = seriesCount - seriesIndex - 1;
     x3dShift = (this.getX3DShift(seriesIsStacked) + this.zPaddingXShift) * drawIndex;
   }
@@ -397,7 +417,7 @@ anychart.cartesian3dModule.Chart.prototype.getY3DDistributionShift = function(se
   if (seriesIsStacked || !this.getOption('zDistribution')) {
     y3dShift = 0;
   } else {
-    var seriesCount = this.getSeriesCount();
+    var seriesCount = this.get3DSeriesCount_();
     var drawIndex = seriesCount - seriesIndex - 1;
     y3dShift = (this.getY3DShift(seriesIsStacked) + this.zPaddingYShift) * drawIndex;
   }
@@ -410,7 +430,7 @@ anychart.cartesian3dModule.Chart.prototype.getY3DDistributionShift = function(se
  * @return {number}
  */
 anychart.cartesian3dModule.Chart.prototype.getX3DShift = function(seriesIsStacked) {
-  var seriesCount = this.getSeriesCount();
+  var seriesCount = this.get3DSeriesCount_();
   var zPaddingShift = this.zPaddingXShift;
   var seriesShift = this.x3dShift;
   if (!seriesIsStacked && this.getOption('zDistribution')) {
@@ -425,7 +445,7 @@ anychart.cartesian3dModule.Chart.prototype.getX3DShift = function(seriesIsStacke
  * @return {number}
  */
 anychart.cartesian3dModule.Chart.prototype.getY3DShift = function(seriesIsStacked) {
-  var seriesCount = this.getSeriesCount();
+  var seriesCount = this.get3DSeriesCount_();
   var zPaddingShift = this.zPaddingYShift;
   var seriesShift = this.y3dShift;
   if (!seriesIsStacked && this.getOption('zDistribution')) {
@@ -570,7 +590,7 @@ anychart.cartesian3dModule.Chart.prototype.prepare3d = function() {
         while (iterator.advance()) {
           this.setSeriesPointZIndex_(/** @type {anychart.core.series.Cartesian} */(series));
         }
-      } else {
+      } else if (series.supportsStack()) {
         this.lastEnabledAreaSeriesMap[series.getScalesPairIdentifier()] = i;
       }
     }
@@ -578,11 +598,22 @@ anychart.cartesian3dModule.Chart.prototype.prepare3d = function() {
 };
 
 
+/**
+ * @return {number}
+ * @private
+ */
+anychart.cartesian3dModule.Chart.prototype.get3DSeriesCount_ = function() {
+  return goog.array.count(this.seriesList, function(series) {
+    return series && series.enabled() && series.check(anychart.core.drawers.Capabilities.IS_3D_BASED);
+  });
+};
+
+
 /** @inheritDoc */
 anychart.cartesian3dModule.Chart.prototype.getContentAreaBounds = function(bounds) {
   var contentAreaBounds = bounds.clone().round();
   var boundsWithoutAxes = this.getBoundsWithoutAxes(contentAreaBounds);
-  var seriesCount = this.getSeriesCount();
+  var seriesCount = this.get3DSeriesCount_();
 
   var zAngle = /** @type {number} */ (this.getOption('zAngle'));
   var zAspect = /** @type {number} */ (this.getOption('zAspect'));
@@ -743,6 +774,8 @@ anychart.cartesian3dModule.Chart.prototype.setupByJSON = function(config, opt_de
   // proto['area'] = proto.area;
   // proto['bar'] = proto.bar;
   // proto['column'] = proto.column;
+  // proto['line'] = proto.line;
+  // proto['line2d'] = proto.line2d;
   proto['lineMarker'] = proto.lineMarker;
   proto['rangeMarker'] = proto.rangeMarker;
   proto['textMarker'] = proto.textMarker;

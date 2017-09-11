@@ -1681,7 +1681,8 @@ anychart.enums.Cartesian3dSeriesType = {
   AREA: 'area',
   BAR: 'bar',
   COLUMN: 'column',
-  LINE: 'line'
+  LINE: 'line',
+  LINE_2D: 'line2d'
 };
 
 

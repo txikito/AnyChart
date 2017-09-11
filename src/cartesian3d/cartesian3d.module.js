@@ -106,3 +106,4 @@ anychart.chartTypesMap[anychart.enums.ChartTypes.AREA_3D] = anychart.area3d;
 goog.exportSymbol('anychart.area3d', anychart.area3d);
 goog.exportSymbol('anychart.bar3d', anychart.bar3d);
 goog.exportSymbol('anychart.column3d', anychart.column3d);
+goog.exportSymbol('anychart.line3d', anychart.line3d);
