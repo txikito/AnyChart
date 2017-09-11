@@ -35,16 +35,18 @@ anychart.chartEditor2Module.select.Align.prototype.setOrientationKey = function(
 };
 
 
-/** @inheritDoc */
-anychart.chartEditor2Module.select.Align.prototype.update = function(model) {
-  //todo: rework, need silently update selects
+/**
+ * Icons of thyis select depend of value of orientation select value.
+ * @param {string} orientationValue
+ */
+anychart.chartEditor2Module.select.Align.prototype.updateIcons = function(orientationValue) {
+  // debugger;
   goog.events.unlisten(this, goog.ui.Component.EventType.CHANGE, this.onChange, false, this);
-  var orientation = anychart.chartEditor2Module.Controller.getset(model, this.orientationKey_);
-  if (this.orientation_ != orientation) {
-    this.orientation_ = orientation;
-    if (orientation == 'top' || orientation == 'bottom') {
+  if (this.orientation_ != orientationValue) {
+    this.orientation_ = orientationValue;
+    if (orientationValue == 'top' || orientationValue == 'bottom') {
       this.setIcons(['ac ac-position-left', 'ac ac-position-center', 'ac ac-position-right']);
-    } else if (orientation == 'left') {
+    } else if (orientationValue == 'left') {
       this.setIcons(['ac ac-position-bottom', 'ac ac-position-center2', 'ac ac-position-top']);
     } else {
       this.setIcons(['ac ac-position-top', 'ac ac-position-center2', 'ac ac-position-bottom']);
@@ -52,6 +54,4 @@ anychart.chartEditor2Module.select.Align.prototype.update = function(model) {
     this.updateOptions();
   }
   goog.events.listen(this, goog.ui.Component.EventType.CHANGE, this.onChange, false, this);
-
-  anychart.chartEditor2Module.select.Align.base(this, 'update', model);
 };

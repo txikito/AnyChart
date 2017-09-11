@@ -27,6 +27,7 @@ anychart.chartEditor2Module.ChartTitlePanel.prototype.createDom = function() {
 
   var title = new anychart.chartEditor2Module.settings.Title();
   title.allowEnabled(false);
+  title.setModel(this.getModel());
   title.setKey([['chart'], ['settings'], 'title()']);
   title.setPositionKey('orientation()');
   this.addChild(title, true);
@@ -37,11 +38,8 @@ anychart.chartEditor2Module.ChartTitlePanel.prototype.createDom = function() {
 
 /** @inheritDoc */
 anychart.chartEditor2Module.ChartTitlePanel.prototype.onChartDraw = function(evt) {
-  var model = /** @type {anychart.chartEditor2Module.EditorModel} */(this.getModel());
-
-  if (evt.rebuild) {
-
-  }
+  // var model = /** @type {anychart.chartEditor2Module.EditorModel} */(this.getModel());
+  this.title_.update(evt.chart);
 
   anychart.chartEditor2Module.ChartTitlePanel.base(this, 'onChartDraw', evt);
 };

@@ -84,7 +84,6 @@ anychart.chartEditor2Module.input.Base.prototype.setKey = function(key) {
  * @return {anychart.chartEditor2Module.EditorModel.Key}
  */
 anychart.chartEditor2Module.input.Base.prototype.getKey = function() {
-  debugger;
   return this.key;
 };
 
@@ -171,9 +170,10 @@ anychart.chartEditor2Module.input.Base.prototype.init = function(model, key, opt
  * Sets value of this control to target's value.
  * Updates model state.
  * @param {?Object} target Object, who's property corresponds to control's key. Used to get value of this control.
+ * @param {boolean=} opt_force
  */
-anychart.chartEditor2Module.input.Base.prototype.setValueByTarget = function(target) {
-  if (this.revisionCount1 - this.revisionCount2 > 1) return;
+anychart.chartEditor2Module.input.Base.prototype.setValueByTarget = function(target, opt_force) {
+  if (!opt_force && this.revisionCount1 - this.revisionCount2 > 1) return;
   this.revisionCount2 = this.revisionCount1;
 
   this.target = target;

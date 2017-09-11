@@ -32,6 +32,7 @@ anychart.chartEditor2Module.SettingsPanel.prototype.createDom = function() {
   var dom = this.getDomHelper();
 
   if (this.canBeEnabled()) {
+    var model = /** @type {anychart.chartEditor2Module.EditorModel} */(this.getModel());
     this.enabledCheckbox = new anychart.chartEditor2Module.checkbox.Base();
     this.enabledCheckbox.init(model, this.getKey());
     this.addChild(this.enabledCheckbox, true);
@@ -48,12 +49,8 @@ anychart.chartEditor2Module.SettingsPanel.prototype.createDom = function() {
 
 /** @inheritDoc */
 anychart.chartEditor2Module.SettingsPanel.prototype.onChartDraw = function(evt) {
-  var model = /** @type {anychart.chartEditor2Module.EditorModel} */(this.getModel());
-
-  if (evt.rebuild) {
-    if (this.canBeEnabled())
-      this.enabledCheckbox.setValueByTarget(evt.chart);
-  }
+  if (evt.rebuild && this.canBeEnabled())
+    this.enabledCheckbox.setValueByTarget(evt.chart);
 };
 
 
