@@ -108,6 +108,7 @@ anychart.chartEditor2Module.GeoDataInputs.prototype.createGeoDataOptions_ = func
     options.push([this.geoDataIndex[key]['name'], this.geoDataIndex[key]['id']]);
   }
   this.geoDataSelect_.setOptions(options);
+  this.geoDataSelect_.updateOptions();
   var activeGeo = /** @type {anychart.chartEditor2Module.EditorModel} */(this.getModel()).getValue([['dataSettings'], 'activeGeo']);
 
   if (!activeGeo)
@@ -178,6 +179,6 @@ anychart.chartEditor2Module.GeoDataInputs.prototype.createGeoIdFieldOptions_ = f
     options.push(preparedData[0].fields[key].name);
   }
   this.geoIdFieldSelect_.setOptions(options);
-
+  this.geoIdFieldSelect_.updateOptions();
   return true;
 };
