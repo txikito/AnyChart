@@ -2811,7 +2811,7 @@ anychart.core.series.Base.prototype.planIsXScaleInverted = function() {
  * Resets point's meta shared object currAnchor.
  */
 anychart.core.series.Base.prototype.resetSharedStack = function() {
-  if (this.isMinPointLengthBased()) {
+  if (this.planIsStacked() && this.isMinPointLengthBased()) {
     var iterator = this.getIterator();
     iterator.reset();
     while (iterator.advance()) {
@@ -3470,7 +3470,7 @@ anychart.core.series.Base.prototype.makePointsMetaFromMap = function(rowInfo, ma
 
 
 /**
- * Applies min point length settings.
+ * Applies min point length settings for stacked plan.
  * @param {anychart.data.IRowInfo} rowInfo
  * @param {Array.<string>} yNames
  * @param {Array.<string|number>} yColumns
@@ -3479,41 +3479,58 @@ anychart.core.series.Base.prototype.makePointsMetaFromMap = function(rowInfo, ma
  * @return {number} - pointMissing updated value.
  * @protected
  */
-anychart.core.series.Base.prototype.makeMinPointLengthMeta = function(rowInfo, yNames, yColumns, pointMissing, xRatio) {
-  var notPercentStacked = this.yScale().stackMode() != anychart.enums.ScaleStackMode.PERCENT;
-
-  //TODO (A.Kudryavtsev): Remove notPercentStacked condition after percent stack minPointLength is implemented.
-  if (notPercentStacked && !rowInfo.meta('missing')) {
+anychart.core.series.Base.prototype.makeMinPointLengthStackedMeta = function(rowInfo, yNames, yColumns, pointMissing, xRatio) {
+  if (!rowInfo.meta('missing')) {
     var shared = rowInfo.meta('shared');
 
     var y = /** @type {number} */ (rowInfo.meta('value'));
     var zero = /** @type {number} */ (rowInfo.meta('zero'));
     var diff = Math.abs(y - zero);
-    var minPointLength = /** @type {string|number} */ (this.getInheritedOption('minPointLength'));
     var isVertical = /** @type {boolean} */ (this.getOption('isVertical'));
-    var bounds = this.getPixelBounds();
-    var dimension = isVertical ? bounds.width : bounds.height;
-    minPointLength = Math.abs(anychart.utils.normalizeSize(minPointLength, dimension));
-    var inversion = this.yScale().inverted() ^ isVertical;
-    var height = Math.max(diff, minPointLength);
+    var inversion = !this.yScale().inverted() ^ isVertical;
+    var height = Math.max(diff, this.minPointLengthCache_);
+    if (inversion)
+      height = -height;
 
     var newZero, newY;
-    if (shared) {
-      if (isNaN(shared.currAnchor)) {//Drawing first point.
-        shared.currAnchor = inversion ? zero + height : zero - height;
-        newZero = zero;
-        newY = shared.currAnchor;
-      } else {
-        newZero = inversion ? Math.max(zero, shared.currAnchor) : Math.min(zero, shared.currAnchor);
-        newY = inversion ? newZero + height : newZero - height;
-        shared.currAnchor = newY;
-      }
-    } else {
+    if (isNaN(shared.currAnchor)) {//Drawing first point.
+      shared.currAnchor = zero + height;
       newZero = zero;
-      newY = inversion ? zero + height : zero - height;
+      newY = shared.currAnchor;
+    } else {
+      newZero = inversion ? Math.max(zero, shared.currAnchor) : Math.min(zero, shared.currAnchor);
+      newY = newZero + height;
+      shared.currAnchor = newY;
     }
+
     rowInfo.meta('value', newY);
     rowInfo.meta('zero', newZero);
+  }
+  return pointMissing;
+};
+
+
+/**
+ * Applies min point length settings for unstacked plan.
+ * @param {anychart.data.IRowInfo} rowInfo
+ * @param {Array.<string>} yNames
+ * @param {Array.<string|number>} yColumns
+ * @param {number} pointMissing
+ * @param {number} xRatio
+ * @return {number} - pointMissing updated value.
+ * @protected
+ */
+anychart.core.series.Base.prototype.makeMinPointLengthUnstackedMeta = function(rowInfo, yNames, yColumns, pointMissing, xRatio) {
+  if (!rowInfo.meta('missing')) {
+    var y = /** @type {number} */ (rowInfo.meta('value'));
+    var zero = /** @type {number} */ (rowInfo.meta('zero'));
+    var diff = Math.abs(y - zero);
+    var isVertical = /** @type {boolean} */ (this.getOption('isVertical'));
+    var inversion = this.yScale().inverted() ^ isVertical;
+    var height = Math.max(diff, this.minPointLengthCache_);
+    if (inversion)
+      height = -height;
+    rowInfo.meta('value', zero + height);
   }
   return pointMissing;
 };
@@ -3652,8 +3669,16 @@ anychart.core.series.Base.prototype.prepareMetaMakers = function(yNames, yColumn
       this.metaMakers.push(this.makeZeroMeta);
     }
   }
-  if (this.isMinPointLengthBased()) {
-    this.metaMakers.push(this.makeMinPointLengthMeta);
+  if (this.isMinPointLengthBased() && this.yScale().stackMode() != anychart.enums.ScaleStackMode.PERCENT) {
+    var minPointLength = /** @type {string|number} */ (this.getInheritedOption('minPointLength'));
+    var isVertical = /** @type {boolean} */ (this.getOption('isVertical'));
+    var dimension = isVertical ? this.pixelBoundsCache.width : this.pixelBoundsCache.height;
+    this.minPointLengthCache_ = Math.abs(anychart.utils.normalizeSize(minPointLength, dimension));
+    if (this.planIsStacked()) {
+      this.metaMakers.push(this.makeMinPointLengthStackedMeta);
+    } else {
+      this.metaMakers.push(this.makeMinPointLengthUnstackedMeta);
+    }
   }
   if (this.isSizeBased()) {
     this.metaMakers.push(this.makeSizeMeta);
