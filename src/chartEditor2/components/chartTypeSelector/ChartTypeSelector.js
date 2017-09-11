@@ -3,9 +3,9 @@ goog.provide('anychart.chartEditor2Module.ChartTypeSelector');
 goog.require('anychart.chartEditor2Module.Component');
 goog.require('anychart.chartEditor2Module.GeoDataInputs');
 goog.require('anychart.chartEditor2Module.PlotPanel');
-goog.require('anychart.chartEditor2Module.controls.ChartTypeSelect');
-goog.require('anychart.chartEditor2Module.controls.MenuItemWithTwoValues');
-goog.require('anychart.chartEditor2Module.controls.SelectWithLabel');
+goog.require('anychart.chartEditor2Module.select.ChartType');
+goog.require('anychart.chartEditor2Module.select.MenuItemWithTwoValues');
+goog.require('anychart.chartEditor2Module.select.SelectWithLabel');
 goog.require('goog.ui.Button');
 
 
@@ -46,8 +46,8 @@ anychart.chartEditor2Module.ChartTypeSelector.prototype.createDom = function() {
   this.typeIcon_ = dom.createDom(goog.dom.TagName.IMG, {'class': 'type-image'/*, 'src': this.chartTypeSelect_.getIcon()*/});
   dom.appendChild(this.getElement(), this.typeIcon_);
 
-  this.chartTypeSelect_ = new anychart.chartEditor2Module.controls.ChartTypeSelect();
-  this.chartTypeSelect_.setEditorModel(/** @type {anychart.chartEditor2Module.EditorModel} */(this.getModel()), [['chart'], 'type'], 'setChartType');
+  this.chartTypeSelect_ = new anychart.chartEditor2Module.select.ChartType();
+  this.chartTypeSelect_.init(/** @type {anychart.chartEditor2Module.EditorModel} */(this.getModel()), [['chart'], 'type'], 'setChartType');
   this.chartTypeSelect_.initOptions(goog.object.getValues(anychart.chartEditor2Module.EditorModel.chartTypes));
   this.addChild(this.chartTypeSelect_, true);
 
@@ -75,8 +75,8 @@ anychart.chartEditor2Module.ChartTypeSelector.prototype.update = function() {
     this.geoDataInputs_.update();
 
     // Dataset select
-    this.activeAndFieldSelect_ = new anychart.chartEditor2Module.controls.SelectWithLabel('x', 'Data set');
-    this.activeAndFieldSelect_.setEditorModel(model, [['dataSettings'], 'field'], 'setActiveAndField');
+    this.activeAndFieldSelect_ = new anychart.chartEditor2Module.select.SelectWithLabel('x', 'Data set');
+    this.activeAndFieldSelect_.init(model, [['dataSettings'], 'field'], 'setActiveAndField');
     this.addChild(this.activeAndFieldSelect_, true);
 
     this.createDataSetsOptions_();
@@ -86,8 +86,8 @@ anychart.chartEditor2Module.ChartTypeSelector.prototype.update = function() {
     this.geoDataInputs_.hide();
 
     // X Values select
-    this.activeAndFieldSelect_ = new anychart.chartEditor2Module.controls.SelectWithLabel('x', 'X Values');
-    this.activeAndFieldSelect_.setEditorModel(model, [['dataSettings'], 'field'], 'setActiveAndField');
+    this.activeAndFieldSelect_ = new anychart.chartEditor2Module.select.SelectWithLabel('x', 'X Values');
+    this.activeAndFieldSelect_.init(model, [['dataSettings'], 'field'], 'setActiveAndField');
     this.addChild(this.activeAndFieldSelect_, true);
 
     this.createActiveAndFieldOptions_();
@@ -163,9 +163,11 @@ anychart.chartEditor2Module.ChartTypeSelector.prototype.createDataSetsOptions_ =
 
     var caption = data[i].title;
     var setFullId = data[i].setFullId;
-    var item = new anychart.chartEditor2Module.controls.MenuItemWithTwoValues(caption, field, setFullId);
+    var item = new anychart.chartEditor2Module.select.MenuItemWithTwoValues(caption, field, setFullId);
     this.activeAndFieldSelect_.addItem(item);
   }
+
+  this.activeAndFieldSelect_.updateOptions();
 };
 
 
@@ -188,10 +190,12 @@ anychart.chartEditor2Module.ChartTypeSelector.prototype.createActiveAndFieldOpti
       var caption = data.length == 1 ? fields[j].name : data[i].title + ' - ' + fields[j].name;
       // var setFullId = data[i]['type'] + data[i]['setId'];
       var setFullId = data[i].setFullId;
-      var item = new anychart.chartEditor2Module.controls.MenuItemWithTwoValues(caption, fields[j].key, setFullId);
+      var item = new anychart.chartEditor2Module.select.MenuItemWithTwoValues(caption, fields[j].key, setFullId);
       this.activeAndFieldSelect_.addItem(item);
     }
   }
+
+  this.activeAndFieldSelect_.updateOptions();
 };
 
 

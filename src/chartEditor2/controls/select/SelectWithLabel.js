@@ -1,7 +1,7 @@
-goog.provide('anychart.chartEditor2Module.controls.SelectWithLabel');
+goog.provide('anychart.chartEditor2Module.select.SelectWithLabel');
 
 goog.require('anychart.chartEditor2Module.select.Base');
-goog.require('anychart.chartEditor2Module.controls.SelectWithLabelRenderer');
+goog.require('anychart.chartEditor2Module.select.SelectWithLabelRenderer');
 goog.require('goog.ui.Component');
 
 
@@ -23,9 +23,9 @@ goog.require('goog.ui.Component');
  * @constructor
  * @extends {anychart.chartEditor2Module.select.Base}
  */
-anychart.chartEditor2Module.controls.SelectWithLabel = function(field, opt_caption, opt_menu, opt_renderer, opt_domHelper, opt_menuRenderer) {
-  anychart.chartEditor2Module.controls.SelectWithLabel.base(this, 'constructor', opt_caption, opt_menu,
-      opt_renderer || anychart.chartEditor2Module.controls.SelectWithLabelRenderer.getInstance(),
+anychart.chartEditor2Module.select.SelectWithLabel = function(field, opt_caption, opt_menu, opt_renderer, opt_domHelper, opt_menuRenderer) {
+  anychart.chartEditor2Module.select.SelectWithLabel.base(this, 'constructor', opt_caption, opt_menu,
+      opt_renderer || anychart.chartEditor2Module.select.SelectWithLabelRenderer.getInstance(),
       opt_domHelper, opt_menuRenderer);
 
   /**
@@ -34,13 +34,13 @@ anychart.chartEditor2Module.controls.SelectWithLabel = function(field, opt_capti
   this.label_ = goog.isDef(opt_caption) ? opt_caption : field;
   this.setModel(field);
 };
-goog.inherits(anychart.chartEditor2Module.controls.SelectWithLabel, anychart.chartEditor2Module.select.Base);
+goog.inherits(anychart.chartEditor2Module.select.SelectWithLabel, anychart.chartEditor2Module.select.Base);
 
 
 /**
  * Return label value.
  * @return {goog.ui.ControlContent}
  */
-anychart.chartEditor2Module.controls.SelectWithLabel.prototype.getLabel = function() {
+anychart.chartEditor2Module.select.SelectWithLabel.prototype.getLabel = function() {
   return this.label_ ? this.label_ : '';
 };

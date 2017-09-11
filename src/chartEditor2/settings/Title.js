@@ -10,7 +10,7 @@ goog.require('anychart.chartEditor2Module.comboBox.Base');
 goog.require('anychart.chartEditor2Module.select.Align');
 goog.require('anychart.chartEditor2Module.select.Base');
 goog.require('anychart.chartEditor2Module.select.FontFamily');
-goog.require('anychart.chartEditor2Module.settings.Input');
+goog.require('anychart.chartEditor2Module.input.Base');
 
 goog.require('goog.ui.ButtonSide');
 goog.require('anychart.chartEditor2Module.Component');
@@ -304,12 +304,12 @@ anychart.chartEditor2Module.settings.Title.prototype.createDom = function() {
   //   }
   // }
 
-  // var textInput = null;
-  // if (this.allowEditTitle_) {
-  //   textInput = new anychart.chartEditor2Module.settings.Input(/*'Chart title'*/);
-  //   this.addChild(textInput, true);
-  //   goog.dom.classlist.add(textInput.getElement(), goog.getCssName('anychart-chart-editor-settings-chart-title'));
-  // }
+  var textInput = null;
+  if (this.allowEditTitle_) {
+    textInput = new anychart.chartEditor2Module.input.Base(/*'Chart title'*/);
+    this.addChild(textInput, true);
+    goog.dom.classlist.add(textInput.getElement(), goog.getCssName('anychart-chart-editor-settings-chart-title'));
+  }
 
   // var colorPicker = null;
   // if (this.allowEditColor_) {
@@ -421,7 +421,7 @@ anychart.chartEditor2Module.settings.Title.prototype.createDom = function() {
   // }
 
   // this.enabledBtn_ = enabledBtn;
-  // this.textInput_ = textInput;
+  this.textInput_ = textInput;
   this.positionSelect_ = positionSelect;
   // this.alignSelect_ = alignSelect;
   // this.fontFamilySelect_ = fontFamily;
@@ -465,7 +465,7 @@ anychart.chartEditor2Module.settings.Title.prototype.update = function(model) {
  */
 anychart.chartEditor2Module.settings.Title.prototype.updateKeys = function() {
   // if (this.enabledBtn_) this.enabledBtn_.setKey(this.genKey('enabled()'));
-  // if (this.textInput_) this.textInput_.setKey(this.genKey(this.titleKey_));
+  if (this.textInput_) this.textInput_.setKey(this.genKey(this.titleKey_));
 
   if (this.positionSelect_) this.positionSelect_.setKey(this.genKey(this.positionKey_));
 

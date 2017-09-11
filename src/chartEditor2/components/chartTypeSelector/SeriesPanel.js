@@ -1,7 +1,7 @@
 goog.provide('anychart.chartEditor2Module.SeriesPanel');
 
 goog.require('anychart.chartEditor2Module.ComponentWithKey');
-goog.require('anychart.chartEditor2Module.controls.SelectWithLabel');
+goog.require('anychart.chartEditor2Module.select.SelectWithLabel');
 goog.require('goog.ui.Component');
 goog.require('goog.ui.MenuItem');
 goog.require('goog.ui.Select');
@@ -26,7 +26,7 @@ anychart.chartEditor2Module.SeriesPanel = function(model, index, opt_domHelper) 
   this.index_ = index;
 
   /**
-   * @type {Array.<anychart.chartEditor2Module.controls.SelectWithLabel>}
+   * @type {Array.<anychart.chartEditor2Module.select.SelectWithLabel>}
    * @private
    */
   this.fields_ = [];
@@ -47,8 +47,8 @@ anychart.chartEditor2Module.SeriesPanel.prototype.createDom = function() {
     this.getElement().appendChild(this.close_);
   }
 
-  this.typeSelect_ = new anychart.chartEditor2Module.controls.SelectWithLabel('ctor', 'Series type');
-  this.typeSelect_.setEditorModel(/** @type {anychart.chartEditor2Module.EditorModel} */(this.getModel()), this.getKey('ctor'), 'setSeriesType');
+  this.typeSelect_ = new anychart.chartEditor2Module.select.SelectWithLabel('ctor', 'Series type');
+  this.typeSelect_.init(/** @type {anychart.chartEditor2Module.EditorModel} */(this.getModel()), this.getKey('ctor'), 'setSeriesType');
   this.addChild(this.typeSelect_, true);
 };
 
@@ -66,6 +66,7 @@ anychart.chartEditor2Module.SeriesPanel.prototype.update = function() {
     this.typeSelect_.addItem(item);
   }
 
+  this.typeSelect_.updateOptions();
   this.typeSelect_.setValueByModel();
 
   this.createFields();
@@ -106,9 +107,9 @@ anychart.chartEditor2Module.SeriesPanel.prototype.createFields = function() {
   goog.object.forEach(fieldsMap,
       function(item) {
         var fieldLabel = item['name'] ? item['name'] : item['field'];
-        var fieldSelect = new anychart.chartEditor2Module.controls.SelectWithLabel(item['field'], fieldLabel);
+        var fieldSelect = new anychart.chartEditor2Module.select.SelectWithLabel(item['field'], fieldLabel);
         var model = /** @type {anychart.chartEditor2Module.EditorModel} */(self.getModel());
-        fieldSelect.setEditorModel(model, self.getKey([['mapping'], item['field']]));
+        fieldSelect.init(model, self.getKey([['mapping'], item['field']]));
         self.fields_.push(fieldSelect);
         self.addChild(fieldSelect, true);
       });
@@ -143,6 +144,7 @@ anychart.chartEditor2Module.SeriesPanel.prototype.createFieldsOptions = function
         var option = new goog.ui.MenuItem(caption, dataFields[j].key);
         this.fields_[i].addItem(option);
       }
+      this.fields_[i].updateOptions();
       this.fields_[i].setValueByModel();
     }
   }

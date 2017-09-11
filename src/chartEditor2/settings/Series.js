@@ -4,7 +4,7 @@ goog.require('anychart.chartEditor2Module.checkbox.Base');
 goog.require('anychart.chartEditor2Module.colorPicker.Base');
 goog.require('anychart.chartEditor2Module.events');
 goog.require('anychart.chartEditor2Module.select.Base');
-goog.require('anychart.chartEditor2Module.settings.Input');
+goog.require('anychart.chartEditor2Module.input.Base');
 goog.require('anychart.chartEditor2Module.settings.MappingSelect');
 goog.require('anychart.ui.button.Base');
 goog.require('goog.ui.Component');
@@ -63,7 +63,7 @@ anychart.chartEditor2Module.settings.Series.prototype.createDom = function() {
   anychart.chartEditor2Module.settings.Series.base(this, 'createDom');
   var content = this.getContentElement();
 
-  var nameInput = new anychart.chartEditor2Module.settings.Input('Series name');
+  var nameInput = new anychart.chartEditor2Module.input.Base('Series name');
   this.addChild(nameInput, true);
   goog.dom.classlist.add(nameInput.getElement(), goog.getCssName('anychart-chart-editor-series-name-input'));
 

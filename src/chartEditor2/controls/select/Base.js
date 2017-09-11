@@ -43,6 +43,13 @@ anychart.chartEditor2Module.select.Base = function(opt_caption, opt_menu, opt_re
    * @protected
    */
   this.noRebuild = false;
+
+  /**
+   * Target object (usually it's chart)
+   * @type {?Object}
+   * @protected
+   */
+  this.target = null;
 };
 goog.inherits(anychart.chartEditor2Module.select.Base, goog.ui.Select);
 
@@ -146,28 +153,32 @@ anychart.chartEditor2Module.select.Base.prototype.createDom = function() {
  * @param {string=} opt_default
  */
 anychart.chartEditor2Module.select.Base.prototype.updateOptions = function(opt_default) {
-  var optionsCount = this.options_.length;
-  var count = Math.max(this.getChildCount(), optionsCount);
+  var optionItem;
 
-  for (var i = 0; i < count; i++) {
-    var optionItem = this.getItemAt(i);
+  if (this.options_.length) {
+    for (var a = this.getItemCount(); a--;) {
+      this.removeItemAt(a);
+    }
 
-    if (i < optionsCount) {
+    for (var i = 0; i < this.options_.length; i++) {
+
       var option = this.options_[i];
       var caption = this.captions_[i];
       var icon = this.icons_[i];
       var content = this.createContentElements(option, caption, icon);
 
-      if (!optionItem) {
-        optionItem = new goog.ui.Option(content, option);
-        this.addItemAt(optionItem, i);
-      } else {
-        optionItem.setContent(content);
-        optionItem.setModel(option);
-        optionItem.setVisible(true);
-      }
-    } else {
-      optionItem.setVisible(false);
+      optionItem = new goog.ui.Option(content, option);
+      optionItem.setContent(content);
+      optionItem.setModel(option);
+      this.addItemAt(optionItem, i);
+    }
+  } else {
+    this.captions_.length = 0;
+    // Items are created, but options_ are not filled
+    for (var k = 0; k < this.getItemCount(); k++) {
+      optionItem = this.getItemAt(k);
+      this.options_.push(optionItem.getModel());
+      this.captions_.push(optionItem.getContent());
     }
   }
 
@@ -190,17 +201,6 @@ anychart.chartEditor2Module.select.Base.prototype.createContentElements = functi
   if (icon) content.push(goog.dom.createDom(goog.dom.TagName.I, [goog.getCssName('anychart-chart-editor-icon'), icon]));
   return content;
 };
-
-
-/** @param {anychart.chartEditor2Module.steps.Base.Model} model */
-// anychart.chartEditor2Module.select.Base.prototype.update = function(model) {
-//   //todo: rework, need silently update selects
-//   goog.events.unlisten(this, goog.ui.Component.EventType.CHANGE, this.onChange, false, this);
-//   var value = anychart.chartEditor2Module.Controller.getset(model, goog.isArray(this.key) ? this.key[0] : this.key);
-//   var index = this.options_.indexOf(value);
-//   this.setSelectedIndex(index);
-//   goog.events.listen(this, goog.ui.Component.EventType.CHANGE, this.onChange, false, this);
-// };
 
 
 /** @override */
@@ -243,10 +243,9 @@ anychart.chartEditor2Module.select.Base.prototype.onChange = function(evt) {
  * @param {anychart.chartEditor2Module.EditorModel.Key} key Key of control's field in model's structure.
  * @param {string=} opt_callback Callback function that will be called on control's value change instead of simple change value in model.
  *  This function should be model's public method.
- * @param {?Object=} opt_target Object, who's property corresponds to control's key. Used to get the initial value of this control.
- * @param {boolean=} opt_noRebuild Should or not rebuild chart on change value of this control.
+ * @param {boolean=} opt_noRebuild Should or not rebuild target (chart) on change value of this control.
  */
-anychart.chartEditor2Module.select.Base.prototype.setEditorModel = function(model, key, opt_callback, opt_target, opt_noRebuild) {
+anychart.chartEditor2Module.select.Base.prototype.init = function(model, key, opt_callback, opt_noRebuild) {
   /**
    * @type {anychart.chartEditor2Module.EditorModel}
    * @protected
@@ -260,16 +259,30 @@ anychart.chartEditor2Module.select.Base.prototype.setEditorModel = function(mode
   this.key = key;
 
   this.callback = opt_callback;
-  this.noRebuild = !!opt_noRebuild;
 
-  if (opt_target) {
-    var stringKey = anychart.chartEditor2Module.EditorModel.getStringKey(key);
-    var value = /** @type {string} */(anychart.bindingModule.exec(opt_target, stringKey));
-    this.suspendDispatch = true;
-    this.setValue(value);
-    this.editorModel.setValue(this.key, value, true);
-    this.suspendDispatch = false;
+  this.noRebuild = !!opt_noRebuild;
+};
+
+
+/**
+ * @param {*} value
+ * @param {?string=} opt_value2
+ */
+anychart.chartEditor2Module.select.Base.prototype.setValue = function(value, opt_value2) {
+  var selectionModel = this.getSelectionModel();
+  if (goog.isDefAndNotNull(value) && selectionModel) {
+    for (var i = 0, item; item = selectionModel.getItemAt(i); i++) {
+      if (item &&
+          typeof item.getValue == 'function' && item.getValue() == value &&
+          (!goog.isDef(opt_value2) || typeof item.getValue2 == 'function' && item.getValue2() == opt_value2)
+      ) {
+        this.setSelectedItem(/** @type {!goog.ui.MenuItem} */ (item));
+        return;
+      }
+    }
   }
+
+  this.setSelectedItem(null);
 };
 
 
@@ -297,34 +310,30 @@ anychart.chartEditor2Module.select.Base.prototype.setValueByModel = function(opt
 
 
 /**
- * @param {*} value
- * @param {?string=} opt_value2
+ * Sets value of this control to target's value.
+ * Updates model state.
+ * @param {?Object} target Object, who's property corresponds to control's key. Used to get value of this control.
  */
-anychart.chartEditor2Module.select.Base.prototype.setValue = function(value, opt_value2) {
-  var selectionModel = this.getSelectionModel();
-  if (goog.isDefAndNotNull(value) && selectionModel) {
-    for (var i = 0, item; item = selectionModel.getItemAt(i); i++) {
-      if (item &&
-          typeof item.getValue == 'function' && item.getValue() == value &&
-          (!goog.isDef(opt_value2) || typeof item.getValue2 == 'function' && item.getValue2() == opt_value2)
-      ) {
-        this.setSelectedItem(/** @type {!goog.ui.MenuItem} */ (item));
-        return;
-      }
-    }
-  }
+anychart.chartEditor2Module.select.Base.prototype.setValueByTarget = function(target) {
+  this.target = target;
 
-  this.setSelectedItem(null);
+  var stringKey = anychart.chartEditor2Module.EditorModel.getStringKey(this.key);
+  var value = /** @type {string} */(anychart.bindingModule.exec(this.target, stringKey));
+
+  this.suspendDispatch = true;
+  this.setValue(value);
+  this.editorModel.setValue(this.key, value, true);
+  this.suspendDispatch = false;
 };
 
 
 /**
- * Returns value2 of selected option (if option are anychart.chartEditor2Module.controls.MenuItemWithTwoValues instances.
+ * Returns value2 of selected option (if option are anychart.chartEditor2Module.select.MenuItemWithTwoValues instances.
  *
  * @return {?string}
  */
 anychart.chartEditor2Module.select.Base.prototype.getValue2 = function() {
-  var selectedItem = /** @type {?(goog.ui.MenuItem|anychart.chartEditor2Module.controls.MenuItemWithTwoValues)} */(this.getSelectedItem());
+  var selectedItem = /** @type {?(goog.ui.MenuItem|anychart.chartEditor2Module.select.MenuItemWithTwoValues)} */(this.getSelectedItem());
   return selectedItem ? selectedItem.getValue2() : null;
 };
 
@@ -343,6 +352,7 @@ anychart.chartEditor2Module.select.Base.prototype.hide = function() {
 anychart.chartEditor2Module.select.Base.prototype.show = function() {
   goog.dom.classlist.remove(this.getElement(), 'hidden');
 };
+
 
 /**
  * @override
@@ -370,4 +380,12 @@ anychart.chartEditor2Module.select.Base.prototype.updateCaption = function() {
         goog.a11y.aria.getLabel(itemElement) : this.initialAriaLabel_);
     this.updateAriaActiveDescendant_();
   }
+};
+
+
+/** @inheritDoc */
+anychart.chartEditor2Module.select.Base.prototype.addItemAt = function(item, index) {
+  anychart.chartEditor2Module.select.Base.base(this, 'addItemAt', item, index);
+
+
 };

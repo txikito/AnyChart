@@ -1,7 +1,7 @@
 goog.provide('anychart.chartEditor2Module.SettingsPanel');
 
 goog.require('anychart.chartEditor2Module.ComponentWithKey');
-goog.require('anychart.chartEditor2Module.controls.Checkbox');
+goog.require('anychart.chartEditor2Module.checkbox.Base');
 
 
 
@@ -32,7 +32,8 @@ anychart.chartEditor2Module.SettingsPanel.prototype.createDom = function() {
   var dom = this.getDomHelper();
 
   if (this.canBeEnabled()) {
-    this.enabledCheckbox = new anychart.chartEditor2Module.controls.Checkbox();
+    this.enabledCheckbox = new anychart.chartEditor2Module.checkbox.Base();
+    this.enabledCheckbox.init(model, this.getKey());
     this.addChild(this.enabledCheckbox, true);
   }
 
@@ -51,7 +52,7 @@ anychart.chartEditor2Module.SettingsPanel.prototype.onChartDraw = function(evt) 
 
   if (evt.rebuild) {
     if (this.canBeEnabled())
-      this.enabledCheckbox.setEditorModel(model, this.getKey(), void 0, evt.chart, true);
+      this.enabledCheckbox.setValueByTarget(evt.chart);
   }
 };
 

@@ -54,39 +54,55 @@ anychart.chartEditor2Module.checkbox.Base.prototype.setCheckedValue = function(v
  * @type {string|Array.<string>}
  * @private
  */
-anychart.chartEditor2Module.checkbox.Base.prototype.key_ = '';
+anychart.chartEditor2Module.checkbox.Base.prototype.key = '';
 
 
 /** @param {string|Array.<string>} value */
 anychart.chartEditor2Module.checkbox.Base.prototype.setKey = function(value) {
-  this.key_ = value;
-};
-
-
-/** @param {anychart.chartEditor2Module.steps.Base.Model} model */
-anychart.chartEditor2Module.checkbox.Base.prototype.update = function(model) {
-  var value = anychart.chartEditor2Module.Controller.getset(model, goog.isArray(this.key_) ? this.key_[0] : this.key_);
-  this.setChecked(value == this.checkedValue_);
-};
-
-
-/** @override */
-anychart.chartEditor2Module.checkbox.Base.prototype.createDom = function() {
-  anychart.chartEditor2Module.checkbox.Base.base(this, 'createDom');
+  this.key = value;
 };
 
 
 /** @override */
 anychart.chartEditor2Module.checkbox.Base.prototype.enterDocument = function() {
   anychart.chartEditor2Module.checkbox.Base.base(this, 'enterDocument');
-  goog.events.listen(this, goog.ui.Component.EventType.CHANGE, this.onChange_, false, this);
+
+  goog.events.listen(this, goog.ui.Component.EventType.CHANGE, this.onChange, false, this);
 };
 
 
 /** @inheritDoc */
 anychart.chartEditor2Module.checkbox.Base.prototype.exitDocument = function() {
-  goog.events.unlisten(this, goog.ui.Component.EventType.CHANGE, this.onChange_, false, this);
+  goog.events.unlisten(this, goog.ui.Component.EventType.CHANGE, this.onChange, false, this);
   anychart.chartEditor2Module.checkbox.Base.base(this, 'exitDocument');
+};
+
+
+/**
+ * Connects control with EditorMode.
+ *
+ * @param {anychart.chartEditor2Module.EditorModel} model Editor model instance to connect with.
+ * @param {anychart.chartEditor2Module.EditorModel.Key} key Key of control's field in model's structure.
+ * @param {string=} opt_callback Callback function that will be called on control's value change instead of simple change value in model.
+ *  This function should be model's public method.
+ * @param {boolean=} opt_noRebuild Should or not rebuild target (chart) on change value of this control.
+ */
+anychart.chartEditor2Module.checkbox.Base.prototype.init = function(model, key, opt_callback, opt_noRebuild) {
+  /**
+   * @type {anychart.chartEditor2Module.EditorModel}
+   * @protected
+   */
+  this.editorModel = model;
+
+  /**
+   * @type {anychart.chartEditor2Module.EditorModel.Key}
+   * @protected
+   */
+  this.key = key;
+
+  this.callback = opt_callback;
+
+  this.noRebuild = !!opt_noRebuild;
 };
 
 
@@ -94,18 +110,42 @@ anychart.chartEditor2Module.checkbox.Base.prototype.exitDocument = function() {
  * @param {goog.events.Event} evt
  * @private
  */
-anychart.chartEditor2Module.checkbox.Base.prototype.onChange_ = function(evt) {
+anychart.chartEditor2Module.checkbox.Base.prototype.onChange = function(evt) {
   evt.stopPropagation();
 
-  var keys = goog.isArray(this.key_) ? this.key_ : [this.key_];
-  for (var i = 0, count = keys.length; i < count; i++) {
-    this.dispatchEvent({
-      type: anychart.chartEditor2Module.events.EventType.CHANGE_MODEL,
-      key: keys[i],
-      value: this.isChecked() ?
-          this.checkedValue_ :
-          this.normalValue_
-    });
+  if (!this.noDispatch && this.editorModel) {
+    if (this.callback)
+      this.editorModel.callbackByString(this.callback, this);
+    else
+      this.editorModel.setValue(this.key, this.getChecked(), false, this.noRebuild);
   }
-  this.dispatchEvent(anychart.chartEditor2Module.events.EventType.UPDATE_EDITOR);
+
+  // var keys = goog.isArray(this.key_) ? this.key_ : [this.key_];
+  // for (var i = 0, count = keys.length; i < count; i++) {
+  //   this.dispatchEvent({
+  //     type: anychart.chartEditor2Module.events.EventType.CHANGE_MODEL,
+  //     key: keys[i],
+  //     value: this.isChecked() ?
+  //         this.checkedValue_ :
+  //         this.normalValue_
+  //   });
+  // }
 };
+
+/**
+ * Sets value of this control to target's value.
+ * Updates model state.
+ * @param {?Object} target Object, who's property corresponds to control's key. Used to get value of this control.
+ */
+anychart.chartEditor2Module.checkbox.Base.prototype.setValueByTarget = function(target) {
+  this.target = target;
+
+  var stringKey = anychart.chartEditor2Module.EditorModel.getStringKey(this.key);
+  var value = !!(/** @type {string|boolean} */(anychart.bindingModule.exec(this.target, stringKey)));
+
+  this.suspendDispatch = true;
+  this.setChecked(value);
+  this.editorModel.setValue(this.key, value, true);
+  this.suspendDispatch = false;
+};
+

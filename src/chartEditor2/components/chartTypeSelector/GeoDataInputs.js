@@ -2,7 +2,7 @@ goog.provide('anychart.chartEditor2Module.GeoDataInputs');
 
 goog.require('anychart.chartEditor2Module.Component');
 goog.require('anychart.chartEditor2Module.EditorModel');
-goog.require('anychart.chartEditor2Module.controls.SelectWithLabel');
+goog.require('anychart.chartEditor2Module.select.SelectWithLabel');
 
 
 
@@ -55,7 +55,7 @@ anychart.chartEditor2Module.GeoDataInputs.prototype.update = function() {
 
   if (chartType == 'map') {
     // Geo data select
-    this.geoDataSelect_ = new anychart.chartEditor2Module.controls.SelectWithLabel('activeGeo', 'Geo data');
+    this.geoDataSelect_ = new anychart.chartEditor2Module.select.SelectWithLabel('activeGeo', 'Geo data');
     this.addChild(this.geoDataSelect_, true);
     this.getHandler().listen(this.geoDataSelect_, goog.ui.Component.EventType.CHANGE, this.onSelectGeoData_);
 
@@ -64,8 +64,8 @@ anychart.chartEditor2Module.GeoDataInputs.prototype.update = function() {
     else
       this.loadGeoDataIndex_();
 
-    this.geoIdFieldSelect_ = new anychart.chartEditor2Module.controls.SelectWithLabel('id', 'Geo Id Field');
-    this.geoIdFieldSelect_.setEditorModel(/** @type {anychart.chartEditor2Module.EditorModel} */(this.getModel()), [['dataSettings'], 'geoIdField']);
+    this.geoIdFieldSelect_ = new anychart.chartEditor2Module.select.SelectWithLabel('id', 'Geo Id Field');
+    this.geoIdFieldSelect_.init(/** @type {anychart.chartEditor2Module.EditorModel} */(this.getModel()), [['dataSettings'], 'geoIdField']);
     this.addChild(this.geoIdFieldSelect_, true);
 
     if (this.createGeoIdFieldOptions_())
@@ -126,7 +126,7 @@ anychart.chartEditor2Module.GeoDataInputs.prototype.createGeoDataOptions_ = func
 anychart.chartEditor2Module.GeoDataInputs.prototype.onSelectGeoData_ = function(evt) {
   if (!this.geoDataIndex.length) return;
 
-  var setId = /** @type {number} */(/** @type {anychart.chartEditor2Module.controls.SelectWithLabel} */(evt.target).getValue());
+  var setId = /** @type {number} */(/** @type {anychart.chartEditor2Module.select.SelectWithLabel} */(evt.target).getValue());
   var activeGeo = /** @type {anychart.chartEditor2Module.EditorModel} */(this.getModel()).getValue([['dataSettings'], 'activeGeo']);
   if (activeGeo && (anychart.chartEditor2Module.EditorModel.dataType.GEO + setId) == activeGeo) return;
 

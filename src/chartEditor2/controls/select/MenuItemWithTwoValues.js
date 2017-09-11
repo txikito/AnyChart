@@ -1,4 +1,4 @@
-goog.provide('anychart.chartEditor2Module.controls.MenuItemWithTwoValues');
+goog.provide('anychart.chartEditor2Module.select.MenuItemWithTwoValues');
 
 goog.require('goog.ui.MenuItem');
 
@@ -17,13 +17,13 @@ goog.require('goog.ui.MenuItem');
  * @constructor
  * @extends {goog.ui.MenuItem}
  */
-anychart.chartEditor2Module.controls.MenuItemWithTwoValues = function(caption, value, value2, opt_domHelper, opt_renderer) {
+anychart.chartEditor2Module.select.MenuItemWithTwoValues = function(caption, value, value2, opt_domHelper, opt_renderer) {
   goog.ui.MenuItem.call(
       this, caption, value, opt_domHelper, opt_renderer || goog.ui.MenuItemRenderer.getInstance());
 
   this.setValue2(value2);
 };
-goog.inherits(anychart.chartEditor2Module.controls.MenuItemWithTwoValues, goog.ui.MenuItem);
+goog.inherits(anychart.chartEditor2Module.select.MenuItemWithTwoValues, goog.ui.MenuItem);
 
 
 /**
@@ -31,7 +31,7 @@ goog.inherits(anychart.chartEditor2Module.controls.MenuItemWithTwoValues, goog.u
  * stores the value as the model of the menu item.
  * @param {*} value Value to be associated with the menu item.
  */
-anychart.chartEditor2Module.controls.MenuItemWithTwoValues.prototype.setValue2 = function(value) {
+anychart.chartEditor2Module.select.MenuItemWithTwoValues.prototype.setValue2 = function(value) {
   this.value2_ = value;
 };
 
@@ -41,6 +41,6 @@ anychart.chartEditor2Module.controls.MenuItemWithTwoValues.prototype.setValue2 =
  * returns the model object associated with the item (if any), or its caption.
  * @return {*} Value associated with the menu item, if any, or its caption.
  */
-anychart.chartEditor2Module.controls.MenuItemWithTwoValues.prototype.getValue2 = function() {
+anychart.chartEditor2Module.select.MenuItemWithTwoValues.prototype.getValue2 = function() {
   return this.value2_;
 };

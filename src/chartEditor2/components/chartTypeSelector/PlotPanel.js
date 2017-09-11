@@ -2,8 +2,8 @@ goog.provide('anychart.chartEditor2Module.PlotPanel');
 
 goog.require('anychart.chartEditor2Module.ComponentWithKey');
 goog.require('anychart.chartEditor2Module.SeriesPanel');
-goog.require('anychart.chartEditor2Module.controls.MenuItemWithTwoValues');
-goog.require('anychart.chartEditor2Module.controls.SelectWithLabel');
+goog.require('anychart.chartEditor2Module.select.MenuItemWithTwoValues');
+goog.require('anychart.chartEditor2Module.select.SelectWithLabel');
 goog.require('goog.ui.Button');
 goog.require('goog.ui.Component');
 
