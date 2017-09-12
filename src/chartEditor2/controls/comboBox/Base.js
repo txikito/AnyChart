@@ -48,6 +48,12 @@ anychart.chartEditor2Module.comboBox.Base = function(opt_domHelper, opt_menu, op
   this.setFormatterFunction(function(value) {
     return String(goog.math.clamp(Number(value), 6, 40));
   });
+
+  /**
+   * @type {boolean}
+   * @protected
+   */
+  this.noDispatch = false;
 };
 goog.inherits(anychart.chartEditor2Module.comboBox.Base, goog.ui.ComboBox);
 
@@ -479,7 +485,7 @@ anychart.chartEditor2Module.comboBox.Base.prototype.onChange = function(evt) {
   evt.preventDefault();
   evt.stopPropagation();
 
-  if (this.editorModel) {
+  if (!this.noDispatch && this.editorModel) {
     var value = this.getToken();
 
     if (this.callback)

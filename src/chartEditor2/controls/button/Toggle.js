@@ -46,6 +46,12 @@ anychart.chartEditor2Module.button.Toggle = function(opt_content, opt_renderer, 
    * @protected
    */
   this.key = [];
+
+  /**
+   * @type {boolean}
+   * @protected
+   */
+  this.noDispatch = false;
 };
 goog.inherits(anychart.chartEditor2Module.button.Toggle, anychart.ui.button.Base);
 
@@ -115,8 +121,9 @@ anychart.chartEditor2Module.button.Toggle.prototype.exitDocument = function() {
 anychart.chartEditor2Module.button.Toggle.prototype.onChange = function(evt) {
   evt.stopPropagation();
 
-  var value = this.isChecked() ? this.normalValue_ : this.checkedValue_;
-  if (this.editorModel) {
+  if (!this.noDispatch && this.editorModel) {
+    var value = this.isChecked() ? this.normalValue_ : this.checkedValue_;
+
     if (this.callback)
       this.editorModel.callbackByString(this.callback, this);
     else

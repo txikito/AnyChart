@@ -28,6 +28,12 @@ anychart.chartEditor2Module.checkbox.Base = function(opt_checked, opt_domHelper,
    * @protected
    */
   this.key = [];
+
+  /**
+   * @type {boolean}
+   * @protected
+   */
+  this.noDispatch = false;
 };
 goog.inherits(anychart.chartEditor2Module.checkbox.Base, goog.ui.Checkbox);
 
@@ -110,7 +116,7 @@ anychart.chartEditor2Module.checkbox.Base.prototype.init = function(model, key, 
 anychart.chartEditor2Module.checkbox.Base.prototype.onChange = function(evt) {
   evt.stopPropagation();
 
-  if (this.editorModel) {
+  if (!this.noDispatch && this.editorModel) {
     //var value = this.isChecked() ? this.checkedValue_ : this.normalValue_;
 
     if (this.callback)
@@ -132,8 +138,8 @@ anychart.chartEditor2Module.checkbox.Base.prototype.setValueByTarget = function(
   var stringKey = anychart.chartEditor2Module.EditorModel.getStringKey(this.key);
   var value = !!(/** @type {string|boolean} */(anychart.bindingModule.exec(this.target, stringKey)));
 
-  this.suspendDispatch = true;
+  this.noDispatch = true;
   this.setChecked(value);
   this.editorModel.setValue(this.key, value, true);
-  this.suspendDispatch = false;
+  this.noDispatch = false;
 };

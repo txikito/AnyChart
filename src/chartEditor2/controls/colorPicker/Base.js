@@ -45,6 +45,12 @@ anychart.chartEditor2Module.colorPicker.Base = function(opt_content, opt_menu, o
    * @protected
    */
   this.key = [];
+
+  /**
+   * @type {boolean}
+   * @protected
+   */
+  this.noDispatch = false;
 };
 goog.inherits(anychart.chartEditor2Module.colorPicker.Base, goog.ui.ColorMenuButton);
 
@@ -159,7 +165,7 @@ anychart.chartEditor2Module.colorPicker.Base.prototype.exitDocument = function()
 anychart.chartEditor2Module.colorPicker.Base.prototype.onChange_ = function(evt) {
   evt.stopPropagation();
 
-  if (this.editorModel) {
+  if (!this.noDispatch && this.editorModel) {
     var value = this.getSelectedColor();
 
     if (this.callback)

@@ -27,9 +27,9 @@ anychart.chartEditor2Module.input.Base = function(opt_label, opt_domHelper) {
 
   /**
    * @type {boolean}
-   * @private
+   * @protected
    */
-  this.suspendDispatch_ = false;
+  this.noDispatch = false;
 
   /**
    * @type {boolean}
@@ -128,15 +128,15 @@ anychart.chartEditor2Module.input.Base.prototype.enterDocument = function() {
 /** @private */
 anychart.chartEditor2Module.input.Base.prototype.onChange = function() {
   var value = this.getValue();
-  if (value != this.lastValue_ && this.editorModel) {
+  if (!this.noDispatch && value != this.lastValue_ && this.editorModel) {
     if (this.callback)
       this.editorModel.callbackByString(this.callback, this);
     else
       this.editorModel.setValue(this.key, value, false, this.noRebuild);
-
-    this.lastValue_ = value;
-    this.revisionCount1++;
   }
+
+  this.lastValue_ = value;
+  this.revisionCount1++;
 };
 
 
@@ -178,6 +178,9 @@ anychart.chartEditor2Module.input.Base.prototype.setValueByTarget = function(tar
 
   var stringKey = anychart.chartEditor2Module.EditorModel.getStringKey(this.key);
   var value = /** @type {string} */(anychart.bindingModule.exec(this.target, stringKey));
+  if (typeof value == 'function')
+    value = '-- value is a function --';
+
   this.lastValue_ = value;
 
   this.noDispatch = true;
