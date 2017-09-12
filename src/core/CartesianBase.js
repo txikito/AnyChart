@@ -391,6 +391,23 @@ anychart.core.CartesianBase.prototype.drawElements = function() {
 
 
 //endregion
+//region --- CSV
+//------------------------------------------------------------------------------
+//
+//  CSV
+//
+//------------------------------------------------------------------------------
+/** @inheritDoc */
+anychart.core.CartesianBase.prototype.shouldAddCsvRow = function(mode, series, x) {
+  var xScale = (/** @type {anychart.core.series.Base} */(series)).getXScale();
+  var left = xScale.transform(x, 0);
+  var right = xScale.transform(x, 1);
+  return mode != anychart.enums.ChartDataExportMode.SELECTED ||
+      (Math.min(left, right) <= 1 && Math.max(left, right) >= 0);
+};
+
+
+//endregion
 //region --- Serialization / Deserialization / Disposing
 //----------------------------------------------------------------------------------------------------------------------
 //

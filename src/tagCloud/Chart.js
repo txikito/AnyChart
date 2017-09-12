@@ -2092,6 +2092,38 @@ anychart.tagCloudModule.Chart.prototype.drawContent = function(bounds) {
 
 
 //endregion
+//region --- CSV
+//------------------------------------------------------------------------------
+//
+//  CSV
+//
+//------------------------------------------------------------------------------
+/** @inheritDoc */
+anychart.tagCloudModule.Chart.prototype.getCsvGrouperColumn = function() {
+  return ['x'];
+};
+
+
+/** @inheritDoc */
+anychart.tagCloudModule.Chart.prototype.getCsvGrouperValue = function(iterator) {
+  return iterator.get('x');
+};
+
+
+/** @inheritDoc */
+anychart.tagCloudModule.Chart.prototype.getCsvGrouperAlias = function(iterator) {
+  var res = iterator.get('name');
+  return goog.isString(res) ? res : null;
+};
+
+
+/** @inheritDoc */
+anychart.tagCloudModule.Chart.prototype.getCsvColumns = function(dataHolder) {
+  return this.data().checkFieldExist('category') ? ['value', 'category'] : ['value'];
+};
+
+
+//endregion
 //region --- Setup and Dispose
 /**
  * Sets default settings.

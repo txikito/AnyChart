@@ -2241,8 +2241,9 @@ anychart.enums.normalizeGaugeScaleTypes = function(value) {
  * @enum {string}
  */
 anychart.enums.ChartDataExportMode = {
+  DEFAULT: 'default',
   RAW: 'raw',
-  SPECIFIC: 'specific',
+  SELECTED: 'selected',
   GROUPED: 'grouped'
 };
 
@@ -2255,7 +2256,7 @@ anychart.enums.ChartDataExportMode = {
  */
 anychart.enums.normalizeChartDataExportMode = function(opt_value) {
   return /** @type {anychart.enums.ChartDataExportMode} */(anychart.enums.normalize(anychart.enums.ChartDataExportMode, opt_value,
-      anychart.enums.ChartDataExportMode.SPECIFIC));
+      anychart.enums.ChartDataExportMode.DEFAULT));
 };
 
 
