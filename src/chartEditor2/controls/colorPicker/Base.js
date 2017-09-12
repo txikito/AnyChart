@@ -128,19 +128,12 @@ anychart.chartEditor2Module.colorPicker.Base.prototype.setSelectedColor = functi
  * @type {string|Array.<string>}
  * @private
  */
-anychart.chartEditor2Module.colorPicker.Base.prototype.key_ = '';
+anychart.chartEditor2Module.colorPicker.Base.prototype.key = '';
 
 
 /** @param {string|Array.<string>} value */
 anychart.chartEditor2Module.colorPicker.Base.prototype.setKey = function(value) {
-  this.key_ = value;
-};
-
-
-/** @param {anychart.chartEditor2Module.steps.Base.Model} model */
-anychart.chartEditor2Module.colorPicker.Base.prototype.update = function(model) {
-  var color = anychart.chartEditor2Module.Controller.getset(model, goog.isArray(this.key_) ? this.key_[0] : this.key_);
-  this.setSelectedColor(color);
+  this.key = value;
 };
 
 
@@ -165,13 +158,58 @@ anychart.chartEditor2Module.colorPicker.Base.prototype.exitDocument = function()
 anychart.chartEditor2Module.colorPicker.Base.prototype.onChange_ = function(evt) {
   evt.stopPropagation();
 
-  var keys = goog.isArray(this.key_) ? this.key_ : [this.key_];
-  for (var i = 0, count = keys.length; i < count; i++) {
-    this.dispatchEvent({
-      type: anychart.chartEditor2Module.events.EventType.CHANGE_MODEL,
-      key: keys[i],
-      value: this.getSelectedColor()
-    });
+  if (this.editorModel) {
+    var value = this.getSelectedColor();
+
+    if (this.callback)
+      this.editorModel.callbackByString(this.callback, this);
+    else
+      this.editorModel.setValue(this.key, value, false, this.noRebuild);
   }
-  this.dispatchEvent(anychart.chartEditor2Module.events.EventType.UPDATE_EDITOR);
+};
+
+
+/**
+ * Connects control with EditorMode.
+ *
+ * @param {anychart.chartEditor2Module.EditorModel} model Editor model instance to connect with.
+ * @param {anychart.chartEditor2Module.EditorModel.Key} key Key of control's field in model's structure.
+ * @param {string=} opt_callback Callback function that will be called on control's value change instead of simple change value in model.
+ *  This function should be model's public method.
+ * @param {boolean=} opt_noRebuild Should or not rebuild chart on change value of this control.
+ */
+anychart.chartEditor2Module.colorPicker.Base.prototype.init = function(model, key, opt_callback, opt_noRebuild) {
+  /**
+   * @type {anychart.chartEditor2Module.EditorModel}
+   * @protected
+   */
+  this.editorModel = model;
+
+  /**
+   * @type {anychart.chartEditor2Module.EditorModel.Key}
+   * @protected
+   */
+  this.key = key;
+
+  this.callback = opt_callback;
+
+  this.noRebuild = !!opt_noRebuild;
+};
+
+
+/**
+ * Sets value of this control to target's value.
+ * Updates model state.
+ * @param {?Object} target Object, who's property corresponds to control's key. Used to get value of this control.
+ */
+anychart.chartEditor2Module.colorPicker.Base.prototype.setValueByTarget = function(target) {
+  this.target = target;
+
+  var stringKey = anychart.chartEditor2Module.EditorModel.getStringKey(this.key);
+  var value = /** @type {string} */(anychart.bindingModule.exec(this.target, stringKey));
+
+  this.noDispatch = true;
+  this.setSelectedColor(value);
+  this.editorModel.setValue(this.key, value, true);
+  this.noDispatch = false;
 };

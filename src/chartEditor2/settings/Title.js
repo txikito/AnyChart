@@ -221,17 +221,17 @@ anychart.chartEditor2Module.settings.Title.prototype.setEnabled = function(enabl
 
   this.enabled_ = enabled;
 
-  // if (this.titleHeader_) {
-  //   goog.dom.classlist.enable(
-  //       goog.asserts.assert(this.titleHeader_),
-  //       goog.getCssName('anychart-control-disabled'), !enabled);
-  // }
-  //
-  // if (this.colorLabel_) {
-  //   goog.dom.classlist.enable(
-  //       goog.asserts.assert(this.colorLabel_),
-  //       goog.getCssName('anychart-control-disabled'), !enabled);
-  // }
+  if (this.titleHeader_) {
+    goog.dom.classlist.enable(
+        goog.asserts.assert(this.titleHeader_),
+        goog.getCssName('anychart-control-disabled'), !enabled);
+  }
+
+  if (this.colorLabel_) {
+    goog.dom.classlist.enable(
+        goog.asserts.assert(this.colorLabel_),
+        goog.getCssName('anychart-control-disabled'), !enabled);
+  }
 
   if (this.positionLabel_) {
     goog.dom.classlist.enable(
@@ -239,11 +239,11 @@ anychart.chartEditor2Module.settings.Title.prototype.setEnabled = function(enabl
         goog.getCssName('anychart-control-disabled'), !enabled);
   }
 
-  // if (this.alignLabel_) {
-  //   goog.dom.classlist.enable(
-  //       goog.asserts.assert(this.alignLabel_),
-  //       goog.getCssName('anychart-control-disabled'), !enabled);
-  // }
+  if (this.alignLabel_) {
+    goog.dom.classlist.enable(
+        goog.asserts.assert(this.alignLabel_),
+        goog.getCssName('anychart-control-disabled'), !enabled);
+  }
 };
 
 
@@ -311,61 +311,61 @@ anychart.chartEditor2Module.settings.Title.prototype.createDom = function() {
     goog.dom.classlist.add(textInput.getElement(), goog.getCssName('anychart-chart-editor-settings-chart-title'));
   }
 
-  // var colorPicker = null;
-  // if (this.allowEditColor_) {
-  //   if (!this.allowEditTitle_) {
-  //     var colorLabel = goog.dom.createDom(
-  //         goog.dom.TagName.LABEL,
-  //         [
-  //           goog.ui.INLINE_BLOCK_CLASSNAME,
-  //           goog.getCssName('anychart-chart-editor-settings-label')
-  //         ],
-  //         'Font color');
-  //     goog.dom.appendChild(element, colorLabel);
-  //   }
-  //
-  //   colorPicker = new anychart.chartEditor2Module.colorPicker.Base();
-  //   colorPicker.addClassName(goog.getCssName('anychart-chart-editor-settings-control-right'));
-  //   this.addChild(colorPicker, true);
-  //
-  //   goog.dom.appendChild(element, goog.dom.createDom(
-  //       goog.dom.TagName.DIV,
-  //       goog.getCssName('anychart-chart-editor-settings-item-gap-mini')));
-  // }
+  var colorPicker = null;
+  if (this.allowEditColor_) {
+    if (!this.allowEditTitle_) {
+      var colorLabel = goog.dom.createDom(
+          goog.dom.TagName.LABEL,
+          [
+            goog.ui.INLINE_BLOCK_CLASSNAME,
+            goog.getCssName('anychart-chart-editor-settings-label')
+          ],
+          'Font color');
+      goog.dom.appendChild(element, colorLabel);
+    }
 
-  // var fontFamily = new anychart.chartEditor2Module.select.FontFamily();
-  // fontFamily.addClassName(goog.getCssName('anychart-chart-editor-settings-font-family'));
-  // this.addChild(fontFamily, true);
-  //
-  // var fontSizeSelect = new anychart.chartEditor2Module.comboBox.Base();
-  // fontSizeSelect.setOptions([10, 12, 14, 16, 18, 20, 22]);
-  // this.addChild(fontSizeSelect, true);
-  // goog.dom.classlist.add(fontSizeSelect.getElement(), goog.getCssName('anychart-chart-editor-settings-font-size'));
-  //
-  // var buttonsWrapper = goog.dom.createDom(
-  //     goog.dom.TagName.DIV,
-  //     goog.getCssName('anychart-chart-editor-settings-control-right'));
-  // goog.dom.appendChild(element, buttonsWrapper);
-  //
-  // var boldBtn = new anychart.chartEditor2Module.button.Bold();
-  // boldBtn.addClassName(goog.getCssName('anychart-chart-editor-settings-bold'));
-  // this.addChild(boldBtn, true);
-  // goog.dom.appendChild(buttonsWrapper, boldBtn.getElement());
-  //
-  // var italicBtn = new anychart.chartEditor2Module.button.Italic();
-  // this.addChild(italicBtn, true);
-  // goog.dom.appendChild(buttonsWrapper, italicBtn.getElement());
-  //
-  // var underlineBtn = new anychart.chartEditor2Module.button.Underline();
-  // this.addChild(underlineBtn, true);
-  // goog.dom.appendChild(buttonsWrapper, underlineBtn.getElement());
-  //
-  // // The setCollapsed method needs to be called after the toolbar is rendered
-  // // for it to pick up the directionality of the toolbar.
-  // boldBtn.setCollapsed(goog.ui.ButtonSide.END);
-  // italicBtn.setCollapsed(
-  //     goog.ui.ButtonSide.END | goog.ui.ButtonSide.START);
-  // underlineBtn.setCollapsed(goog.ui.ButtonSide.START);
+    colorPicker = new anychart.chartEditor2Module.colorPicker.Base();
+    colorPicker.addClassName(goog.getCssName('anychart-chart-editor-settings-control-right'));
+    this.addChild(colorPicker, true);
+
+    goog.dom.appendChild(element, goog.dom.createDom(
+        goog.dom.TagName.DIV,
+        goog.getCssName('anychart-chart-editor-settings-item-gap-mini')));
+  }
+
+  var fontFamily = new anychart.chartEditor2Module.select.FontFamily();
+  fontFamily.addClassName(goog.getCssName('anychart-chart-editor-settings-font-family'));
+  this.addChild(fontFamily, true);
+
+  var fontSizeSelect = new anychart.chartEditor2Module.comboBox.Base();
+  fontSizeSelect.setOptions([10, 12, 14, 16, 18, 20, 22]);
+  this.addChild(fontSizeSelect, true);
+  goog.dom.classlist.add(fontSizeSelect.getElement(), goog.getCssName('anychart-chart-editor-settings-font-size'));
+
+  var buttonsWrapper = goog.dom.createDom(
+      goog.dom.TagName.DIV,
+      goog.getCssName('anychart-chart-editor-settings-control-right'));
+  goog.dom.appendChild(element, buttonsWrapper);
+
+  var boldBtn = new anychart.chartEditor2Module.button.Bold();
+  boldBtn.addClassName(goog.getCssName('anychart-chart-editor-settings-bold'));
+  this.addChild(boldBtn, true);
+  goog.dom.appendChild(buttonsWrapper, boldBtn.getElement());
+
+  var italicBtn = new anychart.chartEditor2Module.button.Italic();
+  this.addChild(italicBtn, true);
+  goog.dom.appendChild(buttonsWrapper, italicBtn.getElement());
+
+  var underlineBtn = new anychart.chartEditor2Module.button.Underline();
+  this.addChild(underlineBtn, true);
+  goog.dom.appendChild(buttonsWrapper, underlineBtn.getElement());
+
+  // The setCollapsed method needs to be called after the toolbar is rendered
+  // for it to pick up the directionality of the toolbar.
+  boldBtn.setCollapsed(goog.ui.ButtonSide.END);
+  italicBtn.setCollapsed(
+      goog.ui.ButtonSide.END | goog.ui.ButtonSide.START);
+  underlineBtn.setCollapsed(goog.ui.ButtonSide.START);
 
   var positionSelect = null;
   if (this.allowEditPosition_) {
@@ -425,17 +425,17 @@ anychart.chartEditor2Module.settings.Title.prototype.createDom = function() {
   this.positionSelect_ = positionSelect;
   this.alignSelect_ = alignSelect;
 
-  // this.fontFamilySelect_ = fontFamily;
-  // this.fontSizeSelect_ = fontSizeSelect;
-  // this.boldBtn_ = boldBtn;
-  // this.italicBtn_ = italicBtn;
-  // this.underlineBtn_ = underlineBtn;
-  // this.colorPicker_ = colorPicker;
+  this.fontFamilySelect_ = fontFamily;
+  this.fontSizeSelect_ = fontSizeSelect;
+  this.boldBtn_ = boldBtn;
+  this.italicBtn_ = italicBtn;
+  this.underlineBtn_ = underlineBtn;
+  this.colorPicker_ = colorPicker;
 
-  // this.titleHeader_ = titleHeader;
-  // this.colorLabel_ = colorLabel;
+  this.titleHeader_ = titleHeader;
+  this.colorLabel_ = colorLabel;
   this.positionLabel_ = positionLabel;
-  // this.alignLabel_ = alignLabel;
+  this.alignLabel_ = alignLabel;
 
   this.updateKeys();
 };
@@ -454,12 +454,12 @@ anychart.chartEditor2Module.settings.Title.prototype.update = function(target) {
       this.alignSelect_.updateIcons(this.positionSelect_.getValue());
     this.alignSelect_.setValueByTarget(target);
   }
-  // if (this.fontFamilySelect_) this.fontFamilySelect_.update(model);
-  // if (this.fontSizeSelect_) this.fontSizeSelect_.update(model);
-  // if (this.boldBtn_) this.boldBtn_.update(model);
-  // if (this.italicBtn_) this.italicBtn_.update(model);
-  // if (this.underlineBtn_) this.underlineBtn_.update(model);
-  // if (this.colorPicker_) this.colorPicker_.update(model);
+  if (this.fontFamilySelect_) this.fontFamilySelect_.setValueByTarget(target);
+  if (this.fontSizeSelect_) this.fontSizeSelect_.setValueByTarget(target);
+  if (this.boldBtn_) this.boldBtn_.setValueByTarget(target);
+  if (this.italicBtn_) this.italicBtn_.setValueByTarget(target);
+  if (this.underlineBtn_) this.underlineBtn_.setValueByTarget(target);
+  if (this.colorPicker_) this.colorPicker_.setValueByTarget(target);
 };
 
 
@@ -470,20 +470,16 @@ anychart.chartEditor2Module.settings.Title.prototype.updateKeys = function() {
   var model = /** @type {anychart.chartEditor2Module.EditorModel} */(this.getModel());
 
   if (this.enabledBtn_) this.enabledBtn_.init(model, this.genKey('enabled()'));
-
   if (this.textInput_) this.textInput_.init(model, this.genKey(this.titleKey_));
-
   if (this.positionSelect_) this.positionSelect_.init(model, this.genKey(this.positionKey_));
-
   if (this.alignSelect_) {
     this.alignSelect_.setOrientationKey(this.orientationKey_ ? this.orientationKey_ : this.genKey('orientation()'));
     this.alignSelect_.init(model, this.genKey('align()'));
   }
-
-  // if (this.fontFamilySelect_) this.fontFamilySelect_.setKey(this.genKey('fontFamily()'));
-  // if (this.fontSizeSelect_) this.fontSizeSelect_.setKey(this.genKey('fontSize()'));
-  // if (this.boldBtn_) this.boldBtn_.setKey(this.genKey('fontWeight()'));
-  // if (this.italicBtn_) this.italicBtn_.setKey(this.genKey('fontStyle()'));
-  // if (this.underlineBtn_) this.underlineBtn_.setKey(this.genKey('fontDecoration()'));
-  // if (this.colorPicker_) this.colorPicker_.setKey(this.genKey('fontColor()'));
+  if (this.fontFamilySelect_) this.fontFamilySelect_.init(model, this.genKey('fontFamily()'));
+  if (this.fontSizeSelect_) this.fontSizeSelect_.init(model, this.genKey('fontSize()'));
+  if (this.boldBtn_) this.boldBtn_.init(model, this.genKey('fontWeight()'));
+  if (this.italicBtn_) this.italicBtn_.init(model, this.genKey('fontStyle()'));
+  if (this.underlineBtn_) this.underlineBtn_.init(model, this.genKey('fontDecoration()'));
+  if (this.colorPicker_) this.colorPicker_.init(model, this.genKey('fontColor()'));
 };
