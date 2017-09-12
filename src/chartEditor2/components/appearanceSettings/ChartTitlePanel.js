@@ -39,7 +39,7 @@ anychart.chartEditor2Module.ChartTitlePanel.prototype.createDom = function() {
 /** @inheritDoc */
 anychart.chartEditor2Module.ChartTitlePanel.prototype.onChartDraw = function(evt) {
   // var model = /** @type {anychart.chartEditor2Module.EditorModel} */(this.getModel());
-  this.title_.update(evt.chart);
+  this.title_.onChartDraw(evt.chart);
 
   anychart.chartEditor2Module.ChartTitlePanel.base(this, 'onChartDraw', evt);
 };

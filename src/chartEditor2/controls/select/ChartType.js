@@ -1,7 +1,7 @@
 goog.provide('anychart.chartEditor2Module.select.ChartType');
 
-goog.require('anychart.chartEditor2Module.select.MenuItemWithTwoValues');
 goog.require('anychart.chartEditor2Module.select.Base');
+goog.require('anychart.chartEditor2Module.select.MenuItemWithTwoValues');
 
 
 
@@ -54,7 +54,10 @@ anychart.chartEditor2Module.select.ChartType.prototype.createDom = function() {
 };
 
 
-/** @inheritDoc */
+/**
+ * Init select by array of options as Objects as they stored in anychart.chartEditor2Module.EditorModel.chartTypes.
+ * @param {Array.<Object>} options
+ */
 anychart.chartEditor2Module.select.ChartType.prototype.initOptions = function(options) {
   this.extendedOptions_ = options;
 };

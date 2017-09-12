@@ -3,6 +3,7 @@ goog.provide('anychart.chartEditor2Module.input.Base');
 goog.require('anychart.chartEditor2Module.events');
 
 goog.require('goog.Timer');
+goog.require('goog.events.InputHandler');
 goog.require('goog.events.KeyHandler');
 goog.require('goog.ui.LabelInput');
 
@@ -46,6 +47,14 @@ anychart.chartEditor2Module.input.Base = function(opt_label, opt_domHelper) {
   this.revisionCount1 = 0;
 
   this.revisionCount2 = 0;
+
+  /**
+   * Editor Model key.
+   *
+   * @type {anychart.chartEditor2Module.EditorModel.Key}
+   * @protected
+   */
+  this.key = [];
 };
 goog.inherits(anychart.chartEditor2Module.input.Base, goog.ui.LabelInput);
 
@@ -56,13 +65,6 @@ goog.inherits(anychart.chartEditor2Module.input.Base, goog.ui.LabelInput);
  */
 anychart.chartEditor2Module.input.Base.prototype.labelCssClassName =
     goog.getCssName('anychart-label-input-label');
-
-
-/**
- * @type {string|Array.<string>}
- * @private
- */
-anychart.chartEditor2Module.input.Base.prototype.key = '';
 
 
 /**
@@ -154,10 +156,6 @@ anychart.chartEditor2Module.input.Base.prototype.init = function(model, key, opt
    */
   this.editorModel = model;
 
-  /**
-   * @type {anychart.chartEditor2Module.EditorModel.Key}
-   * @protected
-   */
   this.key = key;
 
   this.callback = opt_callback;

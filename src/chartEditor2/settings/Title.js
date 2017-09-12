@@ -1,19 +1,17 @@
 goog.provide('anychart.chartEditor2Module.settings.Title');
 
+goog.require('anychart.chartEditor2Module.Component');
 goog.require('anychart.chartEditor2Module.button.Bold');
 goog.require('anychart.chartEditor2Module.button.Italic');
 goog.require('anychart.chartEditor2Module.button.Underline');
-
 goog.require('anychart.chartEditor2Module.checkbox.Base');
 goog.require('anychart.chartEditor2Module.colorPicker.Base');
 goog.require('anychart.chartEditor2Module.comboBox.Base');
+goog.require('anychart.chartEditor2Module.input.Base');
 goog.require('anychart.chartEditor2Module.select.Align');
 goog.require('anychart.chartEditor2Module.select.Base');
 goog.require('anychart.chartEditor2Module.select.FontFamily');
-goog.require('anychart.chartEditor2Module.input.Base');
-
 goog.require('goog.ui.ButtonSide');
-goog.require('anychart.chartEditor2Module.Component');
 
 
 
@@ -174,7 +172,7 @@ anychart.chartEditor2Module.settings.Title.prototype.setKey = function(value) {
 
 
 /**
- * @param {string} opt_completion
+ * @param {string=} opt_completion
  * @return {anychart.chartEditor2Module.EditorModel.Key}
  */
 anychart.chartEditor2Module.settings.Title.prototype.genKey = function(opt_completion) {
@@ -445,7 +443,7 @@ anychart.chartEditor2Module.settings.Title.prototype.createDom = function() {
  * Update controls.
  * @param {Object} target
  */
-anychart.chartEditor2Module.settings.Title.prototype.update = function(target) {
+anychart.chartEditor2Module.settings.Title.prototype.onChartDraw = function(target) {
   if (this.enabledBtn_) this.enabledBtn_.setValueByTarget(target);
   if (this.textInput_) this.textInput_.setValueByTarget(target, true);
   if (this.positionSelect_) this.positionSelect_.setValueByTarget(target);

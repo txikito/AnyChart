@@ -20,6 +20,14 @@ goog.require('goog.ui.Checkbox.State');
 anychart.chartEditor2Module.checkbox.Base = function(opt_checked, opt_domHelper, opt_renderer) {
   anychart.chartEditor2Module.checkbox.Base.base(this, 'constructor', opt_checked, opt_domHelper,
       opt_renderer || anychart.chartEditor2Module.checkbox.Renderer.getInstance());
+
+  /**
+   * Editor Model key.
+   *
+   * @type {anychart.chartEditor2Module.EditorModel.Key}
+   * @protected
+   */
+  this.key = [];
 };
 goog.inherits(anychart.chartEditor2Module.checkbox.Base, goog.ui.Checkbox);
 
@@ -50,14 +58,7 @@ anychart.chartEditor2Module.checkbox.Base.prototype.setCheckedValue = function(v
 };
 
 
-/**
- * @type {string|Array.<string>}
- * @private
- */
-anychart.chartEditor2Module.checkbox.Base.prototype.key = '';
-
-
-/** @param {string|Array.<string>} value */
+/** @param {anychart.chartEditor2Module.EditorModel.Key} value */
 anychart.chartEditor2Module.checkbox.Base.prototype.setKey = function(value) {
   this.key = value;
 };
@@ -94,10 +95,6 @@ anychart.chartEditor2Module.checkbox.Base.prototype.init = function(model, key, 
    */
   this.editorModel = model;
 
-  /**
-   * @type {anychart.chartEditor2Module.EditorModel.Key}
-   * @protected
-   */
   this.key = key;
 
   this.callback = opt_callback;
@@ -113,23 +110,14 @@ anychart.chartEditor2Module.checkbox.Base.prototype.init = function(model, key, 
 anychart.chartEditor2Module.checkbox.Base.prototype.onChange = function(evt) {
   evt.stopPropagation();
 
-  if (!this.noDispatch && this.editorModel) {
+  if (this.editorModel) {
+    var value = this.isChecked() ? this.checkedValue_ : this.normalValue_;
+
     if (this.callback)
       this.editorModel.callbackByString(this.callback, this);
     else
-      this.editorModel.setValue(this.key, this.getChecked(), false, this.noRebuild);
+      this.editorModel.setValue(this.key, value, false, this.noRebuild);
   }
-
-  // var keys = goog.isArray(this.key_) ? this.key_ : [this.key_];
-  // for (var i = 0, count = keys.length; i < count; i++) {
-  //   this.dispatchEvent({
-  //     type: anychart.chartEditor2Module.events.EventType.CHANGE_MODEL,
-  //     key: keys[i],
-  //     value: this.isChecked() ?
-  //         this.checkedValue_ :
-  //         this.normalValue_
-  //   });
-  // }
 };
 
 /**

@@ -30,6 +30,14 @@ anychart.chartEditor2Module.comboBox.Base = function(opt_domHelper, opt_menu, op
   this.options_ = [];
   this.captions_ = [];
 
+  /**
+   * Editor Model key.
+   *
+   * @type {anychart.chartEditor2Module.EditorModel.Key}
+   * @protected
+   */
+  this.key = [];
+
   // For fontSize
   this.setUseTypeahead(false);
   this.setValidateFunction(function(value) {
@@ -100,14 +108,7 @@ anychart.chartEditor2Module.comboBox.Base.prototype.setCaptions = function(value
 };
 
 
-/**
- * @type {string|Array.<string>}
- * @private
- */
-anychart.chartEditor2Module.comboBox.Base.prototype.key = '';
-
-
-/** @param {string|Array.<string>} value */
+/** @param {anychart.chartEditor2Module.EditorModel.Key} value */
 anychart.chartEditor2Module.comboBox.Base.prototype.setKey = function(value) {
   this.key = value;
 };
@@ -505,10 +506,6 @@ anychart.chartEditor2Module.comboBox.Base.prototype.init = function(model, key, 
    */
   this.editorModel = model;
 
-  /**
-   * @type {anychart.chartEditor2Module.EditorModel.Key}
-   * @protected
-   */
   this.key = key;
 
   this.callback = opt_callback;

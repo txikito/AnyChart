@@ -38,6 +38,14 @@ anychart.chartEditor2Module.button.Toggle = function(opt_content, opt_renderer, 
    * @protected
    */
   this.target = null;
+
+  /**
+   * Editor Model key.
+   *
+   * @type {anychart.chartEditor2Module.EditorModel.Key}
+   * @protected
+   */
+  this.key = [];
 };
 goog.inherits(anychart.chartEditor2Module.button.Toggle, anychart.ui.button.Base);
 
@@ -78,14 +86,7 @@ anychart.chartEditor2Module.button.Toggle.prototype.setOptions = function(value)
 };
 
 
-/**
- * @type {string|Array.<string>}
- * @private
- */
-anychart.chartEditor2Module.button.Toggle.prototype.key = '';
-
-
-/** @param {string|Array.<string>} value */
+/** @param {anychart.chartEditor2Module.EditorModel.Key} value */
 anychart.chartEditor2Module.button.Toggle.prototype.setKey = function(value) {
   this.key = value;
 };
@@ -140,10 +141,6 @@ anychart.chartEditor2Module.button.Toggle.prototype.init = function(model, key, 
    */
   this.editorModel = model;
 
-  /**
-   * @type {anychart.chartEditor2Module.EditorModel.Key}
-   * @protected
-   */
   this.key = key;
 
   this.callback = opt_callback;

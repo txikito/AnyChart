@@ -33,6 +33,14 @@ anychart.chartEditor2Module.select.Base = function(opt_caption, opt_menu, opt_re
   this.icons_ = [];
 
   /**
+   * Editor Model key.
+   *
+   * @type {anychart.chartEditor2Module.EditorModel.Key}
+   * @protected
+   */
+  this.key = [];
+
+  /**
    * @type {boolean}
    * @protected
    */
@@ -118,14 +126,7 @@ anychart.chartEditor2Module.select.Base.prototype.setIcons = function(icons) {
 };
 
 
-/**
- * @type {string|Array.<string>}
- * @private
- */
-anychart.chartEditor2Module.select.Base.prototype.key = '';
-
-
-/** @param {string|Array.<string>} value */
+/** @param {anychart.chartEditor2Module.EditorModel.Key} value */
 anychart.chartEditor2Module.select.Base.prototype.setKey = function(value) {
   this.key = value;
 };
@@ -133,7 +134,7 @@ anychart.chartEditor2Module.select.Base.prototype.setKey = function(value) {
 
 /**
  * Gets key.
- * @return {string|Array.<string>}
+ * @return {anychart.chartEditor2Module.EditorModel.Key}
  */
 anychart.chartEditor2Module.select.Base.prototype.getKey = function() {
   return this.key;
@@ -177,8 +178,8 @@ anychart.chartEditor2Module.select.Base.prototype.updateOptions = function(opt_d
     // Items are created, but options_ are not filled
     for (var k = 0; k < this.getItemCount(); k++) {
       optionItem = this.getItemAt(k);
-      this.options_.push(optionItem.getModel());
-      this.captions_.push(optionItem.getContent());
+      this.options_.push(/** @type {string} */(optionItem.getModel()));
+      this.captions_.push(/** @type {string} */(optionItem.getContent()));
     }
   }
 
@@ -252,10 +253,6 @@ anychart.chartEditor2Module.select.Base.prototype.init = function(model, key, op
    */
   this.editorModel = model;
 
-  /**
-   * @type {anychart.chartEditor2Module.EditorModel.Key}
-   * @protected
-   */
   this.key = key;
 
   this.callback = opt_callback;

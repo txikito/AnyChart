@@ -37,6 +37,14 @@ anychart.chartEditor2Module.colorPicker.Base = function(opt_content, opt_menu, o
 
   this.addClassName('anychart-chart-editor-color');
   this.setFocusablePopupMenu(true);
+
+  /**
+   * Editor Model key.
+   *
+   * @type {anychart.chartEditor2Module.EditorModel.Key}
+   * @protected
+   */
+  this.key = [];
 };
 goog.inherits(anychart.chartEditor2Module.colorPicker.Base, goog.ui.ColorMenuButton);
 
@@ -124,14 +132,7 @@ anychart.chartEditor2Module.colorPicker.Base.prototype.setSelectedColor = functi
 };
 
 
-/**
- * @type {string|Array.<string>}
- * @private
- */
-anychart.chartEditor2Module.colorPicker.Base.prototype.key = '';
-
-
-/** @param {string|Array.<string>} value */
+/** @param {anychart.chartEditor2Module.EditorModel.Key} value */
 anychart.chartEditor2Module.colorPicker.Base.prototype.setKey = function(value) {
   this.key = value;
 };
@@ -185,10 +186,6 @@ anychart.chartEditor2Module.colorPicker.Base.prototype.init = function(model, ke
    */
   this.editorModel = model;
 
-  /**
-   * @type {anychart.chartEditor2Module.EditorModel.Key}
-   * @protected
-   */
   this.key = key;
 
   this.callback = opt_callback;
