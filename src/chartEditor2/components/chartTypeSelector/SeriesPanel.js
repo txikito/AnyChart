@@ -1,6 +1,7 @@
 goog.provide('anychart.chartEditor2Module.SeriesPanel');
 
 goog.require('anychart.chartEditor2Module.ComponentWithKey');
+goog.require('anychart.chartEditor2Module.input.Base');
 goog.require('anychart.chartEditor2Module.select.SelectWithLabel');
 goog.require('goog.ui.Component');
 goog.require('goog.ui.MenuItem');
@@ -93,7 +94,7 @@ anychart.chartEditor2Module.SeriesPanel.prototype.update = function() {
 
 /** @inheritDoc */
 anychart.chartEditor2Module.SeriesPanel.prototype.onChartDraw = function(evt) {
-  anychart.chartEditor2Module.SeriesPanel.base(this, 'onChartDraw');
+  anychart.chartEditor2Module.SeriesPanel.base(this, 'onChartDraw', evt);
   this.nameInput_.setValueByTarget(evt.chart);
 };
 
