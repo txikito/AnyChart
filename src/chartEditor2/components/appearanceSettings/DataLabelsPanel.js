@@ -41,13 +41,13 @@ anychart.chartEditor2Module.DataLabelsPanel.prototype.createDom = function() {
 
 /** @inheritDoc */
 anychart.chartEditor2Module.DataLabelsPanel.prototype.onChartDraw = function(evt) {
-  if (evt.chart['getSeriesCount']) {
-    // this.setKey(this.getDataLabelsKey_());
-    this.title_.setKey([['chart'], ['settings'], 'getSeriesAt(0).labels()']);
-  } else {
-    // this.setKey('chart.labels()');
-    this.title_.setKey([['chart'], ['settings'], 'labels()']);
-  }
+  // if (evt.chart['getSeriesCount']) {
+  //   // this.setKey(this.getDataLabelsKey_());
+  //   this.title_.setKey([['chart'], ['settings'], 'labels()'], evt.chart['getSeriesCount']());
+  // } else {
+  //   // this.setKey('chart.labels()');
+  //   this.title_.setKey([['chart'], ['settings'], 'labels()']);
+  // }
 
   this.title_.onChartDraw(evt.chart);
 

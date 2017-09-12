@@ -52,7 +52,8 @@ anychart.chartEditor2Module.Component.prototype.isHidden = function() {
 
 /**
  * Updates component on model change.
+ * @param {Object=} opt_evt
  */
-anychart.chartEditor2Module.Component.prototype.update = function() {
+anychart.chartEditor2Module.Component.prototype.update = function(opt_evt) {
 
 };

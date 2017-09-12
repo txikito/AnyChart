@@ -58,7 +58,9 @@ anychart.chartEditor2Module.PlotPanel.prototype.createDom = function() {
 
 
 /** @inheritDoc */
-anychart.chartEditor2Module.PlotPanel.prototype.update = function() {
+anychart.chartEditor2Module.PlotPanel.prototype.update = function(evt) {
+  if (evt && !evt.rebuildMapping) return;
+
   // Series
   this.removeAllSeries_();
 

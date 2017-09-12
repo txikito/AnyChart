@@ -56,7 +56,7 @@ anychart.chartEditor2Module.Chart.prototype.update = function() {
   var model = /** @type {anychart.chartEditor2Module.EditorModel} */(this.getModel());
   var rawData = model.getRawData();
   var settings = model.getModel();
-  var rebuild = !arguments.length || arguments[0].rebuild;
+  var rebuild = !arguments.length || arguments[0].rebuildChart;
 
   if (!settings['chart']['type'])
     return;

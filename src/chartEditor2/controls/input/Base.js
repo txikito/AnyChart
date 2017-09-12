@@ -129,10 +129,14 @@ anychart.chartEditor2Module.input.Base.prototype.enterDocument = function() {
 anychart.chartEditor2Module.input.Base.prototype.onChange = function() {
   var value = this.getValue();
   if (!this.noDispatch && value != this.lastValue_ && this.editorModel) {
+    var caretPosition = goog.dom.selection.getStart(this.getElement());
+
     if (this.callback)
       this.editorModel.callbackByString(this.callback, this);
     else
-      this.editorModel.setValue(this.key, value, false, this.noRebuild);
+      this.editorModel.setValue(this.key, value, false, this.noRebuild, this.noRebuildMapping);
+
+    goog.dom.selection.setCursorPosition(this.getElement(), caretPosition);
   }
 
   this.lastValue_ = value;
@@ -147,9 +151,10 @@ anychart.chartEditor2Module.input.Base.prototype.onChange = function() {
  * @param {anychart.chartEditor2Module.EditorModel.Key} key Key of control's field in model's structure.
  * @param {string=} opt_callback Callback function that will be called on control's value change instead of simple change value in model.
  *  This function should be model's public method.
- * @param {boolean=} opt_noRebuild Should or not rebuild chart on change value of this control.
+ * @param {boolean=} opt_noRebuildChart Should or not rebuild chart on change value of this control.
+ * @param {boolean=} opt_noRebuildMapping
  */
-anychart.chartEditor2Module.input.Base.prototype.init = function(model, key, opt_callback, opt_noRebuild) {
+anychart.chartEditor2Module.input.Base.prototype.init = function(model, key, opt_callback, opt_noRebuildChart, opt_noRebuildMapping) {
   /**
    * @type {anychart.chartEditor2Module.EditorModel}
    * @protected
@@ -160,7 +165,9 @@ anychart.chartEditor2Module.input.Base.prototype.init = function(model, key, opt
 
   this.callback = opt_callback;
 
-  this.noRebuild = !!opt_noRebuild;
+  this.noRebuild = !!opt_noRebuildChart;
+
+  this.noRebuildMapping = !!opt_noRebuildMapping;
 };
 
 
@@ -180,6 +187,8 @@ anychart.chartEditor2Module.input.Base.prototype.setValueByTarget = function(tar
   var value = /** @type {string} */(anychart.bindingModule.exec(this.target, stringKey));
   if (typeof value == 'function')
     value = '-- value is a function --';
+  else if (!goog.isDef(value))
+    value = '';
 
   this.lastValue_ = value;
 

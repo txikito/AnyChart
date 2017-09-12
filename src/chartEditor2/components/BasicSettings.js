@@ -19,12 +19,6 @@ goog.require('anychart.chartEditor2Module.select.Palettes');
  */
 anychart.chartEditor2Module.BasicSettings = function(model, opt_domHelper) {
   anychart.chartEditor2Module.BasicSettings.base(this, 'constructor', model, opt_domHelper);
-
-  /**
-   * @type {Array.<anychart.chartEditor2Module.input.Base>}
-   * @private
-   */
-  this.seriesNames_ = [];
 };
 goog.inherits(anychart.chartEditor2Module.BasicSettings, anychart.chartEditor2Module.ComponentWithKey);
 
@@ -71,11 +65,6 @@ anychart.chartEditor2Module.BasicSettings.prototype.createDom = function() {
   this.addChild(this.titleText, true);
 
   this.getElement().appendChild(dom.createDom(goog.dom.TagName.DIV, 'fields-row', [this.titleEnabled.getElement(), this.titleText.getElement()]));
-
-  // Series names
-  this.seriesNamesContainer = dom.createDom(goog.dom.TagName.DIV, 'fields-row series-names',
-      dom.createDom(goog.dom.TagName.H4, null, 'Series names'));
-  this.getElement().appendChild(this.seriesNamesContainer);
 };
 
 
@@ -96,35 +85,5 @@ anychart.chartEditor2Module.BasicSettings.prototype.onChartDraw = function(evt) 
 
     this.titleEnabled.setValueByTarget(evt.chart);
     this.titleText.setValueByTarget(evt.chart);
-
-    // Series names
-    this.removeSeriesNames_();
-    var mappings = model.getValue([['dataSettings'], 'mappings']);
-    for (var i = 0; i < mappings.length; i++) {
-      for (var j = 0; j < mappings[i].length; j++) {
-        var keyStr = chartType == 'stock' ? 'plot(' + i + ').' : '';
-        keyStr += 'getSeries(' + mappings[i][j]['id'] + ').name()';
-        var key = [['chart'], ['settings'], keyStr];
-        var input = new anychart.chartEditor2Module.input.Base();
-        this.addChild(input, true);
-        this.seriesNamesContainer.appendChild(input.getElement());
-        input.init(model, key, void 0, true);
-        input.setValueByTarget(evt.chart);
-        this.seriesNames_.push(input);
-      }
-    }
   }
-};
-
-
-/**
- * Removes series names inputs.
- * @private
- */
-anychart.chartEditor2Module.BasicSettings.prototype.removeSeriesNames_ = function() {
-  for (var i = 0; i < this.seriesNames_.length; i++) {
-    this.removeChild(this.seriesNames_[i], true);
-    this.seriesNames_[i].dispose();
-  }
-  this.seriesNames_.length = 0;
 };

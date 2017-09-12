@@ -57,7 +57,9 @@ anychart.chartEditor2Module.ChartTypeSelector.prototype.createDom = function() {
 
 
 /** @inheritDoc */
-anychart.chartEditor2Module.ChartTypeSelector.prototype.update = function() {
+anychart.chartEditor2Module.ChartTypeSelector.prototype.update = function(evt) {
+  if (evt && !evt.rebuildMapping) return;
+
   var model = /** @type {anychart.chartEditor2Module.EditorModel} */(this.getModel());
   var chartType = model.getValue([['chart'], 'type']);
   var stackMode = model.getValue([['chart'], ['settings'], 'yScale().stackMode()']);

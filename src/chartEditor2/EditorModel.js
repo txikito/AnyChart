@@ -844,9 +844,10 @@ anychart.chartEditor2Module.EditorModel.prototype.setTheme = function(input) {
  * @param {anychart.chartEditor2Module.EditorModel.Key} key
  * @param {*} value
  * @param {boolean=} opt_noDispatch
- * @param {boolean=} opt_noRebuild
+ * @param {boolean=} opt_noRebuildChart
+ * @param {boolean=} opt_noRebuildMapping
  */
-anychart.chartEditor2Module.EditorModel.prototype.setValue = function(key, value, opt_noDispatch, opt_noRebuild) {
+anychart.chartEditor2Module.EditorModel.prototype.setValue = function(key, value, opt_noDispatch, opt_noRebuildChart, opt_noRebuildMapping) {
   var target = this.model_;
   for (var i = 0; i < key.length; i++) {
     var level = key[i];
@@ -866,7 +867,7 @@ anychart.chartEditor2Module.EditorModel.prototype.setValue = function(key, value
       target[String(level)] = value;
 
       if (!opt_noDispatch)
-        this.dispatchUpdate(opt_noRebuild);
+        this.dispatchUpdate(opt_noRebuildChart, opt_noRebuildMapping);
     }
   }
 };
@@ -937,9 +938,10 @@ anychart.chartEditor2Module.EditorModel.prototype.removeByKey = function(key) {
 
 
 /**
- * @param {boolean=} opt_noRebuild
+ * @param {boolean=} opt_noRebuildChart
+ * @param {boolean=} opt_noRebuildMapping
  */
-anychart.chartEditor2Module.EditorModel.prototype.dispatchUpdate = function(opt_noRebuild) {
+anychart.chartEditor2Module.EditorModel.prototype.dispatchUpdate = function(opt_noRebuildChart, opt_noRebuildMapping) {
   if (this.suspendQueue_ > 0) {
     this.needDispatch_ = true;
     return;
@@ -949,7 +951,8 @@ anychart.chartEditor2Module.EditorModel.prototype.dispatchUpdate = function(opt_
 
   this.dispatchEvent({
     type: anychart.chartEditor2Module.events.EventType.EDITOR_MODEL_UPDATE,
-    rebuild: !opt_noRebuild
+    rebuildChart: !opt_noRebuildChart,
+    rebuildMapping: !opt_noRebuildMapping
   });
 
   this.needDispatch_ = false;

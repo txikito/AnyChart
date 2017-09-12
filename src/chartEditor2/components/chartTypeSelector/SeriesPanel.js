@@ -7,6 +7,7 @@ goog.require('goog.ui.MenuItem');
 goog.require('goog.ui.Select');
 
 
+
 /**
  * Series panel on a Plot panel on Setup chart step.
  *
@@ -47,6 +48,20 @@ anychart.chartEditor2Module.SeriesPanel.prototype.createDom = function() {
     this.getElement().appendChild(this.close_);
   }
 
+  this.getKey();
+  var model = /** @type {anychart.chartEditor2Module.EditorModel} */(this.getModel());
+  var chartType = model.getValue([['chart'], 'type']);
+  var mappings = model.getValue([['dataSettings'], ['mappings', this.plotIndex_]]);
+  var keyStr = chartType == 'stock' ? 'plot(' + this.plotIndex_ + ').' : '';
+  var id = goog.isDef(mappings[this.index_]['id']) ? mappings[this.index_]['id'] : this.index_;
+  keyStr += 'getSeries(' + id + ').name()';
+  var key = [['chart'], ['settings'], keyStr];
+
+  var input = new anychart.chartEditor2Module.input.Base();
+  this.addChild(input, true);
+  input.init(model, key, void 0, true, true);
+  this.nameInput_ = input;
+
   this.typeSelect_ = new anychart.chartEditor2Module.select.SelectWithLabel('ctor', 'Series type');
   this.typeSelect_.init(/** @type {anychart.chartEditor2Module.EditorModel} */(this.getModel()), this.getKey('ctor'), 'setSeriesType');
   this.addChild(this.typeSelect_, true);
@@ -55,6 +70,8 @@ anychart.chartEditor2Module.SeriesPanel.prototype.createDom = function() {
 
 /** @inheritDoc */
 anychart.chartEditor2Module.SeriesPanel.prototype.update = function() {
+  anychart.chartEditor2Module.SeriesPanel.base(this, 'update');
+
   var chartType = /** @type {anychart.chartEditor2Module.EditorModel} */(this.getModel()).getValue([['chart'], 'type']);
   var seriesTypes = anychart.chartEditor2Module.EditorModel.chartTypes[chartType]['series'];
   for (var i = 0; i < seriesTypes.length; i++) {
@@ -71,6 +88,13 @@ anychart.chartEditor2Module.SeriesPanel.prototype.update = function() {
 
   this.createFields();
   this.createFieldsOptions();
+};
+
+
+/** @inheritDoc */
+anychart.chartEditor2Module.SeriesPanel.prototype.onChartDraw = function(evt) {
+  anychart.chartEditor2Module.SeriesPanel.base(this, 'onChartDraw');
+  this.nameInput_.setValueByTarget(evt.chart);
 };
 
 
