@@ -111,14 +111,15 @@ anychart.chartEditor2Module.checkbox.Base.prototype.onChange = function(evt) {
   evt.stopPropagation();
 
   if (this.editorModel) {
-    var value = this.isChecked() ? this.checkedValue_ : this.normalValue_;
+    //var value = this.isChecked() ? this.checkedValue_ : this.normalValue_;
 
     if (this.callback)
       this.editorModel.callbackByString(this.callback, this);
     else
-      this.editorModel.setValue(this.key, value, false, this.noRebuild);
+      this.editorModel.setValue(this.key, this.getChecked(), false, this.noRebuild);
   }
 };
+
 
 /**
  * Sets value of this control to target's value.
@@ -136,4 +137,3 @@ anychart.chartEditor2Module.checkbox.Base.prototype.setValueByTarget = function(
   this.editorModel.setValue(this.key, value, true);
   this.suspendDispatch = false;
 };
-
