@@ -1,6 +1,7 @@
 goog.provide('anychart.chartEditor2Module.DataLabelsPanel');
 
 goog.require('anychart.chartEditor2Module.SettingsPanel');
+goog.require('anychart.chartEditor2Module.settings.Title');
 
 
 

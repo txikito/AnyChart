@@ -1,6 +1,8 @@
 goog.provide('anychart.chartEditor2Module.LegendPanel');
 
 goog.require('anychart.chartEditor2Module.SettingsPanel');
+goog.require('anychart.chartEditor2Module.select.Base');
+goog.require('anychart.chartEditor2Module.settings.Title');
 
 
 
@@ -137,7 +139,7 @@ anychart.chartEditor2Module.LegendPanel.prototype.createDom = function() {
 
 /** @inheritDoc */
 anychart.chartEditor2Module.LegendPanel.prototype.onChartDraw = function(evt) {
-  anychart.chartEditor2Module.ChartTitlePanel.base(this, 'onChartDraw', evt);
+  anychart.chartEditor2Module.LegendPanel.base(this, 'onChartDraw', evt);
 
   this.itemsLayout_.setValueByTarget(evt.chart);
   this.itemsOrientation_.setValueByTarget(evt.chart);
