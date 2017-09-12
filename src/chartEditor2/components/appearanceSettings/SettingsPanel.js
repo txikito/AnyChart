@@ -101,7 +101,8 @@ anychart.chartEditor2Module.SettingsPanel.prototype.setContentEnabled = function
       child.setEnabled(enabled);
     }
   });
-  this.enabledCheckbox.setEnabled(true);
+  if (this.enabledCheckbox)
+    this.enabledCheckbox.setEnabled(true);
 };
 
 

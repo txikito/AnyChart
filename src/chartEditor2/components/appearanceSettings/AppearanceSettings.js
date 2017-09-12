@@ -5,6 +5,7 @@ goog.require('anychart.chartEditor2Module.Component');
 goog.require('anychart.chartEditor2Module.CreditsPanel');
 goog.require('anychart.chartEditor2Module.DataLabelsPanel');
 goog.require('anychart.chartEditor2Module.EditorModel');
+goog.require('anychart.chartEditor2Module.GeneralTheming');
 goog.require('anychart.chartEditor2Module.LegendPanel');
 
 
@@ -22,10 +23,11 @@ anychart.chartEditor2Module.AppearanceSettings = function(model, opt_domHelper) 
   this.setModel(model);
 
   this.panels_ = [
+    {classFunc: anychart.chartEditor2Module.GeneralTheming, instance: null},
     {classFunc: anychart.chartEditor2Module.ChartTitlePanel, instance: null},
     {classFunc: anychart.chartEditor2Module.LegendPanel, instance: null},
-    {classFunc: anychart.chartEditor2Module.DataLabelsPanel, instance: null},
-    {classFunc: anychart.chartEditor2Module.CreditsPanel, instance: null}
+    {classFunc: anychart.chartEditor2Module.DataLabelsPanel, instance: null}
+    // {classFunc: anychart.chartEditor2Module.CreditsPanel, instance: null}
   ];
 
   this.currentPanel_ = 0;
