@@ -1574,7 +1574,10 @@ goog.exportSymbol('anychart.themes.defaultTheme', {
       }
     },
     'selectMarqueeFill': '#d3d3d3 0.4',
-    'selectMarqueeStroke': '#d3d3d3'
+    'selectMarqueeStroke': '#d3d3d3',
+
+    'maxPointWidth': '90%',
+    'minPointLength': 0
   },
 
   'cartesianBase': {
