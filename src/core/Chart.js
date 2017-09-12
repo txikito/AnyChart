@@ -3116,29 +3116,6 @@ anychart.core.Chart.prototype.exports = function(opt_value) {
 
 
 /**
- * Creates additional headers for specific csv.
- * @param {Object} headers Headers.
- * @param {number} headersLength Current length.
- * @param {boolean} scatterPolar Scatter or polar.
- * @return {number} Headers length.
- */
-anychart.core.Chart.prototype.createSpecificCsvHeaders = function(headers, headersLength, scatterPolar) {
-  return headersLength;
-};
-
-
-/**
- * Method called each iteration over each series data when generating specific csv.
- * @param {anychart.data.View} seriesData
- * @param {Object} csvRows
- * @param {Object} headers
- * @param {number} rowIndex
- * @param {string|number} groupingField
- */
-anychart.core.Chart.prototype.onBeforeRowsValuesSpreading = function(seriesData, csvRows, headers, rowIndex, groupingField) {};
-
-
-/**
  * Returns an array of objects that contain data.
  * @return {Array.<{data: function():anychart.data.IDataSource}>}
  */
@@ -3356,6 +3333,20 @@ anychart.core.Chart.prototype.identifyCsvDataHolder = function(dataHolder) {
 
 
 /**
+ * @param {Array} row
+ * @param {Array} names
+ * @param {anychart.data.IRowInfo} iterator
+ * @param {Array} headers
+ * @protected
+ */
+anychart.core.Chart.prototype.populateCsvRow = function(row, names, iterator, headers) {
+  for (var i = 0; i < names.length; i++) {
+    row[i + headers.length] = iterator.get(names[i]);
+  }
+};
+
+
+/**
  * Gets data for DEFAULT toCsv mode.
  * @param {anychart.enums.ChartDataExportMode} mode
  * @return {{headers: Array.<string>, data: Array.<Array.<*>>}}
@@ -3383,9 +3374,7 @@ anychart.core.Chart.prototype.getCsvData = function(mode) {
               xValues,
               holderId,
               iterator.getIndex());
-          for (j = 0; j < names.length; j++) {
-            row[j + headers.length] = iterator.get(names[j]);
-          }
+          this.populateCsvRow(row, names, iterator, headers);
         }
       }
       if (dataHolders.length > 1) {
