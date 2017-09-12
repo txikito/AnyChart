@@ -65,7 +65,7 @@
       ]
     },
     "exports": {
-      "entry": "anychart.exports.entry",
+      "entry": "anychart.exportsModule.entry",
       "deps": [
         "core"
       ]
