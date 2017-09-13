@@ -156,6 +156,7 @@ anychart.chartEditor2Module.settings.Title.prototype.createDom = function() {
   anychart.chartEditor2Module.settings.Title.base(this, 'createDom');
 
   var element = this.getElement();
+  var content = this.getContentElement();
   goog.dom.classlist.add(element, anychart.chartEditor2Module.settings.Title.CSS_CLASS);
 
   var textInput = null;
@@ -175,14 +176,14 @@ anychart.chartEditor2Module.settings.Title.prototype.createDom = function() {
             goog.getCssName('anychart-chart-editor-settings-label')
           ],
           'Font color');
-      goog.dom.appendChild(element, colorLabel);
+      goog.dom.appendChild(content, colorLabel);
     }
 
     colorPicker = new anychart.chartEditor2Module.colorPicker.Base();
     colorPicker.addClassName(goog.getCssName('title-color'));
     this.addChild(colorPicker, true);
 
-    goog.dom.appendChild(element, goog.dom.createDom(
+    goog.dom.appendChild(content, goog.dom.createDom(
         goog.dom.TagName.DIV,
         goog.getCssName('anychart-chart-editor-settings-item-gap-mini')));
   }
@@ -199,7 +200,7 @@ anychart.chartEditor2Module.settings.Title.prototype.createDom = function() {
   var buttonsWrapper = goog.dom.createDom(
       goog.dom.TagName.DIV,
       goog.getCssName('title-font-style-buttons'));
-  goog.dom.appendChild(element, buttonsWrapper);
+  goog.dom.appendChild(content, buttonsWrapper);
 
   var boldBtn = new anychart.chartEditor2Module.button.Bold();
   boldBtn.addClassName(goog.getCssName('anychart-chart-editor-settings-bold'));
@@ -223,7 +224,7 @@ anychart.chartEditor2Module.settings.Title.prototype.createDom = function() {
 
   var positionSelect = null;
   if (this.allowEditPosition_) {
-    goog.dom.appendChild(element, goog.dom.createDom(
+    goog.dom.appendChild(content, goog.dom.createDom(
         goog.dom.TagName.DIV,
         goog.getCssName('anychart-chart-editor-settings-item-gap')));
 
@@ -234,7 +235,7 @@ anychart.chartEditor2Module.settings.Title.prototype.createDom = function() {
           goog.getCssName('anychart-chart-editor-settings-label')
         ],
         'Orientation');
-    goog.dom.appendChild(element, positionLabel);
+    goog.dom.appendChild(content, positionLabel);
 
     positionSelect = new anychart.chartEditor2Module.select.Base();
     positionSelect.addClassName(goog.getCssName('anychart-chart-editor-settings-control-select-image'));
@@ -251,7 +252,7 @@ anychart.chartEditor2Module.settings.Title.prototype.createDom = function() {
 
   var alignSelect = null;
   if (this.allowEditAlign_) {
-    goog.dom.appendChild(element, goog.dom.createDom(
+    goog.dom.appendChild(content, goog.dom.createDom(
         goog.dom.TagName.DIV,
         goog.getCssName('anychart-chart-editor-settings-item-gap')));
 
@@ -262,7 +263,7 @@ anychart.chartEditor2Module.settings.Title.prototype.createDom = function() {
           goog.getCssName('anychart-chart-editor-settings-label')
         ],
         'Align');
-    goog.dom.appendChild(element, alignLabel);
+    goog.dom.appendChild(content, alignLabel);
 
     alignSelect = new anychart.chartEditor2Module.select.Align();
     alignSelect.addClassName(goog.getCssName('anychart-chart-editor-settings-control-select-image'));
@@ -335,10 +336,6 @@ anychart.chartEditor2Module.settings.Title.prototype.updateKeys = function() {
   if (this.colorPicker_) this.colorPicker_.init(model, this.genKey('fontColor()'));
 };
 
-
-anychart.chartEditor2Module.settings.Title.prototype.setEnabled = function(enabled) {
-  anychart.chartEditor2Module.settings.Title.base(this, 'setEnabled', enabled);
-};
 
 /**
  * Enables/Disables the Title settings.

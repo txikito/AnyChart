@@ -15,7 +15,7 @@ anychart.chartEditor2Module.SettingsPanel = function(model, opt_domHelper) {
   anychart.chartEditor2Module.SettingsPanel.base(this, 'constructor', model, opt_domHelper);
 
   /**
-   * @type {string}
+   * @type {?string|undefined}
    * @protected
    */
   this.name = 'Settings Panel';
@@ -79,7 +79,7 @@ anychart.chartEditor2Module.SettingsPanel.prototype.setEnabledButtonContainer = 
 
 
 /**
- * @return {string}
+ * @return {?string|undefined}
  */
 anychart.chartEditor2Module.SettingsPanel.prototype.getName = function() {
   return this.name;
@@ -108,16 +108,23 @@ anychart.chartEditor2Module.SettingsPanel.prototype.createDom = function() {
     this.enableContentCheckbox = enableContentCheckbox;
   }
 
-  this.contentEl = dom.createDom(goog.dom.TagName.DIV, 'content');
-
   if (this.name) {
-    element.appendChild(dom.createDom(goog.dom.TagName.DIV, 'top',
+    this.top_ = dom.createDom(goog.dom.TagName.DIV, 'top',
         dom.createDom(goog.dom.TagName.H4, 'title', this.name),
         this.enableContentCheckbox && !this.enabledButtonContainer_ ? this.enableContentCheckbox.getElement() : null
-    ));
+    );
+
+    element.appendChild(this.top_);
   }
 
+  this.contentEl = dom.createDom(goog.dom.TagName.DIV, 'content');
   element.appendChild(this.contentEl);
+};
+
+
+/** @inheritDoc */
+anychart.chartEditor2Module.SettingsPanel.prototype.getContentElement = function() {
+  return this.contentEl;
 };
 
 
@@ -189,6 +196,12 @@ anychart.chartEditor2Module.SettingsPanel.prototype.setContentEnabled = function
       child.setEnabled(this.enabledContent);
   }
   this.enabled = tmp;
+
+  if (this.top_) {
+    goog.dom.classlist.enable(
+        goog.asserts.assert(this.top_),
+        goog.getCssName('anychart-control-disabled'), !this.enabled);
+  }
 
   if (this.enableContentCheckbox)
     this.enableContentCheckbox.setEnabled(this.enabled);
