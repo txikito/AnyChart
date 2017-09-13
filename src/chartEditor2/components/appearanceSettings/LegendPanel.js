@@ -17,7 +17,7 @@ anychart.chartEditor2Module.LegendPanel = function(model, opt_domHelper) {
 
   this.name = 'Legend';
 
-  this.key = [['chart'], ['settings'], 'legend().enabled()'];
+  this.key = [['chart'], ['settings'], 'legend()'];
 };
 goog.inherits(anychart.chartEditor2Module.LegendPanel, anychart.chartEditor2Module.SettingsPanel);
 
@@ -104,13 +104,12 @@ anychart.chartEditor2Module.LegendPanel.prototype.createDom = function() {
       goog.dom.TagName.DIV,
       goog.getCssName('anychart-chart-editor-settings-item-gap')));
 
-  var items = new anychart.chartEditor2Module.settings.Title();
+  var items = new anychart.chartEditor2Module.settings.Title(model);
   items.allowEnabled(false);
   items.allowEditTitle(false);
   items.allowEditPosition(false);
   items.allowEditAlign(false);
   items.allowEditColor(false);
-  items.setModel(this.getModel());
   items.setKey([['chart'], ['settings'], 'legend()']);
   this.addChild(items, true);
 
@@ -118,17 +117,16 @@ anychart.chartEditor2Module.LegendPanel.prototype.createDom = function() {
       goog.dom.TagName.DIV,
       goog.getCssName('anychart-chart-editor-settings-item-gap')));
 
-  var title = new anychart.chartEditor2Module.settings.Title();
-  title.setModel(this.getModel());
-  title.setKey([['chart'], ['settings'], 'legend().title()']);
+  var title = new anychart.chartEditor2Module.settings.Title(model, 'Title');
   title.setPositionKey('orientation()');
+  title.setKey([['chart'], ['settings'], 'legend().title()']);
   this.addChild(title, true);
 
   this.itemsLayout_ = layoutSelect;
   this.itemsOrientation_ = orientationSelect;
   this.itemsAlign_ = alignSelect;
-  this.title_ = title;
   this.items_ = items;
+  this.title_ = title;
 
   this.itemsHeader_ = itemsHeader;
   this.layoutLabel_ = layoutLabel;
@@ -144,9 +142,6 @@ anychart.chartEditor2Module.LegendPanel.prototype.onChartDraw = function(evt) {
   this.itemsLayout_.setValueByTarget(evt.chart);
   this.itemsOrientation_.setValueByTarget(evt.chart);
   this.itemsAlign_.setValueByTarget(evt.chart);
-
-  this.title_.onChartDraw(evt.chart);
-  this.items_.onChartDraw(evt.chart);
 };
 
 

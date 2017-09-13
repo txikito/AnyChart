@@ -51,11 +51,31 @@ anychart.chartEditor2Module.ComponentWithKey.prototype.setKey = function(key) {
 /**
  * Getter for model key.
  *
- * @param {(string|Array)=} opt_completion
+ * @param {(string|Array)=} opt_completion New key's level
  * @return {anychart.chartEditor2Module.EditorModel.Key}
  */
 anychart.chartEditor2Module.ComponentWithKey.prototype.getKey = function(opt_completion) {
   return goog.isDef(opt_completion) ? goog.array.concat(this.key, opt_completion) : this.key;
+};
+
+
+/**
+ * Returns new key with added string to last key's element.
+ *
+ * @param {string=} opt_completion
+ * @return {anychart.chartEditor2Module.EditorModel.Key}
+ */
+anychart.chartEditor2Module.ComponentWithKey.prototype.genKey = function(opt_completion) {
+  var result = [];
+
+  for (var i = 0, count = this.key.length; i < count; i++) {
+    if (i == count - 1)
+      result.push(this.key[i] + '.' + opt_completion);
+    else
+      result.push(this.key[i]);
+  }
+
+  return result;
 };
 
 

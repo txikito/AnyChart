@@ -539,6 +539,12 @@
     float: left;
     margin-top: 15px;
     border: 1px solid @color-dark-gray;
+
+    .settings-panel {
+      width: 100%;
+      border: none;
+      float: none;
+    }
   }
 }
 .settings-panel {
@@ -554,6 +560,30 @@
     .anychart-checkbox {
       float: right;
     }
+  }
+}
+
+.settings-title {
+  .title-text {
+    width: 60%;
+  }
+  .title-color {
+    width: 30%;
+    float: right;
+  }
+  .title-font-family {
+    margin-left: 0;
+    width: 30%;
+  }
+  .title-font-size {
+    display: inline-block;
+    width: 30%;
+  }
+  .title-font-style-buttons {
+    display: inline-block;
+    width: 30%;
+    min-width: 83px;
+    float: right;
   }
 }
 
@@ -1050,17 +1080,9 @@
   }
 }
 
-.anychart-chart-editor-settings-font-family {
-  margin-left: 0;
-  width: 61px;
-}
 
 .anychart-chart-editor-settings-bold {
   margin-left: 4px;
-}
-
-.anychart-chart-editor-settings-chart-title {
-  width: 145px;
 }
 
 .anychart-chart-editor-remove-series-btn {

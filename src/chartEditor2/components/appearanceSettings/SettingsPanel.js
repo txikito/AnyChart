@@ -16,17 +16,74 @@ anychart.chartEditor2Module.SettingsPanel = function(model, opt_domHelper) {
 
   /**
    * @type {string}
+   * @protected
    */
   this.name = 'Settings Panel';
 
   /**
    * @type {boolean}
-   * @private
+   * @protected
    */
-  this.enabled_ = true;
+  this.enabled = true;
+
+  /**
+   * @type {boolean}
+   * @protected
+   */
+  this.enabledContent = true;
 };
 goog.inherits(anychart.chartEditor2Module.SettingsPanel, anychart.chartEditor2Module.ComponentWithKey);
 
+
+/**
+ * @return {boolean} Whether the title settings is enabled.
+ */
+anychart.chartEditor2Module.SettingsPanel.prototype.isEnabled = function() {
+  return this.enabled;
+};
+
+
+/** @param {string} value */
+anychart.chartEditor2Module.SettingsPanel.prototype.setName = function(value) {
+  this.name = value;
+};
+
+/**
+ * @type {boolean}
+ * @private
+ */
+anychart.chartEditor2Module.SettingsPanel.prototype.allowEnabled_ = true;
+
+
+/** @param {boolean} value */
+anychart.chartEditor2Module.SettingsPanel.prototype.allowEnabled = function(value) {
+  this.allowEnabled_ = value;
+};
+
+
+/**
+ * Container for enabled button.
+ * @type {Element}
+ * @private
+ */
+anychart.chartEditor2Module.SettingsPanel.prototype.enabledButtonContainer_ = null;
+
+
+/**
+ * Set container for enabled button.
+ * @param {Element} enabledButtonContainer
+ */
+anychart.chartEditor2Module.SettingsPanel.prototype.setEnabledButtonContainer = function(enabledButtonContainer) {
+  this.enabledButtonContainer_ = enabledButtonContainer;
+};
+
+
+/**
+ * @return {string}
+ */
+anychart.chartEditor2Module.SettingsPanel.prototype.getName = function() {
+  return this.name;
+};
 
 /** @inheritDoc */
 anychart.chartEditor2Module.SettingsPanel.prototype.createDom = function() {
@@ -39,42 +96,45 @@ anychart.chartEditor2Module.SettingsPanel.prototype.createDom = function() {
 
   if (this.canBeEnabled()) {
     var model = /** @type {anychart.chartEditor2Module.EditorModel} */(this.getModel());
-    this.enabledCheckbox = new anychart.chartEditor2Module.checkbox.Base();
-    this.enabledCheckbox.init(model, this.getKey());
-    this.addChild(this.enabledCheckbox, true);
+    var enableContentCheckbox = new anychart.chartEditor2Module.checkbox.Base();
+    enableContentCheckbox.init(model, this.genKey('enabled()'));
+
+    if (this.enabledButtonContainer_) {
+      enableContentCheckbox.render(this.enabledButtonContainer_);
+      enableContentCheckbox.setParent(this);
+    } else {
+      this.addChild(enableContentCheckbox, true);
+    }
+    this.enableContentCheckbox = enableContentCheckbox;
   }
 
   this.contentEl = dom.createDom(goog.dom.TagName.DIV, 'content');
-  element.appendChild(dom.createDom(goog.dom.TagName.DIV, 'top',
-      dom.createDom(goog.dom.TagName.H4, 'title', this.name),
-      this.enabledCheckbox ? this.enabledCheckbox.getElement() : null
-  ));
-  element.appendChild(this.contentEl);
 
-  this.applyEnabled_(!this.canBeEnabled());
+  if (this.name) {
+    element.appendChild(dom.createDom(goog.dom.TagName.DIV, 'top',
+        dom.createDom(goog.dom.TagName.H4, 'title', this.name),
+        this.enableContentCheckbox && !this.enabledButtonContainer_ ? this.enableContentCheckbox.getElement() : null
+    ));
+  }
+
+  element.appendChild(this.contentEl);
 };
 
 
 /** @inheritDoc */
 anychart.chartEditor2Module.SettingsPanel.prototype.enterDocument = function() {
   anychart.chartEditor2Module.SettingsPanel.base(this, 'enterDocument');
+  this.setEnabled(this.enabled);
 };
-
 
 /** @inheritDoc */
 anychart.chartEditor2Module.SettingsPanel.prototype.onChartDraw = function(evt) {
+  anychart.chartEditor2Module.SettingsPanel.base(this, 'onChartDraw', evt);
+
   if (evt.rebuild && this.canBeEnabled()) {
-    this.enabledCheckbox.setValueByTarget(evt.chart);
-    this.setEnabled(this.enabledCheckbox.isChecked());
+    this.enableContentCheckbox.setValueByTarget(evt.chart);
+    this.setContentEnabled(this.enableContentCheckbox.isChecked());
   }
-};
-
-
-/**
- * @return {string}
- */
-anychart.chartEditor2Module.SettingsPanel.prototype.getName = function() {
-  return this.name;
 };
 
 
@@ -85,24 +145,7 @@ anychart.chartEditor2Module.SettingsPanel.prototype.getName = function() {
  * @return {boolean}
  */
 anychart.chartEditor2Module.SettingsPanel.prototype.canBeEnabled = function() {
-  return Boolean(this.key.length);
-};
-
-
-/**
- * Enables/Disables the group content controls.
- * @param {boolean} enabled Whether to enable (true) or disable (false) the
- *     group content controls.
- * @protected
- */
-anychart.chartEditor2Module.SettingsPanel.prototype.setContentEnabled = function(enabled) {
-  this.forEachChild(function(child) {
-    if (goog.isFunction(child.setEnabled)) {
-      child.setEnabled(enabled);
-    }
-  });
-  if (this.enabledCheckbox)
-    this.enabledCheckbox.setEnabled(true);
+  return this.allowEnabled_ && Boolean(this.key.length);
 };
 
 
@@ -113,23 +156,40 @@ anychart.chartEditor2Module.SettingsPanel.prototype.setContentEnabled = function
  * @protected
  */
 anychart.chartEditor2Module.SettingsPanel.prototype.setEnabled = function(enabled) {
-  if (this.isInDocument()) {
-    this.applyEnabled_(enabled);
-  }
+  // if (this.name == 'Title')
+  //   debugger;
 
-  this.enabled_ = enabled;
+  this.enabled = enabled;
+  if (!this.canBeEnabled())
+    this.enabledContent = this.enabled;
+
+  if (this.isInDocument())
+    this.setContentEnabled(this.enabledContent);
+
+  if (this.enableContentCheckbox)
+    this.enableContentCheckbox.setEnabled(enabled);
 };
 
 
 /**
- * @param {boolean} enabled
- * @private
+ * Enables/Disables the group content controls.
+ * @param {boolean} enabled Whether to enable (true) or disable (false) the
+ *     group content controls.
+ * @protected
  */
-anychart.chartEditor2Module.SettingsPanel.prototype.applyEnabled_ = function(enabled) {
-  if (this.canBeEnabled())
-    this.enabledCheckbox.setEnabled(enabled);
+anychart.chartEditor2Module.SettingsPanel.prototype.setContentEnabled = function(enabled) {
+  this.enabledContent = this.enabled && enabled;
 
-  this.setContentEnabled(enabled);
+  // this should be to get child.setEnabled() working
+  var tmp = this.enabled;
+  this.enabled = true;
+  for (var i = 0, count = this.getChildCount(); i < count; i++) {
+    var child = this.getChildAt(i);
+    if (goog.isFunction(child.setEnabled))
+      child.setEnabled(this.enabledContent);
+  }
+  this.enabled = tmp;
 
-  this.enabled_ = enabled;
+  if (this.enableContentCheckbox)
+    this.enableContentCheckbox.setEnabled(this.enabled);
 };

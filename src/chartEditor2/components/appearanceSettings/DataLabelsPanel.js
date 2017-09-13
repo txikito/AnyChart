@@ -16,7 +16,7 @@ anychart.chartEditor2Module.DataLabelsPanel = function(model, opt_domHelper) {
 
   this.name = 'Data Labels';
 
-  this.key = [['chart'], ['settings'], 'labels().enabled()'];
+  this.key = [['chart'], ['settings'], 'labels()'];
 };
 goog.inherits(anychart.chartEditor2Module.DataLabelsPanel, anychart.chartEditor2Module.SettingsPanel);
 
@@ -25,33 +25,17 @@ goog.inherits(anychart.chartEditor2Module.DataLabelsPanel, anychart.chartEditor2
 anychart.chartEditor2Module.DataLabelsPanel.prototype.createDom = function() {
   anychart.chartEditor2Module.DataLabelsPanel.base(this, 'createDom');
 
-  var title = new anychart.chartEditor2Module.settings.Title();
+  var model = /** @type {anychart.chartEditor2Module.EditorModel} */(this.getModel());
+  var title = new anychart.chartEditor2Module.settings.Title(model);
   title.allowEnabled(false);
   title.allowEditPosition(false);
   title.allowEditAlign(false);
-  this.addChild(title, true);
-  title.setModel(this.getModel());
   title.setTitleKey('format()');
-
   title.setKey([['chart'], ['settings'], 'labels()']);
+  this.addChild(title, true);
+
   this.title_ = title;
 
-};
-
-
-/** @inheritDoc */
-anychart.chartEditor2Module.DataLabelsPanel.prototype.onChartDraw = function(evt) {
-  // if (evt.chart['getSeriesCount']) {
-  //   // this.setKey(this.getDataLabelsKey_());
-  //   this.title_.setKey([['chart'], ['settings'], 'labels()'], evt.chart['getSeriesCount']());
-  // } else {
-  //   // this.setKey('chart.labels()');
-  //   this.title_.setKey([['chart'], ['settings'], 'labels()']);
-  // }
-
-  this.title_.onChartDraw(evt.chart);
-
-  anychart.chartEditor2Module.DataLabelsPanel.base(this, 'onChartDraw', evt);
 };
 
 

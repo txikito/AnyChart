@@ -16,7 +16,7 @@ anychart.chartEditor2Module.ChartTitlePanel = function(model, opt_domHelper) {
 
   this.name = 'Chart Title';
 
-  this.key = [['chart'], ['settings'], 'title().enabled()'];
+  this.key = [['chart'], ['settings'], 'title()'];
 };
 goog.inherits(anychart.chartEditor2Module.ChartTitlePanel, anychart.chartEditor2Module.SettingsPanel);
 
@@ -25,22 +25,14 @@ goog.inherits(anychart.chartEditor2Module.ChartTitlePanel, anychart.chartEditor2
 anychart.chartEditor2Module.ChartTitlePanel.prototype.createDom = function() {
   anychart.chartEditor2Module.ChartTitlePanel.base(this, 'createDom');
 
-  var title = new anychart.chartEditor2Module.settings.Title();
+  var model = /** @type {anychart.chartEditor2Module.EditorModel} */(this.getModel());
+  var title = new anychart.chartEditor2Module.settings.Title(model);
   title.allowEnabled(false);
-  title.setModel(this.getModel());
-  title.setKey([['chart'], ['settings'], 'title()']);
   title.setPositionKey('orientation()');
+  title.setKey([['chart'], ['settings'], 'title()']);
   this.addChild(title, true);
 
   this.title_ = title;
 };
 
-
-/** @inheritDoc */
-anychart.chartEditor2Module.ChartTitlePanel.prototype.onChartDraw = function(evt) {
-  // var model = /** @type {anychart.chartEditor2Module.EditorModel} */(this.getModel());
-  this.title_.onChartDraw(evt.chart);
-
-  anychart.chartEditor2Module.ChartTitlePanel.base(this, 'onChartDraw', evt);
-};
 

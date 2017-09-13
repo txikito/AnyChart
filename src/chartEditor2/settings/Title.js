@@ -1,6 +1,6 @@
 goog.provide('anychart.chartEditor2Module.settings.Title');
 
-goog.require('anychart.chartEditor2Module.Component');
+goog.require('anychart.chartEditor2Module.SettingsPanel');
 goog.require('anychart.chartEditor2Module.button.Bold');
 goog.require('anychart.chartEditor2Module.button.Italic');
 goog.require('anychart.chartEditor2Module.button.Underline');
@@ -16,65 +16,25 @@ goog.require('goog.ui.ButtonSide');
 
 
 /**
+ * @param {anychart.chartEditor2Module.EditorModel} model
+ * @param {?string=} opt_name
+ * @param {goog.dom.DomHelper=} opt_domHelper Optional DOM helper; see {@link goog.ui.Component} for semantics.
  * @constructor
- * @extends {anychart.chartEditor2Module.Component}
+ * @extends {anychart.chartEditor2Module.SettingsPanel}
  */
-anychart.chartEditor2Module.settings.Title = function() {
-  anychart.chartEditor2Module.settings.Title.base(this, 'constructor');
+anychart.chartEditor2Module.settings.Title = function(model, opt_name, opt_domHelper) {
+  anychart.chartEditor2Module.settings.Title.base(this, 'constructor', model, opt_domHelper);
 
-  this.enabled_ = true;
+  this.name = opt_name;
 };
-goog.inherits(anychart.chartEditor2Module.settings.Title, anychart.chartEditor2Module.Component);
+goog.inherits(anychart.chartEditor2Module.settings.Title, anychart.chartEditor2Module.SettingsPanel);
 
 
 /**
  * Default CSS class.
  * @type {string}
  */
-anychart.chartEditor2Module.settings.Title.CSS_CLASS = goog.getCssName('anychart-chart-editor-settings-title');
-
-
-/**
- * Container for enabled button.
- * @type {Element}
- * @private
- */
-anychart.chartEditor2Module.settings.Title.prototype.enabledButtonContainer_ = null;
-
-
-/**
- * Set container for enabled button.
- * @param {Element} enabledButtonContainer
- */
-anychart.chartEditor2Module.settings.Title.prototype.setEnabledButtonContainer = function(enabledButtonContainer) {
-  this.enabledButtonContainer_ = enabledButtonContainer;
-};
-
-
-/**
- * @type {string}
- * @private
- */
-anychart.chartEditor2Module.settings.Title.prototype.headerText_ = 'Title';
-
-
-/** @param {string} value */
-anychart.chartEditor2Module.settings.Title.prototype.setHeaderText = function(value) {
-  this.headerText_ = value;
-};
-
-
-/**
- * @type {boolean}
- * @private
- */
-anychart.chartEditor2Module.settings.Title.prototype.allowEnabled_ = true;
-
-
-/** @param {boolean} value */
-anychart.chartEditor2Module.settings.Title.prototype.allowEnabled = function(value) {
-  this.allowEnabled_ = value;
-};
+anychart.chartEditor2Module.settings.Title.CSS_CLASS = goog.getCssName('settings-title');
 
 
 /**
@@ -155,37 +115,10 @@ anychart.chartEditor2Module.settings.Title.prototype.allowEditColor = function(v
 };
 
 
-/**
- * @type {string|Array.<string>}
- * @private
- */
-anychart.chartEditor2Module.settings.Title.prototype.key_ = '';
-
-
-/** @param {string|Array.<string>} value */
-anychart.chartEditor2Module.settings.Title.prototype.setKey = function(value) {
-  if (this.key_ != value) {
-    this.key_ = value;
-    this.updateKeys();
-  }
-};
-
-
-/**
- * @param {string=} opt_completion
- * @return {anychart.chartEditor2Module.EditorModel.Key}
- */
-anychart.chartEditor2Module.settings.Title.prototype.genKey = function(opt_completion) {
-  var result = [];
-
-  for (var i = 0, count = this.key_.length; i < count; i++) {
-    if (i == count - 1)
-      result.push(this.key_[i] + '.' + opt_completion);
-    else
-      result.push(this.key_[i]);
-  }
-
-  return result;
+/** @inheritDoc */
+anychart.chartEditor2Module.settings.Title.prototype.setKey = function(key) {
+  anychart.chartEditor2Module.settings.Title.base(this, 'setKey', key);
+  this.updateKeys();
 };
 
 
@@ -201,57 +134,6 @@ anychart.chartEditor2Module.settings.Title.prototype.setOrientationKey = functio
   this.orientationKey_ = goog.isArray(value) ? value[0] : value;
   this.updateKeys();
 };
-
-
-/**
- * Enables/Disables the Title settings.
- * @param {boolean} enabled Whether to enable (true) or disable (false) the
- *     title settings.
- */
-anychart.chartEditor2Module.settings.Title.prototype.setEnabled = function(enabled) {
-  this.enabled_ = true;
-
-  this.forEachChild(function(child) {
-    child.setEnabled(enabled);
-  });
-
-  if (this.enabledBtn_) this.enabledBtn_.setEnabled(enabled);
-
-  this.enabled_ = enabled;
-
-  if (this.titleHeader_) {
-    goog.dom.classlist.enable(
-        goog.asserts.assert(this.titleHeader_),
-        goog.getCssName('anychart-control-disabled'), !enabled);
-  }
-
-  if (this.colorLabel_) {
-    goog.dom.classlist.enable(
-        goog.asserts.assert(this.colorLabel_),
-        goog.getCssName('anychart-control-disabled'), !enabled);
-  }
-
-  if (this.positionLabel_) {
-    goog.dom.classlist.enable(
-        goog.asserts.assert(this.positionLabel_),
-        goog.getCssName('anychart-control-disabled'), !enabled);
-  }
-
-  if (this.alignLabel_) {
-    goog.dom.classlist.enable(
-        goog.asserts.assert(this.alignLabel_),
-        goog.getCssName('anychart-control-disabled'), !enabled);
-  }
-};
-
-
-/**
- * @return {boolean} Whether the title settings is enabled.
- */
-anychart.chartEditor2Module.settings.Title.prototype.isEnabled = function() {
-  return this.enabled_;
-};
-
 
 /** @override */
 anychart.chartEditor2Module.settings.Title.prototype.disposeInternal = function() {
@@ -276,37 +158,11 @@ anychart.chartEditor2Module.settings.Title.prototype.createDom = function() {
   var element = this.getElement();
   goog.dom.classlist.add(element, anychart.chartEditor2Module.settings.Title.CSS_CLASS);
 
-  if (this.allowEnabled_) {
-    var enabledBtn = new anychart.chartEditor2Module.checkbox.Base();
-    enabledBtn.addClassName(goog.getCssName('anychart-chart-editor-settings-control-right'));
-    enabledBtn.addClassName(goog.getCssName('anychart-chart-editor-settings-enabled'));
-    enabledBtn.setNormalValue(false);
-    enabledBtn.setCheckedValue(true);
-    if (this.enabledButtonContainer_) {
-      enabledBtn.render(this.enabledButtonContainer_);
-      enabledBtn.setParent(this);
-    } else {
-      var titleHeader = goog.dom.createDom(
-          goog.dom.TagName.DIV,
-          goog.getCssName('anychart-chart-editor-settings-header'),
-          this.headerText_);
-      goog.dom.appendChild(element, titleHeader);
-
-      enabledBtn.setLabel(titleHeader);
-      enabledBtn.render(titleHeader);
-      enabledBtn.setParent(this);
-
-      goog.dom.appendChild(element, goog.dom.createDom(
-          goog.dom.TagName.DIV,
-          goog.getCssName('anychart-chart-editor-settings-item-gap-mini')));
-    }
-  }
-
   var textInput = null;
   if (this.allowEditTitle_) {
     textInput = new anychart.chartEditor2Module.input.Base(/*'Chart title'*/);
     this.addChild(textInput, true);
-    goog.dom.classlist.add(textInput.getElement(), goog.getCssName('anychart-chart-editor-settings-chart-title'));
+    goog.dom.classlist.add(textInput.getElement(), 'title-text');
   }
 
   var colorPicker = null;
@@ -323,7 +179,7 @@ anychart.chartEditor2Module.settings.Title.prototype.createDom = function() {
     }
 
     colorPicker = new anychart.chartEditor2Module.colorPicker.Base();
-    colorPicker.addClassName(goog.getCssName('anychart-chart-editor-settings-control-right'));
+    colorPicker.addClassName(goog.getCssName('title-color'));
     this.addChild(colorPicker, true);
 
     goog.dom.appendChild(element, goog.dom.createDom(
@@ -332,17 +188,17 @@ anychart.chartEditor2Module.settings.Title.prototype.createDom = function() {
   }
 
   var fontFamily = new anychart.chartEditor2Module.select.FontFamily();
-  fontFamily.addClassName(goog.getCssName('anychart-chart-editor-settings-font-family'));
+  fontFamily.addClassName(goog.getCssName('title-font-family'));
   this.addChild(fontFamily, true);
 
   var fontSizeSelect = new anychart.chartEditor2Module.comboBox.Base();
   fontSizeSelect.setOptions([10, 12, 14, 16, 18, 20, 22]);
   this.addChild(fontSizeSelect, true);
-  goog.dom.classlist.add(fontSizeSelect.getElement(), goog.getCssName('anychart-chart-editor-settings-font-size'));
+  goog.dom.classlist.add(fontSizeSelect.getElement(), goog.getCssName('title-font-size'));
 
   var buttonsWrapper = goog.dom.createDom(
       goog.dom.TagName.DIV,
-      goog.getCssName('anychart-chart-editor-settings-control-right'));
+      goog.getCssName('title-font-style-buttons'));
   goog.dom.appendChild(element, buttonsWrapper);
 
   var boldBtn = new anychart.chartEditor2Module.button.Bold();
@@ -418,7 +274,6 @@ anychart.chartEditor2Module.settings.Title.prototype.createDom = function() {
     this.addChild(alignSelect, true);
   }
 
-  this.enabledBtn_ = enabledBtn;
   this.textInput_ = textInput;
   this.positionSelect_ = positionSelect;
   this.alignSelect_ = alignSelect;
@@ -430,7 +285,6 @@ anychart.chartEditor2Module.settings.Title.prototype.createDom = function() {
   this.underlineBtn_ = underlineBtn;
   this.colorPicker_ = colorPicker;
 
-  this.titleHeader_ = titleHeader;
   this.colorLabel_ = colorLabel;
   this.positionLabel_ = positionLabel;
   this.alignLabel_ = alignLabel;
@@ -439,12 +293,11 @@ anychart.chartEditor2Module.settings.Title.prototype.createDom = function() {
 };
 
 
-/**
- * Update controls.
- * @param {Object} target
- */
-anychart.chartEditor2Module.settings.Title.prototype.onChartDraw = function(target) {
-  if (this.enabledBtn_) this.enabledBtn_.setValueByTarget(target);
+/** @inheritDoc */
+anychart.chartEditor2Module.settings.Title.prototype.onChartDraw = function(evt) {
+  anychart.chartEditor2Module.settings.Title.base(this, 'onChartDraw', evt);
+
+  var target = evt.chart;
   if (this.textInput_) this.textInput_.setValueByTarget(target, true);
   if (this.positionSelect_) this.positionSelect_.setValueByTarget(target);
   if (this.alignSelect_) {
@@ -480,4 +333,42 @@ anychart.chartEditor2Module.settings.Title.prototype.updateKeys = function() {
   if (this.italicBtn_) this.italicBtn_.init(model, this.genKey('fontStyle()'));
   if (this.underlineBtn_) this.underlineBtn_.init(model, this.genKey('fontDecoration()'));
   if (this.colorPicker_) this.colorPicker_.init(model, this.genKey('fontColor()'));
+};
+
+
+anychart.chartEditor2Module.settings.Title.prototype.setEnabled = function(enabled) {
+  anychart.chartEditor2Module.settings.Title.base(this, 'setEnabled', enabled);
+};
+
+/**
+ * Enables/Disables the Title settings.
+ * @param {boolean} enabled Whether to enable (true) or disable (false) the
+ *     title settings.
+ */
+anychart.chartEditor2Module.settings.Title.prototype.setContentEnabled = function(enabled) {
+  if (this.titleHeader_) {
+    goog.dom.classlist.enable(
+        goog.asserts.assert(this.titleHeader_),
+        goog.getCssName('anychart-control-disabled'), !enabled);
+  }
+
+  if (this.colorLabel_) {
+    goog.dom.classlist.enable(
+        goog.asserts.assert(this.colorLabel_),
+        goog.getCssName('anychart-control-disabled'), !enabled);
+  }
+
+  if (this.positionLabel_) {
+    goog.dom.classlist.enable(
+        goog.asserts.assert(this.positionLabel_),
+        goog.getCssName('anychart-control-disabled'), !enabled);
+  }
+
+  if (this.alignLabel_) {
+    goog.dom.classlist.enable(
+        goog.asserts.assert(this.alignLabel_),
+        goog.getCssName('anychart-control-disabled'), !enabled);
+  }
+
+  anychart.chartEditor2Module.settings.Title.base(this, 'setContentEnabled', enabled);
 };
