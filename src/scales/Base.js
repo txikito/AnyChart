@@ -323,10 +323,11 @@ anychart.scales.Base.prototype.stackMode = function(opt_value) {
  */
 anychart.scales.Base.prototype.stackDirection = function(opt_value) {
   if (goog.isDef(opt_value)) {
-    var res = this.canBeStacked ? anychart.enums.normalizeScaleStackDirection(opt_value) : anychart.enums.ScaleStackDirection.DIRECT;
+    var res = anychart.enums.normalizeScaleStackDirection(opt_value);
     if (this.stackDirection_ != res) {
       this.stackDirection_ = res;
-      this.dispatchSignal(anychart.Signal.NEEDS_REAPPLICATION | anychart.Signal.NEEDS_RECALCULATION);
+      if (this.canBeStacked)
+        this.dispatchSignal(anychart.Signal.NEEDS_REAPPLICATION | anychart.Signal.NEEDS_RECALCULATION);
     }
     return this;
   }
