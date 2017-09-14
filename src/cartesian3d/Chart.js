@@ -50,6 +50,13 @@ goog.inherits(anychart.cartesian3dModule.Chart, anychart.core.CartesianBase);
 
 
 /**
+ * Line-like series should have bigger zIndex value than other series.
+ * @type {number}
+ */
+anychart.cartesian3dModule.Chart.ZINDEX_2D_LINE_SERIES = 32;
+
+
+/**
  * Dispatchs browser mouse events form series.
  * @param {anychart.core.MouseEvent} event Event object.
  */
@@ -580,18 +587,17 @@ anychart.cartesian3dModule.Chart.prototype.prepare3d = function() {
   for (var i = 0; i < allSeries.length; i++) {
     series = allSeries[i];
     if (series && series.enabled()) {
-      // if (series.planIsStacked() && series.supportsMarkers()) {
-      //   var inc = i * anychart.core.CartesianBase.ZINDEX_INCREMENT_MULTIPLIER;
-      //   series.markers().setAutoZIndex(anychart.core.CartesianBase.ZINDEX_MARKER + inc);
-      // }
-
-      if (series.isDiscreteBased()) {
-        var iterator = series.getResetIterator();
-        while (iterator.advance()) {
-          this.setSeriesPointZIndex_(/** @type {anychart.core.series.Cartesian} */(series));
+      if (series.check(anychart.core.drawers.Capabilities.IS_3D_BASED)) {
+        if (series.isDiscreteBased()) {
+          var iterator = series.getResetIterator();
+          while (iterator.advance()) {
+            this.setSeriesPointZIndex_(/** @type {anychart.core.series.Cartesian} */(series));
+          }
+        } else if (series.supportsStack()) {
+          this.lastEnabledAreaSeriesMap[series.getScalesPairIdentifier()] = i;
         }
-      } else if (series.supportsStack()) {
-        this.lastEnabledAreaSeriesMap[series.getScalesPairIdentifier()] = i;
+      } else {
+        series.setAutoZIndex(series.autoIndex() * anychart.core.ChartWithSeries.ZINDEX_INCREMENT_MULTIPLIER + anychart.cartesian3dModule.Chart.ZINDEX_2D_LINE_SERIES);
       }
     }
   }
