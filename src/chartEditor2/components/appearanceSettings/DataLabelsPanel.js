@@ -35,23 +35,7 @@ anychart.chartEditor2Module.DataLabelsPanel.prototype.createDom = function() {
   this.addChild(title, true);
 
   this.title_ = title;
-
 };
-
-
-// /**
-//  * @param {Object} chart
-//  * @return {anychart.chartEditor2Module.EditorModel.Key}
-//  * @private
-//  */
-// anychart.chartEditor2Module.DataLabelsPanel.prototype.getDataLabelsKey_ = function(chart) {
-//   var seriesCount = chart['getSeriesCount']();
-//   var keys = [];
-//   for (var i = 0; i < seriesCount; i++) {
-//     keys.push(goog.string.subs('chart.getSeriesAt(%s).labels()', i));
-//   }
-//   return keys;
-// };
 
 
 /** @override */

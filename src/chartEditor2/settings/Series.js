@@ -42,6 +42,8 @@ anychart.chartEditor2Module.settings.Series.prototype.createDom = function() {
   anychart.chartEditor2Module.settings.Series.base(this, 'createDom');
 
   var element = this.getElement();
+  goog.dom.classlist.add(element, anychart.chartEditor2Module.settings.Series.CSS_CLASS);
+
   var content = this.getContentElement();
   var model = /** @type {anychart.chartEditor2Module.EditorModel} */(this.getModel());
 
@@ -57,14 +59,18 @@ anychart.chartEditor2Module.settings.Series.prototype.createDom = function() {
       goog.dom.TagName.DIV,
       goog.getCssName('anychart-chart-editor-settings-item-gap')));
 
-  goog.dom.classlist.add(element, anychart.chartEditor2Module.settings.Series.CSS_CLASS);
+  // Data labels
+  var dataLabels = new anychart.chartEditor2Module.settings.Title(model, 'Data labels');
+  dataLabels.allowEnabled(true);
+  dataLabels.allowEditPosition(false);
+  dataLabels.allowEditAlign(false);
+  dataLabels.setTitleKey('format()');
+  dataLabels.setKey(this.genKey('labels()'));
+  this.addChild(dataLabels, true);
 
   this.nameInput_ = nameInput;
   this.colorPicker_ = colorPicker;
-  // this.removeBtn_ = removeBtn;
-  // this.typeSelect_ = typeSelect;
-  // this.mappingSelect_ = mappingSelect;
-  // this.markersEnabled_ = markersEnabledBtn;
+  this.dataLabels_ = dataLabels;
 
   this.updateKeys();
 };
@@ -77,6 +83,7 @@ anychart.chartEditor2Module.settings.Series.prototype.updateKeys = function() {
   var model = /** @type {anychart.chartEditor2Module.EditorModel} */(this.getModel());
   if (this.nameInput_) this.nameInput_.init(model, this.genKey('name()'));
   if (this.colorPicker_) this.colorPicker_.init(model, this.genKey('color()'));
+  if (this.dataLabels_) this.dataLabels_.setKey(this.genKey('labels()'));
 
   // if (this.typeSelect_) this.typeSelect_.setKey(this.genKey('seriesType()'));
   // if (this.mappingSelect_) this.mappingSelect_.setMappingId(this.seriesId_);
@@ -94,17 +101,13 @@ anychart.chartEditor2Module.settings.Series.prototype.onChartDraw = function(evt
 };
 
 
-// /** @inheritDoc */
-// anychart.chartEditor2Module.settings.Series.prototype.setContentEnabled = function(enabled) {
-//   anychart.chartEditor2Module.settings.Series.base(this, 'setContentEnabled', enabled);
-//
-// };
-
-
 /** @override */
 anychart.chartEditor2Module.settings.Series.prototype.disposeInternal = function() {
   this.nameInput_ = null;
   this.colorPicker_ = null;
+
+  this.dataLabels_.dispose();
+  this.dataLabels_ = null;
 
   anychart.chartEditor2Module.settings.Series.base(this, 'disposeInternal');
 };

@@ -138,7 +138,7 @@ anychart.chartEditor2Module.SettingsPanel.prototype.enterDocument = function() {
 anychart.chartEditor2Module.SettingsPanel.prototype.onChartDraw = function(evt) {
   anychart.chartEditor2Module.SettingsPanel.base(this, 'onChartDraw', evt);
 
-  if (evt.rebuild && this.canBeEnabled()) {
+  if (evt.rebuild && this.enableContentCheckbox && this.canBeEnabled()) {
     this.enableContentCheckbox.setValueByTarget(evt.chart);
     this.setContentEnabled(this.enableContentCheckbox.isChecked());
   }
@@ -163,9 +163,6 @@ anychart.chartEditor2Module.SettingsPanel.prototype.canBeEnabled = function() {
  * @protected
  */
 anychart.chartEditor2Module.SettingsPanel.prototype.setEnabled = function(enabled) {
-  // if (this.name == 'Title')
-  //   debugger;
-
   this.enabled = enabled;
   if (!this.canBeEnabled())
     this.enabledContent = this.enabled;
