@@ -69,9 +69,14 @@ anychart.chartEditor2Module.ComponentWithKey.prototype.genKey = function(opt_com
   var result = [];
 
   for (var i = 0, count = this.key.length; i < count; i++) {
-    if (i == count - 1)
-      result.push(this.key[i] + '.' + opt_completion);
-    else
+    if (i == count - 1) {
+      if (goog.isArray(this.key[i])) {
+        result.push(this.key[i]);
+        result.push(opt_completion);
+      } else
+        result.push(this.key[i] + '.' + opt_completion);
+
+    } else
       result.push(this.key[i]);
   }
 

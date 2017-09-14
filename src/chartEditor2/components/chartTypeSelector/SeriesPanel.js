@@ -55,7 +55,7 @@ anychart.chartEditor2Module.SeriesPanel.prototype.createDom = function() {
   var mappings = model.getValue([['dataSettings'], ['mappings', this.plotIndex_]]);
   var keyStr = chartType == 'stock' ? 'plot(' + this.plotIndex_ + ').' : '';
   var id = goog.isDef(mappings[this.index_]['id']) ? mappings[this.index_]['id'] : this.index_;
-  keyStr += 'getSeries(' + id + ').name()';
+  keyStr += 'getSeries(\'' + id + '\').name()';
   var key = [['chart'], ['settings'], keyStr];
 
   var input = new anychart.chartEditor2Module.input.Base();

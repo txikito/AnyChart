@@ -121,19 +121,10 @@ anychart.chartEditor2Module.Chart.prototype.update = function() {
             if (settings['chart']['type'] == 'map') {
               seriesCtor = seriesCtor.split('-')[0];
             }
-
             series = this.chart_[seriesCtor](mappingInstance);
-
-            // if (settings['chart']['type'] == 'map' && mappingObj['geoIdField']) {
-            //   series['geoIdField'](mappingObj['geoIdField']);
-            // }
           }
 
-          var id = plotMapping[j]['id'];
-          if (goog.isDef(id))
-            series['id'](id);
-          else
-            plotMapping[j]['id'] = series['id']();
+          series['id'](plotMapping[j]['id']);
         }
       }
     }

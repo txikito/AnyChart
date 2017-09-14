@@ -531,8 +531,7 @@ anychart.chartEditor2Module.EditorModel.prototype.createPlotMapping = function()
  */
 anychart.chartEditor2Module.EditorModel.prototype.createSeriesConfig = function(index, type, opt_id, opt_startFieldIndex) {
   var config = {'ctor': type, 'mapping': {}};
-  if (goog.isDef(opt_id))
-    config['id'] = opt_id;
+  config['id'] = goog.isDef(opt_id) ? opt_id : goog.string.createUniqueString();
 
   var numbers = goog.array.clone(this.fieldsState_.numbers);
   if (this.model_['chart']['type']== 'map') {
@@ -702,7 +701,10 @@ anychart.chartEditor2Module.EditorModel.prototype.dropPlot = function(index) {
  * @param {number} plotIndex
  */
 anychart.chartEditor2Module.EditorModel.prototype.addSeries = function(plotIndex) {
-  var mapping = this.createSeriesConfig(this.model_['dataSettings']['mappings'][plotIndex].length, /** @type {string} */(this.model_['chart']['seriesType']));
+  var mapping = this.createSeriesConfig(
+      this.model_['dataSettings']['mappings'][plotIndex].length,
+      /** @type {string} */(this.model_['chart']['seriesType']));
+
   this.model_['dataSettings']['mappings'][plotIndex].push(mapping);
   this.dispatchUpdate();
 };
@@ -716,7 +718,7 @@ anychart.chartEditor2Module.EditorModel.prototype.addSeries = function(plotIndex
 anychart.chartEditor2Module.EditorModel.prototype.dropSeries = function(plotIndex, seriesIndex) {
   if (this.model_['dataSettings']['mappings'].length > plotIndex && this.model_['dataSettings']['mappings'][plotIndex].length > seriesIndex) {
     var removedSeries = goog.array.splice(this.model_['dataSettings']['mappings'][plotIndex], seriesIndex, 1);
-    this.dropChartSettings('getSeries(' + removedSeries[0]['id'] + ')');
+    this.dropChartSettings('getSeries(\'' + removedSeries[0]['id'] + '\')');
     this.dispatchUpdate();
   }
 };
