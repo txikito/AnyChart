@@ -326,7 +326,7 @@ anychart.scales.Base.prototype.stackDirection = function(opt_value) {
     var res = anychart.enums.normalizeScaleStackDirection(opt_value);
     if (this.stackDirection_ != res) {
       this.stackDirection_ = res;
-      if (this.canBeStacked)
+      if (this.stackMode() != anychart.enums.ScaleStackMode.NONE)
         this.dispatchSignal(anychart.Signal.NEEDS_REAPPLICATION | anychart.Signal.NEEDS_RECALCULATION);
     }
     return this;
