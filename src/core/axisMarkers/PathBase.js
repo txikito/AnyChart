@@ -130,14 +130,17 @@ anychart.core.axisMarkers.PathBase.prototype.scaleInternal = function(opt_value)
     var val = ganttScale ?
         (opt_value == this.scale_ ? null : opt_value) :
         anychart.scales.Base.setupScale(/** @type {anychart.scales.Base} */(this.scale_), opt_value, null, anychart.scales.Base.ScaleTypes.ALL_DEFAULT, null, this.scaleInvalidated, this);
-    if (val) {
+    if (val || (goog.isNull(opt_value) && this.scale_)) {
       var dispatch = this.scale_ == val;
-      this.scale_ = val;
-      if (ganttScale) {
+      if (!val)
+        this.scale_.unlistenSignals(this.scaleInvalidated, this);
+      this.scale_ = /** @type {anychart.ganttModule.Scale|anychart.scales.Base} */(val);
+      if (ganttScale || !val) {
         this.invalidate(anychart.ConsistencyState.BOUNDS,
             anychart.Signal.NEEDS_REDRAW | anychart.Signal.BOUNDS_CHANGED);
-      } else
+      } else {
         val.resumeSignalsDispatching(dispatch);
+      }
     }
     return this;
   } else {

@@ -274,9 +274,14 @@ anychart.annotationsModule.Base.prototype.yScale = function(opt_value) {
     var val = anychart.scales.Base.setupScale(this.yScale_, opt_value, null, anychart.scales.Base.ScaleTypes.ALL_DEFAULT, null, this.scaleSignalHandler_, this);
     if (val || goog.isNull(opt_value)) {
       var dispatch = this.yScale_ == val;
+      if (!val)
+        this.yScale_.unlistenSignals(this.scaleSignalHandler_, this);
       this.yScale_ = val;
-      if (val)
+      if (val) {
         val.resumeSignalsDispatching(dispatch);
+      } else {
+        this.invalidate(anychart.ConsistencyState.ANNOTATIONS_ANCHORS, anychart.Signal.NEEDS_REDRAW);
+      }
     }
     return this;
   }
@@ -297,10 +302,12 @@ anychart.annotationsModule.Base.prototype.xScale = function(opt_value) {
         anychart.scales.Base.setupScale(this.yScale_, opt_value, null, anychart.scales.Base.ScaleTypes.ALL_DEFAULT, null, this.scaleSignalHandler_, this);
     if (val || goog.isNull(opt_value)) {
       var dispatch = this.xScale_ == val;
+      if (!val)
+        (/** @type {anychart.core.Base} */(this.xScale_)).unlistenSignals(this.scaleSignalHandler_, this);
       this.xScale_ = /** @type {anychart.scales.Base|anychart.stockModule.scales.Scatter} */(val);
-      if (stockScale) {
+      if (stockScale || !val) {
         this.invalidate(anychart.ConsistencyState.ANNOTATIONS_ANCHORS, anychart.Signal.NEEDS_REDRAW);
-      } else if (val) {
+      } else {
         val.resumeSignalsDispatching(dispatch);
       }
     }
