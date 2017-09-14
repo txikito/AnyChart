@@ -341,7 +341,7 @@ anychart.cartesian3dModule.Chart.prototype.seriesConfig = (function() {
     drawerType: anychart.enums.SeriesDrawerTypes.LINE,
     shapeManagerType: anychart.enums.ShapeManagerTypes.PER_SERIES,
     shapesConfig: [
-      anychart.core.shapeManagers.pathStrokeConfig
+      anychart.core.shapeManagers.pathStrokeTopZIndexConfig
     ],
     secondaryShapesConfig: null,
     postProcessor: null,
