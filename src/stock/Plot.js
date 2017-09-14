@@ -1965,6 +1965,16 @@ anychart.stockModule.Plot.prototype.unhighlight = function() {
 //
 //----------------------------------------------------------------------------------------------------------------------
 /**
+ * Refreshes drag anchor on data update.
+ */
+anychart.stockModule.Plot.prototype.refreshDragAnchor = function() {
+  if (this.dragger_ && this.dragger_.isDragging()) {
+    this.dragger_.refreshDragAnchor();
+  }
+};
+
+
+/**
  * Mousedown handler.
  * @param {acgraph.events.BrowserEvent} e
  * @private
@@ -2682,6 +2692,14 @@ anychart.stockModule.Plot.Dragger.prototype.dragEndHandler_ = function(e) {
     this.frameAction_(0);
   }
   this.plot_.chart_.dragEnd();
+};
+
+
+/**
+ * Refreshes drag anchor.
+ */
+anychart.stockModule.Plot.Dragger.prototype.refreshDragAnchor = function() {
+  this.plot_.chart_.refreshDragAnchor(this.anchor_);
 };
 
 

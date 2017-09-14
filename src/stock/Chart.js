@@ -899,12 +899,13 @@ anychart.stockModule.Chart.prototype.setDefaultPlotSettings = function(value) {
  */
 anychart.stockModule.Chart.prototype.selectRangeInternal_ = function(start, end) {
   var xScale = /** @type {!anychart.stockModule.scales.Scatter} */(this.xScale());
+  var scrollerXScale = /** @type {!anychart.stockModule.scales.Scatter} */(this.scroller().xScale());
   if (this.dataController_.refreshFullRange()) {
     this.dataController_.updateFullScaleRange(xScale);
-    this.dataController_.updateFullScaleRange(/** @type {!anychart.stockModule.scales.Scatter} */(this.scroller().xScale()));
+    this.dataController_.updateFullScaleRange(scrollerXScale);
   }
-  if (this.dataController_.select(start, end)) {
-    this.dataController_.updateCurrentScaleRange(xScale, false);
+  if (this.dataController_.select(start, end, scrollerXScale)) {
+    this.dataController_.updateCurrentScaleRange(xScale);
     this.invalidateRedrawable();
   }
 };
@@ -994,6 +995,8 @@ anychart.stockModule.Chart.prototype.getPlotsCount = function() {
 //----------------------------------------------------------------------------------------------------------------------
 /** @inheritDoc */
 anychart.stockModule.Chart.prototype.drawContent = function(bounds) {
+  var i, plot;
+
   if (this.annotationsModule)
     this.annotations().ready(true);
 
@@ -1010,15 +1013,20 @@ anychart.stockModule.Chart.prototype.drawContent = function(bounds) {
     anychart.performance.start('Stock data calc');
     var xScale = /** @type {anychart.stockModule.scales.Scatter} */(this.xScale());
     var scrollerXScale = /** @type {anychart.stockModule.scales.Scatter} */(this.scroller().xScale());
-    var changed = this.dataController_.refreshSelection(this.minPlotsDrawingWidth_, this.preserveSelectedRangeOnDataUpdate_, xScale instanceof anychart.stockModule.scales.Ordinal);
-    this.dataController_.updateFullScaleRange(xScale);
-    this.dataController_.updateFullScaleRange(scrollerXScale);
+    var changed = this.dataController_.refreshSelection(
+        this.minPlotsDrawingWidth_,
+        this.inDrag_ || this.preserveSelectedRangeOnDataUpdate_,
+        xScale, scrollerXScale);
     if (!!(changed & 1)) {
-      this.dataController_.updateCurrentScaleRange(xScale, false);
       this.invalidateRedrawable();
+      for (i = 0; i < this.plots_.length; i++) {
+        plot = this.plots_[i];
+        if (plot) {
+          plot.refreshDragAnchor();
+        }
+      }
     }
     if (!!(changed & 2)) {
-      this.dataController_.updateCurrentScaleRange(scrollerXScale, true);
       this.scroller_.invalidateScaleDependend();
       this.invalidate(anychart.ConsistencyState.STOCK_SCROLLER);
     }
@@ -1048,8 +1056,8 @@ anychart.stockModule.Chart.prototype.drawContent = function(bounds) {
 
   if (this.hasInvalidationState(anychart.ConsistencyState.STOCK_PLOTS_APPEARANCE)) {
     anychart.performance.start('Stock drawing plots');
-    for (var i = 0; i < this.plots_.length; i++) {
-      var plot = this.plots_[i];
+    for (i = 0; i < this.plots_.length; i++) {
+      plot = this.plots_[i];
       if (plot) {
         plot
             .container(this.rootElement)
@@ -2454,6 +2462,31 @@ anychart.stockModule.Chart.prototype.getDragAnchor = function() {
 
 
 /**
+ * Refreshes drag anchor.
+ * @param {anychart.stockModule.Chart.DragAnchor} anchor
+ */
+anychart.stockModule.Chart.prototype.refreshDragAnchor = function(anchor) {
+  var controller = this.dataController_;
+  var vf = controller.getFirstKey();
+  var vl = controller.getLastKey();
+  var vfi = this.getIndexByKey(vf);
+  var vli = this.getIndexByKey(vl);
+  var fs = controller.getFirstSelectedKey();
+  var ls = controller.getLastSelectedKey();
+  var fsi = controller.getFirstSelectedIndex();//this.getIndexByKey(fs);
+  var lsi = controller.getLastSelectedIndex();//this.getIndexByKey(ls);
+  anchor.firstKey = fs;
+  anchor.lastKey = ls;
+  anchor.firstIndex = fsi;
+  anchor.lastIndex = lsi;
+  anchor.minKey = vf;
+  anchor.maxKey = vl;
+  anchor.minIndex = vfi;
+  anchor.maxIndex = vli;
+};
+
+
+/**
  * Drags the chart to passed position. If opt_source passed - dispatches with that source instead of plot drag.
  * @param {number} ratio
  * @param {anychart.stockModule.Chart.DragAnchor} anchor
@@ -2484,8 +2517,6 @@ anychart.stockModule.Chart.prototype.dragToRatio = function(ratio, anchor, opt_s
     anchor.lastIndex = this.getIndexByKey(anchor.lastKey);
     anchor.minIndex = this.getIndexByKey(anchor.minKey);
     anchor.maxIndex = this.getIndexByKey(anchor.maxKey);
-    // anchor.minKey = this.dataController_.getFirstKey();
-    // anchor.maxKey = this.dataController_.getLastKey();
     this.dispatchRangeChange_(
         anychart.enums.EventType.SELECTED_RANGE_CHANGE,
         opt_source || anychart.enums.StockRangeChangeSource.PLOT_DRAG);
@@ -2524,6 +2555,7 @@ anychart.stockModule.Chart.prototype.askDragStart = function() {
       anychart.enums.EventType.SELECTED_RANGE_CHANGE_START,
       anychart.enums.StockRangeChangeSource.PLOT_DRAG);
   if (res) {
+    this.inDrag_ = true;
     this.preventHighlight();
     goog.style.setStyle(document['body'], 'cursor', acgraph.vector.Cursor.EW_RESIZE);
   }
@@ -2535,6 +2567,7 @@ anychart.stockModule.Chart.prototype.askDragStart = function() {
  * Notifies the chart, that the drag process has ended.
  */
 anychart.stockModule.Chart.prototype.dragEnd = function() {
+  this.inDrag_ = false;
   goog.style.setStyle(document['body'], 'cursor', '');
   this.dispatchRangeChange_(
       anychart.enums.EventType.SELECTED_RANGE_CHANGE_FINISH,

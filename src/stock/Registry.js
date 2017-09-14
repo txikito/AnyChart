@@ -88,11 +88,7 @@ anychart.stockModule.Registry.Item;
  *   preFirstIndex: number,
  *   lastIndex: number,
  *   postLastIndex: number,
- *   minDistance: number,
- *   startKeyRatio: number,
- *   endKeyRatio: number,
- *   startIndexRatio: number,
- *   endIndexRatio: number
+ *   minDistance: number
  * }}
  */
 anychart.stockModule.Registry.Selection;
@@ -362,7 +358,7 @@ anychart.stockModule.Registry.prototype.addSource = function(table) {
  * @return {anychart.stockModule.Registry.Selection}
  */
 anychart.stockModule.Registry.prototype.getSelection = function(startKey, endKey) {
-  var first, last, preFirst, postLast, startIndex, endIndex, selection, minDistance, i, keysStart, keysRange;
+  var first, last, preFirst, postLast, startIndex, endIndex, selection, minDistance, i;
   var keysLength = this.keys_.length;
   if (keysLength) {
     // checking cache
@@ -377,9 +373,6 @@ anychart.stockModule.Registry.prototype.getSelection = function(startKey, endKey
       if (selection.startKey == startKey && selection.endKey == endKey)
         return selection;
     }
-
-    keysStart = this.keys_[0].key;
-    keysRange = this.keys_[keysLength - 1].key - keysStart;
 
     startIndex = this.getIndexByKey(startKey);
     endIndex = this.getIndexByKey(endKey);
@@ -419,7 +412,7 @@ anychart.stockModule.Registry.prototype.getSelection = function(startKey, endKey
       }
     }
   } else {
-    keysStart = keysRange = first = last = preFirst = postLast = startIndex = endIndex = minDistance = NaN;
+    first = last = preFirst = postLast = startIndex = endIndex = minDistance = NaN;
   }
 
   selection = {
@@ -431,32 +424,13 @@ anychart.stockModule.Registry.prototype.getSelection = function(startKey, endKey
     preFirstIndex: preFirst,
     lastIndex: last,
     postLastIndex: postLast,
-    minDistance: minDistance,
-    startKeyRatio: keysRange ? (startKey - keysStart) / keysRange : 0,
-    endKeyRatio: keysRange ? (endKey - keysStart) / keysRange : 1,
-    startIndexRatio: keysLength ? startIndex / keysLength : 0,
-    endIndexRatio: keysLength ? endIndex / keysLength : 1
+    minDistance: minDistance
   };
   if (keysLength) {
     this.selectionCache_[this.selectionCachePointer_] = selection;
     this.selectionCachePointer_ = (this.selectionCachePointer_ + 1) % anychart.stockModule.Registry.SELECTION_CACHE_SIZE;
   }
   return selection;
-};
-
-
-/**
- * Recalculates startIndexRatio and endIndexRatio in the selection.
- * @param {anychart.stockModule.Registry.Selection} selection
- */
-anychart.stockModule.Registry.prototype.normalizeSelectionIndexRatios = function(selection) {
-  if (this.keys_.length) {
-    selection.startIndexRatio = this.getIndexByKey(selection.startKey) / this.keys_.length;
-    selection.endIndexRatio = this.getIndexByKey(selection.endKey) / this.keys_.length;
-  } else {
-    selection.startIndexRatio = 0;
-    selection.endIndexRatio = 1;
-  }
 };
 
 
