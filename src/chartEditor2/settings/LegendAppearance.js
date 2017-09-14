@@ -119,6 +119,19 @@ anychart.chartEditor2Module.settings.LegendAppearance.prototype.createDom = func
   this.addChild(alignSelect, true);
   //endregion
 
+  goog.dom.appendChild(content, goog.dom.createDom(
+      goog.dom.TagName.DIV,
+      goog.getCssName('anychart-chart-editor-settings-item-gap')));
+
+  var items = new anychart.chartEditor2Module.settings.Title(model);
+  items.allowEnabled(false);
+  items.allowEditTitle(false);
+  items.allowEditPosition(false);
+  items.allowEditAlign(false);
+  items.allowEditColor(false);
+  items.setKey([['chart'], ['settings'], 'legend()']);
+  this.addChild(items, true);
+
   this.layoutSelect_ = layoutSelect;
   this.orientationSelect_ = orientationSelect;
   this.alignSelect_ = alignSelect;
@@ -126,6 +139,8 @@ anychart.chartEditor2Module.settings.LegendAppearance.prototype.createDom = func
   this.layoutLabel_ = layoutLabel;
   this.orientationLabel_ = orientationLabel;
   this.alignLabel_ = alignLabel;
+
+  this.items_ = items;
 };
 
 
@@ -170,6 +185,7 @@ anychart.chartEditor2Module.settings.LegendAppearance.prototype.disposeInternal 
   this.layoutSelect_ = null;
   this.orientationSelect_ = null;
   this.alignSelect_ = null;
+  this.items_ = null;
 
   anychart.chartEditor2Module.settings.LegendAppearance.base(this, 'disposeInternal');
 };

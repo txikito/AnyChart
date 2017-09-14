@@ -23,10 +23,10 @@ anychart.chartEditor2Module.AppearanceSettings = function(model, opt_domHelper) 
   this.setModel(model);
 
   this.panels_ = [
-    {classFunc: anychart.chartEditor2Module.GeneralTheming, instance: null},
     {classFunc: anychart.chartEditor2Module.ChartTitlePanel, instance: null},
     {classFunc: anychart.chartEditor2Module.LegendPanel, instance: null},
     {classFunc: anychart.chartEditor2Module.DataLabelsPanel, instance: null}
+    // {classFunc: anychart.chartEditor2Module.GeneralTheming, instance: null},
     // {classFunc: anychart.chartEditor2Module.CreditsPanel, instance: null}
   ];
 

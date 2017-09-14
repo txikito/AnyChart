@@ -37,41 +37,17 @@ anychart.chartEditor2Module.LegendPanel.prototype.createDom = function() {
       goog.dom.TagName.DIV,
       goog.getCssName('anychart-chart-editor-settings-item-gap')));
 
-  var items = new anychart.chartEditor2Module.settings.Title(model);
-  items.allowEnabled(false);
-  items.allowEditTitle(false);
-  items.allowEditPosition(false);
-  items.allowEditAlign(false);
-  items.allowEditColor(false);
-  items.setKey([['chart'], ['settings'], 'legend()']);
-  this.addChild(items, true);
-
-  goog.dom.appendChild(content, goog.dom.createDom(
-      goog.dom.TagName.DIV,
-      goog.getCssName('anychart-chart-editor-settings-item-gap')));
-
   var title = new anychart.chartEditor2Module.settings.Title(model, 'Title');
   title.setPositionKey('orientation()');
   title.setKey([['chart'], ['settings'], 'legend().title()']);
   this.addChild(title, true);
 
-  this.items_ = items;
   this.title_ = title;
-};
-
-
-/** @inheritDoc */
-anychart.chartEditor2Module.LegendPanel.prototype.onChartDraw = function(evt) {
-  anychart.chartEditor2Module.LegendPanel.base(this, 'onChartDraw', evt);
-
-
 };
 
 
 /** @override */
 anychart.chartEditor2Module.LegendPanel.prototype.disposeInternal = function() {
   this.title_ = null;
-  this.items_ = null;
-
   anychart.chartEditor2Module.LegendPanel.base(this, 'disposeInternal');
 };
