@@ -331,7 +331,7 @@ anychart.scales.Base.prototype.stackDirection = function(opt_value) {
     }
     return this;
   }
-  return this.canBeStacked ? this.stackDirection_ : anychart.enums.ScaleStackDirection.DIRECT;
+  return this.stackDirection_;
 };
 
 
