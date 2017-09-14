@@ -1682,7 +1682,7 @@ anychart.enums.Cartesian3dSeriesType = {
   BAR: 'bar',
   COLUMN: 'column',
   LINE: 'line',
-  LINE_2D: 'line2d'
+  LINE_2D: 'line-2d'
 };
 
 

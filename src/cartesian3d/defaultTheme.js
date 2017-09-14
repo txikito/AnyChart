@@ -21,6 +21,9 @@ goog.mixin(goog.global['anychart']['themes']['defaultTheme'], {
           'position': 'left-top'
         }
       },
+      'bar': {
+        'isVertical': true
+      },
       'line': {
       },
       'line2d': {
