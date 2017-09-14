@@ -3,6 +3,7 @@ goog.provide('anychart.chartEditor2Module.settings.Series');
 goog.require('anychart.chartEditor2Module.SettingsPanel');
 goog.require('anychart.chartEditor2Module.colorPicker.Base');
 goog.require('anychart.chartEditor2Module.input.Base');
+goog.require('anychart.chartEditor2Module.settings.Title');
 
 
 
