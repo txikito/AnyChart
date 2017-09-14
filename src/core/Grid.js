@@ -187,26 +187,20 @@ anychart.core.Grid.prototype.setDefaultLayout = function(value) {
 //----------------------------------------------------------------------------------------------------------------------
 /**
  * Getter/setter for scale.
- * @param {anychart.scales.Base=} opt_value Scale.
+ * @param {(anychart.scales.Base|Object|anychart.enums.ScaleTypes)=} opt_value Scale.
  * @return {anychart.scales.Base|!anychart.core.Grid} Axis scale or itself for method chaining.
  */
 anychart.core.Grid.prototype.scale = function(opt_value) {
   if (goog.isDef(opt_value)) {
-    if (this.scale_ != opt_value) {
-      this.scale_ = opt_value;
-      this.scale_.listenSignals(this.scaleInvalidated_, this);
-      this.invalidate(anychart.ConsistencyState.GRIDS_POSITION | anychart.ConsistencyState.BOUNDS,
-          anychart.Signal.NEEDS_REDRAW | anychart.Signal.BOUNDS_CHANGED);
+    var val = anychart.scales.Base.setupScale(this.scale_, opt_value, null, anychart.scales.Base.ScaleTypes.ALL_DEFAULT, null, this.scaleInvalidated_, this);
+    if (val) {
+      var dispatch = this.scale_ == val;
+      this.scale_ = val;
+      val.resumeSignalsDispatching(dispatch);
     }
     return this;
   } else {
-    if (this.scale_) {
-      return this.scale_;
-    } else {
-      if (this.axis_)
-        return /** @type {?anychart.scales.Base} */ (this.axis_.scale());
-      return null;
-    }
+    return this.scale_ || (this.axis_ && /** @type {?anychart.scales.Base} */ (this.axis_.scale())) || null;
   }
 };
 
@@ -226,6 +220,7 @@ anychart.core.Grid.prototype.scaleInvalidated_ = function(event) {
   signal |= anychart.Signal.BOUNDS_CHANGED;
 
   var state = anychart.ConsistencyState.BOUNDS |
+      anychart.ConsistencyState.GRIDS_POSITION |
       anychart.ConsistencyState.APPEARANCE;
 
   this.invalidate(state, signal);
