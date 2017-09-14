@@ -4,7 +4,6 @@ goog.require('goog.ui.CheckboxRenderer');
 goog.require('goog.ui.INLINE_BLOCK_CLASSNAME');
 
 
-
 /**
  * Select renderer.
  * @constructor
@@ -23,18 +22,17 @@ anychart.chartEditor2Module.checkbox.Renderer.prototype.createDom = function(che
   var element = dom.createDom(goog.dom.TagName.SPAN,
       this.getClassNames(checkbox).join(' '),
       dom.createDom(goog.dom.TagName.SPAN, [
-                                goog.getCssName(this.getCssClass(), 'element'),
-                                goog.ui.INLINE_BLOCK_CLASSNAME
-                              ],
-                              dom.createDom(
-                                  goog.dom.TagName.DIV, [
-                                    goog.getCssName(this.getCssClass(), 'checkmark'),
-                                    'ac ac-check'])),
+            goog.getCssName(this.getCssClass(), 'element'),
+            goog.ui.INLINE_BLOCK_CLASSNAME
+          ],
+          dom.createDom(goog.dom.TagName.DIV, [
+            goog.getCssName(this.getCssClass(), 'checkmark'),
+            'ac ac-check'])),
       dom.createDom(goog.dom.TagName.DIV, [
-                                goog.getCssName(this.getCssClass(), 'caption'),
-                                goog.ui.INLINE_BLOCK_CLASSNAME
-                              ],
-                              checkbox.getCaption()));
+            goog.getCssName(this.getCssClass(), 'caption'),
+            goog.ui.INLINE_BLOCK_CLASSNAME
+          ],
+          checkbox.getCaption()));
 
   var state = checkbox.getChecked();
   this.setCheckboxState(element, state);

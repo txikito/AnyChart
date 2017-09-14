@@ -322,32 +322,31 @@
 }
 /** endof STEPS **/
 
-.step-setup-chart {
+.anychart-chart-editor-step {
   .chart-container {
     float: right;
-    width: 46%;
+    width: 56%;
     height: 65%;
     margin: 15px 15px 15px 0;
   }
-  .basic-settings {
-    float: right;
-    width: 46%;
-    margin: 15px 15px 15px 0;
+}
 
-    .fields-row {
-      margin-bottom: 1em;
-    }
-    .series-names {
-      input {
-        width: 70%;
-        margin-bottom: 1em;
-      }
-    }
+.general-settings {
+  float: right;
+  width: 56%;
+  margin: 15px 15px 15px 0;
+
+  .fields-row {
+    margin-bottom: 1em;
+  }
+
+  .anychart-checkbox {
+    margin-right: 10px;
   }
 }
 
 .data-set-panel-list {
-  width: 20%;
+  width: 15%;
   height: 100%;
   float: left;
   overflow-x: visible;
@@ -431,7 +430,7 @@
 }
 
 .chart-type-selector {
-  width: 30%;
+  width: 26%;
   height: 100%;
   float: left;
   padding: 15px 0;
@@ -501,12 +500,6 @@
   .appearance-settings {
     float: left;
     width: 35%;
-  }
-  .chart-container {
-    float: right;
-    width: 60%;
-    height: 90%;
-    margin: 1% 1% 0 0;
   }
 }
 
@@ -1027,7 +1020,7 @@
   border-top: 1px solid #ccc;
 }
 
-.anychart-chart-editor-settings-label {
+.settings-label {
   line-height: 1.4em;
   padding: 5px 0;
 }
@@ -1113,31 +1106,42 @@
 
 /* --------- Controls styles ---------- */
 .anychart-checkbox {
-  border: 1px solid #1C5180;
-  display: -moz-inline-box;
-  display: inline-block;
-  font-size: 1px;  /* Fixes the height in IE6 */
-  height: 11px;
-  margin: 0 4px 0 1px;
-  vertical-align: text-bottom;
-  width: 11px;
+  .anychart-checkbox-element {
+    border: 1px solid #1C5180;
+    display: -moz-inline-box;
+    display: inline-block;
+    font-size: 1px;  /* Fixes the height in IE6 */
+    height: 11px;
+    margin: 0 4px 0 1px;
+    vertical-align: text-bottom;
+    width: 11px;
+  }
+
 }
 
 .anychart-checkbox-checked {
-  background: #fff url('http://ssl.gstatic.com/closure/check-sprite.gif') no-repeat 2px center;
+  .anychart-checkbox-element {
+    background: #fff url('http://ssl.gstatic.com/closure/check-sprite.gif') no-repeat 2px center;
+  }
 }
 
 .anychart-checkbox-undetermined {
-  background: #bbb url('http://ssl.gstatic.com/closure/check-sprite.gif') no-repeat 2px center;
+  .anychart-checkbox-element {
+    background: #bbb url('http://ssl.gstatic.com/closure/check-sprite.gif') no-repeat 2px center;
+  }
 }
 
 .anychart-checkbox-unchecked {
-  background: #fff;
+  .anychart-checkbox-element {
+    background: #fff;
+  }
 }
 
 .anychart-checkbox-disabled {
-  border: 1px solid lightgray;
-  background-position: -7px;
+  .anychart-checkbox-element {
+    border: 1px solid lightgray;
+    background-position: -7px;
+  }
 }
 
 .data-dialog {

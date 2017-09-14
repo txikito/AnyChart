@@ -2,6 +2,7 @@ goog.provide('anychart.chartEditor2Module.steps.VisualAppearance');
 
 goog.require('anychart.chartEditor2Module.AppearanceSettings');
 goog.require('anychart.chartEditor2Module.Chart');
+goog.require('anychart.chartEditor2Module.GeneralSettings');
 goog.require('anychart.chartEditor2Module.events');
 goog.require('anychart.chartEditor2Module.steps.Base');
 goog.require('goog.dom.classlist');
@@ -29,12 +30,15 @@ anychart.chartEditor2Module.steps.VisualAppearance.prototype.createDom = functio
   anychart.chartEditor2Module.steps.VisualAppearance.base(this, 'createDom');
 
   var element = /** @type {Element} */(this.getElement());
-  goog.dom.classlist.add(element, 'step-visual-appearance');
-
   var model = /** @type {anychart.chartEditor2Module.EditorModel} */(/** @type {anychart.chartEditor2Module.Editor} */(this.getParent()).getModel());
+
+  goog.dom.classlist.add(element, 'step-visual-appearance');
   
-  this.categorySelector_ = new anychart.chartEditor2Module.AppearanceSettings(model);
-  this.addChild(this.categorySelector_, true);
+  this.appearanceSettings_ = new anychart.chartEditor2Module.AppearanceSettings(model);
+  this.addChild(this.appearanceSettings_, true);
+
+  this.generalSettings_ = new anychart.chartEditor2Module.GeneralSettings(model);
+  this.addChild(this.generalSettings_, true);
 };
 
 

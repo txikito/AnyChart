@@ -173,7 +173,7 @@ anychart.chartEditor2Module.settings.Title.prototype.createDom = function() {
           goog.dom.TagName.LABEL,
           [
             goog.ui.INLINE_BLOCK_CLASSNAME,
-            goog.getCssName('anychart-chart-editor-settings-label')
+            goog.getCssName('settings-label')
           ],
           'Font color');
       goog.dom.appendChild(content, colorLabel);
@@ -232,7 +232,7 @@ anychart.chartEditor2Module.settings.Title.prototype.createDom = function() {
         goog.dom.TagName.LABEL,
         [
           goog.ui.INLINE_BLOCK_CLASSNAME,
-          goog.getCssName('anychart-chart-editor-settings-label')
+          goog.getCssName('settings-label')
         ],
         'Orientation');
     goog.dom.appendChild(content, positionLabel);
@@ -260,7 +260,7 @@ anychart.chartEditor2Module.settings.Title.prototype.createDom = function() {
         goog.dom.TagName.LABEL,
         [
           goog.ui.INLINE_BLOCK_CLASSNAME,
-          goog.getCssName('anychart-chart-editor-settings-label')
+          goog.getCssName('settings-label')
         ],
         'Align');
     goog.dom.appendChild(content, alignLabel);

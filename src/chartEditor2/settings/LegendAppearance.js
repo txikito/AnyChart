@@ -11,6 +11,7 @@ goog.require('anychart.chartEditor2Module.input.Base');
 goog.require('anychart.chartEditor2Module.select.Align');
 goog.require('anychart.chartEditor2Module.select.Base');
 goog.require('anychart.chartEditor2Module.select.FontFamily');
+goog.require('anychart.chartEditor2Module.settings.Title');
 goog.require('goog.ui.ButtonSide');
 
 
@@ -52,7 +53,7 @@ anychart.chartEditor2Module.settings.LegendAppearance.prototype.createDom = func
       goog.dom.TagName.LABEL,
       [
         goog.ui.INLINE_BLOCK_CLASSNAME,
-        goog.getCssName('anychart-chart-editor-settings-label')
+        goog.getCssName('settings-label')
       ],
       'Layout');
   goog.dom.appendChild(content, layoutLabel);
@@ -75,7 +76,7 @@ anychart.chartEditor2Module.settings.LegendAppearance.prototype.createDom = func
       goog.dom.TagName.LABEL,
       [
         goog.ui.INLINE_BLOCK_CLASSNAME,
-        goog.getCssName('anychart-chart-editor-settings-label')
+        goog.getCssName('settings-label')
       ],
       'Orientation');
   goog.dom.appendChild(content, orientationLabel);
@@ -103,7 +104,7 @@ anychart.chartEditor2Module.settings.LegendAppearance.prototype.createDom = func
       goog.dom.TagName.LABEL,
       [
         goog.ui.INLINE_BLOCK_CLASSNAME,
-        goog.getCssName('anychart-chart-editor-settings-label')
+        goog.getCssName('settings-label')
       ],
       'Align');
   goog.dom.appendChild(content, alignLabel);
