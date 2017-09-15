@@ -606,14 +606,16 @@ anychart.core.ChartWithSeries.prototype.minBubbleSize = function(opt_value) {
 
 /**
  * Resets series shared stack.
+ * @param {boolean=} opt_skipInvalidation - Whether to skip width based series invalidation.
  */
-anychart.core.ChartWithSeries.prototype.resetSeriesStack = function() {
+anychart.core.ChartWithSeries.prototype.resetSeriesStack = function(opt_skipInvalidation) {
   for (var i = 0; i < this.seriesList.length; i++) {
     var series = this.seriesList[i];
     if (series)
       series.resetSharedStack();
   }
-  this.invalidateWidthBasedSeries();
+  if (!opt_skipInvalidation)
+    this.invalidateWidthBasedSeries();
 };
 
 
@@ -1111,7 +1113,7 @@ anychart.core.ChartWithSeries.prototype.drawSeries = function(opt_topAxisPadding
       this.seriesList[i].draw();
     }
     this.afterSeriesDraw();
-    this.resetSeriesStack();
+    this.resetSeriesStack(true);
 
     this.markConsistent(anychart.ConsistencyState.SERIES_CHART_SERIES);
     anychart.core.Base.resumeSignalsDispatchingFalse(this.seriesList);

@@ -3526,7 +3526,7 @@ anychart.core.series.Base.prototype.makeMinPointLengthUnstackedMeta = function(r
     var zero = /** @type {number} */ (rowInfo.meta('zero'));
     var diff = Math.abs(y - zero);
     var isVertical = /** @type {boolean} */ (this.getOption('isVertical'));
-    var inversion = this.yScale().inverted() ^ isVertical;
+    var inversion = !this.yScale().inverted() ^ isVertical;
     var height = Math.max(diff, this.minPointLengthCache_);
     if (inversion)
       height = -height;
