@@ -975,12 +975,12 @@ anychart.utils.checkSeparator = function(separator) {
  * @param {Array} row Array of values.
  * @param {string} colSep
  * @param {string} rowSep
+ * @param {number} length
  * @return {string}
  * @private
  */
-anychart.utils.toCsvRow_ = function(row, colSep, rowSep) {
-  var len = row.length;
-  for (var i = 0; i < len; i++) {
+anychart.utils.toCsvRow_ = function(row, colSep, rowSep, length) {
+  for (var i = 0; i < length; i++) {
     var value = row[i];
     if (goog.isDefAndNotNull(value)) {
       if (!goog.isString(value))
@@ -1014,11 +1014,11 @@ anychart.utils.serializeCsv = function(headers, data, settings) {
 
   var strings = [];
   if (!noHeader) {
-    strings.push(anychart.utils.toCsvRow_(headers, colSep, rowSep));
+    strings.push(anychart.utils.toCsvRow_(headers, colSep, rowSep, headers.length));
   }
 
   for (var i = 0; i < data.length; i++) {
-    strings.push(anychart.utils.toCsvRow_(data[i], colSep, rowSep));
+    strings.push(anychart.utils.toCsvRow_(data[i], colSep, rowSep, headers.length));
   }
   return strings.join(rowSep);
 };
