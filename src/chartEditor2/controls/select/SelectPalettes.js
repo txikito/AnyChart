@@ -48,7 +48,6 @@ anychart.chartEditor2Module.select.Palettes.prototype.setValueByTarget = functio
 
     this.suspendDispatch = true;
     this.setValue(stringValue);
-    this.editorModel.setValue(this.key, stringValue, true);
     this.suspendDispatch = false;
   }
 };

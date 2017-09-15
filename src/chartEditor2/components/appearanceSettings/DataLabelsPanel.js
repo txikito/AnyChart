@@ -24,8 +24,10 @@ goog.inherits(anychart.chartEditor2Module.DataLabelsPanel, anychart.chartEditor2
 /** @inheritDoc */
 anychart.chartEditor2Module.DataLabelsPanel.prototype.createDom = function() {
   anychart.chartEditor2Module.DataLabelsPanel.base(this, 'createDom');
-
   var model = /** @type {anychart.chartEditor2Module.EditorModel} */(this.getModel());
+
+  this.enableContentCheckbox.init(model, this.genKey('enabled()'), 'setSettingForSeries');
+
   var title = new anychart.chartEditor2Module.settings.Title(model);
   title.allowEnabled(false);
   title.allowEditPosition(false);
@@ -35,6 +37,40 @@ anychart.chartEditor2Module.DataLabelsPanel.prototype.createDom = function() {
   this.addChild(title, true);
 
   this.title_ = title;
+};
+
+
+/** @inheritDoc */
+anychart.chartEditor2Module.DataLabelsPanel.prototype.update = function(opt_evt) {
+  anychart.chartEditor2Module.DataLabelsPanel.base(this, 'update');
+
+  // Set values for all series.
+  var lastKey = opt_evt && opt_evt.lastKey;
+  if (lastKey) {
+    var model = /** @type {anychart.chartEditor2Module.EditorModel} */(this.getModel());
+    for (var c = 0, count = this.title_.getChildCount(); c < count; c++) {
+      var child = this.title_.getChildAt(c);
+      if (goog.isFunction(child.getKey)) {
+        var key = child.getKey();
+        var stringKey = key[key.length - 1];
+        if (lastKey == stringKey) {
+
+          var chartType = model.getValue([['chart'], 'type']);
+          var mappings = model.getValue([['dataSettings'], 'mappings']);
+          for (var i = 0; i < mappings.length; i++) {
+            for (var j = 0; j < mappings[i].length; j++) {
+              var seriesId = mappings[i][j]['id'];
+              var stringKey2 = (chartType == 'stock' ? 'plot(' + i + ').' : '') + 'getSeries(\'' + seriesId + '\').' + stringKey;
+              var key2 = [['chart'], ['settings'], stringKey2];
+              var value = model.getValue(key);
+              model.setValue(key2, value);
+            }
+          }
+        }
+      }
+    }
+  }
+
 };
 
 

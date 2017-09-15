@@ -64,6 +64,12 @@ anychart.chartEditor2Module.checkbox.Base.prototype.setCheckedValue = function(v
 };
 
 
+/** @return {anychart.chartEditor2Module.EditorModel.Key} */
+anychart.chartEditor2Module.checkbox.Base.prototype.getKey = function() {
+  return this.key;
+};
+
+
 /** @param {anychart.chartEditor2Module.EditorModel.Key} value */
 anychart.chartEditor2Module.checkbox.Base.prototype.setKey = function(value) {
   this.key = value;
@@ -140,6 +146,5 @@ anychart.chartEditor2Module.checkbox.Base.prototype.setValueByTarget = function(
 
   this.noDispatch = true;
   this.setChecked(value);
-  this.editorModel.setValue(this.key, value, true);
   this.noDispatch = false;
 };

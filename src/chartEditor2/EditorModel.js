@@ -90,7 +90,8 @@ anychart.chartEditor2Module.EditorModel = function() {
     'setActiveAndField': this.setActiveAndField,
     'setChartType': this.setChartType,
     'setSeriesType': this.setSeriesType,
-    'setTheme': this.setTheme
+    'setTheme': this.setTheme,
+    'setSettingForSeries': this.setSettingForSeries
   };
 };
 goog.inherits(anychart.chartEditor2Module.EditorModel, goog.events.EventTarget);
@@ -834,8 +835,38 @@ anychart.chartEditor2Module.EditorModel.prototype.setSeriesType = function(input
  */
 anychart.chartEditor2Module.EditorModel.prototype.setTheme = function(input) {
   delete this.model_['chart']['settings']['palette()'];
-  this.model_['anychart']['theme()'] = input.getValue();
+  // this.model_['anychart']['theme()'] = input.getValue();
+  this.setValue([['anychart'], 'theme()'], input.getValue());
   this.dispatchUpdate();
+};
+
+
+/**
+ * Callback function for change event of chart.labels().enabled()
+ * @param {anychart.chartEditor2Module.checkbox.Base} input
+ */
+anychart.chartEditor2Module.EditorModel.prototype.setSettingForSeries = function(input) {
+  var value = input.getChecked();
+  this.suspendDispatch();
+
+  var chartType = this.model_['chart']['type'];
+  var mappings = this.model_['dataSettings']['mappings'];
+  var key = input.getKey();
+  var stringKey = key[key.length - 1];
+
+  var seriesId;
+  for (var i = 0; i < mappings.length; i++) {
+    for (var j = 0; j < mappings[i].length; j++) {
+      seriesId = mappings[i][j]['id'];
+      var stringKey2 = (chartType == 'stock' ? 'plot(' + i + ').' : '') + 'getSeries(\'' + seriesId + '\').' + stringKey;
+      var key2 = [['chart'], ['settings'], stringKey2];
+      this.setValue(key2, value);
+    }
+  }
+
+  this.setValue(input.getKey(), value);
+
+  this.resumeDispatch();
 };
 // endregion
 
@@ -866,12 +897,14 @@ anychart.chartEditor2Module.EditorModel.prototype.setValue = function(key, value
 
       target = goog.isArray(target[level[0]]) ? target[level[0]][level[1]] : target[level[0]];
     } else if (goog.isString(level) && target[String(level)] != value) {
-      target[String(level)] = value;
+      var stringKey = String(level);
+      target[stringKey] = value;
 
       if (!opt_noDispatch)
-        this.dispatchUpdate(opt_noRebuildChart, opt_noRebuildMapping);
+        this.dispatchUpdate(opt_noRebuildChart, opt_noRebuildMapping, stringKey);
     }
   }
+  // console.log(this.model_['chart']['settings']);
 };
 
 
@@ -942,8 +975,9 @@ anychart.chartEditor2Module.EditorModel.prototype.removeByKey = function(key) {
 /**
  * @param {boolean=} opt_noRebuildChart
  * @param {boolean=} opt_noRebuildMapping
+ * @param {string=} opt_lastKey
  */
-anychart.chartEditor2Module.EditorModel.prototype.dispatchUpdate = function(opt_noRebuildChart, opt_noRebuildMapping) {
+anychart.chartEditor2Module.EditorModel.prototype.dispatchUpdate = function(opt_noRebuildChart, opt_noRebuildMapping, opt_lastKey) {
   if (this.suspendQueue_ > 0) {
     this.needDispatch_ = true;
     return;
@@ -954,7 +988,8 @@ anychart.chartEditor2Module.EditorModel.prototype.dispatchUpdate = function(opt_
   this.dispatchEvent({
     type: anychart.chartEditor2Module.events.EventType.EDITOR_MODEL_UPDATE,
     rebuildChart: !opt_noRebuildChart,
-    rebuildMapping: !opt_noRebuildMapping
+    rebuildMapping: !opt_noRebuildMapping,
+    lastKey: opt_lastKey
   });
 
   this.needDispatch_ = false;

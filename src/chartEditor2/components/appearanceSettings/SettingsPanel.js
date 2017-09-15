@@ -134,6 +134,7 @@ anychart.chartEditor2Module.SettingsPanel.prototype.enterDocument = function() {
   this.setEnabled(this.enabled);
 };
 
+
 /** @inheritDoc */
 anychart.chartEditor2Module.SettingsPanel.prototype.onChartDraw = function(evt) {
   anychart.chartEditor2Module.SettingsPanel.base(this, 'onChartDraw', evt);

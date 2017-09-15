@@ -138,6 +138,12 @@ anychart.chartEditor2Module.colorPicker.Base.prototype.setSelectedColor = functi
 };
 
 
+/** @return {anychart.chartEditor2Module.EditorModel.Key} */
+anychart.chartEditor2Module.colorPicker.Base.prototype.getKey = function() {
+  return this.key;
+};
+
+
 /** @param {anychart.chartEditor2Module.EditorModel.Key} value */
 anychart.chartEditor2Module.colorPicker.Base.prototype.setKey = function(value) {
   this.key = value;
@@ -213,6 +219,5 @@ anychart.chartEditor2Module.colorPicker.Base.prototype.setValueByTarget = functi
 
   this.noDispatch = true;
   this.setSelectedColor(value);
-  this.editorModel.setValue(this.key, value, true);
   this.noDispatch = false;
 };

@@ -194,6 +194,5 @@ anychart.chartEditor2Module.input.Base.prototype.setValueByTarget = function(tar
 
   this.noDispatch = true;
   this.setValue(value);
-  this.editorModel.setValue(this.key, value, true);
   this.noDispatch = false;
 };

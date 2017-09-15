@@ -319,7 +319,6 @@ anychart.chartEditor2Module.select.Base.prototype.setValueByTarget = function(ta
 
   this.suspendDispatch = true;
   this.setValue(value);
-  this.editorModel.setValue(this.key, value, true);
   this.suspendDispatch = false;
 };
 

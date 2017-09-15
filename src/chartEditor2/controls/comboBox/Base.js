@@ -114,6 +114,12 @@ anychart.chartEditor2Module.comboBox.Base.prototype.setCaptions = function(value
 };
 
 
+/** @return {anychart.chartEditor2Module.EditorModel.Key} */
+anychart.chartEditor2Module.comboBox.Base.prototype.getKey = function() {
+  return this.key;
+};
+
+
 /** @param {anychart.chartEditor2Module.EditorModel.Key} value */
 anychart.chartEditor2Module.comboBox.Base.prototype.setKey = function(value) {
   this.key = value;
@@ -532,6 +538,5 @@ anychart.chartEditor2Module.comboBox.Base.prototype.setValueByTarget = function(
   var value = /** @type {string} */(anychart.bindingModule.exec(this.target, stringKey));
   this.noDispatch = true;
   this.setValue(value);
-  this.editorModel.setValue(this.key, value, true);
   this.noDispatch = false;
 };

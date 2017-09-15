@@ -92,6 +92,12 @@ anychart.chartEditor2Module.button.Toggle.prototype.setOptions = function(value)
 };
 
 
+/** @return {anychart.chartEditor2Module.EditorModel.Key} */
+anychart.chartEditor2Module.button.Toggle.prototype.getKey = function() {
+  return this.key;
+};
+
+
 /** @param {anychart.chartEditor2Module.EditorModel.Key} value */
 anychart.chartEditor2Module.button.Toggle.prototype.setKey = function(value) {
   this.key = value;
@@ -169,6 +175,5 @@ anychart.chartEditor2Module.button.Toggle.prototype.setValueByTarget = function(
 
   this.noDispatch = true;
   this.setChecked(value == this.checkedValue_);
-  this.editorModel.setValue(this.key, value, true);
   this.noDispatch = false;
 };
