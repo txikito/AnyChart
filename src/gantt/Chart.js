@@ -363,11 +363,11 @@ anychart.ganttModule.Chart.prototype.data = function(opt_value, opt_fillMethod) 
     if (opt_value instanceof anychart.treeDataModule.Tree || opt_value instanceof anychart.treeDataModule.View) {
       if (this.data_ != opt_value) {
         this.data_ = opt_value;
-        this.invalidate(anychart.ConsistencyState.GANTT_DATA, anychart.Signal.NEEDS_REDRAW);
+        this.invalidate(anychart.ConsistencyState.GANTT_DATA | anychart.ConsistencyState.CHART_LABELS, anychart.Signal.NEEDS_REDRAW);
       }
     } else {
       this.data_ = new anychart.treeDataModule.Tree(opt_value, opt_fillMethod);
-      this.invalidate(anychart.ConsistencyState.GANTT_DATA, anychart.Signal.NEEDS_REDRAW);
+      this.invalidate(anychart.ConsistencyState.GANTT_DATA | anychart.ConsistencyState.CHART_LABELS, anychart.Signal.NEEDS_REDRAW);
     }
     return this;
   }
@@ -1033,6 +1033,14 @@ anychart.ganttModule.Chart.prototype.drawContent = function(bounds) {
 anychart.ganttModule.Chart.prototype.toCsv = function(opt_chartDataExportMode, opt_csvSettings) {
   return anychart.treeDataModule.utils.toCsv(
       /** @type {anychart.treeDataModule.Tree|anychart.treeDataModule.View} */(this.data()), opt_csvSettings);
+};
+
+
+/** @inheritDoc */
+anychart.ganttModule.Chart.prototype.isNoData = function() {
+  if (!this.data_)
+    return true;
+  return (!this.data_.numChildren());
 };
 
 
