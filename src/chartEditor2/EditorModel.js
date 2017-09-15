@@ -635,14 +635,20 @@ anychart.chartEditor2Module.EditorModel.prototype.callbackByString = function(me
 
 /**
  * Drops all or some chart settings.
- * @param {string=} opt_pattern
+ * @param {(Object|string)=} opt_pattern Regular extperrion or string
  */
 anychart.chartEditor2Module.EditorModel.prototype.dropChartSettings = function(opt_pattern) {
   if (goog.isDef(opt_pattern)) {
     for (var key in this.model_['chart']['settings']) {
-      if (key.indexOf(opt_pattern) >= 0) {
+      var found = false;
+      if (typeof opt_pattern == 'object') {
+        var r = new RegExp(opt_pattern);
+        found = r.test(key);
+      } else
+        found = key.indexOf(opt_pattern) >= 0;
+
+      if (found)
         delete this.model_['chart']['settings'][key];
-      }
     }
   } else
     this.model_['chart']['settings'] = {};
@@ -835,7 +841,6 @@ anychart.chartEditor2Module.EditorModel.prototype.setSeriesType = function(input
  */
 anychart.chartEditor2Module.EditorModel.prototype.setTheme = function(input) {
   delete this.model_['chart']['settings']['palette()'];
-  // this.model_['anychart']['theme()'] = input.getValue();
   this.setValue([['anychart'], 'theme()'], input.getValue());
   this.dispatchUpdate();
 };
