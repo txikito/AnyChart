@@ -662,6 +662,48 @@ anychart.core.Chart.prototype.setLabelSettings = function(label, bounds) {
 
 
 //endregion
+//region --- No data label
+/**
+ * No data label invalidation handler.
+ * @param {anychart.SignalEvent} e
+ * @private
+ */
+anychart.core.Chart.prototype.noDataLabelInvalidated_ = function(e) {
+  if (e.hasSignal(anychart.Signal.NEEDS_REDRAW)) {
+    this.invalidate(anychart.ConsistencyState.CHART_LABELS, anychart.Signal.NEEDS_REDRAW);
+  }
+};
+
+
+/**
+ * Getter/eetter for no data label.
+ * @param {Object=} opt_value
+ * @return {anychart.core.Chart|anychart.core.ui.Label}
+ */
+anychart.core.Chart.prototype.noDataLabel = function(opt_value) {
+  if (!this.noDataLabel_) {
+    this.noDataLabel_ = this.createChartLabel();
+    this.noDataLabel_.listenSignals(this.noDataLabelInvalidated_, this);
+  }
+
+  if (goog.isDef(opt_value)) {
+    this.noDataLabel_.setup(opt_value);
+    return this;
+  }
+  return this.noDataLabel_;
+};
+
+
+/**
+ * Is there no data on the chart.
+ * @return {boolean}
+ */
+anychart.core.Chart.prototype.isNoData = function() {
+  return false;
+};
+
+
+//endregion
 //region --- Calculations and statistics
 //------------------------------------------------------------------------------
 //
@@ -913,7 +955,7 @@ anychart.core.Chart.prototype.useUnionTooltipAsSingle = function() {
 anychart.core.Chart.prototype.contextMenu = function(opt_value) {
   if (!this.contextMenu_) {
     // suppress NO_FEATURE_IN_MODULE warning
-    this.contextMenu_ = goog.global['anychart']['ui']['contextMenu'](!!goog.isObject(opt_value) && opt_value['fromTheme']);
+    this.contextMenu_ = anychart.window['anychart']['ui']['contextMenu'](!!goog.isObject(opt_value) && opt_value['fromTheme']);
     if (this.contextMenu_) {
       this.registerDisposable(this.contextMenu_);
       this.contextMenu_['itemsProvider'](this.contextMenuItemsProvider);
@@ -959,7 +1001,7 @@ anychart.core.Chart.prototype.contextMenuItemsProvider = function(context) {
   var isPointContext = isSeries || (parentEventTarget && parentEventTarget['seriesType']);
 
   var items = {};
-  if (goog.global['anychart']['exports']) {
+  if (anychart.window['anychart']['exports']) {
     goog.object.extend(items, /** @type {Object} */ (anychart.utils.recursiveClone(anychart.core.Chart.contextMenuMap['exporting'])));
   }
   goog.object.extend(items, /** @type {Object} */ (anychart.utils.recursiveClone(anychart.core.Chart.contextMenuMap['main'])));
@@ -1533,6 +1575,7 @@ anychart.core.Chart.prototype.drawInternal = function() {
   anychart.performance.end('Chart.calculateBounds()');
   anychart.performance.start('Chart.drawContent()');
   this.drawContent(this.contentBounds);
+
   this.specialDraw(this.getPlotBounds());
 
   anychart.performance.end('Chart.drawContent()');
@@ -1559,6 +1602,15 @@ anychart.core.Chart.prototype.drawInternal = function() {
         label.draw();
       }
     }
+
+    var noDataLabel = /** @type {anychart.core.ui.Label} */ (this.noDataLabel());
+    noDataLabel.suspendSignalsDispatching();
+    noDataLabel.container(this.rootElement);
+    this.setLabelSettings(noDataLabel, this.contentBounds);
+    noDataLabel['visible'](this.isNoData());
+    noDataLabel.resumeSignalsDispatching(false);
+    noDataLabel.draw();
+
     this.markConsistent(anychart.ConsistencyState.CHART_LABELS);
   }
 
@@ -1575,11 +1627,17 @@ anychart.core.Chart.prototype.drawInternal = function() {
 
   this.resumeSignalsDispatching(false);
 
+  var id = acgraph.utils.IdGenerator.getInstance().identify(this, 'chart');
+  this.rootElement.id(id);
+
   if (manualSuspend) {
     anychart.performance.start('Stage resume');
     stage.resume();
     anychart.performance.end('Stage resume');
   }
+
+  if (stage)
+    stage.getCharts()[id] = this;
 
   this.dispatchDetachedEvent({
     'type': anychart.enums.EventType.CHART_DRAW,
@@ -1847,6 +1905,7 @@ anychart.core.Chart.prototype.serialize = function() {
   json['bounds'] = this.bounds().serialize();
   json['animation'] = this.animation().serialize();
   json['tooltip'] = this.tooltip().serialize();
+  json['noDataLabel'] = this.noDataLabel().serialize();
   if (this.contextMenu_) {
     json['contextMenu'] = this.contextMenu()['serialize']();
   }
@@ -1903,6 +1962,7 @@ anychart.core.Chart.prototype.setupByJSON = function(config, opt_default) {
   this.right(config['right']);
   this.bottom(config['bottom']);
   this.animation(config['animation']);
+  this.noDataLabel(config['noDataLabel']);
 
   if ('tooltip' in config)
     this.tooltip().setupInternal(!!opt_default, config['tooltip']);
@@ -1923,10 +1983,11 @@ anychart.core.Chart.prototype.setupByJSON = function(config, opt_default) {
 
 /** @inheritDoc */
 anychart.core.Chart.prototype.disposeInternal = function() {
-  goog.disposeAll(this.animation_, this.a11y_, this.tooltip_);
+  goog.disposeAll(this.animation_, this.a11y_, this.tooltip_, this.noDataLabel_);
   this.animation_ = null;
   this.a11y_ = null;
   this.tooltip_ = null;
+  this.noDataLabel_ = null;
 
   anychart.core.Chart.base(this, 'disposeInternal');
 
@@ -3623,7 +3684,7 @@ anychart.core.Chart.prototype.toA11yTable = function(opt_title, opt_asString) {
  * @param {string=} opt_filename file name to save.
  */
 anychart.core.Chart.prototype.saveAsXml = function(opt_filename) {
-  var exports = goog.global['anychart']['exports'];
+  var exports = anychart.window['anychart']['exports'];
   if (exports) {
     var xml = /** @type {string} */(this.toXml(false));
     exports.saveAsXml(this, xml, opt_filename);
@@ -3638,7 +3699,7 @@ anychart.core.Chart.prototype.saveAsXml = function(opt_filename) {
  * @param {string=} opt_filename file name to save.
  */
 anychart.core.Chart.prototype.saveAsJson = function(opt_filename) {
-  var exports = goog.global['anychart']['exports'];
+  var exports = anychart.window['anychart']['exports'];
   if (exports) {
     var json = /** @type {string} */(this.toJson(true));
     exports.saveAsJson(this, json, opt_filename);
@@ -3655,7 +3716,7 @@ anychart.core.Chart.prototype.saveAsJson = function(opt_filename) {
  * @param {string=} opt_filename file name to save.
  */
 anychart.core.Chart.prototype.saveAsCsv = function(opt_chartDataExportMode, opt_csvSettings, opt_filename) {
-  var exports = goog.global['anychart']['exports'];
+  var exports = anychart.window['anychart']['exports'];
   if (exports) {
     var csv = this.toCsv(opt_chartDataExportMode, opt_csvSettings);
     exports.saveAsCsv(this, csv, opt_filename);
@@ -3671,7 +3732,7 @@ anychart.core.Chart.prototype.saveAsCsv = function(opt_chartDataExportMode, opt_
  * @param {string=} opt_filename file name to save.
  */
 anychart.core.Chart.prototype.saveAsXlsx = function(opt_chartDataExportMode, opt_filename) {
-  var exports = goog.global['anychart']['exports'];
+  var exports = anychart.window['anychart']['exports'];
   if (exports) {
     var csv = this.toCsv(opt_chartDataExportMode, {
       'rowsSeparator': '\n',
