@@ -292,7 +292,8 @@ anychart.core.VisualBase.prototype.isOwnStage = function() {
 anychart.core.VisualBase.prototype.container = function(opt_value) {
   if (goog.isDef(opt_value)) {
     /** @type {?(acgraph.vector.ILayer|Element)} */
-    var value = (goog.isString(opt_value) ? goog.dom.getElement(opt_value || null) : opt_value);
+    var value = (goog.isString(opt_value) ? anychart.document.getElementById(opt_value) : opt_value);
+    // var value = (goog.isString(opt_value) ? goog.dom.getElement(opt_value || null) : opt_value);
     var validContainer = value || goog.isNull(opt_value);
     if (this.originalContainer_ != validContainer) {
       this.originalContainer_ = validContainer;
@@ -527,8 +528,9 @@ anychart.core.VisualBase.prototype.parentBounds = function(opt_boundsOrLeft, opt
   if (this.parentBounds_)
     return this.parentBounds_.clone();
   var stage;
-  if (this.container_ && (stage = this.container_.getStage()))
-    return stage.getBounds();
+  if (this.container_ && (stage = this.container_.getStage())) {
+    return goog.global['isNodeJS'] ? anychart.math.Rect.fromJSON(goog.global['defaultBounds']) : stage.getBounds();
+  }
   return null;
 };
 
@@ -550,12 +552,8 @@ anychart.core.VisualBase.prototype.dependsOnContainerSize = function() {
   return true;
 };
 
-
-//----------------------------------------------------------------------------------------------------------------------
-//
-//  Export.
-//
-//----------------------------------------------------------------------------------------------------------------------
+    
+//region --- Saving
 /**
  * Saves the current visual state into PNG file.
  * @example <t>lineChart</t>
@@ -575,9 +573,9 @@ anychart.core.VisualBase.prototype.dependsOnContainerSize = function() {
  * @param {string=} opt_filename file name to save.
  */
 anychart.core.VisualBase.prototype.saveAsPng = function(opt_widthOrOptions, opt_height, opt_quality, opt_filename) {
-  var exports = goog.global['anychart']['exports'];
+  var exports = anychart.window['anychart']['exports'];
   if (exports) {
-    exports['saveAsPng'](this.container_, opt_widthOrOptions, opt_height, opt_quality, opt_filename);
+    exports.saveAsPng(this, this.container_, opt_widthOrOptions, opt_height, opt_quality, opt_filename);
   } else {
     anychart.core.reporting.error(anychart.enums.ErrorCode.NO_FEATURE_IN_MODULE, null, ['Exporting']);
   }
@@ -604,9 +602,9 @@ anychart.core.VisualBase.prototype.saveAsPng = function(opt_widthOrOptions, opt_
  * @param {string=} opt_filename file name to save.
  */
 anychart.core.VisualBase.prototype.saveAsJpg = function(opt_widthOrOptions, opt_height, opt_quality, opt_forceTransparentWhite, opt_filename) {
-  var exports = goog.global['anychart']['exports'];
+  var exports = anychart.window['anychart']['exports'];
   if (exports) {
-    exports['saveAsJpg'](this.container_, opt_widthOrOptions, opt_height, opt_quality, opt_forceTransparentWhite, opt_filename);
+    exports.saveAsJpg(this, this.container_, opt_widthOrOptions, opt_height, opt_quality, opt_forceTransparentWhite, opt_filename);
   } else {
     anychart.core.reporting.error(anychart.enums.ErrorCode.NO_FEATURE_IN_MODULE, null, ['Exporting']);
   }
@@ -633,9 +631,9 @@ anychart.core.VisualBase.prototype.saveAsJpg = function(opt_widthOrOptions, opt_
  * @param {string=} opt_filename file name to save.
  */
 anychart.core.VisualBase.prototype.saveAsPdf = function(opt_paperSizeOrWidthOrOptions, opt_landscapeOrHeight, opt_x, opt_y, opt_filename) {
-  var exports = goog.global['anychart']['exports'];
+  var exports = anychart.window['anychart']['exports'];
   if (exports) {
-    exports['saveAsPdf'](this.container_, opt_paperSizeOrWidthOrOptions, opt_landscapeOrHeight, opt_x, opt_y, opt_filename);
+    exports.saveAsPdf(this, this.container_, opt_paperSizeOrWidthOrOptions, opt_landscapeOrHeight, opt_x, opt_y, opt_filename);
   } else {
     anychart.core.reporting.error(anychart.enums.ErrorCode.NO_FEATURE_IN_MODULE, null, ['Exporting']);
   }
@@ -660,9 +658,9 @@ anychart.core.VisualBase.prototype.saveAsPdf = function(opt_paperSizeOrWidthOrOp
  * @param {string=} opt_filename file name to save.
  */
 anychart.core.VisualBase.prototype.saveAsSvg = function(opt_paperSizeOrWidthOrOptions, opt_landscapeOrHeight, opt_filename) {
-  var exports = goog.global['anychart']['exports'];
+  var exports = anychart.window['anychart']['exports'];
   if (exports) {
-    exports['saveAsSvg'](this.container_, opt_paperSizeOrWidthOrOptions, opt_landscapeOrHeight, opt_filename);
+    exports.saveAsSvg(this, this.container_, opt_paperSizeOrWidthOrOptions, opt_landscapeOrHeight, opt_filename);
   } else {
     anychart.core.reporting.error(anychart.enums.ErrorCode.NO_FEATURE_IN_MODULE, null, ['Exporting']);
   }
@@ -676,9 +674,9 @@ anychart.core.VisualBase.prototype.saveAsSvg = function(opt_paperSizeOrWidthOrOp
  * @return {string}
  */
 anychart.core.VisualBase.prototype.toSvg = function(opt_paperSizeOrWidthOrOptions, opt_landscapeOrHeight) {
-  var exports = goog.global['anychart']['exports'];
+  var exports = anychart.window['anychart']['exports'];
   if (exports) {
-    return exports['toSvg'](this.container_, opt_paperSizeOrWidthOrOptions, opt_landscapeOrHeight);
+    return exports.toSvg(this, this.container_, opt_paperSizeOrWidthOrOptions, opt_landscapeOrHeight);
   } else {
     anychart.core.reporting.error(anychart.enums.ErrorCode.NO_FEATURE_IN_MODULE, null, ['Exporting']);
     return '';
@@ -686,7 +684,8 @@ anychart.core.VisualBase.prototype.toSvg = function(opt_paperSizeOrWidthOrOption
 };
 
 
-//region --- SHARING ---
+//endregion
+//region --- Sharing
 /**
  * Share container's stage as png and return link to shared image.
  * @param {(function(string)|Object)} onSuccessOrOptions Function that will be called when sharing will complete or object with options.
@@ -698,9 +697,9 @@ anychart.core.VisualBase.prototype.toSvg = function(opt_paperSizeOrWidthOrOption
  * @param {string=} opt_filename file name to save.
  */
 anychart.core.VisualBase.prototype.shareAsPng = function(onSuccessOrOptions, opt_onError, opt_asBase64, opt_width, opt_height, opt_quality, opt_filename) {
-  var exports = goog.global['anychart']['exports'];
+  var exports = anychart.window['anychart']['exports'];
   if (exports) {
-    exports['shareAsPng'](this.container_, onSuccessOrOptions, opt_onError, opt_asBase64, opt_width, opt_height, opt_quality, opt_filename);
+    exports.shareAsPng(this, this.container_, onSuccessOrOptions, opt_onError, opt_asBase64, opt_width, opt_height, opt_quality, opt_filename);
   } else {
     anychart.core.reporting.error(anychart.enums.ErrorCode.NO_FEATURE_IN_MODULE, null, ['Exporting']);
   }
@@ -719,9 +718,9 @@ anychart.core.VisualBase.prototype.shareAsPng = function(onSuccessOrOptions, opt
  * @param {string=} opt_filename file name to save.
  */
 anychart.core.VisualBase.prototype.shareAsJpg = function(onSuccessOrOptions, opt_onError, opt_asBase64, opt_width, opt_height, opt_quality, opt_forceTransparentWhite, opt_filename) {
-  var exports = goog.global['anychart']['exports'];
+  var exports = anychart.window['anychart']['exports'];
   if (exports) {
-    exports['shareAsJpg'](this.container_, onSuccessOrOptions, opt_onError, opt_asBase64, opt_width, opt_height, opt_quality, opt_forceTransparentWhite, opt_filename);
+    exports.shareAsJpg(this, this.container_, onSuccessOrOptions, opt_onError, opt_asBase64, opt_width, opt_height, opt_quality, opt_forceTransparentWhite, opt_filename);
   } else {
     anychart.core.reporting.error(anychart.enums.ErrorCode.NO_FEATURE_IN_MODULE, null, ['Exporting']);
   }
@@ -738,9 +737,9 @@ anychart.core.VisualBase.prototype.shareAsJpg = function(onSuccessOrOptions, opt
  * @param {string=} opt_filename file name to save.
  */
 anychart.core.VisualBase.prototype.shareAsSvg = function(onSuccessOrOptions, opt_onError, opt_asBase64, opt_paperSizeOrWidth, opt_landscapeOrHeight, opt_filename) {
-  var exports = goog.global['anychart']['exports'];
+  var exports = anychart.window['anychart']['exports'];
   if (exports) {
-    exports['shareAsSvg'](this.container_, onSuccessOrOptions, opt_onError, opt_asBase64, opt_paperSizeOrWidth, opt_landscapeOrHeight, opt_filename);
+    exports.shareAsSvg(this, this.container_, onSuccessOrOptions, opt_onError, opt_asBase64, opt_paperSizeOrWidth, opt_landscapeOrHeight, opt_filename);
   } else {
     anychart.core.reporting.error(anychart.enums.ErrorCode.NO_FEATURE_IN_MODULE, null, ['Exporting']);
   }
@@ -759,9 +758,9 @@ anychart.core.VisualBase.prototype.shareAsSvg = function(onSuccessOrOptions, opt
  * @param {string=} opt_filename file name to save.
  */
 anychart.core.VisualBase.prototype.shareAsPdf = function(onSuccessOrOptions, opt_onError, opt_asBase64, opt_paperSizeOrWidth, opt_landscapeOrHeight, opt_x, opt_y, opt_filename) {
-  var exports = goog.global['anychart']['exports'];
+  var exports = anychart.window['anychart']['exports'];
   if (exports) {
-    exports['shareAsPdf'](this.container_, onSuccessOrOptions, opt_onError, opt_asBase64, opt_paperSizeOrWidth, opt_landscapeOrHeight, opt_x, opt_y, opt_filename);
+    exports.shareAsPdf(this, this.container_, onSuccessOrOptions, opt_onError, opt_asBase64, opt_paperSizeOrWidth, opt_landscapeOrHeight, opt_x, opt_y, opt_filename);
   } else {
     anychart.core.reporting.error(anychart.enums.ErrorCode.NO_FEATURE_IN_MODULE, null, ['Exporting']);
   }
@@ -777,9 +776,9 @@ anychart.core.VisualBase.prototype.shareAsPdf = function(onSuccessOrOptions, opt
  * @param {number=} opt_quality Image quality in ratio 0-1.
  */
 anychart.core.VisualBase.prototype.getPngBase64String = function(onSuccessOrOptions, opt_onError, opt_width, opt_height, opt_quality) {
-  var exports = goog.global['anychart']['exports'];
+  var exports = anychart.window['anychart']['exports'];
   if (exports) {
-    exports['getPngBase64String'](this.container_, onSuccessOrOptions, opt_onError, opt_width, opt_height, opt_quality);
+    exports.getPngBase64String(this, this.container_, onSuccessOrOptions, opt_onError, opt_width, opt_height, opt_quality);
   } else {
     anychart.core.reporting.error(anychart.enums.ErrorCode.NO_FEATURE_IN_MODULE, null, ['Exporting']);
   }
@@ -796,9 +795,9 @@ anychart.core.VisualBase.prototype.getPngBase64String = function(onSuccessOrOpti
  * @param {boolean=} opt_forceTransparentWhite Define, should we force transparent to white background.
  */
 anychart.core.VisualBase.prototype.getJpgBase64String = function(onSuccessOrOptions, opt_onError, opt_width, opt_height, opt_quality, opt_forceTransparentWhite) {
-  var exports = goog.global['anychart']['exports'];
+  var exports = anychart.window['anychart']['exports'];
   if (exports) {
-    exports['getJpgBase64String'](this.container_, onSuccessOrOptions, opt_onError, opt_width, opt_height, opt_quality, opt_forceTransparentWhite);
+    exports.getJpgBase64String(this, this.container_, onSuccessOrOptions, opt_onError, opt_width, opt_height, opt_quality, opt_forceTransparentWhite);
   } else {
     anychart.core.reporting.error(anychart.enums.ErrorCode.NO_FEATURE_IN_MODULE, null, ['Exporting']);
   }
@@ -813,9 +812,9 @@ anychart.core.VisualBase.prototype.getJpgBase64String = function(onSuccessOrOpti
  * @param {(boolean|string)=} opt_landscapeOrHeight Landscape or height.
  */
 anychart.core.VisualBase.prototype.getSvgBase64String = function(onSuccessOrOptions, opt_onError, opt_paperSizeOrWidth, opt_landscapeOrHeight) {
-  var exports = goog.global['anychart']['exports'];
+  var exports = anychart.window['anychart']['exports'];
   if (exports) {
-    exports['getSvgBase64String'](this.container_, onSuccessOrOptions, opt_onError, opt_paperSizeOrWidth, opt_landscapeOrHeight);
+    exports.getSvgBase64String(this, this.container_, onSuccessOrOptions, opt_onError, opt_paperSizeOrWidth, opt_landscapeOrHeight);
   } else {
     anychart.core.reporting.error(anychart.enums.ErrorCode.NO_FEATURE_IN_MODULE, null, ['Exporting']);
   }
@@ -832,9 +831,9 @@ anychart.core.VisualBase.prototype.getSvgBase64String = function(onSuccessOrOpti
  * @param {number=} opt_y Offset Y.
  */
 anychart.core.VisualBase.prototype.getPdfBase64String = function(onSuccessOrOptions, opt_onError, opt_paperSizeOrWidth, opt_landscapeOrHeight, opt_x, opt_y) {
-  var exports = goog.global['anychart']['exports'];
+  var exports = anychart.window['anychart']['exports'];
   if (exports) {
-    exports['getPdfBase64String'](this.container_, onSuccessOrOptions, opt_onError, opt_paperSizeOrWidth, opt_landscapeOrHeight, opt_x, opt_y);
+    exports.getPdfBase64String(this, this.container_, onSuccessOrOptions, opt_onError, opt_paperSizeOrWidth, opt_landscapeOrHeight, opt_x, opt_y);
   } else {
     anychart.core.reporting.error(anychart.enums.ErrorCode.NO_FEATURE_IN_MODULE, null, ['Exporting']);
   }
@@ -847,9 +846,9 @@ anychart.core.VisualBase.prototype.getPdfBase64String = function(onSuccessOrOpti
  * @param {boolean=} opt_landscape
  */
 anychart.core.VisualBase.prototype.print = function(opt_paperSizeOrOptions, opt_landscape) {
-  var exports = goog.global['anychart']['exports'];
+  var exports = anychart.window['anychart']['exports'];
   if (exports) {
-    exports['print'](this.container_, opt_paperSizeOrOptions, opt_landscape);
+    exports.print(this, this.container_, opt_paperSizeOrOptions, opt_landscape);
   } else {
     anychart.core.reporting.error(anychart.enums.ErrorCode.NO_FEATURE_IN_MODULE, null, ['Exporting']);
   }
@@ -864,9 +863,9 @@ anychart.core.VisualBase.prototype.print = function(opt_paperSizeOrOptions, opt_
  * @param {string=} opt_description Description for the attached link.
  */
 anychart.core.VisualBase.prototype.shareWithFacebook = function(opt_captionOrOptions, opt_link, opt_name, opt_description) {
-  var exports = goog.global['anychart']['exports'];
+  var exports = anychart.window['anychart']['exports'];
   if (exports) {
-    exports['shareWithFacebook'](this.container_, opt_captionOrOptions, opt_link, opt_name, opt_description);
+    exports.shareWithFacebook(this, this.container_, opt_captionOrOptions, opt_link, opt_name, opt_description);
   } else {
     anychart.core.reporting.error(anychart.enums.ErrorCode.NO_FEATURE_IN_MODULE, null, ['Exporting']);
   }
@@ -877,9 +876,9 @@ anychart.core.VisualBase.prototype.shareWithFacebook = function(opt_captionOrOpt
  * Opens Twitter sharing dialog.
  */
 anychart.core.VisualBase.prototype.shareWithTwitter = function() {
-  var exports = goog.global['anychart']['exports'];
+  var exports = anychart.window['anychart']['exports'];
   if (exports) {
-    exports['shareWithTwitter'](this.container_);
+    exports.shareWithTwitter(this, this.container_);
   } else {
     anychart.core.reporting.error(anychart.enums.ErrorCode.NO_FEATURE_IN_MODULE, null, ['Exporting']);
   }
@@ -892,9 +891,9 @@ anychart.core.VisualBase.prototype.shareWithTwitter = function() {
  * @param {string=} opt_description Description. If not set opt_caption will be used.
  */
 anychart.core.VisualBase.prototype.shareWithLinkedIn = function(opt_captionOrOptions, opt_description) {
-  var exports = goog.global['anychart']['exports'];
+  var exports = anychart.window['anychart']['exports'];
   if (exports) {
-    exports['shareWithLinkedIn'](this.container_, opt_captionOrOptions, opt_description);
+    exports.shareWithLinkedIn(this, this.container_, opt_captionOrOptions, opt_description);
   } else {
     anychart.core.reporting.error(anychart.enums.ErrorCode.NO_FEATURE_IN_MODULE, null, ['Exporting']);
   }
@@ -907,9 +906,9 @@ anychart.core.VisualBase.prototype.shareWithLinkedIn = function(opt_captionOrOpt
  * @param {string=} opt_description Description.
  */
 anychart.core.VisualBase.prototype.shareWithPinterest = function(opt_linkOrOptions, opt_description) {
-  var exports = goog.global['anychart']['exports'];
+  var exports = anychart.window['anychart']['exports'];
   if (exports) {
-    exports['shareWithPinterest'](this.container_, opt_linkOrOptions, opt_description);
+    exports.shareWithPinterest(this, this.container_, opt_linkOrOptions, opt_description);
   } else {
     anychart.core.reporting.error(anychart.enums.ErrorCode.NO_FEATURE_IN_MODULE, null, ['Exporting']);
   }
@@ -917,11 +916,7 @@ anychart.core.VisualBase.prototype.shareWithPinterest = function(opt_linkOrOptio
 
 
 //endregion
-//----------------------------------------------------------------------------------------------------------------------
-//
-//  JSON.
-//
-//----------------------------------------------------------------------------------------------------------------------
+//region --- Setup, Serialize, Dispose
 /** @inheritDoc */
 anychart.core.VisualBase.prototype.serialize = function() {
   var json = anychart.core.VisualBase.base(this, 'serialize');
@@ -969,6 +964,7 @@ anychart.core.VisualBase.prototype.disposeInternal = function() {
 };
 
 
+//endregion
 //exports
 (function() {
   var proto = anychart.core.VisualBase.prototype;
