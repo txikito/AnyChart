@@ -3,6 +3,7 @@ goog.provide('anychart.chartEditor2Module.settings.Series');
 goog.require('anychart.chartEditor2Module.SettingsPanel');
 goog.require('anychart.chartEditor2Module.colorPicker.Base');
 goog.require('anychart.chartEditor2Module.input.Base');
+goog.require('anychart.chartEditor2Module.settings.DataMarkers');
 goog.require('anychart.chartEditor2Module.settings.Title');
 
 
@@ -69,9 +70,20 @@ anychart.chartEditor2Module.settings.Series.prototype.createDom = function() {
   dataLabels.setKey(this.genKey('labels()'));
   this.addChild(dataLabels, true);
 
+  goog.dom.appendChild(content, goog.dom.createDom(
+      goog.dom.TagName.DIV,
+      goog.getCssName('anychart-chart-editor-settings-item-gap')));
+
+  // Data markers
+  var dataMarkers = new anychart.chartEditor2Module.settings.DataMarkers(model, 'Data markers');
+  dataMarkers.allowEnabled(true);
+  dataMarkers.setKey(this.genKey('markers()'));
+  this.addChild(dataMarkers, true);
+
   this.nameInput_ = nameInput;
   this.colorPicker_ = colorPicker;
   this.dataLabels_ = dataLabels;
+  this.dataMarkers_ = dataMarkers;
 
   this.updateKeys();
 };
@@ -85,6 +97,7 @@ anychart.chartEditor2Module.settings.Series.prototype.updateKeys = function() {
   if (this.nameInput_) this.nameInput_.init(model, this.genKey('name()'));
   if (this.colorPicker_) this.colorPicker_.init(model, this.genKey('color()'));
   if (this.dataLabels_) this.dataLabels_.setKey(this.genKey('labels()'));
+  if (this.dataMarkers_) this.dataMarkers_.setKey(this.genKey('markers()'));
 
   // if (this.typeSelect_) this.typeSelect_.setKey(this.genKey('seriesType()'));
   // if (this.mappingSelect_) this.mappingSelect_.setMappingId(this.seriesId_);
@@ -109,6 +122,9 @@ anychart.chartEditor2Module.settings.Series.prototype.disposeInternal = function
 
   this.dataLabels_.dispose();
   this.dataLabels_ = null;
+
+  this.dataMarkers_.dispose();
+  this.dataMarkers_ = null;
 
   anychart.chartEditor2Module.settings.Series.base(this, 'disposeInternal');
 };

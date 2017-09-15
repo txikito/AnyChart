@@ -216,6 +216,8 @@ anychart.chartEditor2Module.colorPicker.Base.prototype.setValueByTarget = functi
 
   var stringKey = anychart.chartEditor2Module.EditorModel.getStringKey(this.key);
   var value = /** @type {string} */(anychart.bindingModule.exec(this.target, stringKey));
+  if (goog.isObject(value))
+    value = value['color'];
 
   this.noDispatch = true;
   this.setSelectedColor(value);
