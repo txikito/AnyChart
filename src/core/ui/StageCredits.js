@@ -537,6 +537,7 @@ anychart.core.ui.StageCredits.prototype.disposeInternal = function() {
     goog.events.unlisten(imageLoader, goog.events.EventType.LOAD, this.onImageLoadHandler_, false, this);
     goog.events.unlisten(imageLoader, goog.net.EventType.COMPLETE, this.onImageCompleteHandler_, false, this);
     goog.events.unlisten(imageLoader, goog.net.EventType.ERROR, this.onImageErrorHandler_, false, this);
+    goog.dispose(imageLoader);
   }
 
   goog.dom.removeNode(this.span_);

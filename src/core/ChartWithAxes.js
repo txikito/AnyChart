@@ -1571,7 +1571,8 @@ anychart.core.ChartWithAxes.prototype.disposeInternal = function() {
       this.grids_,
       this.minorGrids_,
       this.quarterSettings_,
-      this.crossing_);
+      this.crossing_,
+      this.annotationsChartController_);
 
   delete this.xAxes_;
   delete this.yAxes_;
@@ -1582,6 +1583,8 @@ anychart.core.ChartWithAxes.prototype.disposeInternal = function() {
   this.minorGrids_ = null;
   this.quarterSettings_ = null;
   this.crossing_ = null;
+
+
 
   anychart.core.ChartWithAxes.base(this, 'disposeInternal');
 };

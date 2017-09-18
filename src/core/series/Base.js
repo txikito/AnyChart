@@ -4450,7 +4450,8 @@ anychart.core.series.Base.prototype.disposeInternal = function() {
       this.selectOutlierMarkers_,
       this.tooltipInternal,
       this.legendItem_,
-      this.error_
+      this.error_,
+      this.renderingSettings_
   );
   this.rootLayer = null;
   this.errorPaths_ = null;
