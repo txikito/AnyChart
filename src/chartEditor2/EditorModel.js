@@ -1204,6 +1204,222 @@ anychart.chartEditor2Module.EditorModel.prototype.getGeoIdField = function() {
 
 
 /**
+ * Returns JS code string that creates a configured chart.
+ * @return {string}
+ */
+anychart.chartEditor2Module.EditorModel.prototype.getChartAsJsCode = function() {
+  return this.getChartWithJsCode_()[0];
+};
+
+
+/**
+ * Returns configured chart in JSON representation.
+ * @return {string}
+ */
+anychart.chartEditor2Module.EditorModel.prototype.getChartAsJson = function() {
+  var chart = this.getChartWithJsCode_()[1];
+  return chart ? chart.toJson(true) : '';
+};
+
+
+/**
+ * Returns configured chart in XML representation.
+ * @return {string}
+ */
+anychart.chartEditor2Module.EditorModel.prototype.getChartAsXml = function() {
+  var chart = this.getChartWithJsCode_()[1];
+  return chart ? chart.toXml(false) : '';
+};
+
+
+/**
+ * Creates a chart instance from the model and the JS code string that creates the chart.
+ * @return {!Array} Returns [JsString, ChartInstance]
+ * @private
+ */
+anychart.chartEditor2Module.EditorModel.prototype.getChartWithJsCode_ = function() {
+  var model = /** @type {anychart.chartEditor2Module.EditorModel} */(this.getModel());
+  var settings = model.getModel();
+  var chartType = settings['chart']['type'];
+
+  if (!chartType)
+    return ['', null];
+
+  var anychartGlobal = anychart.window['anychart'];
+  var printer = new goog.format.JsonPrettyPrinter();
+  var result = [];
+  var self = this;
+
+  // Global settings
+  if (!goog.object.isEmpty(settings['anychart'])) {
+    result.push('// Applying global settings');
+    goog.object.forEach(settings['anychart'], function(value, key) {
+      // if (anychart.bindingModule.testExec(anychartGlobal, key, value)) {
+      result.push(self.printKey_(printer, 'anychart', key, value));
+      // }
+    });
+    result.push('');
+  }
+
+  var chart = anychartGlobal[chartType]();
+  result.push('// Creating chart', 'var chart = ' + chartType + ';', '');
+  
+  if (chartType == 'map') {
+    var geoData = model.getRawData(true);
+    if (geoData) {
+      chart['geoData'](geoData);
+      result.push(
+          '// Setting up geo data',
+          'var geoData = ' + this.printValue_(printer, geoData) + ';',
+          'chart.geoData(geoData);');
+      var geoIdField = model.getGeoIdField();
+      if (geoIdField) {
+        chart['geoIdField'](geoIdField);
+        result.push(this.printKey_(printer, 'chart', 'geoIdField', geoIdField));
+      }
+    }
+  }
+
+  // Create data set
+  var rawData = model.getRawData();
+  var dsCtor = anychart.chartEditor2Module.EditorModel.chartTypes[chartType]['dataSetCtor'];
+  var isTableData = dsCtor == 'table';
+  var dataSet = anychartGlobal['data'][dsCtor]();
+  result.push(
+      '// Setting up data',
+      'var rawData = ' + this.printValue_(printer, 'rawData') + ';',
+      'var data = anychart.data.' + dsCtor +
+          (isTableData ?
+              '(' + this.printValue_(printer, settings['dataSettings']['field']) + ');' :
+              '();')
+  );
+  if (isTableData) {
+    dataSet['addData'](rawData);
+    result.push('data.addData(rawData);');
+  } else {
+    dataSet['data'](rawData);
+    result.push('data.data(rawData);');
+  }
+  result.push('');
+
+  // create mapping and series
+  result.push('// Creating mappings');
+  var isSinglePlot = settings['dataSettings']['mappings'].length == 1;
+  var isSingleSeries = isSinglePlot && settings['dataSettings']['mappings'][0].length == 1;
+  var mappingInstancesList = [];
+  var mappingInstances, plotMapping, i, j;
+  for (i = 0; i < settings['dataSettings']['mappings'].length; i++) {
+    mappingInstancesList.push(mappingInstances = []);
+    plotMapping = settings['dataSettings']['mappings'][i];
+    for (j = 0; j < plotMapping.length; j++) {
+      var seriesMapping = plotMapping[j]['mapping'];
+      var mappingObj = isTableData ? {} : {'x': settings['dataSettings']['field']};
+      for (var k in seriesMapping) {
+        if (seriesMapping.hasOwnProperty(k))
+          mappingObj[k] = seriesMapping[k];
+      }
+
+      mappingInstances.push(dataSet['mapAs'](mappingObj));
+      result.push('var mapping' + (isSingleSeries ? '' : ((isSinglePlot ? '' : '_' + i) + '_' + j)) + ' = data.mapAs(' + this.printValue_(printer, seriesMapping));
+    }
+  }
+  result.push('');
+
+  if (chartType == 'pie') {
+    chart['data'](mappingInstancesList[0][0]);
+    result.push(
+        '// Setting data to the chart',
+        'chart.data(mapping);'
+    );
+  } else {
+    result.push('// Creating series and setting data to them');
+    result.push('var series;');
+    for (i = 0; i < settings['dataSettings']['mappings'].length; i++) {
+      plotMapping = settings['dataSettings']['mappings'][i];
+      for (j = 0; j < plotMapping.length; j++) {
+        var seriesCtor = plotMapping[j]['ctor'];
+        var series;
+        var mappingPostfix = '(mapping' + (isSingleSeries ? '' : ((isSinglePlot ? '' : '_' + i) + '_' + j)) + ');';
+        if (chartType == 'stock') {
+          var plot = chart['plot'](i);
+          series = plot[seriesCtor](mappingInstancesList[i][j]);
+          result.push('series = chart.plot(' + i + ').' + seriesCtor + mappingPostfix);
+        } else {
+          if (settings['chart']['type'] == 'map') {
+            seriesCtor = seriesCtor.split('-')[0];
+          }
+          series = chart[seriesCtor](mappingInstancesList[i][j]);
+          result.push('series = chart.' + seriesCtor + mappingPostfix);
+        }
+        series['id'](plotMapping[j]['id']);
+        result.push('series.id(' + this.printValue_(printer, plotMapping[j]['id']) + ');');
+      }
+    }
+  }
+  result.push('');
+
+  if (!goog.object.isEmpty(settings['chart']['settings'])) {
+    result.push('// Applying appearance settings');
+    goog.object.forEach(settings['chart']['settings'], function(value, key) {
+      // //console.log("chart settings", key, value);
+      var pVal = value;
+      var force = false;
+      if (key == "palette()") {
+        value = anychartGlobal['palettes'][value];
+        pVal = 'anychart.palettes.' + value;
+      }
+      if (anychart.bindingModule.testExec(chart, key, value)) {
+        result.push(self.printKey_(printer, 'chart', key, pVal, force));
+      }
+    });
+    result.push('');
+  }
+
+  result.push(
+      '// Settings container and calling draw',
+      'chart.container("container");',
+      // this.printKey_(printer, 'chart', 'container()', this.containerId_),
+      'chart.draw();'
+  );
+  // chart['container'](this.containerId_);
+  // chart['draw']();
+  return [result.join('\n'), chart];
+};
+
+
+/**
+ * @param {goog.format.JsonPrettyPrinter} printer
+ * @param {string} prefix
+ * @param {string} key
+ * @param {*} value
+ * @param {boolean=} opt_forceRawValue
+ * @return {string}
+ * @private
+ */
+anychart.chartEditor2Module.EditorModel.prototype.printKey_ = function(printer, prefix, key, value, opt_forceRawValue) {
+  if (goog.isDef(value)) {
+    var valueString = opt_forceRawValue ? String(value) : this.printValue_(printer, value);
+    key = key.replace(/\)$/, valueString + ');');
+  }
+  return prefix + '.' + key;
+};
+
+
+/**
+ * @param {goog.format.JsonPrettyPrinter} printer
+ * @param {*} value
+ * @return {string}
+ * @private
+ */
+anychart.chartEditor2Module.EditorModel.prototype.printValue_ = function(printer, value) {
+  if (goog.isString(value)) {
+    value = '"' + value + '"';
+  }
+  return printer.format(value);
+};
+
+
+/**
  * @return {Array}
  * @private
  */

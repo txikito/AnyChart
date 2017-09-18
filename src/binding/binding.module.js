@@ -86,10 +86,11 @@ anychart.bindingModule.parsePath_ = function(path) {
  * @param {Array.<Array>} path
  * @param {Array.<(string|number)>} pathArguments
  * @param {(string|number|boolean)=} opt_lastArgument
+ * @param {boolean=} opt_test - If set, the method returns true if operation succeeded and false otherwise.
  * @return {*}
  * @private
  */
-anychart.bindingModule.applyPath_ = function(target, path, pathArguments, opt_lastArgument) {
+anychart.bindingModule.applyPath_ = function(target, path, pathArguments, opt_lastArgument, opt_test) {
   var part;
   var name;
   var call;
@@ -127,22 +128,26 @@ anychart.bindingModule.applyPath_ = function(target, path, pathArguments, opt_la
       target = call ? target[name].apply(target, args) : target[name];
     }
   } catch (e) {
-    var message = 'Could not apply key \'' + name;
-    if (call) message += '()';
-    message += '\'';
-    if (args) message += ' with arguments [' + args + ']';
+    if (opt_test) {
+      return false;
+    } else {
+      var message = 'Could not apply key \'' + name;
+      if (call) message += '()';
+      message += '\'';
+      if (args) message += ' with arguments [' + args + ']';
 
-    var console = anychart.window['console'];
-    if (console) {
-      var log = console['warn'] || console['log'];
-      if (typeof log != 'object') {
-        log.call(console, message);
+      var console = anychart.window['console'];
+      if (console) {
+        var log = console['warn'] || console['log'];
+        if (typeof log != 'object') {
+          log.call(console, message);
+        }
       }
+      return null;
     }
-    return null;
   }
 
-  return target;
+  return opt_test ? true : target;
 };
 
 
@@ -289,6 +294,22 @@ anychart.bindingModule.setRealValue_ = function(element) {
       }
     }
   }
+};
+
+
+/**
+ * Executes the path and returns true if the execution succeeded and false otherwise.
+ * @param {Object} target
+ * @param {string} path
+ * @param {(string|number|boolean)=} opt_value
+ * @return {boolean}
+ */
+anychart.bindingModule.testExec = function(target, path, opt_value) {
+  var pathParsed = anychart.bindingModule.parsePath_(path);
+  if (pathParsed) {
+    return !!anychart.bindingModule.applyPath_(target, /** @type {Array} */(pathParsed), [], opt_value, true);
+  }
+  return false;
 };
 
 

@@ -67,12 +67,12 @@ anychart.chartEditor2Module.Chart.prototype.update = function() {
   });
 
   // Chart creation
-  if (rebuild && this.chart_ && typeof this.chart_['dispose'] == 'function') {
-    this.chart_['dispose']();
-    this.chart_ = null;
-  }
-
   if (rebuild) {
+    if (this.chart_ && typeof this.chart_['dispose'] == 'function') {
+      this.chart_['dispose']();
+      this.chart_ = null;
+    }
+
     // console.log("BUILD CHART");
     this.chart_ = this.anychart[settings['chart']['type']]();
 

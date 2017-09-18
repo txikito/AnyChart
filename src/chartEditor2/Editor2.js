@@ -135,6 +135,33 @@ anychart.chartEditor2Module.Editor.prototype.visible = function(opt_value) {
 
 
 /**
+ * Returns JS code string that creates a configured chart.
+ * @return {string}
+ */
+anychart.chartEditor2Module.Editor.prototype.getChartAsJsCode = function() {
+  return (/** @type {anychart.chartEditor2Module.EditorModel} */(this.getModel())).getChartAsJsCode();
+};
+
+
+/**
+ * Returns configured chart in JSON representation.
+ * @return {string}
+ */
+anychart.chartEditor2Module.Editor.prototype.getChartAsJson = function() {
+  return (/** @type {anychart.chartEditor2Module.EditorModel} */(this.getModel())).getChartAsJson();
+};
+
+
+/**
+ * Returns configured chart in XML representation.
+ * @return {string}
+ */
+anychart.chartEditor2Module.Editor.prototype.getChartAsXml = function() {
+  return (/** @type {anychart.chartEditor2Module.EditorModel} */(this.getModel())).getChartAsXml();
+};
+
+
+/**
  * @param {boolean} show
  * @private
  */
@@ -521,6 +548,9 @@ anychart.ui.editor = function() {
   proto['decorate'] = proto.decorate;
   proto['renderAsDialog'] = proto.renderAsDialog;
   proto['visible'] = proto.visible;
+  proto['getChartAsJsCode'] = proto.getChartAsJsCode;
+  proto['getChartAsJson'] = proto.getChartAsJson;
+  proto['getChartAsXml'] = proto.getChartAsXml;
 
   // proto['listen'] = proto.listen;
   // proto['listenOnce'] = proto.listenOnce;
