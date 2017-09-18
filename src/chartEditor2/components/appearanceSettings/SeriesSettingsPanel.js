@@ -50,7 +50,7 @@ anychart.chartEditor2Module.SeriesSettingsPanel.prototype.createSeries = functio
     for (var j = 0; j < mappings[i].length; j++) {
       seriesId = mappings[i][j]['id'] ? mappings[i][j]['id'] : j;
       plotIndex = chartType == 'stock' ? i : void 0;
-      series = new anychart.chartEditor2Module.settings.Series(model, seriesId, plotIndex);
+      series = new anychart.chartEditor2Module.settings.Series(model, seriesId, j, plotIndex);
       series.allowEnabled(false);
       this.series_.push(series);
       this.addChild(series, true);

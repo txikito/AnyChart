@@ -12,14 +12,16 @@ goog.require('anychart.chartEditor2Module.settings.Title');
 /**
  * @param {anychart.chartEditor2Module.EditorModel} model
  * @param {string|number} seriesId
+ * @param {number} seriesIndex
  * @param {number=} opt_plotIndex
  * @param {goog.dom.DomHelper=} opt_domHelper Optional DOM helper; see {@link goog.ui.Component} for semantics.
  * @constructor
  * @extends {anychart.chartEditor2Module.SettingsPanel}
  */
-anychart.chartEditor2Module.settings.Series = function(model, seriesId, opt_plotIndex, opt_domHelper) {
+anychart.chartEditor2Module.settings.Series = function(model, seriesId, seriesIndex, opt_plotIndex, opt_domHelper) {
   anychart.chartEditor2Module.settings.Series.base(this, 'constructor', model, opt_domHelper);
   this.name = null;
+  this.index_ = seriesIndex;
   this.seriesId_ = String(seriesId);
 
   var stringKey = 'getSeries(\'' + this.seriesId_ + '\')';
@@ -46,6 +48,7 @@ anychart.chartEditor2Module.settings.Series.prototype.createDom = function() {
 
   var element = this.getElement();
   goog.dom.classlist.add(element, anychart.chartEditor2Module.settings.Series.CSS_CLASS);
+  goog.dom.classlist.add(element, this.index_ % 2 ? 'even' : 'odd');
 
   var content = this.getContentElement();
   var model = /** @type {anychart.chartEditor2Module.EditorModel} */(this.getModel());

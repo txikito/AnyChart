@@ -42,9 +42,9 @@ anychart.chartEditor2Module.settings.Stroke.prototype.createDom = function() {
 
   var dash = new anychart.chartEditor2Module.select.Base();
   //dash.addClassName(goog.getCssName('anychart-chart-editor-settings-control-select-image'));
-  dash.setOptions(['5 5', '5 10', '10 5', '15 10 5 10', '5 5 1 5']);
-  dash.setCaptions([null, null, null, null, null]);
-  dash.setIcons(['ac ac-position-top', 'ac ac-position-bottom', 'ac ac-position-top', 'ac ac-position-bottom', 'ac ac-position-top']);
+  dash.setOptions(['0', '5 5', '5 10', '10 5', '15 10 5 10', '5 5 1 5']);
+  dash.setCaptions([null, null, null, null, null, null]);
+  dash.setIcons(['ac ac-position-bottom', 'ac ac-position-top', 'ac ac-position-bottom', 'ac ac-position-top', 'ac ac-position-bottom', 'ac ac-position-top']);
   this.addChild(dash, true);
   goog.dom.classlist.add(dash.getElement(), goog.getCssName('stroke-dash'));
   this.dash_ = dash;
@@ -52,7 +52,7 @@ anychart.chartEditor2Module.settings.Stroke.prototype.createDom = function() {
   var thickness = new anychart.chartEditor2Module.comboBox.Base();
   thickness.setOptions([1, 2, 3, 4, 5]);
   thickness.setFormatterFunction(function(value) {
-    return String(goog.math.clamp(Number(value), 1, 10));
+    return String(goog.math.clamp(Number(value), 0, 10));
   });
   this.addChild(thickness, true);
   goog.dom.classlist.add(thickness.getElement(), goog.getCssName('stroke-thickness'));

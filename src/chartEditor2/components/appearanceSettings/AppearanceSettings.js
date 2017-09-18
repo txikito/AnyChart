@@ -49,6 +49,9 @@ anychart.chartEditor2Module.AppearanceSettings.prototype.createDom = function() 
   var dom = this.getDomHelper();
   this.buttonsEl_ = dom.createDom(goog.dom.TagName.DIV, 'buttons');
   element.appendChild(this.buttonsEl_);
+
+  this.panelsEl_ = dom.createDom(goog.dom.TagName.DIV, 'panels');
+  element.appendChild(this.panelsEl_);
 };
 
 
@@ -76,12 +79,13 @@ anychart.chartEditor2Module.AppearanceSettings.prototype.update = function() {
       var classFunc = this.panels_[i].classFunc;
       panel = this.panels_[i].instance = new classFunc(model);
       this.addChild(panel, true);
+      this.panelsEl_.appendChild(panel.getElement());
 
       button = dom.createDom(goog.dom.TagName.DIV, 'button', panel.getName());
       button.setAttribute('data-index', i);
       this.buttons_.push(button);
 
-      dom.appendChild(this.buttonsEl_, button);
+      this.buttonsEl_.appendChild(button);
     }
 
     // panel.update();
