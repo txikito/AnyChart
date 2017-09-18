@@ -2808,7 +2808,7 @@ anychart.core.series.Base.prototype.planIsXScaleInverted = function() {
 
 
 /**
- * Resets point's meta shared object currAnchor.
+ * Resets point's meta shared object anchors..
  */
 anychart.core.series.Base.prototype.resetSharedStack = function() {
   if (this.planIsStacked() && this.isMinPointLengthBased()) {
@@ -2817,7 +2817,8 @@ anychart.core.series.Base.prototype.resetSharedStack = function() {
     while (iterator.advance()) {
       var shared = iterator.meta('shared');
       if (shared) {
-        shared.currAnchor = NaN;
+        shared.positiveAnchor = NaN;
+        shared.negativeAnchor = NaN;
       }
     }
   }
@@ -3486,21 +3487,30 @@ anychart.core.series.Base.prototype.makeMinPointLengthStackedMeta = function(row
     var y = /** @type {number} */ (rowInfo.meta('value'));
     var zero = /** @type {number} */ (rowInfo.meta('zero'));
     var diff = Math.abs(y - zero);
-    var isVertical = /** @type {boolean} */ (this.getOption('isVertical'));
-    var inversion = !this.yScale().inverted() ^ isVertical;
     var height = Math.max(diff, this.minPointLengthCache_);
-    if (inversion)
-      height = -height;
 
     var newZero, newY;
-    if (isNaN(shared.currAnchor)) {//Drawing first point.
-      shared.currAnchor = zero + height;
-      newZero = zero;
-      newY = shared.currAnchor;
+    if (zero > y) {
+      height = -height;
+      if (isNaN(shared.positiveAnchor)) {//Drawing first point.
+        shared.positiveAnchor = zero + height;
+        newZero = zero;
+        newY = shared.positiveAnchor;
+      } else {
+        newZero = Math.min(zero, shared.positiveAnchor);
+        newY = newZero + height;
+        shared.positiveAnchor = newY;
+      }
     } else {
-      newZero = inversion ? Math.max(zero, shared.currAnchor) : Math.min(zero, shared.currAnchor);
-      newY = newZero + height;
-      shared.currAnchor = newY;
+      if (isNaN(shared.negativeAnchor)) {//Drawing first point.
+        shared.negativeAnchor = zero + height;
+        newZero = zero;
+        newY = shared.negativeAnchor;
+      } else {
+        newZero = Math.max(zero, shared.negativeAnchor);
+        newY = newZero + height;
+        shared.negativeAnchor = newY;
+      }
     }
 
     rowInfo.meta('value', newY);
@@ -3525,10 +3535,8 @@ anychart.core.series.Base.prototype.makeMinPointLengthUnstackedMeta = function(r
     var y = /** @type {number} */ (rowInfo.meta('value'));
     var zero = /** @type {number} */ (rowInfo.meta('zero'));
     var diff = Math.abs(y - zero);
-    var isVertical = /** @type {boolean} */ (this.getOption('isVertical'));
-    var inversion = !this.yScale().inverted() ^ isVertical;
     var height = Math.max(diff, this.minPointLengthCache_);
-    if (inversion)
+    if (zero > y)
       height = -height;
     rowInfo.meta('value', zero + height);
   }
