@@ -1218,7 +1218,24 @@ anychart.chartEditor2Module.EditorModel.prototype.getChartAsJsCode = function() 
  */
 anychart.chartEditor2Module.EditorModel.prototype.getChartAsJson = function() {
   var chart = this.getChartWithJsCode_()[1];
-  return chart ? chart.toJson(true) : '';
+  if (!chart) return '';
+  var json = chart ? chart.toJson() : '';
+  var settings = this.getModel();
+  var minify = !!settings['minifyOutput'];
+  var containerId = settings['outputContainerId'];
+  if (containerId) {
+    var obj = json['chart'] || json['gauge'] || json['gantt'] || json['map'] || {};
+    obj['container'] = containerId;
+  }
+  var printerSettings = new goog.format.JsonPrettyPrinter.TextDelimiters();
+  if (minify) {
+    printerSettings.lineBreak = '';
+    printerSettings.space = '';
+    printerSettings.propertySeparator = ',';
+    printerSettings.nameValueSeparator = ':';
+  }
+  var printer = new goog.format.JsonPrettyPrinter(printerSettings);
+  return printer.format(json);
 };
 
 
@@ -1238,15 +1255,28 @@ anychart.chartEditor2Module.EditorModel.prototype.getChartAsXml = function() {
  * @private
  */
 anychart.chartEditor2Module.EditorModel.prototype.getChartWithJsCode_ = function() {
-  var model = /** @type {anychart.chartEditor2Module.EditorModel} */(this.getModel());
-  var settings = model.getModel();
+  var settings = this.getModel();
   var chartType = settings['chart']['type'];
 
   if (!chartType)
     return ['', null];
 
+  // SETTINGS OF THE PRINTER
+  var minify = !!settings['minifyOutput'];
+  var containerId = String(settings['outputContainerId'] || 'container');
+  var wrapWithReady = !!settings['wrapOutputWithDocumentReady'];
+
+  var eq = minify ? '=' : ' = ';
+
   var anychartGlobal = anychart.window['anychart'];
-  var printer = new goog.format.JsonPrettyPrinter();
+  var printerSettings = new goog.format.JsonPrettyPrinter.TextDelimiters();
+  if (minify) {
+    printerSettings.lineBreak = '';
+    printerSettings.space = '';
+    printerSettings.propertySeparator = ',';
+    printerSettings.nameValueSeparator = ':';
+  }
+  var printer = new goog.format.JsonPrettyPrinter(printerSettings);
   var result = [];
   var self = this;
 
@@ -1255,24 +1285,25 @@ anychart.chartEditor2Module.EditorModel.prototype.getChartWithJsCode_ = function
     result.push('// Applying global settings');
     goog.object.forEach(settings['anychart'], function(value, key) {
       // if (anychart.bindingModule.testExec(anychartGlobal, key, value)) {
-      result.push(self.printKey_(printer, 'anychart', key, value));
+      result.push(self.printKey_(printer, 'anychart', key, value, minify));
       // }
     });
     result.push('');
   }
 
   var chart = anychartGlobal[chartType]();
-  result.push('// Creating chart', 'var chart = ' + chartType + ';', '');
-  
+  result.push('// Creating chart', 'var chart' + eq + 'anychart.' + chartType + '();', '');
+
   if (chartType == 'map') {
-    var geoData = model.getRawData(true);
+    var geoData = this.getRawData(true);
     if (geoData) {
       chart['geoData'](geoData);
       result.push(
           '// Setting up geo data',
-          'var geoData = ' + this.printValue_(printer, geoData) + ';',
-          'chart.geoData(geoData);');
-      var geoIdField = model.getGeoIdField();
+          'var geoData' + eq + this.printValue_(printer, geoData) + ';',
+          'chart.geoData(geoData);'
+      );
+      var geoIdField = this.getGeoIdField();
       if (geoIdField) {
         chart['geoIdField'](geoIdField);
         result.push(this.printKey_(printer, 'chart', 'geoIdField', geoIdField));
@@ -1281,14 +1312,14 @@ anychart.chartEditor2Module.EditorModel.prototype.getChartWithJsCode_ = function
   }
 
   // Create data set
-  var rawData = model.getRawData();
+  var rawData = this.getRawData();
   var dsCtor = anychart.chartEditor2Module.EditorModel.chartTypes[chartType]['dataSetCtor'];
   var isTableData = dsCtor == 'table';
   var dataSet = anychartGlobal['data'][dsCtor]();
   result.push(
       '// Setting up data',
-      'var rawData = ' + this.printValue_(printer, 'rawData') + ';',
-      'var data = anychart.data.' + dsCtor +
+      'var rawData' + eq + this.printValue_(printer, rawData) + ';',
+      'var data' + eq + 'anychart.data.' + dsCtor +
           (isTableData ?
               '(' + this.printValue_(printer, settings['dataSettings']['field']) + ');' :
               '();')
@@ -1320,7 +1351,7 @@ anychart.chartEditor2Module.EditorModel.prototype.getChartWithJsCode_ = function
       }
 
       mappingInstances.push(dataSet['mapAs'](mappingObj));
-      result.push('var mapping' + (isSingleSeries ? '' : ((isSinglePlot ? '' : '_' + i) + '_' + j)) + ' = data.mapAs(' + this.printValue_(printer, seriesMapping));
+      result.push('var mapping' + (isSingleSeries ? '' : ((isSinglePlot ? '' : '_' + i) + '_' + j)) + eq + 'data.mapAs(' + this.printValue_(printer, mappingObj) + ');');
     }
   }
   result.push('');
@@ -1343,13 +1374,13 @@ anychart.chartEditor2Module.EditorModel.prototype.getChartWithJsCode_ = function
         if (chartType == 'stock') {
           var plot = chart['plot'](i);
           series = plot[seriesCtor](mappingInstancesList[i][j]);
-          result.push('series = chart.plot(' + i + ').' + seriesCtor + mappingPostfix);
+          result.push('series' + eq + 'chart.plot(' + i + ').' + seriesCtor + mappingPostfix);
         } else {
           if (settings['chart']['type'] == 'map') {
             seriesCtor = seriesCtor.split('-')[0];
           }
           series = chart[seriesCtor](mappingInstancesList[i][j]);
-          result.push('series = chart.' + seriesCtor + mappingPostfix);
+          result.push('series' + eq + 'chart.' + seriesCtor + mappingPostfix);
         }
         series['id'](plotMapping[j]['id']);
         result.push('series.id(' + this.printValue_(printer, plotMapping[j]['id']) + ');');
@@ -1377,13 +1408,27 @@ anychart.chartEditor2Module.EditorModel.prototype.getChartWithJsCode_ = function
 
   result.push(
       '// Settings container and calling draw',
-      'chart.container("container");',
-      // this.printKey_(printer, 'chart', 'container()', this.containerId_),
+      this.printKey_(printer, 'chart', 'container()', containerId),
       'chart.draw();'
   );
+
+  if (minify) {
+    result = goog.array.map(result, function(item) {
+      return goog.string.startsWith(item, '//') ? '' : item;
+    });
+  }
+  if (wrapWithReady) {
+    if (!minify) {
+      goog.array.forEach(result, function(item) {
+        return '  ' + item;
+      });
+    }
+    result.unshift('anychart.onDocumentReady(function()' + (minify ? '' : ' ') + '{');
+    result.push('});');
+  }
   // chart['container'](this.containerId_);
   // chart['draw']();
-  return [result.join('\n'), chart];
+  return [result.join(minify ? '' : '\n'), chart];
 };
 
 
