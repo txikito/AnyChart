@@ -5,6 +5,7 @@ goog.require('anychart.chartEditor2Module.colorPicker.Base');
 goog.require('anychart.chartEditor2Module.comboBox.Base');
 goog.require('anychart.chartEditor2Module.input.Base');
 goog.require('anychart.chartEditor2Module.select.Base');
+goog.require('anychart.chartEditor2Module.settings.Stroke');
 goog.require('anychart.chartEditor2Module.settings.Title');
 goog.require('anychart.enums');
 
@@ -48,8 +49,8 @@ anychart.chartEditor2Module.settings.DataMarkers.prototype.createDom = function(
   var element = this.getElement();
   goog.dom.classlist.add(element, anychart.chartEditor2Module.settings.DataMarkers.CSS_CLASS);
 
-  //var content = this.getContentElement();
-  // var model = /** @type {anychart.chartEditor2Module.EditorModel} */(this.getModel());
+  var content = this.getContentElement();
+  var model = /** @type {anychart.chartEditor2Module.EditorModel} */(this.getModel());
 
   // var typeLabel = goog.dom.createDom(
   //     goog.dom.TagName.LABEL,
@@ -65,19 +66,26 @@ anychart.chartEditor2Module.settings.DataMarkers.prototype.createDom = function(
   typeSelect.setOptions(goog.object.getValues(anychart.enums.MarkerType));
   typeSelect.updateOptions();
   this.addChild(typeSelect, true);
+  goog.dom.classlist.add(typeSelect.getElement(), goog.getCssName('markers-type'));
   this.typeSelect_ = typeSelect;
-  // typeSelect.addClassName(goog.getCssName('anychart-chart-editor-settings-control-right'));
-
-  var fillSelect = new anychart.chartEditor2Module.colorPicker.Base();
-  fillSelect.addClassName(goog.getCssName('marker-fill'));
-  this.addChild(fillSelect, true);
-  this.fillSelect_ = fillSelect;
 
   var sizeSelect = new anychart.chartEditor2Module.comboBox.Base();
   sizeSelect.setOptions([6, 10, 12, 15]);
   this.addChild(sizeSelect, true);
-  goog.dom.classlist.add(sizeSelect.getElement(), goog.getCssName('size'));
+  goog.dom.classlist.add(sizeSelect.getElement(), goog.getCssName('markers-size'));
   this.sizeSelect_ = sizeSelect;
+
+  var fillSelect = new anychart.chartEditor2Module.colorPicker.Base();
+  fillSelect.addClassName(goog.getCssName('marker-fill'));
+  this.addChild(fillSelect, true);
+  goog.dom.classlist.add(fillSelect.getElement(), goog.getCssName('markers-fill'));
+  this.fillSelect_ = fillSelect;
+
+  goog.dom.appendChild(content, goog.dom.createDom(goog.dom.TagName.DIV, goog.getCssName('cb')));
+
+  var stroke = new anychart.chartEditor2Module.settings.Stroke(model, 'Markers stroke');
+  this.addChild(stroke, true);
+  this.stroke_ = stroke;
 
   this.updateKeys();
 };
@@ -91,6 +99,8 @@ anychart.chartEditor2Module.settings.DataMarkers.prototype.updateKeys = function
   if (this.typeSelect_) this.typeSelect_.init(model, this.genKey('type()'));
   if (this.fillSelect_) this.fillSelect_.init(model, this.genKey('fill()'));
   if (this.sizeSelect_) this.sizeSelect_.init(model, this.genKey('size()'));
+
+  if (this.stroke_) this.stroke_.setKey(this.genKey('stroke()'));
 };
 
 
@@ -110,6 +120,9 @@ anychart.chartEditor2Module.settings.DataMarkers.prototype.disposeInternal = fun
   this.typeSelect_ = null;
   this.fillSelect_ = null;
   this.sizeSelect_ = null;
+
+  this.stroke_.dispose();
+  this.stroke_ = null;
 
   anychart.chartEditor2Module.settings.DataMarkers.base(this, 'disposeInternal');
 };

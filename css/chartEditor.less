@@ -586,8 +586,39 @@
   }
 }
 
+.settings-data-markers {
+  .markers-type,
+  .markers-size,
+  .markers-fill {
+    display: block;
+    float: left;
+  }
+  .markers-size {
+    width: 60px;
+    input {
+      width: 80px;
+    }
+  }
+}
+.settings-stroke {
+  .stroke-color,
+  .stroke-dash,
+  .stroke-thickness {
+    display: block;
+    float: left;
+  }
+
+  .stroke-thickness {
+    width: 60px;
+    input {
+      width: 80px;
+    }
+  }
+}
+
+
 .settings-series {
-  border-top: 1px solid @color-dark-gray !important;
+  border-top: 2px solid @color-dark-gray !important;
 }
 
 

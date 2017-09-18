@@ -4,6 +4,7 @@ goog.require('anychart.chartEditor2Module.SettingsPanel');
 goog.require('anychart.chartEditor2Module.colorPicker.Base');
 goog.require('anychart.chartEditor2Module.input.Base');
 goog.require('anychart.chartEditor2Module.settings.DataMarkers');
+goog.require('anychart.chartEditor2Module.settings.Stroke');
 goog.require('anychart.chartEditor2Module.settings.Title');
 
 
@@ -61,6 +62,15 @@ anychart.chartEditor2Module.settings.Series.prototype.createDom = function() {
       goog.dom.TagName.DIV,
       goog.getCssName('anychart-chart-editor-settings-item-gap')));
 
+  // Stroke
+  var stroke = new anychart.chartEditor2Module.settings.Stroke(model);
+  stroke.setKey(this.genKey('stroke()'));
+  this.addChild(stroke, true);
+
+  goog.dom.appendChild(content, goog.dom.createDom(
+      goog.dom.TagName.DIV,
+      goog.getCssName('anychart-chart-editor-settings-item-gap')));
+
   // Data labels
   var dataLabels = new anychart.chartEditor2Module.settings.Title(model, 'Data labels');
   dataLabels.allowEnabled(true);
@@ -82,6 +92,7 @@ anychart.chartEditor2Module.settings.Series.prototype.createDom = function() {
 
   this.nameInput_ = nameInput;
   this.colorPicker_ = colorPicker;
+  this.stroke_ = stroke;
   this.dataLabels_ = dataLabels;
   this.dataMarkers_ = dataMarkers;
 
@@ -94,14 +105,12 @@ anychart.chartEditor2Module.settings.Series.prototype.createDom = function() {
  */
 anychart.chartEditor2Module.settings.Series.prototype.updateKeys = function() {
   var model = /** @type {anychart.chartEditor2Module.EditorModel} */(this.getModel());
-  if (this.nameInput_) this.nameInput_.init(model, this.genKey('name()'));
-  if (this.colorPicker_) this.colorPicker_.init(model, this.genKey('color()'));
-  if (this.dataLabels_) this.dataLabels_.setKey(this.genKey('labels()'));
-  if (this.dataMarkers_) this.dataMarkers_.setKey(this.genKey('markers()'));
+  this.nameInput_.init(model, this.genKey('name()'));
+  this.colorPicker_.init(model, this.genKey('color()'));
 
-  // if (this.typeSelect_) this.typeSelect_.setKey(this.genKey('seriesType()'));
-  // if (this.mappingSelect_) this.mappingSelect_.setMappingId(this.seriesId_);
-  // if (this.markersEnabled_) this.markersEnabled_.setKey(this.genKey('markers().enabled()'));
+  this.stroke_.setKey(this.genKey('stroke()'));
+  this.dataLabels_.setKey(this.genKey('labels()'));
+  this.dataMarkers_.setKey(this.genKey('markers()'));
 };
 
 
@@ -119,6 +128,9 @@ anychart.chartEditor2Module.settings.Series.prototype.onChartDraw = function(evt
 anychart.chartEditor2Module.settings.Series.prototype.disposeInternal = function() {
   this.nameInput_ = null;
   this.colorPicker_ = null;
+
+  this.stroke_.dispose();
+  this.stroke_ = null;
 
   this.dataLabels_.dispose();
   this.dataLabels_ = null;
