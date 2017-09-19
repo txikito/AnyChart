@@ -518,6 +518,19 @@ anychart.paretoModule.Chart.prototype.drawContent = function(bounds) {
 
 
 //endregion
+//region --- CSV
+//------------------------------------------------------------------------------
+//
+//  CSV
+//
+//------------------------------------------------------------------------------
+/** @inheritDoc */
+anychart.paretoModule.Chart.prototype.getCsvSourceXScale = function(series) {
+  return this.xScale();
+};
+
+
+//endregion
 //region --- Setup/dispose
 /** @inheritDoc */
 anychart.paretoModule.Chart.prototype.disposeInternal = function() {
