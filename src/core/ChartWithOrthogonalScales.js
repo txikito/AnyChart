@@ -2387,7 +2387,7 @@ anychart.core.ChartWithOrthogonalScales.prototype.serializeScale = function(json
  * @inheritDoc
  */
 anychart.core.ChartWithOrthogonalScales.prototype.disposeInternal = function() {
-  goog.dispose(this.animationQueue_);
+  goog.disposeAll(this.animationQueue_);
   anychart.core.ChartWithOrthogonalScales.base(this, 'disposeInternal');
 };
 

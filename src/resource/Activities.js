@@ -638,6 +638,9 @@ anychart.resourceModule.Activities.prototype.setupByJSON = function(config, opt_
 /** @inheritDoc */
 anychart.resourceModule.Activities.prototype.disposeInternal = function() {
   this.strokeResolver_ = this.fillResolver_ = this.hatchFillResolver_ = null;
+  for (var i in anychart.resourceModule.Activities.colorResolversCache_) {
+    goog.disposeAll(anychart.resourceModule.Activities.colorResolversCache_w[i]);
+  }
   goog.disposeAll(this.labels_, this.clip_, anychart.resourceModule.Activities.DEFAULT_HATCH_FILL);
   this.labels_ = this.clip_ = null;
   anychart.resourceModule.Activities.base(this, 'disposeInternal');

@@ -20,9 +20,9 @@ anychart.palettes.HatchFills = function() {
   this.hatchFills_ = [];
 
   // Initialize default marker palette using all marker types framework supports.
-  for (var key in acgraph.vector.HatchFill.HatchFillType) {
-    this.hatchFills_.push(acgraph.vector.normalizeHatchFill(acgraph.vector.HatchFill.HatchFillType[key]));
-  }
+  // for (var key in acgraph.vector.HatchFill.HatchFillType) {
+  //   this.hatchFills_.push(acgraph.vector.normalizeHatchFill(acgraph.vector.HatchFill.HatchFillType[key]));
+  // }
 };
 goog.inherits(anychart.palettes.HatchFills, anychart.core.Base);
 
