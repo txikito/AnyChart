@@ -1527,7 +1527,8 @@ goog.exportSymbol('anychart.themes.defaultTheme', {
         'stroke': anychart.core.defaultTheme.returnStrokeSourceColor1
       },
       'jumpLine': {
-        'pointWidth': '100%'
+        'pointWidth': '100%',
+        'maxPointWidth': '100%'
       },
       'hilo': {
         'pointWidth': 1

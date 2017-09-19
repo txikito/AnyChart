@@ -1231,7 +1231,11 @@ anychart.core.ChartWithSeries.prototype.isNoData = function() {
 anychart.core.ChartWithSeries.prototype.setupByJSON = function(config, opt_default) {
   anychart.core.ChartWithSeries.base(this, 'setupByJSON', config, opt_default);
 
-  anychart.core.settings.deserialize(this, anychart.core.ChartWithSeries.PROPERTY_DESCRIPTORS, config);
+  if (opt_default) {
+    anychart.core.settings.copy(this.themeSettings, anychart.core.ChartWithSeries.PROPERTY_DESCRIPTORS, config);
+  } else {
+    anychart.core.settings.deserialize(this, anychart.core.ChartWithSeries.PROPERTY_DESCRIPTORS, config);
+  }
   this.minBubbleSize(config['minBubbleSize']);
   this.maxBubbleSize(config['maxBubbleSize']);
   this.palette(config['palette']);

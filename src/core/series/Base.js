@@ -3490,7 +3490,7 @@ anychart.core.series.Base.prototype.makeMinPointLengthStackedMeta = function(row
     var height = Math.max(diff, this.minPointLengthCache_);
 
     var newZero, newY;
-    if (zero > y) {
+    if (zero >= y) {
       height = -height;
       if (isNaN(shared.positiveAnchor)) {//Drawing first point.
         shared.positiveAnchor = zero + height;
@@ -3536,7 +3536,7 @@ anychart.core.series.Base.prototype.makeMinPointLengthUnstackedMeta = function(r
     var zero = /** @type {number} */ (rowInfo.meta('zero'));
     var diff = Math.abs(y - zero);
     var height = Math.max(diff, this.minPointLengthCache_);
-    if (zero > y)
+    if (zero >= y)
       height = -height;
     rowInfo.meta('value', zero + height);
   }
