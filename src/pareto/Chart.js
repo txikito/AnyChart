@@ -526,7 +526,7 @@ anychart.paretoModule.Chart.prototype.drawContent = function(bounds) {
 //------------------------------------------------------------------------------
 /** @inheritDoc */
 anychart.paretoModule.Chart.prototype.getCsvSourceXScale = function(series) {
-  return this.xScale();
+  return /** @type {anychart.scales.IXScale} */(this.xScale());
 };
 
 

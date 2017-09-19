@@ -410,6 +410,7 @@ anychart.core.CartesianBase.prototype.shouldAddCsvRow = function(mode, series, x
 
 /**
  * @param {*} series
+ * @return {anychart.scales.IXScale}
  * @protected
  */
 anychart.core.CartesianBase.prototype.getCsvSourceXScale = function(series) {
