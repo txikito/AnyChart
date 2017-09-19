@@ -73,7 +73,6 @@ anychart.chartEditor2Module.Chart.prototype.update = function() {
       this.chart_ = null;
     }
 
-    // console.log("BUILD CHART");
     this.chart_ = this.anychart[settings['chart']['type']]();
 
     if (settings['chart']['type'] == 'map') {
@@ -88,7 +87,8 @@ anychart.chartEditor2Module.Chart.prototype.update = function() {
 
     // Create data set
     var dsCtor = anychart.chartEditor2Module.EditorModel.chartTypes[settings['chart']['type']]['dataSetCtor'];
-    var dataSet = this.anychart['data'][dsCtor]();
+    var opt_keyColumnIndex = dsCtor == 'table' ? settings['dataSettings']['field'] : void 0;
+    var dataSet = this.anychart['data'][dsCtor](opt_keyColumnIndex);
 
     if (dsCtor == 'table')
       dataSet['addData'](rawData);
