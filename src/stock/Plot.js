@@ -1159,14 +1159,16 @@ anychart.stockModule.Plot.prototype.invalidateWidthBasedSeries = function() {
 
 /**
  * Resets series shared stack.
+ * @param {boolean=} opt_skipInvalidation - Whether to skip width based series invalidation.
  */
-anychart.stockModule.Plot.prototype.resetSeriesStack = function() {
+anychart.stockModule.Plot.prototype.resetSeriesStack = function(opt_skipInvalidation) {
   for (var i = 0; i < this.series_.length; i++) {
     var series = this.series_[i];
     if (series)
       series.resetSharedStack();
   }
-  this.invalidateWidthBasedSeries();
+  if (!opt_skipInvalidation)
+    this.invalidateWidthBasedSeries();
 };
 
 
@@ -1675,7 +1677,7 @@ anychart.stockModule.Plot.prototype.draw = function() {
         series.resumeSignalsDispatching(false);
       }
     }
-    this.resetSeriesStack();
+    this.resetSeriesStack(true);
     this.markConsistent(anychart.ConsistencyState.STOCK_PLOT_SERIES);
   }
 

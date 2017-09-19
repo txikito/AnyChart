@@ -160,6 +160,8 @@
         <xsd:attribute name="bars_padding" type="xsd:double" default="0.1"/>
         <xsd:attribute name="min_bubble_size" type="simple.NumberOrPercent" default="5%"/>
         <xsd:attribute name="max_bubble_size" type="simple.NumberOrPercent" default="20%"/>
+        <xsd:attribute name="max_point_width" type="simple.NumberOrPercentOrNull" default="90%"/>
+        <xsd:attribute name="min_point_length" type="simple.NumberOrPercentOrNull" default="0"/>
         <xsd:attribute name="x_scale" type="simple.ChartScaleRef"/>
         <xsd:attribute name="y_scale" type="simple.ChartScaleRef"/>
         <!-- charts.Cartesian3d attrs -->
@@ -620,6 +622,8 @@
         <xsd:attribute name="select_falling_stroke" type="xsd:string"/>
         <!-- WidthBased series -->
         <xsd:attribute name="point_width" type="simple.NumberOrPercentOrNull"/>
+        <xsd:attribute name="max_point_width" type="simple.NumberOrPercentOrNull"/>
+        <xsd:attribute name="min_point_length" type="simple.NumberOrPercentOrNull"/>
         <!-- Polar ContinuousBase series -->
         <xsd:attribute name="closed" type="simple.Bool" default="true"/>
         <xsd:attributeGroup ref="attrs.VisualBase"/>
@@ -1984,6 +1988,7 @@
         <xsd:attribute name="inverted" type="simple.Bool" default="false"/>
         <xsd:attribute name="stick_to_zero" type="simple.Bool"/>
         <xsd:attribute name="stack_mode" type="enums.ScaleStackMode" default="none"/>
+        <xsd:attribute name="stack_direction" type="enums.ScaleStackDirection" default="direct"/>
         <xsd:attribute name="log_base" type="xsd:double" default="10"/>
         <xsd:attribute name="names" type="xsd:string" default="name"/>
         <xsd:attribute name="minimum" type="simple.DoubleOrNull" default="null"/>
@@ -2008,6 +2013,7 @@
         <xsd:attribute name="names" type="xsd:string" default="name"/>
         <xsd:attribute name="stick_to_zero" type="simple.Bool"/>
         <xsd:attribute name="stack_mode" type="enums.ScaleStackMode" default="none"/>
+        <xsd:attribute name="stack_direction" type="enums.ScaleStackDirection" default="direct"/>
         <xsd:attribute name="log_base" type="xsd:double" default="10"/>
         <xsd:attribute name="minimum" type="simple.DoubleOrNull" default="null"/>
         <xsd:attribute name="maximum" type="simple.DoubleOrNull" default="null"/>
@@ -2063,6 +2069,7 @@
         <xsd:attribute name="inverted" type="simple.Bool" default="false"/>
         <xsd:attribute name="stick_to_zero" type="simple.Bool"/>
         <xsd:attribute name="stack_mode" type="enums.ScaleStackMode" default="none"/>
+        <xsd:attribute name="stack_direction" type="enums.ScaleStackDirection" default="direct"/>
         <xsd:attribute name="log_base" type="xsd:double" default="10"/>
         <xsd:attribute name="minimum" type="simple.DoubleOrNull" default="null"/>
         <xsd:attribute name="maximum" type="simple.DoubleOrNull" default="null"/>
@@ -2084,6 +2091,7 @@
         <xsd:attribute name="inverted" type="simple.Bool" default="false"/>
         <xsd:attribute name="stick_to_zero" type="simple.Bool"/>
         <xsd:attribute name="stack_mode" type="enums.ScaleStackMode" default="none"/>
+        <xsd:attribute name="stack_direction" type="enums.ScaleStackDirection" default="direct"/>
         <xsd:attribute name="log_base" type="xsd:double" default="10"/>
         <xsd:attribute name="minimum" type="simple.DoubleOrNull" default="null"/>
         <xsd:attribute name="maximum" type="simple.DoubleOrNull" default="null"/>
@@ -3265,6 +3273,13 @@
             <xsd:enumeration value="none"/>
             <xsd:enumeration value="value"/>
             <xsd:enumeration value="percent"/>
+        </xsd:restriction>
+    </xsd:simpleType>
+
+    <xsd:simpleType name="enums.ScaleStackDirection">
+        <xsd:restriction base="xsd:string">
+            <xsd:enumeration value="direct"/>
+            <xsd:enumeration value="reverse"/>
         </xsd:restriction>
     </xsd:simpleType>
 
