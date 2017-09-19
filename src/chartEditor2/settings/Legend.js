@@ -66,15 +66,17 @@ anychart.chartEditor2Module.settings.Legend.prototype.disposeInternal = function
 
 /** @inheritDoc */
 anychart.chartEditor2Module.settings.Legend.prototype.updateKeys = function() {
-  var stringKey = 'legend()';
-  if (goog.isDef(this.plotIndex_))
-    stringKey = 'plot(' + this.plotIndex_ + ').' + stringKey;
+  if (!this.isExcluded()) {
+    var stringKey = 'legend()';
+    if (goog.isDef(this.plotIndex_))
+      stringKey = 'plot(' + this.plotIndex_ + ').' + stringKey;
 
-  this.key = [['chart'], ['settings'], stringKey];
+    this.key = [['chart'], ['settings'], stringKey];
 
-  // Update keys of children
-  this.appearance_.setKey(this.key);
-  this.title_.setKey(this.genKey('title()'));
+    // Update keys of children
+    if (this.appearance_) this.appearance_.setKey(this.key);
+    if (this.title_) this.title_.setKey(this.genKey('title()'));
+  }
 
   // Update key of enabled checkbox
   anychart.chartEditor2Module.settings.Legend.base(this, 'updateKeys');

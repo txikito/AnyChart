@@ -147,10 +147,12 @@ anychart.chartEditor2Module.settings.LegendAppearance.prototype.createDom = func
 
 /** @inheritDoc */
 anychart.chartEditor2Module.settings.LegendAppearance.prototype.updateKeys = function() {
-  if (this.layoutSelect_) this.layoutSelect_.setKey(this.genKey('itemsLayout()'));
-  if (this.orientationSelect_) this.orientationSelect_.setKey(this.genKey('position()'));
-  if (this.alignSelect_) this.alignSelect_.setKey(this.genKey('align()'));
-  if (this.items_) this.items_.setKey(this.key);
+  if (!this.isExcluded()) {
+    if (this.layoutSelect_) this.layoutSelect_.setKey(this.genKey('itemsLayout()'));
+    if (this.orientationSelect_) this.orientationSelect_.setKey(this.genKey('position()'));
+    if (this.alignSelect_) this.alignSelect_.setKey(this.genKey('align()'));
+    if (this.items_) this.items_.setKey(this.key);
+  }
 
   anychart.chartEditor2Module.settings.LegendAppearance.base(this, 'updateKeys');
 };

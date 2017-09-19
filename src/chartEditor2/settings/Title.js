@@ -312,6 +312,8 @@ anychart.chartEditor2Module.settings.Title.prototype.onChartDraw = function(evt)
 anychart.chartEditor2Module.settings.Title.prototype.updateKeys = function() {
   anychart.chartEditor2Module.settings.Title.base(this, 'updateKeys');
 
+  if (this.isExcluded()) return;
+
   var model = /** @type {anychart.chartEditor2Module.EditorModel} */(this.getModel());
 
   if (this.enabledBtn_) this.enabledBtn_.init(model, this.genKey('enabled()'));

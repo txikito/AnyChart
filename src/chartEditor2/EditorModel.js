@@ -206,7 +206,8 @@ anychart.chartEditor2Module.EditorModel.chartTypes = {
     'name': 'Pie',
     'icon': 'pie-chart.svg',
     'series': ['pie'],
-    'dataSetCtor': 'set'
+    'dataSetCtor': 'set',
+    'settingsExcludes' : ['series']
   },
   'map': {
     'value': 'map',
@@ -220,7 +221,8 @@ anychart.chartEditor2Module.EditorModel.chartTypes = {
     'name': 'Stock',
     'icon': 'stock-chart.svg',
     'series': ['ohlc', 'candlestick', 'line', 'spline', 'column', 'area'],
-    'dataSetCtor': 'table'
+    'dataSetCtor': 'table',
+    'settingsExcludes' : ['data-labels']
   }
 };
 
@@ -434,7 +436,6 @@ anychart.chartEditor2Module.EditorModel.prototype.chooseDefaultChartType = funct
  */
 anychart.chartEditor2Module.EditorModel.prototype.chooseDefaultSeriesType = function() {
   var seriesType = anychart.chartEditor2Module.EditorModel.chartTypes[this.model_['chart']['type']]['series'][0];
-
   switch (this.model_['chart']['type']) {
     case 'map':
       if (this.fieldsState_.coordinates.length == 2) {
@@ -535,12 +536,12 @@ anychart.chartEditor2Module.EditorModel.prototype.createSeriesConfig = function(
   config['id'] = goog.isDef(opt_id) ? opt_id : goog.string.createUniqueString();
 
   var numbers = goog.array.clone(this.fieldsState_.numbers);
-  if (this.model_['chart']['type']== 'map') {
+  if (this.model_['chart']['type'] == 'map') {
     var self = this;
     numbers = goog.array.filter(numbers, function(item){
       return goog.array.indexOf(self.fieldsState_.coordinates, item) == -1;
     });
-    this.fieldsState_.numbersCount -= 2;
+    this.fieldsState_.numbersCount = numbers.length;
   }
 
   //
@@ -1089,10 +1090,6 @@ anychart.chartEditor2Module.EditorModel.prototype.addData = function(evt) {
   }
   this.preparedData_.length = 0;
 
-  this.generateInitialMappingsOnChangeView_ = true;
-  // debug
-  // this.onChangeView();
-
   if (evt.dataType == anychart.chartEditor2Module.EditorModel.dataType.GEO) {
     delete this.data_[this.model_['dataSettings']['activeGeo']];
     this.model_['dataSettings']['activeGeo'] = id;
@@ -1106,7 +1103,8 @@ anychart.chartEditor2Module.EditorModel.prototype.addData = function(evt) {
         this.model_['dataSettings']['geoIdField'] = i;
       }
     }
-  }
+  } else
+    this.generateInitialMappingsOnChangeView_ = true;
 
   this.dispatchUpdate();
 };

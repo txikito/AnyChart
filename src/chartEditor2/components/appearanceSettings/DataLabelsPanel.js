@@ -16,6 +16,8 @@ anychart.chartEditor2Module.DataLabelsPanel = function(model, opt_domHelper) {
 
   this.name = 'Data Labels';
 
+  this.stringId = 'data-labels';
+
   this.key = [['chart'], ['settings'], 'labels()'];
 };
 goog.inherits(anychart.chartEditor2Module.DataLabelsPanel, anychart.chartEditor2Module.SettingsPanel);
@@ -57,14 +59,16 @@ anychart.chartEditor2Module.DataLabelsPanel.prototype.update = function(opt_evt)
         if (lastKey == stringKey) {
 
           var chartType = model.getValue([['chart'], 'type']);
-          var mappings = model.getValue([['dataSettings'], 'mappings']);
-          for (var i = 0; i < mappings.length; i++) {
-            for (var j = 0; j < mappings[i].length; j++) {
-              var seriesId = mappings[i][j]['id'];
-              var stringKey2 = (chartType == 'stock' ? 'plot(' + i + ').' : '') + 'getSeries(\'' + seriesId + '\').' + stringKey;
-              var key2 = [['chart'], ['settings'], stringKey2];
-              var value = model.getValue(key);
-              model.setValue(key2, value);
+          if (chartType != 'pie') {
+            var mappings = model.getValue([['dataSettings'], 'mappings']);
+            for (var i = 0; i < mappings.length; i++) {
+              for (var j = 0; j < mappings[i].length; j++) {
+                var seriesId = mappings[i][j]['id'];
+                var stringKey2 = (chartType == 'stock' ? 'plot(' + i + ').' : '') + 'getSeries(\'' + seriesId + '\').' + stringKey;
+                var key2 = [['chart'], ['settings'], stringKey2];
+                var value = model.getValue(key);
+                model.setValue(key2, value);
+              }
             }
           }
         }

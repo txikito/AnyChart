@@ -16,6 +16,8 @@ anychart.chartEditor2Module.SeriesSettingsPanel = function(model, opt_domHelper)
 
   this.name = 'Series';
 
+  this.stringId = 'series';
+
   this.series_ = [];
 };
 goog.inherits(anychart.chartEditor2Module.SeriesSettingsPanel, anychart.chartEditor2Module.SettingsPanel);

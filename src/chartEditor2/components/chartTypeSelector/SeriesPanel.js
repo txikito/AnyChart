@@ -52,16 +52,18 @@ anychart.chartEditor2Module.SeriesPanel.prototype.createDom = function() {
   this.getKey();
   var model = /** @type {anychart.chartEditor2Module.EditorModel} */(this.getModel());
   var chartType = model.getValue([['chart'], 'type']);
-  var mappings = model.getValue([['dataSettings'], ['mappings', this.plotIndex_]]);
-  var keyStr = chartType == 'stock' ? 'plot(' + this.plotIndex_ + ').' : '';
-  var id = goog.isDef(mappings[this.index_]['id']) ? mappings[this.index_]['id'] : this.index_;
-  keyStr += 'getSeries(\'' + id + '\').name()';
-  var key = [['chart'], ['settings'], keyStr];
+  if (chartType != 'pie') {
+    var mappings = model.getValue([['dataSettings'], ['mappings', this.plotIndex_]]);
+    var keyStr = chartType == 'stock' ? 'plot(' + this.plotIndex_ + ').' : '';
+    var id = goog.isDef(mappings[this.index_]['id']) ? mappings[this.index_]['id'] : this.index_;
+    keyStr += 'getSeries(\'' + id + '\').name()';
+    var key = [['chart'], ['settings'], keyStr];
 
-  var input = new anychart.chartEditor2Module.input.Base();
-  this.addChild(input, true);
-  input.init(model, key, void 0, true, true);
-  this.nameInput_ = input;
+    var input = new anychart.chartEditor2Module.input.Base();
+    this.addChild(input, true);
+    input.init(model, key, void 0, true, true);
+    this.nameInput_ = input;
+  }
 
   this.typeSelect_ = new anychart.chartEditor2Module.select.SelectWithLabel('ctor', 'Series type');
   this.typeSelect_.init(/** @type {anychart.chartEditor2Module.EditorModel} */(this.getModel()), this.getKey('ctor'), 'setSeriesType');
@@ -95,7 +97,7 @@ anychart.chartEditor2Module.SeriesPanel.prototype.update = function() {
 /** @inheritDoc */
 anychart.chartEditor2Module.SeriesPanel.prototype.onChartDraw = function(evt) {
   anychart.chartEditor2Module.SeriesPanel.base(this, 'onChartDraw', evt);
-  this.nameInput_.setValueByTarget(evt.chart);
+  if (this.nameInput_) this.nameInput_.setValueByTarget(evt.chart);
 };
 
 

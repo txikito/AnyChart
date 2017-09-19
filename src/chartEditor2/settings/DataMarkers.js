@@ -95,6 +95,8 @@ anychart.chartEditor2Module.settings.DataMarkers.prototype.createDom = function(
 anychart.chartEditor2Module.settings.DataMarkers.prototype.updateKeys = function() {
   anychart.chartEditor2Module.settings.DataMarkers.base(this, 'updateKeys');
 
+  if (this.isExcluded()) return;
+
   var model = /** @type {anychart.chartEditor2Module.EditorModel} */(this.getModel());
   if (this.typeSelect_) this.typeSelect_.init(model, this.genKey('type()'));
   if (this.fillSelect_) this.fillSelect_.init(model, this.genKey('fill()'));
