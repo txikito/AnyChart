@@ -3355,10 +3355,12 @@ anychart.core.Chart.prototype.getCsvColumns = function(dataHolder) {
  * @param {string} name
  * @param {*} dataHolder
  * @param {number} index
+ * @param {number} columnsCount
  * @return {string}
  */
-anychart.core.Chart.prototype.prefixCsvColumnName = function(name, dataHolder, index) {
-  return ((dataHolder instanceof anychart.core.series.Base) ? dataHolder.name() : ('series' + String(index))) + '_' + name.replace(' ', '_');
+anychart.core.Chart.prototype.prefixCsvColumnName = function(name, dataHolder, index, columnsCount) {
+  return ((dataHolder instanceof anychart.core.series.Base) ? dataHolder.name() : ('series' + String(index))) +
+      ((columnsCount > 1) ? (' (' + name + ')') : '');
 };
 
 
@@ -3476,7 +3478,7 @@ anychart.core.Chart.prototype.getCsvData = function(mode) {
       }
       if (dataHolders.length > 1) {
         for (j = 0; j < names.length; j++) {
-          headers.push(this.prefixCsvColumnName(names[j], dataHolder, i + 1));
+          headers.push(this.prefixCsvColumnName(names[j], dataHolder, i + 1, names.length));
         }
       } else {
         headers.push.apply(headers, names);
