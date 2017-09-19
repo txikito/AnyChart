@@ -115,13 +115,6 @@ anychart.chartEditor2Module.settings.Title.prototype.allowEditColor = function(v
 };
 
 
-/** @inheritDoc */
-anychart.chartEditor2Module.settings.Title.prototype.setKey = function(key) {
-  anychart.chartEditor2Module.settings.Title.base(this, 'setKey', key);
-  this.updateKeys();
-};
-
-
 /**
  * @type {?string}
  * @private
@@ -289,8 +282,6 @@ anychart.chartEditor2Module.settings.Title.prototype.createDom = function() {
   this.colorLabel_ = colorLabel;
   this.positionLabel_ = positionLabel;
   this.alignLabel_ = alignLabel;
-
-  this.updateKeys();
 };
 
 
@@ -319,6 +310,8 @@ anychart.chartEditor2Module.settings.Title.prototype.onChartDraw = function(evt)
  * Update model keys.
  */
 anychart.chartEditor2Module.settings.Title.prototype.updateKeys = function() {
+  anychart.chartEditor2Module.settings.Title.base(this, 'updateKeys');
+
   var model = /** @type {anychart.chartEditor2Module.EditorModel} */(this.getModel());
 
   if (this.enabledBtn_) this.enabledBtn_.init(model, this.genKey('enabled()'));

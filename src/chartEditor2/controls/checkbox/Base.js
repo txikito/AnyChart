@@ -139,6 +139,8 @@ anychart.chartEditor2Module.checkbox.Base.prototype.onChange = function(evt) {
  * @param {?Object} target Object, who's property corresponds to control's key. Used to get value of this control.
  */
 anychart.chartEditor2Module.checkbox.Base.prototype.setValueByTarget = function(target) {
+  if (!this.key) return;
+
   this.target = target;
 
   var stringKey = anychart.chartEditor2Module.EditorModel.getStringKey(this.key);

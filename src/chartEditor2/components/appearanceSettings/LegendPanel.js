@@ -1,9 +1,7 @@
 goog.provide('anychart.chartEditor2Module.LegendPanel');
 
 goog.require('anychart.chartEditor2Module.SettingsPanel');
-goog.require('anychart.chartEditor2Module.select.Base');
-goog.require('anychart.chartEditor2Module.settings.LegendAppearance');
-goog.require('anychart.chartEditor2Module.settings.Title');
+goog.require('anychart.chartEditor2Module.settings.Legend');
 
 
 
@@ -18,7 +16,7 @@ anychart.chartEditor2Module.LegendPanel = function(model, opt_domHelper) {
 
   this.name = 'Legend';
 
-  this.key = [['chart'], ['settings'], 'legend()'];
+  this.legends_ = [];
 };
 goog.inherits(anychart.chartEditor2Module.LegendPanel, anychart.chartEditor2Module.SettingsPanel);
 
@@ -26,28 +24,60 @@ goog.inherits(anychart.chartEditor2Module.LegendPanel, anychart.chartEditor2Modu
 /** @inheritDoc */
 anychart.chartEditor2Module.LegendPanel.prototype.createDom = function() {
   anychart.chartEditor2Module.LegendPanel.base(this, 'createDom');
+  var element = /** @type {Element} */(this.getElement());
+  goog.dom.classlist.add(element, 'settings-panel-legend');
+};
 
-  var content = this.getContentElement();
+
+/** @inheritDoc */
+anychart.chartEditor2Module.LegendPanel.prototype.enterDocument = function() {
+  anychart.chartEditor2Module.LegendPanel.base(this, 'enterDocument');
+  this.createLegends();
+};
+
+
+/** @inheritDoc */
+anychart.chartEditor2Module.LegendPanel.prototype.exitDocument = function() {
+  this.removeAllLegends();
+  anychart.chartEditor2Module.LegendPanel.base(this, 'exitDocument');
+};
+
+
+/**
+ * Create legend settings panels.
+ */
+anychart.chartEditor2Module.LegendPanel.prototype.createLegends = function() {
   var model = /** @type {anychart.chartEditor2Module.EditorModel} */(this.getModel());
+  var chartType = model.getValue([['chart'], 'type']);
+  var mappings = model.getValue([['dataSettings'], 'mappings']);
 
-  var appearance = new anychart.chartEditor2Module.settings.LegendAppearance(model, 'Appearance');
-  this.addChild(appearance, true);
+  var plotIndex;
+  var legend;
+  for (var i = 0; i < mappings.length; i++) {
+    plotIndex = chartType == 'stock' ? i : void 0;
+    legend = new anychart.chartEditor2Module.settings.Legend(model, plotIndex);
+    legend.allowEnabled(true);
+    this.legends_.push(legend);
+    this.addChild(legend, true);
+  }
+};
 
-  goog.dom.appendChild(content, goog.dom.createDom(
-      goog.dom.TagName.DIV,
-      goog.getCssName('anychart-chart-editor-settings-item-gap')));
 
-  var title = new anychart.chartEditor2Module.settings.Title(model, 'Title');
-  title.setPositionKey('orientation()');
-  title.setKey([['chart'], ['settings'], 'legend().title()']);
-  this.addChild(title, true);
-
-  this.title_ = title;
+/**
+ * Removes all legend panels elements from panel.
+ * @private
+ */
+anychart.chartEditor2Module.LegendPanel.prototype.removeAllLegends = function() {
+  for (var i = 0; i < this.legends_.length; i++) {
+    this.removeChild(this.legends_[i], true);
+    this.legends_[i].dispose();
+  }
+  this.legends_.length = 0;
 };
 
 
 /** @override */
 anychart.chartEditor2Module.LegendPanel.prototype.disposeInternal = function() {
-  this.title_ = null;
+  this.removeAllLegends();
   anychart.chartEditor2Module.LegendPanel.base(this, 'disposeInternal');
 };

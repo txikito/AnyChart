@@ -63,7 +63,7 @@ anychart.chartEditor2Module.settings.LegendAppearance.prototype.createDom = func
   layoutSelect.addClassName(goog.getCssName('anychart-chart-editor-settings-control-right'));
   layoutSelect.setOptions(['horizontal', 'vertical']);
   layoutSelect.setCaptions(['Horizontal', 'Vertical']);
-  layoutSelect.init(model, [['chart'], ['settings'], 'legend().itemsLayout()']);
+  layoutSelect.init(model, this.genKey('itemsLayout()'));
   this.addChild(layoutSelect, true);
   //endregion
 
@@ -87,7 +87,7 @@ anychart.chartEditor2Module.settings.LegendAppearance.prototype.createDom = func
   orientationSelect.setOptions(['left', 'right', 'top', 'bottom']);
   orientationSelect.setCaptions([null, null, null, null]);
   orientationSelect.setIcons(['ac ac-position-left', 'ac ac-position-right', 'ac ac-position-top', 'ac ac-position-bottom']);
-  orientationSelect.init(model, [['chart'], ['settings'], 'legend().position()']);
+  orientationSelect.init(model, this.genKey('position()'));
 
   var orientationSelectMenu = orientationSelect.getMenu();
   orientationSelectMenu.setOrientation(goog.ui.Container.Orientation.HORIZONTAL);
@@ -115,7 +115,7 @@ anychart.chartEditor2Module.settings.LegendAppearance.prototype.createDom = func
 
   var alignSelectMenu = alignSelect.getMenu();
   alignSelectMenu.setOrientation(goog.ui.Container.Orientation.HORIZONTAL);
-  alignSelect.init(model, [['chart'], ['settings'], 'legend().align()']);
+  alignSelect.init(model, this.genKey('align()'));
 
   this.addChild(alignSelect, true);
   //endregion
@@ -130,7 +130,7 @@ anychart.chartEditor2Module.settings.LegendAppearance.prototype.createDom = func
   items.allowEditPosition(false);
   items.allowEditAlign(false);
   items.allowEditColor(false);
-  items.setKey([['chart'], ['settings'], 'legend()']);
+  items.setKey(this.key);
   this.addChild(items, true);
 
   this.layoutSelect_ = layoutSelect;
@@ -142,6 +142,17 @@ anychart.chartEditor2Module.settings.LegendAppearance.prototype.createDom = func
   this.alignLabel_ = alignLabel;
 
   this.items_ = items;
+};
+
+
+/** @inheritDoc */
+anychart.chartEditor2Module.settings.LegendAppearance.prototype.updateKeys = function() {
+  if (this.layoutSelect_) this.layoutSelect_.setKey(this.genKey('itemsLayout()'));
+  if (this.orientationSelect_) this.orientationSelect_.setKey(this.genKey('position()'));
+  if (this.alignSelect_) this.alignSelect_.setKey(this.genKey('align()'));
+  if (this.items_) this.items_.setKey(this.key);
+
+  anychart.chartEditor2Module.settings.LegendAppearance.base(this, 'updateKeys');
 };
 
 

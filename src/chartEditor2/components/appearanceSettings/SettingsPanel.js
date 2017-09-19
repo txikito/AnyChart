@@ -93,11 +93,8 @@ anychart.chartEditor2Module.SettingsPanel.prototype.createDom = function() {
   goog.dom.classlist.add(element, 'settings-panel');
 
   var dom = this.getDomHelper();
-
   if (this.canBeEnabled()) {
-    var model = /** @type {anychart.chartEditor2Module.EditorModel} */(this.getModel());
     var enableContentCheckbox = new anychart.chartEditor2Module.checkbox.Base();
-    enableContentCheckbox.init(model, this.genKey('enabled()'));
 
     if (this.enabledButtonContainer_) {
       enableContentCheckbox.render(this.enabledButtonContainer_);
@@ -131,6 +128,7 @@ anychart.chartEditor2Module.SettingsPanel.prototype.getContentElement = function
 /** @inheritDoc */
 anychart.chartEditor2Module.SettingsPanel.prototype.enterDocument = function() {
   anychart.chartEditor2Module.SettingsPanel.base(this, 'enterDocument');
+  this.updateKeys();
   this.setEnabled(this.enabled);
 };
 
@@ -203,4 +201,21 @@ anychart.chartEditor2Module.SettingsPanel.prototype.setContentEnabled = function
 
   if (this.enableContentCheckbox)
     this.enableContentCheckbox.setEnabled(this.enabled);
+};
+
+
+/** @inheritDoc */
+anychart.chartEditor2Module.SettingsPanel.prototype.setKey = function(key) {
+  anychart.chartEditor2Module.SettingsPanel.base(this, 'setKey', key);
+  this.updateKeys();
+};
+
+
+/**
+ * Update model keys.
+ */
+anychart.chartEditor2Module.SettingsPanel.prototype.updateKeys = function() {
+  var model = /** @type {anychart.chartEditor2Module.EditorModel} */(this.getModel());
+  if (this.enableContentCheckbox)
+    this.enableContentCheckbox.init(model, this.genKey('enabled()'));
 };

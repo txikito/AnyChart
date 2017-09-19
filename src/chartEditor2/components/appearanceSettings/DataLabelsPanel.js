@@ -48,6 +48,7 @@ anychart.chartEditor2Module.DataLabelsPanel.prototype.update = function(opt_evt)
   var lastKey = opt_evt && opt_evt.lastKey;
   if (lastKey) {
     var model = /** @type {anychart.chartEditor2Module.EditorModel} */(this.getModel());
+    model.suspendDispatch();
     for (var c = 0, count = this.title_.getChildCount(); c < count; c++) {
       var child = this.title_.getChildAt(c);
       if (goog.isFunction(child.getKey)) {
@@ -69,14 +70,13 @@ anychart.chartEditor2Module.DataLabelsPanel.prototype.update = function(opt_evt)
         }
       }
     }
+    model.resumeDispatch();
   }
-
 };
 
 
 /** @override */
 anychart.chartEditor2Module.DataLabelsPanel.prototype.disposeInternal = function() {
   this.title_ = null;
-
   anychart.chartEditor2Module.DataLabelsPanel.base(this, 'disposeInternal');
 };

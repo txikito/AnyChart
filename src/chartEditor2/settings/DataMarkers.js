@@ -86,8 +86,6 @@ anychart.chartEditor2Module.settings.DataMarkers.prototype.createDom = function(
   var stroke = new anychart.chartEditor2Module.settings.Stroke(model, 'Markers stroke');
   this.addChild(stroke, true);
   this.stroke_ = stroke;
-
-  this.updateKeys();
 };
 
 
@@ -95,6 +93,8 @@ anychart.chartEditor2Module.settings.DataMarkers.prototype.createDom = function(
  * Update model keys.
  */
 anychart.chartEditor2Module.settings.DataMarkers.prototype.updateKeys = function() {
+  anychart.chartEditor2Module.settings.DataMarkers.base(this, 'updateKeys');
+
   var model = /** @type {anychart.chartEditor2Module.EditorModel} */(this.getModel());
   if (this.typeSelect_) this.typeSelect_.init(model, this.genKey('type()'));
   if (this.fillSelect_) this.fillSelect_.init(model, this.genKey('fill()'));
@@ -125,12 +125,4 @@ anychart.chartEditor2Module.settings.DataMarkers.prototype.disposeInternal = fun
   this.stroke_ = null;
 
   anychart.chartEditor2Module.settings.DataMarkers.base(this, 'disposeInternal');
-};
-
-/** @inheritDoc */
-anychart.chartEditor2Module.settings.DataMarkers.prototype.setContentEnabled = function(enabled) {
-  anychart.chartEditor2Module.settings.DataMarkers.base(this, 'setContentEnabled', enabled);
-  // if (this.typeLabel_)
-  //   goog.dom.classlist.enable(goog.asserts.assert(this.typeLabel_), goog.getCssName('anychart-control-disabled'), !enabled);
-
 };

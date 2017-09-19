@@ -98,15 +98,17 @@ anychart.chartEditor2Module.settings.Series.prototype.createDom = function() {
   this.stroke_ = stroke;
   this.dataLabels_ = dataLabels;
   this.dataMarkers_ = dataMarkers;
-
-  this.updateKeys();
 };
 
 
-/**
- * Update model keys.
- */
+/** @inheritDoc */
 anychart.chartEditor2Module.settings.Series.prototype.updateKeys = function() {
+  var stringKey = 'getSeries(\'' + this.seriesId_ + '\')';
+  if (goog.isDef(this.plotIndex_)) {
+    stringKey = 'plot(' + this.plotIndex_ + ').' + stringKey;
+  }
+  this.key = [['chart'], ['settings'], stringKey];
+
   var model = /** @type {anychart.chartEditor2Module.EditorModel} */(this.getModel());
   this.nameInput_.init(model, this.genKey('name()'));
   this.colorPicker_.init(model, this.genKey('color()'));
@@ -114,6 +116,8 @@ anychart.chartEditor2Module.settings.Series.prototype.updateKeys = function() {
   this.stroke_.setKey(this.genKey('stroke()'));
   this.dataLabels_.setKey(this.genKey('labels()'));
   this.dataMarkers_.setKey(this.genKey('markers()'));
+
+  anychart.chartEditor2Module.settings.Series.base(this, 'updateKeys');
 };
 
 

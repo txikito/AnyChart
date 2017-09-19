@@ -112,6 +112,28 @@ anychart.chartEditor2Module.GeneralSettings.prototype.createDom = function() {
 
 
 /** @inheritDoc */
+anychart.chartEditor2Module.GeneralSettings.prototype.update = function() {
+  anychart.chartEditor2Module.GeneralSettings.base(this, 'update');
+  var model = /** @type {anychart.chartEditor2Module.EditorModel} */(this.getModel());
+  model = model.getModel();
+
+  if (model['chart']['type'] == 'stock') {
+    this.legendEnabled.setKey(null);
+    this.animationnabled.setKey(null);
+  } else {
+    this.legendEnabled.setKey([['chart'], ['settings'], 'legend().enabled()']);
+    this.animationnabled.setKey([['chart'], ['settings'], 'animation().enabled()']);
+  }
+
+  if (this.legendEnabled)
+    goog.dom.classlist.enable(this.legendEnabled.getElement(), goog.getCssName('hidden'), model['chart']['type'] == 'stock');
+
+  if (this.animationnabled)
+    goog.dom.classlist.enable(this.animationnabled.getElement(), goog.getCssName('hidden'), model['chart']['type'] == 'stock');
+
+};
+
+/** @inheritDoc */
 anychart.chartEditor2Module.GeneralSettings.prototype.onChartDraw = function(evt) {
   var model = /** @type {anychart.chartEditor2Module.EditorModel} */(this.getModel());
 
