@@ -1737,11 +1737,7 @@ anychart.vennModule.Chart.prototype.isNoData = function() {
  * @param {!Object} config
  */
 anychart.vennModule.Chart.prototype.setThemeSettings = function(config) {
-  for (var name in this.SIMPLE_PROPS_DESCRIPTORS) {
-    var val = config[name];
-    if (goog.isDef(val))
-      this.themeSettings[name] = val;
-  }
+  anychart.core.settings.copy(this.themeSettings, this.SIMPLE_PROPS_DESCRIPTORS, config);
 };
 
 
@@ -1776,7 +1772,7 @@ anychart.vennModule.Chart.prototype.serialize = function() {
 anychart.vennModule.Chart.prototype.setupByJSON = function(config, opt_default) {
   anychart.vennModule.Chart.base(this, 'setupByJSON', config, opt_default);
   if (opt_default)
-    this.themeSettings = config;
+    this.setThemeSettings(config);
   else
     anychart.core.settings.deserialize(this, this.SIMPLE_PROPS_DESCRIPTORS, config);
 
