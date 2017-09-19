@@ -21,12 +21,32 @@ goog.mixin(goog.global['anychart']['themes']['defaultTheme'], {
           'position': 'left-top'
         }
       },
+      'area': {
+        'hoverMarkers': {
+          'enabled': true
+        },
+        'selectMarkers': {
+          'enabled': true
+        }
+      },
       'bar': {
         'isVertical': true
       },
       'line': {
+        'hoverMarkers': {
+          'enabled': true
+        },
+        'selectMarkers': {
+          'enabled': true
+        }
       },
       'line2d': {
+        'hoverMarkers': {
+          'enabled': true
+        },
+        'selectMarkers': {
+          'enabled': true
+        },
         'stroke': anychart.core.defaultTheme.returnSourceColor,
         'hoverStroke': anychart.core.defaultTheme.returnLightenSourceColor,
         'selectStroke': anychart.core.defaultTheme.defaultSelectSolidColor
