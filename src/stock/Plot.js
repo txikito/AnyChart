@@ -13,6 +13,7 @@ goog.require('anychart.format.Context');
 goog.require('anychart.palettes');
 goog.require('anychart.scales.Linear');
 goog.require('anychart.stockModule.Axis');
+goog.require('anychart.stockModule.CurrentPriceIndicator');
 goog.require('anychart.stockModule.Grid');
 goog.require('anychart.stockModule.Series');
 goog.require('anychart.stockModule.indicators');
@@ -86,6 +87,13 @@ anychart.stockModule.Plot = function(chart) {
    * @private
    */
   this.yAxes_ = [];
+
+  /**
+   * Price indicators list.
+   * @type {Array.<!anychart.stockModule.CurrentPriceIndicator>}
+   * @private
+   */
+  this.priceIndicators_ = [];
 
   /**
    * X axis.
@@ -190,7 +198,8 @@ anychart.stockModule.Plot.prototype.SUPPORTED_CONSISTENCY_STATES =
     anychart.ConsistencyState.STOCK_PLOT_ANNOTATIONS |
     anychart.ConsistencyState.STOCK_PLOT_LEGEND |
     anychart.ConsistencyState.STOCK_PLOT_NO_DATA_LABEL |
-    anychart.ConsistencyState.AXES_CHART_CROSSHAIR;
+    anychart.ConsistencyState.AXES_CHART_CROSSHAIR |
+    anychart.ConsistencyState.STOCK_PLOT_PRICE_INDICATORS;
 
 
 /**
@@ -226,6 +235,13 @@ anychart.stockModule.Plot.ZINDEX_LINE_SERIES = 31;
  * @type {number}
  */
 anychart.stockModule.Plot.ZINDEX_AXIS = 35;
+
+
+/**
+ * Grid z-index in chart root layer.
+ * @type {number}
+ */
+anychart.stockModule.Plot.ZINDEX_PRICE_INDICATOR = 150;
 
 
 /**
@@ -1085,6 +1101,15 @@ anychart.stockModule.Plot.prototype.setDefaultGridSettings = function(value) {
 
 
 /**
+ * Getter/setter for price indicator default settings.
+ * @param {Object} value Object with default price indicator settings.
+ */
+anychart.stockModule.Plot.prototype.setDefaultPriceIndicatorSettings = function(value) {
+  this.defaultPriceIndicatorSettings_ = value;
+};
+
+
+/**
  * Invalidates plot series. Doesn't dispatch anything.
  * @param {boolean} doInvalidateBounds
  * @param {boolean=} opt_skipLegend
@@ -1132,9 +1157,16 @@ anychart.stockModule.Plot.prototype.invalidateRedrawable = function(doInvalidate
   if (!opt_skipLegend && this.legend_ && this.legend_.enabled())
     this.legend_.invalidate(state);
 
+  for (i = 0; i < this.priceIndicators_.length; i++) {
+    var priceIndicator = this.priceIndicators_[i];
+    if (priceIndicator)
+      priceIndicator.invalidate(anychart.ConsistencyState.BOUNDS | anychart.ConsistencyState.APPEARANCE);
+  }
+
   this.invalidate(anychart.ConsistencyState.STOCK_PLOT_SERIES |
       anychart.ConsistencyState.STOCK_PLOT_ANNOTATIONS |
       anychart.ConsistencyState.STOCK_PLOT_AXES |
+      anychart.ConsistencyState.STOCK_PLOT_PRICE_INDICATORS |
       anychart.ConsistencyState.STOCK_PLOT_DT_AXIS |
       anychart.ConsistencyState.STOCK_PLOT_GRIDS |
       anychart.ConsistencyState.STOCK_PLOT_LEGEND |
@@ -1312,6 +1344,45 @@ anychart.stockModule.Plot.prototype.yAxis = function(opt_indexOrValue, opt_value
 
 
 /**
+ * Stock price indicators multi getter/setter.
+ * @param {(Object|boolean|null|number)=} opt_indexOrValue Index or chart price indicators settings to set.
+ * @param {(Object|boolean|null)=} opt_value Chart price indicators settings to set.
+ * @return {!(anychart.stockModule.CurrentPriceIndicator|anychart.stockModule.Plot)} Price indicator instance by index or itself for method chaining.
+ */
+anychart.stockModule.Plot.prototype.priceIndicator = function(opt_indexOrValue, opt_value) {
+  var index, value;
+  index = anychart.utils.toNumber(opt_indexOrValue);
+  if (isNaN(index)) {
+    index = 0;
+    value = opt_indexOrValue;
+  } else {
+    index = /** @type {number} */(opt_indexOrValue);
+    value = opt_value;
+  }
+  var priceIndicator = this.priceIndicators_[index];
+  if (!priceIndicator) {
+    priceIndicator = new anychart.stockModule.CurrentPriceIndicator();
+    this.priceIndicators_[index] = priceIndicator;
+    // priceIndicator.axis(this.yAxes_[0]);
+    // priceIndicator.series(this.series_[0]);
+    priceIndicator.zIndex(anychart.stockModule.Plot.ZINDEX_PRICE_INDICATOR);
+    priceIndicator.setPlot(this);
+    priceIndicator.setupByJSON(this.defaultPriceIndicatorSettings_, true);
+    priceIndicator.setParentEventTarget(this);
+    priceIndicator.listenSignals(this.priceIndicatorInvalidated_, this);
+    this.invalidate(anychart.ConsistencyState.STOCK_PLOT_PRICE_INDICATORS, anychart.Signal.NEEDS_REDRAW);
+  }
+
+  if (goog.isDef(value)) {
+    priceIndicator.setup(value);
+    return this;
+  } else {
+    return priceIndicator;
+  }
+};
+
+
+/**
  * X axis getter/setter.
  * @param {(Object|boolean|null)=} opt_value Chart axis settings to set.
  * @return {!(anychart.stockModule.Axis|anychart.stockModule.Plot)}
@@ -1439,7 +1510,7 @@ anychart.stockModule.Plot.prototype.draw = function() {
   if (!this.checkDrawingNeeded())
     return this;
 
-  var i, axis, series;
+  var i, axis, series, priceIndicator;
 
   this.suspendSignalsDispatching();
 
@@ -1556,6 +1627,20 @@ anychart.stockModule.Plot.prototype.draw = function() {
       annotations.resumeSignalsDispatching(false);
     }
     this.markConsistent(anychart.ConsistencyState.STOCK_PLOT_ANNOTATIONS);
+  }
+
+  if (this.hasInvalidationState(anychart.ConsistencyState.STOCK_PLOT_PRICE_INDICATORS)) {
+    for (i = 0; i < this.priceIndicators_.length; i++) {
+      priceIndicator = this.priceIndicators_[i];
+      if (priceIndicator) {
+        priceIndicator.suspendSignalsDispatching();
+        priceIndicator.parentBounds(this.seriesBounds_);
+        priceIndicator.container(this.rootLayer_);
+        priceIndicator.draw();
+        priceIndicator.resumeSignalsDispatching(false);
+      }
+    }
+    this.markConsistent(anychart.ConsistencyState.STOCK_PLOT_PRICE_INDICATORS);
   }
 
   if (this.hasInvalidationState(anychart.ConsistencyState.AXES_CHART_CROSSHAIR)) {
@@ -2019,7 +2104,7 @@ anychart.stockModule.Plot.prototype.handlePlotMouseOverAndMove_ = function(e) {
       this.frameHighlightY_ = e['clientY'];
       this.crosshair().xLabelAutoEnabled(this.isLastPlot_);
       if (!goog.isDef(this.frame_))
-        this.frame_ = window.requestAnimationFrame(this.frameAction_);
+        this.frame_ = anychart.window.requestAnimationFrame(this.frameAction_);
     }
   }
 };
@@ -2034,7 +2119,7 @@ anychart.stockModule.Plot.prototype.handlePlotMouseOut_ = function(e) {
   this.dispatchEvent(acgraph.events.EventType.MOUSEOUT);
   this.frameHighlightRatio_ = NaN;
   if (!goog.isDef(this.frame_))
-    this.frame_ = window.requestAnimationFrame(this.frameAction_);
+    this.frame_ = anychart.window.requestAnimationFrame(this.frameAction_);
 };
 
 
@@ -2181,6 +2266,16 @@ anychart.stockModule.Plot.prototype.yAxisInvalidated_ = function(e) {
   if (e.hasSignal(anychart.Signal.BOUNDS_CHANGED))
     state |= anychart.ConsistencyState.BOUNDS;
   this.invalidate(state, anychart.Signal.NEEDS_REDRAW);
+};
+
+
+/**
+ * Y axis invalidation handler.
+ * @param {anychart.SignalEvent} e
+ * @private
+ */
+anychart.stockModule.Plot.prototype.priceIndicatorInvalidated_ = function(e) {
+  this.invalidate(anychart.ConsistencyState.STOCK_PLOT_PRICE_INDICATORS, anychart.Signal.NEEDS_REDRAW);
 };
 
 
@@ -2386,12 +2481,21 @@ anychart.stockModule.Plot.prototype.isNoData = function() {
 //----------------------------------------------------------------------------------------------------------------------
 /** @inheritDoc */
 anychart.stockModule.Plot.prototype.disposeInternal = function() {
-  goog.disposeAll(this.annotations_, this.background_, this.indicators_, this.series_, this.yAxes_, this.xAxis_);
+  goog.disposeAll(
+      this.annotations_,
+      this.background_,
+      this.indicators_,
+      this.series_,
+      this.yAxes_,
+      this.xAxis_,
+      this.priceIndicators_);
+
   this.annotations_ = null;
   this.background_ = null;
   delete this.indicators_;
   delete this.series_;
   delete this.yAxes_;
+  delete this.priceIndicators_;
   this.xAxis_ = null;
 
   delete this.chart_;
@@ -2462,6 +2566,15 @@ anychart.stockModule.Plot.prototype.serialize = function() {
   }
   if (yAxes.length)
     json['yAxes'] = yAxes;
+
+  var priceIndicators = [];
+  for (i = 0; i < this.priceIndicators_.length; i++) {
+    var priceIndicator = this.priceIndicators_[i];
+    if (priceIndicator)
+      priceIndicators[i] = priceIndicator.serialize();
+  }
+  if (priceIndicators.length)
+    json['priceIndicators'] = priceIndicators;
 
 
   var grids = [];
@@ -2625,8 +2738,20 @@ anychart.stockModule.Plot.prototype.setupByJSON = function(config, opt_default) 
   if (scale)
     this.yScale(scale);
 
+  var priceIndicators = config['priceIndicators'];
+  if (goog.isArray(priceIndicators)) {
+    for (i = 0; i < priceIndicators.length; i++) {
+      json = priceIndicators[i];
+      if (json)
+        this.priceIndicator(i, json);
+    }
+  }
+
   if ('defaultGridSettings' in config)
     this.setDefaultGridSettings(config['defaultGridSettings']);
+
+  if ('defaultPriceIndicatorSettings' in config)
+    this.setDefaultPriceIndicatorSettings(config['defaultPriceIndicatorSettings']);
 
   var grids = config['grids'];
   if (goog.isArray(grids)) {
@@ -2767,7 +2892,7 @@ anychart.stockModule.Plot.Dragger.prototype.dragStartHandler_ = function(e) {
  */
 anychart.stockModule.Plot.Dragger.prototype.dragEndHandler_ = function(e) {
   if (goog.isDef(this.frame_)) {
-    window.cancelAnimationFrame(this.frame_);
+    anychart.window.cancelAnimationFrame(this.frame_);
     this.frameAction_(0);
   }
   this.plot_.chart_.dragEnd();
@@ -2799,8 +2924,8 @@ anychart.stockModule.Plot.Dragger.prototype.defaultAction = function(x, y) {
   this.frameRatio_ = x / this.plot_.seriesBounds_.width;
   this.frameAnchor_ = this.anchor_;
   if (goog.isDef(this.frame_))
-    window.cancelAnimationFrame(this.frame_);
-  this.frame_ = window.requestAnimationFrame(this.frameAction_);
+    anychart.window.cancelAnimationFrame(this.frame_);
+  this.frame_ = anychart.window.requestAnimationFrame(this.frameAction_);
 };
 
 
@@ -2878,5 +3003,6 @@ anychart.stockModule.Plot.Dragger.prototype.limitY = function(y) {
   proto['markerPalette'] = proto.markerPalette;
   proto['hatchFillPalette'] = proto.hatchFillPalette;
   proto['annotations'] = proto.annotations;
+  proto['priceIndicator'] = proto.priceIndicator;
   proto['noDataLabel'] = proto.noDataLabel;
 })();
