@@ -85,6 +85,16 @@ anychart.chartEditor2Module.TooltipPanel.prototype.createDom = function() {
   goog.dom.appendChild(content, goog.dom.createDom(
       goog.dom.TagName.DIV,
       goog.getCssName('anychart-chart-editor-settings-item-gap')));
+
+  // Content
+  var contentComponent = new anychart.chartEditor2Module.settings.Title(model, 'Content');
+  contentComponent.allowEnabled(false);
+  contentComponent.allowEditPosition(false);
+  contentComponent.allowEditAlign(false);
+  contentComponent.setTitleKey('format()');
+  contentComponent.setKey(this.getKey()); // This is for enabled working sake!
+  this.addChild(contentComponent, true);
+  this.content_ = contentComponent;
 };
 
 
@@ -137,5 +147,6 @@ anychart.chartEditor2Module.TooltipPanel.prototype.setContentEnabled = function(
 /** @override */
 anychart.chartEditor2Module.TooltipPanel.prototype.disposeInternal = function() {
   this.title_ = null;
+  this.content_ = null;
   anychart.chartEditor2Module.TooltipPanel.base(this, 'disposeInternal');
 };
