@@ -2,6 +2,7 @@ goog.provide('anychart.stockModule.Plot');
 
 goog.require('anychart.core.Axis');
 goog.require('anychart.core.IPlot');
+goog.require('anychart.core.NoDataSettings');
 goog.require('anychart.core.VisualBaseWithBounds');
 goog.require('anychart.core.reporting');
 goog.require('anychart.core.settings');
@@ -1806,13 +1807,23 @@ anychart.stockModule.Plot.prototype.draw = function() {
   }
 
   if (this.hasInvalidationState(anychart.ConsistencyState.STOCK_PLOT_NO_DATA_LABEL)) {
-    var noDataLabel = /** @type {anychart.core.ui.Label} */ (this.noDataLabel());
+    var noDataLabel = /** @type {anychart.core.ui.Label} */ (this.noData().label());
     noDataLabel.suspendSignalsDispatching();
     noDataLabel.container(this.rootLayer_);
     noDataLabel.parentBounds(this.seriesBounds_);
-    noDataLabel['visible'](this.isNoData());
+    var noData = this.isNoData();
+    var doDispatch = noDataLabel['visible']() !== noData;
+    if (doDispatch) {
+      var noDataEvent = {
+        'type': anychart.enums.EventType.DATA_CHANGED,
+        'chart': this,
+        'hasData': !noData
+      };
+      noDataLabel['visible'](this.dispatchEvent(noDataEvent) && noData);
+    }
     noDataLabel.resumeSignalsDispatching(false);
     noDataLabel.draw();
+
     this.markConsistent(anychart.ConsistencyState.STOCK_PLOT_NO_DATA_LABEL);
   }
 
@@ -2563,32 +2574,42 @@ anychart.stockModule.Plot.prototype.paletteInvalidated_ = function(event) {
 //endregion
 //region --- No data
 /**
- * No data label invalidation handler.
- * @param {anychart.SignalEvent} e
- * @private
+ * Creates chart label.
+ * @return {anychart.core.ui.Label} Label instance.
  */
-anychart.stockModule.Plot.prototype.noDataLabelInvalidated_ = function(e) {
-  if (e.hasSignal(anychart.Signal.NEEDS_REDRAW))
-    this.invalidate(anychart.ConsistencyState.STOCK_PLOT_NO_DATA_LABEL, anychart.Signal.NEEDS_REDRAW);
+anychart.stockModule.Plot.prototype.createChartLabel = function() {
+  return new anychart.core.ui.Label();
 };
 
 
 /**
- * Getter/eetter for no data label.
- * @param {Object=} opt_value
- * @return {anychart.stockModule.Plot|anychart.core.ui.Label}
+ * No data label invalidation handler.
+ * @param {anychart.SignalEvent} e
+ * @private
  */
-anychart.stockModule.Plot.prototype.noDataLabel = function(opt_value) {
-  if (!this.noDataLabel_) {
-    this.noDataLabel_ = new anychart.core.ui.Label();
-    this.noDataLabel_.listenSignals(this.noDataLabelInvalidated_, this);
+anychart.stockModule.Plot.prototype.noDataSettingsInvalidated_ = function(e) {
+  if (e.hasSignal(anychart.Signal.NEEDS_REDRAW)) {
+    this.invalidate(anychart.ConsistencyState.STOCK_PLOT_NO_DATA_LABEL, anychart.Signal.NEEDS_REDRAW);
+  }
+};
+
+
+/**
+ *  No data settings.
+ *  @param {Object=} opt_value
+ *  @return {anychart.stockModule.Plot|anychart.core.NoDataSettings} noData settings or self for chaining.
+ */
+anychart.stockModule.Plot.prototype.noData = function(opt_value) {
+  if (!this.noDataSettings_) {
+    this.noDataSettings_ = new anychart.core.NoDataSettings(this);
+    this.noDataSettings_.listenSignals(this.noDataSettingsInvalidated_, this);
   }
 
   if (goog.isDef(opt_value)) {
-    this.noDataLabel_.setup(opt_value);
+    this.noDataSettings_.setup(opt_value);
     return this;
   }
-  return this.noDataLabel_;
+  return this.noDataSettings_;
 };
 
 
@@ -2637,7 +2658,8 @@ anychart.stockModule.Plot.prototype.disposeInternal = function() {
       this.series_,
       this.yAxes_,
       this.xAxis_,
-      this.priceIndicators_);
+      this.priceIndicators_,
+      this.noDataSettings_);
 
   this.annotations_ = null;
   this.background_ = null;
@@ -2646,6 +2668,7 @@ anychart.stockModule.Plot.prototype.disposeInternal = function() {
   delete this.yAxes_;
   delete this.priceIndicators_;
   this.xAxis_ = null;
+  this.noDataSettings_ = null;
 
   delete this.chart_;
   delete this.defaultSeriesSettings_;
@@ -2747,7 +2770,7 @@ anychart.stockModule.Plot.prototype.serialize = function() {
 
   json['defaultSeriesType'] = this.defaultSeriesType();
   json['background'] = this.background().serialize();
-  json['noDataLabel'] = this.noDataLabel().serialize();
+  json['noDataLabel'] = this.noData().label().serialize();
 
   axesIds.push(goog.getUid(this.xAxis()));
   json['xAxis'] = this.xAxis().serialize();
@@ -2836,7 +2859,7 @@ anychart.stockModule.Plot.prototype.setupByJSON = function(config, opt_default) 
   this.markerPalette(config['markerPalette']);
   this.hatchFillPalette(config['hatchFillPalette']);
 
-  this.noDataLabel(config['noDataLabel']);
+  this.noData().label().setupInternal(!!opt_default, config['noDataLabel']);
   this.background(config['background']);
 
   this.xAxis(config['xAxis']);
@@ -3172,5 +3195,5 @@ anychart.stockModule.Plot.Dragger.prototype.limitY = function(y) {
   proto['hatchFillPalette'] = proto.hatchFillPalette;
   proto['annotations'] = proto.annotations;
   proto['priceIndicator'] = proto.priceIndicator;
-  proto['noDataLabel'] = proto.noDataLabel;
+  proto['noData'] = proto.noData;
 })();
