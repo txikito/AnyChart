@@ -188,11 +188,14 @@ anychart.chartEditor2Module.Editor.prototype.waitForImages_ = function() {
 
 /**
  * Close dialog (if exists) on complete button press.
+ * @param {Object} evt
  * @private
  */
-anychart.chartEditor2Module.Editor.prototype.onComplete_ = function() {
+anychart.chartEditor2Module.Editor.prototype.onComplete_ = function(evt) {
   if (this.dialog_)
     this.dialog_.setVisible(false);
+
+  console.log(evt.code);
 };
 
 
@@ -413,9 +416,12 @@ anychart.chartEditor2Module.Editor.prototype.prevBtnClickHandler_ = function() {
 
 /** @private */
 anychart.chartEditor2Module.Editor.prototype.nextBtnClickHandler_ = function() {
-  if (this.isLastStep_())
-    console.log("Complete pressed!");
-  else
+  if (this.isLastStep_()) {
+    this.dispatchEvent({
+      type: anychart.enums.EventType.COMPLETE,
+      code: this.getChartAsJsCode()
+    });
+  } else
     this.changeStep_(this.currentStep_.getIndex() + 1);
 };
 

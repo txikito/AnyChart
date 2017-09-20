@@ -8,6 +8,7 @@ goog.require('anychart.chartEditor2Module.EditorModel');
 goog.require('anychart.chartEditor2Module.GeneralTheming');
 goog.require('anychart.chartEditor2Module.LegendPanel');
 goog.require('anychart.chartEditor2Module.SeriesSettingsPanel');
+goog.require('anychart.chartEditor2Module.TooltipPanel');
 
 
 
@@ -28,7 +29,8 @@ anychart.chartEditor2Module.AppearanceSettings = function(model, opt_domHelper) 
     {classFunc: anychart.chartEditor2Module.ChartTitlePanel, instance: null},
     {classFunc: anychart.chartEditor2Module.LegendPanel, instance: null},
     {classFunc: anychart.chartEditor2Module.DataLabelsPanel, instance: null},
-    {classFunc: anychart.chartEditor2Module.SeriesSettingsPanel, instance: null}
+    {classFunc: anychart.chartEditor2Module.SeriesSettingsPanel, instance: null},
+    {classFunc: anychart.chartEditor2Module.TooltipPanel, instance: null}
   ];
 
   this.currentPanel_ = 0;
