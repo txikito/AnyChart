@@ -433,6 +433,12 @@ anychart.core.Base = function() {
   this.descriptorsMeta = {};
 
   /**
+   * Timeouts.
+   * @type {Array.<number>}
+   */
+  this.timeouts = [];
+
+  /**
    * Whether to dispatch signals even if current consistency state is not effective.
    * @type {boolean}
    * @private
@@ -777,7 +783,7 @@ anychart.core.Base.prototype.setupSpecial = function(isDefault, var_args) {
  * @param {goog.events.EventLike} event Event object.
  */
 anychart.core.Base.prototype.dispatchDetachedEvent = function(event) {
-  setTimeout(goog.bind(this.dispatchEvent, this, event), 0);
+  this.timeouts.push(setTimeout(goog.bind(this.dispatchEvent, this, event), 0));
 };
 
 
@@ -1078,6 +1084,15 @@ anychart.core.Base.prototype.unlistenByKey = function(key) {
 anychart.core.Base.prototype.removeAllListeners = function(opt_type) {
   if (goog.isDef(opt_type)) opt_type = String(opt_type).toLowerCase();
   return anychart.core.Base.base(this, 'removeAllListeners', opt_type);
+};
+
+
+/** @inheritDoc */
+anychart.core.Base.prototype.disposeInternal = function() {
+  goog.array.forEach(this.timeouts, function(item) {
+    clearTimeout(item);
+  });
+  anychart.core.Base.base(this, 'disposeInternal');
 };
 
 
