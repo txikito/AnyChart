@@ -74,6 +74,20 @@ anychart.chartEditor2Module.settings.Series.prototype.createDom = function() {
       goog.dom.TagName.DIV,
       goog.getCssName('anychart-chart-editor-settings-item-gap')));
 
+  // Tooltip
+  var tooltip = new anychart.chartEditor2Module.settings.Title(model, 'Tooltip');
+  tooltip.allowEnabled(true);
+  tooltip.allowEditPosition(false);
+  tooltip.allowEditAlign(false);
+  tooltip.setTitleKey('format()');
+  tooltip.setKey(this.genKey('tooltip()')); // This is for enabled working sake!
+  this.addChild(tooltip, true);
+
+  goog.dom.appendChild(content, goog.dom.createDom(
+      goog.dom.TagName.DIV,
+      goog.getCssName('anychart-chart-editor-settings-item-gap')));
+
+
   // Data labels
   var dataLabels = new anychart.chartEditor2Module.settings.Title(model, 'Data labels');
   dataLabels.allowEnabled(true);
@@ -95,6 +109,7 @@ anychart.chartEditor2Module.settings.Series.prototype.createDom = function() {
   this.nameInput_ = nameInput;
   this.colorPicker_ = colorPicker;
   this.stroke_ = stroke;
+  this.tooltip_ = tooltip;
   this.dataLabels_ = dataLabels;
   this.dataMarkers_ = dataMarkers;
 };
@@ -114,6 +129,7 @@ anychart.chartEditor2Module.settings.Series.prototype.updateKeys = function() {
     if (this.colorPicker_) this.colorPicker_.init(model, this.genKey('color()'));
 
     if (this.stroke_) this.stroke_.setKey(this.genKey('stroke()'));
+    if (this.tooltip_) this.tooltip_.setKey(this.genKey('tooltip()'));
     if (this.dataLabels_) this.dataLabels_.setKey(this.genKey('labels()'));
     if (this.dataMarkers_) this.dataMarkers_.setKey(this.genKey('markers()'));
   }
@@ -140,6 +156,9 @@ anychart.chartEditor2Module.settings.Series.prototype.disposeInternal = function
 
   this.stroke_.dispose();
   this.stroke_ = null;
+
+  this.tooltip_.dispose();
+  this.tooltip_ = null;
 
   this.dataLabels_.dispose();
   this.dataLabels_ = null;

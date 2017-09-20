@@ -36,7 +36,7 @@ anychart.chartEditor2Module.settings.Legend.prototype.createDom = function() {
   var content = this.getContentElement();
   var model = /** @type {anychart.chartEditor2Module.EditorModel} */(this.getModel());
 
-  var appearance = new anychart.chartEditor2Module.settings.LegendAppearance(model, 'Appearance');
+  var appearance = new anychart.chartEditor2Module.settings.LegendAppearance(model);
   appearance.setKey(this.key);
   appearance.allowEnabled(false);
   this.addChild(appearance, true);

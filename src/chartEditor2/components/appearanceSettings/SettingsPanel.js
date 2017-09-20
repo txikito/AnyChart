@@ -158,7 +158,8 @@ anychart.chartEditor2Module.SettingsPanel.prototype.createDom = function() {
     );
 
     element.appendChild(this.top_);
-  }
+  } else
+    goog.dom.classlist.add(element, 'settings-panel-no-title');
 
   this.contentEl = dom.createDom(goog.dom.TagName.DIV, 'content');
   element.appendChild(this.contentEl);
