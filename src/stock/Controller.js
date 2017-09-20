@@ -416,9 +416,7 @@ anychart.stockModule.Controller.prototype.select_ = function(startKey, endKey, g
   }
 
   // updating registry
-  var registryUpdated = (registry == this.mainRegistry_) ?
-      mainRegistryUpdated :
-      this.updateRegistrySources_(registry, interval);
+  var registryUpdated = this.updateRegistrySources_(registry, interval) || mainRegistryUpdated;
 
   if (selectionRangeChanged || registry != currentRegistry || registryUpdated) {
     // initializing selection
