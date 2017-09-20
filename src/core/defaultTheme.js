@@ -1185,7 +1185,7 @@ goog.exportSymbol('anychart.themes.defaultTheme', {
 
   'defaultNoDataLabel': {
     'padding': {},
-    'disablePointerEvents': true,
+    'disablePointerEvents': false,
     'background': {
       'zIndex': 0,
       'enabled': false,
