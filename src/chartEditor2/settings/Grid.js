@@ -68,9 +68,10 @@ anychart.chartEditor2Module.settings.Grid.prototype.createDom = function() {
       goog.dom.TagName.DIV,
       goog.getCssName('anychart-chart-editor-settings-item-gap-mini')));
 
-  // var stroke = new anychart.chartEditor2Module.settings.Stroke(model, 'Markers stroke');
-  // this.addChild(stroke, true);
-  // this.stroke_ = stroke;
+  var model = /** @type {anychart.chartEditor2Module.EditorModel} */(this.getModel());
+  var stroke = new anychart.chartEditor2Module.settings.Stroke(model, 'Stroke');
+  this.addChild(stroke, true);
+  this.stroke_ = stroke;
 };
 
 
@@ -86,6 +87,7 @@ anychart.chartEditor2Module.settings.Grid.prototype.updateKeys = function() {
   if (this.firstLine_) this.firstLine_.init(model, this.genKey('drawFirstLine()'));
   if (this.lastLine_) this.lastLine_.init(model, this.genKey('drawLastLine()'));
   if (this.palette_) this.palette_.init(model, this.genKey('palette()'));
+  if (this.stroke_) this.stroke_.setKey(this.genKey('stroke()'));
 };
 
 
@@ -105,6 +107,9 @@ anychart.chartEditor2Module.settings.Grid.prototype.disposeInternal = function()
   this.firstLine_ = null;
   this.lastLine_ = null;
   this.palette_ = null;
+
+  this.stroke_.dispose();
+  this.stroke_ = null;
 
   anychart.chartEditor2Module.settings.Grid.base(this, 'disposeInternal');
 };
