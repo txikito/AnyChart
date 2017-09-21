@@ -3762,7 +3762,7 @@ anychart.core.Chart.prototype.id = function(opt_value) {
         anychart.untrackChart(this, /** @type {string} */(this.id_));
         this.id_ = opt_value;
 
-      } else if (anychart.trackChart(this, opt_value, /** @type {string} */(this.id_))) {
+      } else if (anychart.trackChart(this, /** @type {string} */(opt_value), /** @type {string} */(this.id_))) {
         this.id_ = opt_value;
       }
     }

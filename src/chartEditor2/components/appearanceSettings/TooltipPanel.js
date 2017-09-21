@@ -2,7 +2,6 @@ goog.provide('anychart.chartEditor2Module.TooltipPanel');
 
 goog.require('anychart.chartEditor2Module.SettingsPanel');
 goog.require('anychart.chartEditor2Module.select.Base');
-goog.require('anychart.chartEditor2Module.settings.Legend');
 goog.require('anychart.chartEditor2Module.settings.Title');
 goog.require('anychart.chartEditor2Module.settings.TooltipTitle');
 

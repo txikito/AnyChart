@@ -207,14 +207,15 @@ anychart.chartEditor2Module.EditorModel.chartTypes = {
     'icon': 'pie-chart.svg',
     'series': ['pie'],
     'dataSetCtor': 'set',
-    'settingsExcludes' : ['series']
+    'settingsExcludes' : ['series', 'grids']
   },
   'map': {
     'value': 'map',
     'name': 'Map',
     'icon': 'choropleth-map.svg',
     'series': ['marker-by-id', 'marker-by-coordinates', 'bubble-by-id', 'bubble-by-coordinates', 'choropleth'],
-    'dataSetCtor': 'set'
+    'dataSetCtor': 'set',
+    'settingsExcludes' : ['grids']
   },
   'stock': {
     'value': 'stock',
