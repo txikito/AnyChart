@@ -228,7 +228,7 @@
         {"$ref": "#/definitions/anychart.core.SeparateChart"}
       ],
       "properties": {
-        "type": {"enum": ["cartesian", "cartesian-3d", "area", "vertical-area", "area-3d", "bar", "bar-3d", "box", "bubble", "column", "column-3d", "financial", "line", "vertical-line", "marker", "jump-line", "stick", "pareto", "hilo", "waterfall"]},
+        "type": {"enum": ["cartesian", "cartesian-3d", "area", "vertical-area", "area-3d", "bar", "bar-3d", "box", "bubble", "column", "column-3d", "financial", "line", "line-3d", "vertical-line", "marker", "jump-line", "stick", "pareto", "hilo", "waterfall"]},
         "grids": {
           "type": "array",
           "items": {
@@ -446,7 +446,28 @@
         "zAngle": {"type": ["number"]},
         "zAspect": {"type": ["number", "string"]},
         "zPadding": {"type": ["number"]},
-        "zDistribution": {"type": ["boolean"]}
+        "zDistribution": {"type": ["boolean"]},
+        "pointWidth": {
+          "type": [
+            "string",
+            "number",
+            "null"
+          ]
+        },
+        "maxPointWidth": {
+          "type": [
+            "string",
+            "number",
+            "null"
+          ]
+        },
+        "minPointLength": {
+          "type": [
+            "string",
+            "number",
+            "null"
+          ]
+        }
       },
       "required": ["type"]
     },
@@ -473,6 +494,7 @@
             "column-3d",
             "financial",
             "line",
+            "line-3d",
             "vertical-line",
             "marker",
             "jump-line",
@@ -2778,6 +2800,7 @@
             "candlestick",
             "column",
             "line",
+            "line-2d",
             "vertical-line",
             "marker",
             "vertical-marker",
@@ -2828,6 +2851,20 @@
           ]
         },
         "pointWidth": {
+          "type": [
+            "string",
+            "number",
+            "null"
+          ]
+        },
+        "maxPointWidth": {
+          "type": [
+            "string",
+            "number",
+            "null"
+          ]
+        },
+        "minPointLength": {
           "type": [
             "string",
             "number",
@@ -4293,6 +4330,7 @@
         "ticks": {"$ref": "#/definitions/anychart.scales.ScatterTicks"},
         "minorTicks": {"$ref": "#/definitions/anychart.scales.ScatterTicks"},
         "stackMode": {"$ref": "#/definitions/anychart.enums.ScaleStackMode"},
+        "stackDirection": {"$ref": "#/definitions/anychart.enums.ScaleStackDirection"},
         "stickToZero": {"type": "boolean"}
       }
     },
@@ -4327,6 +4365,7 @@
         "ticks": {"$ref": "#/definitions/anychart.scales.ScatterTicks"},
         "minorTicks": {"$ref": "#/definitions/anychart.scales.ScatterTicks"},
         "stackMode": {"$ref": "#/definitions/anychart.enums.ScaleStackMode"},
+        "stackDirection": {"$ref": "#/definitions/anychart.enums.ScaleStackDirection"},
         "stickToZero": {"type": "boolean"}
       }
     },
@@ -5827,6 +5866,12 @@
         "none",
         "value",
         "percent"
+      ]
+    },
+    "anychart.enums.ScaleStackDirection": {
+      "enum": [
+        "direct",
+        "reverse"
       ]
     },
     "anychart.enums.ErrorMode": {

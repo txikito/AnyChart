@@ -1984,18 +1984,26 @@ anychart.mapModule.Chart.prototype.getPlotBounds = function() {
 //region --- Geo settings
 /**
  * Map scale.
- * @param {anychart.mapModule.scales.Geo=} opt_value Scale to set.
+ * @param {(anychart.mapModule.scales.Geo|Object)=} opt_value Scale to set.
  * @return {!(anychart.mapModule.scales.Geo|anychart.mapModule.Chart)} Default chart scale value or itself for method chaining.
  */
 anychart.mapModule.Chart.prototype.scale = function(opt_value) {
   if (goog.isDef(opt_value)) {
-    if (this.scale_ != opt_value) {
-      if (this.scale_)
-        this.scale_.unlistenSignals(this.geoScaleInvalidated_, this);
-      this.scale_ = opt_value;
-      this.scale_.listenSignals(this.geoScaleInvalidated_, this);
+    if (opt_value && opt_value instanceof anychart.mapModule.scales.Geo) {
+      if (this.scale_ != opt_value) {
+        if (this.scale_)
+          this.scale_.unlistenSignals(this.geoScaleInvalidated_, this);
+        this.scale_ = opt_value;
+        this.scale_.listenSignals(this.geoScaleInvalidated_, this);
 
-      this.invalidate(anychart.ConsistencyState.MAP_SCALE, anychart.Signal.NEEDS_REDRAW);
+        this.invalidate(anychart.ConsistencyState.MAP_SCALE, anychart.Signal.NEEDS_REDRAW);
+      }
+    } else {
+      if (!this.scale_) {
+        this.scale_ = new anychart.mapModule.scales.Geo();
+        this.scale_.listenSignals(this.geoScaleInvalidated_, this);
+      }
+      this.scale_.setup(opt_value);
     }
     return this;
   } else {
@@ -3516,7 +3524,7 @@ anychart.mapModule.Chart.prototype.drawContent = function(bounds) {
       for (i = 0, len = grids.length; i < len; i++) {
         grid = grids[i];
         grid.suspendSignalsDispatching();
-        grid.setScale(/** @type {anychart.mapModule.scales.Geo} */(this.scale()));
+        grid.scale(/** @type {anychart.mapModule.scales.Geo} */(this.scale()));
         grid.container(this.rootElement);
         grid.draw();
         grid.resumeSignalsDispatching(false);
@@ -4972,6 +4980,21 @@ anychart.mapModule.Chart.prototype.legendItemOut = function(item, event) {
 
 
 //endregion
+//region --- CSV
+//------------------------------------------------------------------------------
+//
+//  CSV
+//
+//------------------------------------------------------------------------------
+/** @inheritDoc */
+anychart.mapModule.Chart.prototype.toCsv = function(opt_chartDataExportMode, opt_csvSettings) {
+  // only RAW is supported
+  var result = this.getRawCsvData();
+  return anychart.utils.serializeCsv(result.headers, result.data, opt_csvSettings);
+};
+
+
+//endregion
 //region --- Setup and Dispose
 /**
  * Exports map to GeoJSON format.
@@ -5225,6 +5248,7 @@ anychart.mapModule.Chart.prototype.disposeInternal = function() {
   // proto['minZoomLevel'] = proto.minZoomLevel;
   // proto['overlapMode'] = proto.overlapMode;
   proto['toGeoJSON'] = proto.toGeoJSON;
+  proto['toCsv'] = proto.toCsv;
   //series constructors generated automatically
   // proto['choropleth'] = proto.choropleth;
   // proto['bubble'] = proto.bubble;

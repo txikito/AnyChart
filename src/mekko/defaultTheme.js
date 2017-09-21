@@ -76,6 +76,7 @@ goog.mixin(goog.global['anychart']['themes']['defaultTheme'], {
       {
         'type': 'linear',
         'stackMode': 'percent',
+        'stackDirection': 'direct',
         'minimumGap': 0,
         'maximumGap': 0
       },
@@ -102,7 +103,8 @@ goog.mixin(goog.global['anychart']['themes']['defaultTheme'], {
       'annotationsList': [],
       'zIndex': 2000
     },
-    'pointsPadding': 0
+    'pointsPadding': 0,
+    'maxPointWidth': '100%'
   },
   // merge with mekko
   'mosaic': {

@@ -65,6 +65,7 @@ anychart.core.series.Base = function(chart, plot, type, config) {
   this.autoSettings = {};
   this.autoSettings['pointWidth'] = '90%';
   this.autoSettings['isVertical'] = this.chart.isVertical();
+  this.autoSettings['minPointLength'] = 0;
 
   /**
    * Series clip.
@@ -251,6 +252,16 @@ anychart.core.series.Base = function(chart, plot, type, config) {
       anychart.ConsistencyState.SERIES_POINTS,
       anychart.Signal.NEEDS_REDRAW,
       anychart.core.drawers.Capabilities.IS_WIDTH_BASED],
+    ['maxPointWidth',
+      anychart.ConsistencyState.SERIES_POINTS,
+      anychart.Signal.NEEDS_REDRAW,
+      anychart.core.drawers.Capabilities.IS_WIDTH_BASED],
+    ['minPointLength',
+      anychart.ConsistencyState.SERIES_POINTS,
+      anychart.Signal.NEEDS_REDRAW,
+      anychart.core.drawers.Capabilities.IS_WIDTH_BASED,
+      this.resetSharedStack
+    ],
     ['connectMissingPoints',
       anychart.ConsistencyState.SERIES_POINTS,
       anychart.Signal.NEEDS_REDRAW,
@@ -623,12 +634,16 @@ anychart.core.series.Base.prototype.seriesType = function(opt_value) {
  * @param {boolean=} opt_reapplyClip Reapply clip and zIndex config.
  */
 anychart.core.series.Base.prototype.applyConfig = function(config, opt_reapplyClip) {
+  var newDrawer = /** @type {!anychart.core.drawers.Base} */(new anychart.core.drawers.AvailableDrawers[config.drawerType](this));
   if (this.config) {
     if (this.rootLayer) {
       // if prev config used own root and the next one doesn't - we should dispose the root layer
       if (!this.check(anychart.core.drawers.Capabilities.USES_CONTAINER_AS_ROOT) &&
-          this.check(anychart.core.drawers.Capabilities.USES_CONTAINER_AS_ROOT, config)) {
+          this.check(anychart.core.drawers.Capabilities.USES_CONTAINER_AS_ROOT, config, newDrawer)) {
         goog.dispose(this.rootLayer);
+        this.rootLayer = null;
+      } else if (this.check(anychart.core.drawers.Capabilities.USES_CONTAINER_AS_ROOT) &&
+          !this.check(anychart.core.drawers.Capabilities.USES_CONTAINER_AS_ROOT, config, newDrawer)) {
         this.rootLayer = null;
       }
     }
@@ -639,7 +654,7 @@ anychart.core.series.Base.prototype.applyConfig = function(config, opt_reapplyCl
   this.legendProvider = null;
 
   goog.dispose(this.drawer);
-  this.drawer = /** @type {!anychart.core.drawers.Base} */(new anychart.core.drawers.AvailableDrawers[config.drawerType](this));
+  this.drawer = newDrawer;
 
   this.recreateShapeManager();
 
@@ -1003,6 +1018,15 @@ anychart.core.series.Base.prototype.isDiscreteBased = function() {
 
 
 /**
+ * Tests whether series point supports min length option.
+ * @return {boolean}
+ */
+anychart.core.series.Base.prototype.isMinPointLengthBased = function() {
+  return this.isDiscreteBased() && this.isWidthBased();
+};
+
+
+/**
  * Tester if the series is area based (area, area3d).
  * @return {boolean}
  */
@@ -1060,11 +1084,19 @@ anychart.core.series.Base.prototype.hasComplexZero = function() {
  * @return {number} Point width.
  */
 anychart.core.series.Base.prototype.getPixelPointWidth = function() {
-  if (this.isWidthBased())
-    return anychart.utils.normalizeSize(/** @type {(number|string)} */(this.getOption('pointWidth')),
-        this.getCategoryWidth());
-  else
-    return 0;
+  var pointPixelSize = 0;
+  if (this.isWidthBased()) {
+    var pointWidth = this.getInheritedOption('pointWidth');
+    pointPixelSize = anychart.utils.normalizeSize(/** @type {(number|string)} */(pointWidth), this.getCategoryWidth());
+
+    var maxPointWidth = this.getInheritedOption('maxPointWidth');
+    if (goog.isDefAndNotNull(maxPointWidth)) {
+      var maxPointPixelSize = anychart.utils.normalizeSize(/** @type {(number|string)} */(maxPointWidth), this.getCategoryWidth());
+      pointPixelSize = Math.min(pointPixelSize, maxPointPixelSize);
+    }
+  }
+
+  return pointPixelSize;
 };
 
 
@@ -1358,19 +1390,23 @@ anychart.core.series.Base.prototype.getXScale = function() {
 
 /**
  * Getter/setter for yScale.
- * @param {anychart.scales.Base=} opt_value Value to set.
+ * @param {(anychart.scales.Base|Object|anychart.enums.ScaleTypes)=} opt_value Value to set.
  * @return {(anychart.scales.Base|anychart.core.series.Base)} Series Y Scale or itself for chaining call.
  */
 anychart.core.series.Base.prototype.yScale = function(opt_value) {
   if (goog.isDef(opt_value)) {
-    if (!(opt_value instanceof anychart.scales.Base))
-      opt_value = null;
-    if (this.yScale_ != opt_value) {
+    if (opt_value) {
+      var val = anychart.scales.Base.setupScale(this.yScale_, opt_value, null,
+          anychart.scales.Base.ScaleTypes.ALL_DEFAULT, null, this.scaleInvalidated, this);
+      if (val) {
+        var dispatch = this.yScale_ == val;
+        this.yScale_ = /** @type {anychart.scales.Base} */(val);
+        this.yScale_.resumeSignalsDispatching(dispatch);
+      }
+    } else if (this.yScale_) {
       if (this.yScale_)
         this.yScale_.unlistenSignals(this.scaleInvalidated, this);
-      this.yScale_ = opt_value;
-      if (this.yScale_)
-        this.yScale_.listenSignals(this.scaleInvalidated, this);
+      this.yScale_ = null;
       this.invalidate(anychart.ConsistencyState.SERIES_POINTS,
           anychart.Signal.NEEDS_RECALCULATION | anychart.Signal.NEEDS_REDRAW);
     }
@@ -1925,6 +1961,33 @@ anychart.core.series.Base.prototype.getOption = function(name) {
     }
   }
   return res;
+};
+
+
+/**
+ * Gets option like resolution chain.
+ * TODO (A.Kudryavtsev): Remove this method on settings inheritance implementation.
+ * @param {string} name - Option name.
+ * @return {*}
+ */
+anychart.core.series.Base.prototype.getInheritedOption = function(name) {
+  var result;
+  if (goog.isDefAndNotNull(this.ownSettings[name])) {
+    result = this.ownSettings[name];
+  } else if (goog.isDefAndNotNull(/** @type {anychart.core.Base} */ (this.plot).ownSettings[name])) {
+    result = /** @type {anychart.core.Base} */ (this.plot).ownSettings[name];
+  } else if (goog.isDefAndNotNull(/** @type {anychart.core.Base} */ (this.chart).ownSettings[name])) {
+    result = /** @type {anychart.core.Base} */ (this.chart).ownSettings[name];
+  } else if (goog.isDefAndNotNull(this.themeSettings[name])) {
+    result = this.themeSettings[name];
+  } else if (goog.isDefAndNotNull(/** @type {anychart.core.Base} */ (this.plot).themeSettings[name])) {
+    result = /** @type {anychart.core.Base} */ (this.plot).themeSettings[name];
+  } else if (goog.isDefAndNotNull(/** @type {anychart.core.Base} */ (this.chart).themeSettings[name])) {
+    result = /** @type {anychart.core.Base} */ (this.chart).themeSettings[name];
+  } else {
+    result = this.autoSettings[name];
+  }
+  return result;
 };
 
 
@@ -2752,6 +2815,24 @@ anychart.core.series.Base.prototype.planIsXScaleInverted = function() {
 };
 
 
+/**
+ * Resets point's meta shared object anchors..
+ */
+anychart.core.series.Base.prototype.resetSharedStack = function() {
+  if (this.planIsStacked() && this.isMinPointLengthBased()) {
+    var iterator = this.getIterator();
+    iterator.reset();
+    while (iterator.advance()) {
+      var shared = iterator.meta('shared');
+      if (shared) {
+        shared.positiveAnchor = NaN;
+        shared.negativeAnchor = NaN;
+      }
+    }
+  }
+};
+
+
 //endregion
 //region --- Drawing points
 //----------------------------------------------------------------------------------------------------------------------
@@ -3398,6 +3479,80 @@ anychart.core.series.Base.prototype.makePointsMetaFromMap = function(rowInfo, ma
 
 
 /**
+ * Applies min point length settings for stacked plan.
+ * @param {anychart.data.IRowInfo} rowInfo
+ * @param {Array.<string>} yNames
+ * @param {Array.<string|number>} yColumns
+ * @param {number} pointMissing
+ * @param {number} xRatio
+ * @return {number} - pointMissing updated value.
+ * @protected
+ */
+anychart.core.series.Base.prototype.makeMinPointLengthStackedMeta = function(rowInfo, yNames, yColumns, pointMissing, xRatio) {
+  if (!rowInfo.meta('missing')) {
+    var shared = rowInfo.meta('shared');
+
+    var y = /** @type {number} */ (rowInfo.meta('value'));
+    var zero = /** @type {number} */ (rowInfo.meta('zero'));
+    var diff = Math.abs(y - zero);
+    var height = Math.max(diff, this.minPointLengthCache_);
+
+    var newZero, newY;
+    if (zero >= y) {
+      height = -height;
+      if (isNaN(shared.positiveAnchor)) {//Drawing first point.
+        shared.positiveAnchor = zero + height;
+        newZero = zero;
+        newY = shared.positiveAnchor;
+      } else {
+        newZero = Math.min(zero, shared.positiveAnchor);
+        newY = newZero + height;
+        shared.positiveAnchor = newY;
+      }
+    } else {
+      if (isNaN(shared.negativeAnchor)) {//Drawing first point.
+        shared.negativeAnchor = zero + height;
+        newZero = zero;
+        newY = shared.negativeAnchor;
+      } else {
+        newZero = Math.max(zero, shared.negativeAnchor);
+        newY = newZero + height;
+        shared.negativeAnchor = newY;
+      }
+    }
+
+    rowInfo.meta('value', newY);
+    rowInfo.meta('zero', newZero);
+  }
+  return pointMissing;
+};
+
+
+/**
+ * Applies min point length settings for unstacked plan.
+ * @param {anychart.data.IRowInfo} rowInfo
+ * @param {Array.<string>} yNames
+ * @param {Array.<string|number>} yColumns
+ * @param {number} pointMissing
+ * @param {number} xRatio
+ * @return {number} - pointMissing updated value.
+ * @protected
+ */
+anychart.core.series.Base.prototype.makeMinPointLengthUnstackedMeta = function(rowInfo, yNames, yColumns, pointMissing, xRatio) {
+  if (!rowInfo.meta('missing')) {
+    var y = /** @type {number} */ (rowInfo.meta('value'));
+    var zero = /** @type {number} */ (rowInfo.meta('zero'));
+    var diff = Math.abs(y - zero);
+    var height = Math.max(diff, this.minPointLengthCache_);
+    if (zero >= y)
+      height = -height;
+    rowInfo.meta('value', zero + height);
+  }
+  return pointMissing;
+};
+
+
+/**
  * Prepares Stacked part of point meta.
  * @param {anychart.data.IRowInfo} rowInfo
  * @param {Array.<string>} yNames
@@ -3528,6 +3683,17 @@ anychart.core.series.Base.prototype.prepareMetaMakers = function(yNames, yColumn
     this.metaMakers.push(this.makeUnstackedMeta);
     if (this.needsZero()) {
       this.metaMakers.push(this.makeZeroMeta);
+    }
+  }
+  if (this.isMinPointLengthBased() && this.yScale().stackMode() != anychart.enums.ScaleStackMode.PERCENT) {
+    var minPointLength = /** @type {string|number} */ (this.getInheritedOption('minPointLength'));
+    var isVertical = /** @type {boolean} */ (this.getOption('isVertical'));
+    var dimension = isVertical ? this.pixelBoundsCache.width : this.pixelBoundsCache.height;
+    this.minPointLengthCache_ = Math.abs(anychart.utils.normalizeSize(minPointLength, dimension));
+    if (this.planIsStacked()) {
+      this.metaMakers.push(this.makeMinPointLengthStackedMeta);
+    } else {
+      this.metaMakers.push(this.makeMinPointLengthUnstackedMeta);
     }
   }
   if (this.isSizeBased()) {
@@ -4206,6 +4372,18 @@ anychart.core.series.Base.PROPERTY_DESCRIPTORS = (function() {
       map,
       anychart.enums.PropertyHandlerType.SINGLE_ARG,
       'pointWidth',
+      anychart.core.settings.numberOrPercentNormalizer);
+
+  anychart.core.settings.createDescriptor(
+      map,
+      anychart.enums.PropertyHandlerType.SINGLE_ARG,
+      'maxPointWidth',
+      anychart.core.settings.numberOrPercentNormalizer);
+
+  anychart.core.settings.createDescriptor(
+      map,
+      anychart.enums.PropertyHandlerType.SINGLE_ARG,
+      'minPointLength',
       anychart.core.settings.numberOrPercentNormalizer);
 
   anychart.core.settings.createDescriptor(
