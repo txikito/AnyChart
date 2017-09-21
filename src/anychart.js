@@ -506,7 +506,7 @@ anychart.onDocumentReady = function(func, opt_scope) {
   anychart.documentReadyCallbacks_.push([func, opt_scope]);
 
 
-  if (anychart.document['readyState'] === 'complete') {
+  if (anychart.document['readyState'] === 'complete' && !anychart.window['isNodeJS']) {
     setTimeout(anychart.ready_, 1);
   } else {
     anychart.attachDomEvents_();
