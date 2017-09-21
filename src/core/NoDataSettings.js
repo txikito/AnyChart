@@ -53,6 +53,13 @@ anychart.core.NoDataSettings.prototype.labelInvalidated_ = function(event) {
 
 
 /** @inheritDoc */
+anychart.core.NoDataSettings.prototype.setupByJSON = function(config, opt_default) {
+  anychart.core.NoDataSettings.base(this, 'setupByJSON', config, opt_default);
+  this.label().setupInternal(!!opt_default, config['label']);
+};
+
+
+/** @inheritDoc */
 anychart.core.NoDataSettings.prototype.disposeInternal = function() {
   goog.dispose(this.label_);
   anychart.core.NoDataSettings.base(this, 'disposeInternal');
