@@ -24,6 +24,14 @@ goog.inherits(anychart.chartEditor2Module.GridsPanel, anychart.chartEditor2Modul
 
 
 /** @inheritDoc */
+anychart.chartEditor2Module.GridsPanel.prototype.createDom = function() {
+  anychart.chartEditor2Module.GridsPanel.base(this, 'createDom');
+  var element = /** @type {Element} */(this.getElement());
+  goog.dom.classlist.add(element, 'settings-panel-grids');
+};
+
+
+/** @inheritDoc */
 anychart.chartEditor2Module.GridsPanel.prototype.enterDocument = function() {
   anychart.chartEditor2Module.GridsPanel.base(this, 'enterDocument');
   this.createPlotGrids();

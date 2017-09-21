@@ -339,10 +339,6 @@
   .fields-row {
     margin-bottom: 1em;
   }
-
-  .anychart-checkbox {
-    margin-right: 10px;
-  }
 }
 
 .data-set-panel-list {
@@ -546,7 +542,8 @@
   .even {
     background-color: @color-light-gray;
   }
-  .settings-panel-legend {
+  .settings-panel-legend,
+  .settings-panel-grids {
     > .content {
       padding: 0;
     }
@@ -559,7 +556,6 @@
       padding: 0;
     }
   }
-
 }
 
 .settings-panel {
@@ -574,10 +570,14 @@
     }
     .anychart-checkbox {
       float: right;
+      margin-right: 0;
     }
   }
   .content {
     padding: 5px;
+  }
+  .anychart-checkbox {
+    margin-right: 10px;
   }
 }
 

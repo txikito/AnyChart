@@ -21,9 +21,9 @@ anychart.chartEditor2Module.input.Base = function(opt_label, opt_domHelper) {
 
   /**
    * @type {string}
-   * @private
+   * @protected
    */
-  this.lastValue_ = '';
+  this.lastValue = '';
 
   /**
    * @type {boolean}
@@ -125,10 +125,10 @@ anychart.chartEditor2Module.input.Base.prototype.enterDocument = function() {
 };
 
 
-/** @private */
+/** @protected */
 anychart.chartEditor2Module.input.Base.prototype.onChange = function() {
   var value = this.getValue();
-  if (!this.noDispatch && value != this.lastValue_ && this.editorModel) {
+  if (!this.noDispatch && value != this.lastValue && this.editorModel) {
     var caretPosition = goog.dom.selection.getStart(this.getElement());
 
     if (this.callback)
@@ -139,7 +139,7 @@ anychart.chartEditor2Module.input.Base.prototype.onChange = function() {
     goog.dom.selection.setCursorPosition(this.getElement(), caretPosition);
   }
 
-  this.lastValue_ = value;
+  this.lastValue = value;
   this.revisionCount1++;
 };
 
@@ -190,7 +190,7 @@ anychart.chartEditor2Module.input.Base.prototype.setValueByTarget = function(tar
   else if (!goog.isDef(value))
     value = '';
 
-  this.lastValue_ = value;
+  this.lastValue = value;
 
   this.noDispatch = true;
   this.setValue(value);

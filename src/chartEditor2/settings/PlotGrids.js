@@ -36,19 +36,17 @@ anychart.chartEditor2Module.settings.PlotGrids.prototype.createDom = function() 
 
   var element = this.getElement();
   goog.dom.classlist.add(element, anychart.chartEditor2Module.settings.PlotGrids.CSS_CLASS);
-
-  var content = this.getContentElement();
   var model = /** @type {anychart.chartEditor2Module.EditorModel} */(this.getModel());
 
-  var xGrid = new anychart.chartEditor2Module.settings.Grid(model, 'X Grid', 0);
+  var xGrid = new anychart.chartEditor2Module.settings.Grid(model, 'X Grid');
   xGrid.allowEnabled(true);
-  xGrid.setKey(this.genKey('grid(0)'));
+  xGrid.setKey(this.genKey('xGrid()'));
   this.addChild(xGrid, true);
   this.xGrid_ = xGrid;
 
-  var yGrid = new anychart.chartEditor2Module.settings.Grid(model, 'Y Grid', 1);
+  var yGrid = new anychart.chartEditor2Module.settings.Grid(model, 'Y Grid');
   yGrid.allowEnabled(true);
-  yGrid.setKey(this.genKey('grid(1)'));
+  yGrid.setKey(this.genKey('yGrid()'));
   this.addChild(yGrid, true);
   this.yGrid_ = yGrid;
 };
@@ -61,11 +59,11 @@ anychart.chartEditor2Module.settings.PlotGrids.prototype.updateKeys = function()
     if (goog.isDef(this.plotIndex_))
       this.key.push('plot(' + this.plotIndex_ + ')');
 
-    var model = /** @type {anychart.chartEditor2Module.EditorModel} */(this.getModel());
+    // var model = /** @type {anychart.chartEditor2Module.EditorModel} */(this.getModel());
 
     // Update keys of children
-    if (this.xGrid_) this.xGrid_.setKey(this.genKey('grid(0)'));
-    if (this.yGrid_) this.yGrid_.setKey(this.genKey('grid(1)'));
+    if (this.xGrid_) this.xGrid_.setKey(this.genKey('xGrid()'));
+    if (this.yGrid_) this.yGrid_.setKey(this.genKey('yGrid()'));
   }
 
   // Update key of enabled checkbox
