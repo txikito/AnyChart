@@ -996,8 +996,8 @@ anychart.core.Chart.prototype.contextMenuItemsProvider = function(context) {
   if (anychart.window['anychart']['exports']) {
     goog.object.extend(items, /** @type {Object} */ (anychart.utils.recursiveClone(anychart.core.Chart.contextMenuMap['exporting'])));
   }
-  if (goog.dom.fullscreen.isSupported())
-    goog.object.extend(items, /** @type {Object} */ (anychart.utils.recursiveClone(anychart.core.Chart.contextMenuMap['full-screen'])));
+  if (goog.dom.fullscreen.isSupported() && context['chart'])
+    goog.object.extend(items, /** @type {Object} */ (anychart.utils.recursiveClone(anychart.core.Chart.contextMenuMap[context['chart'].fullScreen() ? 'full-screen-exit' : 'full-screen-enter'])));
   goog.object.extend(items, /** @type {Object} */ (anychart.utils.recursiveClone(anychart.core.Chart.contextMenuMap['main'])));
 
   if (anychart.DEVELOP) {
@@ -1193,13 +1193,19 @@ anychart.core.Chart.contextMenuItems = {
   },
 
   // Item-link to our site.
-  'full-screen': {
+  'full-screen-enter': {
     'index': 60,
-    'iconClass': 'ac ac-cog',
-    'text': 'Toggle full screen',
+    'text': 'Enter full screen',
     'action': function(context) {
-      var chart = context['chart'];
-      chart.fullScreen(!chart.fullScreen());
+      context['chart'].fullScreen(true);
+    }
+  },
+
+  'full-screen-exit': {
+    'index': 60,
+    'text': 'Exit full screen',
+    'action': function(context) {
+      context['chart'].fullScreen(false);
     }
   },
 
@@ -1270,8 +1276,11 @@ anychart.core.Chart.contextMenuMap = {
     'print-chart': anychart.core.Chart.contextMenuItems['print-chart'],
     'exporting-separator': {'index': 51}
   },
-  'full-screen': {
-    'full-screen': anychart.core.Chart.contextMenuItems['full-screen']
+  'full-screen-enter': {
+    'full-screen-enter': anychart.core.Chart.contextMenuItems['full-screen-enter']
+  },
+  'full-screen-exit': {
+    'full-screen-exit': anychart.core.Chart.contextMenuItems['full-screen-exit']
   },
   'main': {
     'about': anychart.core.Chart.contextMenuItems['about']

@@ -1870,7 +1870,7 @@ anychart.core.ChartWithOrthogonalScales.contextMenuItems = {
   // Item 'Include all points'.
   'exclude-points-include-all': {
     'index': 30,
-    'text': 'Include All',
+    'text': 'Include all',
     'eventType': 'anychart.includeAll',
     'action': function(context) {
       context['chart'].suspendSignalsDispatching();
