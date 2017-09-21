@@ -387,7 +387,7 @@ anychart.ui.ContextMenu.prototype.show = function(x, y) {
     var stage = this.chart_ ? this.chart_.container().getStage() : null;
     var container = (stage && stage.fullScreen()) ? stage.getDomWrapper() : anychart.document.body;
     if (!this.wrapper_)
-      this.wrapper_ = /** @type {Element} */(goog.dom.createDom('div'));
+      this.wrapper_ = /** @type {Element} */(goog.dom.createDom('div', {'id': 'anychart-menu-wrapper'}));
     if (this.wrapper_.parentNode != container)
       container.appendChild(this.wrapper_);
 
