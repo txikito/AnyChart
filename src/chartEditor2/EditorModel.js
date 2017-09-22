@@ -901,13 +901,6 @@ anychart.chartEditor2Module.EditorModel.prototype.resetContextMenuItems = functi
   goog.object.map(this.contextMenuItems_, function(item){
     item.enabled = true;
   });
-  // for (key in this.contextMenuItems_) {
-  //   if (!this.contextMenuItems_[key]['enabled']) {
-  //     disabledItems = goog.array.concat(disabledItems, this.contextMenuItems_[key]['items']);
-  //     if (goog.array.indexOf(exportingItems, key) != -1)
-  //       count++;
-  //   }
-  // }
 };
 
 
@@ -939,18 +932,19 @@ anychart.chartEditor2Module.EditorModel.prototype.setContextMenuItemEnable = fun
 
   if (count == exportingItems.length)
     disabledItems = goog.array.concat(disabledItems, 'exporting-separator');
+  var disabledItemsStr = disabledItems.toString();
 
   if (disabledItems.length) {
-
-    this.model_['chart']['settings']['contextMenu().itemsFormatter()'] = function(items){
-      var res = {};
-      for (var key in items) {
-        if (disabledItems.indexOf(key) == -1) {
-          res[key] = items[key];
-        }
-      }
-      return res;
-    };
+    this.model_['chart']['settings']['contextMenu().itemsFormatter()'] = 'function(items){\n' +
+      '\tvar res = {};\n'+
+      '\tvar disabledItems = "' + disabledItemsStr + '".split(",");\n' +
+      '\tfor (var key in items) {\n' +
+        '\t\tif (disabledItems.indexOf(key) == -1) {\n' +
+          '\t\t\tres[key] = items[key];\n'+
+        '\t\t}\n' +
+      '\t}\n' +
+      '\treturn res;\n' +
+    '}';
   } else
     this.removeByKey([['chart'], ['settings'], 'contextMenu().itemsFormatter()']);
 
@@ -1476,9 +1470,11 @@ anychart.chartEditor2Module.EditorModel.prototype.getChartWithJsCode_ = function
       var pVal = value;
       var force = false;
       if (key == "palette()") {
-        value = anychartGlobal['palettes'][value];
-        pVal = 'anychart.palettes.' + value;
-      }
+        pVal = anychartGlobal['palettes'][value];
+        //pVal = 'anychart.palettes.' + value;
+      } else if (key == "contextMenu().itemsFormatter()")
+        force = true;
+
       if (anychart.bindingModule.testExec(chart, key, value)) {
         result.push(self.printKey_(printer, 'chart', key, pVal, force));
       }
@@ -1538,6 +1534,17 @@ anychart.chartEditor2Module.EditorModel.prototype.printKey_ = function(printer, 
  */
 anychart.chartEditor2Module.EditorModel.prototype.printValue_ = function(printer, value) {
   if (goog.isString(value)) {
+    value = value.replace(/(\r|\n|\t)/g, function(part, g1) {
+      switch (g1) {
+        case '\r':
+          return '\\r';
+        case '\n':
+          return '\\n';
+        case '\t':
+          return '\\t';
+      }
+      return part;
+    });
     value = '"' + value + '"';
   }
   return printer.format(value);

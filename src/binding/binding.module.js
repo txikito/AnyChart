@@ -85,7 +85,7 @@ anychart.bindingModule.parsePath_ = function(path) {
  * @param {Object} target
  * @param {Array.<Array>} path
  * @param {Array.<(string|number)>} pathArguments
- * @param {(string|number|boolean)=} opt_lastArgument
+ * @param {(string|number|boolean|Function)=} opt_lastArgument
  * @param {boolean=} opt_test - If set, the method returns true if operation succeeded and false otherwise.
  * @return {*}
  * @private
@@ -121,6 +121,10 @@ anychart.bindingModule.applyPath_ = function(target, path, pathArguments, opt_la
       }
 
       if (opt_lastArgument != void 0 && i == path.length - 1) {
+        if (typeof opt_lastArgument == 'string' && (new RegExp(/^function\s?\(.+\)\s?\{(.|\n)+\};?$/)).test(opt_lastArgument)) {
+          opt_lastArgument = /** @type {Function} */(eval('(function(){return ' + opt_lastArgument + '})()'));
+        }
+
         args = args ? args : [];
         args.push(opt_lastArgument);
       }
