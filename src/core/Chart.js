@@ -2001,12 +2001,12 @@ anychart.core.Chart.prototype.handleMouseEvent = function(event) {
   var tag = anychart.utils.extractTag(event['domTarget']);
   var index;
 
-  if (event['target'] instanceof anychart.core.ui.LabelsFactory || event['target'] instanceof anychart.core.ui.MarkersFactory) {
+  if (anychart.utils.instanceOf(event['target'], anychart.core.ui.LabelsFactory) || anychart.utils.instanceOf(event['target'], anychart.core.ui.MarkersFactory)) {
     var parent = event['target'].getParentEventTarget();
     if (parent.isSeries && parent.isSeries())
       series = parent;
     index = tag;
-  } else if (event['target'] instanceof anychart.core.ui.Legend) {
+  } else if (anychart.utils.instanceOf(event['target'], anychart.core.ui.Legend)) {
     if (tag) {
       series = tag.series;
       index = tag.index;
@@ -2194,7 +2194,7 @@ anychart.core.Chart.prototype.handleMouseOverAndMove = function(event) {
   var tag = anychart.utils.extractTag(event['domTarget']);
   var index;
   var forbidTooltip = false;
-  var isTargetLegendOrColorRange = event['target'] instanceof anychart.core.ui.Legend || this.checkIfColorRange(event['target']);
+  var isTargetLegendOrColorRange = anychart.utils.instanceOf(event['target'], anychart.core.ui.Legend) || this.checkIfColorRange(event['target']);
 
   if (isTargetLegendOrColorRange) {
     if (goog.isDef(tag)) {
@@ -2214,7 +2214,7 @@ anychart.core.Chart.prototype.handleMouseOverAndMove = function(event) {
       }
       forbidTooltip = true;
     }
-  } else if (event['target'] instanceof anychart.core.ui.LabelsFactory || event['target'] instanceof anychart.core.ui.MarkersFactory) {
+  } else if (anychart.utils.instanceOf(event['target'], anychart.core.ui.LabelsFactory) || anychart.utils.instanceOf(event['target'], anychart.core.ui.MarkersFactory)) {
     var parent = event['target'].getParentEventTarget();
     if (parent.isSeries && parent.isSeries())
       series = parent;
@@ -2304,7 +2304,7 @@ anychart.core.Chart.prototype.handleMouseOverAndMove = function(event) {
         this.prevHoverSeriesStatus = seriesStatus.length ? seriesStatus : null;
       }
     } else {
-      if (!(event['target'] instanceof anychart.core.ui.Legend)) {
+      if (!(anychart.utils.instanceOf(event['target'], anychart.core.ui.Legend))) {
         this.unhover();
         if (this.prevHoverSeriesStatus)
           this.dispatchEvent(this.makeInteractivityPointEvent('hovered', event, this.prevHoverSeriesStatus, true));
@@ -2326,12 +2326,12 @@ anychart.core.Chart.prototype.handleMouseOut = function(event) {
   var forbidTooltip = false;
 
   var series, index;
-  if (event['target'] instanceof anychart.core.ui.LabelsFactory || event['target'] instanceof anychart.core.ui.MarkersFactory) {
+  if (anychart.utils.instanceOf(event['target'], anychart.core.ui.LabelsFactory) || anychart.utils.instanceOf(event['target'], anychart.core.ui.MarkersFactory)) {
     var parent = event['target'].getParentEventTarget();
     if (parent.isSeries && parent.isSeries())
       series = parent;
     index = tag;
-  } else if (event['target'] instanceof anychart.core.ui.Legend || this.checkIfColorRange(event['target'])) {
+  } else if (anychart.utils.instanceOf(event['target'], anychart.core.ui.Legend) || this.checkIfColorRange(event['target'])) {
     if (tag) {
       if (tag.points_) {
         series = tag.points_.series;
@@ -2423,9 +2423,9 @@ anychart.core.Chart.prototype.onMouseDown = function(event) {
   var tag = anychart.utils.extractTag(event['domTarget']);
 
   var isColorRange = this.checkIfColorRange(event['target']);
-  var isLegend = event['target'] instanceof anychart.core.ui.Legend;
-  var isLabelsFactory = event['target'] instanceof anychart.core.ui.LabelsFactory;
-  var isMarkersFactory = event['target'] instanceof anychart.core.ui.MarkersFactory;
+  var isLegend = anychart.utils.instanceOf(event['target'], anychart.core.ui.Legend);
+  var isLabelsFactory = anychart.utils.instanceOf(event['target'], anychart.core.ui.LabelsFactory);
+  var isMarkersFactory = anychart.utils.instanceOf(event['target'], anychart.core.ui.MarkersFactory);
   var isTargetLegendOrColorRange = isLegend || isColorRange;
 
   var series, s, index, points;
@@ -3346,7 +3346,7 @@ anychart.core.Chart.prototype.getCsvGrouperAlias = function(iterator, dataHolder
  * @return {Array}
  */
 anychart.core.Chart.prototype.getCsvColumns = function(dataHolder) {
-  return (dataHolder instanceof anychart.core.series.Base) ? dataHolder.getYValueNames() : ['value'];
+  return (anychart.utils.instanceOf(dataHolder, anychart.core.series.Base)) ? dataHolder.getYValueNames() : ['value'];
 };
 
 
@@ -3359,7 +3359,7 @@ anychart.core.Chart.prototype.getCsvColumns = function(dataHolder) {
  * @return {string}
  */
 anychart.core.Chart.prototype.prefixCsvColumnName = function(name, dataHolder, index, columnsCount) {
-  return ((dataHolder instanceof anychart.core.series.Base) ? dataHolder.name() : ('series' + String(index))) +
+  return ((anychart.utils.instanceOf(dataHolder, anychart.core.series.Base)) ? dataHolder.name() : ('series' + String(index))) +
       ((columnsCount > 1) ? (' (' + name + ')') : '');
 };
 
