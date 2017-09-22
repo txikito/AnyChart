@@ -19,6 +19,5 @@ script:
 after_success:
   - echo -e "//registry.npmjs.org/:_authToken=$NPM_TOKEN\n" >> ~/.npmrc
   - echo -e "Host $STATIC_HOST\n\tStrictHostKeyChecking no\n" >> ~/.ssh/config
-  - ./bin/export_version.sh
   - ./bin/upload_dev_files.sh
   - ./bin/upload_release_files.sh

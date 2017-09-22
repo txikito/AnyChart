@@ -8,7 +8,7 @@ echo ${VERSION}
 echo ${GALLERY_VERSION}
 echo ${TRAVIS_BRANCH}
 
-if [ "${TRAVIS_BRANCH}" = "master" ] ||  [ "${TRAVIS_BRANCH}" = "DVF-3234-minor-build-fixes" ]; then
+if [ "${TRAVIS_BRANCH}" = "master" ] || [ "${TRAVIS_BRANCH}" = "DVF-3234-minor-build-fixes" ]; then
 
     # copy bin files
     cp ./bin/binaries_wrapper_end.txt ./dist/binaries_wrapper_end.txt
@@ -56,7 +56,7 @@ if [ "${TRAVIS_BRANCH}" = "master" ] ||  [ "${TRAVIS_BRANCH}" = "DVF-3234-minor-
     cp /apps/static/cdn/releases/${VERSION}/xml-schema.xsd /apps/static/cdn/schemas/${VERSION}/xml-schema.xsd"
 
     #cd ../
-    #./bin/drop_cdn_cache.py $TRAVIS_BRANCH $CDN_ALIASE $CDN_CONSUMER_KEY $CDN_CONSUMER_SECRET $CDN_ZONE_ID
+    ./bin/drop_cdn_cache.py ${VERSION} ${CDN_ALIASE} ${CDN_CONSUMER_KEY} ${CDN_CONSUMER_SECRET} ${CDN_ZONE_ID}
     #./bin/upload_github_release.py $GITHUB_ACCESS_TOKEN
     #npm publish
 fi
