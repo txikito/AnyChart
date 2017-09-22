@@ -9,6 +9,7 @@ goog.require('anychart.ganttModule.IInteractiveGrid');
 goog.require('anychart.ganttModule.Splitter');
 goog.require('anychart.ganttModule.TimeLine');
 goog.require('anychart.treeDataModule.Tree');
+goog.require('anychart.treeDataModule.utils');
 
 
 
@@ -213,12 +214,6 @@ anychart.ganttModule.Chart.Z_INDEX_SCROLL = 20;
 
 
 /** @inheritDoc */
-anychart.ganttModule.Chart.prototype.usesTreeData = function() {
-  return true;
-};
-
-
-/** @inheritDoc */
 anychart.ganttModule.Chart.prototype.getAllSeries = function() {
   return [];
 };
@@ -260,17 +255,34 @@ anychart.ganttModule.Chart.prototype.createFormatProvider = function(item, opt_p
           item.getMeta(anychart.enums.GanttDataFields.PERIODS, opt_periodIndex, anychart.enums.GanttDataFields.END) :
           void 0, type: anychart.enums.TokenType.DATE_TIME
     };
+    values['start'] = {value: values['periodStart'].value || values['minPeriodDate'].value, type: anychart.enums.TokenType.DATE_TIME};
+    values['end'] = {value: values['periodEnd'].value || values['maxPeriodDate'].value, type: anychart.enums.TokenType.DATE_TIME};
   } else {
     values['actualStart'] = {value: item.meta(anychart.enums.GanttDataFields.ACTUAL_START), type: anychart.enums.TokenType.DATE_TIME};
     values['actualEnd'] = {value: item.meta(anychart.enums.GanttDataFields.ACTUAL_END), type: anychart.enums.TokenType.DATE_TIME};
+
     var isParent = !!item.numChildren();
     var progressValue = isParent ?
         item.meta(anychart.enums.GanttDataFields.PROGRESS_VALUE) || item.get(anychart.enums.GanttDataFields.PROGRESS_VALUE) :
         item.get(anychart.enums.GanttDataFields.PROGRESS_VALUE);
+
     values['progressValue'] = {value: progressValue, type: anychart.enums.TokenType.PERCENT};
     values['autoStart'] = {value: isParent ? item.meta('autoStart') : void 0, type: anychart.enums.TokenType.DATE_TIME};
     values['autoEnd'] = {value: isParent ? item.meta('autoEnd') : void 0, type: anychart.enums.TokenType.DATE_TIME};
     values['autoProgress'] = {value: isParent ? item.meta('autoProgress') : void 0, type: anychart.enums.TokenType.PERCENT};
+
+    var progress = item.meta(anychart.enums.GanttDataFields.PROGRESS_VALUE);
+    var progressPresents = goog.isDef(progress);
+    var autoProgress = item.meta('autoProgress');
+    var autoProgressPresents = goog.isDef(autoProgress);
+    var resultProgress = progressPresents ? progress : (autoProgressPresents ? autoProgress : 0);
+    resultProgress = anychart.utils.isPercent(resultProgress) ? parseFloat(resultProgress) / 100 : Number(resultProgress);
+    values['progress'] = {value: resultProgress, type: anychart.enums.TokenType.PERCENT};
+
+    if (goog.isDef(item.get(anychart.enums.GanttDataFields.BASELINE_START)))
+      values['baselineStart'] = {value: item.get(anychart.enums.GanttDataFields.BASELINE_START), type: anychart.enums.TokenType.DATE_TIME};
+    if (goog.isDef(item.get(anychart.enums.GanttDataFields.BASELINE_END)))
+      values['baselineEnd'] = {value: item.get(anychart.enums.GanttDataFields.BASELINE_END), type: anychart.enums.TokenType.DATE_TIME};
   }
 
   this.formatProvider_
@@ -368,11 +380,11 @@ anychart.ganttModule.Chart.prototype.data = function(opt_value, opt_fillMethod) 
     if (opt_value instanceof anychart.treeDataModule.Tree || opt_value instanceof anychart.treeDataModule.View) {
       if (this.data_ != opt_value) {
         this.data_ = opt_value;
-        this.invalidate(anychart.ConsistencyState.GANTT_DATA, anychart.Signal.NEEDS_REDRAW);
+        this.invalidate(anychart.ConsistencyState.GANTT_DATA | anychart.ConsistencyState.CHART_LABELS, anychart.Signal.NEEDS_REDRAW);
       }
     } else {
       this.data_ = new anychart.treeDataModule.Tree(opt_value, opt_fillMethod);
-      this.invalidate(anychart.ConsistencyState.GANTT_DATA, anychart.Signal.NEEDS_REDRAW);
+      this.invalidate(anychart.ConsistencyState.GANTT_DATA | anychart.ConsistencyState.CHART_LABELS, anychart.Signal.NEEDS_REDRAW);
     }
     return this;
   }
@@ -1031,6 +1043,21 @@ anychart.ganttModule.Chart.prototype.drawContent = function(bounds) {
     this.markConsistent(anychart.ConsistencyState.GANTT_POSITION);
   }
 
+};
+
+
+/** @inheritDoc */
+anychart.ganttModule.Chart.prototype.toCsv = function(opt_chartDataExportMode, opt_csvSettings) {
+  return anychart.treeDataModule.utils.toCsv(
+      /** @type {anychart.treeDataModule.Tree|anychart.treeDataModule.View} */(this.data()), opt_csvSettings);
+};
+
+
+/** @inheritDoc */
+anychart.ganttModule.Chart.prototype.isNoData = function() {
+  if (!this.data_)
+    return true;
+  return (!this.data_.numChildren());
 };
 
 

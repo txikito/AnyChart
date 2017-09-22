@@ -27,34 +27,50 @@ goog.require('anychart.core.ui.LabelBase');
  */
 anychart.core.ui.Label = function() {
   anychart.core.ui.Label.base(this, 'constructor');
+  anychart.core.settings.createDescriptorsMeta(this.descriptorsMeta, [
+    ['visible', anychart.ConsistencyState.LABEL_VISIBILITY, anychart.Signal.NEEDS_REDRAW]
+  ]);
+  this.themeSettings['visible'] = true;
 };
 goog.inherits(anychart.core.ui.Label, anychart.core.ui.LabelBase);
 
 
-//----------------------------------------------------------------------------------------------------------------------
-//
-//  Utils.
-//
-//----------------------------------------------------------------------------------------------------------------------
-/** @inheritDoc */
-anychart.core.ui.Label.prototype.serialize = function() {
-  var json = anychart.core.ui.Label.base(this, 'serialize');
-  if (goog.isDef(this.position()))
-    json['position'] = this.position();
-  return json;
-};
+/**
+ * Supported consistency states.
+ * @type {number}
+ */
+anychart.core.ui.Label.prototype.SUPPORTED_CONSISTENCY_STATES =
+    anychart.core.ui.LabelBase.prototype.SUPPORTED_CONSISTENCY_STATES |
+        anychart.ConsistencyState.LABEL_VISIBILITY;
+
+
+/**
+ * Descriptors.
+ * @type {!Object.<string, anychart.core.settings.PropertyDescriptor>}
+ */
+anychart.core.ui.Label.DESCRIPTORS = (function() {
+  /** @type {!Object.<string, anychart.core.settings.PropertyDescriptor>} */
+  var map = {};
+  anychart.core.settings.createDescriptor(
+      map,
+      anychart.enums.PropertyHandlerType.SINGLE_ARG,
+      'visible',
+      anychart.core.settings.booleanNormalizer);
+  return map;
+})();
+anychart.core.settings.populate(anychart.core.ui.Label, anychart.core.ui.Label.DESCRIPTORS);
 
 
 /** @inheritDoc */
-anychart.core.ui.Label.prototype.setupByJSON = function(config, opt_default) {
-  anychart.core.ui.Label.base(this, 'setupByJSON', config, opt_default);
-  this.position(config['position']);
-};
-
-
-/** @inheritDoc */
-anychart.core.ui.Label.prototype.disposeInternal = function() {
-  anychart.core.ui.Label.base(this, 'disposeInternal');
+anychart.core.ui.Label.prototype.draw = function() {
+  if (!this.checkDrawingNeeded())
+    return this;
+  anychart.core.ui.Label.base(this, 'draw');
+  if (this.hasInvalidationState(anychart.ConsistencyState.LABEL_VISIBILITY)) {
+    this.getRootLayer().visible(/** @type {boolean} */(this.getOption('visible')));
+    this.markConsistent(anychart.ConsistencyState.LABEL_VISIBILITY);
+  }
+  return this;
 };
 
 
@@ -84,19 +100,8 @@ anychart.standalones.label = function() {
 //exports
 (function() {
   var proto = anychart.core.ui.Label.prototype;
-  proto['position'] = proto.position;
   proto['background'] = proto.background;
   proto['padding'] = proto.padding;
-  proto['width'] = proto.width;
-  proto['height'] = proto.height;
-  proto['anchor'] = proto.anchor;
-  proto['offsetX'] = proto.offsetX;
-  proto['offsetY'] = proto.offsetY;
-  proto['text'] = proto.text;
-  proto['minFontSize'] = proto.minFontSize;
-  proto['maxFontSize'] = proto.maxFontSize;
-  proto['adjustFontSize'] = proto.adjustFontSize;
-  proto['rotation'] = proto.rotation;
 
   proto = anychart.standalones.Label.prototype;
   goog.exportSymbol('anychart.standalones.label', anychart.standalones.label);

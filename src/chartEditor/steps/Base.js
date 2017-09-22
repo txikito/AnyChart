@@ -332,9 +332,9 @@ anychart.chartEditorModule.steps.Base.prototype.isReferenceValuesPresent_ = func
     var name = /** @type {number|string} */(values[i]);
     for (var j = 0, m = model.dataMappings.length; j < m; j++) {
       var mapping = model.dataMappings[j];
-      var presentInArrayMapping = mapping['getArrayMapping']() != window['anychart']['data']['Mapping']['DEFAULT_ARRAY_MAPPING'] &&
+      var presentInArrayMapping = mapping['getArrayMapping']() != anychart.window['anychart']['data']['Mapping']['DEFAULT_ARRAY_MAPPING'] &&
           mapping['getArrayMapping']()[name];
-      var presentInObjectMapping = mapping['getObjectMapping']() != window['anychart']['data']['Mapping']['DEFAULT_OBJECT_MAPPING'] &&
+      var presentInObjectMapping = mapping['getObjectMapping']() != anychart.window['anychart']['data']['Mapping']['DEFAULT_OBJECT_MAPPING'] &&
           mapping['getObjectMapping']()[name];
 
       result = Boolean(result && (presentInArrayMapping || presentInObjectMapping));
@@ -421,8 +421,8 @@ anychart.chartEditorModule.steps.Base.prototype.createDom = function() {
           goog.dom.TagName.DIV, goog.getCssName(className, 'content')),
       this.progressEl_);
 
-  element.appendChild(this.asideEl_);
-  element.appendChild(this.contentWrapperEl_);
+  goog.dom.appendChild(element, this.asideEl_);
+  goog.dom.appendChild(element, this.contentWrapperEl_);
 };
 
 
@@ -476,7 +476,7 @@ anychart.chartEditorModule.steps.Base.prototype.updateProgressList_ = function()
       goog.dom.classlist.enable(itemEl, goog.getCssName('anychart-disabled'), !this.enableNextStep_);
     }
 
-    this.progressListEl_.appendChild(itemEl);
+    goog.dom.appendChild(this.progressListEl_, itemEl);
   }
 };
 

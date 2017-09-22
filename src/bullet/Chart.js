@@ -140,7 +140,8 @@ anychart.bulletModule.Chart.prototype.data = function(opt_value, opt_csvSettings
           anychart.ConsistencyState.BULLET_SCALES |
           anychart.ConsistencyState.BULLET_AXES |
           anychart.ConsistencyState.BULLET_MARKERS |
-          anychart.ConsistencyState.BULLET_AXES_MARKERS,
+          anychart.ConsistencyState.BULLET_AXES_MARKERS |
+          anychart.ConsistencyState.CHART_LABELS,
           anychart.Signal.NEEDS_REDRAW
       );
     }
@@ -162,7 +163,8 @@ anychart.bulletModule.Chart.prototype.dataInvalidated_ = function(e) {
             anychart.ConsistencyState.BULLET_SCALES |
             anychart.ConsistencyState.BULLET_AXES |
             anychart.ConsistencyState.BULLET_MARKERS |
-            anychart.ConsistencyState.BULLET_AXES_MARKERS,
+            anychart.ConsistencyState.BULLET_AXES_MARKERS |
+            anychart.ConsistencyState.CHART_LABELS,
         anychart.Signal.NEEDS_REDRAW
     );
   }
@@ -196,7 +198,7 @@ anychart.bulletModule.Chart.prototype.isHorizontal = function() {
 
 /**
  * Getter/setter for bullet scale.
- * @param {(anychart.scales.Base|anychart.enums.ScaleTypes)=} opt_value Scale to set.
+ * @param {(anychart.scales.Base|Object|anychart.enums.ScaleTypes)=} opt_value Scale to set.
  * @return {!(anychart.scales.Base|anychart.bulletModule.Chart)} Default chart scale value or itself for method chaining.
  */
 anychart.bulletModule.Chart.prototype.scale = function(opt_value) {
@@ -208,11 +210,11 @@ anychart.bulletModule.Chart.prototype.scale = function(opt_value) {
   }
 
   if (goog.isDef(opt_value)) {
-    if (goog.isString(opt_value)) {
-      opt_value = anychart.scales.Base.fromString(opt_value, false);
-    }
-    if (this.scale_ != opt_value) {
-      this.scale_ = opt_value;
+    var val = anychart.scales.Base.setupScale(this.scale_, opt_value, anychart.enums.ScaleTypes.LINEAR,
+        anychart.scales.Base.ScaleTypes.SCATTER);
+    if (val) {
+      this.scale_ = val;
+      val.resumeSignalsDispatching(false);
       this.invalidate(
           anychart.ConsistencyState.BULLET_SCALES |
           anychart.ConsistencyState.BULLET_AXES |
@@ -705,6 +707,29 @@ anychart.bulletModule.Chart.prototype.hoverMode = function(opt_value) {
 };
 
 
+//region --- No data label
+/**
+ * Is there no data on the chart.
+ * @return {boolean}
+ */
+anychart.bulletModule.Chart.prototype.isNoData = function() {
+  var rowsCount = this.data_ ? this.data_.getIterator().getRowsCount() : 0;
+  var countDisabled = 0;
+  var len = this.markers_.length;
+  for (var i = 0; i < len; i++) {
+    var marker = this.markers_[i];
+    if (marker && !marker.enabled())
+      countDisabled++;
+    else
+      break;
+  }
+  return (!rowsCount || !len || (countDisabled == len));
+};
+
+
+//endregion
+
+
 /** @inheritDoc */
 anychart.bulletModule.Chart.prototype.serialize = function() {
   var json = anychart.bulletModule.Chart.base(this, 'serialize');
@@ -772,4 +797,5 @@ anychart.bulletModule.Chart.prototype.setupByJSON = function(config, opt_default
   proto['range'] = proto.range;//doc|ex
   proto['isHorizontal'] = proto.isHorizontal;//doc
   proto['getType'] = proto.getType;//doc
+  proto['noDataLabel'] = proto.noDataLabel;
 })();

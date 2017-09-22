@@ -192,6 +192,7 @@ anychart.ConsistencyState = {
   BACKGROUND_POINTER_EVENTS: 1 << 6,
   //---------------------------------- LABEL STATES (VB) ---------------------------------
   LABEL_BACKGROUND: 1 << 6,
+  LABEL_VISIBILITY: 1 << 7,
   //---------------------------------- LABELS FACTORY STATES (VB) ---------------------------------
   LABELS_FACTORY_BACKGROUND: 1 << 6,
   LABELS_FACTORY_HANDLERS: 1 << 7,
@@ -239,7 +240,7 @@ anychart.ConsistencyState = {
   GAUGE_PALETTE: 1 << 21,
   GAUGE_HATCH_FILL_PALETTE: 1 << 22,
   GAUGE_SCALE_BAR: 1 << 23,
-  GAUGE_POINTER_LABEL: 1 << 13, // reset knob state for linear gauge, cause it doesn't need it
+  GAUGE_POINTER_LABELS: 1 << 13, // reset knob state for linear gauge, cause it doesn't need it
   //---------------------------------- TABLE (VB) ---------------------------------------------
   TABLE_CELL_BOUNDS: 1 << 6,
   TABLE_OVERLAP: 1 << 7,
@@ -265,6 +266,10 @@ anychart.ConsistencyState = {
   STOCK_PLOT_LEGEND: 1 << 11,
   STOCK_PLOT_PALETTE: 1 << 12,
   STOCK_PLOT_ANNOTATIONS: 1 << 13,
+  STOCK_PLOT_PRICE_INDICATORS: 1 << 14,
+  STOCK_PLOT_NO_DATA_LABEL: 1 << 15,
+  //---------------------------------- PRICE INDICATOR STATES (VB) ---------------------------------
+  STOCK_PRICE_INDICATOR_LABEL: 1 << 6,
   //---------------------------------- STOCK DATETIME AXIS (VB) ----------------------------------------
   STOCK_DTAXIS_BACKGROUND: 1 << 6,
   //---------------------------------- STOCK SCROLLER (SCROLLER) ----------------------------------------
@@ -426,6 +431,13 @@ anychart.core.Base = function() {
    * @type {!Object.<string, anychart.core.settings.PropertyDescriptorMeta>}
    */
   this.descriptorsMeta = {};
+
+  /**
+   * Whether to dispatch signals even if current consistency state is not effective.
+   * @type {boolean}
+   * @private
+   */
+  this.needsForceSignalsDispatching_ = false;
 };
 goog.inherits(anychart.core.Base, goog.events.EventTarget);
 
@@ -469,7 +481,7 @@ anychart.core.Base.prototype.suspendedDispatching = NaN;
 anychart.core.Base.prototype.suspensionLevel = 0;
 
 
-//region --- IObjectWithSettings
+//region --- IObjectWithSettings implementation
 /** @inheritDoc */
 anychart.core.Base.prototype.getOwnOption = function(name) {
   return this.ownSettings[name];
@@ -541,7 +553,33 @@ anychart.core.Base.prototype.getHook = function(fieldName) {
 };
 
 
+/** @inheritDoc */
+anychart.core.Base.prototype.isResolvable = function() {
+  return false;
+};
+
+
+/** @inheritDoc */
+anychart.core.Base.prototype.getParentState = function() {
+  return null;
+};
+
+
 //endregion
+
+
+/**
+ * Whether to dispatch signals even if current consistency state is not effective.
+ * @param {boolean=} opt_value - Value to set.
+ * @return {boolean|anychart.core.Base}
+ */
+anychart.core.Base.prototype.needsForceSignalsDispatching = function(opt_value) {
+  if (goog.isDef(opt_value)) {
+    this.needsForceSignalsDispatching_ = opt_value;
+    return this;
+  }
+  return this.needsForceSignalsDispatching_;
+};
 
 
 /**
@@ -584,7 +622,7 @@ anychart.core.Base.prototype.invalidate = function(state, opt_signal) {
   state &= this.SUPPORTED_CONSISTENCY_STATES;
   var effective = state & ~this.consistency_;
   this.consistency_ |= effective;
-  if (!!effective)
+  if (effective || this.needsForceSignalsDispatching())
     this.dispatchSignal(opt_signal || 0);
   return effective;
 };

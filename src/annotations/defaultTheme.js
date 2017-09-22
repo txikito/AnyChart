@@ -6,43 +6,49 @@ goog.mixin(goog.global['anychart']['themes']['defaultTheme']['chart'], {
   'defaultAnnotationSettings': {
     'base': {
       'enabled': true,
-      'fill': anychart.core.defaultTheme.returnSourceColor50,
-      'stroke': anychart.core.defaultTheme.returnSourceColor,
-      'hatchFill': null,
-      'hoverFill': anychart.core.defaultTheme.returnSourceColor70,
-      'hoverStroke': anychart.core.defaultTheme.returnDarkenSourceColor,
-      'selectFill': anychart.core.defaultTheme.returnSourceColor70,
-      'selectStroke': anychart.core.defaultTheme.returnDarkenSourceColor,
-      'markers': {
-        'enabled': false,
-        'size': 5,
-        'type': 'square',
-        'fill': '#ffff66',
-        'stroke': '#333333'
-      },
-      'hoverMarkers': {
-        'enabled': null
-      },
-      'selectMarkers': {
-        'enabled': true
-      },
-      'labels': {
-        'enabled': true,
-        'position': 'center-top',
-        'anchor': 'center-top',
-        /**
-         * @return {*}
-         * @this {*}
-         */
-        'format': function() {
-          return this['level'];
+      'normal': {
+        'fill': anychart.core.defaultTheme.returnSourceColor50,
+        'stroke': anychart.core.defaultTheme.returnSourceColor,
+        'hatchFill': null,
+        'markers': {
+          'enabled': false,
+          'size': 5,
+          'type': 'square',
+          'fill': '#ffff66',
+          'stroke': '#333333'
+        },
+        'labels': {
+          'enabled': true,
+          'position': 'center-top',
+          'anchor': 'center-top',
+          /**
+           * @return {*}
+           * @this {*}
+           */
+          'format': function() {
+            return this['level'];
+          }
         }
       },
-      'hoverLabels': {
-        'enabled': null
+      'hovered': {
+        'fill': anychart.core.defaultTheme.returnSourceColor70,
+        'stroke': anychart.core.defaultTheme.returnDarkenSourceColor,
+        'markers': {
+          'enabled': null
+        },
+        'labels': {
+          'enabled': null
+        }
       },
-      'selectLabels': {
-        'enabled': null
+      'selected': {
+        'fill': anychart.core.defaultTheme.returnSourceColor70,
+        'stroke': anychart.core.defaultTheme.returnDarkenSourceColor,
+        'markers': {
+          'enabled': true
+        },
+        'labels': {
+          'enabled': null
+        }
       },
       'color': '#e06666',
       'allowEdit': true,
@@ -72,7 +78,10 @@ goog.mixin(goog.global['anychart']['themes']['defaultTheme']['chart'], {
         0.5,
         0.618,
         1
-      ]
+      ],
+      'labels': {
+        'anchor': null
+      }
     },
     'fibonacciArc': {
       'levels': [
@@ -82,7 +91,10 @@ goog.mixin(goog.global['anychart']['themes']['defaultTheme']['chart'], {
         0.618,
         0.764,
         1
-      ]
+      ],
+      'labels': {
+        'anchor': null
+      }
     },
     'fibonacciRetracement': {
       'levels': [
@@ -101,9 +113,11 @@ goog.mixin(goog.global['anychart']['themes']['defaultTheme']['chart'], {
         2.618,
         4.236
       ],
-      'labels': {
-        'position': 'left-center',
-        'anchor': 'right-center'
+      'normal': {
+        'labels': {
+          'position': 'left-center',
+          'anchor': 'right-center'
+        }
       }
     },
     'fibonacciTimezones': {
@@ -146,11 +160,16 @@ goog.mixin(goog.global['anychart']['themes']['defaultTheme']['chart'], {
         14930352,
         24157817,
         39088169
-      ]
+      ],
+      'labels': {
+        'anchor': 'left-bottom'
+      }
     },
     'marker': {
       'markerType': 'arrow-up',
-      'size': 20,
+      'normal': {
+        'size': 20
+      },
       'anchor': 'center-top',
       'offsetX': 0,
       'offsetY': 0

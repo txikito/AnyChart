@@ -31,6 +31,8 @@ goog.require('goog.object');
 anychart.core.ui.Tooltip = function(capability) {
   anychart.core.ui.Tooltip.base(this, 'constructor');
 
+  delete this.themeSettings['enabled'];
+
   /**
    * Tooltip's capability.
    * Used to separate chart's tooltip functionality from series' tooltip and from other.
@@ -1143,7 +1145,7 @@ anychart.core.ui.Tooltip.prototype.showFloat = function(clientX, clientY, opt_co
     opt_contextProvider['clientX'] = clientX;
     opt_contextProvider['clientY'] = clientY;
     this.title().autoText(this.getFormattedTitle(opt_contextProvider));
-    this.contentInternal().text(this.getFormattedContent_(opt_contextProvider));
+    this.contentInternal()['text'](this.getFormattedContent_(opt_contextProvider));
   }
 
   this.setContainerToTooltip_(this);
@@ -1321,10 +1323,9 @@ anychart.core.ui.Tooltip.prototype.remove = function() {
 
 
 /**
- * Whether needs force invalidation.
- * @return {boolean}
+ * @inheritDoc
  */
-anychart.core.ui.Tooltip.prototype.needsForceInvalidation = function() {
+anychart.core.ui.Tooltip.prototype.needsForceSignalsDispatching = function(opt_value) {
   return (this.check(anychart.core.ui.Tooltip.Capabilities.CAN_CHANGE_DISPLAY_MODE) && !goog.object.isEmpty(this.childTooltipsMap));
 };
 
@@ -1333,10 +1334,10 @@ anychart.core.ui.Tooltip.prototype.needsForceInvalidation = function() {
  * Updates needsForceInvalidation state for complex properties like bg, title, etc.
  */
 anychart.core.ui.Tooltip.prototype.updateForceInvalidation = function() {
-  var forceInvalidation = this.needsForceInvalidation();
-  this.title().forceInvalidate = forceInvalidation;
-  this.separator().forceInvalidate = forceInvalidation;
-  this.background().forceInvalidate = forceInvalidation;
+  var forceInvalidation = /** @type {boolean} */ (this.needsForceSignalsDispatching());
+  this.title().needsForceSignalsDispatching(forceInvalidation);
+  this.separator().needsForceSignalsDispatching(forceInvalidation);
+  this.background().needsForceSignalsDispatching(forceInvalidation);
 };
 
 
@@ -1372,28 +1373,16 @@ anychart.core.ui.Tooltip.prototype.applyTextSettings = function() {
   if (this.hasInvalidationState(anychart.ConsistencyState.TOOLTIP_CONTENT)) {
     this.contentInternal().suspendSignalsDispatching();
     for (var key in this.TEXT_PROPERTY_DESCRIPTORS) {
-      // if (key != 'anchor')
       var val = /** @type {Function|boolean|null|number|string|undefined} */ (this.getOption(key));
       if (goog.isDef(val)) {
         this.contentInternal().textSettings(key, val);
       }
     }
-    this.contentInternal().adjustFontSize(/** @type {boolean} */ (this.getOption('adjustFontSize')));
-    this.contentInternal().minFontSize(/** @type {number|string} */ (this.getOption('minFontSize')));
-    this.contentInternal().maxFontSize(/** @type {number|string} */ (this.getOption('maxFontSize')));
+    this.contentInternal()['adjustFontSize'](/** @type {boolean} */ (this.getOption('adjustFontSize')));
+    this.contentInternal()['minFontSize'](/** @type {number|string} */ (this.getOption('minFontSize')));
+    this.contentInternal()['maxFontSize'](/** @type {number|string} */ (this.getOption('maxFontSize')));
     this.contentInternal().resumeSignalsDispatching(false);
   }
-};
-
-
-/**
- * @inheritDoc
- */
-anychart.core.ui.Tooltip.prototype.invalidate = function(state, opt_signal) {
-  var effective = anychart.core.ui.Tooltip.base(this, 'invalidate', state, opt_signal);
-  if (!effective && this.needsForceInvalidation())
-    this.dispatchSignal(opt_signal || 0);
-  return effective;
 };
 
 
@@ -2164,6 +2153,12 @@ anychart.core.ui.Tooltip.prototype.check = function(flags) {
 };
 
 
+/** @inheritDoc */
+anychart.core.ui.Tooltip.prototype.isResolvable = function() {
+  return true;
+};
+
+
 //endregion
 //region -- IResolvable implementation
 /** @inheritDoc */
@@ -2211,49 +2206,14 @@ anychart.core.ui.Tooltip.prototype.getHighPriorityResolutionChain = function() {
  * @param {!Object} config
  */
 anychart.core.ui.Tooltip.prototype.setThemeSettings = function(config) {
-  var name;
-  for (name in this.TEXT_PROPERTY_DESCRIPTORS) {
-    var val = config[name];
-    if (goog.isDef(val))
-      this.themeSettings[name] = val;
-  }
-  for (name in this.TOOLTIP_SIMPLE_DESCRIPTORS) {
-    var val = config[name];
-    if (goog.isDef(val))
-      this.themeSettings[name] = val;
-  }
-  if ('enabled' in config) this.themeSettings['enabled'] = config['enabled'];
-};
-
-
-/** @inheritDoc */
-anychart.core.ui.Tooltip.prototype.enabled = function(opt_value) {
-  if (goog.isDef(opt_value)) {
-    if (this.ownSettings['enabled'] != opt_value) {
-      this.ownSettings['enabled'] = opt_value;
-      this.invalidate(anychart.ConsistencyState.ENABLED,
-          anychart.Signal.NEEDS_REDRAW | anychart.Signal.BOUNDS_CHANGED | anychart.Signal.ENABLED_STATE_CHANGED);
-      if (this.ownSettings['enabled']) {
-        this.doubleSuspension = false;
-        this.resumeSignalsDispatching(true);
-      } else {
-        if (isNaN(this.suspendedDispatching)) {
-          this.suspendSignalsDispatching();
-        } else {
-          this.doubleSuspension = true;
-        }
-      }
-    }
-    return this;
-  } else {
-    return /** @type {boolean} */(this.getOption('enabled'));
-  }
+  anychart.core.settings.copy(this.themeSettings, this.TEXT_PROPERTY_DESCRIPTORS, config);
+  anychart.core.settings.copy(this.themeSettings, this.TOOLTIP_SIMPLE_DESCRIPTORS, config);
 };
 
 
 /** @inheritDoc */
 anychart.core.ui.Tooltip.prototype.serialize = function() {
-  var json = {};
+  var json = anychart.core.ui.Tooltip.base(this, 'serialize');
 
   anychart.core.settings.serialize(this, this.TEXT_PROPERTY_DESCRIPTORS, json);
   anychart.core.settings.serialize(this, this.TOOLTIP_SIMPLE_DESCRIPTORS, json);
@@ -2280,18 +2240,14 @@ anychart.core.ui.Tooltip.prototype.serialize = function() {
   if (goog.isDef(this.hideDelay_))
     json['hideDelay'] = this.hideDelay_;
 
-  if (goog.isDef(this.zIndex()))
-    json['zIndex'] = this.zIndex();
-
-  if (this.hasOwnOption('enabled'))
-    json['enabled'] = this.ownSettings['enabled'];
-
   return json;
 };
 
 
 /** @inheritDoc */
 anychart.core.ui.Tooltip.prototype.setupByJSON = function(config, opt_default) {
+  anychart.core.ui.Tooltip.base(this, 'setupByJSON', config, opt_default);
+
   if (opt_default) {
     this.setThemeSettings(config);
   } else {
@@ -2309,9 +2265,6 @@ anychart.core.ui.Tooltip.prototype.setupByJSON = function(config, opt_default) {
   contentConfig['position'] = contentConfig['position'] ? contentConfig['position'] : anychart.enums.Position.LEFT_TOP;
   contentConfig['anchor'] = contentConfig['anchor'] ? contentConfig['anchor'] : anychart.enums.Anchor.LEFT_TOP;
   this.contentInternal(contentConfig);
-
-  this.zIndex(config['zIndex']);
-  this.enabled(config['enabled']);
 };
 
 
@@ -2378,7 +2331,6 @@ anychart.core.ui.Tooltip.prototype.disposeInternal = function() {
   proto['separator'] = proto.separator;
   proto['background'] = proto.background;
   proto['padding'] = proto.padding;
-  proto['enabled'] = proto.enabled;
   proto['hide'] = proto.hide;
   proto['hideDelay'] = proto.hideDelay;
   proto['textSettings'] = proto.textSettings;

@@ -385,6 +385,12 @@ anychart.resourceModule.TimeLine.prototype.hasOwnOption = function(name) {
 };
 
 
+/** @inheritDoc */
+anychart.resourceModule.TimeLine.prototype.isResolvable = function() {
+  return true;
+};
+
+
 //endregion
 //region --- IResolvable implementation
 /** @inheritDoc */
@@ -1101,20 +1107,6 @@ anychart.resourceModule.TimeLine.prototype.remove = function() {
 //  Serialization / Deserialization / Disposing
 //
 //------------------------------------------------------------------------------
-/** @inheritDoc */
-anychart.resourceModule.TimeLine.prototype.setupSpecial = function(isDefault, var_args) {
-  var arg0 = arguments[1];
-  if (goog.isBoolean(arg0) || goog.isNull(arg0)) {
-    if (isDefault)
-      this.themeSettings['enabled'] = !!arg0;
-    else
-      this.enabled(!!arg0);
-    return true;
-  }
-  return false;
-};
-
-
 /**
  * Sets default settings.
  * @param {!Object} config

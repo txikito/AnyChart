@@ -813,10 +813,10 @@ anychart.mapModule.Chart.prototype.controlsInteractivity_ = function() {
           var newScrollY = scrollEl.scrollTop;
           setTimeout(function() {
             if (scrollEl.scrollLeft == newScrollX && scrollEl.scrollTop == newScrollY)
-              window.scrollTo(scrollX, scrollY);
+              anychart.window.scrollTo(scrollX, scrollY);
           }, 0);
         } else {
-          window.scrollTo(scrollX, scrollY);
+          anychart.window.scrollTo(scrollX, scrollY);
         }
       }
     };
@@ -1752,7 +1752,7 @@ anychart.mapModule.Chart.prototype.crosshair = function(opt_value) {
   if (!this.crosshair_) {
     this.crosshair_ = new anychart.mapModule.elements.Crosshair();
     this.crosshair_.enabled(false);
-    this.crosshair_.bindHandlers(this);
+    this.crosshair_.interactivityTarget(this);
     this.registerDisposable(this.crosshair_);
     this.crosshair_.listenSignals(this.onCrosshairSignal_, this);
   }
@@ -1816,7 +1816,9 @@ anychart.mapModule.Chart.prototype.normalizeSeriesType = function(type) {
 /** @inheritDoc */
 anychart.mapModule.Chart.prototype.seriesInvalidated = function(event) {
   var state = 0;
-
+  if (event.hasSignal(anychart.Signal.ENABLED_STATE_CHANGED)) {
+    state |= anychart.ConsistencyState.CHART_LABELS;
+  }
   if (event.hasSignal(anychart.Signal.NEEDS_REDRAW)) {
     state = anychart.ConsistencyState.SERIES_CHART_SERIES;
     if ((/** @type {anychart.mapModule.Series} */(event['target'])).needsUpdateMapAppearance())
@@ -1834,7 +1836,8 @@ anychart.mapModule.Chart.prototype.seriesInvalidated = function(event) {
   if (event.hasSignal(anychart.Signal.DATA_CHANGED)) {
     state |= anychart.ConsistencyState.SERIES_CHART_SERIES |
         anychart.ConsistencyState.CHART_LEGEND |
-        anychart.ConsistencyState.MAP_LABELS;
+        anychart.ConsistencyState.MAP_LABELS |
+        anychart.ConsistencyState.CHART_LABELS;
     if ((/** @type {anychart.mapModule.Series} */(event['target'])).needsUpdateMapAppearance())
       state |= anychart.ConsistencyState.APPEARANCE;
     for (var i = this.seriesList.length; i--;)
@@ -1981,18 +1984,26 @@ anychart.mapModule.Chart.prototype.getPlotBounds = function() {
 //region --- Geo settings
 /**
  * Map scale.
- * @param {anychart.mapModule.scales.Geo=} opt_value Scale to set.
+ * @param {(anychart.mapModule.scales.Geo|Object)=} opt_value Scale to set.
  * @return {!(anychart.mapModule.scales.Geo|anychart.mapModule.Chart)} Default chart scale value or itself for method chaining.
  */
 anychart.mapModule.Chart.prototype.scale = function(opt_value) {
   if (goog.isDef(opt_value)) {
-    if (this.scale_ != opt_value) {
-      if (this.scale_)
-        this.scale_.unlistenSignals(this.geoScaleInvalidated_, this);
-      this.scale_ = opt_value;
-      this.scale_.listenSignals(this.geoScaleInvalidated_, this);
+    if (opt_value && opt_value instanceof anychart.mapModule.scales.Geo) {
+      if (this.scale_ != opt_value) {
+        if (this.scale_)
+          this.scale_.unlistenSignals(this.geoScaleInvalidated_, this);
+        this.scale_ = opt_value;
+        this.scale_.listenSignals(this.geoScaleInvalidated_, this);
 
-      this.invalidate(anychart.ConsistencyState.MAP_SCALE, anychart.Signal.NEEDS_REDRAW);
+        this.invalidate(anychart.ConsistencyState.MAP_SCALE, anychart.Signal.NEEDS_REDRAW);
+      }
+    } else {
+      if (!this.scale_) {
+        this.scale_ = new anychart.mapModule.scales.Geo();
+        this.scale_.listenSignals(this.geoScaleInvalidated_, this);
+      }
+      this.scale_.setup(opt_value);
     }
     return this;
   } else {
@@ -2078,7 +2089,7 @@ anychart.mapModule.Chart.prototype.geoData = function(opt_data) {
     if (goog.isString(opt_data) && !goog.string.startsWith(opt_data, '<')) {
       this.geoDataStringName_ = opt_data;
       var configPath = opt_data.split('.');
-      opt_data = goog.dom.getWindow();
+      opt_data = anychart.window;
       for (var i = 0, len = configPath.length; i < len; i++) {
         opt_data = opt_data[configPath[i]];
       }
@@ -2849,7 +2860,7 @@ anychart.mapModule.Chart.prototype.calculate = function() {
 
     if (goog.isDefAndNotNull(geoData)) {
       geoData = goog.isString(this.geoData_) && !goog.string.startsWith(/** @type {string} */(geoData), '<') ?
-          goog.dom.getWindow()['anychart']['maps'][this.geoData_] : this.geoData_;
+          anychart.window['anychart']['maps'][this.geoData_] : this.geoData_;
 
       if (goog.isString(geoData) && goog.string.startsWith(geoData, '<') || goog.dom.isNodeLike(geoData)) {
         this.parser = anychart.mapModule.utils.GeoSVGParser.getInstance();
@@ -3078,7 +3089,7 @@ anychart.mapModule.Chart.prototype.calculate = function() {
         series.statistics(anychart.enums.Statistics.SUM, sum);
         series.statistics(anychart.enums.Statistics.AVERAGE, average);
         series.statistics(anychart.enums.Statistics.POINTS_COUNT, pointsCount);
-        var seriesStrokeThickness = acgraph.vector.getThickness(/** @type {acgraph.vector.Stroke} */(series.getOption('stroke')));
+        var seriesStrokeThickness = acgraph.vector.getThickness(/** @type {acgraph.vector.Stroke} */(series['stroke']()));
         if (seriesStrokeThickness > this.maxStrokeThickness_) {
           this.maxStrokeThickness_ = seriesStrokeThickness;
         }
@@ -3365,7 +3376,7 @@ anychart.mapModule.Chart.prototype.drawContent = function(bounds) {
             this != this.getCurrentScene() ? true : this.getRootScene().dispatchEvent(this.createZoomEvent(anychart.enums.EventType.ZOOM_START));
 
         if (allowZoom) {
-          if (goog.global['anychart']['ui']['ContextMenu']) {
+          if (anychart.window['anychart']['ui']['ContextMenu']) {
             var contextMenu = this.contextMenu();
             if (contextMenu.isVisible()) contextMenu.hide();
           }
@@ -3513,7 +3524,7 @@ anychart.mapModule.Chart.prototype.drawContent = function(bounds) {
       for (i = 0, len = grids.length; i < len; i++) {
         grid = grids[i];
         grid.suspendSignalsDispatching();
-        grid.setScale(/** @type {anychart.mapModule.scales.Geo} */(this.scale()));
+        grid.scale(/** @type {anychart.mapModule.scales.Geo} */(this.scale()));
         grid.container(this.rootElement);
         grid.draw();
         grid.resumeSignalsDispatching(false);
@@ -4969,6 +4980,21 @@ anychart.mapModule.Chart.prototype.legendItemOut = function(item, event) {
 
 
 //endregion
+//region --- CSV
+//------------------------------------------------------------------------------
+//
+//  CSV
+//
+//------------------------------------------------------------------------------
+/** @inheritDoc */
+anychart.mapModule.Chart.prototype.toCsv = function(opt_chartDataExportMode, opt_csvSettings) {
+  // only RAW is supported
+  var result = this.getRawCsvData();
+  return anychart.utils.serializeCsv(result.headers, result.data, opt_csvSettings);
+};
+
+
+//endregion
 //region --- Setup and Dispose
 /**
  * Exports map to GeoJSON format.
@@ -5222,6 +5248,7 @@ anychart.mapModule.Chart.prototype.disposeInternal = function() {
   // proto['minZoomLevel'] = proto.minZoomLevel;
   // proto['overlapMode'] = proto.overlapMode;
   proto['toGeoJSON'] = proto.toGeoJSON;
+  proto['toCsv'] = proto.toCsv;
   //series constructors generated automatically
   // proto['choropleth'] = proto.choropleth;
   // proto['bubble'] = proto.bubble;

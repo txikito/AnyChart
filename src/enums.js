@@ -32,6 +32,7 @@ anychart.enums.ChartTypes = {
   FINANCIAL: 'financial',
   FUNNEL: 'funnel',
   LINE: 'line',
+  LINE_3D: 'line-3d',
   VERTICAL_LINE: 'vertical-line',
   MARKER: 'marker',
   PIE: 'pie',
@@ -1468,20 +1469,43 @@ anychart.enums.normalizeScaleComparisonMode = anychart.enums.normalizeScaleStack
  * Enum for predefined part of LinearScale.chagnesFrom() acceptable values.
  * @enum {string}
  */
-anychart.enums.ScaleCompareWithMode = {
+anychart.enums.ComparisonDataSource = {
   SERIES_START: 'series-start',
-  FIRST_VISIBLE: 'first-visible'
+  FIRST_VISIBLE: 'first-visible',
+  SERIES_END: 'series-end',
+  LAST_VISIBLE: 'last-visible'
 };
 
 
 /**
- * Normalizes enum part of the value. To completely normalize passed value use
- * anychart.enums.normalizeScaleCompareWithModeMode(value) || anychart.utils.normalizeTimestamp(value)
+ * Normalize passed data source value.
  * @param {*} value
- * @return {?anychart.enums.ScaleCompareWithMode}
+ * @return {anychart.enums.ComparisonDataSource|number}
  */
-anychart.enums.normalizeScaleCompareWithModeMode = function(value) {
-  return /** @type {anychart.enums.ScaleCompareWithMode} */(anychart.enums.normalize(anychart.enums.ScaleCompareWithMode, value, null));
+anychart.enums.normalizeDataSource = function(value) {
+  return /** @type {anychart.enums.ComparisonDataSource|number} */(anychart.enums.normalize(anychart.enums.ComparisonDataSource, value, null) ||
+      anychart.utils.normalizeTimestamp(value));
+};
+
+
+/**
+ * @enum {string}
+ */
+anychart.enums.ScaleStackDirection = {
+  DIRECT: 'direct',
+  REVERSE: 'reverse'
+};
+
+
+/**
+ * Normalizes scale stack direction.
+ * @param {*} value - Stack direction to normalize.
+ * @param {anychart.enums.ScaleStackDirection=} opt_default - Custom default value (defaults to DIRECT).
+ * @return {anychart.enums.ScaleStackDirection} - Normalized value.
+ */
+anychart.enums.normalizeScaleStackDirection = function(value, opt_default) {
+  return /** @type {anychart.enums.ScaleStackDirection} */(anychart.enums.normalize(anychart.enums.ScaleStackDirection, value,
+      opt_default || anychart.enums.ScaleStackDirection.DIRECT));
 };
 
 
@@ -1679,7 +1703,9 @@ anychart.enums.normalizeCartesianSeriesType = function(value, opt_default) {
 anychart.enums.Cartesian3dSeriesType = {
   AREA: 'area',
   BAR: 'bar',
-  COLUMN: 'column'
+  COLUMN: 'column',
+  LINE: 'line',
+  LINE_2D: 'line-2d'
 };
 
 
@@ -2169,7 +2195,10 @@ anychart.enums.ScaleTypes = {
   DATE_TIME_WITH_CALENDAR: 'date-time-with-calendar',
   ORDINAL: 'ordinal',
   ORDINAL_COLOR: 'ordinal-color',
-  LINEAR_COLOR: 'linear-color'
+  LINEAR_COLOR: 'linear-color',
+  STOCK_SCATTER_DATE_TIME: 'stock-scatter-date-time',
+  STOCK_ORDINAL_DATE_TIME: 'stock-ordinal-date-time',
+  GANTT: 'gantt'
 };
 
 
@@ -2239,8 +2268,9 @@ anychart.enums.normalizeGaugeScaleTypes = function(value) {
  * @enum {string}
  */
 anychart.enums.ChartDataExportMode = {
+  DEFAULT: 'default',
   RAW: 'raw',
-  SPECIFIC: 'specific',
+  SELECTED: 'selected',
   GROUPED: 'grouped'
 };
 
@@ -2253,7 +2283,7 @@ anychart.enums.ChartDataExportMode = {
  */
 anychart.enums.normalizeChartDataExportMode = function(opt_value) {
   return /** @type {anychart.enums.ChartDataExportMode} */(anychart.enums.normalize(anychart.enums.ChartDataExportMode, opt_value,
-      anychart.enums.ChartDataExportMode.SPECIFIC));
+      anychart.enums.ChartDataExportMode.DEFAULT));
 };
 
 
@@ -4448,7 +4478,8 @@ anychart.enums.SeriesDrawerTypes = {
   MEKKO: 29,
   HEAT_MAP: 30,
   RANGE_STICK: 31,
-  WATERFALL: 32
+  WATERFALL: 32,
+  LINE_3D: 33
 };
 
 

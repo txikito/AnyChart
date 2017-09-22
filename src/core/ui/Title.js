@@ -45,6 +45,8 @@ goog.require('goog.math.AffineTransform');
 anychart.core.ui.Title = function() {
   anychart.core.ui.Title.base(this, 'constructor');
 
+  delete this.themeSettings['enabled'];
+
   /**
    * Text element.
    * @type {!acgraph.vector.Text}
@@ -162,11 +164,6 @@ anychart.core.ui.Title = function() {
    */
   this.parent_ = null;
 
-
-  /**
-   * @type {boolean}
-   */
-  this.forceInvalidate = false;
 
   /**
    * Auto text.
@@ -357,6 +354,12 @@ anychart.core.ui.Title.prototype.getOption = anychart.core.settings.getOption;
 anychart.core.ui.Title.prototype.getSignal = function(fieldName) {
   // all props invalidates with NEEDS_REDRAW | BOUNDS_CHANGED
   return anychart.Signal.NEEDS_REDRAW | anychart.Signal.BOUNDS_CHANGED;
+};
+
+
+/** @inheritDoc */
+anychart.core.ui.Title.prototype.isResolvable = function() {
+  return true;
 };
 
 
@@ -592,26 +595,6 @@ anychart.core.ui.Title.prototype.autoText = function(opt_value) {
     return this;
   }
   return this.autoText_;
-};
-
-
-/**
- * @inheritDoc
- */
-anychart.core.ui.Title.prototype.invalidate = function(state, opt_signal) {
-  var effective = anychart.core.ui.Title.base(this, 'invalidate', state, opt_signal);
-  if (!effective && this.needsForceInvalidation())
-    this.dispatchSignal(opt_signal || 0);
-  return effective;
-};
-
-
-/**
- * Whether needs force invalidation.
- * @return {boolean}
- */
-anychart.core.ui.Title.prototype.needsForceInvalidation = function() {
-  return this.forceInvalidate;
 };
 
 
@@ -1073,48 +1056,13 @@ anychart.core.ui.Title.prototype.clear = function() {
 
 //endregion
 //region -- Serialization
-/** @inheritDoc */
-anychart.core.ui.Title.prototype.enabled = function(opt_value) {
-  if (goog.isDef(opt_value)) {
-    if (this.ownSettings['enabled'] != opt_value) {
-      this.ownSettings['enabled'] = opt_value;
-      this.invalidate(anychart.ConsistencyState.ENABLED,
-          anychart.Signal.NEEDS_REDRAW | anychart.Signal.BOUNDS_CHANGED | anychart.Signal.ENABLED_STATE_CHANGED);
-      if (this.ownSettings['enabled']) {
-        this.doubleSuspension = false;
-        this.resumeSignalsDispatching(true);
-      } else {
-        if (isNaN(this.suspendedDispatching)) {
-          this.suspendSignalsDispatching();
-        } else {
-          this.doubleSuspension = true;
-        }
-      }
-    }
-    return this;
-  } else {
-    return /** @type {boolean} */(this.getOption('enabled'));
-  }
-};
-
-
 /**
  * Sets default settings.
  * @param {!Object} config
  */
 anychart.core.ui.Title.prototype.setThemeSettings = function(config) {
-  for (var name in this.TEXT_DESCRIPTORS) {
-    var val = config[name];
-    if (goog.isDef(val))
-      this.themeSettings[name] = val;
-  }
-  for (var name in this.SIMPLE_PROPS_DESCRIPTORS) {
-    var val = config[name];
-    if (goog.isDef(val))
-      this.themeSettings[name] = val;
-  }
-  if ('enabled' in config) this.themeSettings['enabled'] = config['enabled'];
-  if ('zIndex' in config) this.themeSettings['zIndex'] = config['zIndex'];
+  anychart.core.settings.copy(this.themeSettings, this.TEXT_DESCRIPTORS, config);
+  anychart.core.settings.copy(this.themeSettings, this.SIMPLE_PROPS_DESCRIPTORS, config);
 };
 
 
@@ -1172,12 +1120,13 @@ anychart.core.ui.Title.prototype.setupSpecial = function(isDefault, var_args) {
 
 /** @inheritDoc */
 anychart.core.ui.Title.prototype.setupByJSON = function(config, opt_default) {
+  anychart.core.ui.Title.base(this, 'setupByJSON', config, opt_default);
+
   if (opt_default) {
     this.setThemeSettings(config);
   } else {
     anychart.core.settings.deserialize(this, this.TEXT_DESCRIPTORS, config);
     anychart.core.settings.deserialize(this, this.SIMPLE_PROPS_DESCRIPTORS, config);
-    anychart.core.ui.Title.base(this, 'setupByJSON', config);
   }
 
   if ('background' in config)
@@ -1236,7 +1185,6 @@ anychart.standalones.title = function() {
 //exports
 (function() {
   var proto = anychart.core.ui.Title.prototype;
-  proto['enabled'] = proto.enabled;
   // proto['fontSize'] = proto.fontSize;
   // proto['fontFamily'] = proto.fontFamily;
   // proto['fontColor'] = proto.fontColor;

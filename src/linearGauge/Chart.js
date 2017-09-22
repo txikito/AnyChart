@@ -349,6 +349,12 @@ anychart.linearGaugeModule.Chart.prototype.getAllSeries = function() {
 };
 
 
+/** @inheritDoc */
+anychart.linearGaugeModule.Chart.prototype.getDataHolders = function() {
+  return [this];
+};
+
+
 /**
  * Creates pointer.
  * @param {string} type Pointer type.
@@ -379,7 +385,7 @@ anychart.linearGaugeModule.Chart.prototype.createPointerByType_ = function(type,
     }
     instance.setAutoHatchFill(/** @type {acgraph.vector.HatchFill|acgraph.vector.PatternFill} */(this.hatchFillPalette().itemAt(index)));
     instance.setParentEventTarget(this);
-    instance.setup(config);
+    instance.setupInternal(true, config);
     instance.listenSignals(this.pointerInvalidated_, this);
     this.invalidate(anychart.ConsistencyState.BOUNDS |
         anychart.ConsistencyState.GAUGE_POINTERS |
@@ -551,7 +557,8 @@ anychart.linearGaugeModule.Chart.prototype.data = function(opt_value, opt_csvSet
 
       this.invalidatePointers();
       this.invalidate(anychart.ConsistencyState.GAUGE_POINTERS |
-          anychart.ConsistencyState.GAUGE_SCALE,
+          anychart.ConsistencyState.GAUGE_SCALE |
+          anychart.ConsistencyState.CHART_LABELS,
           anychart.Signal.NEEDS_REDRAW |
           anychart.Signal.NEEDS_RECALCULATION);
     }
@@ -567,7 +574,7 @@ anychart.linearGaugeModule.Chart.prototype.data = function(opt_value, opt_csvSet
  */
 anychart.linearGaugeModule.Chart.prototype.invalidatePointers = function() {
   for (var i = this.pointers_.length; i--;)
-    this.pointers_[i].invalidate(anychart.ConsistencyState.APPEARANCE | anychart.ConsistencyState.GAUGE_POINTER_LABEL);
+    this.pointers_[i].invalidate(anychart.ConsistencyState.APPEARANCE | anychart.ConsistencyState.GAUGE_POINTER_LABELS);
 };
 
 
@@ -579,7 +586,7 @@ anychart.linearGaugeModule.Chart.prototype.invalidatePointers = function() {
 anychart.linearGaugeModule.Chart.prototype.dataInvalidated_ = function(e) {
   if (e.hasSignal(anychart.Signal.DATA_CHANGED)) {
     this.invalidatePointers();
-    var state = anychart.ConsistencyState.GAUGE_SCALE | anychart.ConsistencyState.GAUGE_POINTERS;
+    var state = anychart.ConsistencyState.GAUGE_SCALE | anychart.ConsistencyState.GAUGE_POINTERS | anychart.ConsistencyState.CHART_LABELS;
     var signal = anychart.Signal.NEEDS_REDRAW;
     this.invalidate(state, signal);
   }
@@ -807,20 +814,16 @@ anychart.linearGaugeModule.Chart.prototype.onAxisSignal_ = function(event) {
 
 /**
  * Getter/setter for scale.
- * @param {(anychart.enums.ScaleTypes|anychart.scales.ScatterBase)=} opt_value X Scale to set.
+ * @param {(anychart.scales.ScatterBase|Object|anychart.enums.ScaleTypes)=} opt_value X Scale to set.
  * @return {!(anychart.scales.ScatterBase|anychart.linearGaugeModule.Chart)} Default chart scale value or itself for method chaining.
  */
 anychart.linearGaugeModule.Chart.prototype.scale = function(opt_value) {
   if (goog.isDef(opt_value)) {
-    if (goog.isString(opt_value)) {
-      opt_value = /** @type {anychart.scales.ScatterBase} */ (anychart.scales.Base.fromString(opt_value, false));
-    }
-    if (!(opt_value instanceof anychart.scales.ScatterBase)) {
-      anychart.core.reporting.error(anychart.enums.ErrorCode.INCORRECT_SCALE_TYPE, undefined, ['Linear gauge scale', 'scatter', 'linear, log']);
-      return this;
-    }
-    if (this.scale_ != opt_value) {
-      this.scale_ = opt_value;
+    var val = anychart.scales.Base.setupScale(this.scale_, opt_value, anychart.enums.ScaleTypes.LINEAR,
+        anychart.scales.Base.ScaleTypes.SCATTER, ['Linear gauge scale', 'scatter', 'linear, log']);
+    if (val) {
+      this.scale_ = val;
+      this.scale_.resumeSignalsDispatching(false);
       this.invalidate(anychart.ConsistencyState.GAUGE_SCALE, anychart.Signal.NEEDS_REDRAW);
     }
     return this;
@@ -1137,6 +1140,24 @@ anychart.linearGaugeModule.Chart.prototype.drawContent = function(bounds) {
   anychart.performance.end('Linear gauge scale bars drawing');
 
   anychart.core.Base.resumeSignalsDispatchingFalse(this.axes_, this.pointers_, this.scaleBars_);
+};
+
+
+//endregion
+//region --- NO DATA LABEL ---
+/** @inheritDoc */
+anychart.linearGaugeModule.Chart.prototype.isNoData = function() {
+  var rowsCount = this.getIterator().getRowsCount();
+  var countDisabled = 0;
+  var len = this.pointers_.length;
+  for (var i = 0; i < len; i++) {
+    var pointer = this.pointers_[i];
+    if (pointer && !pointer.enabled())
+      countDisabled++;
+    else
+      break;
+  }
+  return (!rowsCount || !len || (countDisabled == len));
 };
 
 

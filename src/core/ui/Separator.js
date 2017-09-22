@@ -18,6 +18,8 @@ goog.require('anychart.utils');
 anychart.core.ui.Separator = function() {
   anychart.core.ui.Separator.base(this, 'constructor');
 
+  delete this.themeSettings['enabled'];
+
   /**
    * Path of the separator.
    * @type {acgraph.vector.Path}
@@ -65,11 +67,6 @@ anychart.core.ui.Separator = function() {
    * @private
    */
   this.parent_ = null;
-
-  /**
-   * @type {boolean}
-   */
-  this.forceInvalidate = false;
 
   /**
    * Resolution chain cache.
@@ -189,6 +186,12 @@ anychart.core.ui.Separator.prototype.hasOwnOption = function(name) {
 anychart.core.ui.Separator.prototype.getOption = anychart.core.settings.getOption;
 
 
+/** @inheritDoc */
+anychart.core.ui.Separator.prototype.isResolvable = function() {
+  return true;
+};
+
+
 //endregion
 //region -- IResolvable implementation
 /** @inheritDoc */
@@ -279,15 +282,6 @@ anychart.core.ui.Separator.prototype.parentInvalidated_ = function(e) {
 
 
 //endregion
-/**
- * Whether needs force invalidation.
- * @return {boolean}
- */
-anychart.core.ui.Separator.prototype.needsForceInvalidation = function() {
-  return this.forceInvalidate;
-};
-
-
 /** @inheritDoc */
 anychart.core.ui.Separator.prototype.invalidateParentBounds = function() {
   this.invalidate(anychart.ConsistencyState.BOUNDS | anychart.ConsistencyState.APPEARANCE,
@@ -573,53 +567,9 @@ anychart.core.ui.Separator.prototype.isHorizontal = function() {
 };
 
 
-/**
- * @inheritDoc
- */
-anychart.core.ui.Separator.prototype.invalidate = function(state, opt_signal) {
-  var effective = anychart.core.ui.Separator.base(this, 'invalidate', state, opt_signal);
-  if (!effective && this.needsForceInvalidation())
-    this.dispatchSignal(opt_signal || 0);
-  return effective;
-};
-
-
-/** @inheritDoc */
-anychart.core.ui.Separator.prototype.enabled = function(opt_value) {
-  if (goog.isDef(opt_value)) {
-    if (this.ownSettings['enabled'] != opt_value) {
-      this.ownSettings['enabled'] = opt_value;
-      this.invalidate(anychart.ConsistencyState.ENABLED,
-          anychart.Signal.NEEDS_REDRAW | anychart.Signal.BOUNDS_CHANGED | anychart.Signal.ENABLED_STATE_CHANGED);
-      if (this.ownSettings['enabled']) {
-        this.doubleSuspension = false;
-        this.resumeSignalsDispatching(true);
-      } else {
-        if (isNaN(this.suspendedDispatching)) {
-          this.suspendSignalsDispatching();
-        } else {
-          this.doubleSuspension = true;
-        }
-      }
-    }
-    return this;
-  } else {
-    return /** @type {boolean} */(this.getOption('enabled'));
-  }
-};
-
-
 /** @inheritDoc */
 anychart.core.ui.Separator.prototype.serialize = function() {
-  var json = {};
-
-  var zIndex = anychart.core.Base.prototype.getOption.call(this, 'zIndex');
-  if (goog.isDef(zIndex))
-    json['zIndex'] = zIndex;
-
-  var enabled = anychart.core.Base.prototype.getOption.call(this, 'enabled');
-  if (goog.isDef(enabled))
-    json['enabled'] = enabled;
+  var json = anychart.core.ui.Separator.base(this, 'serialize');
 
   anychart.core.settings.serialize(this, this.SIMPLE_SEPARATOR_DESCRIPTORS, json, 'Separator');
 
@@ -633,10 +583,11 @@ anychart.core.ui.Separator.prototype.serialize = function() {
 
 /** @inheritDoc */
 anychart.core.ui.Separator.prototype.setupByJSON = function(config, opt_default) {
+  anychart.core.ui.Separator.base(this, 'setupByJSON', config, opt_default);
+
   anychart.core.settings.deserialize(this, this.SIMPLE_SEPARATOR_DESCRIPTORS, config);
+
   this.margin().setupInternal(!!opt_default, config['margin']);
-  this.zIndex(config['zIndex']);
-  this.enabled(config['enabled']);
 };
 
 

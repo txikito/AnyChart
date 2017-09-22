@@ -45,6 +45,11 @@ if [ "${TRAVIS_BRANCH}" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ || "${TRAVIS_BRANCH}" = "DVF
     cp /apps/static/cdn/releases/$TRAVIS_BRANCH/json-schema.json /apps/static/cdn/schemas/$TRAVIS_BRANCH/json-schema.json &&
     cp /apps/static/cdn/releases/$TRAVIS_BRANCH/xml-schema.xsd /apps/static/cdn/schemas/$TRAVIS_BRANCH/xml-schema.xsd"
 
+<<<<<<< HEAD
+=======
+    echo $ANYCHART_VERSION >> ./test.txt
+
+>>>>>>> c7e1df9df4ce4422b3302a16b8e08721d3f11397
     #cd ../
     #./bin/drop_cdn_cache.py $TRAVIS_BRANCH $CDN_ALIASE $CDN_CONSUMER_KEY $CDN_CONSUMER_SECRET $CDN_ZONE_ID
     #./bin/upload_github_release.py $GITHUB_ACCESS_TOKEN
