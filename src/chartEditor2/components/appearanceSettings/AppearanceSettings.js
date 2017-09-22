@@ -2,6 +2,7 @@ goog.provide('anychart.chartEditor2Module.AppearanceSettings');
 
 goog.require('anychart.chartEditor2Module.ChartTitlePanel');
 goog.require('anychart.chartEditor2Module.Component');
+goog.require('anychart.chartEditor2Module.ContextMenuPanel');
 goog.require('anychart.chartEditor2Module.CreditsPanel');
 goog.require('anychart.chartEditor2Module.DataLabelsPanel');
 goog.require('anychart.chartEditor2Module.EditorModel');
@@ -32,7 +33,8 @@ anychart.chartEditor2Module.AppearanceSettings = function(model, opt_domHelper) 
     {classFunc: anychart.chartEditor2Module.DataLabelsPanel, instance: null},
     {classFunc: anychart.chartEditor2Module.SeriesSettingsPanel, instance: null},
     {classFunc: anychart.chartEditor2Module.TooltipPanel, instance: null},
-    {classFunc: anychart.chartEditor2Module.GridsPanel, instance: null}
+    {classFunc: anychart.chartEditor2Module.GridsPanel, instance: null},
+    {classFunc: anychart.chartEditor2Module.ContextMenuPanel, instance: null}
   ];
 
   this.currentPanel_ = 0;

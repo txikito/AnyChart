@@ -91,7 +91,22 @@ anychart.chartEditor2Module.EditorModel = function() {
     'setChartType': this.setChartType,
     'setSeriesType': this.setSeriesType,
     'setTheme': this.setTheme,
-    'setSettingForSeries': this.setSettingForSeries
+    'setSettingForSeries': this.setSettingForSeries,
+    'setContextMenuItemEnable': this.setContextMenuItemEnable
+  };
+
+  /**
+   * @type {Object}
+   * @private
+   */
+  this.contextMenuItems_ = {
+    'exclude': {'items': ['exclude-point', 'excluded-points', 'keep-only', 'exclude-points-separator'], 'enabled': true},
+    'marquee': {'items': ['start-select-marquee', 'select-marquee-separator'], 'enabled': true},
+    'saveAs': {'items': 'export-as', 'enabled': true},
+    'saveDataAs': {'items': 'save-data-as', 'enabled': true},
+    'shareWith': {'items': 'share-with', 'enabled': true},
+    'printChart': {'items': 'print-chart', 'enabled': true},
+    'about': {'items': ['about', 'exporting-separator'], 'enabled': true}
   };
 };
 goog.inherits(anychart.chartEditor2Module.EditorModel, goog.events.EventTarget);
@@ -652,8 +667,10 @@ anychart.chartEditor2Module.EditorModel.prototype.dropChartSettings = function(o
       if (found)
         delete this.model_['chart']['settings'][key];
     }
-  } else
+  } else {
+    this.resetContextMenuItems();
     this.model_['chart']['settings'] = {};
+  }
 };
 
 
@@ -874,6 +891,70 @@ anychart.chartEditor2Module.EditorModel.prototype.setSettingForSeries = function
   this.setValue(input.getKey(), value);
 
   this.resumeDispatch();
+};
+
+
+/**
+ * Reset this.contextMenuItems_ structure.
+ */
+anychart.chartEditor2Module.EditorModel.prototype.resetContextMenuItems = function() {
+  goog.object.map(this.contextMenuItems_, function(item){
+    item.enabled = true;
+  });
+  // for (key in this.contextMenuItems_) {
+  //   if (!this.contextMenuItems_[key]['enabled']) {
+  //     disabledItems = goog.array.concat(disabledItems, this.contextMenuItems_[key]['items']);
+  //     if (goog.array.indexOf(exportingItems, key) != -1)
+  //       count++;
+  //   }
+  // }
+};
+
+
+/** @return {Object} */
+anychart.chartEditor2Module.EditorModel.prototype.contextMenuItems = function() {
+  return this.contextMenuItems_;
+};
+
+
+/**
+ * Callback function for contextMenu().itemsFormatter() setting
+ * @param {anychart.chartEditor2Module.checkbox.Base} input
+ */
+anychart.chartEditor2Module.EditorModel.prototype.setContextMenuItemEnable = function(input) {
+  var stringId = input.getModel();
+  this.contextMenuItems_[stringId]['enabled'] = input.getChecked();
+
+  var key;
+  var disabledItems = [];
+  var exportingItems = ['saveAs', 'saveDataAs', 'shareWith', 'printChart'];
+  var count = 0;
+  for (key in this.contextMenuItems_) {
+    if (!this.contextMenuItems_[key]['enabled']) {
+      disabledItems = goog.array.concat(disabledItems, this.contextMenuItems_[key]['items']);
+      if (goog.array.indexOf(exportingItems, key) != -1)
+        count++;
+    }
+  }
+
+  if (count == exportingItems.length)
+    disabledItems = goog.array.concat(disabledItems, 'exporting-separator');
+
+  if (disabledItems.length) {
+
+    this.model_['chart']['settings']['contextMenu().itemsFormatter()'] = function(items){
+      var res = {};
+      for (var key in items) {
+        if (disabledItems.indexOf(key) == -1) {
+          res[key] = items[key];
+        }
+      }
+      return res;
+    };
+  } else
+    this.removeByKey([['chart'], ['settings'], 'contextMenu().itemsFormatter()']);
+
+  this.dispatchUpdate();
 };
 // endregion
 
