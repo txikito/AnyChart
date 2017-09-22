@@ -954,6 +954,16 @@ anychart.utils.trim = function(str) {
 
 
 /**
+ * Decapitalize string.
+ * @param {string=} str
+ * @return {string} Decapitalized string.
+ */
+anychart.utils.decapitalize = function(str) {
+  return String(str.charAt(0)).toLowerCase() + String(str.substr(1));
+};
+
+
+/**
  * Checks whether separator is valid.
  * Throws an error if invalid.
  * @param {string} separator
@@ -1240,7 +1250,7 @@ anychart.utils.json2xml = function(json, opt_rootNodeName, opt_returnAsXmlNode) 
   var root = anychart.utils.json2xml_(json, opt_rootNodeName || 'anychart', result);
   if (root) {
     if (!opt_rootNodeName)
-      root.setAttribute('xmlns', 'http://anychart.com/schemas/7.14.3/xml-schema.xsd');
+      root.setAttribute('xmlns', 'http://anychart.com/schemas/8.0.0/xml-schema.xsd');
     result.appendChild(root);
   }
   return opt_returnAsXmlNode ? result : goog.dom.xml.serialize(result);
