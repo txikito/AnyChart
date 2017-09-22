@@ -2192,7 +2192,7 @@ anychart.core.Chart.prototype.handleMouseOverAndMove = function(event) {
   var interactivity = this.interactivity();
 
   var tag = anychart.utils.extractTag(event['domTarget']);
-  var index;
+  var index, parent;
   var forbidTooltip = false;
   var isTargetLegendOrColorRange = anychart.utils.instanceOf(event['target'], anychart.core.ui.Legend) || this.checkIfColorRange(event['target']);
 
@@ -2214,8 +2214,15 @@ anychart.core.Chart.prototype.handleMouseOverAndMove = function(event) {
       }
       forbidTooltip = true;
     }
-  } else if (anychart.utils.instanceOf(event['target'], anychart.core.ui.LabelsFactory) || anychart.utils.instanceOf(event['target'], anychart.core.ui.MarkersFactory)) {
-    var parent = event['target'].getParentEventTarget();
+  } else if (acgraph.utils.instanceOf(event['target'], anychart.core.ui.LabelsFactory)
+      || acgraph.utils.instanceOf(event['target'], anychart.core.ui.MarkersFactory)
+      || acgraph.utils.instanceOf(event['target'], anychart.core.ui.Tooltip)) {
+    parent = event['target'].getParentEventTarget();
+    if (parent.isSeries && parent.isSeries())
+      series = parent;
+    index = tag;
+  } else if ((event['target'].getParentEventTarget && acgraph.utils.instanceOf(event['target'].getParentEventTarget(), anychart.core.ui.Tooltip))) {
+    parent = event['target'].getParentEventTarget().getParentEventTarget();
     if (parent.isSeries && parent.isSeries())
       series = parent;
     index = tag;
@@ -2359,8 +2366,9 @@ anychart.core.Chart.prototype.handleMouseOut = function(event) {
       var prevIndex = anychart.utils.toNumber(goog.isObject(prevTag) ? prevTag.index : prevTag);
 
       var ifParent = anychart.utils.checkIfParent(/** @type {!goog.events.EventTarget} */(series), event['relatedTarget']);
+      var isParentTooltip = anychart.utils.checkIfParent(series.tooltip(), event['relatedTarget']) || acgraph.type() == acgraph.StageType.SVG;
 
-      if ((!ifParent || (prevIndex != index)) && series.dispatchEvent(evt)) {
+      if ((!ifParent || (prevIndex != index)) && series.dispatchEvent(evt) && !isParentTooltip) {
         if (hoverMode == anychart.enums.HoverMode.SINGLE && (!isNaN(index) || goog.isArray(index))) {
           series.unhover();
           this.doAdditionActionsOnMouseOut();
