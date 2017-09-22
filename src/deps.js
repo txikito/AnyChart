@@ -600,7 +600,7 @@ goog.addDependency('../../../graphicsjs/src/vector/Element.js', ['acgraph.vector
 goog.addDependency('../../../graphicsjs/src/vector/Ellipse.js', ['acgraph.vector.Ellipse'], ['acgraph.utils.IdGenerator', 'acgraph.vector.Shape', 'goog.math.Coordinate', 'goog.math.Rect'], false);
 goog.addDependency('../../../graphicsjs/src/vector/HatchFill.js', ['acgraph.vector.HatchFill'], ['acgraph.utils.IdGenerator', 'acgraph.vector.Path', 'acgraph.vector.PatternFill', 'goog.math.Rect'], false);
 goog.addDependency('../../../graphicsjs/src/vector/Image.js', ['acgraph.vector.Image'], ['acgraph.utils.IdGenerator', 'acgraph.vector.Element', 'goog.math.Rect'], false);
-goog.addDependency('../../../graphicsjs/src/vector/Layer.js', ['acgraph.vector.Layer'], ['acgraph.error', 'acgraph.utils.IdGenerator', 'acgraph.vector.Element', 'acgraph.vector.ILayer', 'goog.dom', 'goog.math.Rect'], false);
+goog.addDependency('../../../graphicsjs/src/vector/Layer.js', ['acgraph.vector.Layer'], ['acgraph.error', 'acgraph.utils.IdGenerator', 'acgraph.vector.Element', 'acgraph.vector.ILayer', 'goog.math.Rect'], false);
 goog.addDependency('../../../graphicsjs/src/vector/LinearGradient.js', ['acgraph.vector.LinearGradient'], ['acgraph.utils.IdGenerator', 'goog.Disposable'], false);
 goog.addDependency('../../../graphicsjs/src/vector/Path.js', ['acgraph.vector.Path'], ['acgraph.vector.PathBase'], false);
 goog.addDependency('../../../graphicsjs/src/vector/PathBase.js', ['acgraph.vector.PathBase'], ['acgraph.error', 'acgraph.math', 'acgraph.utils.IdGenerator', 'acgraph.vector.Shape', 'goog.array', 'goog.math', 'goog.math.AffineTransform', 'goog.math.Coordinate'], false);
@@ -616,14 +616,14 @@ goog.addDependency('../../../graphicsjs/src/vector/TextSegment.js', ['acgraph.ve
 goog.addDependency('../../../graphicsjs/src/vector/UnmanagedLayer.js', ['acgraph.vector.UnmanagedLayer'], ['acgraph.utils.IdGenerator', 'acgraph.vector.Element'], false);
 goog.addDependency('../../../graphicsjs/src/vector/primitives.js', ['acgraph.vector.primitives'], ['acgraph.vector.Path'], false);
 goog.addDependency('../../../graphicsjs/src/vector/svg/Defs.js', ['acgraph.vector.svg.Defs'], ['acgraph.vector.Defs'], false);
-goog.addDependency('../../../graphicsjs/src/vector/svg/Renderer.js', ['acgraph.vector.svg.Renderer'], ['acgraph.utils.IdGenerator', 'acgraph.vector.PathBase', 'acgraph.vector.Renderer', 'goog.dom', 'goog.math.Line', 'goog.math.Rect', 'goog.object', 'goog.userAgent'], false);
+goog.addDependency('../../../graphicsjs/src/vector/svg/Renderer.js', ['acgraph.vector.svg.Renderer'], ['acgraph.utils.IdGenerator', 'acgraph.vector.Renderer', 'goog.dom', 'goog.math.Line', 'goog.math.Rect', 'goog.object', 'goog.userAgent'], false);
 goog.addDependency('../../../graphicsjs/src/vector/svg/Stage.js', ['acgraph.vector.svg.Stage'], ['acgraph.vector.Stage', 'acgraph.vector.svg.Defs'], false);
 goog.addDependency('../../../graphicsjs/src/vector/svg/svg.js', ['acgraph.vector.svg'], ['acgraph.vector.svg.Renderer', 'acgraph.vector.svg.Stage'], false);
 goog.addDependency('../../../graphicsjs/src/vector/vector.js', ['acgraph.vector', 'acgraph.vector.Anchor', 'acgraph.vector.Cursor', 'acgraph.vector.ILayer'], ['acgraph.math', 'goog.math.AffineTransform', 'goog.math.Rect'], false);
 goog.addDependency('../../../graphicsjs/src/vector/vml/Clip.js', ['acgraph.vector.vml.Clip'], ['acgraph.vector.Clip'], false);
 goog.addDependency('../../../graphicsjs/src/vector/vml/Defs.js', ['acgraph.vector.vml.Defs'], ['acgraph.vector.Defs', 'acgraph.vector.vml.RadialGradient', 'acgraph.vector.vml.ShapeType'], false);
 goog.addDependency('../../../graphicsjs/src/vector/vml/RadialGradient.js', ['acgraph.vector.vml.RadialGradient'], ['acgraph.vector.RadialGradient'], false);
-goog.addDependency('../../../graphicsjs/src/vector/vml/Renderer.js', ['acgraph.vector.vml.Renderer'], ['acgraph.utils.IdGenerator', 'acgraph.vector.LinearGradient', 'acgraph.vector.PathBase', 'acgraph.vector.Renderer', 'acgraph.vector.vml.RadialGradient', 'goog.array', 'goog.color', 'goog.cssom', 'goog.dom', 'goog.math.Coordinate', 'goog.math.Rect', 'goog.object'], false);
+goog.addDependency('../../../graphicsjs/src/vector/vml/Renderer.js', ['acgraph.vector.vml.Renderer'], ['acgraph.utils.IdGenerator', 'acgraph.vector.LinearGradient', 'acgraph.vector.Renderer', 'acgraph.vector.vml.RadialGradient', 'goog.array', 'goog.color', 'goog.cssom', 'goog.dom', 'goog.math.Coordinate', 'goog.math.Rect', 'goog.object'], false);
 goog.addDependency('../../../graphicsjs/src/vector/vml/ShapeType.js', ['acgraph.vector.vml.ShapeType'], ['acgraph.utils.IdGenerator', 'goog.Disposable'], false);
 goog.addDependency('../../../graphicsjs/src/vector/vml/Stage.js', ['acgraph.vector.vml.Stage'], ['acgraph.vector.Stage', 'acgraph.vector.vml.Clip', 'acgraph.vector.vml.Defs'], false);
 goog.addDependency('../../../graphicsjs/src/vector/vml/Text.js', ['acgraph.vector.vml.Text'], ['acgraph.vector.Text', 'goog.math.Rect'], false);

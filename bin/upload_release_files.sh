@@ -55,8 +55,11 @@ if [ "${TRAVIS_BRANCH}" = "master" ] || [ "${TRAVIS_BRANCH}" = "DVF-3234-minor-b
     cp /apps/static/cdn/releases/${VERSION}/json-schema.json /apps/static/cdn/schemas/${VERSION}/json-schema.json &&
     cp /apps/static/cdn/releases/${VERSION}/xml-schema.xsd /apps/static/cdn/schemas/${VERSION}/xml-schema.xsd"
 
-    #cd ../
+    # drop cdn cache for uploaded files
+    cd ../
     ./bin/drop_cdn_cache.py ${VERSION} ${CDN_ALIASE} ${CDN_CONSUMER_KEY} ${CDN_CONSUMER_SECRET} ${CDN_ZONE_ID}
+
+
     #./bin/upload_github_release.py $GITHUB_ACCESS_TOKEN
     #npm publish
 fi
