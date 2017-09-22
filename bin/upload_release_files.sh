@@ -48,8 +48,11 @@ if [ "${TRAVIS_BRANCH}" = "master" ] || [ "${TRAVIS_BRANCH}" = "DVF-3234-minor-b
 
     # copy legacy files by version and latest
     ssh $STATIC_HOST_SSH_STRING "
+    rm -rf /apps/static/cdn/js/${VERSION} &&
     cp -r /apps/static/cdn/releases/${VERSION}/js /apps/static/cdn/js/${VERSION} &&
+    rm -rf /apps/static/cdn/css/${VERSION} &&
     cp -r /apps/static/cdn/releases/${VERSION}/css /apps/static/cdn/css/${VERSION} &&
+    rm -rf /apps/static/cdn/themes/${VERSION} &&
     cp -r /apps/static/cdn/releases/${VERSION}/themes /apps/static/cdn/themes/${VERSION} &&
     mkdir -p /apps/static/cdn/schemas/${VERSION} &&
     cp /apps/static/cdn/releases/${VERSION}/json-schema.json /apps/static/cdn/schemas/${VERSION}/json-schema.json &&
@@ -67,10 +70,12 @@ fi
 
 
 
+# 1. Не работает дроп кеша
+# 2. На push в develop добавлять к версии хеш коммита
 
 # todo
 # 9. build export server ???
-# 10. copy legacy files to latest cp -r /apps/static/cdn/releases/$TRAVIS_BRANCH/js/. /apps/static/cdn/js/latest/c
+# 10. copy legacy files to latest cp -r /apps/static/cdn/releases/$TRAVIS_BRANCH/js/. /apps/static/cdn/js/latest/
 # 11. uncomment legacy cache drop in drop_cdn_cache.py
 # 12. попробовать разобратьяс с npm и модулями
 # 13. Нужны проврки на существование тега, версии итд
