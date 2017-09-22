@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #TRAVIS_BRANCH=DVF-3234-minor-build-fixes
-GALLERY_VERSION=RC-8.0.0
+GALLERY_VERSION=7.14.3
 VERSION=$(cat package.json | grep version | head -1 | awk -F: '{ print $2 }' | sed 's/[",]//g' | tr -d '[[:space:]]')
 
 echo ${VERSION}
