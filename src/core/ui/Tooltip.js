@@ -1140,32 +1140,32 @@ anychart.core.ui.Tooltip.prototype.showForPosition_ = function(clientX, clientY)
     return;
   }
 
-  // this.updateForceInvalidation();
+  this.updateForceInvalidation();
 
   if (!this.getRootLayer_().parent()) {
     this.invalidate(anychart.ConsistencyState.CONTAINER);
   }
 
-  // this.setContainerToTooltip_(this);
+  this.setContainerToTooltip_(this);
 
   if (this.delay_ && this.delay_.isActive()) this.delay_.stop();
   this.draw();
 
-  // var rootLayer = this.getRootLayer_();
-  // var domElement = rootLayer.domElement();
+  var rootLayer = this.getRootLayer_();
+  var domElement = rootLayer.domElement();
 
   // like selectable && enabled
-  // if (this.getOption('selectable') && domElement) {
-  //   rootLayer.disablePointerEvents(false);
-  //
-  //   this.createTriangle_(clientX, clientY);
-  //
-  //   // bug fix (separated mode, the points are on top of one another)
-  //   goog.events.unlisten(goog.dom.getDocument(), goog.events.EventType.MOUSEMOVE, this.movementOutsideThePoint_, false, this);
-  //
-  // } else if (domElement) {
-  //   rootLayer.disablePointerEvents(true);
-  // }
+  if (this.getOption('selectable') && domElement) {
+    rootLayer.disablePointerEvents(false);
+
+    this.createTriangle_(clientX, clientY);
+
+    // bug fix (separated mode, the points are on top of one another)
+    goog.events.unlisten(goog.dom.getDocument(), goog.events.EventType.MOUSEMOVE, this.movementOutsideThePoint_, false, this);
+
+  } else if (domElement) {
+    rootLayer.disablePointerEvents(true);
+  }
 };
 
 
