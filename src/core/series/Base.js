@@ -3578,7 +3578,7 @@ anychart.core.series.Base.prototype.makeMinPointLengthRangedMeta = function(rowI
     var center = (high + low) / 2;
     var diff = Math.abs(low - high);
     var height = Math.max(diff, this.minPointLengthCache_) / 2;
-    if (low >= high)
+    if (high >= low)
       height = -height;
     rowInfo.meta('high', center - height);
     rowInfo.meta('low', center + height);
