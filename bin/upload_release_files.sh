@@ -1,6 +1,5 @@
 #!/bin/bash
 
-#TRAVIS_BRANCH=DVF-3234-minor-build-fixes
 GALLERY_VERSION=7.14.3
 VERSION=$(cat package.json | grep version | head -1 | awk -F: '{ print $2 }' | sed 's/[",]//g' | tr -d '[[:space:]]')
 
@@ -8,7 +7,7 @@ echo ${VERSION}
 echo ${GALLERY_VERSION}
 echo ${TRAVIS_BRANCH}
 
-if [ "${TRAVIS_BRANCH}" = "master" ] || [ "${TRAVIS_BRANCH}" = "DVF-3234-minor-build-fixes" ]; then
+if [ "${TRAVIS_BRANCH}" = "master" ] || [ "${TRAVIS_BRANCH}" = "develop" ] || [ "${TRAVIS_BRANCH}" = "DVF-3234-minor-build-fixes" ]; then
 
     # copy bin files
     cp ./bin/binaries_wrapper_end.txt ./dist/binaries_wrapper_end.txt
@@ -70,7 +69,6 @@ fi
 
 
 
-# 1. Не работает дроп кеша
 # 2. На push в develop добавлять к версии хеш коммита
 
 # todo
