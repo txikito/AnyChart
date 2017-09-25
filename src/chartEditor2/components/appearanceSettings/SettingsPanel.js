@@ -240,7 +240,9 @@ anychart.chartEditor2Module.SettingsPanel.prototype.exitDocument = function() {
  * @protected
  */
 anychart.chartEditor2Module.SettingsPanel.prototype.onRemoveAction = function(evt) {
-  // Should be overriden
+  this.dispatchEvent({
+    type: anychart.chartEditor2Module.events.EventType.PANEL_CLOSE
+  });
 };
 
 

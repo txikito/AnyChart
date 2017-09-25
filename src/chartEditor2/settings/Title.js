@@ -70,9 +70,13 @@ anychart.chartEditor2Module.settings.Title.prototype.setTitleKey = function(valu
 anychart.chartEditor2Module.settings.Title.prototype.allowEditPosition_ = true;
 
 
-/** @param {boolean} value */
-anychart.chartEditor2Module.settings.Title.prototype.allowEditPosition = function(value) {
+/**
+ * @param {boolean} value
+ * @param {string} positionValue
+ */
+anychart.chartEditor2Module.settings.Title.prototype.allowEditPosition = function(value, positionValue) {
   this.allowEditPosition_ = value;
+  this.positionValue_ = positionValue;
 };
 
 
@@ -293,8 +297,7 @@ anychart.chartEditor2Module.settings.Title.prototype.onChartDraw = function(evt)
   if (this.textInput_) this.textInput_.setValueByTarget(target, true);
   if (this.positionSelect_) this.positionSelect_.setValueByTarget(target);
   if (this.alignSelect_) {
-    if (this.positionSelect_)
-      this.alignSelect_.updateIcons(this.positionSelect_.getValue());
+    this.alignSelect_.updateIcons(this.positionValue_ ? this.positionValue_ : this.positionSelect_.getValue());
     this.alignSelect_.setValueByTarget(target);
   }
   if (this.fontFamilySelect_) this.fontFamilySelect_.setValueByTarget(target);

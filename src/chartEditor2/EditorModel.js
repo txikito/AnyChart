@@ -954,6 +954,7 @@ anychart.chartEditor2Module.EditorModel.prototype.setContextMenuItemEnable = fun
 
 /**
  * @param {string} xOrY
+ * @return {number} Created axis index.
  */
 anychart.chartEditor2Module.EditorModel.prototype.addAxis = function(xOrY) {
   var index = 0;
@@ -968,6 +969,8 @@ anychart.chartEditor2Module.EditorModel.prototype.addAxis = function(xOrY) {
 
   var stringKey = xOrY + 'Axis(' + index + ').enabled()';
   this.setValue([['chart'], ['settings'], stringKey], true);
+
+  return index;
 };
 
 
