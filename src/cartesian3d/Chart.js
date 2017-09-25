@@ -118,8 +118,7 @@ anychart.cartesian3dModule.Chart.prototype.handleMouseEvent = function(event) {
  */
 anychart.cartesian3dModule.Chart.areaPostProcessor = function(series, shapes, pointState) {
   var frontFill, topFill, rightFill, bottomFill, backFill, leftFill;
-  var resolver = anychart.color.getColorResolver(
-      ['fill', 'hoverFill', 'selectFill'], anychart.enums.ColorType.FILL);
+  var resolver = anychart.color.getColorResolver('fill', anychart.enums.ColorType.FILL, true);
   var fill = resolver(series, pointState);
   var opacity = goog.isObject(fill) ? fill['opacity'] : 1;
   var color = goog.isObject(fill) ? fill['color'] : fill;
@@ -174,8 +173,7 @@ anychart.cartesian3dModule.Chart.areaPostProcessor = function(series, shapes, po
  */
 anychart.cartesian3dModule.Chart.barColumnPostProcessor = function(series, shapes, pointState) {
   var frontFill, topFill, rightFill, bottomFill, backFill, leftFill;
-  var resolver = anychart.color.getColorResolver(
-      ['fill', 'hoverFill', 'selectFill'], anychart.enums.ColorType.FILL);
+  var resolver = anychart.color.getColorResolver('fill', anychart.enums.ColorType.FILL, true);
   var fill = resolver(series, pointState);
   var opacity = goog.isObject(fill) ? fill['opacity'] : 1;
   var color = goog.isObject(fill) ? fill['color'] : fill;
@@ -228,7 +226,7 @@ anychart.cartesian3dModule.Chart.barColumnPostProcessor = function(series, shape
 anychart.cartesian3dModule.Chart.linePostProcessor = function(series, shapes, pointState) {
   var pathStroke;
   var resolver = anychart.color.getColorResolver(
-      ['fill', 'hoverFill', 'selectFill'], anychart.enums.ColorType.FILL);
+      'fill', anychart.enums.ColorType.FILL, true);
   var stroke = resolver(series, pointState);
   var opacity = goog.isObject(stroke) ? stroke['opacity'] : 1;
   var color = goog.isObject(stroke) ? stroke['color'] : stroke;
@@ -407,6 +405,7 @@ anychart.cartesian3dModule.Chart.prototype.getX3DDistributionShift = function(se
     x3dShift = 0;
   } else {
     var seriesCount = this.get3DSeriesCount_();
+    seriesIndex = this.get3DSeriesIndex_(seriesIndex);
     var drawIndex = seriesCount - seriesIndex - 1;
     x3dShift = (this.getX3DShift(seriesIsStacked) + this.zPaddingXShift) * drawIndex;
   }
@@ -425,6 +424,7 @@ anychart.cartesian3dModule.Chart.prototype.getY3DDistributionShift = function(se
     y3dShift = 0;
   } else {
     var seriesCount = this.get3DSeriesCount_();
+    seriesIndex = this.get3DSeriesIndex_(seriesIndex);
     var drawIndex = seriesCount - seriesIndex - 1;
     y3dShift = (this.getY3DShift(seriesIsStacked) + this.zPaddingYShift) * drawIndex;
   }
@@ -612,6 +612,22 @@ anychart.cartesian3dModule.Chart.prototype.get3DSeriesCount_ = function() {
   return goog.array.count(this.seriesList, function(series) {
     return !!(series && series.enabled() && series.check(anychart.core.drawers.Capabilities.IS_3D_BASED));
   });
+};
+
+
+/**
+ * @param {number} index
+ * @return {number}
+ * @private
+ */
+anychart.cartesian3dModule.Chart.prototype.get3DSeriesIndex_ = function(index) {
+  var res = 0;
+  for (var i = 0, len = Math.min(this.seriesList.length - 1, index); i <= len; i++) {
+    var series = this.seriesList[i];
+    if (series && series.enabled() && series.check(anychart.core.drawers.Capabilities.IS_3D_BASED))
+      res++;
+  }
+  return res - 1;
 };
 
 

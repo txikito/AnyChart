@@ -196,6 +196,9 @@ anychart.core.series.Cartesian.prototype.xScale = function(opt_value) {
         var dispatch = this.xScale_ == val;
         this.xScale_ = /** @type {anychart.scales.Base} */(val);
         this.xScale_.resumeSignalsDispatching(dispatch);
+        if (!dispatch)
+          this.invalidate(anychart.ConsistencyState.SERIES_POINTS,
+              anychart.Signal.NEEDS_RECALCULATION | anychart.Signal.NEEDS_REDRAW);
       }
     } else if (this.xScale_) {
       if (this.xScale_)
@@ -244,11 +247,12 @@ anychart.core.series.Cartesian.prototype.getSeriesState = function() {
 //----------------------------------------------------------------------------------------------------------------------
 /** @inheritDoc */
 anychart.core.series.Cartesian.prototype.prepareData = function() {
-  if (this.data().checkFieldExist('selected')) {
+  if (this.data().checkFieldExist('state')) {
     var iterator = this.getDetachedIterator();
     var indexes = [];
     while (iterator.advance()) {
-      if (iterator.get('selected'))
+      var state = String(iterator.get('state')).toLowerCase();
+      if (state == 'selected')
         indexes.push(iterator.getIndex());
     }
     if (indexes.length) {
@@ -733,12 +737,18 @@ anychart.core.series.Cartesian.prototype.getDrawingData = function(data, dataPus
     series: this,
     hasPointLabels: this.supportsLabels() &&
         (
+            dataSource.checkFieldExist('normal.label') ||
+            dataSource.checkFieldExist('hovered.label') ||
+            dataSource.checkFieldExist('selected.label') ||
             dataSource.checkFieldExist('label') ||
             dataSource.checkFieldExist('hoverLabel') ||
             dataSource.checkFieldExist('selectLabel')
         ),
     hasPointMarkers: this.supportsMarkers() &&
         (
+            dataSource.checkFieldExist('normal.marker') ||
+            dataSource.checkFieldExist('hovered.marker') ||
+            dataSource.checkFieldExist('selected.marker') ||
             dataSource.checkFieldExist('marker') ||
             dataSource.checkFieldExist('hoverMarker') ||
             dataSource.checkFieldExist('selectMarker')
@@ -746,6 +756,9 @@ anychart.core.series.Cartesian.prototype.getDrawingData = function(data, dataPus
     hasPointOutliers: this.supportsOutliers() &&
         (
             dataSource.checkFieldExist('outliers') ||
+            dataSource.checkFieldExist('normal.outlierMarker') ||
+            dataSource.checkFieldExist('hovered.outlierMarker') ||
+            dataSource.checkFieldExist('selected.outlierMarker') ||
             dataSource.checkFieldExist('outlierMarker') ||
             dataSource.checkFieldExist('hoverOutlierMarker') ||
             dataSource.checkFieldExist('selectOutlierMarker')
@@ -1389,7 +1402,7 @@ anychart.core.series.Cartesian.prototype.makePointEvent = function(event) {
   }
 
   var pointIndex;
-  if (event['target'] == this.outlierMarkers() && !isNaN(event['markerIndex'])) {
+  if (event['target'] == this.normal().outlierMarkers() && !isNaN(event['markerIndex'])) {
     pointIndex = this.getPointIndexByOutlierIndex(event['markerIndex']);
   } else if ('pointIndex' in event) {
     pointIndex = event['pointIndex'];
