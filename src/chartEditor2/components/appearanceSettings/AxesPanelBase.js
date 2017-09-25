@@ -71,7 +71,10 @@ anychart.chartEditor2Module.AxesPanelBase.prototype.onAddAxis_ = function() {
 };
 
 
-/** @private */
+/**
+ * @param {Object} evt
+ * @private
+ */
 anychart.chartEditor2Module.AxesPanelBase.prototype.onRemoveAxis_ = function(evt) {
   var model = /** @type {anychart.chartEditor2Module.EditorModel} */(this.getModel());
   var axisIndex = (/** @type {anychart.chartEditor2Module.settings.Axis} */(evt.currentTarget)).getIndex();
@@ -108,6 +111,9 @@ anychart.chartEditor2Module.AxesPanelBase.prototype.createAxes = function() {
 };
 
 
+/**
+ * @param {number} axisIndex
+ */
 anychart.chartEditor2Module.AxesPanelBase.prototype.addAxis = function(axisIndex) {
   var model = /** @type {anychart.chartEditor2Module.EditorModel} */(this.getModel());
   var axis = new anychart.chartEditor2Module.settings.Axis(model, this.xOrY, axisIndex);

@@ -2,6 +2,9 @@ goog.provide('anychart.chartEditor2Module.settings.Axis');
 
 goog.require('anychart.chartEditor2Module.IconButtonRenderer');
 goog.require('anychart.chartEditor2Module.SettingsPanel');
+goog.require('anychart.chartEditor2Module.checkbox.Base');
+goog.require('anychart.chartEditor2Module.select.Base');
+goog.require('anychart.chartEditor2Module.settings.Title');
 
 
 
@@ -94,6 +97,17 @@ anychart.chartEditor2Module.settings.Axis.prototype.createDom = function() {
       goog.getCssName('anychart-chart-editor-settings-item-gap')));
 
   this.title_ = title;
+
+  //region Labels
+  var labels = new anychart.chartEditor2Module.settings.Title(model, 'Labels');
+  labels.allowEditPosition(false, '');
+  labels.allowEditAlign(false);
+  labels.setTitleKey('format()');
+  labels.setKey(this.genKey('labels()'));
+  this.addChild(labels, true);
+
+  this.labels_ = labels;
+  //endregion
 };
 
 
@@ -105,6 +119,7 @@ anychart.chartEditor2Module.settings.Axis.prototype.updateKeys = function() {
     if (this.orientation_) this.orientation_.init(model, this.genKey('orientation()'));
     if (this.inverted_) this.inverted_.init(model, [['chart'], ['settings'], this.xOrY + 'Scale().inverted()']);
     if (this.title_) this.title_.setKey(this.genKey('title()'));
+    if (this.labels_) this.labels_.setKey(this.genKey('labels()'));
   }
 
   anychart.chartEditor2Module.settings.Axis.base(this, 'updateKeys');
@@ -127,6 +142,7 @@ anychart.chartEditor2Module.settings.Axis.prototype.disposeInternal = function()
   this.orientation_ = null;
   this.inverted_ = null;
   this.title_ = null;
+  this.labels_ = null;
 
   anychart.chartEditor2Module.settings.Axis.base(this, 'disposeInternal');
 };

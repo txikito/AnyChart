@@ -72,11 +72,11 @@ anychart.chartEditor2Module.settings.Title.prototype.allowEditPosition_ = true;
 
 /**
  * @param {boolean} value
- * @param {string} positionValue
+ * @param {string=} opt_positionValue
  */
-anychart.chartEditor2Module.settings.Title.prototype.allowEditPosition = function(value, positionValue) {
+anychart.chartEditor2Module.settings.Title.prototype.allowEditPosition = function(value, opt_positionValue) {
   this.allowEditPosition_ = value;
-  this.positionValue_ = positionValue;
+  this.positionValue_ = opt_positionValue;
 };
 
 
