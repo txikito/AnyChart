@@ -1667,8 +1667,10 @@ anychart.stockModule.Plot.prototype.draw = function() {
   }
 
   if (this.hasInvalidationState(anychart.ConsistencyState.STOCK_PLOT_SERIES)) {
+    var stackDirection = /** @type {anychart.enums.ScaleStackDirection} */ (this.yScale().stackDirection());
+    var stackIsDirect = stackDirection == anychart.enums.ScaleStackDirection.DIRECT;
     for (i = 0; i < this.series_.length; i++) {
-      series = this.series_[i];
+      series = this.series_[stackIsDirect ? this.series_.length - i - 1 : i];
       if (series) {
         series.suspendSignalsDispatching();
         series.parentBounds(this.seriesBounds_);

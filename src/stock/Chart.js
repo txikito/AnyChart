@@ -1302,11 +1302,14 @@ anychart.stockModule.Chart.prototype.calculateScales_ = function() {
   for (i = 0; i < this.plots_.length; i++) {
     var plot = /** @type {anychart.stockModule.Plot} */(this.plots_[i]);
     if (plot && plot.enabled()) {
+      var stackDirection = /** @type {anychart.enums.ScaleStackDirection} */ (plot.yScale().stackDirection());
+      var stackIsDirect = stackDirection == anychart.enums.ScaleStackDirection.DIRECT;
+
       seriesList = plot.getAllSeries();
       stacksByScale = {};
       hasPercentStacks = false;
       for (j = 0; j < seriesList.length; j++) {
-        series = seriesList[j];
+        series = seriesList[stackIsDirect ? seriesList.length - j - 1 : j];
         series.updateComparisonZero();
         scale = /** @type {anychart.scales.Base} */(series.yScale());
         if (scale.needsAutoCalc()) {
