@@ -2808,6 +2808,22 @@ anychart.core.series.Base.prototype.planIsXScaleInverted = function() {
 
 
 /**
+ * Resets point shared field.
+ * @param {?anychart.data.IRowInfo} point
+ * @private
+ */
+anychart.core.series.Base.prototype.resetPointStack_ = function(point) {
+  if (point) {
+    var shared = point.meta('shared');
+    if (shared) {
+      shared.positiveAnchor = NaN;
+      shared.negativeAnchor = NaN;
+    }
+  }
+};
+
+
+/**
  * Resets point's meta shared object anchors..
  */
 anychart.core.series.Base.prototype.resetSharedStack = function() {
@@ -2815,12 +2831,10 @@ anychart.core.series.Base.prototype.resetSharedStack = function() {
     var iterator = this.getIterator();
     iterator.reset();
     while (iterator.advance()) {
-      var shared = iterator.meta('shared');
-      if (shared) {
-        shared.positiveAnchor = NaN;
-        shared.negativeAnchor = NaN;
-      }
+      this.resetPointStack_(iterator);
     }
+    this.resetPointStack_(this.getPreFirstPoint());
+    this.resetPointStack_(this.getPostLastPoint());
   }
 };
 
@@ -3486,7 +3500,8 @@ anychart.core.series.Base.prototype.makeMinPointLengthStackedMeta = function(row
 
     var y = /** @type {number} */ (rowInfo.meta('value'));
     var zero = /** @type {number} */ (rowInfo.meta('zero'));
-    var isZero = /** @type {number} */ (rowInfo.get('value')) == 0; //Draw zero to positive side.
+    var val = /** @type {number} */ (rowInfo.get('value'));
+    var isZero = (!isNaN(val) && val == 0); //Draw zero to positive side. Considers closure compiler obfuscation.
     var diff = Math.abs(y - zero);
     var height = Math.max(diff, this.minPointLengthCache_);
 
@@ -3542,7 +3557,8 @@ anychart.core.series.Base.prototype.makeMinPointLengthUnstackedMeta = function(r
   if (!rowInfo.meta('missing')) {
     var y = /** @type {number} */ (rowInfo.meta('value'));
     var zero = /** @type {number} */ (rowInfo.meta('zero'));
-    var isZero = /** @type {number} */ (rowInfo.get('value')) == 0; //Draw zero to positive side.
+    var val = /** @type {number} */ (rowInfo.get('value'));
+    var isZero = (!isNaN(val) && val == 0); //Draw zero to positive side. Considers closure compiler obfuscation.
     var diff = Math.abs(y - zero);
     var height = Math.max(diff, this.minPointLengthCache_);
 
@@ -3578,7 +3594,7 @@ anychart.core.series.Base.prototype.makeMinPointLengthRangedMeta = function(rowI
     var center = (high + low) / 2;
     var diff = Math.abs(low - high);
     var height = Math.max(diff, this.minPointLengthCache_) / 2;
-    if (low >= high)
+    if (high >= low)
       height = -height;
     rowInfo.meta('high', center - height);
     rowInfo.meta('low', center + height);
