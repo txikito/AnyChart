@@ -13,6 +13,14 @@ echo Branch: ${TRAVIS_BRANCH}
 
 if [ "${TRAVIS_BRANCH}" = "master" ] || [ "${TRAVIS_BRANCH}" = "develop" ] || [ "${TRAVIS_BRANCH}" = "DVF-3234-minor-build-fixes" ]; then
 
+    # we can build release files only in case of dev release
+    if [ "${TRAVIS_BRANCH}" = "develop" ]|| [ "${TRAVIS_BRANCH}" = "DVF-3234-minor-build-fixes" ]; then
+        # build release files
+        python ./build.py compile --output ./dist/js
+        python ./build.py css --output ./dist/css
+        python ./build.py themes --output ./dist/themes
+    fi
+
     # copy bin files
     cp ./bin/binaries_wrapper_end.txt ./dist/binaries_wrapper_end.txt
     cp ./bin/binaries_wrapper_start.txt ./dist/binaries_wrapper_start.txt
