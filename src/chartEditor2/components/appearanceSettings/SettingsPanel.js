@@ -65,6 +65,12 @@ anychart.chartEditor2Module.SettingsPanel.prototype.isEnabled = function() {
 };
 
 
+/** @param {number} value */
+anychart.chartEditor2Module.SettingsPanel.prototype.setPlotIndex = function(value) {
+  this.plotIndex_ = value;
+};
+
+
 /** @return {string} */
 anychart.chartEditor2Module.SettingsPanel.prototype.getStringId = function() {
   return this.stringId;

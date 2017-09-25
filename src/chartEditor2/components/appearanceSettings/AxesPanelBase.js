@@ -73,8 +73,11 @@ anychart.chartEditor2Module.AxesPanelBase.prototype.onAddAxis_ = function() {
  * Create Axes settings panels.
  */
 anychart.chartEditor2Module.AxesPanelBase.prototype.createAxes = function() {
+  if (this.isExcluded()) return;
+
   var model = /** @type {anychart.chartEditor2Module.EditorModel} */(this.getModel());
-  var settings = model.getModel()['chart']['settings'];
+  var options = model.getModel();
+  var settings = options['chart']['settings'];
 
   var firstAxisEnabled = settings[this.xOrY + 'Axis(0).enabled()'];
   if (!goog.isDef(firstAxisEnabled)) {

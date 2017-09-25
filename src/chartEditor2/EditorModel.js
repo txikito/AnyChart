@@ -238,7 +238,7 @@ anychart.chartEditor2Module.EditorModel.chartTypes = {
     'icon': 'stock-chart.svg',
     'series': ['ohlc', 'candlestick', 'line', 'spline', 'column', 'area'],
     'dataSetCtor': 'table',
-    'settingsExcludes' : ['data-labels']
+    'settingsExcludes' : ['data-labels', 'axes']
   }
 };
 
@@ -981,17 +981,6 @@ anychart.chartEditor2Module.EditorModel.prototype.dropAxis = function(xOrY, inde
   this.dropChartSettings(regExp);
   this.dispatchUpdate(false, true);
 };
-
-
-// anychart.chartEditor2Module.EditorModel.prototype.updateAxisIndex = function(xOrY, indexFrom, indexTo) {
-//   var pattern = '^' + xOrY + 'Axis\\(' + indexFrom + '\\)';
-//   var regExp = new RegExp(pattern);
-//   for (var key in this.model_['chart']['settings']) {
-//     if (regExp.test(key)) {
-//
-//     }
-//   }
-// };
 // endregion
 
 

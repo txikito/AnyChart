@@ -91,6 +91,14 @@ anychart.chartEditor2Module.settings.Axis.prototype.onRemoveAction = function(ev
 /** @inheritDoc */
 anychart.chartEditor2Module.settings.Axis.prototype.updateKeys = function() {
   if (!this.isExcluded()) {
+    var stringKey = this.xOrY_ + 'Axis(' + this.index_ + ')';
+    this.name = this.xOrY_ + 'Axis(' + this.index_ + ')';
+    if (goog.isDef(this.plotIndex_)) {
+      stringKey = 'plot(' + this.plotIndex_ + ').' + stringKey;
+      this.name += this.name + ' :: Plot ' + this.plotIndex_;
+    }
+    this.key = [['chart'], ['settings'], stringKey];
+
     var model = /** @type {anychart.chartEditor2Module.EditorModel} */(this.getModel());
     if (this.orientation_) this.orientation_.init(model, this.genKey('orientation()'));
     if (this.inverted_) this.inverted_.init(model, [['chart'], ['settings'], this.xOrY_ + 'Scale().inverted()']);
