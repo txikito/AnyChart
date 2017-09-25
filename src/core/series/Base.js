@@ -3500,7 +3500,7 @@ anychart.core.series.Base.prototype.makeMinPointLengthStackedMeta = function(row
 
     var y = /** @type {number} */ (rowInfo.meta('value'));
     var zero = /** @type {number} */ (rowInfo.meta('zero'));
-    var val = /** @type {number} */ (rowInfo.get('value'));
+    var val = Number(rowInfo.get('value'));
     var isZero = (!isNaN(val) && val == 0); //Draw zero to positive side. Considers closure compiler obfuscation.
     var diff = Math.abs(y - zero);
     var height = Math.max(diff, this.minPointLengthCache_);
@@ -3557,7 +3557,7 @@ anychart.core.series.Base.prototype.makeMinPointLengthUnstackedMeta = function(r
   if (!rowInfo.meta('missing')) {
     var y = /** @type {number} */ (rowInfo.meta('value'));
     var zero = /** @type {number} */ (rowInfo.meta('zero'));
-    var val = /** @type {number} */ (rowInfo.get('value'));
+    var val = Number(rowInfo.get('value'));
     var isZero = (!isNaN(val) && val == 0); //Draw zero to positive side. Considers closure compiler obfuscation.
     var diff = Math.abs(y - zero);
     var height = Math.max(diff, this.minPointLengthCache_);
