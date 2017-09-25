@@ -2,6 +2,7 @@ goog.provide('anychart.chartEditor2Module.SettingsPanel');
 
 goog.require('anychart.chartEditor2Module.ComponentWithKey');
 goog.require('anychart.chartEditor2Module.checkbox.Base');
+goog.require('anychart.ui.button.Base');
 
 
 
@@ -47,6 +48,11 @@ anychart.chartEditor2Module.SettingsPanel = function(model, opt_domHelper) {
    * @protected
    */
   this.enabledContent = true;
+
+  /**
+   * @type {boolean}
+   */
+  this.allowRemove_ = false;
 };
 goog.inherits(anychart.chartEditor2Module.SettingsPanel, anychart.chartEditor2Module.ComponentWithKey);
 
@@ -102,6 +108,12 @@ anychart.chartEditor2Module.SettingsPanel.prototype.allowEnabled = function(valu
 };
 
 
+/** @param {boolean} value */
+anychart.chartEditor2Module.SettingsPanel.prototype.allowRemove = function(value) {
+  this.allowRemove_ = value;
+};
+
+
 /**
  * Container for enabled button.
  * @type {Element}
@@ -139,6 +151,25 @@ anychart.chartEditor2Module.SettingsPanel.prototype.createDom = function() {
   goog.dom.classlist.add(element, 'settings-panel');
 
   var dom = this.getDomHelper();
+  this.topEl = dom.createDom(goog.dom.TagName.DIV, 'top');
+  element.appendChild(this.topEl);
+
+  if (this.name) {
+    this.topEl.appendChild(dom.createDom(goog.dom.TagName.H4, 'title', this.name));
+  } else
+    goog.dom.classlist.add(element, 'settings-panel-no-title');
+  
+  if (this.allowRemove_) {
+    var removeBtn = new anychart.ui.button.Base(null, anychart.chartEditor2Module.IconButtonRenderer.getInstance());
+    removeBtn.addClassName(goog.getCssName('anychart-chart-editor-settings-control-right'));
+    removeBtn.setIcon(goog.getCssName('ac ac-remove'));
+    removeBtn.addClassName(goog.getCssName('anychart-chart-editor-remove-btn'));
+    removeBtn.setTooltip('Remove axis');
+    this.addChild(removeBtn, true);
+    this.topEl.appendChild(removeBtn.getElement());
+    this.removeButton = removeBtn;
+  }
+  
   if (this.canBeEnabled()) {
     var enableContentCheckbox = new anychart.chartEditor2Module.checkbox.Base();
 
@@ -149,20 +180,20 @@ anychart.chartEditor2Module.SettingsPanel.prototype.createDom = function() {
       this.addChild(enableContentCheckbox, true);
     }
     this.enableContentCheckbox = enableContentCheckbox;
+    this.topEl.appendChild(this.enableContentCheckbox && !this.enabledButtonContainer_ ? this.enableContentCheckbox.getElement() : null);
   }
-
-  if (this.name) {
-    this.top_ = dom.createDom(goog.dom.TagName.DIV, 'top',
-        dom.createDom(goog.dom.TagName.H4, 'title', this.name),
-        this.enableContentCheckbox && !this.enabledButtonContainer_ ? this.enableContentCheckbox.getElement() : null
-    );
-
-    element.appendChild(this.top_);
-  } else
-    goog.dom.classlist.add(element, 'settings-panel-no-title');
-
+  
   this.contentEl = dom.createDom(goog.dom.TagName.DIV, 'content');
   element.appendChild(this.contentEl);
+};
+
+
+/**
+ * Returns the DOM element of tom bar.
+ * @return {Element}
+ */
+anychart.chartEditor2Module.SettingsPanel.prototype.getTopElement = function() {
+  return this.topEl;
 };
 
 
@@ -184,6 +215,26 @@ anychart.chartEditor2Module.SettingsPanel.prototype.enterDocument = function() {
 
   this.updateKeys();
   this.setEnabled(this.enabled);
+
+  if (this.removeButton)
+    goog.events.listen(this.removeButton, goog.ui.Component.EventType.ACTION, this.onRemoveAction, false, this);
+};
+
+
+/** @override */
+anychart.chartEditor2Module.SettingsPanel.prototype.exitDocument = function() {
+  if (this.removeButton)
+    goog.events.unlisten(this.removeButton, goog.ui.Component.EventType.ACTION, this.onRemoveAction, false, this);
+  anychart.chartEditor2Module.SettingsPanel.base(this, 'exitDocument');
+};
+
+
+/**
+ * @param {Object} evt
+ * @protected
+ */
+anychart.chartEditor2Module.SettingsPanel.prototype.onRemoveAction = function(evt) {
+  // Should be overriden
 };
 
 
@@ -257,14 +308,17 @@ anychart.chartEditor2Module.SettingsPanel.prototype.setContentEnabled = function
   }
   this.enabled = tmp;
 
-  if (this.top_) {
+  if (this.topEl) {
     goog.dom.classlist.enable(
-        goog.asserts.assert(this.top_),
+        goog.asserts.assert(this.topEl),
         goog.getCssName('anychart-control-disabled'), !this.enabled);
   }
 
   if (this.enableContentCheckbox)
     this.enableContentCheckbox.setEnabled(this.enabled);
+
+  if (this.removeButton)
+    this.removeButton.setEnabled(this.enabled);
 };
 
 

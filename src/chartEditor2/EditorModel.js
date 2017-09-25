@@ -222,7 +222,7 @@ anychart.chartEditor2Module.EditorModel.chartTypes = {
     'icon': 'pie-chart.svg',
     'series': ['pie'],
     'dataSetCtor': 'set',
-    'settingsExcludes' : ['series', 'grids']
+    'settingsExcludes' : ['series', 'grids', 'axes']
   },
   'map': {
     'value': 'map',
@@ -230,7 +230,7 @@ anychart.chartEditor2Module.EditorModel.chartTypes = {
     'icon': 'choropleth-map.svg',
     'series': ['marker-by-id', 'marker-by-coordinates', 'bubble-by-id', 'bubble-by-coordinates', 'choropleth'],
     'dataSetCtor': 'set',
-    'settingsExcludes' : ['grids']
+    'settingsExcludes' : ['grids', 'axes']
   },
   'stock': {
     'value': 'stock',
@@ -950,6 +950,48 @@ anychart.chartEditor2Module.EditorModel.prototype.setContextMenuItemEnable = fun
 
   this.dispatchUpdate();
 };
+
+
+/**
+ * @param {string} xOrY
+ */
+anychart.chartEditor2Module.EditorModel.prototype.addAxis = function(xOrY) {
+  var index = 0;
+  var pattern = '^' + xOrY + 'Axis\\((\\d+)\\)\\.enabled\\(\\)$';
+  var regExp = new RegExp(pattern);
+  for (var key in this.model_['chart']['settings']) {
+    var match = key.match(regExp);
+    if (match)
+      index = Math.max(match[1], index);
+  }
+  index += 1;
+
+  var stringKey = xOrY + 'Axis(' + index + ').enabled()';
+  this.setValue([['chart'], ['settings'], stringKey], true);
+};
+
+
+/**
+ * @param {string} xOrY
+ * @param {number} index
+ */
+anychart.chartEditor2Module.EditorModel.prototype.dropAxis = function(xOrY, index) {
+  var pattern = '^' + xOrY + 'Axis\\(' + index + '\\)';
+  var regExp = new RegExp(pattern);
+  this.dropChartSettings(regExp);
+  this.dispatchUpdate(false, true);
+};
+
+
+// anychart.chartEditor2Module.EditorModel.prototype.updateAxisIndex = function(xOrY, indexFrom, indexTo) {
+//   var pattern = '^' + xOrY + 'Axis\\(' + indexFrom + '\\)';
+//   var regExp = new RegExp(pattern);
+//   for (var key in this.model_['chart']['settings']) {
+//     if (regExp.test(key)) {
+//
+//     }
+//   }
+// };
 // endregion
 
 
