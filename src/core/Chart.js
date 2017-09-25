@@ -2214,14 +2214,14 @@ anychart.core.Chart.prototype.handleMouseOverAndMove = function(event) {
       }
       forbidTooltip = true;
     }
-  } else if (acgraph.utils.instanceOf(event['target'], anychart.core.ui.LabelsFactory)
-      || acgraph.utils.instanceOf(event['target'], anychart.core.ui.MarkersFactory)
-      || acgraph.utils.instanceOf(event['target'], anychart.core.ui.Tooltip)) {
+  } else if (anychart.utils.instanceOf(event['target'], anychart.core.ui.LabelsFactory)
+      || anychart.utils.instanceOf(event['target'], anychart.core.ui.MarkersFactory)
+      || anychart.utils.instanceOf(event['target'], anychart.core.ui.Tooltip)) {
     parent = event['target'].getParentEventTarget();
     if (parent.isSeries && parent.isSeries())
       series = parent;
     index = tag;
-  } else if ((event['target'].getParentEventTarget && acgraph.utils.instanceOf(event['target'].getParentEventTarget(), anychart.core.ui.Tooltip))) {
+  } else if ((event['target'].getParentEventTarget && anychart.utils.instanceOf(event['target'].getParentEventTarget(), anychart.core.ui.Tooltip))) {
     parent = event['target'].getParentEventTarget().getParentEventTarget();
     if (parent.isSeries && parent.isSeries())
       series = parent;
