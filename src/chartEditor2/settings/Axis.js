@@ -38,68 +38,45 @@ anychart.chartEditor2Module.settings.Axis.prototype.createDom = function() {
   goog.dom.classlist.add(element, anychart.chartEditor2Module.settings.Axis.CSS_CLASS);
   goog.dom.classlist.add(element, this.index_ % 2 ? 'even' : 'odd');
 
-  // var content = this.getContentElement();
-  // var model = /** @type {anychart.chartEditor2Module.EditorModel} */(this.getModel());
+  var content = this.getContentElement();
+  var model = /** @type {anychart.chartEditor2Module.EditorModel} */(this.getModel());
 
-//   var nameInput = new anychart.chartEditor2Module.input.Base('Series name');
-//   this.addChild(nameInput, true);
-//   goog.dom.classlist.add(nameInput.getElement(), goog.getCssName('anychart-chart-editor-series-name-input'));
-//
-//   var colorPicker = new anychart.chartEditor2Module.colorPicker.Base();
-//   colorPicker.addClassName(goog.getCssName('anychart-chart-editor-settings-control-right'));
-//   this.addChild(colorPicker, true);
-//
-//   goog.dom.appendChild(content, goog.dom.createDom(
-//       goog.dom.TagName.DIV,
-//       goog.getCssName('anychart-chart-editor-settings-item-gap')));
-//
-//   // Stroke
-//   var stroke = new anychart.chartEditor2Module.settings.Stroke(model);
-//   // stroke.setKey(this.genKey('stroke()'));
-//   this.addChild(stroke, true);
-//
-//   goog.dom.appendChild(content, goog.dom.createDom(
-//       goog.dom.TagName.DIV,
-//       goog.getCssName('anychart-chart-editor-settings-item-gap')));
-//
-//   // Tooltip
-//   var tooltip = new anychart.chartEditor2Module.settings.Title(model, 'Tooltip');
-//   tooltip.allowEnabled(true);
-//   tooltip.allowEditPosition(false);
-//   tooltip.allowEditAlign(false);
-//   tooltip.setTitleKey('format()');
-//   tooltip.setKey(this.genKey('tooltip()')); // This is for enabled working sake!
-//   this.addChild(tooltip, true);
-//
-//   goog.dom.appendChild(content, goog.dom.createDom(
-//       goog.dom.TagName.DIV,
-//       goog.getCssName('anychart-chart-editor-settings-item-gap')));
-//
-//
-//   // Data labels
-//   var dataLabels = new anychart.chartEditor2Module.settings.Title(model, 'Data labels');
-//   dataLabels.allowEnabled(true);
-//   dataLabels.allowEditPosition(false);
-//   dataLabels.allowEditAlign(false);
-//   dataLabels.setTitleKey('format()');
-//   dataLabels.setKey(this.genKey('labels()')); // This is for enabled working sake!
-//   this.addChild(dataLabels, true);
-//
-//   goog.dom.appendChild(content, goog.dom.createDom(
-//       goog.dom.TagName.DIV,
-//       goog.getCssName('anychart-chart-editor-settings-item-gap')));
-//
-//   // Data markers
-//   var dataMarkers = new anychart.chartEditor2Module.settings.DataMarkers(model, 'Data markers');
-//   dataMarkers.allowEnabled(true);
-//   this.addChild(dataMarkers, true);
-//
-//   this.nameInput_ = nameInput;
-//   this.colorPicker_ = colorPicker;
-//   this.stroke_ = stroke;
-//   this.tooltip_ = tooltip;
-//   this.dataLabels_ = dataLabels;
-//   this.dataMarkers_ = dataMarkers;
+  var invertedCheckbox = new anychart.chartEditor2Module.checkbox.Base();
+  invertedCheckbox.setCaption('Inverted');
+  this.addChild(invertedCheckbox, true);
+  this.inverted_ = invertedCheckbox;
+
+  goog.dom.appendChild(content, goog.dom.createDom(
+      goog.dom.TagName.DIV,
+      goog.getCssName('anychart-chart-editor-settings-item-gap-mini')));
+
+  //region Orientation
+  var orientationLabel = goog.dom.createDom(
+      goog.dom.TagName.LABEL,
+      [
+        goog.ui.INLINE_BLOCK_CLASSNAME,
+        goog.getCssName('anychart-chart-editor-settings-label')
+      ],
+      'Orientation');
+  goog.dom.appendChild(content, orientationLabel);
+
+  var orientationSelect = new anychart.chartEditor2Module.select.Base();
+  orientationSelect.addClassName(goog.getCssName('anychart-chart-editor-settings-control-select-image'));
+  orientationSelect.addClassName(goog.getCssName('anychart-chart-editor-settings-control-right'));
+  var orientationSelectMenu = orientationSelect.getMenu();
+  orientationSelectMenu.setOrientation(goog.ui.Container.Orientation.HORIZONTAL);
+  orientationSelect.setOptions(['left', 'right', 'top', 'bottom']);
+  orientationSelect.setCaptions([null, null, null, null]);
+  orientationSelect.setIcons(['ac ac-position-left', 'ac ac-position-right', 'ac ac-position-top', 'ac ac-position-bottom']);
+  this.addChild(orientationSelect, true);
+
+  goog.dom.appendChild(content, goog.dom.createDom(
+      goog.dom.TagName.DIV,
+      goog.getCssName('anychart-chart-editor-settings-item-gap-mini')));
+  //endregion
+
+  this.orientationLabel_ = orientationLabel;
+  this.orientation_ = orientationSelect;
 };
 
 
@@ -111,56 +88,51 @@ anychart.chartEditor2Module.settings.Axis.prototype.onRemoveAction = function(ev
 
 
 
-// /** @inheritDoc */
-// anychart.chartEditor2Module.settings.Axis.prototype.updateKeys = function() {
-//   if (!this.isExcluded()) {
-//     var stringKey = 'getSeries(\'' + this.AxisId_ + '\')';
-//     if (goog.isDef(this.plotIndex_)) {
-//       stringKey = 'plot(' + this.plotIndex_ + ').' + stringKey;
-//     }
-//     this.key = [['chart'], ['settings'], stringKey];
-//
-//     var model = /** @type {anychart.chartEditor2Module.EditorModel} */(this.getModel());
-//     if (this.nameInput_) this.nameInput_.init(model, this.genKey('name()'));
-//     if (this.colorPicker_) this.colorPicker_.init(model, this.genKey('color()'));
-//
-//     if (this.stroke_) this.stroke_.setKey(this.genKey('stroke()'));
-//     if (this.tooltip_) this.tooltip_.setKey(this.genKey('tooltip()'));
-//     if (this.dataLabels_) this.dataLabels_.setKey(this.genKey('labels()'));
-//     if (this.dataMarkers_) this.dataMarkers_.setKey(this.genKey('markers()'));
-//   }
-//
-//   anychart.chartEditor2Module.settings.Axis.base(this, 'updateKeys');
-// };
-//
-//
-// /** @inheritDoc */
-// anychart.chartEditor2Module.settings.Axis.prototype.onChartDraw = function(evt) {
-//   anychart.chartEditor2Module.settings.Axis.base(this, 'onChartDraw', evt);
-//   if (this.isExcluded()) return;
-//
-//   var target = evt.chart;
-//   this.nameInput_.setValueByTarget(target, true);
-//   this.colorPicker_.setValueByTarget(target);
-// };
-//
-//
-// /** @override */
-// anychart.chartEditor2Module.settings.Axis.prototype.disposeInternal = function() {
-//   this.nameInput_ = null;
-//   this.colorPicker_ = null;
-//
-//   this.stroke_.dispose();
-//   this.stroke_ = null;
-//
-//   this.tooltip_.dispose();
-//   this.tooltip_ = null;
-//
-//   this.dataLabels_.dispose();
-//   this.dataLabels_ = null;
-//
-//   this.dataMarkers_.dispose();
-//   this.dataMarkers_ = null;
-//
-//   anychart.chartEditor2Module.settings.Axis.base(this, 'disposeInternal');
-// };
+/** @inheritDoc */
+anychart.chartEditor2Module.settings.Axis.prototype.updateKeys = function() {
+  if (!this.isExcluded()) {
+    var model = /** @type {anychart.chartEditor2Module.EditorModel} */(this.getModel());
+    if (this.orientation_) this.orientation_.init(model, this.genKey('orientation()'));
+    if (this.inverted_) this.inverted_.init(model, [['chart'], ['settings'], this.xOrY_ + 'Scale().inverted()']);
+  }
+
+  anychart.chartEditor2Module.settings.Axis.base(this, 'updateKeys');
+};
+
+
+/** @inheritDoc */
+anychart.chartEditor2Module.settings.Axis.prototype.onChartDraw = function(evt) {
+  anychart.chartEditor2Module.settings.Axis.base(this, 'onChartDraw', evt);
+  if (this.isExcluded()) return;
+
+  var target = evt.chart;
+  this.orientation_.setValueByTarget(target);
+  this.inverted_.setValueByTarget(target);
+};
+
+
+/** @override */
+anychart.chartEditor2Module.settings.Axis.prototype.disposeInternal = function() {
+  this.orientation_ = null;
+  this.inverted_ = null;
+
+  anychart.chartEditor2Module.settings.Axis.base(this, 'disposeInternal');
+};
+
+
+/** @inheritDoc */
+anychart.chartEditor2Module.settings.Axis.prototype.setContentEnabled = function(enabled) {
+  if (this.orientationLabel_) {
+    goog.dom.classlist.enable(
+        goog.asserts.assert(this.orientationLabel_),
+        goog.getCssName('anychart-control-disabled'), !enabled);
+  }
+
+  // if (this.invertedLabel_) {
+  //   goog.dom.classlist.enable(
+  //       goog.asserts.assert(this.invertedLabel_),
+  //       goog.getCssName('anychart-control-disabled'), !enabled);
+  // }
+
+  anychart.chartEditor2Module.settings.Axis.base(this, 'setContentEnabled', enabled);
+};

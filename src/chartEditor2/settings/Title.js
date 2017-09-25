@@ -331,11 +331,7 @@ anychart.chartEditor2Module.settings.Title.prototype.updateKeys = function() {
 };
 
 
-/**
- * Enables/Disables the Title settings.
- * @param {boolean} enabled Whether to enable (true) or disable (false) the
- *     title settings.
- */
+/** @inheritDoc */
 anychart.chartEditor2Module.settings.Title.prototype.setContentEnabled = function(enabled) {
   if (this.titleHeader_) {
     goog.dom.classlist.enable(

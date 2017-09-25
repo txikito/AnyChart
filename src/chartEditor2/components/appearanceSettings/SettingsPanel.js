@@ -290,7 +290,7 @@ anychart.chartEditor2Module.SettingsPanel.prototype.setEnabled = function(enable
 
 
 /**
- * Enables/Disables the group content controls.
+ * Enables/Disables the group content controls. Override this to disable labels etc.
  * @param {boolean} enabled Whether to enable (true) or disable (false) the
  *     group content controls.
  * @protected
