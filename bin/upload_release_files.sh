@@ -1,11 +1,15 @@
 #!/bin/bash
 
 GALLERY_VERSION=7.14.3
-VERSION=$(cat package.json | grep version | head -1 | awk -F: '{ print $2 }' | sed 's/[",]//g' | tr -d '[[:space:]]')
+VERSION=$(python build.py version)
 
-echo ${VERSION}
-echo ${GALLERY_VERSION}
-echo ${TRAVIS_BRANCH}
+if [ "${TRAVIS_BRANCH}" = "master" ]; then
+    VERSION=$(python build.py version -c)
+fi
+
+echo Version: ${VERSION}
+echo Gallery version: ${GALLERY_VERSION}
+echo Branch: ${TRAVIS_BRANCH}
 
 if [ "${TRAVIS_BRANCH}" = "master" ] || [ "${TRAVIS_BRANCH}" = "develop" ] || [ "${TRAVIS_BRANCH}" = "DVF-3234-minor-build-fixes" ]; then
 
@@ -29,21 +33,27 @@ if [ "${TRAVIS_BRANCH}" = "master" ] || [ "${TRAVIS_BRANCH}" = "develop" ] || [ 
     # zip files
     zip -q -r installation-package.zip *
 
-    # ensure release path exists and clean
-    # as far as cdn always hosts removed content, we are free to clean entire folder
+    # ensure release paths exists and clean
+    # as far as cdn always serve removed content, we are free to clean entire folder
     ssh $STATIC_HOST_SSH_STRING "
     mkdir -p /apps/static/cdn/releases/${VERSION} &&
-    rm -rf /apps/static/cdn/releases/${VERSION}/* &&
-    mkdir -p /apps/static/cdn/releases &&
-    rm -rf /apps/static/cdn/releases/latest"
+    rm -rf /apps/static/cdn/releases/${VERSION}/*"
+
+    if [ "${TRAVIS_BRANCH}" = "master" ]; then
+        ssh $STATIC_HOST_SSH_STRING "
+        mkdir -p /apps/static/cdn/releases &&
+        rm -rf /apps/static/cdn/releases/latest"
+    fi
 
     # upload content
     scp installation-package.zip $STATIC_HOST_SSH_STRING:/apps/static/cdn/releases/${VERSION}/installation-package.zip
 
     # copy unzip release files and copy to latest
-    ssh $STATIC_HOST_SSH_STRING "
-    unzip -q -o /apps/static/cdn/releases/${VERSION}/installation-package.zip -d /apps/static/cdn/releases/${VERSION}/ &&
-    cp -r /apps/static/cdn/releases/${VERSION} /apps/static/cdn/releases/latest"
+    ssh $STATIC_HOST_SSH_STRING "unzip -q -o /apps/static/cdn/releases/${VERSION}/installation-package.zip -d /apps/static/cdn/releases/${VERSION}/"
+
+    if [ "${TRAVIS_BRANCH}" = "master" ]; then
+        ssh $STATIC_HOST_SSH_STRING "cp -r /apps/static/cdn/releases/${VERSION} /apps/static/cdn/releases/latest"
+    fi
 
     # copy legacy files by version and latest
     ssh $STATIC_HOST_SSH_STRING "
@@ -57,24 +67,21 @@ if [ "${TRAVIS_BRANCH}" = "master" ] || [ "${TRAVIS_BRANCH}" = "develop" ] || [ 
     cp /apps/static/cdn/releases/${VERSION}/json-schema.json /apps/static/cdn/schemas/${VERSION}/json-schema.json &&
     cp /apps/static/cdn/releases/${VERSION}/xml-schema.xsd /apps/static/cdn/schemas/${VERSION}/xml-schema.xsd"
 
+    if [ "${TRAVIS_BRANCH}" = "master" ]; then
+        ssh $STATIC_HOST_SSH_STRING "
+        rm -rf /apps/static/cdn/js/latest &&
+        cp -r /apps/static/cdn/releases/${VERSION}/js /apps/static/cdn/js/latest &&
+        rm -rf /apps/static/cdn/css/latest &&
+        cp -r /apps/static/cdn/releases/${VERSION}/css /apps/static/cdn/css/latest &&
+        rm -rf /apps/static/cdn/themes/latest &&
+        cp -r /apps/static/cdn/releases/${VERSION}/themes /apps/static/cdn/themes/latest &&
+        mkdir -p /apps/static/cdn/schemas/latest &&
+        cp /apps/static/cdn/releases/${VERSION}/json-schema.json /apps/static/cdn/schemas/latest/json-schema.json &&
+        cp /apps/static/cdn/releases/${VERSION}/xml-schema.xsd /apps/static/cdn/schemas/latest/xml-schema.xsd"
+    fi
+
     # drop cdn cache for uploaded files
     echo Dropping CDN cache
     cd ../
     python ./bin/drop_cdn_cache.py ${VERSION} ${CDN_ALIASE} ${CDN_CONSUMER_KEY} ${CDN_CONSUMER_SECRET} ${CDN_ZONE_ID}
-
-
-    #./bin/upload_github_release.py $GITHUB_ACCESS_TOKEN
-    #npm publish
 fi
-
-
-
-# 2. На push в develop добавлять к версии хеш коммита
-
-# todo
-# 9. build export server ???
-# 10. copy legacy files to latest cp -r /apps/static/cdn/releases/$TRAVIS_BRANCH/js/. /apps/static/cdn/js/latest/
-# 11. uncomment legacy cache drop in drop_cdn_cache.py
-# 12. попробовать разобратьяс с npm и модулями
-# 13. Нужны проврки на существование тега, версии итд
-# 14. Интеграция с сайтом
