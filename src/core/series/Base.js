@@ -2808,6 +2808,22 @@ anychart.core.series.Base.prototype.planIsXScaleInverted = function() {
 
 
 /**
+ * Resets point shared field.
+ * @param {?anychart.data.IRowInfo} point
+ * @private
+ */
+anychart.core.series.Base.prototype.resetPointStack_ = function(point) {
+  if (point) {
+    var shared = point.meta('shared');
+    if (shared) {
+      shared.positiveAnchor = NaN;
+      shared.negativeAnchor = NaN;
+    }
+  }
+};
+
+
+/**
  * Resets point's meta shared object anchors..
  */
 anychart.core.series.Base.prototype.resetSharedStack = function() {
@@ -2815,12 +2831,10 @@ anychart.core.series.Base.prototype.resetSharedStack = function() {
     var iterator = this.getIterator();
     iterator.reset();
     while (iterator.advance()) {
-      var shared = iterator.meta('shared');
-      if (shared) {
-        shared.positiveAnchor = NaN;
-        shared.negativeAnchor = NaN;
-      }
+      this.resetPointStack_(iterator);
     }
+    this.resetPointStack_(this.getPreFirstPoint());
+    this.resetPointStack_(this.getPostLastPoint());
   }
 };
 
