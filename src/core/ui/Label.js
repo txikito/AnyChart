@@ -30,6 +30,7 @@ anychart.core.ui.Label = function() {
   anychart.core.settings.createDescriptorsMeta(this.descriptorsMeta, [
     ['visible', anychart.ConsistencyState.LABEL_VISIBILITY, anychart.Signal.NEEDS_REDRAW]
   ]);
+  // should always be true for labels that are not "no data" label.
   this.themeSettings['visible'] = true;
 };
 goog.inherits(anychart.core.ui.Label, anychart.core.ui.LabelBase);
