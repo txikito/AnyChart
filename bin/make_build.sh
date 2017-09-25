@@ -95,7 +95,7 @@ if [ "${TRAVIS_BRANCH}" != "master" ]; then
     ssh $STATIC_HOST_SSH_STRING "
     rm -rf /apps/static/js/${VERSION} &&
     cp -r /apps/static/cdn/releases/${VERSION}/js /apps/static/js/${VERSION} &&
-    cp /apps/static/cdn/releases/commit-hash.txt /apps/static/js/${VERSION}/commit-hash.txt &&
+    cp /apps/static/cdn/releases/${VERSION}/commit-hash.txt /apps/static/js/${VERSION}/commit-hash.txt &&
     rm -rf /apps/static/css/${VERSION} &&
     cp -r /apps/static/cdn/releases/${VERSION}/css /apps/static/css/${VERSION}"
 fi
