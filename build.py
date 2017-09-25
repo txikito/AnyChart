@@ -1097,9 +1097,9 @@ def __exec_main_script():
     # region ---- create the parser for the 'version' command
     stat_parser = subparsers.add_parser('version', help='Print AnyChart version')
     stat_parser.set_defaults(action=__print_version,
-                             commits_count=True)
+                             commits_count=False)
     stat_parser.add_argument('-c', '--commits_count',
-                             action='store_false',
+                             action='store_true',
                              help="Don't show commits count")
     # endregion
 
