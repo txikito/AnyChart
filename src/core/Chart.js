@@ -3379,10 +3379,11 @@ anychart.core.Chart.prototype.prefixCsvColumnName = function(name, dataHolder, i
  * @param {Object.<number>} xValues
  * @param {string} id
  * @param {number} index
+ * @param {Object} seriesXValues
  * @return {Array}
  * @protected
  */
-anychart.core.Chart.prototype.getCsvExportRow = function(x, xAlias, data, xValues, id, index) {
+anychart.core.Chart.prototype.getCsvExportRow = function(x, xAlias, data, xValues, id, index, seriesXValues) {
   var xHash = anychart.utils.hash(x);
   var rowIndex;
   if (xHash in xValues) {
@@ -3402,12 +3403,22 @@ anychart.core.Chart.prototype.getCsvExportRow = function(x, xAlias, data, xValue
  * @param {Object.<number>} xValues
  * @param {string} id
  * @param {number} index
+ * @param {Object} seriesXValues
  * @return {Array}
  * @protected
  */
-anychart.core.Chart.prototype.getCsvExportRowScatter = function(x, xAlias, data, xValues, id, index) {
-  var xHash = id + index;
+anychart.core.Chart.prototype.getCsvExportRowScatter = function(x, xAlias, data, xValues, id, index, seriesXValues) {
+  var xHash = anychart.utils.hash(x);
   var rowIndex;
+  if (xHash in seriesXValues) {
+    var i = 1;
+    var newHash;
+    do {
+      newHash = xHash + '_' + i.toString();
+    } while (newHash in seriesXValues);
+    xHash = newHash;
+  }
+  seriesXValues[xHash] = true;
   if (xHash in xValues) {
     rowIndex = xValues[xHash];
   } else {
@@ -3471,6 +3482,7 @@ anychart.core.Chart.prototype.getCsvData = function(mode) {
       var iterator = this.getCsvIterator(dataHolder, mode);
       iterator.reset();
       var holderId = this.identifyCsvDataHolder(dataHolder);
+      var seriesXValues = {};
       while (iterator.advance()) {
         var grouper = this.getCsvGrouperValue(iterator);
         if (this.shouldAddCsvRow(mode, dataHolder, grouper)) {
@@ -3480,7 +3492,8 @@ anychart.core.Chart.prototype.getCsvData = function(mode) {
               data,
               xValues,
               holderId,
-              iterator.getIndex());
+              iterator.getIndex(),
+              seriesXValues);
           this.populateCsvRow(row, names, iterator, headers);
         }
       }
