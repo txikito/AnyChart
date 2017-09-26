@@ -53,6 +53,12 @@ anychart.chartEditor2Module.SettingsPanel = function(model, opt_domHelper) {
    * @type {boolean}
    */
   this.allowRemove_ = false;
+
+  /**
+   * @type {Array.<Element>}
+   * @protected
+   */
+  this.labels = [];
 };
 goog.inherits(anychart.chartEditor2Module.SettingsPanel, anychart.chartEditor2Module.ComponentWithKey);
 
@@ -316,6 +322,12 @@ anychart.chartEditor2Module.SettingsPanel.prototype.setContentEnabled = function
   }
   this.enabled = tmp;
 
+  for (var j = 0; j < this.labels.length; j++) {
+    goog.dom.classlist.enable(
+        goog.asserts.assert(this.labels[j]),
+        goog.getCssName('anychart-control-disabled'), !this.enabledContent);
+  }
+
   if (this.topEl) {
     goog.dom.classlist.enable(
         goog.asserts.assert(this.topEl),
@@ -346,4 +358,12 @@ anychart.chartEditor2Module.SettingsPanel.prototype.updateKeys = function() {
   var model = /** @type {anychart.chartEditor2Module.EditorModel} */(this.getModel());
   if (this.enableContentCheckbox)
     this.enableContentCheckbox.init(model, this.genKey('enabled()'));
+};
+
+
+/** @override */
+anychart.chartEditor2Module.SettingsPanel.prototype.disposeInternal = function() {
+  this.labels.length = 0;
+
+  anychart.chartEditor2Module.SettingsPanel.base(this, 'disposeInternal');
 };
