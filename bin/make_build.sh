@@ -1,9 +1,6 @@
 #!/bin/bash
 
-GALLERY_VERSION=7.14.3
-VERSION=$(python build.py version)
-
-if [ "${TRAVIS_BRANCH}" = "master" ]; then
+if [ "${TRAVIS_BRANCH}" = "master" ] || [[ "RC-8.0.0" == RC-* ]]; then
     VERSION=$(python build.py version)
 elif [ "${TRAVIS_BRANCH}" = "develop" ]; then
     VERSION=$(python build.py version -c)
@@ -12,7 +9,6 @@ else
 fi
 
 echo Version: ${VERSION}
-echo Gallery version: ${GALLERY_VERSION}
 echo Branch: ${TRAVIS_BRANCH}
 
 # we can build release files only in case of dev release
@@ -36,7 +32,7 @@ unzip -q docs.zip -d docs
 rm docs.zip
 
 # download demos
-wget https://playground.anychart.com/gallery/${GALLERY_VERSION}/download -O demos.zip
+wget https://playground.anychart.com/gallery/latest/download -O demos.zip
 unzip -q demos.zip -d demos
 rm demos.zip
 
@@ -104,3 +100,5 @@ fi
 echo Dropping CDN cache
 cd ../
 python ./bin/drop_cdn_cache.py ${VERSION} ${CDN_ALIASE} ${CDN_CONSUMER_KEY} ${CDN_CONSUMER_SECRET} ${CDN_ZONE_ID}
+
+
