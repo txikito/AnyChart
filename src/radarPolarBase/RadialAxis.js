@@ -2,6 +2,7 @@ goog.provide('anychart.radarPolarBaseModule.RadialAxis');
 goog.provide('anychart.standalones.axes.Radial');
 goog.require('acgraph');
 goog.require('anychart.color');
+goog.require('anychart.core.IAxis');
 goog.require('anychart.core.IStandaloneBackend');
 goog.require('anychart.core.VisualBase');
 goog.require('anychart.core.reporting');
@@ -26,6 +27,7 @@ goog.require('anychart.utils');
  * @constructor
  * @extends {anychart.core.VisualBase}
  * @implements {anychart.core.IStandaloneBackend}
+ * @implements {anychart.core.IAxis}
  */
 anychart.radarPolarBaseModule.RadialAxis = function() {
   this.suspendSignalsDispatching();
@@ -382,16 +384,21 @@ anychart.radarPolarBaseModule.RadialAxis.prototype.stroke = function(opt_strokeO
 
 /**
  * Getter/setter for scale.
- * @param {anychart.scales.Base=} opt_value Scale.
+ * @param {(anychart.scales.Base|anychart.enums.ScaleTypes|Object)=} opt_value Scale.
  * @return {anychart.scales.Base|!anychart.radarPolarBaseModule.RadialAxis} Axis scale or itself for method chaining.
  */
 anychart.radarPolarBaseModule.RadialAxis.prototype.scale = function(opt_value) {
   if (goog.isDef(opt_value)) {
-    if (this.scale_ != opt_value) {
-      this.scale_ = opt_value;
-      this.scale_.listenSignals(this.scaleInvalidated_, this);
-      this.dropBoundsCache_();
-      this.invalidate(this.ALL_VISUAL_STATES_, anychart.Signal.NEEDS_REDRAW | anychart.Signal.BOUNDS_CHANGED);
+    var val = anychart.scales.Base.setupScale(this.scale_, opt_value, null,
+        anychart.scales.Base.ScaleTypes.ALL_DEFAULT, null, this.scaleInvalidated_, this);
+    if (val) {
+      var dispatch = this.scale_ == val;
+      this.scale_ = /** @type {anychart.scales.Linear} */(val);
+      this.scale_.resumeSignalsDispatching(dispatch);
+      if (!dispatch) {
+        this.dropBoundsCache_();
+        this.invalidate(this.ALL_VISUAL_STATES_, anychart.Signal.NEEDS_REDRAW | anychart.Signal.BOUNDS_CHANGED);
+      }
     }
     return this;
   } else {

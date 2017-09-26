@@ -4,6 +4,7 @@ goog.provide('anychart.standalones.axes.Linear');
 goog.require('acgraph');
 goog.require('anychart.color');
 goog.require('anychart.core.AxisTicks');
+goog.require('anychart.core.IAxis');
 goog.require('anychart.core.IStandaloneBackend');
 goog.require('anychart.core.VisualBase');
 goog.require('anychart.core.reporting');
@@ -34,6 +35,7 @@ goog.require('anychart.utils');
  * @constructor
  * @extends {anychart.core.VisualBase}
  * @implements {anychart.core.IStandaloneBackend}
+ * @implements {anychart.core.IAxis}
  */
 anychart.core.Axis = function() {
   this.suspendSignalsDispatching();
@@ -535,23 +537,25 @@ anychart.core.Axis.prototype.setDefaultOrientation = function(value) {
 
 /**
  * Getter/setter for scale.
- * @param {anychart.scales.Base=} opt_value Scale.
+ * @param {(anychart.scales.Base|Object|anychart.enums.ScaleTypes)=} opt_value Scale.
  * @return {anychart.scales.Base|!anychart.core.Axis} Axis scale or itself for method chaining.
  */
 anychart.core.Axis.prototype.scale = function(opt_value) {
   if (goog.isDef(opt_value)) {
-    if (this.internalScale != opt_value) {
-      if (this.internalScale)
-        this.internalScale.unlistenSignals(this.scaleInvalidated_, this);
-      this.internalScale = opt_value;
-      if (this.internalScale)
-        this.internalScale.listenSignals(this.scaleInvalidated_, this);
+    var val = anychart.scales.Base.setupScale(
+        /** @type {anychart.scales.Base} */(this.scale()),
+        opt_value, null, this.getAllowedScaleTypes(), null, this.scaleInvalidated, this);
+    if (val) {
+      var dispatch = this.internalScale == val;
+      this.internalScale = val;
       this.dropStaggeredLabelsCache_();
       this.dropOverlappedLabelsCache_();
       this.dropBoundsCache();
       this.labels().clear();
       this.minorLabels().clear();
-      this.invalidate(this.ALL_VISUAL_STATES, anychart.Signal.NEEDS_REDRAW | anychart.Signal.BOUNDS_CHANGED);
+      val.resumeSignalsDispatching(dispatch);
+      if (!dispatch)
+        this.invalidate(this.ALL_VISUAL_STATES, anychart.Signal.NEEDS_REDRAW | anychart.Signal.BOUNDS_CHANGED);
     }
     return this;
   } else {
@@ -561,11 +565,20 @@ anychart.core.Axis.prototype.scale = function(opt_value) {
 
 
 /**
+ * @return {anychart.scales.Base.ScaleTypes}
+ * @protected
+ */
+anychart.core.Axis.prototype.getAllowedScaleTypes = function() {
+  return anychart.scales.Base.ScaleTypes.ALL_DEFAULT;
+};
+
+
+/**
  * Internal ticks invalidation handler.
  * @param {anychart.SignalEvent} event Event object.
- * @private
+ * @protected
  */
-anychart.core.Axis.prototype.scaleInvalidated_ = function(event) {
+anychart.core.Axis.prototype.scaleInvalidated = function(event) {
   if (event.hasSignal(anychart.Signal.NEEDS_REAPPLICATION)) {
     this.dropStaggeredLabelsCache_();
     this.dropOverlappedLabelsCache_();
@@ -2199,7 +2212,7 @@ anychart.core.Axis.prototype.disposeInternal = function() {
   anychart.core.Axis.base(this, 'disposeInternal');
 
   if (this.internalScale)
-    this.internalScale.unlistenSignals(this.scaleInvalidated_, this);
+    this.internalScale.unlistenSignals(this.scaleInvalidated, this);
   delete this.internalScale;
   this.labelsBounds_ = null;
   this.minorLabelsBounds_ = null;
