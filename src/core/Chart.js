@@ -1065,12 +1065,12 @@ anychart.core.Chart.contextMenuItems = {
   },
 
   // Item 'Export as ...'.
-  'export-as': {
+  'save-chart-as': {
     'index': 10,
     'text': 'Save chart as...',
     'iconClass': 'ac ac-file-image-o',
     'subMenu': {
-      'export-as-png': {
+      'save-chart-as-png': {
         'index': 10,
         'text': '.png',
         'iconClass': 'ac ac-file-image-o',
@@ -1079,7 +1079,7 @@ anychart.core.Chart.contextMenuItems = {
           context['chart'].saveAsPng();
         }
       },
-      'export-as-jpg': {
+      'save-chart-as-jpg': {
         'index': 20,
         'text': '.jpg',
         'iconClass': 'ac ac-file-image-o',
@@ -1088,7 +1088,7 @@ anychart.core.Chart.contextMenuItems = {
           context['chart'].saveAsJpg();
         }
       },
-      'export-as-pdf': {
+      'save-chart-as-pdf': {
         'index': 30,
         'text': '.pdf',
         'iconClass': 'ac ac-file-pdf-o',
@@ -1097,7 +1097,7 @@ anychart.core.Chart.contextMenuItems = {
           context['chart'].saveAsPdf();
         }
       },
-      'export-as-svg': {
+      'save-chart-as-svg': {
         'index': 40,
         'text': '.svg',
         'iconClass': 'ac ac-file-code-o',
@@ -1270,7 +1270,7 @@ anychart.core.Chart.contextMenuItems = {
 anychart.core.Chart.contextMenuMap = {
   // Menu 'Default menu'.
   'exporting': {
-    'export-as': anychart.core.Chart.contextMenuItems['export-as'],
+    'save-chart-as': anychart.core.Chart.contextMenuItems['save-chart-as'],
     'save-data-as': anychart.core.Chart.contextMenuItems['save-data-as'],
     'share-with': anychart.core.Chart.contextMenuItems['share-with'],
     'print-chart': anychart.core.Chart.contextMenuItems['print-chart'],
