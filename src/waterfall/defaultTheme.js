@@ -67,7 +67,8 @@ goog.mixin(goog.global['anychart']['themes']['defaultTheme'], {
       },
       {
         'type': 'linear',
-        'softMinimum': 0
+        'softMinimum': 0,
+        'stackDirection': 'reverse'
       }
     ]
   }
