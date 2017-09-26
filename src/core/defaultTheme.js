@@ -1613,8 +1613,7 @@ goog.exportSymbol('anychart.themes.defaultTheme', {
         },
         'tooltip': {
           'anchor': 'left-top'
-        },
-        'stackDirection': 'reverse'
+        }
       },
       'column': {
         'tooltip': {

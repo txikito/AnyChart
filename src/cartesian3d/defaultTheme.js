@@ -34,7 +34,9 @@ goog.mixin(goog.global['anychart']['themes']['defaultTheme'], {
         'scale': 0
       }
     ],
-    'stackDirection': 'reverse'
+    'yScale': {
+      'stackDirection': 'reverse'
+    }
   },
   // merge with column
   'column3d': {
