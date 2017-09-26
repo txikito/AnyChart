@@ -783,6 +783,7 @@ goog.exportSymbol('anychart.fromXml', anychart.fromXml);//doc|ex
 goog.exportSymbol('anychart.onDocumentLoad', anychart.onDocumentLoad);//doc|need-ex
 goog.exportSymbol('anychart.onDocumentReady', anychart.onDocumentReady);//doc|ex
 goog.exportSymbol('anychart.licenseKey', anychart.licenseKey);//doc|ex
+goog.exportSymbol('anychart.isValidKey', anychart.isValidKey);
 goog.exportSymbol('anychart.theme', anychart.theme);
 goog.exportSymbol('anychart.appendTheme', anychart.appendTheme);
 goog.exportSymbol('anychart.global', anychart.global);

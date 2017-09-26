@@ -38,7 +38,8 @@ anychart.chartEditor2Module.AppearanceSettings = function(model, opt_domHelper) 
     {classFunc: anychart.chartEditor2Module.YAxesPanel, instance: null},
     {classFunc: anychart.chartEditor2Module.TooltipPanel, instance: null},
     {classFunc: anychart.chartEditor2Module.GridsPanel, instance: null},
-    {classFunc: anychart.chartEditor2Module.ContextMenuPanel, instance: null}
+    {classFunc: anychart.chartEditor2Module.ContextMenuPanel, instance: null},
+    {classFunc: anychart.chartEditor2Module.CreditsPanel, instance: null}
   ];
 
   this.currentPanel_ = 0;
