@@ -1,6 +1,6 @@
 #!/bin/bash
 
-if [ "${TRAVIS_BRANCH}" = "master" ] || [[ "RC-8.0.0" == RC-* ]]; then
+if [ "${TRAVIS_BRANCH}" = "master" ] || [[ "${TRAVIS_BRANCH}" =~ ^RC-[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
     VERSION=$(python build.py version)
 elif [ "${TRAVIS_BRANCH}" = "develop" ]; then
     VERSION=$(python build.py version -c)

@@ -19,5 +19,4 @@ script:
 
 
 after_success:
-  - ./bin/upload_release_files.sh
   - curl -X POST $TESTS_HOST/ci_test --data "branch=$TRAVIS_BRANCH&commit=$TRAVIS_COMMIT"
