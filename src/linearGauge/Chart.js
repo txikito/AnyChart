@@ -574,7 +574,7 @@ anychart.linearGaugeModule.Chart.prototype.data = function(opt_value, opt_csvSet
  */
 anychart.linearGaugeModule.Chart.prototype.invalidatePointers = function() {
   for (var i = this.pointers_.length; i--;)
-    this.pointers_[i].invalidate(anychart.ConsistencyState.APPEARANCE | anychart.ConsistencyState.GAUGE_POINTER_LABEL);
+    this.pointers_[i].invalidate(anychart.ConsistencyState.APPEARANCE | anychart.ConsistencyState.GAUGE_POINTER_LABELS);
 };
 
 
@@ -820,7 +820,7 @@ anychart.linearGaugeModule.Chart.prototype.onAxisSignal_ = function(event) {
 anychart.linearGaugeModule.Chart.prototype.scale = function(opt_value) {
   if (goog.isDef(opt_value)) {
     var val = anychart.scales.Base.setupScale(this.scale_, opt_value, anychart.enums.ScaleTypes.LINEAR,
-        anychart.scales.Base.ScaleTypes.SCATTER, ['Linear gauge scale', 'scatter', 'linear, log']);
+        anychart.scales.Base.ScaleTypes.SCATTER_OR_DATE_TIME, ['Linear gauge scale', 'scatter', 'linear, log, date-time']);
     if (val) {
       this.scale_ = val;
       this.scale_.resumeSignalsDispatching(false);

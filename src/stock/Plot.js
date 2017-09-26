@@ -1335,6 +1335,10 @@ anychart.stockModule.Plot.prototype.yScale = function(opt_value) {
       var dispatch = this.yScale_ == val;
       this.yScale_ = /** @type {anychart.scales.ScatterBase} */(val);
       this.yScale_.resumeSignalsDispatching(dispatch);
+      if (!dispatch) {
+        this.invalidateRedrawable(false);
+        this.dispatchSignal(anychart.Signal.NEEDS_REDRAW);
+      }
     }
     return this;
   } else {
@@ -2736,8 +2740,6 @@ anychart.stockModule.Plot.prototype.serialize = function() {
   var config;
   var objId;
   var i;
-
-  anychart.core.settings.serialize(this, anychart.stockModule.Plot.PROPERTY_DESCRIPTORS, json);
 
   anychart.core.settings.serialize(this, anychart.stockModule.Plot.PROPERTY_DESCRIPTORS, json);
 
